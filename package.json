@@ -1,0 +1,16 @@
+{
+  "name": "linagora-rse",
+  "version": "0.0.0",
+  "description": "Linagora RSE",
+  "main": "index.js",
+  "dependencies": {
+    "express": "~3.4.7",
+    "socket.io": "~0.9.16"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test/scipts/tests.sh"
+  },
+  "author": "",
+  "license": "BSD-2-Clause"
+}
