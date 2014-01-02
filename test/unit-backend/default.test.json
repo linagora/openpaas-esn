@@ -1,7 +1,7 @@
 {
   "webserver": {
     "enabled": true,
-    "port": 8080,
+    "port": 8081,
     "virtualhosts": []
   },
   "wsserver": {
@@ -10,18 +10,18 @@
   },
   "log": {
     "file": {
-      "enabled": true,
+      "enabled": false,
       "filename": "./log/mozilla-updater.log",
       "level": "info",
-      "handleExceptions": true,
+      "handleExceptions": false,
       "json": false,
       "prettyPrint": true,
       "colorize": false
     },
     "console": {
-      "enabled": true,
+      "enabled": false,
       "level": "debug",
-      "handleExceptions": true,
+      "handleExceptions": false,
       "json": false,
       "prettyPrint": true,
       "colorize": true
