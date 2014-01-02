@@ -52,21 +52,16 @@ module.exports = function(grunt) {
 
   grunt.registerTask('gjslint', 'run the closure linter', function() {
     var done = this.async();
+    
     var child = require('child_process').spawn('python', ['./scripts/gjslint.py', '--disable', '0110', '--nojsdoc', '-r', 'test', '-r', 'backend']);
-    child.stdout.on('data', function(chunk) {
-      grunt.log.write(chunk);
-    });
-    child.stderr.on('data', function(chunk) {
-      grunt.log.error(chunk);
-    });
-    child.on('close',function(code) {
-      done(code ? false : true);
-    });
+    
+    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
+    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
+    child.on('close',function(code) { done(code ? false : true); });
   });
 
 
   grunt.registerTask('test', ['jshint', 'gjslint', 'test-backend']);
-
   grunt.registerTask('default', ['test']);
 
 };
