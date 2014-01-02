@@ -26,5 +26,6 @@
       "prettyPrint": true,
       "colorize": true
     }
-  }
+  },
+  "for-the-test": "This key is only set in the test configuration file"
 }
