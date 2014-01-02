@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         require: ['chai', 'mockery'],
         reporter: 'spec'
       },
-      all: ['test/unit-backend/**/*.js']
+      all: ['test/unit-backend/all.js', 'test/unit-backend/**/*.js']
     }
   });
   grunt.loadNpmTasks('grunt-contrib-uglify');

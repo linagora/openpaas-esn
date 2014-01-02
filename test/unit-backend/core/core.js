@@ -1,14 +1,9 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
 var BASEPATH = '../../..';
+var expect = require('chai').expect;
 
 describe('The Core module', function() {
-
-  beforeEach(function() {
-    mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
-  });
 
   it('should contains a config property', function() {
     var core = require(BASEPATH + '/backend/core');
@@ -22,9 +17,10 @@ describe('The Core module', function() {
     expect(core.logger).to.be.a.function;
   });
 
-  afterEach(function() {
-    mockery.resetCache();
-    mockery.deregisterAll();
-    mockery.disable();
+  it('should read/set the NODE_ENV environment variable', function() {
+    /*jshint unused:false */
+    var core = require(BASEPATH + '/backend/core');
+    expect(process.env.NODE_ENV).to.equal('test');
   });
+
 });
