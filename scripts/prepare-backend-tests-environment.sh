@@ -39,8 +39,6 @@ if [ $RET -ne 0 ] ; then
   echo "Error: can't copy $CONFIG_FILE to $CONFIG_TARGET_FILE"
 fi
 
-export NODE_ENV="test"
-
 # mocha --colors --reporter spec test/unit-backend/**/*.js test/unit-backend/
 
 # rm -f "$CONFIG_TARGET_FILE"
