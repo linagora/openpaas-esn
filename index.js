@@ -1,28 +1,31 @@
 var async = require('async');
 
 function startWebServer(callback) {
-  var webserver = require('./backend/webserver');
- 
-  if ( !webserver ) {
+  if ( !config.webserver.enabled ) {
     return callback();
   }
   
-  webserver.start(function(err) {
+  var webserver = require('./backend/webserver');
+ 
+  webserver.start(config.webserver.port, config.webserver.virtualhosts, function(err) {
     if ( err ) {
       console.log('webserver failed to start:',err);
+      if ( err.syscall === 'listen' && err.code === 'EADDRINUSE' ) {
+        console.log('Something is already listening on the webserver port', config.webserver.port);
+      }
     }
     callback.apply(this,arguments);
   });
 };
 
 function startWsServer(callback) {
-  var server = require('./backend/wsserver');
- 
-  if ( !server ) {
+  if ( !config.wsserver.enabled ) {
     return callback();
   }
   
-  server.start(function(err) {
+  var server = require('./backend/wsserver');
+   
+  server.start(config.wsserver.port, function(err) {
     if ( err ) {
       console.log('websocket server failed to start:',err);
     }
@@ -30,20 +33,12 @@ function startWsServer(callback) {
   });
 };
 
-function startCore(callback) {
-  var error = null;
-  try {
-    var core = require('./backend/core');
-    console.log('core bootstraped, configuration =',process.env.NODE_ENV);    
-  } catch (err) {
-    error = err;
-    console.log('core failed to initialize:',err.stack);
-  }
-  callback.call(this,error);
-};
+var core = require('./backend/core');
+console.log('core bootstraped, configuration =',process.env.NODE_ENV);    
+var config = core.config('default');
 
 
-async.series([startCore, startWebServer, startWsServer], function(err) {
+async.series([startWebServer, startWsServer], function(err) {
   if ( err ) {
     console.log('Fatal error:',err);
     if ( err.stack ) {
