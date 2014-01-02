@@ -5,11 +5,25 @@
   "main": "index.js",
   "dependencies": {
     "express": "~3.4.7",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "konphyg": "~1.2.3",
+    "winston": "~0.7.2",
+    "async": "~0.2.9",
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-shell": "~0.6.1",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-mocha-cli": "~1.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "~1.8.1",
+    "mockery": "~1.4.0"
+  },
   "scripts": {
-    "test": "node test/scipts/tests.sh"
+    "start": "node index.js"
   },
   "author": "",
   "license": "BSD-2-Clause"
