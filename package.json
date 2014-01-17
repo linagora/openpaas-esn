@@ -26,5 +26,5 @@
     "start": "node index.js"
   },
   "author": "",
-  "license": "BSD-2-Clause"
+  "license": "AGPLv3"
 }
