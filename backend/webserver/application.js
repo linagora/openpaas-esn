@@ -20,15 +20,18 @@ var lessMiddlewareConfig = {
   }
 };
 
+
 var application = express();
 exports = module.exports = application;
-application.set('views', __dirname + '/views');
+application.set('views', frontendPath + '/views');
 application.set('view engine', 'jade');
 
 application.use(lessMiddleware(
   process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production : lessMiddlewareConfig.dev
 ));
 application.use('/css', express.static(cssPath));
+application.use(express.logger());
+application.use(express.static(frontendPath + '/components'));
 
 application.use(i18n.init); // Should stand before app.route
 application.use(express.json());
@@ -42,5 +45,4 @@ var routes = __dirname + '/routes';
 fs.readdirSync(routes).forEach(function(file) {
   require(routes + '/' + file)(application);
 });
-
 
