@@ -1,0 +1,30 @@
+{
+  "name": "Linagora RSE",
+  "main": "index.js",
+  "version": "0.0.0",
+  "authors": [
+    "Linagora folks"
+  ],
+  "description": "Enterprise Social Network",
+  "keywords": [
+    "social",
+    "network",
+    "data",
+    "mining"
+  ],
+  "license": "AGPLv3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "frontend/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.0.3",
+    "angular": "~1.2.9",
+    "angular-route": "~1.2.9",
+    "angular-mocks": "~1.2.9"
+  }
+}
