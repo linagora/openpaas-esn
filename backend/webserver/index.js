@@ -2,7 +2,7 @@
 
 var express = require('express');
 var logger = require('../core').logger;
-var serverApplication = express();
+var serverApplication = require('./application');
 
 var webserver = {
   application: serverApplication,

@@ -77,7 +77,9 @@ describe('The WebSockets server module', function() {
           return {
             listen: function(serverPort) {
               return serverInstance;
-            }
+            },
+            use: function() {},
+            set: function() {}
           };
         };
 
@@ -118,7 +120,9 @@ describe('The WebSockets server module', function() {
           return {
             listen: function(serverPort) {
               return serverInstance;
-            }
+            },
+            use: function() {},
+            set: function() {}
           };
         };
 
