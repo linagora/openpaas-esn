@@ -59,7 +59,9 @@ describe('The Webserver module', function() {
               done(new Error('serverPort ' + serverPort + ' is not configuration port ' + port));
             }
             return {on: function() {}};
-          }
+          },
+          use: function() {},
+          set: function() {}
         };
       };
 
@@ -85,7 +87,9 @@ describe('The Webserver module', function() {
               },
               removeListener: function() {}
             };
-          }
+          },
+          use: function() {},
+          set: function() {}
         };
       };
 
@@ -117,7 +121,9 @@ describe('The Webserver module', function() {
         return {
           listen: function(serverPort) {
             return serverInstance;
-          }
+          },
+          use: function() {},
+          set: function() {}
         };
       };
       mockery.registerMock('express', expressMock);
@@ -147,7 +153,9 @@ describe('The Webserver module', function() {
         return {
           listen: function(serverPort) {
             return serverInstance;
-          }
+          },
+          use: function() {},
+          set: function() {}
         };
       };
       mockery.registerMock('express', expressMock);
