@@ -12,7 +12,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     err: null
   };
   $scope.record={
-    results: 'none',
+    status: 'none',
     err: null,
     running: false
   };
@@ -36,7 +36,11 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       })
       .error(function(data) {
         $scope.test.status='error';
-        $scope.test.err=data.error+': '+data.reason;
+        if ( data.err && data.reason ) {
+          $scope.test.err=data.error+': '+data.reason;
+        } else {
+          $scope.test.err=arguments[1]+': '+arguments[0];
+        }
       })
       .finally(function() {
         $scope.test.running = false;
@@ -53,8 +57,15 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
         $scope.step++;
       })
       .error(function(data){
-        $scope.record.results = 'error';
-        $scope.record.err = data;
+        $scope.record.status = 'error';
+        if( data.error && data.reason ) {
+          $scope.record.err = data;
+        } else {
+          $scope.record.err = {
+            error: arguments[1],
+            reason: arguments[0]
+          };
+        }
       })
       .finally(function() {
         $scope.record.running = false;
