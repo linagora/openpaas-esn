@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupAPI', function($scope, setupAPI) {
   $scope.settings = {};
   $scope.settings.hostname = null;
@@ -12,8 +14,8 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
   $scope.record={};
 
   $scope.infocomplete = function() {
-    return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname;
-  }
+    return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname ? true : false;
+  };
 
   $scope.testConnection = function() {
     $scope.test.running=true;
@@ -27,7 +29,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       })
       .finally(function() {
         $scope.test.running = false;
-      })
+      });
   };
 
   $scope.recordSettings = function() {
@@ -38,26 +40,26 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       .error(function(data){
         $scope.record.results = 'error';
         $scope.record.err = data;
-      })
+      });
   };
 
 }]).service('setupAPI', ['$http', function($http) {
 
     function testConnection(hostname, port, dbname) {
-      var url = '/api/setup/database/test/connection/'
-                +encodeURIComponent(hostname)+'/'
-                +encodeURIComponent(port)+'/'
-                +encodeURIComponent(dbname);
+      var url = '/api/setup/database/test/connection/'+
+                encodeURIComponent(hostname)+'/'+
+                encodeURIComponent(port)+'/'+
+                encodeURIComponent(dbname);
       return $http.get(url);
     }
 
     function recordSettings(settings) {
       return $http.put('/api/setup/settings', settings);
-    };
+    }
 
     return {
       testConnection: testConnection,
       recordSettings: recordSettings
     };
-
-}]);
+  }
+]);
