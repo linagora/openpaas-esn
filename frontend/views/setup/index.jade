@@ -1,0 +1,50 @@
+extends ../layout
+
+block body
+    div.container(ng-cloak ng-app='setupApp' ng-controller='wizardController')
+        div.page-header
+            h1 Setup your software
+
+        div.jumbotron(ng-hide='step != 0')
+            h2 Welcome to the Linagora Enterprise Social Network !
+            div
+                p The following wizard will help you configuring the software.
+                p You need a running MongoDB database server.
+
+            button.btn(ng-click='step = step + 1') Next
+
+        div(ng-hide='step != 1')
+            h2 Configure access to the MongoDB server
+            div.row
+                form(role='form')
+                    .form-group.row
+                        label(for='hostname') Hostname
+                        input(ng-model='settings.hostname' type='text' class='form-control' id='hostname' placeholder='Database Server Name')
+                    .form-group.row
+                        label(for='port') Port
+                        input(ng-model='settings.port' type='number' class='form-control' id='port' placeholder='Database Server Port')
+                    .form-group.row
+                        label(for='dbname') Database Name
+                        input(ng-model='settings.dbname' type='text' class='form-control' id='dbname' placeholder='Database Name')
+                    .row
+                        .pull-right
+                            button(ng-disabled='!infocomplete()' ng-click='testConnection()' type='button' class='btn btn-info') Test connection
+                            &nbsp;
+                    .row(ng-show="test.status=='success'")
+                        .pull-right
+                            div Successfull connection to the database
+                    .row(ng-show="test.status=='error'")
+                        .pull-right
+                            div {{test.err}}
+                    .row
+                        .pull-right
+                            button(type='button' class='btn btn-primary' ng-disabled="test.status!='success'" ng-click='recordSettings()') Next
+                    .row(ng-show="record.status=='error'")
+                        .pull-right
+                            div {{record.err.error}}: {{record.err.reason}}
+
+        div(ng-hide='step != 2')
+            h1 Wonderful ! The setup is done.
+            p Please reload this page to get started with Linagora ESN.
+
+
