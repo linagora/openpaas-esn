@@ -11,13 +11,24 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     status: 'none',
     err: null
   };
-  $scope.record={};
+  $scope.record={
+    results: 'none',
+    err: null,
+    running: false
+  };
 
+  $scope.ajaxRunning = function() {
+    return $scope.record.running || $scope.test.running ? true : false;
+  };
+  
   $scope.infocomplete = function() {
     return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname ? true : false;
   };
 
   $scope.testConnection = function() {
+    if ( $scope.ajaxRunning() ) {
+      return ;
+    }
     $scope.test.running=true;
     setupAPI.testConnection($scope.settings.hostname, $scope.settings.port,$scope.settings.dbname)
       .success(function() {
@@ -33,6 +44,10 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
   };
 
   $scope.recordSettings = function() {
+    if ( $scope.ajaxRunning() ) {
+      return ;
+    }
+    $scope.record.running = true;
     setupAPI.recordSettings($scope.settings)
       .success(function() {
         $scope.step++;
@@ -40,6 +55,9 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       .error(function(data){
         $scope.record.results = 'error';
         $scope.record.err = data;
+      })
+      .finally(function() {
+        $scope.record.running = false;
       });
   };
 
