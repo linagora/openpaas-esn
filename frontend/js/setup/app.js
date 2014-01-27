@@ -17,6 +17,18 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     running: false
   };
 
+  $scope.testButton = {
+    label: 'Test connection',
+    notRunning: 'Test connection',
+    running: 'Testing database connection...'
+  };
+  
+  $scope.recordButton = {
+    label: 'Next',
+    notRunning: 'Next',
+    running: 'Recording settings on the server...'
+  };
+  
   $scope.ajaxRunning = function() {
     return $scope.record.running || $scope.test.running ? true : false;
   };
@@ -30,6 +42,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       return ;
     }
     $scope.test.running=true;
+    $scope.testButton.label = $scope.testButton.running;
     setupAPI.testConnection($scope.settings.hostname, $scope.settings.port,$scope.settings.dbname)
       .success(function() {
         $scope.test.status='success';
@@ -44,6 +57,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       })
       .finally(function() {
         $scope.test.running = false;
+        $scope.testButton.label = $scope.testButton.notRunning;
       });
   };
 
@@ -52,6 +66,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       return ;
     }
     $scope.record.running = true;
+    $scope.recordButton.label = $scope.recordButton.running;
     setupAPI.recordSettings($scope.settings)
       .success(function() {
         $scope.step++;
@@ -69,6 +84,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       })
       .finally(function() {
         $scope.record.running = false;
+        $scope.recordButton.label = $scope.recordButton.notRunning;
       });
   };
 

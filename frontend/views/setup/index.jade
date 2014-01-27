@@ -28,7 +28,9 @@ block body
                         input(ng-model='settings.dbname' type='text' class='form-control' id='dbname' placeholder='Database Name' ng-disabled='ajaxRunning()')
                     .row
                         .pull-right
-                            button(ng-disabled='!infocomplete()' ng-click='testConnection()' type='button' class='btn btn-info') Test connection
+                            button(ng-disabled='!infocomplete() || ajaxRunning()' ng-click='testConnection()' type='button' class='btn btn-info')
+                              i.fa.fa-spinner(ng-hide="!test.running") &nbsp;
+                              &nbsp;{{testButton.label}}
                             &nbsp;
                     .row(ng-show="test.status=='success'")
                         .pull-right
@@ -38,7 +40,9 @@ block body
                             div {{test.err}}
                     .row
                         .pull-right
-                            button(type='button' class='btn btn-primary' ng-disabled="test.status!='success'" ng-click='recordSettings()') Next
+                            button(type='button' class='btn btn-primary' ng-disabled="test.status!='success' || ajaxRunning()" ng-click='recordSettings()')
+                              i.fa.fa-spinner(ng-hide="!record.running") &nbsp;
+                              {{recordButton.label}}
                     .row(ng-show="record.status=='error'")
                         .pull-right
                             div {{record.err.error}}: {{record.err.reason}}
