@@ -44,7 +44,7 @@
     "nodemon" : "1.0.13"
   },
   "scripts": {
-    "start": "NODE_ENV=production ./node_modules/.bin/nodemon index.js"
+    "start": "NODE_ENV=production ./node_modules/.bin/nodemon -e js,jade index.js"
   },
   "author": "",
   "license": "AGPLv3"
