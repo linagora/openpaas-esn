@@ -1,0 +1,5 @@
+{
+  "mongo" : {
+    "url" : "mongodb://locahost:27017/foo"
+  }
+}
