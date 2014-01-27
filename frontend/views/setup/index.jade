@@ -19,13 +19,13 @@ block body
                 form(role='form')
                     .form-group.row
                         label(for='hostname') Hostname
-                        input(ng-model='settings.hostname' type='text' class='form-control' id='hostname' placeholder='Database Server Name' ng-disabled='ajaxRunning()')
+                        input(ng-model='settings.hostname' ng-change='test.status="none"' type='text' class='form-control' id='hostname' placeholder='Database Server Name' ng-disabled='ajaxRunning()')
                     .form-group.row
                         label(for='port') Port
-                        input(ng-model='settings.port' type='number' class='form-control' id='port' placeholder='Database Server Port' ng-disabled='ajaxRunning()')
+                        input(ng-model='settings.port' ng-change='test.status="none"' type='number' class='form-control' id='port' placeholder='Database Server Port' ng-disabled='ajaxRunning()')
                     .form-group.row
                         label(for='dbname') Database Name
-                        input(ng-model='settings.dbname' type='text' class='form-control' id='dbname' placeholder='Database Name' ng-disabled='ajaxRunning()')
+                        input(ng-model='settings.dbname' ng-change='test.status="none"' type='text' class='form-control' id='dbname' placeholder='Database Name' ng-disabled='ajaxRunning()')
                     .row
                         .pull-right
                             button(ng-disabled='!infocomplete() || ajaxRunning()' ng-click='testConnection()' type='button' class='btn btn-info')
