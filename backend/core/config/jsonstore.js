@@ -13,7 +13,7 @@ var fs = require('fs');
  * @return {string} the configuration file descriptor
  */
 function file(path) {
-  return path || __dirname + '../../../config/db.json';
+  return path || __dirname + '../../../config/default.wizard.json';
 }
 
 exports = module.exports = function(path) {
@@ -56,13 +56,13 @@ exports = module.exports = function(path) {
       // read the file, append the data to the JSON and write it back
       this.all(function(err, json) {
         if (err) {
+          console.log(err);
           // the file may not be already here, ignore it
         }
 
         var out = json || {};
         out[key] = data;
         fs.writeFile(file(path), JSON.stringify(out), function(err) {
-
           if (err) {
             callback(err);
           } else {

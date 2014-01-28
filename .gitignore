@@ -4,3 +4,5 @@ config/default.test.json
 config/default.production.json
 config/runtime.json
 frontend/components
+tmp/
+.idea

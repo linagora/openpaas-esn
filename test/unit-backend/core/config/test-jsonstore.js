@@ -1,6 +1,8 @@
 'use strict';
 
 var expect = require('chai').expect;
+var fs = require('fs');
+var path = require('path');
 
 var BASEPATH = '../../../..';
 
@@ -88,6 +90,17 @@ describe('The Core module config jsonstore', function() {
   describe('The push function', function() {
     var tmp = __dirname + '/' + BASEPATH + '/tmp';
 
+    beforeEach(function() {
+      var p = path.resolve(tmp);
+      if (fs.exists(p)) {
+        fs.mkdirSync(p);
+      }
+    });
+
+    afterEach(function() {
+      //fs.rmdirSync(path.resolve(tmp));
+    });
+
     it('should fail on null key', function() {
       var jsonstore = require(BASEPATH + '/backend/core/config/jsonstore')();
       jsonstore.push(null, {}, function(err) {
@@ -104,7 +117,6 @@ describe('The Core module config jsonstore', function() {
 
     it('should create the file if it does not exists', function() {
       var file = tmp + '/testcreatepush.json';
-      var fs = require('fs');
 
       if (fs.existsSync(file)) {
         fs.unlinkSync(file);
@@ -122,11 +134,6 @@ describe('The Core module config jsonstore', function() {
       // copy an existing file to a folder then add data
       var file = __dirname + '/../fixtures/jsonstore-mongo.json';
       var out = __dirname + '/' + BASEPATH + '/tmp/testpushconfig.json';
-
-      var fs = require('fs');
-      if (!fs.existsSync(tmp)) {
-        fs.mkdirSync(tmp);
-      }
 
       // do not do it with stream for now
       //fs.createReadStream(file).pipe(fs.createWriteStream(tmp));
