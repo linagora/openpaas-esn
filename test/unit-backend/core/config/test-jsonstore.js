@@ -98,7 +98,6 @@ describe('The Core module config jsonstore', function() {
     });
 
     afterEach(function() {
-      //fs.rmdirSync(path.resolve(tmp));
     });
 
     it('should fail on null key', function() {
@@ -124,7 +123,6 @@ describe('The Core module config jsonstore', function() {
 
       var jsonstore = require(BASEPATH + '/backend/core/config/jsonstore')(file);
       jsonstore.push('foo', { bar: 'baz'}, function(err) {
-        // FIXME : Why undefined here and not null?
         expect(err).to.be.undefined;
         expect(fs.existsSync(file)).to.be.true;
       });
@@ -135,8 +133,6 @@ describe('The Core module config jsonstore', function() {
       var file = __dirname + '/../fixtures/jsonstore-mongo.json';
       var out = __dirname + '/' + BASEPATH + '/tmp/testpushconfig.json';
 
-      // do not do it with stream for now
-      //fs.createReadStream(file).pipe(fs.createWriteStream(tmp));
       var json = JSON.parse(fs.readFileSync(file));
       fs.writeFileSync(out, JSON.stringify(json));
 
