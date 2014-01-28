@@ -11,7 +11,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     status: 'none',
     err: null
   };
-  $scope.record={
+  $scope.record = {
     status: 'none',
     err: null,
     running: false
@@ -22,48 +22,48 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     notRunning: 'Test connection',
     running: 'Testing database connection...'
   };
-  
+
   $scope.recordButton = {
     label: 'Next',
     notRunning: 'Next',
     running: 'Recording settings on the server...'
   };
-  
+
   $scope.ajaxRunning = function() {
     return $scope.record.running || $scope.test.running ? true : false;
   };
-  
+
   $scope.infocomplete = function() {
     return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname ? true : false;
   };
 
   $scope.testConnection = function() {
-    if ( $scope.ajaxRunning() ) {
-      return ;
+    if ($scope.ajaxRunning()) {
+      return;
     }
-    $scope.test.running=true;
+    $scope.test.running = true;
     $scope.testButton.label = $scope.testButton.running;
-    setupAPI.testConnection($scope.settings.hostname, $scope.settings.port,$scope.settings.dbname)
+    setupAPI.testConnection($scope.settings.hostname, $scope.settings.port, $scope.settings.dbname)
       .success(function() {
-        $scope.test.status='success';
+        $scope.test.status = 'success';
       })
       .error(function(data) {
-        $scope.test.status='error';
-        if ( data.err && data.reason ) {
-          $scope.test.err=data.error+': '+data.reason;
+        $scope.test.status = 'error';
+        if (data.err && data.reason) {
+          $scope.test.err = data.error + ': ' + data.reason;
         } else {
-          $scope.test.err=arguments[1]+': '+arguments[0];
+          $scope.test.err = arguments[1] + ': ' + arguments[0];
         }
       })
-      .finally(function() {
+      .finally (function() {
         $scope.test.running = false;
         $scope.testButton.label = $scope.testButton.notRunning;
       });
   };
 
   $scope.recordSettings = function() {
-    if ( $scope.ajaxRunning() ) {
-      return ;
+    if ($scope.ajaxRunning()) {
+      return;
     }
     $scope.record.running = true;
     $scope.recordButton.label = $scope.recordButton.running;
@@ -71,9 +71,9 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       .success(function() {
         $scope.step++;
       })
-      .error(function(data){
+      .error(function(data) {
         $scope.record.status = 'error';
-        if( data.error && data.reason ) {
+        if (data.error && data.reason) {
           $scope.record.err = data;
         } else {
           $scope.record.err = {
@@ -82,7 +82,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
           };
         }
       })
-      .finally(function() {
+      .finally (function() {
         $scope.record.running = false;
         $scope.recordButton.label = $scope.recordButton.notRunning;
       });
@@ -91,9 +91,9 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
 }]).service('setupAPI', ['$http', function($http) {
 
     function testConnection(hostname, port, dbname) {
-      var url = '/api/setup/database/test/connection/'+
-                encodeURIComponent(hostname)+'/'+
-                encodeURIComponent(port)+'/'+
+      var url = '/api/setup/database/test/connection/' +
+                encodeURIComponent(hostname) + '/' +
+                encodeURIComponent(port) + '/' +
                 encodeURIComponent(dbname);
       return $http.get(url);
     }
