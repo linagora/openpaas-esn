@@ -69,7 +69,7 @@ describe('The Core module config jsonstore', function() {
       });
     });
 
-    it('should return error if key is null', function () {
+    it('should return error if key is null', function() {
       var jsonstore = require(BASEPATH + '/backend/core/config/jsonstore')(__dirname + '/../fixtures/jsonstore-mongo.json');
       jsonstore.get(null, function(err, json) {
         expect(err).to.be.not.null;

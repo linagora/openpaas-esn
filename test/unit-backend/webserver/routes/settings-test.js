@@ -3,7 +3,6 @@
 var BASEPATH = '../../../..';
 
 var expect = require('chai').expect;
-var mockery = require('mockery');
 var request = require('supertest');
 var path = require('path');
 var fs = require('fs');
@@ -27,7 +26,7 @@ describe('The settings routes resource', function() {
     if (!fs.exists(tmp)) {
       try {
         fs.mkdirSync(tmp);
-      } catch(err) {
+      } catch (err) {
 
       }
     }
@@ -40,7 +39,7 @@ describe('The settings routes resource', function() {
 
   describe('GET /api/settings', function() {
 
-    it('should fail by default', function () {
+    it('should fail by default', function() {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -49,7 +48,7 @@ describe('The settings routes resource', function() {
       });
     });
 
-    it('should not fail on valid data', function () {
+    it('should not fail on valid data', function() {
       var data = fs.readFileSync(fixture);
       fs.writeFileSync(tmp + '/settings.json', data);
 
@@ -71,14 +70,13 @@ describe('The settings routes resource', function() {
     var data = fs.readFileSync(fixture);
     fs.writeFileSync(tmp + '/settings.json', data);
 
-    it('should return error on null name', function () {
+    it('should return error on null name', function() {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
       request(webserver.application).get('/api/settings/foo').expect('Content-Type', /json/).expect(500).end(function(err, res) {
         expect(err).to.be.null;
-        console.log(res.body)
       });
     });
 
@@ -101,23 +99,23 @@ describe('The settings routes resource', function() {
     var file = tmp + '/settings.json';
     fs.writeFileSync(file, data);
 
-    it('should fail on empty name', function () {
+    it('should fail on empty name', function() {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
-      request(webserver.application).post('/api/settings/').send({ url : 'foo'}).expect(404).end(function(err, res) {
+      request(webserver.application).post('/api/settings/').send({ url: 'foo'}).expect(404).end(function(err, res) {
         expect(err).to.be.null;
       });
     });
 
-    it('should store data', function () {
+    it('should store data', function() {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
       var url = 'imap://localhost';
-      request(webserver.application).post('/api/settings/imap').send({url : url}).expect(200).end(function(err, res) {
+      request(webserver.application).post('/api/settings/imap').send({url: url}).expect(200).end(function(err, res) {
         expect(err).to.be.null;
         var config = JSON.parse(fs.readFileSync(file));
         expect(config.imap).to.be.not.null;

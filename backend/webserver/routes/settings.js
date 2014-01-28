@@ -2,7 +2,7 @@
 // Settings resource.
 //
 
-'use strict'
+'use strict';
 
 var path = require('path');
 
@@ -21,7 +21,7 @@ exports = module.exports = function(application) {
     store.all(function(err, data) {
       if (err) {
         console.log(err);
-        return res.json(500, { error : 'Can not get settings configuration'});
+        return res.json(500, { error: 'Can not get settings configuration'});
       }
       res.json(data);
     });
@@ -29,9 +29,9 @@ exports = module.exports = function(application) {
 
   application.get('/api/settings/:name', function(req, res) {
     store.get(req.params.name, function(err, data) {
-      if(err) {
+      if (err) {
         console.log(err);
-        return res.json(500, { error : 'Can not get settings for ' + req.params.name});
+        return res.json(500, { error: 'Can not get settings for ' + req.params.name});
       }
       res.json(data);
     });
@@ -39,15 +39,16 @@ exports = module.exports = function(application) {
 
   application.post('/api/settings/:name', function(req, res) {
     if (!req.params.name) {
-      return res.json(400, {error : 'Bad request, settings key can not be empty'});
+      return res.json(400, {error: 'Bad request, settings key can not be empty'});
     }
 
     store.push(req.params.name, req.body, function(err, data) {
-      if(err) {
+      if (err) {
         console.log(err);
-        return res.json(500, { error : 'Can not get settings for ' + req.params.name});
+        return res.json(500, { error: 'Can not get settings for ' + req.params.name});
       }
       res.send(200);
     });
   });
-}
+};
+
