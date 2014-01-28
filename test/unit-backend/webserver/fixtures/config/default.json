@@ -29,7 +29,7 @@
   },
   "core": {
     "config": {
-      "jsonstore": "./tmp/settings.json"
+      "db": "./tmp/db.json"
     }
   },
   "for-the-test": "This key is only set in the test configuration file"

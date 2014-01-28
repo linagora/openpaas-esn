@@ -4,7 +4,7 @@
 // This may be useful for tests
 // Note that it loks that konphyg does not handle undefined and null so we have to be it here this way
 var config = process.env.NODE_CONFIG;
-if (config === undefined || config === 'undefined' || config === null || config === 'null') {
+if (!config || config === undefined || config === 'undefined' || config === null || config === 'null') {
   config = __dirname + '/../../../config';
 }
 
