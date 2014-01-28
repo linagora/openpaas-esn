@@ -29,6 +29,18 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     running: 'Recording settings on the server...'
   };
 
+  function onError(data, err, type) {
+    $scope[type].status = 'error';
+    if (data.error && data.reason) {
+      $scope[type].err = data;
+    } else {
+      $scope[type].err = {
+        error: err,
+        reason: data
+      };
+    }
+  }
+
   $scope.ajaxRunning = function() {
     return $scope.record.running || $scope.test.running ? true : false;
   };
@@ -47,13 +59,8 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       .success(function() {
         $scope.test.status = 'success';
       })
-      .error(function(data) {
-        $scope.test.status = 'error';
-        if (data.err && data.reason) {
-          $scope.test.err = data.error + ': ' + data.reason;
-        } else {
-          $scope.test.err = arguments[1] + ': ' + arguments[0];
-        }
+      .error(function(data, err) {
+        onError(data, err, 'test');
       })
       .finally (function() {
         $scope.test.running = false;
@@ -71,16 +78,8 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
       .success(function() {
         $scope.step++;
       })
-      .error(function(data) {
-        $scope.record.status = 'error';
-        if (data.error && data.reason) {
-          $scope.record.err = data;
-        } else {
-          $scope.record.err = {
-            error: arguments[1],
-            reason: arguments[0]
-          };
-        }
+      .error(function(data, err) {
+        onError(data, err, 'record');
       })
       .finally (function() {
         $scope.record.running = false;
