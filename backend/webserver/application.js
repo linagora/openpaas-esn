@@ -31,7 +31,6 @@ application.use(lessMiddleware(
 application.use('/css', express.static(cssPath));
 
 application.use(i18n.init); // Should stand before app.route
-application.use(express.bodyParser());
 application.use(express.json());
 
 // load the routes from the routes folder
