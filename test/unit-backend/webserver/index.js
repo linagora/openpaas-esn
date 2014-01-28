@@ -49,20 +49,15 @@ describe('The Webserver module', function() {
   describe('the start property', function() {
     var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
     it('should start the web server', function(done) {
-      var expressMock = function() {
-        return {
-          listen: function(serverPort) {
-            var complete = serverPort === port;
-            if (complete) {
-              done();
-            } else {
-              done(new Error('serverPort ' + serverPort + ' is not configuration port ' + port));
-            }
-            return {on: function() {}};
-          },
-          use: function() {},
-          set: function() {}
-        };
+      var expressMock = require('../fixtures/express').express();
+      expressMock.constructorResponse.listen = function(serverPort) {
+        var complete = serverPort === port;
+        if (complete) {
+          done();
+        } else {
+          done(new Error('serverPort ' + serverPort + ' is not configuration port ' + port));
+        }
+        return {on: function() {}};
       };
 
       mockery.registerMock('express', expressMock);
@@ -76,20 +71,15 @@ describe('The Webserver module', function() {
   describe('the start property', function() {
     it('should fire the callback when the server starts', function(done) {
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-      var expressMock = function() {
+      var expressMock = require('../fixtures/express').express();
+      expressMock.constructorResponse.listen = function(serverPort) {
         return {
-          listen: function(serverPort) {
-            return {
-              on: function(event, callback) {
-                if (event === 'listening') {
-                  process.nextTick(callback);
-                }
-              },
-              removeListener: function() {}
-            };
+          on: function(event, callback) {
+            if (event === 'listening') {
+              process.nextTick(callback);
+            }
           },
-          use: function() {},
-          set: function() {}
+          removeListener: function() {}
         };
       };
 
@@ -116,15 +106,9 @@ describe('The Webserver module', function() {
         },
         removeListener: function() {}
       };
-
-      var expressMock = function() {
-        return {
-          listen: function(serverPort) {
-            return serverInstance;
-          },
-          use: function() {},
-          set: function() {}
-        };
+      var expressMock = require('../fixtures/express').express();
+      expressMock.constructorResponse.listen = function(serverPort) {
+        return serverInstance;
       };
       mockery.registerMock('express', expressMock);
       var webserver = require(BASEPATH + '/backend/webserver');
@@ -149,15 +133,11 @@ describe('The Webserver module', function() {
         removeListener: function() {}
       };
 
-      var expressMock = function() {
-        return {
-          listen: function(serverPort) {
-            return serverInstance;
-          },
-          use: function() {},
-          set: function() {}
-        };
+      var expressMock = require('../fixtures/express').express();
+      expressMock.constructorResponse.listen = function(serverPort) {
+        return serverInstance;
       };
+
       mockery.registerMock('express', expressMock);
       var webserver = require(BASEPATH + '/backend/webserver');
 
