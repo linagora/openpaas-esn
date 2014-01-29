@@ -5,7 +5,6 @@ var lessMiddleware = require('less-middleware');
 var path = require('path');
 var frontendPath = path.normalize(__dirname + '/../../frontend');
 var cssPath = frontendPath + '/css';
-var fs = require('fs');
 
 var lessMiddlewareConfig = {
   production: {
@@ -40,11 +39,6 @@ application.use(express.json());
 
 
 // special route middleware to map the setup wizard template and API
-require('./middleware/setup-routes')(application);
+require('./routes/')(application);
 
-// load the routes from the routes folder
-var routes = __dirname + '/routes';
-fs.readdirSync(routes).forEach(function(file) {
-  require(routes + '/' + file)(application);
-});
 
