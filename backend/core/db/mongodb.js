@@ -8,7 +8,7 @@ var MongoClient = require('mongodb').MongoClient;
 /**
  * Checks that we can connect to mongodb
  *
- * @param {string} host
+ * @param {string} hostname
  * @param {string} port
  * @param {string} dbname
  * @param {function} callback

@@ -57,12 +57,7 @@ exports = module.exports = function(application) {
 
     mongodb.checkConnection(hostname, port, dbname, function(err) {
       if (err) {
-        res.json(503, {
-            code: 503,
-            message: 'Connection error',
-            details: err.message
-          }
-        );
+        res.json(503, { error: { code: 503, message: 'Connection error', details: err.message}});
       } else {
         res.json(200);
       }
