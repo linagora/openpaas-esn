@@ -46,7 +46,7 @@ describe('The document store routes resource', function() {
 
   describe('PUT /api/document-store/connection', function() {
 
-    it('should fail on empty payload', function() {
+    it('should fail on empty payload', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -54,10 +54,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on missing hostname', function() {
+    it('should fail on missing hostname', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -65,10 +66,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ port: 27017, dbname: 'hiveety'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on missing port', function() {
+    it('should fail on missing port', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -76,10 +78,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', dbname: 'hiveety'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on missing dbname', function() {
+    it('should fail on missing dbname', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -87,10 +90,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on any other JSON data', function() {
+    it('should fail on any other JSON data', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -98,10 +102,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ foo: 'bar', baz: 1}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on empty hostname', function() {
+    it('should fail on empty hostname', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -109,10 +114,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: '', port: 27017, dbname: 'heevity'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on NaN port', function() {
+    it('should fail on NaN port', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -120,10 +126,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: '27017', dbname: 'heevity'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on port = 0', function() {
+    it('should fail on port = 0', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -131,10 +138,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 0, dbname: 'heevity'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on port < 0', function() {
+    it('should fail on port < 0', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -142,10 +150,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: -10000, dbname: 'heevity'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should fail on empty dbname', function() {
+    it('should fail on empty dbname', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -153,10 +162,11 @@ describe('The document store routes resource', function() {
       request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017, dbname: ''}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
+        done();
       });
     });
 
-    it('should store configuration to file', function() {
+    it('should store configuration to file', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
@@ -174,6 +184,7 @@ describe('The document store routes resource', function() {
           expect(json.hostname).to.equal(mongo.hostname);
           expect(json.port).to.equal(mongo.port);
           expect(json.dbname).to.equal(mongo.dbname);
+          done();
         });
       });
     });
