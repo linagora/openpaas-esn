@@ -37,7 +37,7 @@ block body
                             div Successfull connection to the database
                     .row(ng-show="test.status=='error'")
                         .pull-right
-                            div {{test.err.error}}: {{test.err.reason}}
+                            div {{test.err.message}}: {{test.err.details}}
                     .row
                         .pull-right
                             button(type='button' class='btn btn-primary' ng-disabled="test.status!='success' || ajaxRunning()" ng-click='recordSettings()')
@@ -45,7 +45,7 @@ block body
                               {{recordButton.label}}
                     .row(ng-show="record.status=='error'")
                         .pull-right
-                            div {{record.err.error}}: {{record.err.reason}}
+                            div {{record.err.message}}: {{record.err.details}}
 
         div(ng-hide='step != 2')
             h1 Wonderful ! The setup is done.

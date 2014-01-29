@@ -106,9 +106,9 @@ describe('The Setup Angular module', function() {
     }));
 
     describe('The testConnection method', function() {
-      it('should issue a GET request to /api/setup/database/test/connection/:hostname/:port/:dbname', function(done) {
+      it('should issue a GET request to /api/document-store/connection/:hostname/:port/:dbname', function(done) {
         var responseData = {};
-        this.$httpBackend.expectGET('/api/setup/database/test/connection/hi/80/there').respond(200, responseData);
+        this.$httpBackend.expectGET('/api/document-store/connection/hi/80/there').respond(200, responseData);
         var promise = this.setupAPI.testConnection('hi', 80, 'there');
         expect(promise).to.be.an.object;
         expect(promise).to.have.property('then');
@@ -123,10 +123,10 @@ describe('The Setup Angular module', function() {
     });
 
     describe('The recordSettings method', function() {
-      it('should issue a PUT request to /api/setup/settings', function(done) {
+      it('should issue a PUT request to /api/document-store/connection', function(done) {
         var responseData = {};
 
-        this.$httpBackend.expectPUT('/api/setup/settings', {
+        this.$httpBackend.expectPUT('/api/document-store/connection', {
           hostname: 'hi',
           port: 80,
           dbname: 'there'

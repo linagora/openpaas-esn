@@ -31,12 +31,12 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
 
   function onError(data, err, type) {
     $scope[type].status = 'error';
-    if (data.error && data.reason) {
-      $scope[type].err = data;
+    if (data.error && data.error.message && data.error.details) {
+      $scope[type].err = data.error;
     } else {
       $scope[type].err = {
-        error: err,
-        reason: data
+        message: err,
+        details: data
       };
     }
   }
@@ -90,7 +90,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
 }]).service('setupAPI', ['$http', function($http) {
 
     function testConnection(hostname, port, dbname) {
-      var url = '/api/setup/database/test/connection/' +
+      var url = '/api/document-store/connection/' +
                 encodeURIComponent(hostname) + '/' +
                 encodeURIComponent(port) + '/' +
                 encodeURIComponent(dbname);
@@ -98,7 +98,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     }
 
     function recordSettings(settings) {
-      return $http.put('/api/setup/settings', settings);
+      return $http.put('/api/document-store/connection', settings);
     }
 
     return {
