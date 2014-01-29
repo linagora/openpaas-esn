@@ -5,6 +5,7 @@ var lessMiddleware = require('less-middleware');
 var path = require('path');
 var frontendPath = path.normalize(__dirname + '/../../frontend');
 var cssPath = frontendPath + '/css';
+var fs = require('fs');
 
 var lessMiddlewareConfig = {
   production: {
@@ -30,3 +31,12 @@ application.use(lessMiddleware(
 application.use('/css', express.static(cssPath));
 
 application.use(i18n.init); // Should stand before app.route
+application.use(express.json());
+
+// load the routes from the routes folder
+var routes = __dirname + '/routes';
+fs.readdirSync(routes).forEach(function(file) {
+  require(routes + '/' + file)(application);
+});
+
+

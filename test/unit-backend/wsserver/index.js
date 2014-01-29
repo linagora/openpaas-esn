@@ -73,14 +73,9 @@ describe('The WebSockets server module', function() {
           removeListener: function() {}
         };
 
-        var expressMock = function() {
-          return {
-            listen: function(serverPort) {
-              return serverInstance;
-            },
-            use: function() {},
-            set: function() {}
-          };
+        var expressMock = require('../fixtures/express').express();
+        expressMock.constructorResponse.listen = function(serverPort) {
+          return serverInstance;
         };
 
         mockery.registerMock('socket.io', ioMock);
@@ -115,15 +110,9 @@ describe('The WebSockets server module', function() {
           },
           removeListener: function() {}
         };
-
-        var expressMock = function() {
-          return {
-            listen: function(serverPort) {
-              return serverInstance;
-            },
-            use: function() {},
-            set: function() {}
-          };
+        var expressMock = require('../fixtures/express').express();
+        expressMock.constructorResponse.listen = function(serverPort) {
+          return serverInstance;
         };
 
         mockery.registerMock('socket.io', ioMock);
