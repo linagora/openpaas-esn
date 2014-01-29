@@ -2,6 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
+var mongodb = require('../../core/db/mongodb');
 
 exports = module.exports = function(application) {
 
@@ -46,6 +47,20 @@ exports = module.exports = function(application) {
         return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Can not write database settings for ' + req.params.name}});
       }
       res.json(201, config);
+    });
+  });
+
+  application.get('/api/document-store/connection/:hostname/:port/:dbname', function(req, res) {
+    var hostname = req.params.hostname;
+    var port = req.params.port;
+    var dbname = req.params.dbname;
+
+    mongodb.checkConnection(hostname, port, dbname, function(err) {
+      if (err) {
+        res.json(503, { error: { code: 503, message: 'Connection error', details: err.message}});
+      } else {
+        res.json(200);
+      }
     });
   });
 };
