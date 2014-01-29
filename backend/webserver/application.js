@@ -32,6 +32,7 @@ application.use(lessMiddleware(
 application.use('/css', express.static(cssPath));
 application.use(express.logger());
 application.use('/components', express.static(frontendPath + '/components'));
+application.use('/images', express.static(frontendPath + '/images'));
 application.use('/js', express.static(frontendPath + '/js'));
 
 application.use(i18n.init); // Should stand before app.route
