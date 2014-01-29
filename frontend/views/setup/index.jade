@@ -1,0 +1,66 @@
+doctype html
+html
+    head
+        meta(charset='utf8')
+        base(href='/')
+        title ESN
+        link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
+        link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
+        link(rel='stylesheet', href='/css/style-setup-wizard.css')
+        script(src='/components/jquery/jquery.js')
+        script(src='/components/bootstrap/dist/js/bootstrap.js')
+        script(src='/components/angular/angular.js')
+        script(src='/js/setup/app.js')
+
+    body
+
+      div.container(ng-cloak ng-app='setupApp' ng-controller='wizardController')
+          div.page-header.center
+              h1 Setup your software
+  
+          div.jumbotron.wizard-bg(ng-hide='step != 0')
+              h2 Welcome to the Linagora Enterprise Social Network !
+              div
+                  p The following wizard will help you configuring the software.
+                  p You need a running MongoDB database server.
+  
+              button.btn.pull-right(ng-click='step = step + 1') Next
+  
+          div.wizard-step(ng-hide='step != 1')
+              h2.center.subtitle Configure access to the MongoDB server
+              div.wizard-bg
+                div.form-container
+                  form(role="form")
+                    div.form-group
+                      label(for='hostname') Database Server Hostname
+                      input(ng-model='settings.hostname' ng-change='test.status="none"' type='text' class='form-control' id='hostname' ng-disabled='ajaxRunning()')
+                    div.form-group
+                      label(for='port') Database Server Port
+                      input(ng-model='settings.port' ng-change='test.status="none"' type='number' class='form-control' id='port' ng-disabled='ajaxRunning()')
+                    div.form-group
+                      label(for='dbname') Database Name
+                      input(ng-model='settings.dbname' ng-change='test.status="none"' type='text' class='form-control' id='dbname' ng-disabled='ajaxRunning()')
+                    
+                    div.test-feedback(ng-show="test.status=='success'")
+                      div.text-success Successfull connection to the database
+                    div.test-feedback(ng-show="test.status=='error'")
+                      div.text-danger {{test.err.message}}: {{test.err.details}}
+                    
+                    button.pull-left.btn.btn-info(ng-disabled='!infocomplete() || ajaxRunning()' ng-click='testConnection()' type='button')
+                      i.fa.fa-spinner(ng-hide="!test.running") &nbsp;
+                      &nbsp;{{testButton.label}}
+  
+                    button.pull-right.btn.btn-primary(type='button' ng-disabled="test.status!='success' || ajaxRunning()" ng-click='recordSettings()')
+                      i.fa.fa-spinner(ng-hide="!record.running") &nbsp;
+                      {{recordButton.label}}
+  
+                    div(ng-show="record.status=='error'")
+                      .pull-right
+                        div.text-danger {{record.err.message}}: {{record.err.details}}
+                    .clearfix &nbsp;
+          div(ng-hide='step != 2')
+            div.wizard-bg
+              h2 Wonderful ! The setup is done.
+              p Please reload this page to get started with Linagora ESN.
+  
+  
