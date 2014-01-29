@@ -33,6 +33,10 @@ application.use('/css', express.static(cssPath));
 application.use(i18n.init); // Should stand before app.route
 application.use(express.json());
 
+
+// special route middleware to map the setup wizard template and API
+require('./middleware/setup-routes')(application);
+
 // load the routes from the routes folder
 var routes = __dirname + '/routes';
 fs.readdirSync(routes).forEach(function(file) {
