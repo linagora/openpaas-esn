@@ -189,4 +189,55 @@ describe('The document store routes resource', function() {
       });
     });
   });
+
+  describe('GET /api/document-store/connection', function() {
+
+    it('should fail with invalid parameters', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).get('/api/document-store/connection/').expect(404).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should be successful with localhost:27017 parameters', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).get('/api/document-store/connection/localhost/27017/openpassrse-test').expect('Content-Type', /json/).expect(200).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should fail on localhost with invalid port', function(done) {
+      // set higher timeout than the mongo one so we can catch error
+      this.timeout(30000);
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).get('/api/document-store/connection/localhost/28017/openpassrse-test').expect('Content-Type', /json/).expect(503).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should fail with invalid parameters', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).get('/api/document-store/connection/localhost/openpassrse-test').expect(404).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+
+  });
 });
