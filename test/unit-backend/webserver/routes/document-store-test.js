@@ -226,18 +226,5 @@ describe('The document store routes resource', function() {
         done();
       });
     });
-
-    it('should fail with invalid parameters', function(done) {
-      var webserver = require(BASEPATH + '/backend/webserver');
-      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-      webserver.start(port);
-
-      request(webserver.application).get('/api/document-store/connection/localhost/openpassrse-test').expect(404).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
-    });
-
-
   });
 });
