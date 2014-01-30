@@ -221,9 +221,13 @@ describe('The document store routes resource', function() {
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
-      request(webserver.application).get('/api/document-store/connection/localhost/28017/openpassrse-test').expect('Content-Type', /json/).expect(503).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
+      var findport = require('find-port');
+      findport(27020, 27050, function(ports) {
+        expect(ports).to.have.length.of.at.least(1);
+        request(webserver.application).get('/api/document-store/connection/localhost/' + ports[0] + '/openpassrse-test').expect('Content-Type', /json/).expect(503).end(function(err, res) {
+          expect(err).to.be.null;
+          done();
+        });
       });
     });
   });
