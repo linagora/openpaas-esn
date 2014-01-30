@@ -44,7 +44,7 @@ exports = module.exports = function(application) {
 
     fs.writeFile(settings, JSON.stringify(data), function(err) {
       if (err) {
-        return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Can not write database settings for ' + req.params.name}});
+        return res.json(500, { error: { status: 500, message: 'Can not write database settings in file ' + settings, details: err.message}});
       }
       res.json(201, config);
     });
