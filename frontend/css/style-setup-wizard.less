@@ -42,19 +42,31 @@ body {
   background-color: #eecb25;
   color: #fff;
   font-weight: bold;
+  border: none;
 }
 
 .btn-primary[disabled] {
   background-color: #eed870;
   color: #fff;
   font-weight: bold;
-  border-color: #eed870;
+  border: none;
 }
 
 .btn-info {
   background-color: #4a82eb;
-  border-color: none;
+  border: none;
 }
+
+.btn-info:hover, .btn-info:focus  {
+  background-color: #6695EB;
+  border: none;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #EECF3B;
+  border: none;
+}
+
 
 .form-container {
   padding: 3em;
@@ -66,6 +78,9 @@ body {
 
 .wizard-step {
   border-top: 2px solid #4a82eb;
+  input {
+    background-color: rgba(255,255,255,0.5);
+  }
 }
 
 .test-feedback {
