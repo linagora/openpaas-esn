@@ -2,10 +2,10 @@
 
 exports = module.exports = function(application) {
 
-  require('./views')(application);
-  require('../middleware/setup-routes')(application);
+  require('./controllers/views')(application);
+  require('./middleware/setup-routes')(application);
 
-  var documentstore = require('./document-store');
+  var documentstore = require('./controllers/document-store');
   application.put('/api/document-store/connection', documentstore.store);
   application.get('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
 

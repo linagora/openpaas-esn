@@ -37,8 +37,6 @@ application.use('/js', express.static(frontendPath + '/js'));
 application.use(i18n.init); // Should stand before app.route
 application.use(express.json());
 
-
-// special route middleware to map the setup wizard template and API
-require('./routes/')(application);
+require('./routes')(application);
 
 
