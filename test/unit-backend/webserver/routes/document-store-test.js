@@ -166,6 +166,37 @@ describe('The document store routes resource', function() {
       });
     });
 
+    it('should fail if the file is not written', function(done) {
+      var config = require(BASEPATH + '/backend/core').config('default');
+      config.core = config.core || {};
+      config.core.config = config.core.config || {};
+      config.core.config.db = 'somewhere/not/writable';
+
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+
+      request(webserver.application).put('/api/document-store/connection')
+      .send(mongo)
+      .expect('Content-Type', /json/)
+      .expect(function(res) {
+        if (!res.body.error || !res.body.error.message) {
+          return 'missing error.message property in body';
+        }
+        if (!res.body.error.message.match(/Can not write database settings in file/) ||
+            !res.body.error.message.match(/somewhere\/not\/writable/)) {
+          return 'bad error message in body';
+        }
+      }).expect(500).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+
+
     it('should store configuration to file', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
