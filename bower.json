@@ -28,6 +28,7 @@
     "angular-mocks": "~1.2.9",
     "bootstrap": "~3.0.3",
     "font-awesome": "~4.0.3",
-    "angular-strap": "~2.0.0"
+    "angular-strap": "~2.0.0",
+    "chai": "~1.9.0"
   }
 }
