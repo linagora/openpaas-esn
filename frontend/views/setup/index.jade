@@ -53,14 +53,17 @@ html
                     button.pull-right.btn.btn-primary(type='button' ng-disabled="test.status!='success' || ajaxRunning()" ng-click='recordSettings()')
                       i.fa.fa-spinner(ng-hide="!record.running") &nbsp;
                       {{recordButton.label}}
-  
+                    .clearfix &nbsp;
+                    
                     div(ng-show="record.status=='error'")
                       .pull-right
                         div.text-danger {{record.err.message}}: {{record.err.details}}
-                    .clearfix &nbsp;
+                      .clearfix &nbsp;
+
           div(ng-hide='step != 2')
-            div.wizard-bg
-              h2 Wonderful ! The setup is done.
-              p Please reload this page to get started with Linagora ESN.
+            div.wizard-bg.form-container
+              h2 Wonderful ! The setup is complete.
+              p Well you certainly were expecting a longer, and more complicated journey. Sorry.
+              p.text-primary Please reload this page to get started with Linagora ESN.
   
   
