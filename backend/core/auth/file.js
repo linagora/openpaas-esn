@@ -15,42 +15,6 @@ passport.deserializeUser(function(username, done) {
   done(null, { username: username });
 });
 
-var users;
-try {
-  users = require('../../../config/users.json').users;
-} catch (err) {
-  users = [];
-}
-
-/**
- * Authenticate a user from its username and password
- *
- * @param {String} username
- * @param {String} password
- * @param {Function} done
- */
-function auth(username, password, done) {
-  var user;
-  for (var i in users) {
-    var u = users[i];
-    if (u.username  === username) {
-      user = u;
-    }
-  }
-
-  if (!user) {
-    return done(null, false, { message: 'user not found'});
-  }
-
-  comparePassword(password, user.password, function(err, isMatch) {
-    if (isMatch) {
-      return done(null, { username: username });
-    }
-    return done(null, false, { message: 'invalid password for user ' + username});
-  });
-}
-module.exports = exports = auth;
-
 /**
  * Crypt a password
  *
@@ -81,10 +45,46 @@ function crypt(password, callback) {
  */
 function comparePassword(a, b, cb) {
   bcrypt.compare(a, b, function(err, isMatch) {
-    if(err) {
+    if (err) {
       return cb(err);
     } else {
       cb(null, isMatch);
     }
   });
 }
+
+var users;
+try {
+  users = require('../../../config/users.json').users;
+} catch (err) {
+  users = [];
+}
+
+/**
+ * Authenticate a user from its username and password
+ *
+ * @param {String} username
+ * @param {String} password
+ * @param {Function} done
+ */
+function auth(username, password, done) {
+  var user;
+  for (var i in users) {
+    var u = users[i];
+    if (u.username === username) {
+      user = u;
+    }
+  }
+
+  if (!user) {
+    return done(null, false, { message: 'user not found'});
+  }
+
+  comparePassword(password, user.password, function(err, isMatch) {
+    if (isMatch) {
+      return done(null, { username: username });
+    }
+    return done(null, false, { message: 'invalid password for user ' + username});
+  });
+}
+module.exports = exports = auth;
