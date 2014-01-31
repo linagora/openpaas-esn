@@ -26,5 +26,8 @@
       "prettyPrint": true,
       "colorize": true
     }
+  },
+  "auth": {
+    "strategy": "file"
   }
 }
