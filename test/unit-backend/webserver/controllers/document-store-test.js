@@ -13,7 +13,7 @@ var defaultjson = tmp + '/default.json';
 
 describe('The document store Settings module', function() {
   it('should exist', function() {
-    var settings = require(BASEPATH + '/backend/webserver/routes/document-store');
+    var settings = require(BASEPATH + '/backend/webserver/controllers/document-store');
     expect(settings).to.exists;
   });
 });
