@@ -17,7 +17,7 @@ passport.deserializeUser(function(username, done) {
 
 var users;
 try {
-  users = require('../../config/users.json').users;
+  users = require('../../../config/users.json').users;
 } catch (err) {
   users = [];
 }

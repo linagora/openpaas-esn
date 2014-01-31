@@ -20,7 +20,7 @@ describe('The file-based authentication module', function(done) {
   });
 
   it('should deny access if there are not users in the database', function(done) {
-    mockery.registerMock('../../config/users.json', { users: [] });
+    mockery.registerMock('../../../config/users.json', { users: [] });
     var fileAuth = require('../../../../backend/core/auth/file');
 
     fileAuth('user', 'secret', function(err, result) {
@@ -31,7 +31,7 @@ describe('The file-based authentication module', function(done) {
   });
 
   it('should deny access if the user is not in the database', function(done) {
-    mockery.registerMock('../../config/users.json', { users: [{
+    mockery.registerMock('../../../config/users.json', { users: [{
       username: 'user1',
       password: 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4'
     }] });
@@ -46,7 +46,7 @@ describe('The file-based authentication module', function(done) {
   });
 
   it('should deny access if the wrong password is supplied', function(done) {
-    mockery.registerMock('../../config/users.json', { users: [{
+    mockery.registerMock('../../../config/users.json', { users: [{
       username: 'user1',
       password: '123'
     }] });
@@ -61,7 +61,7 @@ describe('The file-based authentication module', function(done) {
   });
 
   it('should allow access if credentials are ok', function(done) {
-    mockery.registerMock('../../config/users.json', { users: [{
+    mockery.registerMock('../../../config/users.json', { users: [{
       username: 'user1',
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
