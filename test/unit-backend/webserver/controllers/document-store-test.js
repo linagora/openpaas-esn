@@ -185,8 +185,8 @@ describe('The document store routes resource', function() {
         if (!res.body.error || !res.body.error.message) {
           return 'missing error.message property in body';
         }
-        if (!res.body.error.message.match(/Can not write database settings in file/) ||
-            !res.body.error.message.match(/somewhere\/not\/writable/)) {
+        if (!res.body.error.details.match(/Can not write database settings in/) ||
+            !res.body.error.details.match(/somewhere\/not\/writable/)) {
           return 'bad error message in body';
         }
       }).expect(500).end(function(err, res) {

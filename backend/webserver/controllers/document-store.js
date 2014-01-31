@@ -48,7 +48,7 @@ function store(req, res) {
 
   fs.writeFile(settings, JSON.stringify(data), function(err) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Can not write database settings for ' + req.params.name}});
+      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Can not write database settings in ' + settings}});
     }
     res.json(201, config);
   });
