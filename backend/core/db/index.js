@@ -1,5 +1,5 @@
 var dbModule = {
-  mongo: require('./mongodb')
+  mongo: require('./mongo')
 };
 
 module.exports = dbModule;
