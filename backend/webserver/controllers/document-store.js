@@ -2,7 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
-var mongodb = require('../../core/db/mongodb');
+var mongodb = require('../../core').db.mongo;
 var root = path.resolve(__dirname + '/../../..');
 var config = require('../../core').config('default');
 var settings = root + '/config/db.json';
