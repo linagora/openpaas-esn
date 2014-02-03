@@ -46,7 +46,7 @@ function expressApp() {
   });
 
   app.post('/login',
-    passport.authenticate('basic'),
+    passport.authenticate('local'),
     function(req, res) {
       res.send(200, 'hey');
     });
@@ -79,7 +79,7 @@ describe('The passport+express auth', function(done) {
     var app = expressApp();
 
     request(app)
-      .post('/login').auth('user1', 'secret')
+      .post('/login').send('username=user1&password=secret')
       .expect(401).end(function(err, res) {
         console.log(err);
         expect(err).to.be.null;
@@ -96,7 +96,7 @@ describe('The passport+express auth', function(done) {
     var app = expressApp();
 
     request(app)
-      .post('/login').auth('user1', 'secret')
+      .post('/login').send('username=user1&password=secret')
       .expect(200).end(function(err, res) {
         console.log(err);
         expect(err).to.be.null;
@@ -113,7 +113,7 @@ describe('The passport+express auth', function(done) {
     var app = expressApp();
 
     request(app)
-      .post('/login').auth('user1', 'secret')
+      .post('/login').send('username=user1&password=secret')
       .expect(401).end(function(err, res) {
         console.log(err);
         expect(err).to.be.null;
@@ -130,7 +130,7 @@ describe('The passport+express auth', function(done) {
     var app = expressApp();
 
     request(app)
-      .post('/login').auth('user2', 'secret')
+      .post('/login').send('username=user2&password=secret')
       .expect(401).end(function(err, res) {
         console.log(err);
         expect(err).to.be.null;

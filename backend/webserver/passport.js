@@ -5,11 +5,11 @@
 //
 
 var passport = require('passport');
-var BasicStrategy = require('passport-http').BasicStrategy;
+var LocalStrategy = require('passport-local').Strategy;
 var config = require('../core').config('default');
 
 var strategies = {
-  file: new BasicStrategy(require('../core/auth/file'))
+  file: new LocalStrategy(require('../core/auth/file'))
 };
 
 var auth = 'file';

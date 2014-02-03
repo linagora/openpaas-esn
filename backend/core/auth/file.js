@@ -82,7 +82,7 @@ function auth(username, password, done) {
 
   comparePassword(password, user.password, function(err, isMatch) {
     if (isMatch) {
-      return done(null, { username: username });
+      return done(null, user);
     }
     return done(null, false, { message: 'invalid password for user ' + username});
   });

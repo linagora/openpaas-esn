@@ -70,9 +70,9 @@ describe('The file-based authentication module', function(done) {
 
     fileAuth('user1', 'secret', function(err, result) {
       expect(err).to.be.null;
-      expect(result).to.deep.equal({
-        username: 'user1'
-      });
+      expect(result).to.deep.equal(
+        {username: 'user1', password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'}
+      );
       done();
     });
   });
