@@ -39,6 +39,8 @@ function store(req, res) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port must be greater than 0'}});
   }
 
+  data.connectionOptions = mongodb.getDefaultOptions();
+
   fs.writeFile(settings, JSON.stringify(data), function(err) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Can not write database settings in ' + settings}});

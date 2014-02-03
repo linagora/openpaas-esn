@@ -270,6 +270,29 @@ describe('The document store routes resource', function() {
       });
     });
 
+    it('should store configuration default options to file', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+
+      request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.not.null;
+
+        var file = tmp + '/db.json';
+        fs.readFile(file, function(e, data) {
+          expect(e).to.be.null;
+          var json = JSON.parse(data);
+          expect(json.connectionOptions).to.exist;
+          expect(json.connectionOptions.server).to.exist;
+          expect(json.connectionOptions.server.auto_reconnect).to.be.true;
+          done();
+        });
+      });
+    });
+
     it('should store configuration to file with username and password', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
