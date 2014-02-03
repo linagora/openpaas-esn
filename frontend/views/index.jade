@@ -1,9 +1,11 @@
 extends ./layout
-
-block body
-
-  div.container
-    div.page-header.center
-        div.jumbotron.wizard-bg
-            h2 Heevity
-                p ...
+block content
+    h1 Your feed
+    p
+        if user
+            .alert.alert-success.animated
+                i.fa.fa-check
+                strong You are connected as #{user.username || user.email || user.id}&nbsp;
+        else
+            .alert.alert-info
+                a(href='/login') Please sign in
