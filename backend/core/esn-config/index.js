@@ -1,5 +1,6 @@
 'use strict';
 
+var dotty = require('dotty');
 var mongo = require('../../core').db.mongo;
 var collectionName = 'configuration';
 
@@ -8,13 +9,28 @@ function EsnConfig(namespace) {
   this.namespace = namespace;
 }
 
-EsnConfig.prototype.get = function(callback) {
+EsnConfig.prototype.get = function(key, callback) {
+  if (!callback) {
+    callback = key;
+    key = null;
+  }
+
+  function sendResponse(err, doc) {
+    if (err) {
+      return callback(err);
+    } else if (!key) {
+      return callback(null, doc);
+    } else {
+      return callback(null, dotty.get(doc, key));
+    }
+  }
+
   mongo.client(function(err, db) {
     if (err) {
       return callback(err);
     }
     var collection = db.collection(collectionName);
-    collection.findOne({_id: this.namespace}, callback);
+    collection.findOne({_id: this.namespace}, sendResponse);
   }.bind(this));
 };
 

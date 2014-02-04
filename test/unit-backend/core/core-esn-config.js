@@ -64,6 +64,113 @@ describe('The core esn-config module', function() {
       var testConfig = esnConfig('test');
       testConfig.get();
     });
+
+    it('should load the object from the datastore and return the object', function(done) {
+      var obj = {
+        host: 'test.linagora.com',
+        port: 42,
+        options: {
+          neverFails: true
+        }
+      };
+
+      var mongoCollectionMock = {
+        findOne: function(what, callback) {
+          expect(what._id).to.exist;
+          expect(what._id).to.equal('test');
+          callback(null, obj);
+        }
+      };
+
+      var mongoDbMock = {
+        collection: function(name) {
+          expect(name).to.equal('configuration');
+          return mongoCollectionMock;
+        }
+      };
+      this.mongoMock.client = function(callback) {
+        return callback(null, mongoDbMock);
+      };
+
+      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var testConfig = esnConfig('test');
+      testConfig.get(function(err, key) {
+        expect(key).to.deep.equal(obj);
+        done();
+      });
+    });
+
+    it('should load the object from the datastore and return the asked key', function(done) {
+
+      var obj = {
+        host: 'test.linagora.com',
+        port: 42,
+        options: {
+          neverFails: true
+        }
+      };
+
+      var mongoCollectionMock = {
+        findOne: function(what, callback) {
+          expect(what._id).to.exist;
+          expect(what._id).to.equal('test');
+          callback(null, obj);
+        }
+      };
+
+      var mongoDbMock = {
+        collection: function(name) {
+          expect(name).to.equal('configuration');
+          return mongoCollectionMock;
+        }
+      };
+      this.mongoMock.client = function(callback) {
+        return callback(null, mongoDbMock);
+      };
+
+      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var testConfig = esnConfig('test');
+      testConfig.get('host', function(err, key) {
+        expect(key).to.equal('test.linagora.com');
+        done();
+      });
+    });
+
+    it('should load the object from the datastore and return the asked key using dot notation', function(done) {
+
+      var obj = {
+        host: 'test.linagora.com',
+        port: 42,
+        options: {
+          neverFails: true
+        }
+      };
+
+      var mongoCollectionMock = {
+        findOne: function(what, callback) {
+          expect(what._id).to.exist;
+          expect(what._id).to.equal('test');
+          callback(null, obj);
+        }
+      };
+
+      var mongoDbMock = {
+        collection: function(name) {
+          expect(name).to.equal('configuration');
+          return mongoCollectionMock;
+        }
+      };
+      this.mongoMock.client = function(callback) {
+        return callback(null, mongoDbMock);
+      };
+
+      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var testConfig = esnConfig('test');
+      testConfig.get('options.neverFails', function(err, key) {
+        expect(key).to.be.true;
+        done();
+      });
+    });
   });
 
   describe('set method', function() {

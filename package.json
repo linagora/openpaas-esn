@@ -26,7 +26,8 @@
     "passport-local" : "0.1.6",
     "bcrypt-nodejs": "~0.0.3",
     "connect-flash": "0.1.1",
-    "toobusy-js": "~0.3.0"
+    "toobusy-js": "~0.3.0",
+    "dotty": "0.0.2"
   },
   "devDependencies": {
     "chai": "~1.8.1",
