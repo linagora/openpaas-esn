@@ -11,7 +11,7 @@ describe('The file-based authentication module', function(done) {
   });
 
   it('should deny access if the user is not defined', function(done) {
-    var fileAuth = require('../../../../backend/core/auth/file');
+    var fileAuth = require('../../../../backend/core/auth/file').auth;
     fileAuth('foo', 'bar', function(err, result) {
       expect(err).to.be.null;
       expect(result).to.be.false;
@@ -21,7 +21,7 @@ describe('The file-based authentication module', function(done) {
 
   it('should deny access if there are not users in the database', function(done) {
     mockery.registerMock('../../../config/users.json', { users: [] });
-    var fileAuth = require('../../../../backend/core/auth/file');
+    var fileAuth = require('../../../../backend/core/auth/file').auth;
 
     fileAuth('user', 'secret', function(err, result) {
       expect(err).to.be.null;
@@ -36,7 +36,7 @@ describe('The file-based authentication module', function(done) {
       password: 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4'
     }] });
 
-    var fileAuth = require('../../../../backend/core/auth/file');
+    var fileAuth = require('../../../../backend/core/auth/file').auth;
 
     fileAuth('user2', 'secret', function(err, result) {
       expect(err).to.be.null;
@@ -51,7 +51,7 @@ describe('The file-based authentication module', function(done) {
       password: '123'
     }] });
 
-    var fileAuth = require('../../../../backend/core/auth/file');
+    var fileAuth = require('../../../../backend/core/auth/file').auth;
 
     fileAuth('user1', 'invalidPassword', function(err, result) {
       expect(err).to.be.null;
@@ -66,7 +66,7 @@ describe('The file-based authentication module', function(done) {
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
 
-    var fileAuth = require('../../../../backend/core/auth/file');
+    var fileAuth = require('../../../../backend/core/auth/file').auth;
 
     fileAuth('user1', 'secret', function(err, result) {
       expect(err).to.be.null;
@@ -74,6 +74,19 @@ describe('The file-based authentication module', function(done) {
         {username: 'user1', password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'}
       );
       done();
+    });
+  });
+
+  it('should be able to verify its own crypted password', function(done) {
+    var fileAuth = require('../../../../backend/core/auth/file');
+    fileAuth.crypt('secret', function(err, crypted) {
+      expect(err).to.be.null;
+
+      fileAuth.comparePassword('secret', crypted, function(err, match) {
+        expect(err).to.be.null;
+        expect(match).to.be.true;
+        done();
+      });
     });
   });
 

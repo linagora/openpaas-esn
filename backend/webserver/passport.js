@@ -9,7 +9,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var config = require('../core').config('default');
 
 var strategies = {
-  file: new LocalStrategy(require('../core/auth/file'))
+  file: new LocalStrategy(require('../core/auth/file').auth)
 };
 
 var auth = 'file';

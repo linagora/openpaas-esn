@@ -35,6 +35,7 @@ function crypt(password, callback) {
     });
   });
 }
+module.exports.crypt = crypt;
 
 /**
  * Compare passwords
@@ -52,6 +53,7 @@ function comparePassword(a, b, cb) {
     }
   });
 }
+module.exports.comparePassword = comparePassword;
 
 var users;
 try {
@@ -87,4 +89,4 @@ function auth(username, password, done) {
     return done(null, false, { message: 'invalid password for user ' + username});
   });
 }
-module.exports = exports = auth;
+module.exports.auth = auth;
