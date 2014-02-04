@@ -40,7 +40,13 @@ html
                     div.form-group
                       label(for='dbname') Database Name
                       input(ng-model='settings.dbname' ng-change='test.status="none"' type='text' class='form-control' id='dbname' ng-disabled='ajaxRunning()')
-                    
+                    div.form-group
+                      label(for='username') Database connection user name
+                      input(ng-model='settings.username' ng-change='test.status="none"' type='text' class='form-control' id='username' ng-disabled='ajaxRunning()')
+                      span.help-block Fill the username and password fields only if your MongoDB connection requires it.
+                    div.form-group
+                      label(for='password') Database Name
+                      input(type='password' ng-model='settings.password' ng-change='test.status="none"' class='form-control' id='password' ng-disabled='ajaxRunning()')
                     div.test-feedback(ng-show="test.status=='success'")
                       div.text-success Successfull connection to the database
                     div.test-feedback(ng-show="test.status=='error'")

@@ -9,6 +9,6 @@ exports = module.exports = function(application) {
 
   var documentstore = require('./controllers/document-store');
   application.put('/api/document-store/connection', documentstore.store);
-  application.get('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
+  application.put('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
 };
 
