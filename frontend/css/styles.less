@@ -1,0 +1,68 @@
+@import "../components/bootstrap/less/bootstrap";
+
+// Scaffolding
+// -------------------------
+
+html, body {
+  height: 100%;
+}
+
+body {
+  padding-top: 70px;
+}
+
+#wrap {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  /* Negative indent footer by its height */
+  margin: 0 auto -150px;
+  /* Pad bottom by footer height + (optional) extra spacing */
+  padding: 0 0 170px;
+}
+
+#footer {
+  height: 100px;
+  padding-top: 35px;
+  color: @navbar-inverse-color;
+  background-color: @navbar-default-bg;
+  border-top: 1px solid @navbar-default-border;
+}
+
+.login-bg {
+  margin: auto;
+  background: #fff url('../images/setup-wizard-background.png') right bottom no-repeat;
+  max-width: 840px;
+  box-shadow: 0 0 33px #BBB;
+}
+
+.form-container {
+  padding: 3em;
+}
+
+// Navbar
+// -------------------------
+
+@navbar-height: 45px;
+
+.navbar-brand {
+  background-repeat: no-repeat;
+  background-size: 30px;
+  background-position: left center;
+  padding-left: 40px;
+  margin-left: 15px;
+}
+
+.navbar-nav .profile-image {
+  width: 30px;
+  height: 30px;
+  margin: -15px 15px -15px 0;
+}
+
+// Extra space between font-awesome icons and text
+[class^="fa-"],
+[class*="fa-"] {
+  margin-right: 5px;
+}
+
+

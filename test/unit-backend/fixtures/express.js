@@ -8,6 +8,9 @@ exports.express = function() {
   expressMock.static = function() {};
   expressMock.bodyParser = function() {};
   expressMock.json = function() {};
+  expressMock.urlencoded = function() {};
+  expressMock.cookieParser = function() {};
+  expressMock.session = function() {};
   expressMock.constructorResponse = {
     listen: function() {},
     use: function() {},

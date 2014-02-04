@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         require: ['chai', 'mockery'],
         reporter: 'spec'
       },
-      all: ['test/unit-backend/all.js', 'test/unit-backend/**/*.js']
+      all: ['test/unit-backend/all.js', 'test/unit-backend/**/*.js', 'test/midway-backend/all.js', 'test/midway-backend/**/*.js']
     }
   });
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -80,7 +80,6 @@ module.exports = function(grunt) {
     child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
     child.on('close',function(code) { done(code ? false : true); });
   });
-  
   grunt.registerTask('test', ['jshint', 'gjslint', 'test-backend', 'test-frontend']);
   grunt.registerTask('default', ['test']);
 
