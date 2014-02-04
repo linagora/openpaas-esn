@@ -28,6 +28,8 @@ if [ "$WSSERVER_PORT" = "" ] ; then
   WSSERVER_PORT=4567
 fi
 
+mkdir -p tmp >/dev/null 2>&1
+
 CONFIG_FILENAME=$(basename "$CONFIG_FILE")
 CONFIG_TARGET_FILE="config/$CONFIG_FILENAME"
 
