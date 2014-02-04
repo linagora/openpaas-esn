@@ -19,6 +19,8 @@ exports = module.exports = function(application) {
   var home = require('./controllers/home');
   application.get('/', home.index);
 
+  application.get('/api/monitoring', require('./controllers/monitoring'));
+
   var documentstore = require('./controllers/document-store');
   application.put('/api/document-store/connection', documentstore.store);
   application.get('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
