@@ -2,11 +2,15 @@
 
 var request = require('supertest');
 var mockery = require('mockery');
+var fs = require('fs');
+var path = require('path');
 
 var BASEPATH = '../../..';
 
 var cookies;
 var app;
+var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
+var fixture = path.resolve(__dirname + '/../fixtures/default.json');
 
 function expressApp() {
   var webserver = require(BASEPATH + '/backend/webserver');
@@ -18,13 +22,15 @@ function expressApp() {
 
 describe('Passport Views', function() {
   before(function() {
+    process.env.NODE_CONFIG = tmp;
+    fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test', port: 1337}));
+    fs.writeFileSync(tmp + '/default.json', fs.readFileSync(fixture));
     mockery.enable({warnOnUnregistered: false, useCleanCache: true});
 
     mockery.registerMock('../../../config/users.json', { users: [{
       username: 'secret',
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
-
     app = expressApp();
   });
 
@@ -155,5 +161,8 @@ describe('Passport Views', function() {
 
   after(function() {
     mockery.disable();
+    delete process.env.NODE_CONFIG;
+    fs.unlinkSync(path.resolve(tmp + '/db.json'));
+    fs.unlinkSync(path.resolve(tmp + '/default.json'));
   });
 });
