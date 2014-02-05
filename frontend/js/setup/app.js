@@ -46,7 +46,8 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
   };
 
   $scope.infocomplete = function() {
-    return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname ? true : false;
+    var authInfosComplete = ($scope.settings.username && $scope.settings.password) || (!$scope.settings.username && !$scope.settings.password);
+    return $scope.settings.hostname && $scope.settings.port && $scope.settings.dbname && authInfosComplete ? true : false;
   };
 
   $scope.testConnection = function() {
@@ -55,7 +56,7 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
     }
     $scope.test.running = true;
     $scope.testButton.label = $scope.testButton.running;
-    setupAPI.testConnection($scope.settings.hostname, $scope.settings.port, $scope.settings.dbname)
+    setupAPI.testConnection($scope.settings)
       .success(function() {
         $scope.test.status = 'success';
       })
@@ -89,12 +90,17 @@ angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupA
 
 }]).service('setupAPI', ['$http', function($http) {
 
-    function testConnection(hostname, port, dbname) {
+    function testConnection(settings) {
       var url = '/api/document-store/connection/' +
-                encodeURIComponent(hostname) + '/' +
-                encodeURIComponent(port) + '/' +
-                encodeURIComponent(dbname);
-      return $http.get(url);
+                encodeURIComponent(settings.hostname) + '/' +
+                encodeURIComponent(settings.port) + '/' +
+                encodeURIComponent(settings.dbname);
+      var body = {};
+      if (settings.username && settings.password) {
+        body.username = settings.username;
+        body.password = settings.password;
+      }
+      return $http.put(url, body);
     }
 
     function recordSettings(settings) {

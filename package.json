@@ -27,7 +27,9 @@
     "passport-ldapauth": "0.1.2",
     "underscore": "1.5.2",
     "bcrypt-nodejs": "~0.0.3",
-    "connect-flash": "0.1.1"
+    "connect-flash": "0.1.1",
+    "toobusy-js": "~0.3.0",
+    "dotty": "0.0.2"
   },
   "devDependencies": {
     "chai": "~1.8.1",
@@ -46,7 +48,7 @@
     "karma-mocha": "~0.1.1",
     "karma-coverage": "~0.1.4",
     "karma-spec-reporter": "0.0.8",
-    "nodemon" : "1.0.13",
+    "nodemon": "1.0.13",
     "supertest": "0.9.0",
     "find-port": "0.0.3",
     "connect-flash": "0.1.1"
