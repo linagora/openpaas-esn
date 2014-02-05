@@ -2,7 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
-var mongodb = require('../../core/db/mongodb');
+var mongodb = require('../../core').db.mongo;
 var root = path.resolve(__dirname + '/../../..');
 var config = require('../../core').config('default');
 var settings = root + '/config/db.json';
@@ -38,6 +38,8 @@ function store(req, res) {
   if (p <= 0) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port must be greater than 0'}});
   }
+
+  data.connectionOptions = mongodb.getDefaultOptions();
 
   fs.writeFile(settings, JSON.stringify(data), function(err) {
     if (err) {

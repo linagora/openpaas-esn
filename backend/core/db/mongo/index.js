@@ -55,6 +55,11 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   return 'mongodb:' + url.format(connectionHash);
 }
 
+
+var getTimeout = function() {
+  return process.env.MONGO_TIMEOUT || 10000;
+};
+
 /**
  * Checks that we can connect to mongodb
  *
@@ -87,3 +92,34 @@ function validateConnection(hostname, port, dbname, username, password, callback
 
 module.exports.validateConnection = validateConnection;
 module.exports.getConnectionString = getConnectionString;
+
+function getDefaultOptions() {
+  var timeout = getTimeout();
+  return {
+    db: {
+      w: 'majority',
+      native_parser: true,
+      fsync: true,
+      journal: true
+    },
+    server: {
+      socketOptions: {
+        connectTimeoutMS: timeout,
+        socketTimeoutMS: timeout
+      },
+      auto_reconnect: true
+    }
+  };
+}
+
+module.exports.getDefaultOptions = getDefaultOptions;
+
+module.exports.client = function(callback) {
+  var config = require('../../core').config('db');
+  if (!config || !config.hostname) {
+    return callback(new Error('MongoDB configuration not set'));
+  }
+  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
+  var connectionOptions = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
+  MongoClient.connect(url, connectionOptions, callback);
+};
