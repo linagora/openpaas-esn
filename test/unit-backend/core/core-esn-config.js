@@ -32,6 +32,20 @@ describe('The core esn-config module', function() {
     expect(testConfig).to.have.property('store');
   });
 
+  it('should target by default the configuration collection', function() {
+    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var testConfig = esnConfig('test');
+    expect(testConfig).to.have.property('collectionName');
+    expect(testConfig.collectionName).to.equal('configuration');
+  });
+
+  it('should target another collection if we pass it as the second argument', function() {
+    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var testConfig = esnConfig('test', 'anotherCollection');
+    expect(testConfig).to.have.property('collectionName');
+    expect(testConfig.collectionName).to.equal('anotherCollection');
+  });
+
   it('should return null when the namespace is not set', function() {
     var esnConfig = require(BASEPATH + '/backend/core/esn-config');
     var testConfig = esnConfig();
