@@ -4,6 +4,9 @@
 
 var MongoClient = require('mongodb').MongoClient;
 var url = require('url');
+var fs = require('fs');
+var mongoose = require('mongoose');
+var mongooseConnected = false;
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
@@ -55,7 +58,6 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   return 'mongodb:' + url.format(connectionHash);
 }
 
-
 var getTimeout = function() {
   return process.env.MONGO_TIMEOUT || 10000;
 };
@@ -97,10 +99,9 @@ function getDefaultOptions() {
   var timeout = getTimeout();
   return {
     db: {
-      w: 'majority',
+      w: 1,
       native_parser: true,
-      fsync: true,
-      journal: true
+      fsync: true
     },
     server: {
       socketOptions: {
@@ -114,12 +115,41 @@ function getDefaultOptions() {
 
 module.exports.getDefaultOptions = getDefaultOptions;
 
-module.exports.client = function(callback) {
-  var config = require('../../core').config('db');
+function getConnectionStringAndOptions() {
+  var config = require(__dirname + '/../../../core').config('db');
   if (!config || !config.hostname) {
-    return callback(new Error('MongoDB configuration not set'));
+    return false;
   }
   var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
-  var connectionOptions = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
-  MongoClient.connect(url, connectionOptions, callback);
+  var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
+  return {url: url, options: options};
+}
+
+module.exports.client = function(callback) {
+  var connectionInfos = getConnectionStringAndOptions();
+  if (!connectionInfos) {
+    return callback(new Error('MongoDB configuration not set'));
+  }
+  MongoClient.connect(connectionInfos.url, connectionInfos.options, callback);
 };
+
+module.exports.mongoose = function() {
+  if (!mongooseConnected) {
+    var connectionInfos = getConnectionStringAndOptions();
+    if (!connectionInfos) {
+      throw new Error('RSE database configuration not found');
+    }
+    mongoose.connect(connectionInfos.url, connectionInfos.options);
+    mongooseConnected = true;
+  }
+  return mongoose;
+};
+
+// lazy load models
+module.exports.models = {};
+fs.readdirSync(__dirname + '/models').forEach(function(filename) {
+  var stat = fs.statSync(__dirname + '/models/' + filename);
+  if (!stat.isFile()) { return; }
+  function load() { return require('./models/' + filename); }
+  exports.__defineGetter__(filename.replace(/.js$/, ''), load);
+});
