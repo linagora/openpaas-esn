@@ -19,7 +19,6 @@ if (config.core && config.core.config && config.core.config.db) {
  * @return {json|*|json|json|json|json}
  */
 function store(req, res) {
-
   var data = req.body;
   if (!data.hostname || !data.port || !data.dbname) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'hostname, port and dbname are required'}});
@@ -29,27 +28,7 @@ function store(req, res) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'username and password should both be set or both left empty'}});
   }
 
-  var hostname = data.hostname;
   var port = data.port;
-  var dbname = data.dbname;
-  var username = data.username;
-  var password = data.password;
-
-  if (hostname.length === 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'hostname is invalid (length == 0)'}});
-  }
-
-  if (dbname.length === 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'dbname is invalid (length == 0)'}});
-  }
-
-  if (username && username.length === 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'username is invalid (length == 0)'}});
-  }
-
-  if (password && password.length === 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'password is invalid (length == 0)'}});
-  }
 
   if (port !== parseInt(port)) {
     return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port is not a number'}});
@@ -85,7 +64,7 @@ function test(req, res) {
     username = req.body.username;
     password = req.body.password;
   }
-  mongodb.checkConnection(hostname, port, dbname, username, password, function(err) {
+  mongodb.validateConnection(hostname, port, dbname, username, password, function(err) {
     if (err) {
       res.json(503, { error: { code: 503, message: 'Connection error', details: err.message}});
     } else {

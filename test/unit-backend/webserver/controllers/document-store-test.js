@@ -327,10 +327,10 @@ describe('The document store routes resource', function() {
       });
     });
 
-    it('should call the mongodb.checkConnection method with credentials when they are set', function(done) {
+    it('should call the mongodb.validateConnection method with credentials when they are set', function(done) {
 
       this.mongoDbMock = {
-        checkConnection: function(hostname, port, dbname, username, password, callback) {
+        validateConnection: function(hostname, port, dbname, username, password, callback) {
           expect(hostname).to.equal('localhost');
           expect(port).to.equal('42');
           expect(dbname).to.equal('rsetest');

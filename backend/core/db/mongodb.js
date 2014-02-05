@@ -65,13 +65,7 @@ function getConnectionString(hostname, port, dbname, username, password, connect
  * @param {string} password
  * @param {function} callback
  */
-function checkConnection(hostname, port, dbname, username, password, callback) {
-  if (!hostname || !port || !dbname) {
-    return callback(new Error('hostname, port and dbname are required'));
-  }
-  if ((username && !password) || (!username && password)) {
-    return callback(new Error('username and password should both be set or both left empty'));
-  }
+function validateConnection(hostname, port, dbname, username, password, callback) {
 
   var connectionString = getConnectionString(hostname, port, dbname, username, password);
 
@@ -91,5 +85,5 @@ function checkConnection(hostname, port, dbname, username, password, callback) {
   });
 }
 
-module.exports.checkConnection = checkConnection;
+module.exports.validateConnection = validateConnection;
 module.exports.getConnectionString = getConnectionString;
