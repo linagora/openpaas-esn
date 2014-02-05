@@ -6,7 +6,6 @@ var fs = require('fs');
 var path = require('path');
 
 var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
-console.log(tmp);
 
 describe('The passport configuration module', function() {
 

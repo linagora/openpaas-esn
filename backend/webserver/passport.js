@@ -5,11 +5,9 @@ var _ = require('underscore')._;
 var config = require('../core').config('default');
 
 passport.serializeUser(function(user, done) {
-  console.log('Serialize user : ', user);
   done(null, user.username);
 });
 passport.deserializeUser(function(username, done) {
-  console.log('Deserialize user : ', username);
   done(null, { username: username });
 });
 
