@@ -28,6 +28,6 @@
     }
   },
   "auth": {
-    "strategy": "file"
+    "strategies": ["local"]
   }
 }

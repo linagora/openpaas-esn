@@ -1,15 +1,15 @@
 'use strict';
 
-var auth = require('./middleware/authorization');
-var passport = require('passport');
+var authorize = require('./middleware/authorization');
+var authenticate = require('./middleware/authentication');
 
 exports = module.exports = function(application) {
 
   var users = require('./controllers/users');
   application.get('/login', users.login);
-  application.post('/login', passport.authenticate('local', {failureRedirect: '/login', failureFlash: 'Invalid login or password.'}), users.logmein);
+  application.post('/login', authenticate.isAuthenticated, users.logmein);
   application.get('/logout', users.logout);
-  application.get('/account', auth.requiresLogin, users.account);
+  application.get('/account', authorize.requiresLogin, users.account);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);

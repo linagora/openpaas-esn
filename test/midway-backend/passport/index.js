@@ -16,7 +16,7 @@ function expressApp() {
   return app;
 }
 
-describe('Passport Views', function() {
+describe('Passport Local', function() {
   before(function() {
     mockery.enable({warnOnUnregistered: false, useCleanCache: true});
 
