@@ -1,7 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var BASEPATH = '../../..';
+var BASEPATH = '../../../..';
 
 describe('The Core DB MongoDB module', function() {
   describe('getConnectionString method', function() {
