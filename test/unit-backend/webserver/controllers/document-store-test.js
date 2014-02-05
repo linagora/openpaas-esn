@@ -363,7 +363,7 @@ describe('The document store routes resource', function() {
         }
       };
 
-      mockery.registerMock('../../core/db/mongodb', this.mongoDbMock);
+      mockery.registerMock('./mongo', this.mongoDbMock);
       var middleware = require(BASEPATH + '/backend/webserver/controllers/document-store');
 
       var requestMock = {

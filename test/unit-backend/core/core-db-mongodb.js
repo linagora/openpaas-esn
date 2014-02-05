@@ -6,12 +6,12 @@ var BASEPATH = '../../..';
 describe('The Core DB MongoDB module', function() {
   describe('getConnectionString method', function() {
     it('should return a string mongodb://hostname:port/dbname', function() {
-      var mongo = require(BASEPATH + '/backend/core/db/mongodb');
+      var mongo = require(BASEPATH + '/backend/core').db.mongo;
       expect(mongo.getConnectionString('localhost', 'port', 'base', null, null, {})).to.equal('mongodb://localhost:port/base');
     });
 
     it('should return a string mongodb://username:password@hostname:port/dbname', function() {
-      var mongo = require(BASEPATH + '/backend/core/db/mongodb');
+      var mongo = require(BASEPATH + '/backend/core').db.mongo;
       expect(mongo.getConnectionString('localhost', 'port', 'base', 'user', 'pass', {})).to.equal('mongodb://user:pass@localhost:port/base');
     });
   });
