@@ -114,12 +114,12 @@ function getDefaultOptions() {
 
 module.exports.getDefaultOptions = getDefaultOptions;
 
-module.exports.client = function(url, callback) {
+module.exports.client = function(callback) {
   var config = require('../../core').config('db');
   if (!config || !config.hostname) {
     return callback(new Error('MongoDB configuration not set'));
   }
-
+  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
   var connectionOptions = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
   MongoClient.connect(url, connectionOptions, callback);
 };
