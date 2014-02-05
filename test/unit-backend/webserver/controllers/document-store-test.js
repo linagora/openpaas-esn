@@ -6,6 +6,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var path = require('path');
 var fs = require('fs');
+var mockery = require('mockery');
 
 var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
 var fixture = __dirname + '/../fixtures/config/default.json';
@@ -166,6 +167,55 @@ describe('The document store routes resource', function() {
       });
     });
 
+
+    it('should fail when username is set and password is not set', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017, dbname: 'then', username: 'toto'}).expect(400).end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.not.null;
+        done();
+      });
+    });
+
+    it('should fail when username is set and password length is zero', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017, dbname: 'then', username: 'toto', password: ''}).expect(400).end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.not.null;
+        done();
+      });
+    });
+
+    it('should fail when username is not set and password is set', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017, dbname: 'then', password: 'chain'}).expect(400).end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.not.null;
+        done();
+      });
+    });
+
+    it('should fail when username is zero and password is set', function(done) {
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 27017, dbname: 'then', username: '', password: 'chain'}).expect(400).end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.not.null;
+        done();
+      });
+    });
+
     it('should fail if the file is not written', function(done) {
       var config = require(BASEPATH + '/backend/core').config('default');
       config.core = config.core || {};
@@ -219,27 +269,42 @@ describe('The document store routes resource', function() {
         });
       });
     });
-  });
 
-  describe('GET /api/document-store/connection', function() {
-
-    it('should fail with invalid parameters', function(done) {
+    it('should store configuration to file with username and password', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
-      request(webserver.application).get('/api/document-store/connection/').expect(404).end(function(err, res) {
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok', username: 'toto', password: 'chain'};
+
+      request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
-        done();
+        expect(res.body).to.be.not.null;
+
+        var file = tmp + '/db.json';
+        fs.readFile(file, function(e, data) {
+          expect(e).to.be.null;
+          var json = JSON.parse(data);
+          expect(json.hostname).to.equal(mongo.hostname);
+          expect(json.port).to.equal(mongo.port);
+          expect(json.dbname).to.equal(mongo.dbname);
+          expect(json.username).to.equal(mongo.username);
+          expect(json.password).to.equal(mongo.password);
+          done();
+        });
       });
     });
+
+  });
+
+  describe('PUT /api/document-store/connection/:hostname/:port/:dbname', function() {
 
     it('should be successful with localhost:27017 parameters', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
-      request(webserver.application).get('/api/document-store/connection/localhost/27017/openpassrse-test').expect('Content-Type', /json/).expect(200).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection/localhost/27017/openpassrse-test').expect('Content-Type', /json/).expect(200).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
@@ -255,11 +320,47 @@ describe('The document store routes resource', function() {
       var findport = require('find-port');
       findport(27020, 27050, function(ports) {
         expect(ports).to.have.length.of.at.least(1);
-        request(webserver.application).get('/api/document-store/connection/localhost/' + ports[0] + '/openpassrse-test').expect('Content-Type', /json/).expect(503).end(function(err, res) {
+        request(webserver.application).put('/api/document-store/connection/localhost/' + ports[0] + '/rsetest').expect('Content-Type', /json/).expect(503).end(function(err, res) {
           expect(err).to.be.null;
           done();
         });
       });
     });
+
+    it('should call the mongodb.validateConnection method with credentials when they are set', function(done) {
+
+      this.mongoDbMock = {
+        validateConnection: function(hostname, port, dbname, username, password, callback) {
+          expect(hostname).to.equal('localhost');
+          expect(port).to.equal('42');
+          expect(dbname).to.equal('rsetest');
+          expect(username).to.equal('john');
+          expect(password).to.equal('doe');
+          done();
+        }
+      };
+
+      mockery.registerMock('../../core/db/mongodb', this.mongoDbMock);
+      var middleware = require(BASEPATH + '/backend/webserver/controllers/document-store');
+
+      var requestMock = {
+        params: {
+          hostname: 'localhost',
+          port: '42',
+          dbname: 'rsetest'
+        },
+        body: {
+          username: 'john',
+          password: 'doe'
+        }
+      };
+
+      var responseMock = {
+        json: function() {}
+      };
+
+      middleware.test(requestMock, responseMock);
+    });
+
   });
 });

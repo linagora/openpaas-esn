@@ -42,10 +42,36 @@ describe('The Setup Angular module', function() {
         this.scope.settings.port = 3245;
         expect(this.scope.infocomplete()).to.be.false;
       });
-      it('should return true if all data is set', function() {
+      it('should return false if the username is set, but not the password', function() {
         this.scope.settings.hostname = 'hi';
         this.scope.settings.dbname = 'there';
         this.scope.settings.port = 3245;
+        this.scope.settings.username = 'john';
+        expect(this.scope.infocomplete()).to.be.false;
+      });
+      it('should return false if the password is set, but not the username', function() {
+        this.scope.settings.hostname = 'hi';
+        this.scope.settings.dbname = 'there';
+        this.scope.settings.port = 3245;
+        this.scope.settings.password = 'doe';
+        expect(this.scope.infocomplete()).to.be.false;
+      });
+
+      it('should return true if all data is set, and there are no auth settings', function() {
+        this.scope.settings.hostname = 'hi';
+        this.scope.settings.dbname = 'there';
+        this.scope.settings.port = 3245;
+        this.scope.settings.username = '';
+        this.scope.settings.password = '';
+        expect(this.scope.infocomplete()).to.be.true;
+      });
+
+      it('should return true if all data is set, and there are auth settings', function() {
+        this.scope.settings.hostname = 'hi';
+        this.scope.settings.dbname = 'there';
+        this.scope.settings.port = 3245;
+        this.scope.settings.username = 'john';
+        this.scope.settings.password = 'doe';
         expect(this.scope.infocomplete()).to.be.true;
       });
     });
@@ -62,10 +88,14 @@ describe('The Setup Angular module', function() {
         this.scope.settings.hostname = 'hi';
         this.scope.settings.dbname = 'there';
         this.scope.settings.port = 42;
-        this.setupAPImock.testConnection = function(host, port, dbname) {
-          expect(host).to.equal('hi');
-          expect(port).to.equal(42);
-          expect(dbname).to.equal('there');
+        this.scope.settings.username = 'john';
+        this.scope.settings.password = 'doe';
+        this.setupAPImock.testConnection = function(settings) {
+          expect(settings.hostname).to.equal('hi');
+          expect(settings.port).to.equal(42);
+          expect(settings.dbname).to.equal('there');
+          expect(settings.username).to.equal('john');
+          expect(settings.password).to.equal('doe');
           done();
         };
         this.scope.testConnection();
@@ -106,10 +136,36 @@ describe('The Setup Angular module', function() {
     }));
 
     describe('The testConnection method', function() {
-      it('should issue a GET request to /api/document-store/connection/:hostname/:port/:dbname', function(done) {
+      it('should issue a PUT request to /api/document-store/connection/:hostname/:port/:dbname', function(done) {
         var responseData = {};
-        this.$httpBackend.expectGET('/api/document-store/connection/hi/80/there').respond(200, responseData);
-        var promise = this.setupAPI.testConnection('hi', 80, 'there');
+        this.$httpBackend.expectPUT('/api/document-store/connection/hi/80/there', {}).respond(200, responseData);
+        var promise = this.setupAPI.testConnection({
+          hostname: 'hi',
+          port: 80,
+          dbname: 'there'
+        });
+        expect(promise).to.be.an.object;
+        expect(promise).to.have.property('then');
+        expect(promise.then).to.be.a.function;
+        promise.then(function(response) {
+          expect(response.data).to.deep.equal(responseData);
+          done();
+        },function() {done();});
+
+        this.$httpBackend.flush();
+      });
+
+      it('should issue a PUT request to /api/document-store/connection/:hostname/:port/:dbname, with auth settings in body', function(done) {
+        var responseData = {};
+        this.$httpBackend.expectPUT('/api/document-store/connection/hi/80/there', {username: 'john', password: 'doe'})
+        .respond(200, responseData);
+        var promise = this.setupAPI.testConnection({
+          hostname: 'hi',
+          port: 80,
+          dbname: 'there',
+          username: 'john',
+          password: 'doe'
+        });
         expect(promise).to.be.an.object;
         expect(promise).to.have.property('then');
         expect(promise.then).to.be.a.function;
