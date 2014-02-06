@@ -25,7 +25,6 @@
     "passport": "0.2.0",
     "passport-local" : "0.1.6",
     "passport-ldapauth": "0.1.2",
-    "underscore": "1.5.2",
     "bcrypt-nodejs": "~0.0.3",
     "connect-flash": "0.1.1",
     "toobusy-js": "~0.3.0",
