@@ -33,7 +33,20 @@ describe('The passport configuration module', function() {
     });
 
     it('should not fail when auth module is defined but does not exists', function(done) {
-      fs.writeFileSync(tmp + '/default.json', JSON.stringify({auth: {strategies: ['foobar']}}));
+      var conf = {
+        log: {
+          file: {
+            enabled: false
+          },
+          console: {
+            enabled: false
+          }
+        },
+        auth: {
+          strategies: ['foobar']
+        }
+      };
+      fs.writeFileSync(tmp + '/default.json', JSON.stringify(conf));
       require(BASEPATH + '/backend/webserver/passport');
       var passport = require('passport');
       expect(passport._strategy('foobar')).to.be.undefined;
