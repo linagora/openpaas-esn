@@ -6,6 +6,7 @@ if [ "$1" = "help" ] || [ "$1" = "-h" ] ; then
 fi
 
 CONFIG_FILE="test/unit-backend/default.test.json"
+CONFIG_DESTINATION_FILE="tmp/default.json"
 
 if [ ! -f "$CONFIG_FILE" ] ; then
   echo "Error: no test file $CONFIG_FILE"
@@ -36,6 +37,11 @@ CONFIG_TARGET_FILE="config/$CONFIG_FILENAME"
 cat "$CONFIG_FILE" | sed "s/__WEBSERVER_PORT___/$WEBSERVER_PORT/g" \
                   |  sed "s/__WSSERVER_PORT___/$WSSERVER_PORT/g"   \
                   > "$CONFIG_TARGET_FILE"
+
+cat "$CONFIG_FILE" | sed "s/__WEBSERVER_PORT___/$WEBSERVER_PORT/g" \
+                  |  sed "s/__WSSERVER_PORT___/$WSSERVER_PORT/g"   \
+                  > "$CONFIG_DESTINATION_FILE"
+
 RET=$?
 if [ $RET -ne 0 ] ; then
   echo "Error: can't copy $CONFIG_FILE to $CONFIG_TARGET_FILE"

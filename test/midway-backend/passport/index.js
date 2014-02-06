@@ -12,10 +12,10 @@ var app;
 var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
 var fixture = path.resolve(__dirname + '/../fixtures/default.json');
 
-function expressApp() {
+function expressApp(done) {
   var webserver = require(BASEPATH + '/backend/webserver');
   var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-  webserver.start(port);
+  webserver.start(port, done);
   app = webserver.application;
   return app;
 }
