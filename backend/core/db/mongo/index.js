@@ -4,6 +4,20 @@
 
 var MongoClient = require('mongodb').MongoClient;
 var url = require('url');
+var fs = require('fs');
+var mongoose = require('mongoose');
+var logger = require('../../../core').logger;
+var initialized = false;
+
+function onConnectError(err) {
+  logger.error('Failed to connect to MongoDB', err);
+}
+
+mongoose.connection.on('error', function(e) {
+  onConnectError(e);
+  initialized = false;
+});
+
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
@@ -55,7 +69,6 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   return 'mongodb:' + url.format(connectionHash);
 }
 
-
 var getTimeout = function() {
   return process.env.MONGO_TIMEOUT || 10000;
 };
@@ -97,10 +110,9 @@ function getDefaultOptions() {
   var timeout = getTimeout();
   return {
     db: {
-      w: 'majority',
+      w: 1,
       native_parser: true,
-      fsync: true,
-      journal: true
+      fsync: true
     },
     server: {
       socketOptions: {
@@ -114,12 +126,58 @@ function getDefaultOptions() {
 
 module.exports.getDefaultOptions = getDefaultOptions;
 
-module.exports.client = function(callback) {
-  var config = require('../../../core').config('db');
+function getConnectionStringAndOptions() {
+  var config;
+  try {
+    config = require(__dirname + '/../../../core').config('db');
+  } catch (e) {
+    return false;
+  }
   if (!config || !config.hostname) {
+    return false;
+  }
+  var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
+  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
+  return {url: url, options: options};
+}
+
+module.exports.client = function(callback) {
+  var connectionInfos = getConnectionStringAndOptions();
+  if (!connectionInfos) {
     return callback(new Error('MongoDB configuration not set'));
   }
-  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
-  var connectionOptions = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
-  MongoClient.connect(url, connectionOptions, callback);
+  MongoClient.connect(connectionInfos.url, connectionInfos.options, callback);
 };
+
+module.exports.init = function() {
+  if (initialized) {
+    mongoose.disconnect();
+    initialized = false;
+  }
+  var connectionInfos = getConnectionStringAndOptions();
+  if (!connectionInfos) {
+    return false;
+  }
+
+
+  try {
+    mongoose.connect(connectionInfos.url, connectionInfos.options);
+  } catch (e) {
+    onConnectError(e);
+    return false;
+  }
+  initialized = true;
+  return true;
+};
+
+module.exports.isInitalized = function() {
+  return initialized;
+};
+
+// load models
+module.exports.models = {};
+fs.readdirSync(__dirname + '/models').forEach(function(filename) {
+  var stat = fs.statSync(__dirname + '/models/' + filename);
+  if (!stat.isFile()) { return; }
+  require('./models/' + filename);
+});
