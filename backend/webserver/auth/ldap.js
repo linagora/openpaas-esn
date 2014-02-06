@@ -1,7 +1,6 @@
 'use strict';
 
 var LDAPStrategy = require('passport-ldaplng').Strategy;
-var config = require('../../core').config('default');
 var esnconfig = require('../../core/esn-config');
 
 var defaultldap = {
@@ -11,8 +10,6 @@ var defaultldap = {
   searchBase: 'ou=passport-ldapauth',
   searchFilter: '(uid={{username}})'
 };
-
-var options = (config.auth && config.auth.ldap) ? config.auth.ldap : defaultldap;
 
 module.exports = {
   name: 'ldap',

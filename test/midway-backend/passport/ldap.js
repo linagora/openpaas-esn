@@ -49,6 +49,7 @@ describe('Passport LDAP', function() {
   beforeEach(function(done) {
     process.env.NODE_CONFIG = tmp;
     fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(config));
+    fs.writeFileSync(tmp + '/default.json', fs.readFileSync(config));
     fs.writeFileSync(tmp + '/db.json', fs.readFileSync(db));
     var esnconfig = require('../../../backend/core/esn-config')('ldap');
     esnconfig.store(JSON.parse(fs.readFileSync(ldapconf)), function(err) {
