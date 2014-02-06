@@ -1,6 +1,6 @@
 'use strict';
 
-var mongoose = require('../../../../core').db.mongo.mongoose();
+var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({

@@ -2,7 +2,8 @@
 
 var esnConfig = require(__dirname + '/../../core')['esn-config'];
 var extend = require('extend');
-var User = require(__dirname + '/../../core').db.mongo.user;
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
 
 function getUserTemplate(callback) {
   esnConfig('user', 'templates').get(callback);

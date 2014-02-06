@@ -6,7 +6,18 @@ var MongoClient = require('mongodb').MongoClient;
 var url = require('url');
 var fs = require('fs');
 var mongoose = require('mongoose');
-var mongooseConnected = false;
+var logger = require('../../../core').logger;
+var initialized = false;
+
+function onConnectError(err) {
+  logger.error('Failed to connect to MongoDB', err);
+}
+
+mongoose.connection.on('error', function(e) {
+  onConnectError(e);
+  initialized = false;
+});
+
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
@@ -116,12 +127,17 @@ function getDefaultOptions() {
 module.exports.getDefaultOptions = getDefaultOptions;
 
 function getConnectionStringAndOptions() {
-  var config = require(__dirname + '/../../../core').config('db');
+  var config;
+  try {
+    config = require(__dirname + '/../../../core').config('db');
+  } catch (e) {
+    return false;
+  }
   if (!config || !config.hostname) {
     return false;
   }
-  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
   var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
+  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
   return {url: url, options: options};
 }
 
@@ -133,23 +149,35 @@ module.exports.client = function(callback) {
   MongoClient.connect(connectionInfos.url, connectionInfos.options, callback);
 };
 
-module.exports.mongoose = function() {
-  if (!mongooseConnected) {
-    var connectionInfos = getConnectionStringAndOptions();
-    if (!connectionInfos) {
-      throw new Error('RSE database configuration not found');
-    }
-    mongoose.connect(connectionInfos.url, connectionInfos.options);
-    mongooseConnected = true;
+module.exports.init = function() {
+  if (initialized) {
+    mongoose.disconnect();
+    initialized = false;
   }
-  return mongoose;
+  var connectionInfos = getConnectionStringAndOptions();
+  if (!connectionInfos) {
+    return false;
+  }
+
+
+  try {
+    mongoose.connect(connectionInfos.url, connectionInfos.options);
+  } catch (e) {
+    onConnectError(e);
+    return false;
+  }
+  initialized = true;
+  return true;
 };
 
-// lazy load models
+module.exports.isInitalized = function() {
+  return initialized;
+};
+
+// load models
 module.exports.models = {};
 fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   var stat = fs.statSync(__dirname + '/models/' + filename);
   if (!stat.isFile()) { return; }
-  function load() { return require('./models/' + filename); }
-  exports.__defineGetter__(filename.replace(/.js$/, ''), load);
+  require('./models/' + filename);
 });
