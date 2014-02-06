@@ -1,13 +1,14 @@
 'use strict';
 
-var LDAPStrategy = require('passport-ldapauth').Strategy;
+var LDAPStrategy = require('passport-ldaplng').Strategy;
 var config = require('../../core').config('default');
+var esnconfig = require('../../core/esn-config');
 
 var defaultldap = {
-  url: 'ldap://localhost:389',
-  adminDn: 'uid=admin,ou=users,dc=linagora.com,dc=lng',
+  url: 'ldap://localhost:1389',
+  adminDn: 'uid=admin,ou=passport-ldapauth',
   adminPassword: 'secret',
-  searchBase: 'ou=users,dc=linagora.com,dc=lng',
+  searchBase: 'ou=passport-ldapauth',
   searchFilter: '(uid={{username}})'
 };
 
@@ -15,7 +16,15 @@ var options = (config.auth && config.auth.ldap) ? config.auth.ldap : defaultldap
 
 module.exports = {
   name: 'ldap',
-  strategy: new LDAPStrategy({server: options}, function(profile, done) {
+  strategy: new LDAPStrategy(function(done) {
+    esnconfig('ldap').get(function(err, data) {
+      if (err) {
+        return done(err);
+      }
+      var options = {server: data || defaultldap};
+      return done(null, options);
+    });
+  }, function(profile, done) {
     if (profile) {
       var user = {
         username: profile.uid,

@@ -26,6 +26,7 @@ describe('Passport Local', function() {
     process.env.NODE_CONFIG = tmp;
     fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test', port: 1337}));
     fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(fixture));
+    fs.writeFileSync(tmp + '/default.json', fs.readFileSync(fixture));
     mockery.enable({warnOnUnregistered: false, useCleanCache: true});
 
     mockery.registerMock('../../../config/users.json', { users: [{
@@ -148,6 +149,7 @@ describe('Passport Local', function() {
     mockery.disable();
     delete process.env.NODE_CONFIG;
     fs.unlinkSync(path.resolve(tmp + '/db.json'));
+    fs.unlinkSync(path.resolve(tmp + '/default.test.json'));
     fs.unlinkSync(path.resolve(tmp + '/default.json'));
   });
 

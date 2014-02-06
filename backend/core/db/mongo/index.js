@@ -115,7 +115,7 @@ function getDefaultOptions() {
 module.exports.getDefaultOptions = getDefaultOptions;
 
 module.exports.client = function(callback) {
-  var config = require('../../core').config('db');
+  var config = require('../../../core').config('db');
   if (!config || !config.hostname) {
     return callback(new Error('MongoDB configuration not set'));
   }

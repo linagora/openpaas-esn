@@ -12,38 +12,50 @@ var path = require('path');
 var BASEPATH = '../../..';
 var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
 var config = path.resolve(__dirname + '/../fixtures/default.json');
+var db = path.resolve(__dirname + '/../fixtures/db.json');
+var ldapconf = path.resolve(__dirname + '/../fixtures/ldap.json');
 var app;
 var ldap;
 var port = 1389;
 
-function expressApp() {
+function expressApp(cb) {
   process.env.NODE_CONFIG = tmp;
   var webserver = require(BASEPATH + '/backend/webserver');
   var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
   webserver.start(port);
   console.log('Express App started on ', port);
   app = webserver.application;
-  return app;
+  if (cb) {
+    return cb(app);
+  }
 }
 
 function servers(options, cb) {
   ldap = require('../fixtures/ldap');
   ldap.start(port, function() {
     console.log('LDAP started on ', port);
-    expressApp();
-    if (cb) {
-      cb();
-    }
+
+    expressApp(function(application) {
+      app = application;
+      if (cb) {
+        cb();
+      }
+    });
   });
 }
 
 describe('Passport LDAP', function() {
 
-  beforeEach(function() {
+  beforeEach(function(done) {
     process.env.NODE_CONFIG = tmp;
     fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(config));
-    app = servers(null, function() {
-      console.log('Servers started');
+    fs.writeFileSync(tmp + '/db.json', fs.readFileSync(db));
+    var esnconfig = require('../../../backend/core/esn-config')('ldap');
+    esnconfig.store(JSON.parse(fs.readFileSync(ldapconf)), function(err) {
+      servers(null, function() {
+        console.log('Servers started');
+        return done();
+      });
     });
   });
 
@@ -83,5 +95,8 @@ describe('Passport LDAP', function() {
   });
 
   after(function() {
+    fs.unlinkSync(tmp + '/default.test.json');
+    fs.unlinkSync(tmp + '/db.json');
+    fs.unlinkSync(tmp + '/default.json');
   });
 });
