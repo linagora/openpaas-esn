@@ -10,6 +10,9 @@ describe('The Core configured module', function() {
 
   beforeEach(function() {
     process.env.NODE_CONFIG = tmp;
+    try {
+      fs.unlinkSync(tmp + '/db.json');
+    } catch (e) {}
   });
 
   afterEach(function() {
