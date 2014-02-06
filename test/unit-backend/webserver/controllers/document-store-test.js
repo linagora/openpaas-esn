@@ -293,6 +293,25 @@ describe('The document store routes resource', function() {
       });
     });
 
+    it('should call the mongo init() method after the file is written', function(done) {
+      var mongoMock = {
+        getDefaultOptions: function() {},
+        init: function() {}
+      };
+
+      mockery.registerMock('./mongo', mongoMock);
+
+      var webserver = require(BASEPATH + '/backend/webserver');
+      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+      webserver.start(port);
+
+      mongoMock.init = done;
+
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+
+      request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function() {});
+    });
+
     it('should store configuration to file with username and password', function(done) {
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
