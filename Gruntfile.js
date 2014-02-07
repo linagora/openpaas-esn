@@ -45,9 +45,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-cli');
   grunt.loadNpmTasks('grunt-shell');
 
-  grunt.registerTask('test-backend', 'run tests', ['test-backend-prepare', 'mochacli:backend']);
-
-  grunt.registerTask('test-midway', 'run tests', ['test-backend-prepare', 'mochacli:midway']);
+  grunt.registerTask('test-unit-backend', 'run the backend unit tests', ['test-backend-prepare', 'mochacli:backend']);
+  grunt.registerTask('test-midway-backend', 'run midway tests', ['test-backend-prepare', 'mochacli:midway']);
+  grunt.registerTask('test-backend', 'run both the unit & midway tests', ['test-unit-backend', 'test-midway-backend']);
 
   grunt.registerTask('test-backend-prepare', 'prepare tests environment', function() {
     var done = this.async();
