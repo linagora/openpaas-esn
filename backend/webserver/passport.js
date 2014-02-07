@@ -4,10 +4,10 @@ var passport = require('passport');
 var config = require('../core').config('default');
 
 passport.serializeUser(function(user, done) {
-  done(null, user.username);
+  done(null, user.id);
 });
 passport.deserializeUser(function(username, done) {
-  done(null, { username: username });
+  done(null, { id: username });
 });
 
 if (config.auth && config.auth.strategies) {

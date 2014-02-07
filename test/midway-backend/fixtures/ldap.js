@@ -19,7 +19,7 @@ var db = {
     attributes: {
       uid: 'ldapuser',
       name: 'LDAP User',
-      email: 'ldapuser@linagora.com'
+      mail: 'ldapuser@linagora.com'
     }
   }
 };
@@ -59,7 +59,7 @@ exports.start = function(port, cb) {
   });
 
   server.search(SUFFIX, authorize, function(req, res, next) {
-    if (req.filter.value === db.ldapuser.attributes.uid || req.filter.value === db.ldapuser.attributes.email) {
+    if (req.filter.value === db.ldapuser.attributes.uid || req.filter.value === db.ldapuser.attributes.mail) {
       res.send(db.ldapuser);
     }
     res.end();

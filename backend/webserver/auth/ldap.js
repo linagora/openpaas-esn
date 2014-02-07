@@ -8,7 +8,7 @@ var defaultldap = {
   adminDn: 'uid=admin,ou=passport-ldapauth',
   adminPassword: 'secret',
   searchBase: 'ou=passport-ldapauth',
-  searchFilter: '(email={{username}})'
+  searchFilter: '(mail={{username}})'
 };
 
 module.exports = {
@@ -22,14 +22,26 @@ module.exports = {
       return done(null, options);
     });
   }, function(profile, done) {
+    console.log(profile);
     if (profile) {
       var user = {
-        username: profile.uid,
-        email: profile.mail || profile.email ||  profile.mailBox ||  profile.mailAlias,
-        name: profile.cn
+        provider: 'ldap',
+        id: profile.uid,
+        displayName: profile.cn || profile.displayName,
+        name: {
+          familyName: profile.sn,
+          givenName: profile.givenName,
+          middleName: profile.givenName
+        }
       };
+      var emails = [];
+      if (profile.mail) {
+        emails.push({value: profile.mail, type: 'work'});
+      }
+      user.emails = emails;
       return done(null, user);
     } else {
+      console.log('No user');
       return done(new Error('Can not find user in LDAP'));
     }
   })
