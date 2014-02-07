@@ -10,6 +10,7 @@ var mockery = require('mockery');
 
 var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
 var fixture = __dirname + '/../fixtures/config/default.json';
+
 var defaultjson = tmp + '/default.json';
 
 describe('The document store Settings module', function() {
@@ -24,6 +25,7 @@ describe('The document store routes resource', function() {
   beforeEach(function() {
     var data = fs.readFileSync(fixture);
     fs.writeFileSync(defaultjson, data);
+
     process.env.NODE_CONFIG = tmp;
     if (!fs.exists(tmp)) {
       try {
