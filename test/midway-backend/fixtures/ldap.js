@@ -59,7 +59,7 @@ exports.start = function(port, cb) {
   });
 
   server.search(SUFFIX, authorize, function(req, res, next) {
-    if (req.filter.value === db.ldapuser.attributes.uid) {
+    if (req.filter.value === db.ldapuser.attributes.uid || req.filter.value === db.ldapuser.attributes.email) {
       res.send(db.ldapuser);
     }
     res.end();

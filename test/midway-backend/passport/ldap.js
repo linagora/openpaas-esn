@@ -74,7 +74,7 @@ describe('Passport LDAP', function() {
     it('should be able to login with valid credentials', function(done) {
       request(app)
         .post('/login')
-        .send('username=ldapuser&password=secret')
+        .send('username=ldapuser@linagora.com&password=secret')
         .expect(302)
         .expect('Location', '/')
         .end(done);
@@ -83,7 +83,7 @@ describe('Passport LDAP', function() {
     it('should fail when trying to log in with invalid password', function(done) {
       request(app)
         .post('/login')
-        .send('username=ldapuser&password=badone')
+        .send('username=ldapuser@linagora.com&password=badone')
         .expect(302)
         .expect('Location', '/login')
         .end(done);

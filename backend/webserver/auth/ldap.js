@@ -8,7 +8,7 @@ var defaultldap = {
   adminDn: 'uid=admin,ou=passport-ldapauth',
   adminPassword: 'secret',
   searchBase: 'ou=passport-ldapauth',
-  searchFilter: '(uid={{username}})'
+  searchFilter: '(email={{username}})'
 };
 
 module.exports = {
