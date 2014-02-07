@@ -30,7 +30,7 @@ describe('Passport Local', function() {
     mockery.enable({warnOnUnregistered: false, useCleanCache: true});
 
     mockery.registerMock('../../../config/users.json', { users: [{
-      username: 'secret',
+      id: 'secret',
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
     app = expressApp();
