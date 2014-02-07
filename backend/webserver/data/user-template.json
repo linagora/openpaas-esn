@@ -1,6 +1,0 @@
-{
-    _id: 'user',
-    firstname: 'John',
-    lastname: 'Doe',
-    mail: 'john@doe.com'
-}
