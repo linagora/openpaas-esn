@@ -22,7 +22,6 @@ module.exports = {
       return done(null, options);
     });
   }, function(profile, done) {
-    console.log(profile);
     if (profile) {
       var user = {
         provider: 'ldap',

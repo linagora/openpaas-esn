@@ -65,7 +65,7 @@ function auth(username, password, done) {
   var user;
   for (var i in users) {
     var u = users[i];
-    if (u.username === username) {
+    if (u.id === username) {
       user = u;
     }
   }
