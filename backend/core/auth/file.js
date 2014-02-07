@@ -5,15 +5,7 @@
 // The user file is located under the config directory and ysers are serialized as JSON array.
 //
 
-var passport = require('passport');
 var bcrypt = require('bcrypt-nodejs');
-
-passport.serializeUser(function(user, done) {
-  done(null, user.username);
-});
-passport.deserializeUser(function(username, done) {
-  done(null, { username: username });
-});
 
 /**
  * Crypt a password

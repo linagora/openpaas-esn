@@ -1,12 +1,12 @@
 {
   "webserver": {
     "enabled": true,
-    "port": 8080,
+    "port": 8081,
     "virtualhosts": []
   },
   "wsserver": {
-    "enabled": true,
-    "port": 8080
+    "enabled": false,
+    "port": 8081
   },
   "log": {
     "file": {

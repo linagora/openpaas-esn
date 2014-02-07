@@ -5,32 +5,29 @@
     "virtualhosts": []
   },
   "wsserver": {
-    "enabled": true,
-    "port": 8080
+    "enabled": false,
+    "port": 8081
   },
   "log": {
     "file": {
-      "enabled": false,
+      "enabled": true,
       "filename": "./log/mozilla-updater.log",
       "level": "info",
-      "handleExceptions": false,
+      "handleExceptions": true,
       "json": false,
       "prettyPrint": true,
       "colorize": false
     },
     "console": {
-      "enabled": false,
+      "enabled": true,
       "level": "debug",
-      "handleExceptions": false,
+      "handleExceptions": true,
       "json": false,
       "prettyPrint": true,
       "colorize": true
     }
   },
-  "core": {
-    "config": {
-      "db": "./tmp/db.json"
-    }
-  },
-  "for-the-test": "This key is only set in the test configuration file"
+  "auth": {
+    "strategies": ["ldap"]
+  }
 }

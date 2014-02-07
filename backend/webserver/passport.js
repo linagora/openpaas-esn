@@ -1,19 +1,21 @@
 'use strict';
 
-//
-// Passport configuration and utils. All strategies will be added here.
-//
-
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
 var config = require('../core').config('default');
 
-var strategies = {
-  file: new LocalStrategy(require('../core/auth/file').auth)
-};
+passport.serializeUser(function(user, done) {
+  done(null, user.username);
+});
+passport.deserializeUser(function(username, done) {
+  done(null, { username: username });
+});
 
-var auth = 'file';
-if (config.auth && config.auth.strategy) {
-  auth = config.auth.strategy;
+if (config.auth && config.auth.strategies) {
+  config.auth.strategies.forEach(function(auth) {
+    try {
+      passport.use(auth, require('./auth/' + auth).strategy);
+    } catch (err) {
+      console.log('Can not load the ' + auth + ' strategy:', err);
+    }
+  });
 }
-passport.use(strategies[auth]);

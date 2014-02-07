@@ -7,23 +7,25 @@ var path = require('path');
 
 var BASEPATH = '../../..';
 
-var cookies;
 var app;
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
-var fixture = path.resolve(__dirname + '/../fixtures/default.json');
+var tmp = path.resolve(__dirname + BASEPATH + '/../tmp/');
+var fixture = path.resolve(__dirname + '/../fixtures/default.file.json');
 
-function expressApp(done) {
+function expressApp() {
+  process.env.NODE_CONFIG = tmp;
   var webserver = require(BASEPATH + '/backend/webserver');
   var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-  webserver.start(port, done);
+  webserver.start(port);
   app = webserver.application;
   return app;
 }
 
-describe('Passport Views', function() {
-  before(function() {
+describe('Passport Local', function() {
+
+  beforeEach(function() {
     process.env.NODE_CONFIG = tmp;
     fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test', port: 1337}));
+    fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(fixture));
     fs.writeFileSync(tmp + '/default.json', fs.readFileSync(fixture));
     mockery.enable({warnOnUnregistered: false, useCleanCache: true});
 
@@ -34,19 +36,18 @@ describe('Passport Views', function() {
     app = expressApp();
   });
 
-  describe('/login', function() {
+  describe('Check file-based auth', function() {
 
     it('When not logged in GET /login should respond with Content-Type text/html', function(done) {
-        request(app)
-          .get('/login')
-          .expect('Content-Type', /html/)
-          .expect(200)
-          .expect(/Login/)
-          .end(done);
-      });
+      request(app)
+        .get('/login')
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(/Login/)
+        .end(done);
+    });
 
     it('should fail when trying to log in with empty credentials', function(done) {
-
       request(app)
         .post('/login')
         .send('username=&password=')
@@ -65,34 +66,26 @@ describe('Passport Views', function() {
         .end(done);
     });
 
-    describe('When logged in', function() {
-      before(function(done) {
-        request(app)
-          .post('/login')
-          .send('username=secret&password=secret')
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            cookies = res.headers['set-cookie'].pop().split(';')[0];
-            done();
-          });
-      });
-
-      it('GET /login should redirect to /', function(done) {
-        var req = request(app)
-          .get('/login');
-        req.cookies = cookies;
-        req.expect('Content-Type', /plain/)
-          .expect(302)
-          .expect('Location', '/')
-          .expect(/Moved Temporarily/)
-          .end(done);
-      });
+    it('When logged in GET /login should redirect to /', function(done) {
+      request(app)
+        .post('/login')
+        .send('username=secret&password=secret')
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          var cookies = res.headers['set-cookie'].pop().split(';')[0];
+          var req = request(app)
+            .get('/login');
+          req.cookies = cookies;
+          req.expect('Content-Type', /plain/)
+            .expect(302)
+            .expect('Location', '/')
+            .expect(/Moved Temporarily/)
+            .end(done);
+        });
     });
-  });
 
-  describe('/', function() {
     it('when not logged in, it should do not redirect', function(done) {
       request(app)
         .get('/')
@@ -101,28 +94,23 @@ describe('Passport Views', function() {
     });
 
     it('When logged in, it should say hello', function(done) {
-      before(function(done) {
-        request(app)
-          .post('/login')
-          .send('username=secret&password=secret')
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            cookies = res.headers['set-cookie'].pop().split(';')[0];
-            done();
-          });
-      });
-
-      var req = request(app).get('/');
-      req.cookies = cookies;
-      req.expect(200)
-        .expect(/secret/)
-        .end(done);
+      var cookies;
+      request(app)
+        .post('/login')
+        .send('username=secret&password=secret')
+        .end(function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          cookies = res.headers['set-cookie'].pop().split(';')[0];
+          var req = request(app).get('/');
+          req.cookies = cookies;
+          req.expect(200)
+            .expect(/secret/)
+            .end(done);
+        });
     });
-  });
 
-  describe('/account', function() {
     it('GET /account should redirect to /login', function(done) {
       request(app)
         .get('/account')
@@ -133,24 +121,22 @@ describe('Passport Views', function() {
     });
 
     it('GET should display account page', function(done) {
-      before(function(done) {
-        request(app)
-          .post('/login')
-          .send('username=secret&password=secret')
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            cookies = res.headers['set-cookie'].pop().split(';')[0];
-            done();
-          });
-      });
+      request(app)
+        .post('/login')
+        .send('username=secret&password=secret')
+        .end(function(err, res) {
 
-      var req = request(app).get('/account');
-      req.cookies = cookies;
-      req.expect(200)
-        .expect(/Account/)
-        .end(done);
+          if (err) {
+            return done(err);
+          }
+          var cookies = res.headers['set-cookie'].pop().split(';')[0];
+
+          var req = request(app).get('/account');
+          req.cookies = cookies;
+          req.expect(200)
+            .expect(/Account/)
+            .end(done);
+        });
     });
   });
 
@@ -163,6 +149,9 @@ describe('Passport Views', function() {
     mockery.disable();
     delete process.env.NODE_CONFIG;
     fs.unlinkSync(path.resolve(tmp + '/db.json'));
+    fs.unlinkSync(path.resolve(tmp + '/default.test.json'));
     fs.unlinkSync(path.resolve(tmp + '/default.json'));
   });
+
 });
+
