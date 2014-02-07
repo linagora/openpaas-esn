@@ -24,13 +24,13 @@ describe('Passport Local', function() {
 
   beforeEach(function() {
     process.env.NODE_CONFIG = tmp;
-    fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test', port: 1337}));
+    fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'localhost', dbname: 'test-midway-passport-local', port: 27017}));
     fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(fixture));
     fs.writeFileSync(tmp + '/default.json', fs.readFileSync(fixture));
     mockery.enable({warnOnUnregistered: false, useCleanCache: true});
 
     mockery.registerMock('../../../config/users.json', { users: [{
-      id: 'secret',
+      id: 'secret@linagora.com',
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
     app = expressApp();
@@ -60,7 +60,7 @@ describe('Passport Local', function() {
 
       request(app)
         .post('/login')
-        .send('username=secret&password=secret')
+        .send('username=secret%40linagora.com&password=secret')
         .expect(302)
         .expect('Location', '/')
         .end(done);
@@ -69,7 +69,7 @@ describe('Passport Local', function() {
     it('When logged in GET /login should redirect to /', function(done) {
       request(app)
         .post('/login')
-        .send('username=secret&password=secret')
+        .send('username=secret@linagora.com&password=secret')
         .end(function(err, res) {
           if (err) {
             return done(err);
@@ -97,7 +97,7 @@ describe('Passport Local', function() {
       var cookies;
       request(app)
         .post('/login')
-        .send('username=secret&password=secret')
+        .send('username=secret@linagora.com&password=secret')
         .end(function(err, res) {
           if (err) {
             return done(err);
@@ -123,7 +123,7 @@ describe('Passport Local', function() {
     it('GET should display account page', function(done) {
       request(app)
         .post('/login')
-        .send('username=secret&password=secret')
+        .send('username=secret@linagora.com&password=secret')
         .end(function(err, res) {
 
           if (err) {

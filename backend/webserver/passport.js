@@ -4,7 +4,10 @@ var passport = require('passport');
 var config = require('../core').config('default');
 
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  if (user && user.emails && user.emails.length && user.emails[0] && user.emails[0].value) {
+    return done(null, user.emails[0].value);
+  }
+  return done(new Error('Unable to serialize a session without email'));
 });
 passport.deserializeUser(function(username, done) {
   done(null, { id: username });
