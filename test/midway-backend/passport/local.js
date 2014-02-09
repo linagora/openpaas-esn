@@ -4,6 +4,7 @@ var request = require('supertest');
 var mockery = require('mockery');
 var fs = require('fs');
 var path = require('path');
+var mongodb = require('mongodb');
 
 var BASEPATH = '../../..';
 
@@ -21,8 +22,20 @@ function expressApp() {
 }
 
 describe('Passport Local', function() {
-
-  beforeEach(function() {
+  before(function(done) {
+    mongodb.MongoClient.connect('mongodb://localhost/test-midway-passport-local', function(err, db) {
+      if (err) {
+        return done(err);
+      }
+      db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
+        if (err) {
+          return done(err);
+        }
+        db.dropCollection('users', function() {done();});
+      });
+    });
+  });
+  beforeEach(function(done) {
     process.env.NODE_CONFIG = tmp;
     fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'localhost', dbname: 'test-midway-passport-local', port: 27017}));
     fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(fixture));
@@ -34,6 +47,12 @@ describe('Passport Local', function() {
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
     app = expressApp();
+    mongodb.MongoClient.connect('mongodb://localhost/test-midway-passport-local', function(err, db) {
+      if (err) {
+        return done(err);
+      }
+      db.dropCollection('users', function() {done();});
+    });
   });
 
   describe('Check file-based auth', function() {

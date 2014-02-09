@@ -40,7 +40,6 @@ module.exports = {
       user.emails = emails;
       return done(null, user);
     } else {
-      console.log('No user');
       return done(new Error('Can not find user in LDAP'));
     }
   })
