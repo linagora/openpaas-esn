@@ -10,7 +10,7 @@ var logger = require('../../../core').logger;
 var initialized = false;
 
 function onConnectError(err) {
-  logger.error('Failed to connect to MongoDB', err);
+  logger.error('Failed to connect to MongoDB:', err.message);
 }
 
 mongoose.connection.on('error', function(e) {
