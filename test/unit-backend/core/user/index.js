@@ -143,4 +143,95 @@ describe('The user core module', function() {
       });
     });
   });
+
+  describe('findByEmail method', function() {
+    beforeEach(function(done) {
+      var mongo = {hostname: 'localhost', port: 27017, dbname: 'test'};
+      process.env.NODE_CONFIG = tmp;
+      fs.writeFileSync(tmp + '/db.json', JSON.stringify(mongo));
+      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
+          if (err) {
+            return done(err);
+          }
+          db.dropCollection('users', function() {done();});
+        });
+      });
+    });
+
+    it('should find a user when we provide an email address', function(done) {
+      var user = {
+        emails: ['test1@linagora.com', 'test2@linagora.com']
+      };
+
+      var finduser = function() {
+        var userModule = require(BASEPATH + '/backend/core').user;
+        userModule.findByEmail('test2@linagora.com', function(err, user) {
+          expect(err).to.be.null;
+          expect(user).to.exist;
+          expect(user).to.be.an.object;
+          expect(user.emails).to.be.an.array;
+          expect(user.emails).to.include('test2@linagora.com');
+          done();
+        });
+      };
+
+      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        db.collection('users').insert(user, finduser);
+      });
+    });
+
+    it('should find a user when we provide an array of email addresses', function(done) {
+      var user = {
+        emails: ['test1@linagora.com', 'test2@linagora.com']
+      };
+
+      var finduser = function() {
+        var userModule = require(BASEPATH + '/backend/core').user;
+        userModule.findByEmail(['test2@linagora.com'], function(err, user) {
+          expect(err).to.be.null;
+          expect(user).to.exist;
+          expect(user).to.be.an.object;
+          expect(user.emails).to.be.an.array;
+          expect(user.emails).to.include('test2@linagora.com');
+          done();
+        });
+      };
+
+      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        db.collection('users').insert(user, finduser);
+      });
+    });
+
+    it('should not find a user if we provide an non existing email addresses', function(done) {
+      var user = {
+        emails: ['test1@linagora.com', 'test2@linagora.com']
+      };
+
+      var finduser = function() {
+        var userModule = require(BASEPATH + '/backend/core').user;
+        userModule.findByEmail(['test22@linagora.com'], function(err, user) {
+          expect(err).to.be.null;
+          expect(user).to.be.null;
+          done();
+        });
+      };
+
+      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        db.collection('users').insert(user, finduser);
+      });
+    });
+  });
 });
