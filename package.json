@@ -22,7 +22,8 @@
     "dotty": "0.0.2",
     "mongoose": "~3.8.6",
     "extend": "~1.2.1",
-    "email-addresses": "~1.1.1"
+    "email-addresses": "~1.1.1",
+    "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
