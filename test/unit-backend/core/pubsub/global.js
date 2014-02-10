@@ -98,7 +98,7 @@ describe('The global Pubsub object', function() {
     topic.unsubscribe(handler2);
     topic.publish(data);
   });
-  
+
   it('should cache the requests until a client is provided', function() {
     var counter = 0;
     var client = {
@@ -131,5 +131,4 @@ describe('The global Pubsub object', function() {
     pubsub.setClient(client);
     expect(counter).to.equal(4);
   });
-
 });
