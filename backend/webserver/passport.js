@@ -2,6 +2,8 @@
 
 var passport = require('passport');
 var config = require('../core').config('default');
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
 
 passport.serializeUser(function(user, done) {
   if (user && user.emails && user.emails.length && user.emails[0] && user.emails[0].value) {
@@ -10,7 +12,9 @@ passport.serializeUser(function(user, done) {
   return done(new Error('Unable to serialize a session without email'));
 });
 passport.deserializeUser(function(username, done) {
-  done(null, { id: username });
+  User.loadFromEmail(username, function (err, user) {
+    done(err, user);
+  });
 });
 
 if (config.auth && config.auth.strategies) {
