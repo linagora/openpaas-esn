@@ -54,6 +54,14 @@ try {
   users = [];
 }
 
+
+function getProfileFromUser(user) {
+  return {
+    provider: 'file',
+    emails: [{value: user.id}]
+  };
+}
+
 /**
  * Authenticate a user from its username and password
  *
@@ -76,7 +84,7 @@ function auth(username, password, done) {
 
   comparePassword(password, user.password, function(err, isMatch) {
     if (isMatch) {
-      return done(null, user);
+      return done(null, getProfileFromUser(user));
     }
     return done(null, false, { message: 'invalid password for user ' + username});
   });

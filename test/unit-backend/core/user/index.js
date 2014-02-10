@@ -22,19 +22,21 @@ describe('The user core module', function() {
           if (err) {
             return done(err);
           }
-          db.collection('users').remove(done);
+          db.dropCollection('users', function() {done();});
         });
       });
     });
 
     it('should record a user with the template informations', function(done) {
       var userModule = require(BASEPATH + '/backend/core').user;
-      userModule.provisionUser({email: 'test@linagora.com'}, function(err, user) {
+      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
         expect(user._id).to.exist;
-        expect(user.email).to.exist;
-        expect(user.email).to.equal('test@linagora.com');
+        expect(user.emails).to.exist;
+        expect(user.emails).to.be.an.array;
+        expect(user.emails).to.have.length(1);
+        expect(user.emails[0]).to.equal('test@linagora.com');
         expect(user.firstname).to.equal('John');
         expect(user.lastname).to.equal('Doe');
         done();
@@ -43,7 +45,7 @@ describe('The user core module', function() {
 
     it('should add a schemaVersion to the user object', function(done) {
       var userModule = require(BASEPATH + '/backend/core').user;
-      userModule.provisionUser({email: 'test@linagora.com'}, function(err, user) {
+      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
         expect(user.schemaVersion).to.exist;
@@ -55,7 +57,7 @@ describe('The user core module', function() {
 
     it('should add a timestamps.creation to the user object', function(done) {
       var userModule = require(BASEPATH + '/backend/core').user;
-      userModule.provisionUser({email: 'test@linagora.com'}, function(err, user) {
+      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
         expect(user.timestamps).to.exist;
@@ -66,7 +68,7 @@ describe('The user core module', function() {
     });
 
 
-    it('should return an error if the user does not have an email property', function(done) {
+    it('should return an error if the user does not have an emails property', function(done) {
       var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({foo: 'bar'}, function(err, user) {
         expect(err).to.not.be.null;
@@ -79,9 +81,9 @@ describe('The user core module', function() {
 
     it('should return an error if some user with the same email is already in the database', function(done) {
       var userModule = require(BASEPATH + '/backend/core').user;
-      userModule.provisionUser({email: 'test@linagora.com'}, function(err, user) {
+      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
-        userModule.provisionUser({email: 'test@linagora.com'}, function(err, user) {
+        userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
           expect(err).to.not.be.null;
           expect(err.name).to.be.a.string;
           expect(err.name).to.equal('MongoError');
@@ -89,9 +91,41 @@ describe('The user core module', function() {
           done();
         });
       });
-
     });
 
+    it('should return an error if some user with the same email is already in the database (multi values)', function(done) {
+      var userModule = require(BASEPATH + '/backend/core').user;
+      userModule.provisionUser({emails: ['test@linagora.com', 'test2@linagora.com']}, function(err, user) {
+        expect(err).to.be.null;
+        userModule.provisionUser({emails: ['test3@linagora.com', 'test@linagora.com']}, function(err, user) {
+          expect(err).to.not.be.null;
+          expect(err.name).to.be.a.string;
+          expect(err.name).to.equal('MongoError');
+          expect(err.code).to.equal(11000);
+          done();
+        });
+      });
+    });
+
+    it('should return an error if the email array is empty', function(done) {
+      var userModule = require(BASEPATH + '/backend/core').user;
+      userModule.provisionUser({emails: []}, function(err, user) {
+        expect(err).to.not.be.not.null;
+        expect(err.name).to.be.a.string;
+        expect(err.name).to.equal('ValidationError');
+        done();
+      });
+    });
+
+    it('should return an error if some email is invalid', function(done) {
+      var userModule = require(BASEPATH + '/backend/core').user;
+      userModule.provisionUser({emails: ['test1@linagora.com', 'invalid', 'test2@linagora.com']}, function(err, user) {
+        expect(err).to.not.be.not.null;
+        expect(err.name).to.be.a.string;
+        expect(err.name).to.equal('ValidationError');
+        done();
+      });
+    });
 
     afterEach(function(done) {
       delete process.env.NODE_CONFIG;
