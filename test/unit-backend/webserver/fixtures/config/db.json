@@ -1,5 +1,5 @@
 {
-  "host" : "localhost",
+  "hostname" : "localhost",
   "port" : 27017,
   "dbname" : "hiveety-test"
 }
