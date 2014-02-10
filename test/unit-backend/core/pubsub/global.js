@@ -21,7 +21,6 @@ describe('The global Pubsub object', function() {
   });
 
   it('should call the client "on" method when subscribing to an event', function(done) {
-
     var client = {
       on: function(topicName, topicHandler) {
         expect(topicName).to.equal('test');
@@ -99,7 +98,7 @@ describe('The global Pubsub object', function() {
     topic.unsubscribe(handler2);
     topic.publish(data);
   });
-
+  
   it('should cache the requests until a client is provided', function() {
     var counter = 0;
     var client = {
