@@ -296,18 +296,19 @@ describe('The document store routes resource', function() {
     });
 
     it('should call the mongo init() method after the file is written', function(done) {
-      var mongoMock = {
+      /*var mongoMock = {
         getDefaultOptions: function() {},
         init: function() {}
       };
 
-      mockery.registerMock('./mongo', mongoMock);
+      mockery.registerMock('./mongo', mongoMock);*/
+      var mongoModule = require(BASEPATH + '/backend/core').db.mongo;
 
       var webserver = require(BASEPATH + '/backend/webserver');
       var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
-      mongoMock.init = done;
+      mongoModule.init = done;
 
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
 

@@ -1,8 +1,20 @@
 'use strict';
 
+var emailAdresses = require('email-addresses');
+var userModule = require('../../core').user;
+
 //
 // Users controller
 //
+
+function getEmailsFromPassportProfile(profile) {
+  var emails = profile.emails
+    .filter(function(email) {
+      return (email && email.value && emailAdresses.parseOneAddress(email.value));
+    })
+    .map(function(email) { return email.value + ''; });
+  return emails;
+}
 
 /**
  * Show the login page if the user is not logged in.
@@ -30,8 +42,32 @@ module.exports.login = login;
  * @param {response} res
  */
 function logmein(req, res) {
-  res.redirect('/');
+  if (!req.user || !req.user.emails || !req.user.emails.length) {
+    res.send(500, 'User not set');
+  }
+
+  var emails = getEmailsFromPassportProfile(req.user);
+
+  if (!emails.length) {
+    res.send(500, 'No valid email address found');
+  }
+
+  userModule.findByEmail(emails, function(err, user) {
+    if (err) {
+      return res.send(500, 'Unable to lookup user ' + emails + ': ' + err);
+    } else if (user && user.emails) {
+      return res.redirect('/');
+    }
+
+    userModule.provisionUser({emails: emails}, function(err, user) {
+      if (err) {
+        return res.send(500, 'Unable to provision user ' + req.user + ': ' + err);
+      }
+      return res.redirect('/');
+    });
+  });
 }
+
 module.exports.logmein = logmein;
 
 /**

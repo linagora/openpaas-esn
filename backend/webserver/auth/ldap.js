@@ -27,7 +27,6 @@ module.exports = {
     if (profile) {
       return done(null, ldaputils.translate(profile));
     } else {
-      console.log('No user');
       return done(new Error('Can not find user in LDAP'));
     }
   })

@@ -8,6 +8,7 @@
 var request = require('supertest');
 var fs = require('fs');
 var path = require('path');
+var mongodb = require('mongodb');
 
 var BASEPATH = '../../..';
 var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
@@ -45,6 +46,20 @@ function servers(options, cb) {
 }
 
 describe('Passport LDAP', function() {
+
+  before(function(done) {
+    mongodb.MongoClient.connect('mongodb://localhost/midway-ldap-test', function(err, db) {
+      if (err) {
+        return done(err);
+      }
+      db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
+        if (err) {
+          return done(err);
+        }
+        db.dropCollection('users', function() {done();});
+      });
+    });
+  });
 
   beforeEach(function(done) {
     process.env.NODE_CONFIG = tmp;
