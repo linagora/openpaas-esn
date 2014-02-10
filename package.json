@@ -30,7 +30,8 @@
     "toobusy-js": "~0.3.0",
     "dotty": "0.0.2",
     "mongoose": "~3.8.6",
-    "extend": "~1.2.1"
+    "extend": "~1.2.1",
+    "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git"
   },
   "devDependencies": {
     "chai": "~1.8.1",
