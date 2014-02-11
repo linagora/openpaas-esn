@@ -33,22 +33,12 @@ function startWsServer(callback) {
   });
 };
 
-function injectTemplates(callback){
-    var user = core.templates.user;
-    user.store(function(err){
-        if(err){
-            console.log('user template cannot be injected into database', err);
-        }
-        callback.apply(this, arguments);
-    });
-}
-
 var core = require('./backend/core');
 console.log('core bootstraped, configuration =',process.env.NODE_ENV);    
 var config = core.config('default');
 
 
-async.series([injectTemplates, startWebServer, startWsServer], function(err) {
+async.series([core.templates.inject, startWebServer, startWsServer], function(err) {
   if ( err ) {
     console.log('Fatal error:',err);
     if ( err.stack ) {
