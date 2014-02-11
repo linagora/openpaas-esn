@@ -68,7 +68,8 @@ describe('The core esn-config module', function() {
         collection: function(name) {
           expect(name).to.equal('configuration');
           return mongoCollectionMock;
-        }
+        },
+        close: function(callback) {callback();}
       };
       this.mongoMock.client = function(callback) {
         return callback(null, mongoDbMock);
@@ -100,7 +101,8 @@ describe('The core esn-config module', function() {
         collection: function(name) {
           expect(name).to.equal('configuration');
           return mongoCollectionMock;
-        }
+        },
+        close: function(callback) {callback();}
       };
       this.mongoMock.client = function(callback) {
         return callback(null, mongoDbMock);
@@ -136,7 +138,8 @@ describe('The core esn-config module', function() {
         collection: function(name) {
           expect(name).to.equal('configuration');
           return mongoCollectionMock;
-        }
+        },
+        close: function(callback) {callback();}
       };
       this.mongoMock.client = function(callback) {
         return callback(null, mongoDbMock);
@@ -172,7 +175,8 @@ describe('The core esn-config module', function() {
         collection: function(name) {
           expect(name).to.equal('configuration');
           return mongoCollectionMock;
-        }
+        },
+        close: function(callback) {callback();}
       };
       this.mongoMock.client = function(callback) {
         return callback(null, mongoDbMock);
@@ -184,6 +188,28 @@ describe('The core esn-config module', function() {
         expect(key).to.be.true;
         done();
       });
+    });
+
+    it('should load the object from the datastore and close the connection', function(done) {
+      var mongoCollectionMock = {
+        findOne: function(what, callback) {
+          callback();
+        }
+      };
+
+      var mongoDbMock = {
+        collection: function(name) {
+          return mongoCollectionMock;
+        },
+        close: function(callback) {done();}
+      };
+      this.mongoMock.client = function(callback) {
+        return callback(null, mongoDbMock);
+      };
+
+      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var testConfig = esnConfig('test');
+      testConfig.get();
     });
   });
 
@@ -214,7 +240,30 @@ describe('The core esn-config module', function() {
         collection: function(name) {
           expect(name).to.equal('configuration');
           return mongoCollectionMock;
+        },
+        close: function(callback) {callback();}
+      };
+      this.mongoMock.client = function(callback) {
+        return callback(null, mongoDbMock);
+      };
+
+      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var testConfig = esnConfig('test');
+      testConfig.set('foo', 'bar');
+    });
+
+    it('should upsert the object in the datastore and close the connection', function(done) {
+      var mongoCollectionMock = {
+        update: function(selector, update, options, callback) {
+          callback();
         }
+      };
+
+      var mongoDbMock = {
+        collection: function(name) {
+          return mongoCollectionMock;
+        },
+        close: function(callback) {done();}
       };
       this.mongoMock.client = function(callback) {
         return callback(null, mongoDbMock);
@@ -255,7 +304,30 @@ describe('The core esn-config module', function() {
         collection: function(name) {
           expect(name).to.equal('configuration');
           return mongoCollectionMock;
+        },
+        close: function(callback) {callback();}
+      };
+      this.mongoMock.client = function(callback) {
+        return callback(null, mongoDbMock);
+      };
+
+      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var testConfig = esnConfig('test');
+      testConfig.store({foo: 'bar', ok: true});
+    });
+
+    it('should save the object in the datastore and close the connection', function(done) {
+      var mongoCollectionMock = {
+        save: function(cfg, callback) {
+          callback();
         }
+      };
+
+      var mongoDbMock = {
+        collection: function(name) {
+          return mongoCollectionMock;
+        },
+        close: function(callback) {done();}
       };
       this.mongoMock.client = function(callback) {
         return callback(null, mongoDbMock);
