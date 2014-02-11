@@ -11,7 +11,7 @@
   "log": {
     "file": {
       "enabled": true,
-      "filename": "./log/mozilla-updater.log",
+      "filename": "./log/application.log",
       "level": "info",
       "handleExceptions": true,
       "json": false,
