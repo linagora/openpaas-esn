@@ -26,8 +26,7 @@ Installation
 
         cd rse
         npm install
-        bower install
-    
+
 Testing
 -------
 
