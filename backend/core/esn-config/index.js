@@ -3,7 +3,20 @@
 var dotty = require('dotty');
 var mongo = require('../../core').db.mongo;
 var defaultCollectionName = 'configuration';
+var logger = require('../').logger;
 
+
+function closeConnection(db, callback) {
+  return function() {
+    var args = arguments;
+    db.close(function(err) {
+      if (err) {
+        logger.warn('MongoDB connection close failed: ', err.message);
+      }
+      callback.apply(this, args);
+    });
+  };
+}
 
 function EsnConfig(namespace, collectionName) {
   this.namespace = namespace;
@@ -31,7 +44,7 @@ EsnConfig.prototype.get = function(key, callback) {
       return callback(err);
     }
     var collection = db.collection(this.collectionName);
-    collection.findOne({_id: this.namespace}, sendResponse);
+    collection.findOne({_id: this.namespace}, closeConnection(db, sendResponse));
   }.bind(this));
 };
 
@@ -49,7 +62,7 @@ EsnConfig.prototype.store = function(cfg, callback) {
       return callback(err);
     }
     var collection = db.collection(this.collectionName);
-    collection.save(cfg, callback);
+    collection.save(cfg, closeConnection(db, callback));
   }.bind(this));
 };
 
@@ -67,7 +80,7 @@ EsnConfig.prototype.set = function(key, value, callback) {
     var collection = db.collection(this.collectionName);
     var update = {};
     update[key] = value;
-    collection.update({_id: this.namespace}, update, {upsert: true}, callback);
+    collection.update({_id: this.namespace}, update, {upsert: true}, closeConnection(db, callback));
   }.bind(this));
 };
 
