@@ -6,6 +6,7 @@
 //
 
 var bcrypt = require('bcrypt-nodejs');
+var extend = require('extend');
 
 /**
  * Crypt a password
@@ -54,12 +55,24 @@ try {
   users = [];
 }
 
+function isEmailInProfile(email, profile) {
+  if (!profile.emails || !profile.emails.forEach) {
+    return false;
+  }
+
+  var filteredEmails = profile.emails.filter(
+    function(profileEmail) {
+      return profileEmail.value === email;
+    }
+  );
+  return (filteredEmails.length > 0);
+}
 
 function getProfileFromUser(user) {
-  return {
-    provider: 'file',
-    emails: [{value: user.id}]
-  };
+  var profile = {provider: 'file'};
+  extend(true, profile, user);
+  delete profile.password;
+  return profile;
 }
 
 /**
@@ -71,10 +84,11 @@ function getProfileFromUser(user) {
  */
 function auth(username, password, done) {
   var user;
-  for (var i in users) {
+  for (var i = 0, len = users.length; i < len; i++) {
     var u = users[i];
-    if (u.id === username) {
+    if (isEmailInProfile(username, u)) {
       user = u;
+      break;
     }
   }
 

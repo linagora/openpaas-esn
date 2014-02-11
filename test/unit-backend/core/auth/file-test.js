@@ -33,6 +33,7 @@ describe('The file-based authentication module', function(done) {
   it('should deny access if the user is not in the database', function(done) {
     mockery.registerMock('../../../config/users.json', { users: [{
       username: 'user1@linagora.com',
+      emails: [{value: 'user1@linagora.com'}],
       password: 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4'
     }] });
 
@@ -48,6 +49,7 @@ describe('The file-based authentication module', function(done) {
   it('should deny access if the wrong password is supplied', function(done) {
     mockery.registerMock('../../../config/users.json', { users: [{
       username: 'user1@linagora.com',
+      emails: [{value: 'user1@linagora.com'}],
       password: '123'
     }] });
 
@@ -63,6 +65,7 @@ describe('The file-based authentication module', function(done) {
   it('should allow access if credentials are ok', function(done) {
     mockery.registerMock('../../../config/users.json', { users: [{
       id: 'user1@linagora.com',
+      emails: [{value: 'user1@linagora.com'}],
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
 
@@ -71,7 +74,11 @@ describe('The file-based authentication module', function(done) {
     fileAuth('user1@linagora.com', 'secret', function(err, result) {
       expect(err).to.be.null;
       expect(result).to.deep.equal(
-        {provider: 'file', emails: [{value: 'user1@linagora.com'}]}
+        {
+          id: 'user1@linagora.com',
+          provider: 'file',
+          emails: [{value: 'user1@linagora.com'}]
+        }
       );
       done();
     });

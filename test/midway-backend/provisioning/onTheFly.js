@@ -43,6 +43,7 @@ describe('On The Fly provisioning', function() {
   it('should provision the user on first login', function(done) {
     mockery.registerMock('../../../config/users.json', { users: [{
       id: 'secret@linagora.com',
+      emails: [{value: 'secret@linagora.com'}],
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
 
