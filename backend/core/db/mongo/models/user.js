@@ -35,4 +35,17 @@ var UserSchema = new Schema({
   schemaVersion: {type: Number, default: 1}
 });
 
+UserSchema.statics = {
+
+  /**
+   * Load a user from one of its email
+   *
+   * @param {String} email
+   * @param {Function} cb - as fn(err, user) where user is not null if found
+   */
+  loadFromEmail : function(email, cb) {
+    this.findOne({emails: email}, cb);
+  }
+};
+
 module.exports = mongoose.model('User', UserSchema);
