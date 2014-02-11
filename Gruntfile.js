@@ -35,6 +35,16 @@ module.exports = function(grunt) {
           files: ['test/midway-backend/all.js', 'test/midway-backend/**/*.js']
         }
       }
+    },
+    nodemon: {
+      dev: {
+        script: 'server.js',
+        options: {
+          env: {NODE_ENV: 'dev'},
+          ignore: ['.git', 'README.md', 'node_modules/**'],
+          watchedExtensions: ['js', 'jade']
+        }
+      }
     }
   });
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -44,6 +54,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-mocha-cli');
   grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-nodemon');
 
   grunt.registerTask('test-unit-backend', 'run the backend unit tests', ['test-backend-prepare', 'mochacli:backend']);
   grunt.registerTask('test-midway-backend', 'run midway tests', ['test-backend-prepare', 'mochacli:midway']);
@@ -93,5 +104,7 @@ module.exports = function(grunt) {
   });
   grunt.registerTask('test', ['jshint', 'gjslint', 'test-backend', 'test-frontend']);
   grunt.registerTask('default', ['test']);
+  
+  grunt.registerTask('dev', ['nodemon:dev']);
 
 };

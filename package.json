@@ -56,7 +56,8 @@
     "find-port": "0.0.3",
     "connect-flash": "0.1.1",
     "ldapjs": "0.7.0",
-    "bower" : "~1.2.8"
+    "bower" : "~1.2.8",
+    "grunt-nodemon": "~0.2.0"
   },
   "author": "",
   "license": "AGPLv3"
