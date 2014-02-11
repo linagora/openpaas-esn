@@ -54,10 +54,12 @@
     "supertest": "0.9.0",
     "find-port": "0.0.3",
     "connect-flash": "0.1.1",
-    "ldapjs": "0.7.0"
+    "ldapjs": "0.7.0",
+    "bower" : "~1.2.8"
   },
   "scripts": {
-    "start": "NODE_ENV=production ./node_modules/.bin/nodemon -e js,jade index.js"
+    "start": "NODE_ENV=production ./node_modules/.bin/nodemon -e js,jade index.js",
+    "postinstall": "./node_modules/bower/bin/bower install"
   },
   "author": "",
   "license": "AGPLv3"
