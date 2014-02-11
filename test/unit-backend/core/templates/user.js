@@ -9,8 +9,14 @@ var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
 describe('The User template module', function() {
 
   describe('If not configured', function() {
-    it('should not inject templates if not configured', function(done) {
-      var core = require('../../../../backend/core');
+    beforeEach(function() {
+      process.env.NODE_CONFIG = tmp;
+      try {
+        fs.unlinkSync(tmp + '/db.json');
+      } catch (e) {}
+    });
+    it('should not inject templates', function(done) {
+      var core = require(BASEPATH + '/backend/core');
       var templates = core.templates;
       var configured = core.configured;
       expect(configured()).to.be.false;

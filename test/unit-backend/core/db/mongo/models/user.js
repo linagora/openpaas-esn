@@ -7,7 +7,6 @@ describe('The User model', function() {
 
   before(function() {
     mongoose.connect('mongodb://localhost:27017/rse');
-    var model = require('../../../../../../backend/core/db/mongo/models/user');
   });
 
   it('should load the user from email', function(done) {
@@ -68,14 +67,14 @@ describe('The User model', function() {
   afterEach(function(done) {
     var User = mongoose.model('User');
 
-    var callback = function (item, fn) {
+    var callback = function(item, fn) {
       item.remove(fn);
     };
 
     var async = require('async');
     async.parallel([
-      function (cb) {
-        User.find().exec(function (err, users) {
+      function(cb) {
+        User.find().exec(function(err, users) {
           async.forEach(users, callback, cb);
         });
       }

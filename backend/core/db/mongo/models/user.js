@@ -43,7 +43,7 @@ UserSchema.statics = {
    * @param {String} email
    * @param {Function} cb - as fn(err, user) where user is not null if found
    */
-  loadFromEmail : function(email, cb) {
+  loadFromEmail: function(email, cb) {
     this.findOne({emails: email}, cb);
   }
 };

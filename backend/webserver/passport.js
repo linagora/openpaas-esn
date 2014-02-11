@@ -12,7 +12,7 @@ passport.serializeUser(function(user, done) {
   return done(new Error('Unable to serialize a session without email'));
 });
 passport.deserializeUser(function(username, done) {
-  User.loadFromEmail(username, function (err, user) {
+  User.loadFromEmail(username, function(err, user) {
     done(err, user);
   });
 });
