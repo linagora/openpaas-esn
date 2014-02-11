@@ -5,4 +5,5 @@ config/default.production.json
 config/runtime.json
 frontend/components
 tmp/
+./log/application.log
 .idea
