@@ -5,7 +5,7 @@ block content
         if user
             .alert.alert-success.animated
                 i.fa.fa-check
-                strong You are connected as #{user.username || user.email || user.id}&nbsp;
+                strong You are connected as #{user.username || user.emails[0] || user.id}&nbsp;
         else
             .alert.alert-info
                 a(href='/login') Please sign in
