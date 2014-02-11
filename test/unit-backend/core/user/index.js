@@ -14,15 +14,21 @@ describe('The user core module', function() {
       var mongo = {hostname: 'localhost', port: 27017, dbname: 'test'};
       process.env.NODE_CONFIG = tmp;
       fs.writeFileSync(tmp + '/db.json', JSON.stringify(mongo));
+      var userTemplate = require('../fixtures/user-template').simple();
       mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
         if (err) {
           return done(err);
         }
-        db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
+        db.collection('templates').remove({_id: userTemplate._id}, function(err) {
           if (err) {
             return done(err);
           }
-          db.dropCollection('users', function() {done();});
+          db.collection('templates').insert(userTemplate, function(err) {
+            if (err) {
+              return done(err);
+            }
+            db.dropCollection('users', function() {db.close(); done();});
+          });
         });
       });
     });
