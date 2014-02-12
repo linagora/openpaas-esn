@@ -4,6 +4,9 @@ var fs = require('fs-extra');
 var tmp = __dirname + '/tmp/hiveety';
 var tmpMongoPath = tmp + '/mongo/data';
 
+var redis_server_cmd = '../../lib/redis/redis-server --requirepass pwd';
+var mongodb_cmd = '../../lib/mongo/mongod --dbpath ' + tmpMongoPath;
+
 module.exports = function(grunt) {
 
   grunt.initConfig({
@@ -22,7 +25,7 @@ module.exports = function(grunt) {
     },
     shell: {
       redis: {
-        command: '../../lib/redis/redis-server --requirepass pwd',
+        command: redis_server_cmd,
         options: {
           async: false,
           stdout: function checkForReady(chunk){
@@ -40,7 +43,7 @@ module.exports = function(grunt) {
         }
       },
       mongo: {
-        command: '../../lib/mongo/mongod --dbpath ' + tmpMongoPath,
+        command: mongodb_cmd,
         options: {
           async: false,
           stdout: function checkForReady(chunk){
