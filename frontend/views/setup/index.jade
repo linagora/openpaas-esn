@@ -16,39 +16,39 @@ html
 
       div.container(ng-cloak ng-app='setupApp' ng-controller='wizardController')
           div.page-header.center
-              h1 Setup your software
-  
+              h1 #{__('Setup your software')}
+
           div.jumbotron.wizard-bg(ng-hide='step != 0')
-              h2 Welcome to the Linagora Enterprise Social Network !
+              h2 #{__('Welcome to the Linagora Enterprise Social Network')}!
               div
-                  p The following wizard will help you configuring the software.
-                  p You need a running MongoDB database server.
+                  p #{__('The following wizard will help you configuring the software')}.
+                  p #{__('You need a running MongoDB database server')}.
   
               button.btn.pull-right(ng-click='step = step + 1') Next
   
           div.wizard-step(ng-hide='step != 1')
-              h2.center.subtitle Configure access to the MongoDB server
+              h2.center.subtitle #{__('Configure access to the MongoDB server')}
               div.wizard-bg
                 div.form-container
                   form(role="form")
                     div.form-group
-                      label(for='hostname') Database Server Hostname
+                      label(for='hostname') #{__('Database Server Hostname')}
                       input(ng-model='settings.hostname' ng-change='test.status="none"' type='text' class='form-control' id='hostname' ng-disabled='ajaxRunning()')
                     div.form-group
-                      label(for='port') Database Server Port
+                      label(for='port') #{__('Database Server Port')}
                       input(ng-model='settings.port' ng-change='test.status="none"' type='number' class='form-control' id='port' ng-disabled='ajaxRunning()')
                     div.form-group
-                      label(for='dbname') Database Name
+                      label(for='dbname') #{__('Database Name')}
                       input(ng-model='settings.dbname' ng-change='test.status="none"' type='text' class='form-control' id='dbname' ng-disabled='ajaxRunning()')
                     div.form-group
-                      label(for='username') Database connection user name
+                      label(for='username') #{__('Database connection user name')}
                       input(ng-model='settings.username' ng-change='test.status="none"' type='text' class='form-control' id='username' ng-disabled='ajaxRunning()')
-                      span.help-block Fill the username and password fields only if your MongoDB connection requires it.
+                      span.help-block #{__('Fill the username and password fields only if your MongoDB connection requires it')}.
                     div.form-group
-                      label(for='password') Database Name
+                      label(for='password') #{__('Database Password')}
                       input(type='password' ng-model='settings.password' ng-change='test.status="none"' class='form-control' id='password' ng-disabled='ajaxRunning()')
                     div.test-feedback(ng-show="test.status=='success'")
-                      div.text-success Successfull connection to the database
+                      div.text-success #{__('Successfull connection to the database')}
                     div.test-feedback(ng-show="test.status=='error'")
                       div.text-danger {{test.err.message}}: {{test.err.details}}
                     
@@ -68,8 +68,8 @@ html
 
           div(ng-hide='step != 2')
             div.wizard-bg.form-container
-              h2 Wonderful ! The setup is complete.
-              p Well you certainly were expecting a longer, and more complicated journey. Sorry.
-              p.text-primary Please reload this page to get started with Linagora ESN.
+              h2 #{__('Wonderful! The setup is complete')}.
+              p #{__('Well you certainly were expecting a longer, and more complicated journey. Sorry')}.
+              p.text-primary #{__('Please reload this page to get started with Linagora ESN')}.
   
   
