@@ -1,14 +1,13 @@
 'use strict';
 
 var fs = require('fs-extra');
-var tmp = __dirname + '/tmp/hiveety';
-var tmpMongoPath = tmp + '/mongo/data';
 
-var redis_server_cmd = '../../lib/redis/redis-server --requirepass pwd';
-var mongodb_cmd = '../../lib/mongo/mongod --dbpath ' + tmpMongoPath;
+var conf_path = 'test/config/';
+
+var mongodb = JSON.parse(fs.readFileSync(conf_path + 'mongodb.conf.json'));
+var redis = JSON.parse(fs.readFileSync(conf_path + 'redis.conf.json'));
 
 module.exports = function(grunt) {
-
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
@@ -25,10 +24,13 @@ module.exports = function(grunt) {
     },
     shell: {
       redis: {
-        command: redis_server_cmd,
+        command: redis.cmd +
+          (redis.port ? ' --port ' + redis.port : '') +
+          (redis.pwd ? ' --requirepass ' + redis.pwd : '') +
+          (redis.conf_file ? ' ' + redis.conf_file : ''),
         options: {
           async: false,
-          stdout: function checkForReady(chunk){
+          stdout: function(chunk){
             var done = grunt.task.current.async();
             var out = '' + chunk;
             var started=/on port/;
@@ -43,13 +45,14 @@ module.exports = function(grunt) {
         }
       },
       mongo: {
-        command: mongodb_cmd,
+        command: mongodb.cmd + ' --dbpath ' + mongodb.dbpath +
+          (mongodb.port ? ' --port ' + mongodb.port : ''),
         options: {
           async: false,
-          stdout: function checkForReady(chunk){
+          stdout: function(chunk){
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started=/connections on port 27017/;
+            var started = new RegExp('connections on port '+ mongodb.port);
             if(started.test(out)) {
               grunt.log.write('MongoDB server is started.');
               done(true);
@@ -81,7 +84,7 @@ module.exports = function(grunt) {
               grunt.log.writeln('failed');
             } else {
               grunt.config.set('esn.tests.success',true);
-              grunt.log.writeln('succedded');
+              grunt.log.writeln('succeeded');
             }
           }
         },
@@ -105,21 +108,20 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
 
-  grunt.registerTask('spawn-servers', 'spawn all servers (redis...)', ['shell']);
-  grunt.registerTask('kill-servers', 'kill all servers (redis...)', ['shell:redis:kill', 'shell:mongo:kill']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill']);
 
-  grunt.registerTask('setup-environment', 'create temp folder for tests', function(){
+  grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
-      fs.mkdirsSync(tmpMongoPath);
+      fs.mkdirsSync(mongodb.dbpath);
     } catch (err) {
       throw err;
     }
-
   });
 
   grunt.registerTask('clean-environment', 'remove temp folder for tests', function(){
     try {
-      fs.removeSync(tmp);
+      fs.removeSync(mongodb.dbpath);
     } catch (err) {
       throw err;
     }

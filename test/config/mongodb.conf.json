@@ -1,0 +1,6 @@
+{
+ "cmd" : "../../lib/mongo/mongod",
+ "port" : "27017",
+ "dbpath" : "tmp/mongo/",
+ "logpath" : ""
+}
