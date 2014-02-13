@@ -63,8 +63,6 @@ module.exports = function(grunt) {
   grunt.registerTask('test-backend-prepare', 'prepare tests environment', function() {
     var done = this.async();
     
-    process.env.NODE_ENV = 'test';
-    
     var child = require('child_process').spawn('sh', ['./scripts/prepare-backend-tests-environment.sh']);
     
     child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });

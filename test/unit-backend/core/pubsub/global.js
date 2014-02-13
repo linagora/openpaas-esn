@@ -1,17 +1,23 @@
 'use strict';
 
+require('../../all');
+
 var expect = require('chai').expect;
-var BASEPATH = '../../../..';
 
 describe('The global Pubsub object', function() {
+  var RedisPubsub = null;
+
+  beforeEach(function() {
+    RedisPubsub = require(this.testEnv.basePath + '/backend/core/pubsub/pubsub');
+  });
+
   it('should have a topic method', function() {
-    var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
     expect(RedisPubsub).to.respondTo('topic');
   });
 
   describe('topic method result', function() {
+
     it('should have publish, subscribe and unsubscribe methods', function() {
-      var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
       var pubsub = new RedisPubsub();
       var topic = pubsub.topic('test');
       expect(topic).to.respondTo('publish');
@@ -21,7 +27,6 @@ describe('The global Pubsub object', function() {
   });
 
   it('should call the client "on" method when subscribing to an event', function(done) {
-
     var client = {
       on: function(topicName, topicHandler) {
         expect(topicName).to.equal('test');
@@ -30,7 +35,7 @@ describe('The global Pubsub object', function() {
     };
 
     var handler = function() { /*nothing*/ };
-    var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
+
     var pubsub = new RedisPubsub(client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler);
@@ -45,7 +50,7 @@ describe('The global Pubsub object', function() {
       }
     };
     var data = {test: true};
-    var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
+
     var pubsub = new RedisPubsub(client);
     var topic = pubsub.topic('test');
     topic.publish(data);
@@ -59,7 +64,7 @@ describe('The global Pubsub object', function() {
       expect(topicData).to.deep.equal(data);
       done();
     };
-    var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
+
     var pubsub = new RedisPubsub(client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler);
@@ -90,7 +95,7 @@ describe('The global Pubsub object', function() {
     var handler2 = function() {
       counter++;
     };
-    var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
+
     var pubsub = new RedisPubsub(client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler1);
@@ -121,7 +126,7 @@ describe('The global Pubsub object', function() {
     var subscribeHandler = function() {};
     var subscribeHandler2 = function() {};
     var publishData = {test: true};
-    var RedisPubsub = require(BASEPATH + '/backend/core/pubsub/pubsub');
+
     var pubsub = new RedisPubsub(null);
     var topic = pubsub.topic('test');
     topic.subscribe(subscribeHandler);

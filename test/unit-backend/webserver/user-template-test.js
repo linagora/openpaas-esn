@@ -1,47 +1,23 @@
 'use strict';
 
+require('../all');
+
 var expect = require('chai').expect;
-var path = require('path');
-var fs = require('fs');
-
-var BASEPATH = '../../../';
-
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
-
-var fixture = __dirname + '/fixtures/config/default.json';
-var defaultjson = tmp + '/default.json';
-
-var fixtureDb = __dirname + '/fixtures/config/db.json';
-var dbjson = tmp + '/db.json';
+var fs = require('fs-extra');
 
 describe('The user-template module', function() {
+  var dbjson = null;
 
   beforeEach(function() {
-    process.env.NODE_CONFIG = tmp;
-    if (!fs.exists(tmp)) {
-      try {
-        fs.mkdirSync(tmp);
-      } catch (err) {
-      }
-    }
-
-    var data = fs.readFileSync(fixture);
-    fs.writeFileSync(defaultjson, data);
-
-    data = fs.readFileSync(fixtureDb);
-    fs.writeFileSync(dbjson, data);
+    var fixtureDb = this.testEnv.fixtures + '/config/db.json';
+    dbjson = this.testEnv.tmp + '/db.json';
+    fs.copySync(fixtureDb, dbjson);
   });
 
   afterEach(function() {
-    process.env.NODE_CONFIG = null;
-    try {
-      fs.unlinkSync(defaultjson);
-    } catch (err) {
-    }
     try {
       fs.unlinkSync(dbjson);
-    } catch (err) {
-    }
+    } catch (err) {}
   });
 
   it('should store user-template.json into database : collection = templates, _id=user', function(done) {

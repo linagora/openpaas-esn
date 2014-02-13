@@ -1,13 +1,20 @@
 'use strict';
 
+require('../../all');
+
 var expect = require('chai').expect;
-var BASEPATH = '../../../..';
 
 describe('The core local pubsub module', function() {
+  var pubsub = null;
+  var counter;
+
+  beforeEach(function() {
+    counter = 0;
+    pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
+  });
+
 
   it('should fire the subscribed callbacks when an event is published', function(done) {
-    var pubsub = require(BASEPATH + '/backend/core').pubsub.local;
-    var counter = 0;
     function handler1() {
       counter++;
     }
@@ -27,8 +34,6 @@ describe('The core local pubsub module', function() {
   });
 
   it('should allow unsubscribing subscribed callbacks', function(done) {
-    var pubsub = require(BASEPATH + '/backend/core').pubsub.local;
-    var counter = 0;
     function handler1() {
       counter++;
     }
@@ -49,8 +54,6 @@ describe('The core local pubsub module', function() {
   });
 
   it('should forgive unsubscribing a not subscribed callback', function() {
-    var pubsub = require(BASEPATH + '/backend/core').pubsub.local;
-    var counter = 0;
     function handler1() {
       counter++;
     }

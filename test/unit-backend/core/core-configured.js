@@ -1,42 +1,34 @@
 'use strict';
 
-var expect = require('chai').expect;
-var BASEPATH = '../../..';
-var path = require('path');
-var fs = require('fs');
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
+require('../all');
+
+var expect = require('chai').expect,
+    fs = require('fs');
 
 describe('The Core configured module', function() {
+  var isConfigured = null;
 
   beforeEach(function() {
-    process.env.NODE_CONFIG = tmp;
-    try {
-      fs.unlinkSync(tmp + '/db.json');
-    } catch (e) {}
-  });
-
-  afterEach(function() {
-    delete process.env.NODE_CONFIG;
+    isConfigured = require(this.testEnv.basePath + '/backend/core').configured;
   });
 
   it('should return false if the db.json file does not exist', function() {
-    var isConfigured = require(BASEPATH + '/backend/core').configured;
-
     expect(isConfigured()).to.be.false;
   });
 
   it('should return false if the db.json file exists but does not contain the tested key(port)', function() {
-    var isConfigured = require(BASEPATH + '/backend/core').configured;
-
-    fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test'}));
+    fs.writeFileSync(this.testEnv.tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test'}));
     expect(isConfigured()).to.be.false;
   });
 
   it('should return true if the db.json file exists and contains the tested key(port)', function() {
-    var isConfigured = require(BASEPATH + '/backend/core').configured;
-
-    fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test', port: 1337}));
+    fs.writeFileSync(this.testEnv.tmp + '/db.json', JSON.stringify({hostname: 'test', dbname: 'test', port: 1337}));
     expect(isConfigured()).to.be.true;
   });
 
+  afterEach(function() {
+    try {
+      fs.unlinkSync(this.testEnv.tmp + '/db.json');
+    } catch (e) {}
+  });
 });

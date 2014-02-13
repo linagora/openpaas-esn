@@ -1,55 +1,48 @@
 'use strict';
 
-var BASEPATH = '../../..';
-var expect = require('chai').expect;
-var mockery = require('mockery');
+require('../all');
+
+var expect = require('chai').expect,
+    mockery = require('mockery');
 
 describe('The Webserver module', function() {
+  var port = null,
+      expressMock = null,
+      serverInstance = null;
 
-  it('should exist', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
+  it('should contains all needed properties', function() {
+    var webserver = require(this.testEnv.basePath + '/backend/webserver');
     expect(webserver).to.exist;
-  });
-
-  it('should be an object', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
     expect(webserver).to.be.an.Object;
-  });
-
-  it('should have an application property', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
     expect(webserver.application).to.exist;
     expect(webserver.application).to.be.a.Function;
-  });
-
-  it('should have a server property', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
     expect(webserver).to.have.property('server');
     expect(webserver.server).to.be.null;
-  });
-
-  it('should have a port property', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
     expect(webserver).to.have.property('port');
     expect(webserver.port).to.be.null;
-  });
-
-  it('should have a started property', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
     expect(webserver).to.have.property('started');
     expect(webserver.started).to.be.false;
-  });
-
-  it('should have a start property', function() {
-    var webserver = require(BASEPATH + '/backend/webserver');
     expect(webserver).to.have.property('start');
     expect(webserver.start).to.be.a.Function;
   });
 
+  before(function() {
+    port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
+    expressMock = require(this.testEnv.fixtures + '/express').express();
+    serverInstance = {
+        me: true,
+        on: function(event, callback) {
+          if (event === 'listening') {
+            process.nextTick(callback);
+          }
+        },
+        removeListener: function() {}
+      };
+  });
+
   describe('the start property', function() {
-    var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
+
     it('should start the web server', function(done) {
-      var expressMock = require('../fixtures/express').express();
       expressMock.constructorResponse.listen = function(serverPort) {
         var complete = serverPort === port;
         if (complete) {
@@ -62,30 +55,19 @@ describe('The Webserver module', function() {
 
       mockery.registerMock('express', expressMock);
 
-      var webserver = require(BASEPATH + '/backend/webserver');
+      var webserver = require(this.testEnv.basePath + '/backend/webserver');
 
-      webserver.start(require(BASEPATH + '/backend/core').config('default').webserver.port);
+      webserver.start(port);
     });
-  });
 
-  describe('the start property', function() {
     it('should fire the callback when the server starts', function(done) {
-      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-      var expressMock = require('../fixtures/express').express();
       expressMock.constructorResponse.listen = function(serverPort) {
-        return {
-          on: function(event, callback) {
-            if (event === 'listening') {
-              process.nextTick(callback);
-            }
-          },
-          removeListener: function() {}
-        };
+        return serverInstance;
       };
 
       mockery.registerMock('express', expressMock);
 
-      var webserver = require(BASEPATH + '/backend/webserver');
+      var webserver = require(this.testEnv.basePath + '/backend/webserver');
 
       webserver.start(port, function() {
         done();
@@ -94,54 +76,16 @@ describe('The Webserver module', function() {
   });
 
   describe('when started', function() {
-    it('should set the webserver into the server property', function(done) {
-      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
 
-      var serverInstance = {
-        me: true,
-        on: function(event, callback) {
-          if (event === 'listening') {
-            process.nextTick(callback);
-          }
-        },
-        removeListener: function() {}
-      };
-      var expressMock = require('../fixtures/express').express();
+    it('should set the webserver into the server property and set the port property', function(done) {
       expressMock.constructorResponse.listen = function(serverPort) {
         return serverInstance;
       };
       mockery.registerMock('express', expressMock);
-      var webserver = require(BASEPATH + '/backend/webserver');
+      var webserver = require(this.testEnv.basePath + '/backend/webserver');
 
       webserver.start(port, function() {
         expect(serverInstance === webserver.server).to.be.true;
-        done();
-      });
-    });
-  });
-
-  describe('when started', function() {
-    it('should set the port property', function(done) {
-      var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-      var serverInstance = {
-        me: true,
-        on: function(event, callback) {
-          if (event === 'listening') {
-            process.nextTick(callback);
-          }
-        },
-        removeListener: function() {}
-      };
-
-      var expressMock = require('../fixtures/express').express();
-      expressMock.constructorResponse.listen = function(serverPort) {
-        return serverInstance;
-      };
-
-      mockery.registerMock('express', expressMock);
-      var webserver = require(BASEPATH + '/backend/webserver');
-
-      webserver.start(port, function() {
         expect(webserver.port).to.equal(port);
         done();
       });

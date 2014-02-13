@@ -1,40 +1,37 @@
 'use strict';
 
-var expect = require('chai').expect;
-var path = require('path');
-var fs = require('fs');
-var BASEPATH = '../../../..';
-var mongodb = require('mongodb');
+require('../../all');
 
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
+var expect = require('chai').expect,
+    fs = require('fs'),
+    mongodb = require('mongodb'),
+    mongoose = require('mongoose');
 
 describe('The user core module', function() {
-  describe('provisionUser method', function() {
-    beforeEach(function(done) {
-      var mongo = {hostname: 'localhost', port: 27017, dbname: 'test'};
-      process.env.NODE_CONFIG = tmp;
-      fs.writeFileSync(tmp + '/db.json', JSON.stringify(mongo));
-      var userTemplate = require('../fixtures/user-template').simple();
-      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        db.collection('templates').remove({_id: userTemplate._id}, function(err) {
-          if (err) {
-            return done(err);
-          }
-          db.collection('templates').insert(userTemplate, function(err) {
-            if (err) {
-              return done(err);
-            }
-            db.dropCollection('users', function() {db.close(); done();});
-          });
-        });
-      });
+  var userModule = null;
+
+  beforeEach(function(done) {
+    var self = this;
+    var mongo = {hostname: 'localhost', port: 27017, dbname: 'rse'};
+    var template = require(this.testEnv.fixtures + '/user-template').simple();
+    fs.writeFileSync(self.testEnv.tmp + '/db.json', JSON.stringify(mongo));
+
+    mongoose.connect(this.testEnv.mongoUrl);
+    mongoose.connection.collection('templates').insert(template, function() {
+      userModule = require(self.testEnv.basePath + '/backend/core').user;
+      done();
     });
+  });
+
+  afterEach(function(done) {
+    fs.unlinkSync(this.testEnv.tmp + '/db.json');
+    mongoose.connection.db.dropDatabase();
+    mongoose.disconnect(done);
+  });
+
+  describe('provisionUser method', function() {
 
     it('should record a user with the template informations', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
@@ -50,7 +47,6 @@ describe('The user core module', function() {
     });
 
     it('should add a schemaVersion to the user object', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
@@ -62,7 +58,6 @@ describe('The user core module', function() {
     });
 
     it('should add a timestamps.creation to the user object', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
@@ -75,7 +70,6 @@ describe('The user core module', function() {
 
 
     it('should return an error if the user does not have an emails property', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({foo: 'bar'}, function(err, user) {
         expect(err).to.not.be.null;
         expect(err.name).to.exist;
@@ -86,7 +80,6 @@ describe('The user core module', function() {
     });
 
     it('should return an error if some user with the same email is already in the database', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
@@ -100,7 +93,6 @@ describe('The user core module', function() {
     });
 
     it('should return an error if some user with the same email is already in the database (multi values)', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: ['test@linagora.com', 'test2@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         userModule.provisionUser({emails: ['test3@linagora.com', 'test@linagora.com']}, function(err, user) {
@@ -114,7 +106,6 @@ describe('The user core module', function() {
     });
 
     it('should return an error if the email array is empty', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: []}, function(err, user) {
         expect(err).to.not.be.not.null;
         expect(err.name).to.be.a.string;
@@ -124,7 +115,6 @@ describe('The user core module', function() {
     });
 
     it('should return an error if some email is invalid', function(done) {
-      var userModule = require(BASEPATH + '/backend/core').user;
       userModule.provisionUser({emails: ['test1@linagora.com', 'invalid', 'test2@linagora.com']}, function(err, user) {
         expect(err).to.not.be.not.null;
         expect(err.name).to.be.a.string;
@@ -132,41 +122,9 @@ describe('The user core module', function() {
         done();
       });
     });
-
-    afterEach(function(done) {
-      delete process.env.NODE_CONFIG;
-      fs.unlinkSync(tmp + '/db.json');
-      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        db.collection('templates').remove({_id: 'user'}, function(err) {
-          if (err) {
-            return done(err);
-          }
-          db.collection('users').remove(done);
-        });
-      });
-    });
   });
 
   describe('findByEmail method', function() {
-    beforeEach(function(done) {
-      var mongo = {hostname: 'localhost', port: 27017, dbname: 'test'};
-      process.env.NODE_CONFIG = tmp;
-      fs.writeFileSync(tmp + '/db.json', JSON.stringify(mongo));
-      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
-          if (err) {
-            return done(err);
-          }
-          db.dropCollection('users', function() {done();});
-        });
-      });
-    });
 
     it('should find a user when we provide an email address', function(done) {
       var user = {
@@ -174,7 +132,6 @@ describe('The user core module', function() {
       };
 
       var finduser = function() {
-        var userModule = require(BASEPATH + '/backend/core').user;
         userModule.findByEmail('test2@linagora.com', function(err, user) {
           expect(err).to.be.null;
           expect(user).to.exist;
@@ -185,7 +142,7 @@ describe('The user core module', function() {
         });
       };
 
-      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
         if (err) {
           return done(err);
         }
@@ -199,7 +156,6 @@ describe('The user core module', function() {
       };
 
       var finduser = function() {
-        var userModule = require(BASEPATH + '/backend/core').user;
         userModule.findByEmail(['test2@linagora.com'], function(err, user) {
           expect(err).to.be.null;
           expect(user).to.exist;
@@ -210,7 +166,7 @@ describe('The user core module', function() {
         });
       };
 
-      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
         if (err) {
           return done(err);
         }
@@ -224,7 +180,6 @@ describe('The user core module', function() {
       };
 
       var finduser = function() {
-        var userModule = require(BASEPATH + '/backend/core').user;
         userModule.findByEmail(['test22@linagora.com'], function(err, user) {
           expect(err).to.be.null;
           expect(user).to.be.null;
@@ -232,7 +187,7 @@ describe('The user core module', function() {
         });
       };
 
-      mongodb.MongoClient.connect('mongodb://localhost/test', function(err, db) {
+      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
         if (err) {
           return done(err);
         }
