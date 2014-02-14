@@ -82,5 +82,11 @@ module.exports = function(grunt) {
   });
   grunt.registerTask('test', ['jshint', 'gjslint', 'test-backend', 'test-frontend']);
   grunt.registerTask('default', ['test']);
+  grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
+    var done = this.async();
+    require('./fixtures')(function(err) {
+      done(err ? false : true);
+    });
+  });
 
 };
