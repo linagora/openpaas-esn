@@ -10,13 +10,11 @@ describe('Passport LDAP', function() {
   var app, ldap;
 
   before(function() {
-    mongoose.connect(this.testEnv.mongoUrl);
     fs.copySync(this.testEnv.fixtures + '/default.ldapAuth.json', this.testEnv.tmp + '/default.json');
   });
 
-  after(function(done) {
+  after(function() {
     fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    mongoose.disconnect(done);
   });
 
   beforeEach(function(done) {
@@ -47,7 +45,7 @@ describe('Passport LDAP', function() {
 
   afterEach(function(done) {
     ldap.close();
-    mongoose.connection.db.dropDatabase(done);
+    this.helpers.mongo.dropCollections(done);
   });
 
   describe('/login', function() {

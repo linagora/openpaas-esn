@@ -12,12 +12,10 @@ describe('Passport Local', function() {
 
   before(function() {
     fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
-    mongoose.connect(this.testEnv.mongoUrl);
   });
 
-  after(function(done) {
+  after(function() {
     fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    mongoose.disconnect(done);
   });
 
   beforeEach(function(done) {
@@ -34,7 +32,7 @@ describe('Passport Local', function() {
   });
 
   afterEach(function(done) {
-    mongoose.connection.db.dropDatabase(done);
+    this.helpers.mongo.dropCollections(done);
   });
 
   describe('Check file-based auth', function() {

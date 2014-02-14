@@ -12,12 +12,10 @@ describe('On The Fly provisioning', function() {
 
   before(function() {
     fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
-    mongoose.connect(this.testEnv.mongoUrl);
   });
 
-  after(function(done) {
+  after(function() {
     fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    mongoose.disconnect(done);
   });
 
   beforeEach(function(done) {
@@ -32,7 +30,7 @@ describe('On The Fly provisioning', function() {
   });
 
   afterEach(function(done) {
-    mongoose.connection.db.dropDatabase(done);
+    this.helpers.mongo.dropCollections(done);
   });
 
   it('should provision the user on first login', function(done) {
