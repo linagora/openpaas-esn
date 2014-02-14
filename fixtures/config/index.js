@@ -1,43 +1,22 @@
 'use strict';
 
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
-var config = path.normalize(__dirname, '/../../config');
-
-var copyFile = function(name, done) {
-  console.log(' -> Copy file ', name);
-  fs.readFile(name, function(err, data) {
-    if (err) {
-      return done(err);
-    }
-
-    var name = path.normalize(config, name);
-    fs.writeFile(name, data, function(err) {
-      if (err) {
-        return done(err);
-      } else {
-        return done();
-      }
-    });
-  });
-};
+var config = path.resolve(__dirname + '/../../config');
 
 module.exports = function(done) {
-  var data = path.normalize(__dirname, 'data');
+  console.log('[INFO] Copy configuration files');
+  var data = __dirname + '/data';
   fs.readdirSync(data).forEach(function (filename) {
-    var f = data + '/' + filename;
-    if (fs.statSync(f).isFile()) {
-      copyFile(f, function(err) {
-        if (err) {
-          console.log('  [ERROR] ' + f + ' has not been copied (' + err.message + ')');
-        } else {
-          console.log('  [OK] ' + f + ' has been copied');
-        }
-      });
+    var from = data + '/' + filename;
+    var to = config + '/' + filename;
+    if (fs.statSync(from).isFile()) {
+      console.log('[INFO] Copy ', from);
+      fs.copySync(from, to);
     }
   });
   if (done) {
-    done();
+    return done();
   }
 };
 
