@@ -5,7 +5,7 @@ block content
         if user
             .alert.alert-success.animated
                 i.fa.fa-check
-                strong #{__('You are connected as %s',  user.username || user.email || user.id)}
+                strong #{__('You are connected as %s',  user.username || user.emails[0] || user.id)}
         else
             .alert.alert-info
-                a(href='/login') #{__('Please sign in')}
+                a(href='/login') Please sign in
