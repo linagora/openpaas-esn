@@ -1,7 +1,0 @@
-{
-  "cmd" : "../../lib/redis/redis-server",
-  "port" : "",
-  "conf_file" : "",
-  "log_path" : "",
-  "pwd" : ""
-}

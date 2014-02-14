@@ -2,10 +2,8 @@
 
 var fs = require('fs-extra');
 
-var conf_path = 'test/config/';
-
-var mongodb = JSON.parse(fs.readFileSync(conf_path + 'mongodb.conf.json'));
-var redis = JSON.parse(fs.readFileSync(conf_path + 'redis.conf.json'));
+var conf_path = './test/config/';
+var servers = require( conf_path + 'servers-conf');
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -24,10 +22,10 @@ module.exports = function(grunt) {
     },
     shell: {
       redis: {
-        command: redis.cmd +
-          (redis.port ? ' --port ' + redis.port : '') +
-          (redis.pwd ? ' --requirepass ' + redis.pwd : '') +
-          (redis.conf_file ? ' ' + redis.conf_file : ''),
+        command: servers.redis.cmd + ' --port ' +
+          (servers.redis.port ? servers.redis.port : '23457') +
+          (servers.redis.pwd ? ' --requirepass ' + servers.redis.pwd : '') +
+          (servers.redis.conf_file ? ' ' + servers.redis.conf_file : ''),
         options: {
           async: false,
           stdout: function(chunk){
@@ -45,14 +43,14 @@ module.exports = function(grunt) {
         }
       },
       mongo: {
-        command: mongodb.cmd + ' --dbpath ' + mongodb.dbpath +
-          (mongodb.port ? ' --port ' + mongodb.port : ''),
+        command: servers.mongodb.cmd + ' --dbpath ' + servers.mongodb.dbpath + ' --port ' +
+          (servers.mongodb.port ? servers.mongodb.port : '23456'),
         options: {
           async: false,
           stdout: function(chunk){
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started = new RegExp('connections on port '+ mongodb.port);
+            var started = new RegExp('connections on port '+ servers.mongodb.port);
             if(started.test(out)) {
               grunt.log.write('MongoDB server is started.');
               done(true);
@@ -113,7 +111,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
-      fs.mkdirsSync(mongodb.dbpath);
+      fs.mkdirsSync(servers.mongodb.dbpath);
     } catch (err) {
       throw err;
     }
@@ -121,7 +119,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('clean-environment', 'remove temp folder for tests', function(){
     try {
-      fs.removeSync(mongodb.dbpath);
+      fs.removeSync(servers.mongodb.dbpath);
     } catch (err) {
       throw err;
     }
