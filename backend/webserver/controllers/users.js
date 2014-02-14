@@ -47,11 +47,9 @@ function logmein(req, res) {
   }
 
   var emails = getEmailsFromPassportProfile(req.user);
-
   if (!emails.length) {
     res.send(500, 'No valid email address found');
   }
-
   userModule.findByEmail(emails, function(err, user) {
     if (err) {
       return res.send(500, 'Unable to lookup user ' + emails + ': ' + err);

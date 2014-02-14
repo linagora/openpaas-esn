@@ -1,58 +1,40 @@
 'use strict';
 
-var request = require('supertest');
-var mockery = require('mockery');
-var fs = require('fs');
-var path = require('path');
-var mongodb = require('mongodb');
+require('../all');
 
-var BASEPATH = '../../..';
-
-var app;
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp/');
-var fixture = path.resolve(__dirname + '/../fixtures/default.file.json');
-
-function expressApp() {
-  process.env.NODE_CONFIG = tmp;
-  var webserver = require(BASEPATH + '/backend/webserver');
-  var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-  webserver.start(port);
-  app = webserver.application;
-  return app;
-}
+var request = require('supertest'),
+    mockery = require('mockery'),
+    fs = require('fs-extra'),
+    mongoose = require('mongoose');
 
 describe('Passport Local', function() {
-  before(function(done) {
-    mongodb.MongoClient.connect('mongodb://localhost/test-midway-passport-local', function(err, db) {
-      if (err) {
-        return done(err);
-      }
-      db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
-        if (err) {
-          return done(err);
-        }
-        db.dropCollection('users', function() {done();});
-      });
-    });
-  });
-  beforeEach(function(done) {
-    process.env.NODE_CONFIG = tmp;
-    fs.writeFileSync(tmp + '/db.json', JSON.stringify({hostname: 'localhost', dbname: 'test-midway-passport-local', port: 27017}));
-    fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(fixture));
-    fs.writeFileSync(tmp + '/default.json', fs.readFileSync(fixture));
-    mockery.enable({warnOnUnregistered: false, useCleanCache: true});
+  var app;
 
+  before(function() {
+    fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
+    mongoose.connect(this.testEnv.mongoUrl);
+  });
+
+  after(function(done) {
+    fs.unlinkSync(this.testEnv.tmp + '/default.json');
+    mongoose.disconnect(done);
+  });
+
+  beforeEach(function(done) {
     mockery.registerMock('../../../config/users.json', { users: [{
       id: 'secret@linagora.com',
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
-    app = expressApp();
-    mongodb.MongoClient.connect('mongodb://localhost/test-midway-passport-local', function(err, db) {
-      if (err) {
-        return done(err);
-      }
-      db.dropCollection('users', function() {done();});
+    var template = require(this.testEnv.fixtures + '/user-template').simple();
+    mongoose.connection.collection('templates').insert(template, function() {
+      done();
     });
+
+    app = require(this.testEnv.basePath + '/backend/webserver/application');
+  });
+
+  afterEach(function(done) {
+    mongoose.connection.db.dropDatabase(done);
   });
 
   describe('Check file-based auth', function() {
@@ -157,19 +139,6 @@ describe('Passport Local', function() {
             .end(done);
         });
     });
-  });
-
-  afterEach(function() {
-    mockery.deregisterAll();
-    mockery.resetCache();
-  });
-
-  after(function() {
-    mockery.disable();
-    delete process.env.NODE_CONFIG;
-    fs.unlinkSync(path.resolve(tmp + '/db.json'));
-    fs.unlinkSync(path.resolve(tmp + '/default.test.json'));
-    fs.unlinkSync(path.resolve(tmp + '/default.json'));
   });
 
 });
