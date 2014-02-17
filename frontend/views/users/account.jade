@@ -1,4 +1,4 @@
 extends  ../layout
 block content
-    h1 Account
-    strong You are connected as #{user.username || user.emails[0] || user.id}&nbsp;
+    h1 #{__('Account')}
+    strong #{__('You are connected as %s',  user.username || user.emails[0] || user.id)}

@@ -7,7 +7,7 @@ i18n.configure(
     directory: __dirname + '/locales',
     updateFiles: false,
     indent: '  ',
-    extension: '.js'
+    extension: '.json'
   }
 );
 
