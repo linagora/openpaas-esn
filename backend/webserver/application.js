@@ -37,12 +37,6 @@ application.use('/images', express.static(frontendPath + '/images'));
 application.use('/js', express.static(frontendPath + '/js'));
 
 application.use(i18n.init); // Should stand before app.route
-application.use(function(req, res, next) {
-  res.locals.__ = function() {
-    return i18n.__.apply(req, arguments);
-  };
-  next();
-});
 application.use(express.json());
 application.use(express.urlencoded());
 application.use(express.cookieParser('this is the secret!'));
