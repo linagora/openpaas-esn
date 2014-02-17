@@ -1,14 +1,10 @@
 'use strict';
 
 var chai = require('chai'),
-  expect = chai.expect,
-  mockery = require('mockery');
+    expect = chai.expect,
+    mockery = require('mockery');
 
-describe('The file-based authentication module', function(done) {
-
-  before(function() {
-    mockery.enable({warnOnUnregistered: false, useCleanCache: true});
-  });
+describe('The file-based authentication module', function() {
 
   it('should deny access if the user is not defined', function(done) {
     var fileAuth = require('../../../../backend/core/auth/file').auth;
@@ -88,15 +84,6 @@ describe('The file-based authentication module', function(done) {
         done();
       });
     });
-  });
-
-  afterEach(function() {
-    mockery.deregisterAll();
-    mockery.resetCache();
-  });
-
-  after(function() {
-    mockery.disable();
   });
 
 });

@@ -44,7 +44,7 @@ module.exports = function(grunt) {
       },
       mongo: {
         command: servers.mongodb.cmd + ' --dbpath ' + servers.mongodb.dbpath + ' --port ' +
-          (servers.mongodb.port ? servers.mongodb.port : '23456'),
+          (servers.mongodb.port ? servers.mongodb.port : '23456') + ' --nojournal',
         options: {
           async: false,
           stdout: function(chunk){
@@ -73,7 +73,7 @@ module.exports = function(grunt) {
       }
     },
     run_grunt: {
-      simple_target: {
+      all: {
         options: {
           log: true,
           process: function(res){
@@ -85,6 +85,54 @@ module.exports = function(grunt) {
               grunt.log.writeln('succeeded');
             }
           }
+        },
+        src: ['Gruntfile-tests.js']
+      },
+      midway_backend: {
+        options: {
+          log: true,
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-midway-backend']
+        },
+        src: ['Gruntfile-tests.js']
+      },
+      unit_backend: {
+        options: {
+          log: true,
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-unit-backend']
+        },
+        src: ['Gruntfile-tests.js']
+      },
+      frontend: {
+        options: {
+          log: true,
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-frontend']
         },
         src: ['Gruntfile-tests.js']
       }
@@ -140,6 +188,9 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('dev', ['nodemon:dev']);
-  grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'continueOn', 'spawn-servers', 'run_grunt', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-midway-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-unit-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:unit_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-frontend', ['run_grunt:frontend']);
+  grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:all', 'kill-servers', 'clean-environment']);
   grunt.registerTask('default', ['test']);
 };

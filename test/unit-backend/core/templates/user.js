@@ -1,22 +1,21 @@
 'use strict';
 
-var expect = require('chai').expect;
-var path = require('path');
-var fs = require('fs');
-var BASEPATH = '../../../..';
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
+var expect = require('chai').expect,
+    mongoose = require('mongoose'),
+    fs = require('fs');
 
 describe('The User template module', function() {
 
   describe('If not configured', function() {
-    beforeEach(function() {
-      process.env.NODE_CONFIG = tmp;
+
+    before(function() {
       try {
-        fs.unlinkSync(tmp + '/db.json');
+        fs.unlinkSync(this.testEnv.tmp + '/db.json');
       } catch (e) {}
     });
+
     it('should not inject templates', function(done) {
-      var core = require(BASEPATH + '/backend/core');
+      var core = require(this.testEnv.basePath + '/backend/core');
       var templates = core.templates;
       var configured = core.configured;
       expect(configured()).to.be.false;
@@ -26,22 +25,27 @@ describe('The User template module', function() {
 
   describe('If configured', function() {
 
-    beforeEach(function() {
-      var mongo = {hostname: 'localhost', port: 27017, dbname: 'test'};
-      process.env.NODE_CONFIG = tmp;
-      fs.writeFileSync(tmp + '/db.json', JSON.stringify(mongo));
+    before(function() {
+      this.testEnv.writeDBConfigFile();
     });
 
     it('should inject templates', function(done) {
-      var core = require('../../../../backend/core');
+      var core = require(this.testEnv.basePath + '/backend/core');
       var templates = core.templates;
       var configured = core.configured;
       expect(configured()).to.be.true;
       templates.inject(done);
     });
 
-    afterEach(function() {
-      fs.unlinkSync(tmp + '/db.json');
+    after(function(done) {
+      this.testEnv.removeDBConfigFile();
+      mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) { return done(err); }
+        mongoose.connection.db.dropDatabase(function(err, ok) {
+          if (err) { return done(err); }
+          mongoose.disconnect(done);
+        });
+      });
     });
   });
 

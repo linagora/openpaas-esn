@@ -1,9 +1,6 @@
 'use strict';
 var logger = require('../../core').logger;
 
-
-var logger = require('../../core').logger;
-
 function Pubsub(client) {
   this.client = client;
   this._channels = {};

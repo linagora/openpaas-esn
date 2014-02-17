@@ -1,78 +1,49 @@
 'use strict';
 
-//
-// Midway LDAP test.
-// Starts the application and a LDAP server to validate LDAP-based authentication.
-//
-
-var request = require('supertest');
-var fs = require('fs');
-var path = require('path');
-var mongodb = require('mongodb');
-
-var BASEPATH = '../../..';
-var tmp = path.resolve(__dirname + BASEPATH + '/../tmp');
-var config = path.resolve(__dirname + '/../fixtures/default.json');
-var db = path.resolve(__dirname + '/../fixtures/db.json');
-var ldapconf = path.resolve(__dirname + '/../fixtures/ldap.json');
-var app;
-var ldap;
-var port = 1389;
-
-function expressApp(cb) {
-  process.env.NODE_CONFIG = tmp;
-  var webserver = require(BASEPATH + '/backend/webserver');
-  var port = require(BASEPATH + '/backend/core').config('default').webserver.port;
-  webserver.start(port);
-  console.log('Express App started on ', port);
-  app = webserver.application;
-  if (cb) {
-    return cb(app);
-  }
-}
-
-function servers(options, cb) {
-  ldap = require('../fixtures/ldap');
-  ldap.start(port, function() {
-    console.log('LDAP started on ', port);
-
-    expressApp(function(application) {
-      app = application;
-      if (cb) {
-        cb();
-      }
-    });
-  });
-}
+var request = require('supertest'),
+    mongoose = require('mongoose'),
+    fs = require('fs-extra');
 
 describe('Passport LDAP', function() {
+  var app, ldap;
 
-  before(function(done) {
-    mongodb.MongoClient.connect('mongodb://localhost/midway-ldap-test', function(err, db) {
-      if (err) {
-        return done(err);
-      }
-      db.collection('templates').insert(require('../fixtures/user-template').simple(), function() {
-        if (err) {
-          return done(err);
-        }
-        db.dropCollection('users', function() {done();});
-      });
-    });
+  before(function() {
+    fs.copySync(this.testEnv.fixtures + '/default.ldapAuth.json', this.testEnv.tmp + '/default.json');
+  });
+
+  after(function() {
+    fs.unlinkSync(this.testEnv.tmp + '/default.json');
   });
 
   beforeEach(function(done) {
-    process.env.NODE_CONFIG = tmp;
-    fs.writeFileSync(tmp + '/default.test.json', fs.readFileSync(config));
-    fs.writeFileSync(tmp + '/default.json', fs.readFileSync(config));
-    fs.writeFileSync(tmp + '/db.json', fs.readFileSync(db));
+    var self = this;
     var esnconfig = require('../../../backend/core/esn-config')('ldap');
+    var ldapconf = this.testEnv.fixtures + '/ldap.json';
+    var ldapPort = '1389';
+    var template = require(this.testEnv.fixtures + '/user-template').simple();
+
+    function servers(options, callback) {
+      ldap = require(self.testEnv.fixtures + '/ldap');
+      ldap.start(ldapPort, function() {
+        console.log('LDAP started on ', ldapPort);
+        app = require(self.testEnv.basePath + '/backend/webserver/application');
+        callback();
+      });
+    }
+
     esnconfig.store(JSON.parse(fs.readFileSync(ldapconf)), function(err) {
       servers(null, function() {
         console.log('Servers started');
-        return done();
+        mongoose.connection.collection('templates').insert(template, function() {
+          done();
+        });
       });
     });
+  });
+
+  afterEach(function(done) {
+    ldap.close();
+    this.helpers.mongo.dropCollections(done);
   });
 
   describe('/login', function() {
@@ -103,16 +74,5 @@ describe('Passport LDAP', function() {
         .expect('Location', '/login')
         .end(done);
     });
-  });
-
-  afterEach(function() {
-    delete process.env.NODE_CONFIG;
-    ldap.close();
-  });
-
-  after(function() {
-    fs.unlinkSync(tmp + '/default.test.json');
-    fs.unlinkSync(tmp + '/db.json');
-    fs.unlinkSync(tmp + '/default.json');
   });
 });
