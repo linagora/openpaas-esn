@@ -1,7 +1,11 @@
 'use strict';
 
-module.exports = function(grunt) {
+var fs = require('fs-extra');
 
+var conf_path = './test/config/';
+var servers = require( conf_path + 'servers-conf');
+
+module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
@@ -16,23 +20,45 @@ module.exports = function(grunt) {
         ignores: []
       }
     },
-    watch: {
-      files: ['<%= jshint.files %>'],
-      tasks: ['jshint']
-    },
-    mochacli: {
-      options: {
-        require: ['chai', 'mockery'],
-        reporter: 'spec'
-      },
-      backend: {
+    shell: {
+      redis: {
+        command: servers.redis.cmd + ' --port ' +
+          (servers.redis.port ? servers.redis.port : '23457') +
+          (servers.redis.pwd ? ' --requirepass ' + servers.redis.pwd : '') +
+          (servers.redis.conf_file ? ' ' + servers.redis.conf_file : ''),
         options: {
-          files: ['test/unit-backend/all.js', 'test/unit-backend/**/*.js']
+          async: false,
+          stdout: function(chunk){
+            var done = grunt.task.current.async();
+            var out = '' + chunk;
+            var started=/on port/;
+            if(started.test(out)) {
+              grunt.log.write('Redis server is started.');
+              done(true);
+            }
+          },
+          stderr: function(chunk) {
+            grunt.log.error(chunk);
+          }
         }
       },
-      midway: {
+      mongo: {
+        command: servers.mongodb.cmd + ' --dbpath ' + servers.mongodb.dbpath + ' --port ' +
+          (servers.mongodb.port ? servers.mongodb.port : '23456'),
         options: {
-          files: ['test/midway-backend/all.js', 'test/midway-backend/**/*.js']
+          async: false,
+          stdout: function(chunk){
+            var done = grunt.task.current.async();
+            var out = '' + chunk;
+            var started = new RegExp('connections on port '+ servers.mongodb.port);
+            if(started.test(out)) {
+              grunt.log.write('MongoDB server is started.');
+              done(true);
+            }
+          },
+          stderr: function(chunk) {
+            grunt.log.error(chunk);
+          }
         }
       }
     },
@@ -45,66 +71,75 @@ module.exports = function(grunt) {
           watchedExtensions: ['js', 'jade']
         }
       }
+    },
+    run_grunt: {
+      simple_target: {
+        options: {
+          log: true,
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          }
+        },
+        src: ['Gruntfile-tests.js']
+      }
+    },
+    watch: {
+      files: ['<%= jshint.files %>'],
+      tasks: ['jshint']
     }
   });
+
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-mocha-cli');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-nodemon');
+  grunt.loadNpmTasks('grunt-shell-spawn');
+  grunt.loadNpmTasks('grunt-continue');
+  grunt.loadNpmTasks('grunt-run-grunt');
 
-  grunt.registerTask('test-unit-backend', 'run the backend unit tests', ['test-backend-prepare', 'mochacli:backend']);
-  grunt.registerTask('test-midway-backend', 'run midway tests', ['test-backend-prepare', 'mochacli:midway']);
-  grunt.registerTask('test-backend', 'run both the unit & midway tests', ['test-unit-backend', 'test-midway-backend']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill']);
 
-  grunt.registerTask('test-backend-prepare', 'prepare tests environment', function() {
-    var done = this.async();
-    
-    process.env.NODE_ENV = 'test';
-    
-    var child = require('child_process').spawn('sh', ['./scripts/prepare-backend-tests-environment.sh']);
-    
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close',function(code) { done(code ? false : true); });
+  grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
+    try {
+      fs.mkdirsSync(servers.mongodb.dbpath);
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  grunt.registerTask('clean-environment', 'remove temp folder for tests', function(){
+    try {
+      fs.removeSync(servers.mongodb.dbpath);
+    } catch (err) {
+      throw err;
+    }
+
+    if(!grunt.config.get('esn.tests.success')){
+      throw new Error('fail');
+    }
   });
 
   grunt.registerTask('gjslint', 'run the closure linter', function() {
     var done = this.async();
-    
+
     var child = require('child_process').spawn('python', ['./scripts/gjslint.py', '--disable', '0110', '--nojsdoc', '-r', 'test', '-r', 'backend', '-r', 'frontend/js']);
-    
+
     child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
     child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
     child.on('close',function(code) { done(code ? false : true); });
   });
 
-
-  grunt.registerTask('test-frontend', 'run the FrontEnd tests', function() {
-    var done = this.async();
-    
-    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS', './test/config/karma.conf.js']);
-    
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close',function(code) { done(code ? false : true); });
-  });
-  
-  grunt.registerTask('test-frontend-all', 'run the FrontEnd tests on all possible browsers', function() {
-    var done = this.async();
-    
-    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS,Firefox,Chrome', './test/config/karma.conf.js']);
-    
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close',function(code) { done(code ? false : true); });
-  });
-  grunt.registerTask('test', ['jshint', 'gjslint', 'test-backend', 'test-frontend']);
-  grunt.registerTask('default', ['test']);
-  
   grunt.registerTask('dev', ['nodemon:dev']);
-
+  grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'continueOn', 'spawn-servers', 'run_grunt', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('default', ['test']);
 };
