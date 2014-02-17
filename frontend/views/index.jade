@@ -8,4 +8,4 @@ block content
                 strong #{__('You are connected as %s',  user.username || user.emails[0] || user.id)}
         else
             .alert.alert-info
-                a(href='/login') Please sign in
+                a(href='/login') #{__('Please sign in')}
