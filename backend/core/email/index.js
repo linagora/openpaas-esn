@@ -88,6 +88,7 @@ var attachments = function(template) {
 /**
  * Send an HTML email rendered from a template
  *
+ * @param {string} from - source
  * @param {string} to - recipient (as CSV if N recipients)
  * @param {string} type
  * @param {hash} locals
@@ -144,6 +145,7 @@ exports.sendHTML = function(from, to, subject, type, locals, done) {
 /**
  * Send raw email to recipient
  *
+ * @param {string} from - source
  * @param {string} to - recipient (as CSV if multiple recipients)
  * @param {string} text
  * @param {fn} done
