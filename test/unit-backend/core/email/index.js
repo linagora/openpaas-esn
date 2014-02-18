@@ -63,6 +63,62 @@ describe('The email module', function() {
     });
   });
 
+  it('should send email with from as name <address>', function(done) {
+    var tmp = this.testEnv.tmp;
+    var email = require('../../../../backend/core/email');
+    var nodemailer = require('nodemailer');
+    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    email.setTransport(transport);
+    var name = 'Foo Bar';
+    var address = 'foo@baz.org';
+    var source = name + '<' + address + '>';
+
+    var message = 'Hello from node';
+    email.send(source, 'foo@bar.com', 'The subject', message, function(err, response) {
+      expect(err).to.not.exist;
+      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
+      expect(fs.existsSync(file)).to.be.true;
+
+      var MailParser = require('mailparser').MailParser;
+      var mailparser = new MailParser();
+      mailparser.on('end', function(mail_object) {
+        expect(mail_object.text).to.have.string(message);
+        expect(mail_object.from[0].name).to.equal(name);
+        expect(mail_object.from[0].address).to.equal(address);
+        done();
+      });
+      fs.createReadStream(file).pipe(mailparser);
+    });
+  });
+
+  it('should send email with to as name <address>', function(done) {
+    var tmp = this.testEnv.tmp;
+    var email = require('../../../../backend/core/email');
+    var nodemailer = require('nodemailer');
+    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    email.setTransport(transport);
+    var name = 'Foo Bar';
+    var address = 'foo@baz.org';
+    var to = name + '<' + address + '>';
+
+    var message = 'Hello from node';
+    email.send(from, to, 'The subject', message, function(err, response) {
+      expect(err).to.not.exist;
+      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
+      expect(fs.existsSync(file)).to.be.true;
+
+      var MailParser = require('mailparser').MailParser;
+      var mailparser = new MailParser();
+      mailparser.on('end', function(mail_object) {
+        expect(mail_object.text).to.have.string(message);
+        expect(mail_object.to[0].name).to.equal(name);
+        expect(mail_object.to[0].address).to.equal(address);
+        done();
+      });
+      fs.createReadStream(file).pipe(mailparser);
+    });
+  });
+
   it('should fail when template does not exist', function(done) {
     var email = require('../../../../backend/core/email');
     var nodemailer = require('nodemailer');
