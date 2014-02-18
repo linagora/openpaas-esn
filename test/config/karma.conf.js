@@ -9,6 +9,8 @@ module.exports = function(config) {
       'frontend/components/angular/angular.js',
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-mocks/angular-mocks.js',
+      'frontend/components/underscore/underscore.js',
+      'frontend/components/restangular/dist/restangular.js',
       'frontend/components/chai/chai.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js'
