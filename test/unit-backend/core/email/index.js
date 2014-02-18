@@ -5,13 +5,14 @@ var path = require('path');
 var fs = require('fs');
 var BASEPATH = '../../../../';
 var TMP = path.resolve(__dirname + BASEPATH + '../tmp/');
+var from = 'from@baz.org';
 
 describe('The email module', function() {
 
   it('should throw error if recipient is not defined', function(done) {
     var email = require('../../../../backend/core/email');
     email.transport = function() {};
-    email.send(null, 'The subject', 'Hello', function(err) {
+    email.send(null, null, 'The subject', 'Hello', function(err) {
       expect(err).to.exist;
       done();
     });
@@ -26,7 +27,7 @@ describe('The email module', function() {
         return cb();
       }
     });
-    email.send('foo@bar.com', 'The subject', 'Hello', function(err) {
+    email.send(from, 'foo@bar.com', 'The subject', 'Hello', function(err) {
       expect(err).to.not.exist;
       expect(called).to.be.true;
       done();
@@ -40,7 +41,7 @@ describe('The email module', function() {
     email.setTransport(transport);
 
     var message = 'Hello from node';
-    email.send('foo@bar.com', 'The subject', message, function(err, response) {
+    email.send(from, 'foo@bar.com', 'The subject', message, function(err, response) {
       expect(err).to.not.exist;
       var file = path.resolve(TMP + '/' + response.messageId + '.eml');
       expect(fs.existsSync(file)).to.be.true;
@@ -65,7 +66,7 @@ describe('The email module', function() {
     email.setTemplatesDir(templates);
 
     var type = 'foobar';
-    email.sendHTML('foo@bar.com', 'The subject', type, {}, function(err, message) {
+    email.sendHTML(from, 'foo@bar.com', 'The subject', type, {}, function(err, message) {
       expect(err).to.exist;
       done();
     });
@@ -89,7 +90,7 @@ describe('The email module', function() {
       }
     };
 
-    email.sendHTML('foo@bar.com', 'The subject', type, locals, function(err, message) {
+    email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
       expect(err).to.not.exist;
       var file = path.resolve(TMP + '/' + message.messageId + '.eml');
       var fs = require('fs');
@@ -144,7 +145,7 @@ describe('The email module', function() {
         }
       };
 
-      email.sendHTML('foo@bar.com', 'The subject', type, locals, function(err, message) {
+      email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
         expect(err).to.not.exist;
         var file = path.resolve(TMP + '/' + message.messageId + '.eml');
         var fs = require('fs');
@@ -173,7 +174,7 @@ describe('The email module', function() {
 
     it('should fail when transport is not defined', function(done) {
       var email = require('../../../../backend/core/email');
-      email.send('to@foo.com', 'None', 'Hello', function(err, message) {
+      email.send(from, 'to@foo.com', 'None', 'Hello', function(err, message) {
         expect(err).to.exist;
         done();
       });

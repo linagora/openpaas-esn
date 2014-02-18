@@ -93,7 +93,7 @@ var attachments = function(template) {
  * @param {hash} locals
  * @param {fn} done
  */
-exports.sendHTML = function(to, subject, type, locals, done) {
+exports.sendHTML = function(from, to, subject, type, locals, done) {
   if (!to) {
     return done(new Error('Recipient can not be null'));
   }
@@ -118,7 +118,7 @@ exports.sendHTML = function(to, subject, type, locals, done) {
             return done(err);
           }
           var message = {
-            from: data.from,
+            from: from || data.from,
             to: to,
             subject: subject,
             html: html,
@@ -148,7 +148,7 @@ exports.sendHTML = function(to, subject, type, locals, done) {
  * @param {string} text
  * @param {fn} done
  */
-exports.send = function(to, subject, text, done) {
+exports.send = function(from, to, subject, text, done) {
   if (!to) {
     return done(new Error('Recipient can not be null'));
   }
@@ -167,7 +167,7 @@ exports.send = function(to, subject, text, done) {
       }
 
       var message = {
-        from: data.from,
+        from: from || data.from,
         to: to,
         subject: subject,
         text: text
