@@ -9,6 +9,7 @@ var emailTemplates = require('email-templates');
 var path = require('path');
 var templatesDir = path.resolve(__dirname + '/templates');
 var esnConf = require('../esn-config');
+var logger = require('../../core').logger;
 var transport;
 
 var opts = {
@@ -132,8 +133,10 @@ exports.sendHTML = function(from, to, subject, type, locals, done) {
           }
           transport.sendMail(message, function(err, response) {
             if (err) {
+              logger.warn('Error while sending email %s', err.message);
               return done(err);
             }
+            logger.debug('Email has been sent to %s', to);
             done(null, response);
           });
         });
@@ -176,8 +179,10 @@ exports.send = function(from, to, subject, text, done) {
       };
       transport.sendMail(message, function(err, response) {
         if (err) {
+          logger.warn('Error while sending email %s', err.message);
           return done(err);
         }
+        logger.debug('Email has been sent to %s', to);
         done(null, response);
       });
     });
