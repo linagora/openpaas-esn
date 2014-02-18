@@ -24,6 +24,8 @@
     "extend": "~1.2.1",
     "email-addresses": "~1.1.1",
     "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git",
+    "fs-extra": "~0.8.1"
+    "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git",
     "nodemailer": "~0.6.0",
     "email-templates": "~0.1.1"
   },
@@ -58,6 +60,11 @@
     "find-port": "0.0.3",
     "connect-flash": "0.1.1",
     "ldapjs": "0.7.0",
+    "grunt-nodemon": "~0.2.0",
+    "grunt-run": "~0.2.1",
+    "grunt-run-grunt": "~0.1.3",
+    "grunt-shell-spawn": "sergkr/grunt-shell-spawn",
+    "grunt-continue": "0.0.1",
     "mailparser": "~0.4.1"
   },
   "scripts": {

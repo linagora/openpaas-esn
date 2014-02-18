@@ -10,19 +10,19 @@
         .collapse.navbar-collapse
             ul.nav.navbar-nav
                 li(class=title=='Home'?'active':undefined)
-                    a(href='/') Home
+                    a(href='/') #{__('Home')}
             ul.nav.navbar-nav.navbar-right
                 if (!user)
                     li(class=title=='Login'?'active':undefined)
-                        a(href='/login') Login
+                        a(href='/login') #{__('Login')}
                 else
                     li.dropdown(class=title=='Account Management'?'active':undefined)
                         a.dropdown-toggle(href='#', data-toggle='dropdown')
                             if user.picture
                                 img.profile-image(src='#{user.picture}')
-                            | #{user.username || user.email || user.id}&nbsp;
+                            | #{user.username || user.emails[0] || user.id}&nbsp;
                             i.caret
                         ul.dropdown-menu
-                            li: a(href='/account') My Account
+                            li: a(href='/account') #{__('My Account')}
                             li.divider
-                            li: a(href='/logout') Logout
+                            li: a(href='/logout') #{__('Logout')}

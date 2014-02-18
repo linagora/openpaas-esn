@@ -1,8 +1,7 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var BASEPATH = '../../..';
+var expect = require('chai').expect,
+    mockery = require('mockery');
 
 describe('The core esn-config module', function() {
 
@@ -20,12 +19,12 @@ describe('The core esn-config module', function() {
   });
 
   it('should be a function', function() {
-    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
     expect(esnConfig).to.be.a.function;
   });
 
   it('should be a function that got three methods: get, set and store', function() {
-    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
     var testConfig = esnConfig('test');
     expect(testConfig).to.have.property('get');
     expect(testConfig).to.have.property('set');
@@ -33,21 +32,21 @@ describe('The core esn-config module', function() {
   });
 
   it('should target by default the configuration collection', function() {
-    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
     var testConfig = esnConfig('test');
     expect(testConfig).to.have.property('collectionName');
     expect(testConfig.collectionName).to.equal('configuration');
   });
 
   it('should target another collection if we pass it as the second argument', function() {
-    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
     var testConfig = esnConfig('test', 'anotherCollection');
     expect(testConfig).to.have.property('collectionName');
     expect(testConfig.collectionName).to.equal('anotherCollection');
   });
 
   it('should return null when the namespace is not set', function() {
-    var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+    var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
     var testConfig = esnConfig();
     expect(testConfig).to.be.null;
     testConfig = esnConfig('');
@@ -75,7 +74,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.get();
     });
@@ -108,7 +107,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.get(function(err, key) {
         expect(key).to.deep.equal(obj);
@@ -145,7 +144,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.get('host', function(err, key) {
         expect(key).to.equal('test.linagora.com');
@@ -182,7 +181,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.get('options.neverFails', function(err, key) {
         expect(key).to.be.true;
@@ -207,7 +206,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.get();
     });
@@ -216,7 +215,7 @@ describe('The core esn-config module', function() {
   describe('set method', function() {
 
     it('should send back an error if the key is not set', function() {
-      var testConfig = require(BASEPATH + '/backend/core/esn-config')('test');
+      var testConfig = require(this.testEnv.basePath + '/backend/core/esn-config')('test');
       testConfig.set(null, false, function(err) {
         expect(err).to.exist;
       });
@@ -247,7 +246,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.set('foo', 'bar');
     });
@@ -269,7 +268,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.set('foo', 'bar');
     });
@@ -277,7 +276,7 @@ describe('The core esn-config module', function() {
 
   describe('store method', function() {
     it('should return an error is the configuration is not an object', function() {
-      var testConfig = require(BASEPATH + '/backend/core/esn-config')('test');
+      var testConfig = require(this.testEnv.basePath + '/backend/core/esn-config')('test');
       testConfig.store(null, function(err) {
         expect(err).to.exist;
       });
@@ -311,7 +310,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.store({foo: 'bar', ok: true});
     });
@@ -333,7 +332,7 @@ describe('The core esn-config module', function() {
         return callback(null, mongoDbMock);
       };
 
-      var esnConfig = require(BASEPATH + '/backend/core/esn-config');
+      var esnConfig = require(this.testEnv.basePath + '/backend/core/esn-config');
       var testConfig = esnConfig('test');
       testConfig.store({foo: 'bar', ok: true});
     });

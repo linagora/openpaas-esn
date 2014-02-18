@@ -27,5 +27,13 @@
       "colorize": true
     }
   },
+  "auth": {
+    "strategies": ["local"]
+  },
+  "core": {
+    "config": {
+      "db": "./tmp/db.json"
+    }
+  },
   "for-the-test": "This key is only set in the test configuration file"
 }

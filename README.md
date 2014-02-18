@@ -42,6 +42,16 @@ Use npm start to start the server !
 
     npm start
     
+
+Develop the ESN
+---------------
+
+Use 
+
+    grunt dev
+
+to start the server in development mode.
+
 Licence
 -------
 
