@@ -3,11 +3,17 @@
 var expect = require('chai').expect;
 var path = require('path');
 var fs = require('fs');
-var BASEPATH = '../../../../';
-var TMP = path.resolve(__dirname + BASEPATH + '../tmp/');
 var from = 'from@baz.org';
 
 describe('The email module', function() {
+
+  before(function() {
+    this.testEnv.writeDBConfigFile();
+  });
+
+  after(function() {
+    this.testEnv.removeDBConfigFile();
+  });
 
   it('should throw error if recipient is not defined', function(done) {
     var email = require('../../../../backend/core/email');
@@ -35,15 +41,16 @@ describe('The email module', function() {
   });
 
   it('should send email with sendmail mock (pickup)', function(done) {
+    var tmp = this.testEnv.tmp;
     var email = require('../../../../backend/core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: TMP});
+    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     email.setTransport(transport);
 
     var message = 'Hello from node';
     email.send(from, 'foo@bar.com', 'The subject', message, function(err, response) {
       expect(err).to.not.exist;
-      var file = path.resolve(TMP + '/' + response.messageId + '.eml');
+      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
       expect(fs.existsSync(file)).to.be.true;
 
       var MailParser = require('mailparser').MailParser;
@@ -59,7 +66,7 @@ describe('The email module', function() {
   it('should fail when template does not exist', function(done) {
     var email = require('../../../../backend/core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: TMP});
+    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     var templates = path.resolve(__dirname + '/fixtures/templates/');
 
     email.setTransport(transport);
@@ -73,9 +80,10 @@ describe('The email module', function() {
   });
 
   it('should generate and send HTML email from existing template', function(done) {
+    var tmp = this.testEnv.tmp;
     var email = require('../../../../backend/core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: TMP});
+    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     var templates = path.resolve(__dirname + '/fixtures/templates/');
 
     email.setTransport(transport);
@@ -92,7 +100,7 @@ describe('The email module', function() {
 
     email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
       expect(err).to.not.exist;
-      var file = path.resolve(TMP + '/' + message.messageId + '.eml');
+      var file = path.resolve(tmp + '/' + message.messageId + '.eml');
       var fs = require('fs');
       expect(fs.existsSync(file)).to.be.true;
       var MailParser = require('mailparser').MailParser;
@@ -114,7 +122,7 @@ describe('The email module', function() {
         transport: {
           type: 'Pickup',
           config: {
-            directory: TMP
+            directory: this.testEnv.tmp
           }
         }
       };
@@ -132,6 +140,7 @@ describe('The email module', function() {
     });
 
     it('should send an email with configured ESN', function(done) {
+      var tmp = this.testEnv.tmp;
       var email = require('../../../../backend/core/email');
       var templates = path.resolve(__dirname + '/fixtures/templates/');
       email.setTemplatesDir(templates);
@@ -147,7 +156,7 @@ describe('The email module', function() {
 
       email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
         expect(err).to.not.exist;
-        var file = path.resolve(TMP + '/' + message.messageId + '.eml');
+        var file = path.resolve(tmp + '/' + message.messageId + '.eml');
         var fs = require('fs');
         expect(fs.existsSync(file)).to.be.true;
         var MailParser = require('mailparser').MailParser;
