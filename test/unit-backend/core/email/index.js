@@ -195,7 +195,7 @@ describe('The email module', function() {
       });
     });
 
-    it('should send an email with configured ESN', function(done) {
+    it('should send an email', function(done) {
       var tmp = this.testEnv.tmp;
       var email = require('../../../../backend/core/email');
       var templates = path.resolve(__dirname + '/fixtures/templates/');
