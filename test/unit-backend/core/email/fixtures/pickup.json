@@ -1,0 +1,9 @@
+{
+  "from": "root@hiveety.org",
+  "transport": {
+    "type": "Pickup",
+    "config": {
+      "directory": "/tmp"
+    }
+  }
+}
