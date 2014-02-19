@@ -26,7 +26,8 @@
     "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git",
     "fs-extra": "~0.8.1",
     "nodemailer": "~0.6.0",
-    "email-templates": "~0.1.1"
+    "email-templates": "~0.1.1",
+    "node-uuid": "~1.4.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
