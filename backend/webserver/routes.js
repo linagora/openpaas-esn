@@ -26,7 +26,7 @@ exports = module.exports = function(application) {
   application.put('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
 
   var invitation = require('./controllers/invitation');
-  application.put('/api/invitation', invitation.create);
+  application.post('/api/invitation', invitation.create);
   application.put('/api/invitation/:uuid', invitation.load, invitation.finalize);
   application.get('/api/invitation/:uuid', invitation.get);
   application.get('/invitation/:uuid', invitation.load, invitation.confirm);
