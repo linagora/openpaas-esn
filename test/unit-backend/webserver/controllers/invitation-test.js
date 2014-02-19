@@ -17,7 +17,7 @@ describe('The invitation controller', function() {
     this.testEnv.removeDBConfigFile();
   });
 
-  describe('PUT /api/invitation', function() {
+  describe('POST /api/invitation', function() {
     var webserver = null;
     var handler = {
       init: function(invitation, cb) {
@@ -50,7 +50,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on empty payload', function(done) {
-      request(webserver.application).put('/api/invitation').expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitation').expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -58,7 +58,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on missing type', function(done) {
-      request(webserver.application).put('/api/invitation').send({name: 'hiveety'}).expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitation').send({name: 'hiveety'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -66,7 +66,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on any other JSON data', function(done) {
-      request(webserver.application).put('/api/invitation').send({ foo: 'bar', baz: 1}).expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitation').send({ foo: 'bar', baz: 1}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -75,7 +75,7 @@ describe('The invitation controller', function() {
 
     it('should save the invitation', function(done) {
       var invitation = { type: 'test'};
-      request(webserver.application).put('/api/invitation').send(invitation).expect(201).end(function(err, res) {
+      request(webserver.application).post('/api/invitation').send(invitation).expect(201).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         expect(res.body.uuid).to.be.not.null;
