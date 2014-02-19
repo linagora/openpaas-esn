@@ -100,4 +100,73 @@ describe('The invitation core module', function() {
       });
     });
   });
+
+  describe('The validate method', function() {
+    it('should fail when input is null', function(done) {
+      var invitation = require('../../../../backend/core/invitation');
+      invitation.validate(null, function(err, result) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should fail when input type is null', function(done) {
+      var invitation = require('../../../../backend/core/invitation');
+      invitation.validate({}, function(err, result) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should call the handler to validate the data', function(done) {
+      var invitation = require('../../../../backend/core/invitation');
+      var called = false;
+      var handler = {
+        validate: function(invitation, cb) {
+          called = true;
+          cb(null, true);
+        }
+      };
+
+      mockery.registerMock('./handlers/validatetest', handler);
+      mockery.registerMock('../../../../backend/core/invitation/handlers/validatetest', handler);
+
+      invitation.validate({type: 'validatetest'}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('The finalize method', function() {
+
+    it('should call the handler to finalize the request', function(done) {
+      var invitation = require('../../../../backend/core/invitation');
+      var called = false;
+      var handler = {
+        finalize: function(req, res, next) {
+          return next(null, true);
+        }
+      };
+
+      var req = {};
+      var res = {};
+      req.invitation = {
+        type : 'finalizetest'
+      };
+      req.body = {
+        foo : 'bar'
+      };
+
+      mockery.registerMock('./handlers/finalizetest', handler);
+      mockery.registerMock('../../../../backend/core/invitation/handlers/finalizetest', handler);
+
+      invitation.finalize(req, res, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+  });
 });

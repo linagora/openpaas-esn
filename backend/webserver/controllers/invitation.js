@@ -20,37 +20,44 @@ module.exports.get = function(req, res) {
 };
 
 /**
- * Confirm the invitation
+ * Load the invitation
  */
 module.exports.load = function(req, res, next) {
   Invitation.loadFromUUID(req.params.uuid, function(err, invitation) {
     if (err) {
-      next(err);
+      return next(err);
     }
     if (!invitation) {
-      next(new Error('No such invitation found'));
+      return res.send(404);
     }
     req.invitation = invitation;
-    next();
+    return next();
   });
 };
 
 /**
- * Dispatch the invitation to the invitation handler
+ * Dispatch the invitation to the invitation handler.
  */
 module.exports.confirm = function(req, res, next) {
   return handler.process(req, res, next);
 };
 
 /**
- * Save the req.body as invitation
+ * Save the req.body as invitation after validation.
  */
 module.exports.create = function(req, res) {
   if (!req.body) {
     return res.send(400, { error: { status: 400, message: 'Bad request', details: 'Missing JSON payload'}});
   }
 
-  var invitation = new Invitation(req.body);
+  var payload = req.body;
+  handler.validate(payload, function(err, result) {
+    if (err) {
+      return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
+    }
+  });
+
+  var invitation = new Invitation(payload);
   invitation.save(function(err, saved) {
     if (err) {
       return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
@@ -62,4 +69,11 @@ module.exports.create = function(req, res) {
       return res.json(201, result);
     });
   });
+};
+
+/**
+ * Finalize the process.
+ */
+module.exports.finalize = function(req, res, next) {
+  return handler.finalize(req, res, next);
 };

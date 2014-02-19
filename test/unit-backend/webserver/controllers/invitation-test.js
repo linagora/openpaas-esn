@@ -27,6 +27,15 @@ describe('The invitation controller', function() {
       process: function(req, res, next) {
         return next(null, true);
       },
+      validate: function(invitation, cb) {
+        if (!invitation) {
+          return cb(new Error('invitation is null'));
+        }
+        if (!invitation.type) {
+          return cb(new Error('type is null'));
+        }
+        return cb(null, true);
+      },
       bar: function() {
 
       }
@@ -71,6 +80,49 @@ describe('The invitation controller', function() {
         expect(res.body).to.be.not.null;
         expect(res.body.uuid).to.be.not.null;
         done();
+      });
+    });
+  });
+
+  describe('PUT /api/invitation/:uuid', function() {
+    var webserver = null;
+    var called = false;
+    var handler = {
+      finalize: function(req, res, next) {
+        called = true;
+        return res.send(201);
+      }
+    };
+
+    beforeEach(function() {
+      mongoose.connect(this.testEnv.mongoUrl);
+      mockery.registerMock('../../core/invitation', handler);
+      webserver = require(this.testEnv.basePath + '/backend/webserver');
+      require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      Invitation = mongoose.model('Invitation');
+    });
+
+    it('should fail if UUID is unknown', function(done) {
+      var data = { foo: 'bar'};
+      request(webserver.application).put('/api/invitation/123456789').send(data).expect(404).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should finalize the invitation process', function(done) {
+      var json = {type: 'finalizetest'};
+      var i = new Invitation(json);
+      i.save(function(err, invitation) {
+        if (err) {
+          return done(err);
+        }
+        var data = { foo: 'bar'};
+        request(webserver.application).put('/api/invitation/' + invitation.uuid).send(data).expect(201).end(function(err, res) {
+          expect(err).to.be.null;
+          expect(called).to.be.true;
+          done();
+        });
       });
     });
   });
