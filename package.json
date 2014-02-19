@@ -24,7 +24,8 @@
     "extend": "~1.2.1",
     "email-addresses": "~1.1.1",
     "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git",
-    "fs-extra": "~0.8.1"
+    "fs-extra": "~0.8.1",
+    "node-uuid": "~1.4.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
