@@ -5,6 +5,9 @@ var authenticate = require('./middleware/authentication');
 
 exports = module.exports = function(application) {
 
+  var domains = require('./controllers/domains');
+  application.get('/api/domains/company/:name', domains.companyExists);
+
   var users = require('./controllers/users');
   application.get('/login', users.login);
   application.post('/login', authenticate.isAuthenticated, users.logmein);
