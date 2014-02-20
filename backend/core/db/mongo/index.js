@@ -18,6 +18,9 @@ mongoose.connection.on('error', function(e) {
   initialized = false;
 });
 
+var getTimeout = function() {
+  return process.env.MONGO_TIMEOUT || 10000;
+};
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
@@ -50,7 +53,7 @@ function dropCollection(db, collectionName, callback) {
 }
 
 function getConnectionString(hostname, port, dbname, username, password, connectionOptions) {
-  var timeout = process.env.MONGO_TIMEOUT || 10000;
+  var timeout = getTimeout();
   connectionOptions = connectionOptions || {
     connectTimeoutMS: timeout,
     socketTimeoutMS: timeout
@@ -68,10 +71,6 @@ function getConnectionString(hostname, port, dbname, username, password, connect
 
   return 'mongodb:' + url.format(connectionHash);
 }
-
-var getTimeout = function() {
-  return process.env.MONGO_TIMEOUT || 10000;
-};
 
 /**
  * Checks that we can connect to mongodb
@@ -111,15 +110,16 @@ function getDefaultOptions() {
   return {
     db: {
       w: 1,
-      native_parser: true,
-      fsync: true
+      fsync: true,
+      native_parser: true
     },
     server: {
       socketOptions: {
-        connectTimeoutMS: timeout,
-        socketTimeoutMS: timeout
+        keepAlive: timeout,
+        connectTimeoutMS: timeout
       },
-      auto_reconnect: true
+      auto_reconnect: true,
+      poolSize: 10
     }
   };
 }
@@ -137,17 +137,9 @@ function getConnectionStringAndOptions() {
     return false;
   }
   var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
-  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, config.connectionOptions);
+  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, {});
   return {url: url, options: options};
 }
-
-module.exports.client = function(callback) {
-  var connectionInfos = getConnectionStringAndOptions();
-  if (!connectionInfos) {
-    return callback(new Error('MongoDB configuration not set'));
-  }
-  MongoClient.connect(connectionInfos.url, connectionInfos.options, callback);
-};
 
 module.exports.init = function() {
   if (initialized) {
@@ -158,7 +150,6 @@ module.exports.init = function() {
   if (!connectionInfos) {
     return false;
   }
-
 
   try {
     mongoose.connect(connectionInfos.url, connectionInfos.options);
