@@ -143,7 +143,6 @@ describe('The invitation core module', function() {
 
     it('should call the handler to finalize the request', function(done) {
       var invitation = require('../../../../backend/core/invitation');
-      var called = false;
       var handler = {
         finalize: function(req, res, next) {
           return next(null, true);
@@ -153,10 +152,10 @@ describe('The invitation core module', function() {
       var req = {};
       var res = {};
       req.invitation = {
-        type : 'finalizetest'
+        type: 'finalizetest'
       };
       req.body = {
-        foo : 'bar'
+        foo: 'bar'
       };
 
       mockery.registerMock('./handlers/finalizetest', handler);
