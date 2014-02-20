@@ -67,7 +67,7 @@
     "mailparser": "~0.4.1"
   },
   "scripts": {
-    "start": "NODE_ENV=production ./node_modules/.bin/nodemon -e js,jade index.js",
+    "start": "NODE_ENV=production node server.js",
     "postinstall": "./node_modules/bower/bin/bower install"
   },
   "author": "",
