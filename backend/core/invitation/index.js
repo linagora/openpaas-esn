@@ -1,5 +1,10 @@
 'use strict';
 
+function getHandler(name) {
+  name = name.replace(/[^A-Za-z0-9]+/, '');
+  return require('./handlers/' + name);
+}
+
 /**
  * Validate the input invitation data.
  * First, validate locally then delegate to the handler for specific check.
@@ -14,7 +19,7 @@ module.exports.validate = function(invitation, done) {
   }
 
   try {
-    var handler = require('./handlers/' + invitation.type);
+    var handler = getHandler(invitation.type);
     return handler.validate(invitation, done);
   } catch (err) {
     return done(new Error('Can not find invitation handler for ' + invitation.type));
@@ -30,7 +35,7 @@ module.exports.init = function(invitation, done) {
     return done(new Error('Can not handle null invitation'));
   }
   try {
-    var handler = require('./handlers/' + invitation.type);
+    var handler = getHandler(invitation.type);
     return handler.init(invitation, done);
   } catch (err) {
     return done('Can not find invitation handler for ' + invitation.type);
@@ -48,7 +53,7 @@ module.exports.process = function(req, res, next) {
   }
   var handler;
   try {
-    handler = require('./handlers/' + invitation.type);
+    handler = getHandler(invitation.type);
   } catch (err) {
     return next(new Error('Can not find invitation handler for ' + invitation.type));
   }
@@ -65,7 +70,7 @@ module.exports.finalize = function(req, res, next) {
   }
   var handler;
   try {
-    handler = require('./handlers/' + invitation.type);
+    handler = getHandler(invitation.type);
   } catch (err) {
     return next(new Error('Can not find invitation handler for ' + invitation.type));
   }
