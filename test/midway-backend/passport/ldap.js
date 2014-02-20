@@ -17,7 +17,7 @@ describe('Passport LDAP', function() {
 
   beforeEach(function(done) {
     var self = this;
-    var esnconfig = require('../../../backend/core/esn-config')('ldap');
+    var esnconfig = require('../../../backend/core/')['esn-config']('ldap');
     var ldapconf = this.testEnv.fixtures + '/ldap.json';
     var ldapPort = '1389';
     var template = require(this.testEnv.fixtures + '/user-template').simple();

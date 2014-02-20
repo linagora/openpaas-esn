@@ -56,7 +56,7 @@ describe('The signup handler', function() {
   });
 
   describe('The init fn', function() {
-    before(function(done) {
+    beforeEach(function(done) {
       this.testEnv.writeDBConfigFile();
       var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
       var mail = {
@@ -76,7 +76,9 @@ describe('The signup handler', function() {
       });
     });
 
-    after(function() {
+    afterEach(function(done) {
+      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
+      conf.store({}, done);
       this.testEnv.removeDBConfigFile();
     });
 
