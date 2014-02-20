@@ -8,15 +8,10 @@ var handler = require('../../core/invitation');
  * Get the invitation from its UUID. Does nothing but return the invitation as JSON
  */
 module.exports.get = function(req, res) {
-  Invitation.loadFromUUID(req.params.uuid, function(err, invitation) {
-    if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server Error', details: err.message}});
-    }
-    if (!invitation) {
-      return res.json(404, { error: { status: 404, message: 'Not found', details: 'No such invitation ' + req.uuid}});
-    }
-    return res.json(200, invitation);
-  });
+  if (req.invitation) {
+    return res.json(200, req.invitation);
+  }
+  return res.json(404);
 };
 
 /**
