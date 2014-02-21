@@ -74,7 +74,7 @@ describe('The invitation controller', function() {
     });
 
     it('should save the invitation', function(done) {
-      var invitation = { type: 'test'};
+      var invitation = { type: 'test', data: {}};
       request(webserver.application).post('/api/invitation').send(invitation).expect(201).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;

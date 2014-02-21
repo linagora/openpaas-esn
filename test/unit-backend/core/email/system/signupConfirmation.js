@@ -38,7 +38,7 @@ describe('The signup confirmation email module', function() {
         firstname: 'Foo',
         lastname: 'Bar',
         email: 'foo@bar.com',
-        link: 'http://localhost:8080/invitation/123456789'
+        url: 'http://localhost:8080/invitation/123456789'
       }
     };
 
@@ -51,7 +51,6 @@ describe('The signup confirmation email module', function() {
       var mailparser = new MailParser();
       mailparser.on('end', function(mail_object) {
         expect(mail_object.html).to.be.not.null;
-        console.log(mail_object.html);
         done();
       });
       fs.createReadStream(file).pipe(mailparser);

@@ -96,7 +96,8 @@ describe('The signup handler', function() {
         data: {
           firstname: 'Foo',
           lastname: 'Bar',
-          email: 'foo@bar.com'
+          email: 'foo@bar.com',
+          url: 'http://localhost:8080/invitation/123456789'
         }
       };
 
@@ -114,7 +115,7 @@ describe('The signup handler', function() {
           console.log(mail_object.html);
           expect(mail_object.html).to.have.string(invitation.data.firstname);
           expect(mail_object.html).to.have.string(invitation.data.lastname);
-          expect(mail_object.html).to.have.string(invitation.uuid);
+          expect(mail_object.html).to.have.string(invitation.data.url);
           done();
         });
         fs.createReadStream(file).pipe(mailparser);

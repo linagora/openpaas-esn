@@ -27,8 +27,9 @@ module.exports.init = function(invitation, done) {
   if (!invitation.uuid) {
     return done(new Error('Invitation UUID is required'));
   }
-  // get the invitation URL
-  invitation.data.link = 'http://localhost:8080/invitation/' + invitation.uuid;
+  if (!invitation.data.url) {
+    return done(new Error('Invitation URL is required'));
+  }
   signupEmail(invitation, function(err, result) {
     if (err) {
       logger.warn('Signup invitation have not been sent %s', err.message);
