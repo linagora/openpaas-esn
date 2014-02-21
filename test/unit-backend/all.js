@@ -35,7 +35,10 @@ beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
 });
 
-afterEach(function() {
+afterEach(function(done) {
+  try {
+    require('mongoose').disconnect(function() {done();});
+  } catch (e) {done();}
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();

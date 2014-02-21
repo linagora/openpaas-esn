@@ -172,7 +172,7 @@ describe('The email module', function() {
   });
 
   describe('with configured ESN', function() {
-    before(function(done) {
+    beforeEach(function(done) {
       var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
       var mail = {
         transport: {
@@ -182,17 +182,12 @@ describe('The email module', function() {
           }
         }
       };
-
-      conf.store(mail, function(err) {
-        done(err);
-      });
+      conf.store(mail, done);
     });
 
-    after(function(done) {
+    afterEach(function(done) {
       var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-      conf.store({}, function(err) {
-        done(err);
-      });
+      conf.store({}, done);
     });
 
     it('should send an email', function(done) {

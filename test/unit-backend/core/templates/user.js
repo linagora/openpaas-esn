@@ -1,7 +1,6 @@
 'use strict';
 
 var expect = require('chai').expect,
-    mongoose = require('mongoose'),
     fs = require('fs');
 
 describe('The User template module', function() {
@@ -38,6 +37,7 @@ describe('The User template module', function() {
     });
 
     after(function(done) {
+      var mongoose = require('mongoose');
       this.testEnv.removeDBConfigFile();
       mongoose.connect(this.testEnv.mongoUrl, function(err) {
         if (err) { return done(err); }

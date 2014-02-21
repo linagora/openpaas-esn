@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 
 describe('The signup confirmation email module', function() {
 
-  before(function(done) {
+  beforeEach(function(done) {
     this.testEnv.writeDBConfigFile();
     var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
     var mail = {
@@ -24,7 +24,9 @@ describe('The signup confirmation email module', function() {
     });
   });
 
-  after(function() {
+  afterEach(function(done) {
+    var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
+    conf.store({}, done);
     this.testEnv.removeDBConfigFile();
   });
 
