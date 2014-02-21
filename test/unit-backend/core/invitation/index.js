@@ -7,7 +7,7 @@ describe('The invitation core module', function() {
 
   describe('The init method', function() {
     it('should fail on missing invitation', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       invitation.init(null, function(err, result) {
         expect(err).to.exist;
         done();
@@ -16,7 +16,7 @@ describe('The invitation core module', function() {
 
     it('should fail on missing invitation type', function(done) {
       var i = {data: {foo: 'bar'}};
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       invitation.init(i, function(err, result) {
         expect(err).to.exist;
         done();
@@ -25,7 +25,7 @@ describe('The invitation core module', function() {
 
     it('should fail on unknown invitation type', function(done) {
       var i = {type: 'foobar', data: {foo: 'bar'}};
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       invitation.init(i, function(err, result) {
         expect(err).to.exist;
         done();
@@ -35,7 +35,7 @@ describe('The invitation core module', function() {
 
   describe('The process method', function() {
     it('should fail when invitation is not set', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       var req = {};
       var res = {};
       invitation.process(req, res, function(err) {
@@ -45,7 +45,7 @@ describe('The invitation core module', function() {
     });
 
     it('should call the default console handler', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       var i = {
         type: 'console'
       };
@@ -63,7 +63,7 @@ describe('The invitation core module', function() {
     });
 
     it('should call the injected handler', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
 
       var handler = {
         init: function(invitation, cb) {
@@ -103,7 +103,7 @@ describe('The invitation core module', function() {
 
   describe('The validate method', function() {
     it('should fail when input is null', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       invitation.validate(null, function(err, result) {
         expect(err).to.exist;
         done();
@@ -111,7 +111,7 @@ describe('The invitation core module', function() {
     });
 
     it('should fail when input type is null', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       invitation.validate({}, function(err, result) {
         expect(err).to.exist;
         done();
@@ -119,7 +119,7 @@ describe('The invitation core module', function() {
     });
 
     it('should call the handler to validate the data', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       var called = false;
       var handler = {
         validate: function(invitation, cb) {
@@ -142,7 +142,7 @@ describe('The invitation core module', function() {
   describe('The finalize method', function() {
 
     it('should call the handler to finalize the request', function(done) {
-      var invitation = require('../../../../backend/core/invitation');
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       var handler = {
         finalize: function(req, res, next) {
           return next(null, true);

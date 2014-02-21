@@ -6,7 +6,7 @@ describe('The signup confirmation email module', function() {
 
   before(function(done) {
     this.testEnv.writeDBConfigFile();
-    var conf = require('../../../../../backend/core/esn-config')('mail');
+    var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
     var mail = {
       mail: {
         noreply: 'no-reply@hiveety.org'
@@ -42,7 +42,7 @@ describe('The signup confirmation email module', function() {
       }
     };
 
-    var confirmation = require('../../../../../backend/core/email/system/signupConfirmation');
+    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/signupConfirmation');
     confirmation(invitation, function(err, response) {
       expect(err).to.not.exist;
       var file = path.resolve(tmp + '/' + response.messageId + '.eml');

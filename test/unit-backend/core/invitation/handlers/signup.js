@@ -7,7 +7,7 @@ describe('The signup handler', function() {
   describe('The validate fn', function() {
 
     it('should fail if invitation data is not set', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -15,7 +15,7 @@ describe('The signup handler', function() {
     });
 
     it('should fail if email is not set', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({data: {foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -23,7 +23,7 @@ describe('The signup handler', function() {
     });
 
     it('should fail if firstname is not set', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({data: {foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -31,7 +31,7 @@ describe('The signup handler', function() {
     });
 
     it('should fail if lastname is not set', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({data: {foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -39,7 +39,7 @@ describe('The signup handler', function() {
     });
 
     it('should be ok if required data is set', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({data: {firstname: 'foo', lastname: 'bar', email: 'baz@me.org'}}, function(err, result) {
         expect(result).to.be.true;
         done();
@@ -47,7 +47,7 @@ describe('The signup handler', function() {
     });
 
     it('should fail is email is not an email', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({data: {firstname: 'foo', lastname: 'bar', email: 'baz'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -58,7 +58,7 @@ describe('The signup handler', function() {
   describe('The init fn', function() {
     before(function(done) {
       this.testEnv.writeDBConfigFile();
-      var conf = require('../../../../../backend/core/esn-config')('mail');
+      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
       var mail = {
         mail: {
           noreply: 'no-reply@hiveety.org'
@@ -81,7 +81,7 @@ describe('The signup handler', function() {
     });
 
     it('should fail if invitation uuid is not set', function(done) {
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.init({}, function(err, result) {
         expect(err).to.exist;
         done();
@@ -103,7 +103,7 @@ describe('The signup handler', function() {
 
       var path = require('path');
       var fs = require('fs');
-      var signup = require('../../../../../backend/core/invitation/handlers/signup');
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.init(invitation, function(err, response) {
         expect(err).to.not.exist;
         var file = path.resolve(tmp + '/' + response.messageId + '.eml');
