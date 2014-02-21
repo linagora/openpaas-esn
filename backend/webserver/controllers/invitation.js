@@ -4,6 +4,11 @@ var mongoose = require('mongoose');
 var Invitation = mongoose.model('Invitation');
 var handler = require('../../core/invitation');
 
+var getInvitationURL = function(req, invitation) {
+  var baseURL = req.protocol + '://' + req.get('host');
+  return baseURL + '/invitation/' + invitation.uuid;
+};
+
 /**
  * Get the invitation from its UUID. Does nothing but return the invitation as JSON
  */
@@ -50,6 +55,10 @@ module.exports.create = function(req, res) {
     if (err) {
       return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
     }
+
+    if (!result) {
+      return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Data is invalid'}});
+    }
   });
 
   var invitation = new Invitation(payload);
@@ -57,6 +66,9 @@ module.exports.create = function(req, res) {
     if (err) {
       return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
     }
+
+    saved.data.url = getInvitationURL(req, saved);
+
     handler.init(saved, function(err, result) {
       if (err) {
         return res.json(500, { error: { status: 500, message: 'Server error', details: err.message}});
