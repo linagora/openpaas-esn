@@ -17,7 +17,7 @@ describe('The domains routes resource', function() {
     fs.copySync(this.testEnv.fixtures + '/config/db.json', tmpDbConfigFile);
   });
 
-  afterEach(function(done) {
+  after(function(done) {
     this.testEnv.removeDBConfigFile();
     mongoose.connection.db.dropDatabase();
     mongoose.disconnect(done);
@@ -37,10 +37,8 @@ describe('The domains routes resource', function() {
       });
 
     it('should return a JSON with 404 result when company doesnt exist within domains', function(done) {
-      request(webserver.application).get('/api/domains/company/' + 'Corporate').expect(404).end(function(err, res) {
+      request(webserver.application).head('/api/domains/company/' + 'Corporate').expect(404).end(function(err, res) {
         expect(err).to.be.null;
-        expect(res.body).to.be.not.null;
-        expect(res.body.exists).to.be.false;
         done();
       });
     });

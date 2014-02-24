@@ -4,8 +4,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var DomainSchema = new Schema({
-  name: {type: String},
-  company_name: {type: String},
+  name: {type: String, required: true},
+  company_name: {type: String, require: true},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },

@@ -8,12 +8,9 @@ describe('The domain core module', function() {
   var domainModule = null;
 
   beforeEach(function(done) {
-    var self = this;
-
     this.testEnv.writeDBConfigFile();
     mongoose.connect(this.testEnv.mongoUrl);
-
-    domainModule = require(self.testEnv.basePath + '/backend/core').domain;
+    domainModule = require(this.testEnv.basePath + '/backend/core').domain;
     done();
   });
 
@@ -23,7 +20,7 @@ describe('The domain core module', function() {
     mongoose.disconnect(done);
   });
 
-  describe('companyExists method', function() {
+  describe('isCompanyExist method', function() {
 
     it('should return an domain object where company=company_name', function(done) {
       var domain = {

@@ -12,7 +12,7 @@ module.exports = function(grunt) {
       options: {
         require: ['chai', 'mockery'],
         reporter: 'spec',
-        timeout: 10000
+        timeout: 6000
       },
       backend: {
         options: {
