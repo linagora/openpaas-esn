@@ -1,6 +1,7 @@
 'use strict';
 
-var domain = require('../../core').domain;
+var mongoose = require('mongoose');
+var Domain = mongoose.model('Domain');
 
 function doesCompanyExist(req, res) {
   var company_name = req.params.name;
@@ -9,7 +10,7 @@ function doesCompanyExist(req, res) {
     return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'company name is required'}});
   }
 
-  domain.testCompany(company_name, function(err, company) {
+  Domain.testCompany(company_name, function(err, company) {
 
     if (err) {
       return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not access domains with ' + company_name}});
