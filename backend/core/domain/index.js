@@ -7,5 +7,3 @@ module.exports.testCompany = function(name, callback) {
   var query = {company_name: name};
   Domain.findOne(query, callback);
 };
-
-
