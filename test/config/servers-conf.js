@@ -15,7 +15,13 @@ module.exports = {
     'conf_file' : '',
     'log_path' : '',
     'pwd' : ''
+  },
+
+  ldap: {
+    'cmd': 'node ./test/inmemory-ldap.js',
+    'port': process.env.PORT_LDAP || 23458,
+    'suffix': 'o=rse',
+    'ldapadmin': 'cn=root',
+    'pwd': 'secret'
   }
 };
-
-
