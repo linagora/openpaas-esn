@@ -10,6 +10,13 @@ var getInvitationURL = function(req, invitation) {
 };
 
 /**
+ * Call the signup app main page
+ */
+module.exports.signup = function(req, res) {
+  res.render('signup/index');
+};
+
+/**
  * Get the invitation from its UUID. Does nothing but return the invitation as JSON
  */
 module.exports.get = function(req, res) {

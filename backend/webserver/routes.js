@@ -25,13 +25,11 @@ exports = module.exports = function(application) {
   application.put('/api/document-store/connection', documentstore.store);
   application.put('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
 
-  application.get('/invitation/signup', function(req, res) {
-    res.render('signup/index');
-  });
   var invitation = require('./controllers/invitation');
   application.post('/api/invitation', invitation.create);
   application.put('/api/invitation/:uuid', invitation.load, invitation.finalize);
   application.get('/api/invitation/:uuid', invitation.load, invitation.get);
+  application.get('/invitation/signup', invitation.signup);
   application.get('/invitation/:uuid', invitation.load, invitation.confirm);
 };
 
