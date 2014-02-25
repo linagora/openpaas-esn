@@ -24,7 +24,13 @@ describe('The domain model module', function() {
     it('should return an domain object where company=company_name', function(done) {
       var dom = {
         name: 'Marketing',
-        company_name: 'Foo Corporate'
+        company_name: 'Foo Corporate',
+        administrator: {
+          email: 'toto@corporate.com',
+          lastname: 'Titi',
+          firstname: 'Toto',
+          password: 'secret'
+        }
       };
 
       var i = new Domain(dom);
