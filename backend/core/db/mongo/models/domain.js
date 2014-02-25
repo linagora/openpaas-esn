@@ -6,6 +6,12 @@ var Schema = mongoose.Schema;
 var DomainSchema = new Schema({
   name: {type: String, required: true},
   company_name: {type: String, required: true},
+  administrator: {
+    email: {type: String, required: true},
+    firstname: {type: String, required: true},
+    lastname: {type: String, required: true },
+    password: {type: String, required: true}
+  },
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
