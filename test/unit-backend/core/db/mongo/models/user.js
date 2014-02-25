@@ -63,6 +63,90 @@ describe('The User model', function() {
     });
   });
 
+  it('should save the user with crypted password', function(done) {
+    emails.push(email);
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+      expect(data.password).to.be.not.null;
+      expect(data.password).to.be.not.equal(password);
+      done();
+    });
+  });
+
+  it('should return true when calling comparePassword with valid password', function(done) {
+    emails.push(email);
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      data.comparePassword(password, function(err, isMatch) {
+        if (err) {
+          done(err);
+        }
+        expect(isMatch).to.be.true;
+        done();
+      });
+    });
+  });
+
+  it('should return error when calling comparePassword with null password', function(done) {
+    emails.push(email);
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      data.comparePassword(null, function(err, isMatch) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+  });
+
+  it('should return false when calling comparePassword with wrong password', function(done) {
+    emails.push(email);
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      data.comparePassword('badpassword', function(err, isMatch) {
+        if (err) {
+          done(err);
+        }
+        expect(isMatch).to.be.false;
+        done();
+      });
+    });
+  });
+
+  it('should return false when calling comparePassword with empty password (length === 0)', function(done) {
+    emails.push(email);
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      data.comparePassword('', function(err, isMatch) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+  });
+
   afterEach(function(done) {
     emails = [];
 
