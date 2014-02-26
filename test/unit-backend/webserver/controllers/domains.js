@@ -94,7 +94,7 @@ describe('The domains routes resource', function() {
       });
     });
 
-    it('should when administrator user is not correctly filled (emails is mandatory)', function(done) {
+    it('should fail when administrator user is not correctly filled (emails is mandatory)', function(done) {
 
       var u = new User({ firstname: 'foo', lastname: 'bar'});
 
