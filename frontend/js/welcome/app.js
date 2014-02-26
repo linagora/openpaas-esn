@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('welcomeApp', ['esn.invitation', 'restangular', 'ngRoute'])
+angular.module('welcomeApp', ['esn.i18n', 'esn.invitation', 'restangular', 'ngRoute'])
   .config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {

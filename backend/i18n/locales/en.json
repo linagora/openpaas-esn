@@ -28,5 +28,8 @@
   "You are close to set up or join your collaboration platform": "You are close to set up or join your collaboration platform",
   "You are connected as %s": "You are connected as %s",
   "You need a running MongoDB database server": "You need a running MongoDB database server",
-  "Hello": "Hello"
+  "Hello": "Hello",
+  "Language": "Language",
+  "Welcome to Hiveet": "Welcome to Hiveet",
+  "Communicate, exchange, share documents, agendas and contacts with your team.": "Communicate, exchange, share documents, agendas and contacts with your team."
 }

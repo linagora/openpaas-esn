@@ -14,11 +14,12 @@ html
         script(src='/components/underscore/underscore.js')
         script(src='/components/restangular/dist/restangular.js')
         script(src='/js/modules/invitation.js')
+        script(src='/js/modules/i18n.js')
         script(src='/js/welcome/app.js')
 
     body(ng-cloak ng-app='welcomeApp')
         #wrap
-            include partials/navigation
+            include partials/welcome-header
             .container
                 include partials/flash
                 block content
