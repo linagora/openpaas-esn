@@ -1,15 +1,21 @@
 div.login-bg
   div.form-container
     form(method='POST')
-      legend #{__('Sign In')}
       .form-group
-        label.control-label(for='username') #{__('Username')}
         input.form-control(type='text', name='username', id='username', placeholder="#{__('Username')}", autofocus=true)
       .form-group
-        label.control-label(for='username') #{__('Password')}
-        input.form-control(type='password', name='password', id='password', placeholder="#{__('Password')}")
+        .row
+          .col-xs-6
+            input.form-control(type='password', name='password', id='password', placeholder="#{__('Password')}")
+          .col-xs-6
+            button.btn.btn-primary(type='submit')
+              i.fa.fa-unlock-alt
+              | #{__('Login')}
       .form-group
-        button.btn.btn-primary(type='submit')
-          i.fa.fa-unlock-alt
-          | #{__('Login')}
-
+        .col-xs-6
+          ul.input-group.list-inline
+            li
+              input(type='checkbox')
+            li #{__('Remember me')}
+        .col-xs-6
+          a(href='#') #{__('Forgot password ?')}

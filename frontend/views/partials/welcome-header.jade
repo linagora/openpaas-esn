@@ -13,7 +13,8 @@
           ul.nav.navbar-nav.navbar-right
               li.dropdown
                 a.dropdown-toggle(href='#', data-toggle='dropdown')
-                  | #{__('Language')}: {{ selectedLocale }} ▼
+                  | #{__('Language')}: {{ selectedLocale }}
+                  span.caret
                 ul.dropdown-menu
                   li(data-ng-repeat="locale in supportedLocales")
                     a(href='#', data-ng-click='setLocale(locale)') {{ locale }}

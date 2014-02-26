@@ -27,5 +27,10 @@
   "Hello": "Hello",
   "Language": "Language",
   "Welcome to Hiveet": "Bienvenue sur Hiveet",
-  "Communicate, exchange, share documents, agendas and contacts with your team.": "Communiquez, échangez, partagez vos documents, vos agendas et vos contacts avec votre équipe"
+  "Communicate, exchange, share documents, agendas and contacts with your team.": "Communiquez, échangez, partagez vos documents, vos agendas et vos contacts avec votre équipe",
+  "No account yet ?": "Nouveau sur Hiveet ?",
+  "Register today": "Inscrivez-vous",
+  "Sign up in Hiveet": "S'inscrire sur Hiveet",
+  "Remember me": "se souvenir de moi",
+  "Forgot password ?": "Mot de passe oublié ?"
 }
