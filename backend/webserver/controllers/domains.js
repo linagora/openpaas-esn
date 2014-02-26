@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
+var User = mongoose.model('User');
 
 function doesCompanyExist(req, res) {
   var company_name = req.params.name;
@@ -31,32 +32,35 @@ function createDomain(req, res) {
   var name = req.params.name;
   var data = req.body;
 
-  if (!data.administrator || !data.administrator.email || !data.administrator.firstname || !data.administrator.lastname || !data.administrator.password) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required (email, firstname, lastname and password)'}});
+  if (!data.administrator) {
+    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required (email(s), firstname and lastname)'}});
   }
 
-  var json = {
-    name: name,
-    company_name: company_name,
-    administrator: {
-      firstname: data.administrator.firstname,
-      lastname: data.administrator.lastname,
-      email: data.administrator.email,
-      password: data.administrator.password
-    }
-  };
+  var u = new User(data.administrator);
 
-  var domain = new Domain(json);
-
-  domain.save(function(err, saved) {
+  u.save(function(err, savedUser) {
     if (err) {
-      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
-    }
-    if (saved) {
-      return res.send(200);
+      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create user administrator (at least one email address is required).' + err.message}});
     }
 
-    return res.send(404);
+    var domainJson = {
+      name: name,
+      company_name: company_name,
+      administrator: savedUser
+    };
+
+    var domain = new Domain(domainJson);
+
+    domain.save(function(err, saved) {
+      if (err) {
+        return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+      }
+      if (saved) {
+        return res.send(201);
+      }
+
+      return res.send(404);
+    });
   });
 }
 
