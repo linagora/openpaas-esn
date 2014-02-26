@@ -28,9 +28,10 @@ function doesCompanyExist(req, res) {
 module.exports.doesCompanyExist = doesCompanyExist;
 
 function createDomain(req, res) {
-  var company_name = req.params.company_name;
-  var name = req.params.name;
+
   var data = req.body;
+  var company_name = data.company_name;
+  var name = data.name;
 
   if (!data.administrator) {
     return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required (email(s), firstname and lastname)'}});

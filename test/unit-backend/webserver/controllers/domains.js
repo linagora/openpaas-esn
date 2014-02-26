@@ -82,7 +82,13 @@ describe('The domains routes resource', function() {
     });
 
     it('should fail when administrator is not set', function(done) {
-      request(webserver.application).post('/api/domains/Marketing/Corporate').expect(400).end(function(err, res) {
+
+      var json = {
+        name: 'Marketing',
+        company_name: 'Corporate'
+      };
+
+      request(webserver.application).post('/api/domains').send(json).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -94,10 +100,12 @@ describe('The domains routes resource', function() {
       var u = new User({ firstname: 'foo', lastname: 'bar'});
 
       var json = {
+        name: 'Marketing',
+        company_name: 'Corporate',
         administrator: u
       };
 
-      request(webserver.application).post('/api/domains/Marketing/Corporate').send(json).expect(500).end(function(err, res) {
+      request(webserver.application).post('/api/domains').send(json).expect(500).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -111,10 +119,12 @@ describe('The domains routes resource', function() {
       var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
 
       var json = {
+        name: 'Marketing',
+        company_name: 'Corporate',
         administrator: u
       };
 
-      request(webserver.application).post('/api/domains/Marketing/Corporate').send(json).expect(201).end(function(err, res) {
+      request(webserver.application).post('/api/domains').send(json).expect(201).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
