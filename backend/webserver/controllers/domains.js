@@ -28,7 +28,6 @@ function doesCompanyExist(req, res) {
 module.exports.doesCompanyExist = doesCompanyExist;
 
 function createDomain(req, res) {
-
   var data = req.body;
   var company_name = data.company_name;
   var name = data.name;

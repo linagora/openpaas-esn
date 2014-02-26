@@ -82,7 +82,6 @@ describe('The domains routes resource', function() {
     });
 
     it('should fail when administrator is not set', function(done) {
-
       var json = {
         name: 'Marketing',
         company_name: 'Corporate'
