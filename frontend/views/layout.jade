@@ -10,8 +10,13 @@ html
         script(src='/components/jquery/jquery.js')
         script(src='/components/bootstrap/dist/js/bootstrap.js')
         script(src='/components/angular/angular.js')
+        script(src='/components/angular-route/angular-route.js')
+        script(src='/components/underscore/underscore.js')
+        script(src='/components/restangular/dist/restangular.js')
+        script(src='/js/modules/invitation.js')
+        script(src='/js/welcome/app.js')
 
-    body
+    body(ng-cloak ng-app='welcomeApp')
         #wrap
             include partials/navigation
             .container
