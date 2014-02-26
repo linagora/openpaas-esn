@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
+var User = mongoose.model('User');
 
 function doesCompanyExist(req, res) {
   var company_name = req.params.name;
@@ -22,7 +23,43 @@ function doesCompanyExist(req, res) {
 
     return res.send(404);
   });
-
 }
 
 module.exports.doesCompanyExist = doesCompanyExist;
+
+function createDomain(req, res) {
+  var data = req.body;
+  var company_name = data.company_name;
+  var name = data.name;
+
+  if (!data.administrator) {
+    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
+  }
+
+  var u = new User(data.administrator);
+
+  if (u.emails.length === 0) {
+    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'At least one administrator email address is required'}});
+  }
+
+  var domainJson = {
+    name: name,
+    company_name: company_name,
+    administrator: u
+  };
+
+  var domain = new Domain(domainJson);
+
+  domain.save(function(err, saved) {
+    if (err) {
+      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+    }
+    if (saved) {
+      return res.send(201);
+    }
+
+    return res.send(404);
+  });
+}
+
+module.exports.createDomain = createDomain;
