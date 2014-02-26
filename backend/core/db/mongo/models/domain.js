@@ -24,7 +24,20 @@ DomainSchema.statics = {
   testCompany: function(name, cb) {
     var query = {company_name: name};
     this.findOne(query, cb);
+  },
+
+  /**
+   * check the existence of a Domain where company_name: company_name
+   * and Domain name : domain_main
+   *
+   * @param {String} name
+   * @param {Function} cb
+   */
+  testDomainCompany: function(company_name, domain_name, cb) {
+    var query = {company_name: company_name, name: domain_name};
+    this.findOne(query, cb);
   }
+
 };
 
 module.exports = mongoose.model('Domain', DomainSchema);

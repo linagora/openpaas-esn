@@ -60,4 +60,38 @@ describe('The domain model module', function() {
     });
   });
 
+  describe('testDomainCompany static method', function() {
+
+    it('should return an domain object where domain.company_name=company_name and domain.name=domain_name', function(done) {
+      emails.push(email);
+      emails.push(email2);
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+
+      u.save(function(err, savedUser) {
+        if (err) {
+          done(err);
+        }
+
+        var dom = {
+          name: 'Marketing',
+          company_name: 'Foo Corporate',
+          administrator: savedUser
+        };
+
+        var i = new Domain(dom);
+        i.save(function(err, data) {
+          if (err) {
+            done(err);
+          }
+
+          Domain.testDomainCompany(data.company_name, data.name, function(err, domain) {
+            expect(err).to.not.exist;
+            expect(domain).to.exist;
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });
