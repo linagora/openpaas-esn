@@ -33,34 +33,32 @@ function createDomain(req, res) {
   var name = data.name;
 
   if (!data.administrator) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required (email(s), firstname and lastname)'}});
+    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
   }
 
   var u = new User(data.administrator);
 
-  u.save(function(err, savedUser) {
+  if (u.emails.length === 0) {
+    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'At least one administrator email address is required'}});
+  }
+
+  var domainJson = {
+    name: name,
+    company_name: company_name,
+    administrator: u
+  };
+
+  var domain = new Domain(domainJson);
+
+  domain.save(function(err, saved) {
     if (err) {
-      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create user administrator (at least one email address is required).' + err.message}});
+      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+    }
+    if (saved) {
+      return res.send(201);
     }
 
-    var domainJson = {
-      name: name,
-      company_name: company_name,
-      administrator: savedUser
-    };
-
-    var domain = new Domain(domainJson);
-
-    domain.save(function(err, saved) {
-      if (err) {
-        return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
-      }
-      if (saved) {
-        return res.send(201);
-      }
-
-      return res.send(404);
-    });
+    return res.send(404);
   });
 }
 

@@ -104,7 +104,7 @@ describe('The domains routes resource', function() {
         administrator: u
       };
 
-      request(webserver.application).post('/api/domains').send(json).expect(500).end(function(err, res) {
+      request(webserver.application).post('/api/domains').send(json).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
