@@ -2,16 +2,27 @@
 
 angular.module('esn.i18n', ['restangular'])
   .controller('localeController', function($scope, i18nAPI) {
+    var prettyLocales = {
+      'en': 'English',
+      'fr': 'Français'
+    };
+    var unPrettyLocales = {
+      'English': 'en',
+      'Français': 'fr'
+    };
     i18nAPI.getCurrentLocale().then(function(locale) {
-      $scope.selectedLocale = locale;
+      $scope.selectedLocale = prettyLocales[locale.replace(/"/g, '')];
     });
 
     i18nAPI.getSupportedLocale().then(function(locales) {
-      $scope.supportedLocales = locales;
+      $scope.supportedLocales = locales.map(function(locale) {
+        return prettyLocales[locale.replace('"', '')];
+      });
     });
 
     $scope.setLocale = function(locale) {
-      i18nAPI.setLocale(locale).then(function() {
+      var unPrettyLocale = unPrettyLocales[locale];
+      i18nAPI.setLocale(unPrettyLocale).then(function() {
         $scope.selectedLocale = locale;
       });
     };
