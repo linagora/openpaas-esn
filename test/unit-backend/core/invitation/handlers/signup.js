@@ -125,9 +125,9 @@ describe('The signup handler', function() {
     });
   });
 
-  describe('The process fn', function () {
+  describe('The process fn', function() {
 
-    it('should redirect to the invitation app if invitation is found', function (done) {
+    it('should redirect to the invitation app if invitation is found', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
 
       var req = {
@@ -147,7 +147,7 @@ describe('The signup handler', function() {
       signup.process(req, res, next);
     });
 
-    it('should call next if invitation is not found', function (done) {
+    it('should call next if invitation is not found', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
 
       var req = {
