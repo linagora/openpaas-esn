@@ -40,10 +40,13 @@ module.exports.init = function(invitation, done) {
 };
 
 /**
- * Redirect the user to the right page
+ * Redirect the user to the right invitation page
  */
 module.exports.process = function(req, res, next) {
-  return next(new Error('Process is not implemented'));
+  if (req.invitation) {
+    return res.redirect('/invitation/signup#/' + req.invitation.uuid);
+  }
+  return next(new Error('Can not find any valid invitation'));
 };
 
 /**
