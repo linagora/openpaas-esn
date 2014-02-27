@@ -60,6 +60,24 @@ module.exports = function(grunt) {
             grunt.log.error(chunk);
           }
         }
+      },
+      ldap: {
+        command: servers.ldap.cmd,
+        options: {
+          async: false,
+          stdout: function(chunk){
+            var done = grunt.task.current.async();
+            var out = '' + chunk;
+            var started=/LDAP server up at/;
+            if(started.test(out)) {
+              grunt.log.write('Ldap server is started.');
+              done(true);
+            }
+          },
+          stderr: function(chunk) {
+            grunt.log.error(chunk);
+          }
+        }
       }
     },
     nodemon: {
@@ -155,7 +173,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-run-grunt');
 
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:ldap:kill']);
 
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
