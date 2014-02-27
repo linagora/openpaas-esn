@@ -82,7 +82,7 @@ describe('The domains routes resource', function() {
     });
 
     it('should return a JSON with 404 result when domain (name, company_name) doesn\'t exist', function(done) {
-      request(webserver.application).head('/api/domains/' + 'Marketing' + 'Corporate').expect(404).end(function(err, res) {
+      request(webserver.application).head('/api/domains/' + 'Marketing' + '/Corporate').expect(404).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });

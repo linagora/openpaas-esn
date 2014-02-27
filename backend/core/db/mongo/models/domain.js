@@ -28,7 +28,7 @@ DomainSchema.statics = {
 
   /**
    * check the existence of a Domain where company_name: company_name
-   * and Domain name : domain_main
+   * and Domain name : domain_name
    *
    * @param {String} name
    * @param {Function} cb
