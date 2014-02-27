@@ -127,8 +127,7 @@ angular.module('esn.invitation', ['restangular'])
         ($scope.settings.domain && $scope.settings.domain.length > 0) &&
         $scope.passwordMatch() && $scope.passwordStrength()) ? true : false;
     };
-
-})
+  })
 .factory('invitationAPI', ['Restangular', function(Restangular) {
 
   function get(id) {

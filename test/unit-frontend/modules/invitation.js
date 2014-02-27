@@ -146,24 +146,24 @@ describe('The Invitation Angular module', function() {
     });
 
     describe('passwordMatch() method', function() {
-      it('should return false when passwords are undefined', function () {
+      it('should return false when passwords are undefined', function() {
         this.scope.settings = {};
         expect(this.scope.passwordMatch()).to.be.false;
       });
 
-      it('should return false when passwords does not match', function () {
+      it('should return false when passwords does not match', function() {
         this.scope.settings.password = 'foo';
         this.scope.settings.confirmpassword = 'bar';
         expect(this.scope.passwordMatch()).to.be.false;
       });
 
-      it('should be false when passwords match but are empty', function () {
+      it('should be false when passwords match but are empty', function() {
         this.scope.settings.password = '';
         this.scope.settings.confirmpassword = '';
         expect(this.scope.passwordMatch()).to.be.false;
       });
 
-      it('should return true when passwords match', function () {
+      it('should return true when passwords match', function() {
         this.scope.settings.password = 'secret';
         this.scope.settings.confirmpassword = 'secret';
         expect(this.scope.passwordMatch()).to.be.true;
@@ -171,25 +171,25 @@ describe('The Invitation Angular module', function() {
     });
 
     describe('passwordStrength() method', function() {
-      it('should return false when passwords are undefined', function () {
+      it('should return false when passwords are undefined', function() {
         this.scope.settings.password = undefined;
         this.scope.settings.confirmpassword = undefined;
         expect(this.scope.passwordStrength()).to.be.false;
       });
 
-      it('should return false when passwords are less then 8 characters length ', function () {
+      it('should return false when passwords are less then 8 characters length ', function() {
         this.scope.settings.password = '1234567';
         this.scope.settings.confirmpassword = '1234567';
         expect(this.scope.passwordStrength()).to.be.false;
       });
 
-      it('should return true when passwords are 8 characters length', function () {
+      it('should return true when passwords are 8 characters length', function() {
         this.scope.settings.password = '12345678';
         this.scope.settings.confirmpassword = '12345678';
         expect(this.scope.passwordStrength()).to.be.true;
       });
 
-      it('should return true when passwords are more 8 characters length', function () {
+      it('should return true when passwords are more 8 characters length', function() {
         this.scope.settings.password = '123456789';
         this.scope.settings.confirmpassword = '123456789';
         expect(this.scope.passwordStrength()).to.be.true;
@@ -197,24 +197,24 @@ describe('The Invitation Angular module', function() {
     });
 
     describe('checkDomain() method', function() {
-      it('should return true', function () {
+      it('should return true', function() {
         expect(this.scope.checkDomain()).to.be.true;
       });
     });
 
     describe('checkCompany() method', function() {
-      it('should return true', function () {
+      it('should return true', function() {
         expect(this.scope.checkCompany()).to.be.true;
       });
     });
 
     describe('validValues() method', function() {
-      it('should return false when settings are empty', function () {
+      it('should return false when settings are empty', function() {
         this.scope.settings = {};
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all but firstname is set', function () {
+      it('should return false when all but firstname is set', function() {
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
         this.scope.settings.domain = 'domain';
@@ -223,7 +223,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all but lastname is set', function () {
+      it('should return false when all but lastname is set', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.company = 'company';
         this.scope.settings.domain = 'domain';
@@ -232,7 +232,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all but company is set', function () {
+      it('should return false when all but company is set', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.domain = 'domain';
@@ -241,7 +241,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all but domain is set', function () {
+      it('should return false when all but domain is set', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
@@ -250,7 +250,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all but password is set', function () {
+      it('should return false when all but password is set', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
@@ -259,7 +259,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all but confirmpassword is set', function () {
+      it('should return false when all but confirmpassword is set', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
@@ -268,7 +268,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all is set but passwords does not match', function () {
+      it('should return false when all is set but passwords does not match', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
@@ -278,7 +278,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return false when all is set but passwords are not strength enough', function () {
+      it('should return false when all is set but passwords are not strength enough', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
@@ -288,7 +288,7 @@ describe('The Invitation Angular module', function() {
         expect(this.scope.validValues()).to.be.false;
       });
 
-      it('should return true when settings are well set', function () {
+      it('should return true when settings are well set', function() {
         this.scope.settings.firstname = 'foo';
         this.scope.settings.lastname = 'bar';
         this.scope.settings.company = 'company';
