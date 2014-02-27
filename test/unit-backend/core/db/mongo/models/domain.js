@@ -58,6 +58,14 @@ describe('The domain model module', function() {
         });
       });
     });
+
+    it('should return an error when domain object (domain.company_name=company_name) does not exist', function(done) {
+      Domain.testCompany('TotoCorporate', function(err, domain) {
+        expect(err).to.not.exist;
+        expect(domain).to.be.null;
+        done();
+      });
+    });
   });
 
   describe('testDomainCompany static method', function() {
@@ -92,6 +100,15 @@ describe('The domain model module', function() {
         });
       });
     });
+
+    it('should return an error when domain object (domain.company_name=company_name and domain.name=domain_name) does not exist', function(done) {
+      Domain.testDomainCompany('Corpo', 'Toto', function(err, domain) {
+        expect(err).to.not.exist;
+        expect(domain).to.be.null;
+        done();
+      });
+    });
+
   });
 
 });

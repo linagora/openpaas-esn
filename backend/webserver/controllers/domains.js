@@ -27,7 +27,7 @@ function doesCompanyExist(req, res) {
 
 module.exports.doesCompanyExist = doesCompanyExist;
 
-function doDomainCompanyExist(req, res) {
+function doDomainAndCompanyExist(req, res) {
   var company_name = req.params.company_name;
   var domain_name = req.params.domain_name;
 
@@ -49,7 +49,7 @@ function doDomainCompanyExist(req, res) {
   });
 }
 
-module.exports.doDomainCompanyExist = doDomainCompanyExist;
+module.exports.doDomainAndCompanyExist = doDomainAndCompanyExist;
 
 function createDomain(req, res) {
   var data = req.body;
