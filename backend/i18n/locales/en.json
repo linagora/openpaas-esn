@@ -7,6 +7,7 @@
   "Database Server Port": "Database Server Port",
   "Fill the username and password fields only if your MongoDB connection requires it": "Fill the username and password fields only if your MongoDB connection requires it",
   "Home": "Home",
+  "In order to keep your ESN safe, we sent you an email to confirm your address. Please check your inbox and follow the confirmation link": "In order to keep your ESN safe, we sent you an email to confirm your address. Please check your inbox and follow the confirmation link",
   "My Account": "My Account",
   "Login": "Login",
   "Logout": "Logout",
@@ -21,6 +22,7 @@
   "Welcome to the Linagora Enterprise Social Network": "Welcome to the Linagora Enterprise Social Network",
   "Well you certainly were expecting a longer, and more complicated journey. Sorry": "Well you certainly were expecting a longer, and more complicated journey. Sorry",
   "Wonderful! The setup is complete": "Wonderful! The setup is complete",
+  "You are close to set up or join your collaboration platform": "You are close to set up or join your collaboration platform",
   "You are connected as %s": "You are connected as %s",
   "You need a running MongoDB database server": "You need a running MongoDB database server",
   "Hello": "Hello"

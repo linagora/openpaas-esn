@@ -22,11 +22,11 @@ div.login-bg(ng-show="step === 0 && !error")
 div.login-bg(ng-show="step === 1 && !error")
     div.form-container
         h2 #{__('Sign Up is almost complete')}.
-        p #{__('Please check you mail box to confirm your inscription')}.
+        p #{__('In order to keep your ESN safe, we sent you an email to confirm your address. Please check your inbox and follow the confirmation link')}.
+        p #{__('You are close to set up or join your collaboration platform')}.
 
 div.login-bg(ng-show="error")
     div.form-container
         h2 #{__('Error')}.
         div.alert.alert-danger
             strong #{__('There was an error while signin up to the platform. Please try again.')}
-
