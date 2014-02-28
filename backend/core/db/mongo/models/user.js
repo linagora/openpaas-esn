@@ -3,9 +3,6 @@
 var emailAddresses = require('email-addresses');
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
-var Schema = mongoose.Schema;
-
-
 
 function validateEmail(email) {
   return emailAddresses.parseOneAddress(email) !== null;
@@ -24,9 +21,7 @@ function validateEmails(emails) {
   return valid;
 }
 
-
-
-var UserSchema = new Schema({
+var UserSchema = new mongoose.Schema({
   emails: {type: [String], required: true, unique: true, validate: validateEmails},
   firstname: {type: String},
   lastname: {type: String},
@@ -86,5 +81,4 @@ UserSchema.statics = {
     this.findOne({emails: email}, cb);
   }
 };
-
 module.exports = mongoose.model('User', UserSchema);
