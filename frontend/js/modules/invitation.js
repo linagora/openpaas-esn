@@ -18,12 +18,11 @@ angular.module('esn.invitation', ['restangular'])
     $scope.signup = function() {
       $scope.signupTask.running = true;
       $scope.signupButton.label = $scope.signupButton.running;
-
+      $scope.step++;
       var payload = {data: $scope.settings, type: 'signup'};
       invitationAPI.create(payload).then(
         function(data) {
           $scope.signupTask.running = false;
-          $scope.step++;
           return data;
         },
         function(err) {
