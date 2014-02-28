@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.i18n', ['restangular'])
-  .controller('localeController', function($scope, i18nAPI) {
+  .controller('localeController', function($scope, $window, i18nAPI) {
     var prettyLocales = {
       'en': 'English',
       'fr': 'Français'
@@ -24,6 +24,7 @@ angular.module('esn.i18n', ['restangular'])
       var unPrettyLocale = unPrettyLocales[locale];
       i18nAPI.setLocale(unPrettyLocale).then(function() {
         $scope.selectedLocale = locale;
+        $window.location.href='/';
       });
     };
   })
