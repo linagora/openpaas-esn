@@ -8,7 +8,7 @@ div.login-bg(data-ng-controller="login")
           .col-xs-6
             input.form-control(data-ng-model='password', type='password', name='password', id='password', placeholder="#{__('Password')}")
           .col-xs-6
-            button.btn.btn-primary(type='submit', data-ng-click='login(username, password)')
+            button.btn.btn-primary(type='submit', data-ng-click='login()')
               i.fa.fa-unlock-alt
               | #{__('Login')}
       .form-group

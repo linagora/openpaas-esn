@@ -1,21 +1,26 @@
 'use strict';
 
 angular.module('esn.login', ['restangular'])
-  .controller('login', function($scope, $window) {
-    $scope.login = function(username, password) {
-      if (username === password) {
-        $window.location.href = '/logged';
-      }
+  .controller('login', function($scope, loginAPI) {
+    $scope.login = function() {
+      var credentials = {
+        username: $scope.username,
+        password: $scope.password
+      };
+      loginAPI.login(credentials).then(function() {});
     };
 
   })
   .factory('loginAPI', ['Restangular', function(Restangular) {
 
-    function get() {
-      return true;
+    Restangular.setBaseUrl('/');
+
+    function login(credentials) {
+      return Restangular.one('login').post('', credentials);
     }
 
     return {
-      get: get
+      login: login
     };
+
   }]);

@@ -1,11 +1,16 @@
 extends ./layout
 block content
   div.container-fluid
-    .row
-      .col-xs-6
-        include ./welcome/welcome
-      .col-xs-6
-        .row
-          include ./welcome/login
-        .row
-          include ./welcome/signup
+    if user
+      .alert.alert-success.animated
+        i.fa.fa-check
+         strong #{__('You are connected as %s',  user.username || user.emails[0] || user.id)}
+    else
+      .row
+        .col-xs-6
+          include ./welcome/welcome
+        .col-xs-6
+          .row
+            include ./welcome/login
+          .row
+            include ./welcome/signup
