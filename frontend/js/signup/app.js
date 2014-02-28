@@ -15,7 +15,10 @@ angular.module('signupApp', ['esn.invitation', 'restangular', 'ngRoute'])
         invitation: function(invitationAPI, $route) {
           return invitationAPI.get($route.current.params.id).then(
             function(data) {
-              return data;
+              return {
+                status: 'success',
+                data: data
+              };
             },
             function(err) {
               return {
