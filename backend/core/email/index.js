@@ -63,6 +63,14 @@ var getMailTransport = function(done) {
     if (!data.transport) {
       return done(new Error('Mail transport is not configured'));
     }
+    // require the nodemailer transport module if it is an external plugin
+    if (data.transport.module) {
+      try {
+        require(data.transport.module);
+      } catch(err) {
+        return done(err);
+      }
+    }
     transport = nodemailer.createTransport(data.transport.type, data.transport.config);
     return done(null, transport);
   });

@@ -1,0 +1,11 @@
+{
+  "from": "no-reply@hiveety.org",
+  "transport": {
+    "module": "nodemailer-browser",
+    "type": "MailBrowser",
+    "config": {
+      "dir": "/tmp",
+      "browser": true
+    }
+  }
+}
