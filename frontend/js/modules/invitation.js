@@ -7,8 +7,8 @@ angular.module('esn.invitation', ['restangular'])
     $scope.step = 0;
     $scope.EMAIL_REGEXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*$/i;
     $scope.signupButton = {
-      label: 'Signup',
-      notRunning: 'Signup',
+      label: 'Sign up in Hiveet',
+      notRunning: 'Sign up in Hiveet',
       running: 'Please Wait...'
     };
     $scope.signupTask = {

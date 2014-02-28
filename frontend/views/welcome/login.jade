@@ -1,0 +1,21 @@
+div.login-bg(data-ng-controller="login")
+  div.form-container
+    form(name='loginForm')
+      .form-group
+        input.form-control(data-ng-model='username', type='text', name='username', id='username', placeholder="#{__('Username')}", autofocus=true)
+      .form-group
+        .row
+          .col-xs-6
+            input.form-control(data-ng-model='password', type='password', name='password', id='password', placeholder="#{__('Password')}")
+          .col-xs-6
+            button.btn.btn-primary(type='submit', data-ng-click='login()')
+              i.fa.fa-unlock-alt
+              | #{__('Login')}
+      .form-group
+        .col-xs-6
+          ul.input-group.list-inline
+            li
+              input(type='checkbox')
+            li #{__('Remember me')}
+        .col-xs-6
+          a(href='#') #{__('Forgot password ?')}

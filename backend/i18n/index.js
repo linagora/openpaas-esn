@@ -4,10 +4,12 @@ var i18n = require('i18n');
 i18n.configure(
   {
     defaultLocale: 'en',
+    locales: ['en', 'fr'],
     directory: __dirname + '/locales',
     updateFiles: false,
     indent: '  ',
-    extension: '.json'
+    extension: '.json',
+    cookie: 'locale'
   }
 );
 

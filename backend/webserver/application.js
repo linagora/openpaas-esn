@@ -36,11 +36,11 @@ application.use('/components', express.static(frontendPath + '/components'));
 application.use('/images', express.static(frontendPath + '/images'));
 application.use('/js', express.static(frontendPath + '/js'));
 
-application.use(i18n.init); // Should stand before app.route
 application.use(express.json());
 application.use(express.urlencoded());
 application.use(express.cookieParser('this is the secret!'));
 application.use(express.session({ cookie: { maxAge: 60000 }}));
+application.use(i18n.init); // Should stand before app.route
 require('./passport');
 
 application.use(passport.initialize());

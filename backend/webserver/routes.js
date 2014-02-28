@@ -36,5 +36,10 @@ exports = module.exports = function(application) {
   application.get('/api/invitation/:uuid', invitation.load, invitation.get);
   application.get('/invitation/signup', invitation.signup);
   application.get('/invitation/:uuid', invitation.load, invitation.confirm);
+
+  var locale = require('./controllers/locale');
+  application.get('/api/locales', locale.getAll);
+  application.get('/api/locales/current', locale.get);
+  application.get('/api/locales/:locale', locale.set);
 };
 
