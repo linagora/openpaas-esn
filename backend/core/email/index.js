@@ -67,7 +67,7 @@ var getMailTransport = function(done) {
     if (data.transport.module) {
       try {
         require(data.transport.module);
-      } catch(err) {
+      } catch (err) {
         return done(err);
       }
     }

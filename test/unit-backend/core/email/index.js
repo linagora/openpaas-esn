@@ -261,20 +261,9 @@ describe('The email module', function() {
     });
 
     it('should fail on send', function(done) {
-      var tmp = this.testEnv.tmp;
       var email = require(this.testEnv.basePath + '/backend/core/email');
       var templates = path.resolve(__dirname + '/fixtures/templates/');
       email.setTemplatesDir(templates);
-
-      var type = 'confirm_url';
-      var locals = {
-        link: 'http://localhost:8080/confirm/123456789',
-        name: {
-          first: 'foo',
-          last: 'bar'
-        }
-      };
-
       email.send('from@foo.com', 'to@foo.com', 'None', 'Hello', function(err, message) {
         expect(err).to.exist;
         done();
