@@ -3,8 +3,8 @@
 angular.module('esn.login', ['restangular'])
   .controller('login', function($scope, $window) {
     $scope.login = function(username, password) {
-      if(username === password) {
-        $window.location.href='/logged';
+      if (username === password) {
+        $window.location.href = '/logged';
       }
     };
 

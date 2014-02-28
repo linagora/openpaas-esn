@@ -24,7 +24,7 @@ angular.module('esn.i18n', ['restangular'])
       var unPrettyLocale = unPrettyLocales[locale];
       i18nAPI.setLocale(unPrettyLocale).then(function() {
         $scope.selectedLocale = locale;
-        $window.location.href='/';
+        $window.location.href = '/';
       });
     };
   })
