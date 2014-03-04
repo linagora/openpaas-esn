@@ -3,6 +3,8 @@
 var emailAddresses = require('email-addresses');
 var signupEmail = require('../../email/system/signupConfirmation');
 var logger = require('../..').logger;
+var mongoose = require('mongoose');
+var userModule = require('../..').user;
 
 /**
  * Validate the input data: required properties are firstname, lastname and email.
@@ -53,5 +55,64 @@ module.exports.process = function(req, res, next) {
  * Create the user resources
  */
 module.exports.finalize = function(req, res, next) {
-  return next(new Error('Finalize is not implemented'));
+
+  if (!req.invitation) {
+    return next(new Error('Invalid invitation request'));
+  }
+
+  if (!req.body.data) {
+    return next(new Error('Request data is required'));
+  }
+
+  var Domain = mongoose.model('Domain');
+  var formValues = req.body.data;
+
+  var userJson = {
+    firstname: formValues.firstname,
+    lastname: formValues.lastname,
+    password: formValues.password,
+    emails: [req.invitation.data.email]
+  };
+
+  userModule.findByEmail(userJson.emails, function(err, user) {
+    if (err) {
+      return next(new Error('Unable to lookup user ' + userJson.emails + ': ' + err));
+    } else if (user && user.emails) {
+      return next(new Error('User already exists'));
+    }
+
+    userModule.provisionUser(userJson, function(err, user) {
+      if (err) {
+        return next(new Error('Cannot create user resources ' + err.message));
+      }
+
+      if (user) {
+        var domainJson = {
+          name: formValues.domain,
+          company_name: formValues.company,
+          administrator: user
+        };
+
+        var i = new Domain(domainJson);
+        i.save(function(err, domain) {
+          if (err) {
+            return next(new Error('Cannot create domain resource ' + err.message));
+          }
+          if (domain) {
+            var result = {
+              status: 'created',
+              resources: {
+                user: user._id,
+                domain: domain._id
+              }
+            };
+
+            return res.json(201, result);
+          }
+        });
+      }
+    });
+  });
+
+  return next(new Error('Error creating user/domain resources'));
 };
