@@ -1,4 +1,4 @@
-div.login-bg(id='form', ng-show="!notFound && !error")
+div.login-bg(id='form', ng-show="!notFound && !error && !complete")
     div.form-container
         form(name='form')
             legend #{__('Finalize Sign Up')}
@@ -31,7 +31,7 @@ div.login-bg(id='form', ng-show="!notFound && !error")
                     i.fa.fa-sign-in
                     | #{__('{{finalizeButton.label}}')}
 
-div.login-bg(id='notfound', ng-show="notFound && !error")
+div.login-bg(id='notfound', ng-show="notFound && !error && !complete")
     div.form-container
         h2 #{__('Not Found')}.
         div.alert.alert-danger
@@ -42,3 +42,10 @@ div.login-bg(id='error', ng-show="error")
         h2 #{__('Error')}.
         div.alert.alert-danger
             strong #{__('There was an error while signin up to the platform. Please try again.')}
+
+div.login-bg(ng-show="!error && complete")
+    div.form-container
+        h2 #{__('Sign Up is complete')}!
+        p #{__('You can now sign in into your ESN with the email and the password you just provided')}.
+        p
+            a(href='/login') #{__('Sign in')}

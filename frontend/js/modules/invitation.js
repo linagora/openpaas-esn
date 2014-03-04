@@ -71,7 +71,9 @@ angular.module('esn.invitation', ['restangular'])
       var payload = {data: $scope.settings, type: 'signup'};
       invitationAPI.finalize($scope.invitationId, payload).then(
         function(data) {
+          $scope.finalizeButton.label = $scope.finalizeButton.notRunning;
           $scope.finalizeTask.running = false;
+          $scope.complete = true;
           return data;
         },
         function(err) {
