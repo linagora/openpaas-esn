@@ -46,21 +46,6 @@ describe('The passport configuration module', function() {
 
   });
 
-  /*
-   passport.serializeUser(function(user, done) {
-   if (user && user.emails && user.emails.length && user.emails[0]) {
-   var email = user.emails[0].value || user.emails[0];
-   return done(null, email);
-   }
-   return done(new Error('Unable to serialize a session without email'));
-   });
-   passport.deserializeUser(function(username, done) {
-   User.loadFromEmail(username, function(err, user) {
-   done(err, user);
-   });
-   });
-   */
-
   describe('The serialize fn', function() {
     it('should serialize ESN user', function(done) {
       require(this.testEnv.basePath + '/backend/webserver/passport');
