@@ -35,13 +35,13 @@ function login(req, res) {
 module.exports.login = login;
 
 /**
- * Once logged in, redirect to /.
+ * Provision the user from the request, redirect to / once done.
  * When this controller method is called, it means that the authentication is already OK.
  *
  * @param {request} req
  * @param {response} res
  */
-function logmein(req, res) {
+function provision(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
     res.send(500, 'User not set');
   }
@@ -65,8 +65,19 @@ function logmein(req, res) {
     });
   });
 }
+module.exports.provision = provision;
 
+/**
+ * Log the user in. The user should already be loaded in the request from a middleware.
+ */
+function logmein(req, res) {
+  if (!req.user || !req.user.emails || !req.user.emails.length) {
+    return res.send(500, 'User not set');
+  }
+  return res.redirect('/');
+}
 module.exports.logmein = logmein;
+
 
 /**
  * Logout the current user
