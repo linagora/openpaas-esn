@@ -63,7 +63,7 @@
     "ldapjs": "0.7.0",
     "grunt-nodemon": "~0.2.0",
     "grunt-run": "~0.2.1",
-    "grunt-run-grunt": "git+http://github.com/chamerling/grunt-run-grunt.git",
+    "grunt-run-grunt": "git+http://chamerling@ci-openpaas.linagora.com/stash/scm/or/grunt-run-grunt.git",
     "grunt-shell-spawn": "sergkr/grunt-shell-spawn",
     "grunt-continue": "0.0.1",
     "mailparser": "~0.4.1",
