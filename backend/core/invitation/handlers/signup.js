@@ -93,8 +93,8 @@ module.exports.finalize = function(req, res, next) {
           administrator: user
         };
 
-        var i = new Domain(domainJson);
-        i.save(function(err, domain) {
+        var domainObject = new Domain(domainJson);
+        domainObject.save(function(err, domain) {
           if (err) {
             return next(new Error('Cannot create domain resource ' + err.message));
           }
@@ -113,6 +113,4 @@ module.exports.finalize = function(req, res, next) {
       }
     });
   });
-
-  return next(new Error('Error creating user/domain resources'));
 };
