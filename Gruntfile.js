@@ -94,6 +94,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           log: true,
+          args: grunt.option('test') ? {test: grunt.option('test')} : {},
           process: function(res){
             if (res.fail){
               grunt.config.set('esn.tests.success',false);
@@ -109,6 +110,7 @@ module.exports = function(grunt) {
       midway_backend: {
         options: {
           log: true,
+          args: grunt.option('test') ? {test: grunt.option('test')} : {},
           process: function(res){
             if (res.fail){
               grunt.config.set('esn.tests.success',false);
@@ -125,6 +127,7 @@ module.exports = function(grunt) {
       unit_backend: {
         options: {
           log: true,
+          args: grunt.option('test') ? {test: grunt.option('test')} : {},
           process: function(res){
             if (res.fail){
               grunt.config.set('esn.tests.success',false);

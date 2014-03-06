@@ -16,12 +16,12 @@ module.exports = function(grunt) {
       },
       backend: {
         options: {
-          files: ['test/unit-backend/all.js', 'test/unit-backend/**/*.js']
+          files: ['test/unit-backend/all.js', grunt.option('test') || 'test/unit-backend/**/*.js']
         }
       },
       midway: {
         options: {
-          files: ['test/midway-backend/all.js', 'test/midway-backend/**/*.js']
+          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/*.js']
         }
       }
     }

@@ -34,6 +34,13 @@ You can check that everything works by launching the test suite:
 
     grunt
 
+If you want to launch tests from a single test, you can specify the file as command line argument.
+For example, you can launch the backend tests on the test/unit-backend/webserver/index.js file like this:
+
+    grunt test-unit-backend --test=test/unit-backend/webserver/index.js
+
+Note: This works for backend and midway tests.
+
 Fixtures
 --------
 
