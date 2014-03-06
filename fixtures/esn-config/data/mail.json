@@ -1,5 +1,7 @@
 {
-  "from": "no-reply@hiveety.org",
+  "mail": {
+    "noreply": "noreply@hiveety.io"
+  },
   "transport": {
     "module": "nodemailer-browser",
     "type": "MailBrowser",
