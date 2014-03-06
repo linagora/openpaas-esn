@@ -6,8 +6,9 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
 passport.serializeUser(function(user, done) {
-  if (user && user.emails && user.emails.length && user.emails[0] && user.emails[0].value) {
-    return done(null, user.emails[0].value);
+  if (user && user.emails && user.emails.length && user.emails[0]) {
+    var email = user.emails[0].value || user.emails[0];
+    return done(null, email);
   }
   return done(new Error('Unable to serialize a session without email'));
 });

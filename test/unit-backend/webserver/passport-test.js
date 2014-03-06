@@ -45,4 +45,45 @@ describe('The passport configuration module', function() {
     });
 
   });
+
+  describe('The serialize fn', function() {
+    it('should serialize ESN user', function(done) {
+      require(this.testEnv.basePath + '/backend/webserver/passport');
+      var passport = require('passport');
+      var mail = 'foo@bar.com';
+      var user = {
+        emails: [mail]
+      };
+      passport.serializeUser(user, function(err, serialized) {
+        expect(err).to.not.exist;
+        expect(serialized).to.equal(mail);
+        done();
+      });
+    });
+
+    it('should serialize a passport user', function(done) {
+      require(this.testEnv.basePath + '/backend/webserver/passport');
+      var passport = require('passport');
+      var mail = 'foo@bar.com';
+      var user = {
+        emails: [{type: 'home', value: mail}]
+      };
+      passport.serializeUser(user, function(err, serialized) {
+        expect(err).to.not.exist;
+        expect(serialized).to.equal(mail);
+        done();
+      });
+    });
+
+    it('should fail when no email is set', function(done) {
+      require(this.testEnv.basePath + '/backend/webserver/passport');
+      var passport = require('passport');
+      var user = {};
+      passport.serializeUser(user, function(err, serialized) {
+        expect(err).to.exist;
+        expect(serialized).to.not.exist;
+        done();
+      });
+    });
+  });
 });
