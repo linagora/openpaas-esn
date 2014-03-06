@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mongodb = require('mongodb');
+var mongoose = require('mongoose');
 
 describe('The signup handler', function() {
 
@@ -216,6 +217,64 @@ describe('The signup handler', function() {
       signup.finalize(req, res, next);
     });
 
+    it('should call next when domain / company exist', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+      var User = mongoose.model('User');
+      var Domain = mongoose.model('Domain');
+      var emails = [];
+
+      emails.push('toto@foo.com');
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+
+      u.save(function(err, savedUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var dom = {
+          name: 'ESN',
+          company_name: 'Linagora',
+          administrator: savedUser
+        };
+
+        var i = new Domain(dom);
+        i.save(function(err, data) {
+          if (err) {
+            return done(err);
+          }
+
+          var req = {
+            invitation: {
+              data: {
+                email: 'foo@bar.com'
+              }
+            },
+            body: {
+              data: {
+                firstname: 'foo',
+                lastname: 'bar',
+                password: 'secret',
+                confirmpassword: 'secret',
+                company: 'Linagora',
+                domain: 'ESN'
+              }
+            }
+          };
+
+          var res = {
+            redirect: function() {
+            }
+          };
+
+          var next = function() {
+            done();
+          };
+
+          signup.finalize(req, res, next);
+        });
+      });
+    });
+
     it('should create a user if invitation and form data are set', function(done) {
       var mongoUrl = this.testEnv.mongoUrl;
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
@@ -231,7 +290,7 @@ describe('The signup handler', function() {
             lastname: 'bar',
             password: 'secret',
             confirmpassword: 'secret',
-            company: 'Linagora',
+            company: 'Corporate',
             domain: 'ESN'
           }
         }
