@@ -51,6 +51,73 @@ describe('The Invitation model', function() {
     });
   });
 
+  describe('The finalize method', function() {
+    it('should set the date in the invitation', function(done) {
+      var json = {
+        type: 'email',
+        data: {
+          foo: 'bar'
+        }
+      };
+      var i = new Invitation(json);
+      i.save(function(err, data) {
+        expect(err).to.not.exist;
+
+        i.finalize(function(err, data) {
+          expect(err).to.not.exist;
+          expect(data).to.exist;
+          expect(data.timestamps.finalized).to.exist;
+          done();
+        });
+      });
+    });
+  });
+
+  describe('The isFinalized static method', function() {
+    it('should return true when finalized timestamp is set', function(done) {
+      var json = {
+        type: 'email',
+        timestamps: {
+          finalized: new Date()
+        },
+        data: {
+          foo: 'bar'
+        }
+      };
+
+      var i = new Invitation(json);
+      i.save(function(err, data) {
+        expect(err).to.not.exist;
+        Invitation.isFinalized(data.uuid, function(err, finalized) {
+          expect(err).to.not.exist;
+          expect(finalized).to.be.true;
+          done();
+        });
+      });
+    });
+
+    it('should return false when finalized timestamp is not set', function(done) {
+      var json = {
+        type: 'email',
+        timestamps: {
+        },
+        data: {
+          foo: 'bar'
+        }
+      };
+
+      var i = new Invitation(json);
+      i.save(function(err, data) {
+        expect(err).to.not.exist;
+        Invitation.isFinalized(data.uuid, function(err, finalized) {
+          expect(err).to.not.exist;
+          expect(finalized).to.be.false;
+          done();
+        });
+      });
+    });
+  });
+
   afterEach(function(done) {
     var callback = function(item, fn) {
       item.remove(fn);
