@@ -39,12 +39,9 @@ describe('The User template module', function() {
     after(function(done) {
       var mongoose = require('mongoose');
       this.testEnv.removeDBConfigFile();
-      mongoose.connect(this.testEnv.mongoUrl, function(err) {
+      mongoose.connection.db.dropDatabase(function(err, ok) {
         if (err) { return done(err); }
-        mongoose.connection.db.dropDatabase(function(err, ok) {
-          if (err) { return done(err); }
-          mongoose.disconnect(done);
-        });
+        mongoose.disconnect(done);
       });
     });
   });
