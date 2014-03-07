@@ -3,7 +3,7 @@
 angular.module('welcomeApp', ['esn.invitation', 'restangular', 'ngRoute'])
   .config(function($routeProvider, RestangularProvider) {
 
-    $routeProvider.when('/:id', {
+    $routeProvider.when('/signup/:id', {
       templateUrl: '/views/signup/partials/finalize',
       controller: 'finalize',
       resolve: {
@@ -22,6 +22,12 @@ angular.module('welcomeApp', ['esn.invitation', 'restangular', 'ngRoute'])
         }
       }
     });
+
+    $routeProvider.when('/', {
+      templateUrl: '/views/welcome/partials/home'
+    });
+
+    $routeProvider.otherwise({redirectTo: '/'});
 
     RestangularProvider.setBaseUrl('/api');
   });

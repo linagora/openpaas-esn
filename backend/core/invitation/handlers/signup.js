@@ -47,7 +47,7 @@ module.exports.init = function(invitation, done) {
  */
 module.exports.process = function(req, res, next) {
   if (req.invitation) {
-    return res.redirect('/invitation/signup#/' + req.invitation.uuid);
+    return res.redirect('/#/signup/' + req.invitation.uuid);
   }
   return next(new Error('Can not find any valid invitation'));
 };
