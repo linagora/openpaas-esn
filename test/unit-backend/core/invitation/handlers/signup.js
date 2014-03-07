@@ -1,6 +1,8 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mongodb = require('mongodb');
+var mongoose = require('mongoose');
 
 describe('The signup handler', function() {
 
@@ -162,6 +164,169 @@ describe('The signup handler', function() {
         done();
       };
       signup.process(req, res, next);
+    });
+  });
+
+  describe('The finalize fn', function() {
+
+    before(function(done) {
+      this.testEnv.writeDBConfigFile();
+      this.mongoose = require('mongoose');
+      this.mongoose.connect(this.testEnv.mongoUrl);
+      var template = require(this.testEnv.basePath + '/backend/core/templates');
+      template.user.store(done);
+    });
+
+    after(function() {
+      this.testEnv.removeDBConfigFile();
+    });
+
+    it('should call next if invitation is not found', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+
+      var req = {
+      };
+
+      var res = {
+        redirect: function() {
+        }
+      };
+
+      var next = function() {
+        done();
+      };
+      signup.finalize(req, res, next);
+    });
+
+    it('should call next if body data is not set', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+
+      var req = {
+        body: {},
+        invitation: {}
+      };
+
+      var res = {
+        redirect: function() {
+        }
+      };
+
+      var next = function() {
+        done();
+      };
+      signup.finalize(req, res, next);
+    });
+
+    it('should call next when domain / company exist', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+      var User = mongoose.model('User');
+      var Domain = mongoose.model('Domain');
+      var emails = [];
+
+      emails.push('toto@foo.com');
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+
+      u.save(function(err, savedUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var dom = {
+          name: 'ESN',
+          company_name: 'Linagora',
+          administrator: savedUser
+        };
+
+        var i = new Domain(dom);
+        i.save(function(err, data) {
+          if (err) {
+            return done(err);
+          }
+
+          var req = {
+            invitation: {
+              data: {
+                email: 'foo@bar.com'
+              }
+            },
+            body: {
+              data: {
+                firstname: 'foo',
+                lastname: 'bar',
+                password: 'secret',
+                confirmpassword: 'secret',
+                company: 'Linagora',
+                domain: 'ESN'
+              }
+            }
+          };
+
+          var res = {
+            redirect: function() {
+            }
+          };
+
+          var next = function() {
+            done();
+          };
+
+          signup.finalize(req, res, next);
+        });
+      });
+    });
+
+    it('should create a user if invitation and form data are set', function(done) {
+      var mongoUrl = this.testEnv.mongoUrl;
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+      var req = {
+        invitation: {
+          data: {
+            email: 'foo@bar.com'
+          }
+        },
+        body: {
+          data: {
+            firstname: 'foo',
+            lastname: 'bar',
+            password: 'secret',
+            confirmpassword: 'secret',
+            company: 'Corporate',
+            domain: 'ESN'
+          }
+        }
+      };
+
+      var res = {
+        redirect: function() {
+        },
+        json: function(code, data) {
+          expect(code).to.equal(201);
+          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+            if (err) {
+              return done(err);
+            }
+            db.collection('users').findOne({_id: data.resources.user}, function(err, user) {
+              if (err) {
+                return done(err);
+              }
+              expect(user).to.exist;
+
+              db.collection('domains').findOne({_id: data.resources.domain}, function(err, domain) {
+                if (err) {
+                  return done(err);
+                }
+                expect(domain).to.exist;
+                db.close(function() {
+                  done();
+                });
+              });
+            });
+          });
+        }
+      };
+      var next = function() {
+      };
+      signup.finalize(req, res, next);
     });
   });
 });
