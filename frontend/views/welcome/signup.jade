@@ -1,4 +1,4 @@
-div.login-bg(ng-show="step === 0 && !error" ng-controller="signup")
+div.login-bg(ng-show="step === 0 && !error")
   div.form-container
     form(name='form')
       legend #{__('No account yet ?')} #{__('Register today')}
@@ -11,7 +11,7 @@ div.login-bg(ng-show="step === 0 && !error" ng-controller="signup")
           .col-xs-6
             input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required)
       .form-group
-        button.btn.btn-warning.pull-right(type='submit', ng-click='signup()', ng-disabled='!validValues() || signupTask.running')
+        button.btn.btn-warning.pull-right(type='submit', ng-click='signup()', ng-disabled='signupTask.running')
           i.fa.fa-sign-in(ng-hide="signupTask.running") &nbsp;
           i.fa.fa-spinner(ng-hide="!signupTask.running") &nbsp;
           | #{__('{{signupButton.label}}')}
