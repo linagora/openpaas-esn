@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('welcomeApp', ['esn.invitation', 'restangular', 'ngRoute'])
+angular.module('welcomeApp', ['esn.invitation', 'esn.company', 'restangular', 'ngRoute'])
   .config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/signup/:id', {

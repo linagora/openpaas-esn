@@ -9,9 +9,21 @@ div.login-bg(id='form', ng-show="!notFound && !error && !complete")
                 .col-xs-6.form-group(ng-class='{"has-error": form.lastname.$invalid, "has-success": form.lastname.$valid}')
                     label.control-label(for='lastname') #{__('Last Name')}
                     input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required ng-minlength='1')
+                    
             .form-group(ng-class='{"has-error": form.company.$dirty && form.company.$invalid, "has-success": form.company.$valid}')
                 label.control-label(for='company') #{__('Company Name')}
-                input.form-control(type='company', ng-model='settings.company', name='company', id='company', required ng-change='log()' autocomplete='off' ng-minlength='1')
+                input.form-control( type='company'
+                                    ng-model='settings.company'
+                                    name='company'
+                                    id='company'
+                                    required
+                                    autocomplete='off'
+                                    ng-minlength='1'
+                                    ensure-unique-company
+                                    )
+                
+                p.help-block(ng-show='form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
+                
             .form-group(ng-class='{"has-error": form.domain.$dirty && form.domain.$invalid, "has-success": form.domain.$valid}')
                 label.control-label(for='domain') #{__('Domain Name')}
                 input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1')

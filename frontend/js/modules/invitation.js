@@ -43,10 +43,6 @@ angular.module('esn.invitation', ['restangular'])
     $scope.notFound = invitation.status === 'error' ? true : false;
     $scope.form = {};
 
-    $scope.log = function() {
-      console.log($scope.form);
-    };
-
     if (!$scope.notFound) {
       $scope.invitationId = invitation.uuid;
       $scope.settings = invitation.data;
@@ -62,6 +58,9 @@ angular.module('esn.invitation', ['restangular'])
     };
 
     $scope.finalize = function() {
+      if ($scope.form.$invalid) {
+        return false;
+      }
       $scope.finalizeTask.running = true;
       $scope.finalizeButton.label = $scope.finalizeButton.running;
 
@@ -83,14 +82,6 @@ angular.module('esn.invitation', ['restangular'])
           return $scope.error;
         }
       );
-    };
-
-    $scope.checkDomain = function() {
-      return true;
-    };
-
-    $scope.checkCompany = function() {
-      return true;
     };
   })
 .directive('passwordMatch', function() {
