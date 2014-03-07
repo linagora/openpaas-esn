@@ -10,6 +10,7 @@ describe('Passport Local', function() {
 
   before(function() {
     fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
   });
 
   after(function() {
@@ -17,16 +18,25 @@ describe('Passport Local', function() {
   });
 
   beforeEach(function(done) {
-    mockery.registerMock('../../../config/users.json', { users: [{
+    var user = {
       id: 'secret@linagora.com',
       emails: [{value: 'secret@linagora.com'}],
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
-    }] });
+    };
+
+    mockery.registerMock('../../../config/users.json', { users: [user] });
     var template = require(this.testEnv.fixtures + '/user-template').simple();
     mongoose.connection.collection('templates').insert(template, function() {
-      done();
+      var mongouser = {
+        emails: [user.emails[0].value],
+        password: 'secret'
+      };
+      var User = mongoose.model('User');
+      var u = new User(mongouser);
+      u.save(function() {
+        done();
+      });
     });
-
     app = require(this.testEnv.basePath + '/backend/webserver/application');
   });
 
@@ -58,7 +68,7 @@ describe('Passport Local', function() {
 
       request(app)
         .post('/login')
-        .send('username=secret%40linagora.com&password=secret')
+        .send('username=secret@linagora.com&password=secret')
         .expect(302)
         .expect('Location', '/')
         .end(done);
