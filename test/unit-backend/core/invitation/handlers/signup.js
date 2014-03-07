@@ -278,7 +278,7 @@ describe('The signup handler', function() {
     it('should create a user if invitation and form data are set', function(done) {
       var mongoUrl = this.testEnv.mongoUrl;
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-      var invitation =  {
+      var invitation = {
         type: 'test',
         data: {
           email: 'foo@bar.com'
