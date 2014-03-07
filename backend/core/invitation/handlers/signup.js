@@ -67,6 +67,7 @@ module.exports.finalize = function(req, res, next) {
   var Domain = mongoose.model('Domain');
   var User = mongoose.model('User');
   var formValues = req.body.data;
+  var invitation = req.invitation;
 
 
   Domain.testDomainCompany(formValues.company, formValues.domain, function(err, domain) {
@@ -113,17 +114,24 @@ module.exports.finalize = function(req, res, next) {
                 return next(new Error('Cannot create domain resource, user deleted ' + err.message));
               });
             }
-            if (domain) {
-              var result = {
-                status: 'created',
-                resources: {
-                  user: user._id,
-                  domain: domain._id
-                }
-              };
 
-              return res.json(201, result);
-            }
+            invitation.finalize(function(err, updated) {
+              if (err) {
+                logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
+              }
+
+              if (domain) {
+                var result = {
+                  status: 'created',
+                  resources: {
+                    user: user._id,
+                    domain: domain._id
+                  }
+                };
+
+                return res.json(201, result);
+              }
+            });
           });
         }
       });
