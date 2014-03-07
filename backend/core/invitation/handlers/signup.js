@@ -35,8 +35,9 @@ module.exports.init = function(invitation, done) {
   signupEmail(invitation, function(err, result) {
     if (err) {
       logger.warn('Signup invitation have not been sent %s', err.message);
+    } else {
+      logger.debug('Signup invitation has been sent ' + invitation);
     }
-    logger.debug('Signup invitation has been sent ' + invitation);
     done(err, result);
   });
 };
