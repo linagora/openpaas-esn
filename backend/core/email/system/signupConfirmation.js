@@ -22,7 +22,7 @@ module.exports = function(invitation, done) {
     if (err) {
       return done(err);
     }
-    var from = data.mail.noreply || 'no-reply@hiveety.org';
+    var from = data && data.mail && data.mail.noreply ? data.mail.noreply : 'no-reply@hiveety.org';
     var to = invitation.data.email;
     var subject = i18n.__(properties.subject);
     email.sendHTML(from, to, subject, properties.template, invitation.data, done);
