@@ -278,55 +278,105 @@ describe('The signup handler', function() {
     it('should create a user if invitation and form data are set', function(done) {
       var mongoUrl = this.testEnv.mongoUrl;
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-      var req = {
-        invitation: {
-          data: {
-            email: 'foo@bar.com'
-          }
-        },
-        body: {
-          data: {
-            firstname: 'foo',
-            lastname: 'bar',
-            password: 'secret',
-            confirmpassword: 'secret',
-            company: 'Corporate',
-            domain: 'ESN'
-          }
+      var invitation =  {
+        type: 'test',
+        data: {
+          email: 'foo@bar.com'
         }
       };
 
-      var res = {
-        redirect: function() {
-        },
-        json: function(code, data) {
-          expect(code).to.equal(201);
-          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-            if (err) {
-              return done(err);
+      var Invitation = mongoose.model('Invitation');
+      var invit = new Invitation(invitation);
+      invit.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = {
+          invitation: saved,
+          body: {
+            data: {
+              firstname: 'foo',
+              lastname: 'bar',
+              password: 'secret',
+              confirmpassword: 'secret',
+              company: 'Corporate',
+              domain: 'ESN'
             }
-            db.collection('users').findOne({_id: data.resources.user}, function(err, user) {
+          }
+        };
+
+        var res = {
+          redirect: function() {
+          },
+          json: function(code, data) {
+            expect(code).to.equal(201);
+            mongodb.MongoClient.connect(mongoUrl, function(err, db) {
               if (err) {
                 return done(err);
               }
-              expect(user).to.exist;
-
-              db.collection('domains').findOne({_id: data.resources.domain}, function(err, domain) {
+              db.collection('users').findOne({_id: data.resources.user}, function(err, user) {
                 if (err) {
                   return done(err);
                 }
-                expect(domain).to.exist;
-                db.close(function() {
-                  done();
+                expect(user).to.exist;
+
+                db.collection('domains').findOne({_id: data.resources.domain}, function(err, domain) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(domain).to.exist;
+                  db.close(function() {
+                    done();
+                  });
                 });
               });
             });
-          });
+          }
+        };
+        var next = function() {
+        };
+        signup.finalize(req, res, next);
+      });
+    });
+
+    it('should call next if invitation is already finalized', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+
+      var invitation = {
+        type: 'test',
+        timestamps: {
+          finalized: new Date()
+        },
+        data: {}
+      };
+
+      var Invitation = mongoose.model('Invitation');
+      var invit = new Invitation(invitation);
+      invit.save(function(err, saved) {
+        if (err) {
+          return done(err);
         }
-      };
-      var next = function() {
-      };
-      signup.finalize(req, res, next);
+
+        var req = {
+          invitation: saved,
+          body: {
+            data: {}
+          }
+        };
+
+        var res = {
+          redirect: function() {
+          }
+        };
+
+        var next = function() {
+          done();
+        };
+
+        signup.finalize(req, res, next);
+
+      });
     });
   });
 });
