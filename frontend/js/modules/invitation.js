@@ -15,16 +15,20 @@ angular.module('esn.invitation', ['restangular'])
     };
 
     $scope.signup = function() {
+      if ( !$scope.validValues() ) {
+        return ;
+      }
       $scope.signupTask.running = true;
       $scope.signupButton.label = $scope.signupButton.running;
-      $scope.step++;
       var payload = {data: $scope.settings, type: 'signup'};
       invitationAPI.create(payload).then(
         function(data) {
+          $scope.step++;
           $scope.signupTask.running = false;
           return data;
         },
         function(err) {
+          $scope.step++;
           $scope.signupButton.label = $scope.signupButton.notRunning;
           $scope.signupTask.running = false;
           $scope.error = {
