@@ -1,5 +1,5 @@
 #welcome-header
-  div(data-ng-controller="localeController")
+  div
     .navbar.navbar-default.navbar-fixed-top
       .container
         .navbar-header
@@ -9,12 +9,3 @@
             span.icon-bar
             span.icon-bar
           a.navbar-brand(href='/') Hiveety
-        .collapse.navbar-collapse
-          ul.nav.navbar-nav.navbar-right
-              li.dropdown
-                a.dropdown-toggle(href='#', data-toggle='dropdown')
-                  | #{__('Language')}: {{ selectedLocale }}
-                  span.caret
-                ul.dropdown-menu
-                  li(data-ng-repeat="locale in supportedLocales")
-                    a(href='#', data-ng-click='setLocale(locale)') {{ locale }}
