@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var config = require('../esn-config')('login');
+var pubsub = require('../pubsub').local;
 var defaultLoginFailure = 5;
 
 module.exports.success = function(email, cb) {
@@ -10,6 +11,7 @@ module.exports.success = function(email, cb) {
     if (err) {
       return cb(err);
     }
+    pubsub.topic('login.success').publish(user);
     return user.resetLoginFailure(cb);
   });
 };
@@ -19,6 +21,7 @@ module.exports.failure = function(email, cb) {
     if (err) {
       return cb(err);
     }
+    pubsub.topic('login.failure').publish(user);
     user.loginFailure(cb);
   });
 };
@@ -41,13 +44,5 @@ module.exports.canLogin = function(email, cb) {
       return cb(err, true);
     });
   });
-};
-
-module.exports.onLoginSuccess = function(email, cb) {
-
-};
-
-module.exports.onLoginFailure = function(email, cb) {
-
 };
 
