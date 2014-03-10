@@ -12,7 +12,7 @@ module.exports.success = function(email, cb) {
       return cb(err);
     }
     pubsub.topic('login.success').publish(user);
-    return user.resetLoginFailure(cb);
+    user.loginSuccess(cb);
   });
 };
 

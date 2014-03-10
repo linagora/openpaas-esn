@@ -41,6 +41,24 @@ describe('The user login module', function() {
     });
   });
 
+  it('the success fn should set the login success field', function(done) {
+    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
+    user.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+
+      var login = require('../../../../backend/core/user/login');
+      login.success(saved.emails[0], function(err, data) {
+        expect(err).to.not.exist;
+        expect(data).to.exist;
+        expect(data.login.success).to.exist;
+        done();
+      });
+    });
+  });
+
   it('the failure fn should increment the login failure counter', function(done) {
     var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     var user = new User({ password: 'secret', emails: ['foo@bar.com']});
