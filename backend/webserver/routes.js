@@ -2,7 +2,7 @@
 
 var authorize = require('./middleware/authorization');
 var authenticate = require('./middleware/authentication');
-var remember = require('./middleware/rememberme');
+var cookielifetime = require('./middleware/cookie-lifetime');
 
 exports = module.exports = function(application) {
 
@@ -44,7 +44,7 @@ exports = module.exports = function(application) {
   application.get('/api/locales/:locale', locale.set);
 
   var loginController = require('./controllers/login');
-  application.post('/api/login', remember.rememberMe, loginController.login);
+  application.post('/api/login', cookielifetime.set, loginController.login);
   application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
 

@@ -25,7 +25,7 @@ describe('The remember middleware', function() {
 
     it('should set the cookie maxAge even if not configured (session is not set in config)', function(done) {
       require(this.testEnv.basePath + '/backend/core')['esn-config']('session');
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/rememberme').rememberMe;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
       var req = {
         body: {
           rememberme: true
@@ -57,7 +57,7 @@ describe('The remember middleware', function() {
         if (err) {
           return done(err);
         }
-        var middleware = require(self.testEnv.basePath + '/backend/webserver/middleware/rememberme').rememberMe;
+        var middleware = require(self.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
         var req = {
           body: {
             rememberme: true
@@ -83,7 +83,7 @@ describe('The remember middleware', function() {
 
   describe('when do not want to remember', function() {
     it('should set the cookie expire to false if rememberme is false', function(done) {
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/rememberme').rememberMe;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
       var req = {
         body: {
           rememberme: false
