@@ -147,6 +147,42 @@ describe('The User model', function() {
     });
   });
 
+  it('should add a login failure when calling loginFailure fn', function(done) {
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      u.loginFailure(function(err, data) {
+        expect(err).to.not.exist;
+        expect(data).to.exist;
+        expect(data.login.failures).to.exist;
+        expect(data.login.failures.length).to.equal(1);
+        done();
+      });
+    });
+  });
+
+  it('should reset the login failure counter when calling resetLoginFailure fn', function(done) {
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com'], login: { failures: [new Date()]}});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      u.resetLoginFailure(function(err, data) {
+        expect(err).to.not.exist;
+        expect(data).to.exist;
+        expect(data.login.failures).to.exist;
+        expect(data.login.failures.length).to.equal(0);
+        done();
+      });
+    });
+  });
+
   afterEach(function(done) {
     emails = [];
 
