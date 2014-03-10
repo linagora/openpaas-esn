@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-describe('The remember middleware', function() {
+describe('The cookie-lifetime middleware', function() {
 
   describe('if config is up', function() {
 
