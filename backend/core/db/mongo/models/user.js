@@ -81,6 +81,7 @@ UserSchema.methods = {
 
   loginSuccess: function(cb) {
     this.login.success = new Date();
+    this.login.failures = [];
     this.save(cb);
   },
 
