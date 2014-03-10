@@ -87,5 +87,57 @@ describe('The login API', function() {
         done();
       });
   });
+
+  it('should be able to retrieve the user information with the cookie and remember=true', function(done) {
+    user.rememberme = true;
+    request(app)
+      .post('/api/login')
+      .send({username: user.emails[0], password: user.password, rememberme: true})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).get('/api/login/user');
+        req.cookies = cookies;
+        req.expect(200)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body.emails).to.exist;
+            expect(res.body.emails[0]).to.exist;
+            expect(res.body.emails[0]).to.equal(user.emails[0]);
+            done();
+          });
+      });
+  });
+
+  it('should be able to retrieve the user information with the cookie and remember=false', function(done) {
+    user.rememberme = true;
+    request(app)
+      .post('/api/login')
+      .send({username: user.emails[0], password: user.password, rememberme: false})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).get('/api/login/user');
+        req.cookies = cookies;
+        req.expect(200)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body.emails).to.exist;
+            expect(res.body.emails[0]).to.exist;
+            expect(res.body.emails[0]).to.equal(user.emails[0]);
+            done();
+          });
+      });
+  });
+
+  it('should not be able to retrieve the user information without the cookie', function(done) {
+    user.rememberme = true;
+    request(app)
+      .get('/api/login/user')
+      .expect(401)
+      .end(done);
+  });
 });
 

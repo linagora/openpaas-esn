@@ -45,5 +45,6 @@ exports = module.exports = function(application) {
 
   var loginController = require('./controllers/login');
   application.post('/api/login', remember.rememberMe, loginController.login);
+  application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
 

@@ -46,4 +46,18 @@ var login = function(req, res, next) {
 };
 module.exports.login = login;
 
+var user = function(req, res) {
+  if (!req.user || !req.user.emails || !req.user.emails.length) {
+    return res.send(500, {
+      error: {
+        code: 500,
+        message: 'Internal error',
+        details: 'User not set'
+      }
+    });
+  }
+  return res.json(200, req.user);
+};
+module.exports.user = user;
+
 
