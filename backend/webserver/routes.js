@@ -2,6 +2,7 @@
 
 var authorize = require('./middleware/authorization');
 var authenticate = require('./middleware/authentication');
+var remember = require('./middleware/rememberme');
 
 exports = module.exports = function(application) {
 
@@ -41,5 +42,8 @@ exports = module.exports = function(application) {
   application.get('/api/locales', locale.getAll);
   application.get('/api/locales/current', locale.get);
   application.get('/api/locales/:locale', locale.set);
+
+  var loginController = require('./controllers/login');
+  application.post('/api/login', remember.rememberMe, loginController.login);
 };
 
