@@ -63,8 +63,10 @@ describe('The WebSockets server module', function() {
 
         var expressMock = getExpressMock();
 
+        mockery.registerMock('./middleware/setup-sessions', function() {});
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('express', expressMock);
+
         var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
 
         wsserver.start(function() {});
@@ -88,6 +90,7 @@ describe('The WebSockets server module', function() {
 
         var expressMock = getExpressMock();
 
+        mockery.registerMock('./middleware/setup-sessions', function() {});
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('express', expressMock);
 
@@ -106,6 +109,7 @@ describe('The WebSockets server module', function() {
         }
       };
 
+      mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
       var wsserver = require(this.testEnv.basePath + '/backend/wsserver');

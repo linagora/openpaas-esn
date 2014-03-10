@@ -30,7 +30,9 @@
     "node-uuid": "~1.4.1",
     "ldapjs": "~0.7.0",
     "mongoconfig": "~1.0.0",
-    "trim": "0.0.1"
+    "trim": "0.0.1",
+    "connect-dynamic-middleware": "~0.1.0",
+    "connect-mongo": "~0.4.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

@@ -1,5 +1,6 @@
 'use strict';
 var express = require('express');
+var cdm = require('connect-dynamic-middleware');
 var i18n = require('../i18n');
 var lessMiddleware = require('less-middleware');
 var path = require('path');
@@ -39,7 +40,9 @@ application.use('/js', express.static(frontendPath + '/js'));
 application.use(express.json());
 application.use(express.urlencoded());
 application.use(express.cookieParser('this is the secret!'));
-application.use(express.session({ cookie: { maxAge: 60000 }}));
+var sessionMiddleware = cdm(express.session({ cookie: { maxAge: 60000 }}));
+application.use(sessionMiddleware);
+require('./middleware/setup-sessions')(sessionMiddleware);
 application.use(i18n.init); // Should stand before app.route
 require('./passport');
 

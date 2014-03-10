@@ -36,6 +36,7 @@ describe('The Webserver module', function() {
         },
         removeListener: function() {}
       };
+
   });
 
   describe('the start property', function() {
@@ -51,6 +52,7 @@ describe('The Webserver module', function() {
         return {on: function() {}};
       };
 
+      mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('express', expressMock);
 
       var webserver = require(this.testEnv.basePath + '/backend/webserver');
@@ -63,6 +65,7 @@ describe('The Webserver module', function() {
         return serverInstance;
       };
 
+      mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('express', expressMock);
 
       var webserver = require(this.testEnv.basePath + '/backend/webserver');
@@ -79,7 +82,10 @@ describe('The Webserver module', function() {
       expressMock.constructorResponse.listen = function(serverPort) {
         return serverInstance;
       };
+
+      mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('express', expressMock);
+
       var webserver = require(this.testEnv.basePath + '/backend/webserver');
 
       webserver.start(port, function() {
