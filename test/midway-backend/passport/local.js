@@ -101,7 +101,7 @@ describe('Passport Local', function() {
         .end(done);
     });
 
-    it('When logged in, it should say hello', function(done) {
+    it.skip('When logged in, it should say hello', function(done) {
       var cookies;
       request(app)
         .post('/login')
