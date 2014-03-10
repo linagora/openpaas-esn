@@ -183,6 +183,23 @@ describe('The User model', function() {
     });
   });
 
+  it('should set the login success date when calling loginSuccess fn', function(done) {
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
+    u.save(function(err, data) {
+      if (err) {
+        done(err);
+      }
+
+      u.loginSuccess(function(err, data) {
+        expect(err).to.not.exist;
+        expect(data).to.exist;
+        expect(data.login.success).to.exist;
+        done();
+      });
+    });
+  });
+
   afterEach(function(done) {
     emails = [];
 

@@ -32,7 +32,8 @@ var UserSchema = new mongoose.Schema({
   login: {
     failures: {
       type: [Date]
-    }
+    },
+    success: {type: Date}
   },
   schemaVersion: {type: Number, default: 1}
 });
@@ -75,6 +76,11 @@ UserSchema.methods = {
 
   loginFailure: function(cb) {
     this.login.failures.push(new Date());
+    this.save(cb);
+  },
+
+  loginSuccess: function(cb) {
+    this.login.success = new Date();
     this.save(cb);
   },
 
