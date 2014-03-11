@@ -2,7 +2,6 @@
 
 var expect = require('chai').expect;
 var mongodb = require('mongodb');
-var mongoose = require('mongoose');
 
 describe('The signup handler', function() {
 
@@ -169,16 +168,34 @@ describe('The signup handler', function() {
 
   describe('The finalize fn', function() {
 
+    var User;
+    var Domain;
+    var Invitation;
+
     before(function(done) {
       this.testEnv.writeDBConfigFile();
-      this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
-      var template = require(this.testEnv.basePath + '/backend/core/templates');
-      template.user.store(done);
+      done();
     });
 
     after(function() {
       this.testEnv.removeDBConfigFile();
+    });
+
+    beforeEach(function(done) {
+      this.mongoose = require('mongoose');
+      this.mongoose.connect(this.testEnv.mongoUrl);
+
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+
+      var template = require(this.testEnv.basePath + '/backend/core/templates');
+      template.user.store(done);
+    });
+
+    afterEach(function(done) {
+      this.mongoose.connection.db.dropDatabase();
+      this.mongoose.disconnect(done);
     });
 
     it('should call next if invitation is not found', function(done) {
@@ -219,8 +236,6 @@ describe('The signup handler', function() {
 
     it('should call next when domain / company exist', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-      var User = mongoose.model('User');
-      var Domain = mongoose.model('Domain');
       var emails = [];
 
       emails.push('toto@foo.com');
@@ -266,7 +281,7 @@ describe('The signup handler', function() {
             }
           };
 
-          var next = function() {
+          var next = function(err) {
             done();
           };
 
@@ -285,7 +300,6 @@ describe('The signup handler', function() {
         }
       };
 
-      var Invitation = mongoose.model('Invitation');
       var invit = new Invitation(invitation);
       invit.save(function(err, saved) {
         if (err) {
@@ -351,7 +365,6 @@ describe('The signup handler', function() {
         data: {}
       };
 
-      var Invitation = mongoose.model('Invitation');
       var invit = new Invitation(invitation);
       invit.save(function(err, saved) {
         if (err) {
