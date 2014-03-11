@@ -22,10 +22,10 @@ describe('The local pubsub for MongoDB configuration', function() {
       port: 27017,
       dbname: 'hiveety-test'
     };
-
+    
+    var topic = pubsub.topic('mongodb:configurationAvailable');
     var configuredMock =
       function() {
-        var topic = pubsub.topic('mongodb:configurationAvailable');
         topic.publish(mongodb);
         return true;
       };
@@ -35,15 +35,11 @@ describe('The local pubsub for MongoDB configuration', function() {
     var core = require(this.testEnv.basePath + '/backend/core');
     var templates = core.templates;
 
-    var topic = pubsub.topic('mongodb:configurationAvailable');
     topic.subscribe(function(config) {
       expect(config).to.deep.equal(mongodb);
       done();
     });
-
-    templates.inject(function() {
-    });
-
-    templates.inject(done);
+    
+    templates.inject(function() {});
   });
 });
