@@ -29,7 +29,8 @@
     "email-templates": "~0.1.1",
     "node-uuid": "~1.4.1",
     "ldapjs": "~0.7.0",
-    "mongoconfig": "~1.0.0"
+    "mongoconfig": "~1.0.0",
+    "q": "~1.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
