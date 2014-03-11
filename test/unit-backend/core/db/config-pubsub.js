@@ -43,5 +43,9 @@ describe('The local pubsub for MongoDB configuration', function() {
 
     templates.inject(function() {
     });
+
+    templates.inject(function() {
+      done();
+    });
   });
 });
