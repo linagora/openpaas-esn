@@ -32,7 +32,8 @@
     "mongoconfig": "~1.0.0",
     "trim": "0.0.1",
     "connect-dynamic-middleware": "~0.1.0",
-    "connect-mongo": "~0.4.0"
+    "connect-mongo": "~0.4.0",
+    "recaptcha": "~1.2.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
