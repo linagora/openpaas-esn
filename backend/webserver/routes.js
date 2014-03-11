@@ -5,8 +5,9 @@ var authenticate = require('./middleware/authentication');
 
 exports = module.exports = function(application) {
 
+  var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
-  application.get('/api/domains/company/:name', domains.doesCompanyExist);
+  application.get('/api/companies', companies.search);
   application.get('/api/domains/:domain_name/:company_name', domains.doDomainAndCompanyExist);
   application.post('/api/domains', domains.createDomain);
 
