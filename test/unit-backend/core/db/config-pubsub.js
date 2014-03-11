@@ -37,11 +37,11 @@ describe('The local pubsub for MongoDB configuration', function() {
 
     var topic = pubsub.topic('mongodb:configurationAvailable');
     topic.subscribe(function(config) {
-      expect(config).to.equal(mongodb);
+      expect(config).to.deep.equal(mongodb);
+      done();
     });
 
     templates.inject(function() {
-      done();
     });
   });
 });
