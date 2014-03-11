@@ -35,8 +35,9 @@ module.exports.init = function(invitation, done) {
   signupEmail(invitation, function(err, result) {
     if (err) {
       logger.warn('Signup invitation have not been sent %s', err.message);
+    } else {
+      logger.debug('Signup invitation has been sent ' + invitation);
     }
-    logger.debug('Signup invitation has been sent ' + invitation);
     done(err, result);
   });
 };
@@ -46,7 +47,7 @@ module.exports.init = function(invitation, done) {
  */
 module.exports.process = function(req, res, next) {
   if (req.invitation) {
-    return res.redirect('/invitation/signup#/' + req.invitation.uuid);
+    return res.redirect('/#/signup/' + req.invitation.uuid);
   }
   return next(new Error('Can not find any valid invitation'));
 };

@@ -10,7 +10,7 @@
  * @param {response} res
  */
 function index(req, res) {
-  res.render('index', {
+  res.render('welcome/index', {
     title: 'Home'
   });
 }

@@ -1,0 +1,62 @@
+div.login-bg(id='form', ng-show="!notFound && !error && !complete")
+    div.form-container
+        form(name='form')
+            legend #{__('Finalize Sign Up')}
+            .row
+                .col-xs-6.form-group(ng-class='{"has-error": form.firstname.$invalid, "has-success": form.firstname.$valid}')
+                    label.control-label(for='firstname') #{__('First Name')}
+                    input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required ng-minlength='1')
+                .col-xs-6.form-group(ng-class='{"has-error": form.lastname.$invalid, "has-success": form.lastname.$valid}')
+                    label.control-label(for='lastname') #{__('Last Name')}
+                    input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required ng-minlength='1')
+                    
+            .form-group(ng-class='{"has-error": form.company.$dirty && form.company.$invalid, "has-success": form.company.$valid}')
+                label.control-label(for='company') #{__('Company Name')}
+                input.form-control( type='company'
+                                    ng-model='settings.company'
+                                    name='company'
+                                    id='company'
+                                    required
+                                    autocomplete='off'
+                                    ng-minlength='1'
+                                    ensure-unique-company
+                                    )
+                
+                p.help-block(ng-show='form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
+                
+            .form-group(ng-class='{"has-error": form.domain.$dirty && form.domain.$invalid, "has-success": form.domain.$valid}')
+                label.control-label(for='domain') #{__('Domain Name')}
+                input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1')
+            .form-group(ng-class='{"has-error": form.password.$dirty && form.password.$invalid, "has-success": form.password.$valid}')
+                .row
+                    .col-xs-6.pull-left
+                        label.control-label(for='password') #{__('Password')}
+                        input.form-control(type='password', ng-model='settings.password', ng-change='passwordChange()', name='password', required password-match='settings.confirmpassword')
+                        br
+                .row
+                    .col-xs-6.pull-left
+                        label.control-label(for='confirmpassword') #{__('Confirm Password')}
+                        input.form-control(type='password', ng-model='settings.confirmpassword', ng-change='passwordChange()', name='confirmpassword', required)
+            .form-group
+                button.btn.btn-warning.pull-right(type='submit', ng-click='finalize()', ng-disabled='form.$invalid')
+                    i.fa.fa-sign-in
+                    | #{__('{{finalizeButton.label}}')}
+
+div.login-bg(id='notfound', ng-show="notFound && !error && !complete")
+    div.form-container
+        h2 #{__('Not Found')}.
+        div.alert.alert-danger
+            strong #{__('We are not able to find the invitation you requested, please try again.')}
+
+div.login-bg(id='error', ng-show="error")
+    div.form-container
+        h2 #{__('Error')}.
+        div.alert.alert-danger
+            strong #{__('There was an error while signin up to the platform. Please try again.')}
+
+div.login-bg(ng-show="!error && complete")
+    div.form-container
+        h2 #{__('Sign Up is complete')}!
+        p #{__('You can now sign in into your ESN with the email and the password you just provided')}.
+        p
+            a(href='/login') #{__('Sign in')}

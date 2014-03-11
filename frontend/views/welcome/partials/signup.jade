@@ -1,0 +1,25 @@
+div.login-bg(ng-show="step === 0 && !error")
+  div.form-container
+    form(name='form')
+      legend #{__('No account yet ?')} #{__('Register today')}
+      .form-group(ng-class="{'has-error': form.email.$dirty && form.email.$invalid, 'has-success': form.email.$valid}")
+        input.form-control(type='email', ng-model='settings.email', name='email', placeholder="#{__('Email')}", autofocus=true, required)
+      .row
+        .col-xs-6.form-group(ng-class="{'has-error': form.firstname.$dirty && form.firstname.$invalid, 'has-success': form.firstname.$valid}")
+          input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required)
+        .col-xs-6.form-group(ng-class="{'has-error': form.lastname.$dirty && form.lastname.$invalid, 'has-success': form.lastname.$valid}")
+          input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required)
+      .form-group
+        button.btn.btn-warning.pull-right(type='submit', ng-click='signup()', ng-disabled='signupTask.running')
+          i.fa.fa-sign-in(ng-hide="signupTask.running") &nbsp;
+          i.fa.fa-spinner(ng-hide="!signupTask.running") &nbsp;
+          | #{__('{{signupButton.label}}')}
+div.login-bg(ng-show="step === 1 && !error")
+  div.form-container
+    h2 #{__('Sign Up is almost complete')}.
+    p #{__('Please check you mail box to confirm your inscription')}.
+div.login-bg(ng-show="error")
+  div.form-container
+    h2 #{__('Error')}.
+    div.alert.alert-danger
+      strong #{__('There was an error while signin up to the platform. Please try again.')}

@@ -145,159 +145,40 @@ describe('The Invitation Angular module', function() {
 
     });
 
-    describe('passwordMatch() method', function() {
-      it('should return false when passwords are undefined', function() {
-        this.scope.settings = {};
-        expect(this.scope.passwordMatch()).to.be.false;
+    describe('passwordMatch directive', function() {
+      var html = '<form name="form"><input type="password" name="password1" password-match="settings.password2" ng-model="settings.password1">' +
+          '<input type="password" name="password2" ng-model="settings.password2"></form>';
+      beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+        this.$compile = $c;
+        this.$rootScope = $r;
+      }]));
+
+      it('should set unique to true when the password does not match', function() {
+        var element = this.$compile(html)(this.$rootScope);
+        var scope = element.scope();
+        scope.settings = {
+          password1: 'test',
+          password2: 'test2'
+        };
+        this.$rootScope.$digest();
+        expect(scope.form.$invalid).to.be.true;
+        expect(scope.form.password1.$error.unique).to.be.true;
       });
 
-      it('should return false when passwords does not match', function() {
-        this.scope.settings.password = 'foo';
-        this.scope.settings.confirmpassword = 'bar';
-        expect(this.scope.passwordMatch()).to.be.false;
+      it('should set unique to false when the password does not match', function() {
+        var element = this.$compile(html)(this.$rootScope);
+        var scope = element.scope();
+        scope.settings = {
+          password1: 'test',
+          password2: 'test'
+        };
+        this.$rootScope.$digest();
+        expect(scope.form.$invalid).to.be.false;
+        expect(scope.form.password1.$error.unique).to.be.false;
       });
 
-      it('should be false when passwords match but are empty', function() {
-        this.scope.settings.password = '';
-        this.scope.settings.confirmpassword = '';
-        expect(this.scope.passwordMatch()).to.be.false;
-      });
-
-      it('should return true when passwords match', function() {
-        this.scope.settings.password = 'secret';
-        this.scope.settings.confirmpassword = 'secret';
-        expect(this.scope.passwordMatch()).to.be.true;
-      });
     });
 
-    describe('passwordStrength() method', function() {
-      it('should return false when passwords are undefined', function() {
-        this.scope.settings.password = undefined;
-        this.scope.settings.confirmpassword = undefined;
-        expect(this.scope.passwordStrength()).to.be.false;
-      });
-
-      it('should return false when passwords are less then 8 characters length ', function() {
-        this.scope.settings.password = '1234567';
-        this.scope.settings.confirmpassword = '1234567';
-        expect(this.scope.passwordStrength()).to.be.false;
-      });
-
-      it('should return true when passwords are 8 characters length', function() {
-        this.scope.settings.password = '12345678';
-        this.scope.settings.confirmpassword = '12345678';
-        expect(this.scope.passwordStrength()).to.be.true;
-      });
-
-      it('should return true when passwords are more 8 characters length', function() {
-        this.scope.settings.password = '123456789';
-        this.scope.settings.confirmpassword = '123456789';
-        expect(this.scope.passwordStrength()).to.be.true;
-      });
-    });
-
-    describe('checkDomain() method', function() {
-      it('should return true', function() {
-        expect(this.scope.checkDomain()).to.be.true;
-      });
-    });
-
-    describe('checkCompany() method', function() {
-      it('should return true', function() {
-        expect(this.scope.checkCompany()).to.be.true;
-      });
-    });
-
-    describe('validValues() method', function() {
-      it('should return false when settings are empty', function() {
-        this.scope.settings = {};
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all but firstname is set', function() {
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'supersecret';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all but lastname is set', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'supersecret';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all but company is set', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'supersecret';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all but domain is set', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.password = 'supersecret';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all but password is set', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all but confirmpassword is set', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all is set but passwords does not match', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'secret';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false when all is set but passwords are not strength enough', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'secret';
-        this.scope.settings.confirmpassword = 'secret';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return true when settings are well set', function() {
-        this.scope.settings.firstname = 'foo';
-        this.scope.settings.lastname = 'bar';
-        this.scope.settings.company = 'company';
-        this.scope.settings.domain = 'domain';
-        this.scope.settings.password = 'supersecret';
-        this.scope.settings.confirmpassword = 'supersecret';
-        expect(this.scope.validValues()).to.be.true;
-      });
-    });
   });
 
   describe('signupController', function() {
@@ -314,49 +195,9 @@ describe('The Invitation Angular module', function() {
       expect(this.scope.step).to.equals(0);
     });
 
-    describe('validValues() method', function() {
-      it('should return false if no firstname set', function() {
-        this.scope.settings.firstname = '';
-        this.scope.settings.lastname = 'Bar';
-        this.scope.settings.email = 'foo@bar.com';
-        expect(this.scope.validValues()).to.be.false;
-      });
-      it('should return false if no lastname set', function() {
-        this.scope.settings.firstname = 'Foo';
-        this.scope.settings.lastname = '';
-        this.scope.settings.email = 'foo@bar.com';
-        expect(this.scope.validValues()).to.be.false;
-      });
-      it('should return false if no email set', function() {
-        this.scope.settings.firstname = 'Foo';
-        this.scope.settings.lastname = 'Bar';
-        this.scope.settings.email = '';
-        expect(this.scope.validValues()).to.be.false;
-      });
-      it('should return false if nothing is set', function() {
-        this.scope.settings.firstname = '';
-        this.scope.settings.lastname = '';
-        this.scope.settings.email = '';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return false if email is not an email', function() {
-        this.scope.settings.firstname = 'Foo';
-        this.scope.settings.lastname = 'Bar';
-        this.scope.settings.email = 'Baz';
-        expect(this.scope.validValues()).to.be.false;
-      });
-
-      it('should return true if all is set', function() {
-        this.scope.settings.firstname = 'Foo';
-        this.scope.settings.lastname = 'Bar';
-        this.scope.settings.email = 'foo@bar.com';
-        expect(this.scope.validValues()).to.be.true;
-      });
-    });
-
     describe('signup()', function() {
       it('should call the invitationAPI.create() method', function(done) {
+        this.scope.form = {$invalid: false};
         this.invitationAPI.create = function() {
           done();
         };
@@ -367,6 +208,7 @@ describe('The Invitation Angular module', function() {
         this.scope.settings.firstname = 'Foo';
         this.scope.settings.lastname = 'Bar';
         this.scope.settings.email = 'foo@bar.com';
+        this.scope.form = {$invalid: false};
         this.invitationAPI.create = function(settings) {
           expect(settings.type).to.equal('signup');
           expect(settings.data.firstname).to.equal('Foo');

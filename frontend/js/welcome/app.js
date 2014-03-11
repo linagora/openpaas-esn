@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('welcomeApp', ['esn.login', 'esn.i18n', 'esn.invitation', 'restangular', 'ngRoute'])
+angular.module('welcomeApp', ['esn.invitation', 'esn.company', 'restangular', 'ngRoute'])
   .config(function($routeProvider, RestangularProvider) {
 
-    $routeProvider.when('/:id', {
-      templateUrl: '/views/signup/partials/finalize',
+    $routeProvider.when('/signup/:id', {
+      templateUrl: '/views/welcome/partials/finalize',
       controller: 'finalize',
       resolve: {
         invitation: function(invitationAPI, $route) {
@@ -22,6 +22,12 @@ angular.module('welcomeApp', ['esn.login', 'esn.i18n', 'esn.invitation', 'restan
         }
       }
     });
+
+    $routeProvider.when('/', {
+      templateUrl: '/views/welcome/partials/home'
+    });
+
+    $routeProvider.otherwise({redirectTo: '/'});
 
     RestangularProvider.setBaseUrl('/api');
   });

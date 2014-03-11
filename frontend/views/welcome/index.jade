@@ -1,8 +1,25 @@
-.row
-    .col-xs-6
-        include ./welcome
-    .col-xs-6
-        .row
-            include ./login
-        .row
-            include ./signup
+doctype html
+html
+  head
+    meta(charset='utf8')
+    base(href='/')
+    title #{title} - Hiveety
+    link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
+    link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
+    link(rel='stylesheet', href='/css/styles.css')
+    script(src='/components/jquery/jquery.js')
+    script(src='/components/underscore/underscore.js')
+    script(src='/components/bootstrap/dist/js/bootstrap.js')
+    script(src='/components/angular/angular.js')
+    script(src='/components/angular-route/angular-route.js')
+    script(src='/components/restangular/dist/restangular.js')
+    script(src='js/welcome/app.js')
+    script(src='js/modules/invitation.js')
+    script(src='js/modules/company.js')
+
+  body(ng-app='welcomeApp')
+    #wrap
+      include ./header
+      div(ng-view ng-cloak)
+      include ../partials/footer
+
