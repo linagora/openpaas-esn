@@ -1,6 +1,7 @@
 'use strict';
 
 var emailAddresses = require('email-addresses');
+var async = require('async');
 var signupEmail = require('../../email/system/signupConfirmation');
 var logger = require('../..').logger;
 var mongoose = require('mongoose');
@@ -67,67 +68,119 @@ module.exports.finalize = function(req, res, next) {
 
   var Domain = mongoose.model('Domain');
   var User = mongoose.model('User');
+  var Invitation = mongoose.model('Invitation');
   var formValues = req.body.data;
+  var invitation = req.invitation;
 
+  var userJson = {
+    firstname: formValues.firstname,
+    lastname: formValues.lastname,
+    password: formValues.password,
+    emails: [req.invitation.data.email]
+  };
 
-  Domain.testDomainCompany(formValues.company, formValues.domain, function(err, domain) {
-    if (err) {
-      return next(new Error('Unable to lookup domain/company: ' + formValues.domain + '/' + formValues.company + err));
-    }
-    if (domain) {
-      return next(new Error('Domain/company: ' + formValues.domain + '/' + formValues.company + ' already exist.' + err));
-    }
-
-    var userJson = {
-      firstname: formValues.firstname,
-      lastname: formValues.lastname,
-      password: formValues.password,
-      emails: [req.invitation.data.email]
-    };
-
-    userModule.findByEmail(userJson.emails, function(err, user) {
+  var finalized = function(callback) {
+    Invitation.isFinalized(invitation.uuid, function(err, finalized) {
       if (err) {
-        return next(new Error('Unable to lookup user ' + userJson.emails + ': ' + err));
-      } else if (user && user.emails) {
-        return next(new Error('User already exists'));
+        return callback(new Error('Can not check invitation status'));
       }
 
-      userModule.provisionUser(userJson, function(err, user) {
+      if (finalized) {
+        return callback(new Error('Invitation is already finalized'));
+      }
+      callback();
+    });
+  };
+
+  var testDomainCompany = function(callback) {
+    Domain.testDomainCompany(formValues.company, formValues.domain, function(err, domain) {
+      if (err) {
+        return callback(new Error('Unable to lookup domain/company: ' + formValues.domain + '/' + formValues.company + err));
+      }
+      if (domain) {
+        return callback(new Error('Domain/company: ' + formValues.domain + '/' + formValues.company + ' already exist.' + err));
+      }
+    });
+    callback();
+  };
+
+  var checkUser = function(callback) {
+    userModule.findByEmail(userJson.emails, function(err, user) {
+      if (err) {
+        return callback(new Error('Unable to lookup user ' + userJson.emails + ': ' + err));
+      } else if (user && user.emails) {
+        return callback(new Error('User already exists'));
+      }
+    });
+    callback();
+  };
+
+  var createUser = function(callback) {
+    userModule.provisionUser(userJson, function(err, user) {
+      if (err) {
+        return callback(new Error('Cannot create user resources ' + err.message));
+      }
+
+      if (user) {
+        var domain = {
+          name: formValues.domain,
+          company_name: formValues.company,
+          administrator: user
+        };
+        return callback(null, domain, user);
+      } else {
+        return callback(new Error('Can not create user'));
+      }
+    });
+  };
+
+  var createDomain = function(domain, user, callback) {
+    var domainObject = new Domain(domain);
+    domainObject.save(function(err, saved) {
+      if (err) {
+        User.remove(user, function(err) {
+          if (err) {
+            return callback(new Error('Domain creation failed, cannot delete the user ' + err.message));
+          }
+          return callback(new Error('Cannot create domain resource, user deleted ' + err.message));
+        });
+      } else {
+        return callback(null, saved, user);
+      }
+    });
+  };
+
+  var finalize = function(domain, user, callback) {
+    Invitation.loadFromUUID(invitation.uuid, function(err, loaded) {
+      if (err) {
+        logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
+      }
+      loaded.finalize(function(err, updated) {
         if (err) {
-          return next(new Error('Cannot create user resources ' + err.message));
+          logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
         }
-
-        if (user) {
-          var domainJson = {
-            name: formValues.domain,
-            company_name: formValues.company,
-            administrator: user
-          };
-
-          var domainObject = new Domain(domainJson);
-          domainObject.save(function(err, domain) {
-            if (err) {
-              User.remove(user, function(err) {
-                if (err) {
-                  return next(new Error('Domain creation failed, cannot delete the user ' + err.message));
-                }
-                return next(new Error('Cannot create domain resource, user deleted ' + err.message));
-              });
-            }
-            if (domain) {
-              var result = {
-                status: 'created',
-                resources: {
-                  user: user._id,
-                  domain: domain._id
-                }
-              };
-
-              return res.json(201, result);
-            }
-          });
-        }
+        callback(null, domain, user);
       });
     });
+  };
+
+  var result = function(domain, user, callback) {
+    var result = {
+      status: 'created',
+      resources: {
+        user: user._id,
+        domain: domain._id
+      }
+    };
+    callback(null, result);
+  };
+
+  async.waterfall([finalized, testDomainCompany, checkUser, createUser, createDomain, finalize, result], function(err, result) {
+    if (err) {
+      logger.error('Error while finalizing invitation', err);
+      return next(err);
+    } else if (result) {
+      return res.json(201, result);
+    }
   });
 };

@@ -2,7 +2,6 @@
 
 var expect = require('chai').expect;
 var mongodb = require('mongodb');
-var mongoose = require('mongoose');
 
 describe('The signup handler', function() {
 
@@ -169,16 +168,34 @@ describe('The signup handler', function() {
 
   describe('The finalize fn', function() {
 
+    var User;
+    var Domain;
+    var Invitation;
+
     before(function(done) {
       this.testEnv.writeDBConfigFile();
-      this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
-      var template = require(this.testEnv.basePath + '/backend/core/templates');
-      template.user.store(done);
+      done();
     });
 
     after(function() {
       this.testEnv.removeDBConfigFile();
+    });
+
+    beforeEach(function(done) {
+      this.mongoose = require('mongoose');
+      this.mongoose.connect(this.testEnv.mongoUrl);
+
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+
+      var template = require(this.testEnv.basePath + '/backend/core/templates');
+      template.user.store(done);
+    });
+
+    afterEach(function(done) {
+      this.mongoose.connection.db.dropDatabase();
+      this.mongoose.disconnect(done);
     });
 
     it('should call next if invitation is not found', function(done) {
@@ -219,8 +236,6 @@ describe('The signup handler', function() {
 
     it('should call next when domain / company exist', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-      var User = mongoose.model('User');
-      var Domain = mongoose.model('Domain');
       var emails = [];
 
       emails.push('toto@foo.com');
@@ -266,7 +281,7 @@ describe('The signup handler', function() {
             }
           };
 
-          var next = function() {
+          var next = function(err) {
             done();
           };
 
@@ -278,55 +293,103 @@ describe('The signup handler', function() {
     it('should create a user if invitation and form data are set', function(done) {
       var mongoUrl = this.testEnv.mongoUrl;
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-      var req = {
-        invitation: {
-          data: {
-            email: 'foo@bar.com'
-          }
-        },
-        body: {
-          data: {
-            firstname: 'foo',
-            lastname: 'bar',
-            password: 'secret',
-            confirmpassword: 'secret',
-            company: 'Corporate',
-            domain: 'ESN'
-          }
+      var invitation = {
+        type: 'test',
+        data: {
+          email: 'foo@bar.com'
         }
       };
 
-      var res = {
-        redirect: function() {
-        },
-        json: function(code, data) {
-          expect(code).to.equal(201);
-          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-            if (err) {
-              return done(err);
+      var invit = new Invitation(invitation);
+      invit.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = {
+          invitation: saved,
+          body: {
+            data: {
+              firstname: 'foo',
+              lastname: 'bar',
+              password: 'secret',
+              confirmpassword: 'secret',
+              company: 'Corporate',
+              domain: 'ESN'
             }
-            db.collection('users').findOne({_id: data.resources.user}, function(err, user) {
+          }
+        };
+
+        var res = {
+          redirect: function() {
+          },
+          json: function(code, data) {
+            expect(code).to.equal(201);
+            mongodb.MongoClient.connect(mongoUrl, function(err, db) {
               if (err) {
                 return done(err);
               }
-              expect(user).to.exist;
-
-              db.collection('domains').findOne({_id: data.resources.domain}, function(err, domain) {
+              db.collection('users').findOne({_id: data.resources.user}, function(err, user) {
                 if (err) {
                   return done(err);
                 }
-                expect(domain).to.exist;
-                db.close(function() {
-                  done();
+                expect(user).to.exist;
+
+                db.collection('domains').findOne({_id: data.resources.domain}, function(err, domain) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(domain).to.exist;
+                  db.close(function() {
+                    done();
+                  });
                 });
               });
             });
-          });
+          }
+        };
+        var next = function() {
+        };
+        signup.finalize(req, res, next);
+      });
+    });
+
+    it('should call next if invitation is already finalized', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+
+      var invitation = {
+        type: 'test',
+        timestamps: {
+          finalized: new Date()
+        },
+        data: {}
+      };
+
+      var invit = new Invitation(invitation);
+      invit.save(function(err, saved) {
+        if (err) {
+          return done(err);
         }
-      };
-      var next = function() {
-      };
-      signup.finalize(req, res, next);
+
+        var req = {
+          invitation: saved,
+          body: {
+            data: {}
+          }
+        };
+
+        var res = {
+          redirect: function() {
+          }
+        };
+
+        var next = function() {
+          done();
+        };
+
+        signup.finalize(req, res, next);
+
+      });
     });
   });
 });
