@@ -14,7 +14,7 @@ module.exports.success = function(email, cb) {
     if (!user) {
       return cb(new Error('No such user ' + email));
     }
-    pubsub.topic('login.success').publish(user);
+    pubsub.topic('login:success').publish(user);
     user.loginSuccess(cb);
   });
 };
@@ -27,7 +27,7 @@ module.exports.failure = function(email, cb) {
     if (!user) {
       return cb(new Error('No such user ' + email));
     }
-    pubsub.topic('login.failure').publish(user);
+    pubsub.topic('login:failure').publish(user);
     user.loginFailure(cb);
   });
 };

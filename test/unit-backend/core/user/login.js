@@ -158,7 +158,7 @@ describe('The user login module', function() {
       }
 
       var pubsub = require('../../../../backend/core/pubsub').local;
-      var topic = pubsub.topic('login.success');
+      var topic = pubsub.topic('login:success');
       var handler = function(user) {
         count++;
       };
@@ -185,7 +185,7 @@ describe('The user login module', function() {
       }
 
       var pubsub = require('../../../../backend/core/pubsub').local;
-      var topic = pubsub.topic('login.failure');
+      var topic = pubsub.topic('login:failure');
       var handler = function(user) {
         count++;
       };
