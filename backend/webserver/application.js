@@ -7,6 +7,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var frontendPath = path.normalize(__dirname + '/../../frontend');
 var cssPath = frontendPath + '/css';
+var core = require('../core');
 
 var lessMiddlewareConfig = {
   production: {
@@ -21,6 +22,9 @@ var lessMiddlewareConfig = {
   }
 };
 
+core.db.mongoAvailable.then(function(config) {
+  console.log('MongoDB configuration is now available', config);
+});
 
 var application = express();
 exports = module.exports = application;

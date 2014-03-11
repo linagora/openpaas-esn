@@ -2,6 +2,7 @@
 
 var configured = false;
 var core = require('..');
+var pubsub = require('..').pubsub.local;
 
 function isConfigured() {
   if (configured) {
@@ -9,7 +10,9 @@ function isConfigured() {
   }
   var dbConfig;
   try {
+    var topic = pubsub.topic('mongodb:configurationAvailable');
     dbConfig = core.config('db');
+    topic.publish(dbConfig);
   } catch (e) {}
 
   if (dbConfig && dbConfig.port) {
