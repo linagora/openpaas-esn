@@ -32,7 +32,7 @@ describe('The login-rules middleware', function() {
     var next = function() {
       done();
     };
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
     middleware(req, res, next);
   });
