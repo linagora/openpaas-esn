@@ -55,10 +55,12 @@ var login = function(req, res, next) {
           logger.error('Problem while setting login success for user ' + username, err);
         }
 
-        if (user && user.password) {
-          user.password = undefined;
+        var result = {};
+        if (user) {
+          result = user.toObject();
+          delete result.password;
         }
-        return res.json(200, user);
+        return res.json(200, result);
       });
     });
   })(req, res, next);
