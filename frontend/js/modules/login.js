@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.login', ['restangular'])
-  .controller('login', function($scope, $location, loginAPI) {
+  .controller('login', function($scope, $location, $window, loginAPI) {
     $scope.credentials = {username: '', password: '', rememberme: false};
     $scope.loginButton = {
       label: 'Sign In',
@@ -23,7 +23,7 @@ angular.module('esn.login', ['restangular'])
       loginAPI.login($scope.credentials).then(
         function(data) {
           $scope.loginTask.running = false;
-          $location.path('/index');
+          $window.location.href = '/';
           return data;
         },
         function(err) {

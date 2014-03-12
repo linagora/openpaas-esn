@@ -6,7 +6,10 @@ var userlogin = require('../../core/user/login');
 var logger = require('../../core/logger');
 
 function index(req, res) {
-  res.redirect('/#login');
+  if (req.user) {
+    return res.redirect('/');
+  }
+  return res.redirect('/#login');
 }
 module.exports.index = index;
 
