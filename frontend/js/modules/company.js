@@ -2,12 +2,12 @@
 
 angular.module('esn.company', ['restangular'])
 .factory('companyAPI', ['Restangular', function(Restangular) {
-  function get(name) {
-    return Restangular.one('domains/company', name).get();
+  function search(searchQuery) {
+    return Restangular.all('companies').getList(searchQuery);
   }
 
   return {
-    get: get
+    search: search
   };
 }])
 .directive('ensureUniqueCompany', ['companyAPI', function(companyAPI) {
@@ -31,7 +31,7 @@ angular.module('esn.company', ['restangular'])
 
         control.$setValidity('ajax', false);
 
-        companyAPI.get(companyName).then(
+        companyAPI.search({name: companyName}).then(
           function() {
             control.$setValidity('ajax', true);
             control.$setValidity('unique', false);

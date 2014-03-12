@@ -18,53 +18,6 @@ describe('The domains routes resource', function() {
     mongoose.disconnect(done);
   });
 
-  describe('GET /api/domains/company', function() {
-    var webserver = null;
-    var Domain;
-    var User, emails, email, email2;
-
-    before(function() {
-      Domain = mongoose.model('Domain');
-
-      User = mongoose.model('User');
-      emails = [];
-      email = 'foo@linagora.com';
-      email2 = 'bar@linagora.com';
-
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-    });
-
-    it('should return a JSON with 404 result when company doesnt exist within domains', function(done) {
-      request(webserver.application).head('/api/domains/company/' + 'Corporate').expect(404).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
-    });
-
-    it('should return a JSON with 200 result when company exists among domains', function(done) {
-
-      emails.push(email);
-      emails.push(email2);
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
-
-      var json = {name: 'Marketing', company_name: 'Corporate',
-        administrator: u
-      };
-      var i = new Domain(json);
-
-      i.save(function(err, domain) {
-        if (err) {
-          return done(err);
-        }
-
-        request(webserver.application).head('/api/domains/company/' + domain.company_name).expect(200).end(function(err, res) {
-          expect(err).to.be.null;
-          done();
-        });
-      });
-    });
-  });
-
   describe('GET /api/domains/', function() {
     var webserver = null;
     var Domain;
