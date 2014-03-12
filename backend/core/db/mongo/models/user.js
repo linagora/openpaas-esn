@@ -3,6 +3,7 @@
 var emailAddresses = require('email-addresses');
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
+var trim = require('trim');
 
 function validateEmail(email) {
   return emailAddresses.parseOneAddress(email) !== null;
@@ -23,8 +24,8 @@ function validateEmails(emails) {
 
 var UserSchema = new mongoose.Schema({
   emails: {type: [String], required: true, unique: true, validate: validateEmails},
-  firstname: {type: String},
-  lastname: {type: String},
+  firstname: {type: String, lowercase: true, trim: true},
+  lastname: {type: String, lowercase: true, trim: true},
   password: {type: String},
   timestamps: {
     creation: {type: Date, default: Date.now}
@@ -41,6 +42,10 @@ var UserSchema = new mongoose.Schema({
 UserSchema.pre('save', function(next) {
   var user = this;
   var SALT_FACTOR = 5;
+
+  user.emails = user.emails.map(function(email) {
+    return trim(email).toLowerCase();
+  });
 
   if (!user.isModified('password')) {
     return next();
@@ -100,7 +105,8 @@ UserSchema.statics = {
    * @param {Function} cb - as fn(err, user) where user is not null if found
    */
   loadFromEmail: function(email, cb) {
-    this.findOne({emails: email}, cb);
+    var qemail = trim(email).toLowerCase();
+    this.findOne({emails: qemail}, cb);
   }
 };
 module.exports = mongoose.model('User', UserSchema);

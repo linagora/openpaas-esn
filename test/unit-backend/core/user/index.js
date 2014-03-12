@@ -30,14 +30,15 @@ describe('The user core module', function() {
     it('should record a user with the template informations', function(done) {
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
+        console.log(user);
         expect(user).to.exist;
         expect(user._id).to.exist;
         expect(user.emails).to.exist;
         expect(user.emails).to.be.an.array;
         expect(user.emails).to.have.length(1);
         expect(user.emails[0]).to.equal('test@linagora.com');
-        expect(user.firstname).to.equal('John');
-        expect(user.lastname).to.equal('Doe');
+        expect(user.firstname).to.equal('john');
+        expect(user.lastname).to.equal('doe');
         done();
       });
     });

@@ -1,11 +1,12 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var trim = require('trim');
 var Schema = mongoose.Schema;
 
 var DomainSchema = new Schema({
-  name: {type: String, required: true},
-  company_name: {type: String, required: true},
+  name: {type: String, required: true, lowercase: true, trim: true},
+  company_name: {type: String, required: true, lowercase: true, trim: true},
   administrator: {type: Schema.ObjectId, ref: 'User'},
   timestamps: {
     creation: {type: Date, default: Date.now}
@@ -22,7 +23,8 @@ DomainSchema.statics = {
    * @param {Function} cb
    */
   testCompany: function(name, cb) {
-    var query = {company_name: name};
+    var qname = trim(name).toLowerCase();
+    var query = {company_name: qname};
     this.findOne(query, cb);
   },
 
@@ -34,7 +36,9 @@ DomainSchema.statics = {
    * @param {Function} cb
    */
   testDomainCompany: function(company_name, domain_name, cb) {
-    var query = {company_name: company_name, name: domain_name};
+    var qcompany_name = trim(company_name).toLowerCase();
+    var qdomain_name = trim(domain_name).toLowerCase();
+    var query = {company_name: qcompany_name, name: qdomain_name};
     this.findOne(query, cb);
   }
 

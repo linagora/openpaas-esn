@@ -5,6 +5,7 @@ var esnConfig = require(__dirname + '/../../core')['esn-config'];
 var logger = require(__dirname + '/../../core').logger;
 var extend = require('extend');
 var mongoose = require('mongoose');
+var trim = require('trim');
 var User = mongoose.model('User');
 
 function getUserTemplate(callback) {
@@ -41,9 +42,13 @@ module.exports.provisionUser = function(data, callback) {
 module.exports.findByEmail = function(email, callback) {
   var query;
   if (util.isArray(email)) {
-    query = { $or: email.map(function(e) { return {emails: e}; }) };
+    var emails = email.map(function(e) {
+      return trim(e).toLowerCase();
+    });
+    query = { $or: emails.map(function(e) { return {emails: e}; }) };
   } else {
-    query = {emails: email};
+    var qemail = trim(email).toLowerCase();
+    query = {emails: qemail};
   }
   User.findOne(query, callback);
 };
