@@ -24,8 +24,10 @@ describe('The User template module', function() {
 
   describe('If configured', function() {
 
-    before(function() {
+    before(function(done) {
       this.testEnv.writeDBConfigFile();
+      this.mongoose = require('mongoose');
+      this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
 
     it('should inject templates', function(done) {
@@ -37,12 +39,11 @@ describe('The User template module', function() {
     });
 
     after(function(done) {
-      var mongoose = require('mongoose');
       this.testEnv.removeDBConfigFile();
-      mongoose.connection.db.dropDatabase(function(err, ok) {
+      this.mongoose.connection.db.dropDatabase(function(err, ok) {
         if (err) { return done(err); }
-        mongoose.disconnect(done);
-      });
+        this.mongoose.disconnect(done);
+      }.bind(this));
     });
   });
 
