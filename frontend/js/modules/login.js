@@ -1,19 +1,47 @@
 'use strict';
 
 angular.module('esn.login', ['restangular'])
-  .controller('login', function($scope, loginAPI) {
-    $scope.login = function() {
-      var credentials = {
-        username: $scope.username,
-        password: $scope.password
-      };
-      loginAPI.login(credentials).then(function() {});
+  .controller('login', function($scope, $location, loginAPI) {
+    $scope.credentials = {username: '', password: '', rememberme: false};
+    $scope.loginButton = {
+      label: 'Sign In',
+      notRunning: 'Sign In',
+      running: 'Please Wait...'
+    };
+    $scope.loginTask = {
+      running: false
     };
 
+    $scope.login = function() {
+      if ($scope.form.$invalid) {
+        return;
+      }
+
+      $scope.loginTask.running = true;
+      $scope.loginButton.label = $scope.loginButton.running;
+
+      loginAPI.login($scope.credentials).then(
+        function(data) {
+          $scope.loginTask.running = false;
+          $location.path('/index');
+          return data;
+        },
+        function(err) {
+          $scope.loginButton.label = $scope.loginButton.notRunning;
+          $scope.loginTask.running = false;
+          $location.path('/login');
+          $scope.error = {
+            status: 'error',
+            details: err
+          };
+          return $scope.error;
+        }
+      );
+    };
   })
   .factory('loginAPI', ['Restangular', function(Restangular) {
 
-    Restangular.setBaseUrl('/');
+    Restangular.setBaseUrl('/api');
 
     function login(credentials) {
       return Restangular.one('login').post('', credentials);

@@ -1,7 +1,6 @@
 'use strict';
 
 var authorize = require('./middleware/authorization');
-var authenticate = require('./middleware/authentication');
 var cookielifetime = require('./middleware/cookie-lifetime');
 
 exports = module.exports = function(application) {
@@ -13,8 +12,6 @@ exports = module.exports = function(application) {
   application.post('/api/domains', domains.createDomain);
 
   var users = require('./controllers/users');
-  application.get('/login', users.login);
-  application.post('/login', authenticate.isAuthenticated, users.logmein);
   application.get('/logout', users.logout);
   application.get('/account', authorize.requiresLogin, users.account);
 
@@ -46,6 +43,7 @@ exports = module.exports = function(application) {
 
   var loginController = require('./controllers/login');
   var loginRules = require('./middleware/login-rules');
+  application.get('/login', loginController.index);
   application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, loginController.login);
   application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
