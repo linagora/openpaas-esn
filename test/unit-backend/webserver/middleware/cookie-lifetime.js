@@ -9,11 +9,14 @@ describe('The cookie-lifetime middleware', function() {
     before(function(done) {
       this.testEnv.writeDBConfigFile();
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) {
-          return done(err);
-        }
-        done();
+      var self = this;
+      this.mongoose.disconnect(function() {
+        self.mongoose.connect(self.testEnv.mongoUrl, function(err) {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
       });
     });
 

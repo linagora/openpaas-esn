@@ -45,7 +45,8 @@ exports = module.exports = function(application) {
   application.get('/api/locales/:locale', locale.set);
 
   var loginController = require('./controllers/login');
-  application.post('/api/login', cookielifetime.set, loginController.login);
+  var loginRules = require('./middleware/login-rules');
+  application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, loginController.login);
   application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
 

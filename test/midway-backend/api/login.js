@@ -11,7 +11,10 @@ describe('The login API', function() {
   var user = {
     username: 'Foo Bar Baz',
     password: 'secret',
-    emails: ['foo@bar.com']
+    emails: ['foo@bar.com'],
+    login: {
+      failures: [new Date(), new Date(), new Date()]
+    }
   };
 
   before(function(done) {
@@ -138,6 +141,50 @@ describe('The login API', function() {
       .get('/api/login/user')
       .expect(401)
       .end(done);
+  });
+
+  it('should not be able to login when user tried to log in too many times', function(done) {
+
+    var User = mongoose.model('User');
+    User.loadFromEmail(user.emails[0], function(err, currentUser) {
+      if (err) {
+        return done(err);
+      }
+
+      currentUser.login.failures = [new Date(), new Date()];
+      currentUser.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var conf = require('../../../backend/core')['esn-config']('login');
+        conf.store({ failure: { size: 1}}, function(err, saved) {
+          if (err) {
+            return done(err);
+          }
+
+          request(app)
+            .post('/api/login')
+            .send({username: user.emails[0], password: user.password, rememberme: false})
+            .expect(403)
+            .end(done);
+        });
+      });
+    });
+  });
+
+  it('should be able to login when user did not tried to log in too many times', function(done) {
+    var conf = require('../../../backend/core')['esn-config']('login');
+    conf.store({ failure: { size: 1000}}, function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+      request(app)
+        .post('/api/login')
+        .send({username: user.emails[0], password: user.password, rememberme: false})
+        .expect(200)
+        .end(done);
+    });
   });
 });
 

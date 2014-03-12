@@ -29,6 +29,12 @@ var UserSchema = new mongoose.Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
+  login: {
+    failures: {
+      type: [Date]
+    },
+    success: {type: Date}
+  },
   schemaVersion: {type: Number, default: 1}
 });
 
@@ -66,6 +72,22 @@ UserSchema.methods = {
       }
       cb(null, isMatch);
     });
+  },
+
+  loginFailure: function(cb) {
+    this.login.failures.push(new Date());
+    this.save(cb);
+  },
+
+  loginSuccess: function(cb) {
+    this.login.success = new Date();
+    this.login.failures = [];
+    this.save(cb);
+  },
+
+  resetLoginFailure: function(cb) {
+    this.login.failures = [];
+    this.save(cb);
   }
 };
 
