@@ -5,6 +5,14 @@ var config = require('../../core').config('default');
 var userlogin = require('../../core/user/login');
 var logger = require('../../core/logger');
 
+function index(req, res) {
+  if (req.user) {
+    return res.redirect('/');
+  }
+  return res.redirect('/#login');
+}
+module.exports.index = index;
+
 var login = function(req, res, next) {
   if (!req.body.username ||   !req.body.password) {
     return res.json(400, {

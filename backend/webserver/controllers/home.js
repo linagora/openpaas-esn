@@ -10,7 +10,13 @@
  * @param {response} res
  */
 function index(req, res) {
-  res.render('welcome/index', {
+  if (!req.user) {
+    return res.render('welcome/index', {
+      title: 'Home'
+    });
+  }
+
+  return res.render('index', {
     title: 'Home'
   });
 }
