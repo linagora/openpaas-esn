@@ -39,7 +39,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
           $scope.error = err.data;
           loginErrorService.set($scope.credentials, err.data);
           $location.path('/login');
-          $scope.recaptcha.needed = $scope.error.data.recaptcha;
+          $scope.recaptcha.needed = err.data.recaptcha || false;
           try {
             vcRecaptchaService.reload();
           } catch(e) {}
