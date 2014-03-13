@@ -45,7 +45,7 @@ exports = module.exports = function(application) {
   var loginRules = require('./middleware/login-rules');
   var recaptcha = require('./middleware/verify-recaptcha');
   application.get('/login', loginController.index);
-  application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify,  loginController.login);
+  application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify, loginController.login);
   application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
 

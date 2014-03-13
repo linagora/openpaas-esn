@@ -4,31 +4,47 @@ var expect = require('chai').expect,
     mockery = require('mockery');
 
 describe('The verify-recaptcha middleware', function() {
-  var req, next;
+  var req;
 
   beforeEach(function() {
     req = {
       connection: {
         remoteAddress: '1'
       },
-      body : {
+      body: {
         username: 'usename',
         password: 'password',
         recaptcha: {
-          response: 'response',
-          challenge: 'challenge'
+          data: {
+            response: 'response',
+            challenge: 'challenge'
+          }
         }
-      }
+      },
+      recaptchaFlag: true
     };
   });
 
-  it('should be pass through and call next() if there is no recaptcha data', function(done) {
-    delete req.body.recaptcha;
+  it('should be pass through and call next() if there is no recaptchaFlag setted to true in req', function(done) {
+    delete req.recaptchaFlag;
     var next = function() {
       done();
     };
     var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
     verify(req, {}, next);
+  });
+
+  it('should response a 403 json with a flag recpatcha setted to true for the client if recaptcha is not in the req', function(done) {
+    delete req.body.recaptcha;
+    var res = {
+      json: function(code, data) {
+        expect(code).to.equal(403);
+        expect(data.recaptcha).to.be.true;
+        done();
+      }
+    };
+    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    verify(req, res, function() {});
   });
 
   it('should create a Recaptcha object and verify the data challenge/response', function(done) {
@@ -65,8 +81,8 @@ describe('The verify-recaptcha middleware', function() {
   it('should return a json error if verify is a fail', function(done) {
     var res = {
       json: function(statusCode, error) {
-        expect(statusCode).to.equal(400);
-        expect(error.error.message).to.equal('Invalid captcha');
+        expect(statusCode).to.equal(403);
+        expect(error.error.message).to.equal('Login error');
         done();
       }
     };
