@@ -45,8 +45,6 @@ angular.module('esn.login', ['restangular'])
   })
   .factory('loginAPI', ['Restangular', function(Restangular) {
 
-    Restangular.setBaseUrl('/api');
-
     function login(credentials) {
       return Restangular.one('login').post('', credentials);
     }
