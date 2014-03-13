@@ -19,6 +19,10 @@ describe('The companies routes', function() {
     this.mongoose.disconnect(done);
   });
 
+  beforeEach(function(done) {
+    this.testEnv.initCore(done);
+  });
+
   describe('HEAD /api/companies', function() {
     var webserver = null;
     var Domain;

@@ -14,7 +14,15 @@ before(function(done) {
     basePath: basePath,
     tmp: tmpPath,
     fixtures: path.resolve(__dirname + '/fixtures'),
-    mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname
+    mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
+    initCore: function(callback) {
+      var core = require(basePath + '/backend/core');
+      core.init();
+      if (callback) {
+        process.nextTick(callback);
+      }
+      return core;
+    }
   };
 
   this.helpers = helpers;
@@ -27,12 +35,14 @@ before(function(done) {
       port: testConfig.mongodb.port
     }
   ));
-  helpers.mongo.connect(done);
+  done();
+  //helpers.mongo.connect(done);
 });
 
 after(function(done) {
   fs.unlinkSync(this.testEnv.tmp + '/db.json');
-  helpers.mongo.disconnect(done);
+  //helpers.mongo.disconnect(done);
+  done();
 });
 
 beforeEach(function() {

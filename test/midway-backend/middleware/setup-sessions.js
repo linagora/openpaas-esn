@@ -2,12 +2,10 @@
 
 var request = require('supertest'),
     fs = require('fs-extra'),
-    mongoose = require('mongoose'),
     expect = require('chai').expect;
 
 describe('The sessions middleware', function() {
 
-  var app;
   var user = {
     username: 'Foo Bar Baz',
     password: 'secret',
@@ -19,15 +17,19 @@ describe('The sessions middleware', function() {
 
   before(function(done) {
     fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
-    app = require(this.testEnv.basePath + '/backend/webserver/application');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var User = mongoose.model('User');
-    var u = new User(user);
-    u.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      done();
+    var self = this;
+
+    this.testEnv.initCore(function() {
+      self.mongoose = require('mongoose'),
+      self.app = require(self.testEnv.basePath + '/backend/webserver/application');
+      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      var u = new User(user);
+      u.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+        done();
+      });
     });
   });
 
@@ -37,24 +39,25 @@ describe('The sessions middleware', function() {
   });
 
   it('should be a MongoDB Session Storage on "connected" event', function(done) {
+    var self = this;
     function checkSession(err) {
       if (err) {
         return done(err);
       }
-      mongoose.connection.collection('sessions').find().toArray(function(err, results) {
+      self.mongoose.connection.collection('sessions').find().toArray(function(err, results) {
         expect(results[0]._id).to.exist;
         var session = results[0].session;
         expect(session).to.exist;
-        expect(JSON.parse(session).passport.user).to.equal('secret@linagora.com');
+        expect(JSON.parse(session).passport.user).to.equal(user.emails[0]);
         done();
       });
     }
 
-    request(app)
+    request(this.app)
       .get('/')
       .expect(200);
     setTimeout(function() {
-      request(app)
+      request(self.app)
         .post('/api/login')
         .send({username: user.emails[0], password: user.password, rememberme: false})
         .expect(200)

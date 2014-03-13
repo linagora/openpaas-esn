@@ -19,6 +19,14 @@ before(function() {
     },
     removeDBConfigFile: function() {
       fs.unlinkSync(tmpPath + '/db.json');
+    },
+    initCore: function(callback) {
+      var core = require(basePath + '/backend/core');
+      core.init();
+      if (callback) {
+        callback();
+      }
+      return core;
     }
   };
   process.env.NODE_CONFIG = this.testEnv.tmp;
@@ -35,10 +43,10 @@ beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
 });
 
-afterEach(function(done) {
+afterEach(function() {
   try {
-    require('mongoose').disconnect(function() {done();});
-  } catch (e) {done();}
+    require('mongoose').disconnect();
+  } catch (e) {}
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();

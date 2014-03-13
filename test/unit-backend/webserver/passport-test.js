@@ -5,6 +5,10 @@ var expect = require('chai').expect,
 
 describe('The passport configuration module', function() {
 
+  beforeEach(function(done) {
+    this.testEnv.initCore(done);
+  });
+
   it('should not fail with default configuration settings (file)', function(done) {
     require(this.testEnv.basePath + '/backend/webserver/passport');
     var passport = require('passport');
