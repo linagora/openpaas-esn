@@ -10,7 +10,7 @@ div.login-bg(data-ng-controller='login')
                 label.control-label(for='username') #{__('Password')}
                 input.form-control(data-ng-model='password', type='password', name='password', id='password', placeholder="#{__('Password')}")
             .form-group
-                div(data-ng-if="loginFailureInARow > maxLoginFailureInARow", vc-recaptcha, data-ng-model="$parent.recaptcha" tabindex="3", theme="clean", key="6Ldu4O8SAAAAAHqn2ifj-eQVetUksEo7VQdvzXM9")
+                include ../../welcome/partials/recaptcha
             .form-group
                 button.btn.btn-primary(type='submit', data-ng-click='login()')
                     i.fa.fa-unlock-alt
