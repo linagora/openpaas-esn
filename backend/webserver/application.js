@@ -23,9 +23,7 @@ var lessMiddlewareConfig = {
   }
 };
 
-console.log('Application core.db.mongoAvailable: ', core.db.mongoAvailable);
 core.db.mongoAvailable.then(function(config) {
-  console.log('Application : MongoDB configuration is now available', config);
   logger.debug('MongoDB configuration is now available', config);
 });
 
