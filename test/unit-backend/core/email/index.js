@@ -15,6 +15,10 @@ describe('The email module', function() {
     this.testEnv.removeDBConfigFile();
   });
 
+  beforeEach(function() {
+    this.testEnv.initCore();
+  });
+
   it('should throw error if recipient is not defined', function(done) {
     var email = require(this.testEnv.basePath + '/backend/core/email');
     email.transport = function() {};

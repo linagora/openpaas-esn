@@ -39,6 +39,10 @@ describe('The Webserver module', function() {
 
   });
 
+  beforeEach(function(done) {
+    this.testEnv.initCore(done);
+  });
+
   describe('the start property', function() {
 
     it('should start the web server', function(done) {

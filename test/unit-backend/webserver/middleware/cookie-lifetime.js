@@ -6,25 +6,18 @@ describe('The cookie-lifetime middleware', function() {
 
   describe('if config is up', function() {
 
-    before(function(done) {
+    before(function() {
       this.testEnv.writeDBConfigFile();
-      this.mongoose = require('mongoose');
-      var self = this;
-      this.mongoose.disconnect(function() {
-        self.mongoose.connect(self.testEnv.mongoUrl, function(err) {
-          if (err) {
-            return done(err);
-          }
-          done();
-        });
-      });
     });
 
-    after(function(done) {
+    after(function() {
       this.testEnv.removeDBConfigFile();
-      this.mongoose.connection.db.dropDatabase();
-      this.mongoose.disconnect(done);
     });
+
+    beforeEach(function(done) {
+      this.testEnv.initCore(done);
+    });
+
 
     it('should set the cookie maxAge even if not configured (session is not set in config)', function(done) {
       require(this.testEnv.basePath + '/backend/core')['esn-config']('session');
