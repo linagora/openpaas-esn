@@ -40,8 +40,6 @@ describe('The local pubsub for MongoDB configuration', function() {
       expect(config).to.equal(mongodb);
     });
 
-    templates.inject(function() {
-      done();
-    });
+    templates.inject(done);
   });
 });
