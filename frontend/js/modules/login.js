@@ -2,11 +2,12 @@
 
 angular.module('esn.login', ['restangular', 'vcRecaptcha'])
   .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService) {
-    $scope.maxLoginFailureInARow = 3;
-    $scope.loginFailureInARow = 0;
     $scope.loginIn = false;
-    $scope.recaptcha = null;
-    $scope.credentials = loginErrorService.getCredentials() || {username: '', password: '', rememberme: false, recaptcha: null};
+    $scope.recaptcha = {
+      needed: false,
+      data: null
+    };
+    $scope.credentials = loginErrorService.getCredentials() || {username: '', password: '', rememberme: false};
     $scope.error = loginErrorService.getError();
 
     $scope.loginButton = {
@@ -38,7 +39,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
           $scope.error = err.data;
           loginErrorService.set($scope.credentials, err.data);
           $location.path('/login');
-          $scope.loginFailureInARow++;
+          $scope.recaptcha.needed = $scope.error.data.recaptcha;
           try {
             vcRecaptchaService.reload();
           } catch(e) {}
