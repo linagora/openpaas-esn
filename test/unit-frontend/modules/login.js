@@ -79,4 +79,49 @@ describe('The Login Angular module', function() {
 
     });
   });
+
+  describe('loginErrorService service', function() {
+
+    beforeEach(angular.mock.inject(function(loginErrorService, $rootScope, $location) {
+      this.loginErrorService = loginErrorService;
+      this.$rootScope = $rootScope;
+      this.$location = $location;
+    }));
+
+    it('should save the credentials and error', function(done) {
+      var credentials = {username: 'foo@bar.com', password: 'secret', rememberme: true};
+      var error = { error: {code: 404, message: 'this is an error message', details: 'these are details'}};
+      this.loginErrorService.set(credentials, error);
+
+      var data = this.loginErrorService.getData();
+
+      expect(data.credentials).to.exist;
+      expect(data.credentials).to.deep.equal(credentials);
+      expect(data.error).to.exist;
+      expect(data.error).to.deep.equal(error);
+      done();
+    });
+
+    it('should reset the data on route change if location is /', function(done) {
+      var credentials = {username: 'foo@bar.com', password: 'secret', rememberme: true};
+      var error = { error: {code: 404, message: 'this is an error message', details: 'these are details'}};
+      this.loginErrorService.set(credentials, error);
+      this.$location.path('/');
+      this.$rootScope.$emit('$routeChangeSuccess');
+      expect(this.loginErrorService.getData()).to.deep.equal({});
+      done();
+    });
+
+    it('should not reset the data on route change if location is not /', function(done) {
+      var credentials = {username: 'foo@bar.com', password: 'secret', rememberme: true};
+      var error = { error: {code: 404, message: 'this is an error message', details: 'these are details'}};
+      this.loginErrorService.set(credentials, error);
+      this.$location.path('/another');
+      this.$rootScope.$emit('$routeChangeSuccess');
+      expect(this.loginErrorService.getData()).to.not.deep.equal({});
+      expect(this.loginErrorService.getData().credentials).to.deep.equal(credentials);
+      expect(this.loginErrorService.getData().error).to.deep.equal(error);
+      done();
+    });
+  });
 });
