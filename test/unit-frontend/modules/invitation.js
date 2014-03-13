@@ -97,8 +97,10 @@ describe('The Invitation Angular module', function() {
   });
 
   describe('finalizeController', function() {
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(inject(function($rootScope, $controller, $window) {
       this.invitationAPI = {};
+      this.loginAPI = {};
+      this.$window = $window;
       this.scope = $rootScope.$new();
       this.invitation = {
         status: '',
@@ -108,7 +110,9 @@ describe('The Invitation Angular module', function() {
       };
       $controller('finalize', {
         $scope: this.scope,
+        $window: this.$window,
         invitationAPI: this.invitationAPI,
+        loginAPI: this.loginAPI,
         invitation: this.invitation
       });
     }));
@@ -142,7 +146,6 @@ describe('The Invitation Angular module', function() {
         };
         this.scope.finalize();
       });
-
     });
 
     describe('passwordMatch directive', function() {
