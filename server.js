@@ -34,6 +34,7 @@ function startWsServer(callback) {
 };
 
 var core = require('./backend/core');
+core.init();
 console.log('core bootstraped, configuration =',process.env.NODE_ENV);    
 var config = core.config('default');
 
