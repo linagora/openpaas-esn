@@ -27,8 +27,8 @@ describe('The Login Angular module', function() {
         };
       }));
 
-      it('should send a request to /api/login', function() {
-        this.$httpBackend.expectPOST('/api/login').respond(this.response);
+      it('should send a request to /login', function() {
+        this.$httpBackend.expectPOST('/login').respond(this.response);
         this.loginAPI.login(this.request);
         this.$httpBackend.flush();
       });
