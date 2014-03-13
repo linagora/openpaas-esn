@@ -11,7 +11,9 @@ fs.readdirSync(__dirname).forEach(function(filename) {
   exports.__defineGetter__(filename, load);
 });
 
-// try to initialize Mongo
-if (!exports.db.mongo.init()) {
-  console.log('The MongoDB datastore could not be initialized');
-}
+exports.init = function(callback) {
+  exports.db.mongo.init();
+  if (callback) {
+    callback();
+  }
+};
