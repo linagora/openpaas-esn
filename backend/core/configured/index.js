@@ -10,13 +10,13 @@ function isConfigured() {
   }
   var dbConfig;
   try {
-    var topic = pubsub.topic('mongodb:configurationAvailable');
     dbConfig = core.config('db');
-    topic.publish(dbConfig);
   } catch (e) {}
 
   if (dbConfig && dbConfig.connectionString) {
     configured = true;
+    var topic = pubsub.topic('mongodb:configurationAvailable');
+    topic.publish(dbConfig);
   }
   return configured;
 }
