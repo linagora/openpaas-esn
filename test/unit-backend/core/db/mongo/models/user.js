@@ -1,34 +1,71 @@
 'use strict';
 
-var expect = require('chai').expect,
-    mongoose = require('mongoose');
+var expect = require('chai').expect;
+var mongodb = require('mongodb');
 
 describe('The User model', function() {
-  var User, emails, email, email2;
+  var User, emails, email, email2, email_ci, email2_ci;
 
-  before(function() {
+  beforeEach(function(done) {
+    this.mongoose = require('mongoose');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-  });
-
-  beforeEach(function() {
-    mongoose.connect(this.testEnv.mongoUrl);
-    User = mongoose.model('User');
+    User = this.mongoose.model('User');
     emails = [];
     email = 'foo@linagora.com';
+    email_ci = 'FOO@LiNaGoRa.com ';
     email2 = 'bar@linagora.com';
+    email2_ci = '   bAR@linagora.com';
+    this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
+
+  it('should save the user email in lowercase', function(done) {
+    emails.push(email_ci);
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+    var mongoUrl = this.testEnv.mongoUrl;
+
+    function test(savedUser) {
+      mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+        if (err) { return done(err); }
+        db.collection('users').findOne({_id: savedUser._id}, function(err, user) {
+          if (err) { return done(err); }
+          expect(user).to.be.not.null;
+          expect(user.emails).to.be.an.array;
+          expect(user.emails).to.have.length(1);
+          expect(user.emails[0]).to.equal(email);
+          db.close(done);
+        });
+      });
+    }
+
+    u.save(function(err, savedUser) {
+      if (err) { return done(err); }
+      test(savedUser);
+    });
+  });
+
 
   it('should load the user from email', function(done) {
     emails.push(email);
     var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
     u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
+      if (err) { return done(err); }
       User.loadFromEmail(email, function(err, user) {
         expect(err).to.not.exist;
         expect(user).to.exist;
-        done();
+        return done();
+      });
+    });
+  });
+
+  it('should load the user from email, case insensitive', function(done) {
+    emails.push(email);
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+    u.save(function(err, data) {
+      if (err) { return done(err); }
+      User.loadFromEmail(email_ci, function(err, user) {
+        expect(err).to.not.exist;
+        expect(user).to.exist;
+        return done();
       });
     });
   });
@@ -215,7 +252,7 @@ describe('The User model', function() {
         });
       }
     ], function() {
-      mongoose.disconnect(done);
-    });
+      this.mongoose.disconnect(done);
+    }.bind(this));
   });
 });

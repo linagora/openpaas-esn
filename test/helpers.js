@@ -15,9 +15,14 @@ exports.mongo = {
     mongoose.connection.dropDatabase(callback);
   },
   dropCollections: function(callback) {
-    var collections = Object.keys(mongoose.connection.collections);
-    async.forEach(collections, function(collection, done) {
-      mongoose.connection.collections[collection].drop(done);
-    }, callback);
+    mongoose.connection.db.collections(function(err, collections) {
+      if (err) { return callback(err); }
+      collections = collections.filter(function(collection) {
+        return collection.collectionName !== 'system.indexes';
+      });
+      async.forEach(collections, function(collection, done) {
+        mongoose.connection.db.dropCollection(collection.collectionName, done);
+      }, callback);
+    });
   }
 };
