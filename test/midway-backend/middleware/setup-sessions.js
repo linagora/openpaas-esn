@@ -3,32 +3,36 @@
 var request = require('supertest'),
     fs = require('fs-extra'),
     mongoose = require('mongoose'),
-    mockery = require('mockery'),
     expect = require('chai').expect;
 
 describe('The sessions middleware', function() {
 
-  before(function() {
-    fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
-  });
+  var app;
+  var user = {
+    username: 'Foo Bar Baz',
+    password: 'secret',
+    emails: ['foo@bar.com'],
+    login: {
+      failures: [new Date(), new Date(), new Date()]
+    }
+  };
 
-  after(function() {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
-  });
-
-  beforeEach(function(done) {
-    mockery.registerMock('../../../config/users.json', { users: [{
-      id: 'secret@linagora.com',
-      emails: [{value: 'secret@linagora.com'}],
-      password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
-    }] });
-    var template = require(this.testEnv.fixtures + '/user-template').simple();
-    mongoose.connection.collection('templates').insert(template, function() {
+  before(function(done) {
+    fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
+    app = require(this.testEnv.basePath + '/backend/webserver/application');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    var User = mongoose.model('User');
+    var u = new User(user);
+    u.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
       done();
     });
   });
 
-  afterEach(function(done) {
+  after(function(done) {
+    fs.unlinkSync(this.testEnv.tmp + '/default.json');
     this.helpers.mongo.dropCollections(done);
   });
 
@@ -46,18 +50,14 @@ describe('The sessions middleware', function() {
       });
     }
 
-    this.app = require(this.testEnv.basePath + '/backend/webserver/application');
-
-    request(this.app)
+    request(app)
       .get('/')
       .expect(200);
-    var self = this;
     setTimeout(function() {
-      request(self.app)
-        .post('/login')
-        .send('username=secret%40linagora.com&password=secret')
-        .expect(302)
-        .expect('Location', '/')
+      request(app)
+        .post('/api/login')
+        .send({username: user.emails[0], password: user.password, rememberme: false})
+        .expect(200)
         .end(checkSession);
     }, 50);
   });

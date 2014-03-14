@@ -41,7 +41,7 @@ var login = function(req, res, next) {
           error: {
             code: 403,
             message: 'Login error',
-            details: ''
+            details: 'Bad username or password'
           }
         });
       });

@@ -78,9 +78,10 @@ describe('The verify-recaptcha middleware', function() {
     verify(req, {}, next);
   });
 
-  it('should return a json error if verify is a fail', function(done) {
+  it('should return a json error if verify is a fail witch recaptcha setted to true', function(done) {
     var res = {
       json: function(statusCode, error) {
+        expect(error.recaptcha).to.be.true;
         expect(statusCode).to.equal(403);
         expect(error.error.message).to.equal('Login error');
         done();

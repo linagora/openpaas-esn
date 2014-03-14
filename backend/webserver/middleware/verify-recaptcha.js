@@ -35,8 +35,8 @@ module.exports.verify = function(req, res, next) {
       return next();
     } else {
       return res.json(403, {
+        recaptcha: true,
         error: {
-          recaptcha: true,
           code: 403,
           message: 'Login error',
           details: 'Invalid recaptcha'

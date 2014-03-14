@@ -8,6 +8,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
       data: null
     };
     $scope.credentials = loginErrorService.getCredentials() || {username: '', password: '', rememberme: false};
+    $scope.credentials.recaptcha = $scope.recaptcha;
     $scope.error = loginErrorService.getError();
 
     $scope.loginButton = {
@@ -42,7 +43,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
           $scope.recaptcha.needed = err.data.recaptcha || false;
           try {
             vcRecaptchaService.reload();
-          } catch(e) {}
+          } catch (e) {}
         }
       );
     };
