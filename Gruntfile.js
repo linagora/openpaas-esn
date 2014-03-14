@@ -194,7 +194,8 @@ module.exports = function(grunt) {
     }
 
     if(!grunt.config.get('esn.tests.success')){
-      throw new Error('fail');
+      grunt.log.writeln('Tests failure');
+      grunt.fail.fatal('error', 3);
     }
   });
 
