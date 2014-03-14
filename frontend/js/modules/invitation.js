@@ -39,7 +39,7 @@ angular.module('esn.invitation', ['restangular'])
       );
     };
   })
-.controller('finalize', function($scope, invitationAPI, invitation) {
+.controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation) {
     $scope.notFound = invitation.status === 'error' ? true : false;
     $scope.form = {};
 
@@ -70,6 +70,17 @@ angular.module('esn.invitation', ['restangular'])
           $scope.finalizeButton.label = $scope.finalizeButton.notRunning;
           $scope.finalizeTask.running = false;
           $scope.complete = true;
+          var credentials = {username: $scope.settings.email, password: $scope.settings.password};
+          loginAPI.login(credentials).then(function() {
+            $window.location.href = '/';
+          }, function(err) {
+            $scope.error = {
+              status: 'error',
+              details: err
+            };
+            return $scope.error;
+          });
+
           return data;
         },
         function(err) {
