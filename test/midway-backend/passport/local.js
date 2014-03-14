@@ -5,7 +5,7 @@ var request = require('supertest'),
     fs = require('fs-extra'),
     mongoose = require('mongoose');
 
-describe('Passport Local', function() {
+describe.skip('Passport Local', function() {
   var app;
 
   before(function() {
