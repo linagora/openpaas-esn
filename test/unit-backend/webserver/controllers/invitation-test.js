@@ -41,11 +41,16 @@ describe('The invitation controller', function() {
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
-      mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
-      done();
+      var self = this;
+      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) {
+          return done(err);
+        }
+        mockery.registerMock('../../core/invitation', handler);
+        Invitation = require(self.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        done();
+      });
     });
 
     afterEach(function(done) {
@@ -98,12 +103,18 @@ describe('The invitation controller', function() {
       }
     };
 
-    beforeEach(function() {
+    beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
-      mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      var self = this;
+      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) {
+          return done(err);
+        }
+        mockery.registerMock('../../core/invitation', handler);
+        Invitation = require(self.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        done();
+      });
     });
 
     afterEach(function(done) {
@@ -139,11 +150,17 @@ describe('The invitation controller', function() {
   describe('GET /api/invitation', function() {
     var webserver = null;
 
-    beforeEach(function() {
+    beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      var self = this;
+      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) {
+          return done(err);
+        }
+        Invitation = require(self.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        done();
+      });
     });
 
     afterEach(function(done) {
