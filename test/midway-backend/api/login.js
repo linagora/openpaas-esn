@@ -31,15 +31,16 @@ describe('The login API', function() {
     });
   });
 
-  after(function() {
+  after(function(done) {
     fs.unlinkSync(this.testEnv.tmp + '/default.json');
+    this.helpers.mongo.dropCollections(done);
   });
 
   it('should not log the user with wrong credentials', function(done) {
     request(app)
       .post('/api/login')
       .send({username: 'foo', password: 'bar'})
-      .expect(404)
+      .expect(500)
       .end(done);
   });
 
