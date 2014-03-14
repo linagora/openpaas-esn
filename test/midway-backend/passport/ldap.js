@@ -4,7 +4,7 @@ var request = require('supertest'),
     mongoose = require('mongoose'),
     fs = require('fs-extra');
 
-describe('Passport LDAP', function() {
+describe.skip('Passport LDAP', function() {
   var app, ldap;
 
   before(function() {
