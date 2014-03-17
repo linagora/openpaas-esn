@@ -2,14 +2,12 @@
 
 var expect = require('chai').expect,
   request = require('supertest'),
-  mockery = require('mockery'),
-  mongoose = require('mongoose');
+  mockery = require('mockery');
 
 describe('The invitation controller', function() {
   var Invitation;
 
   before(function() {
-    //load the schema
     this.testEnv.writeDBConfigFile();
   });
 
@@ -41,12 +39,23 @@ describe('The invitation controller', function() {
       }
     };
 
-    beforeEach(function() {
-      mongoose.connect(this.testEnv.mongoUrl);
-      mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
-      Invitation = mongoose.model('Invitation');
+    beforeEach(function(done) {
+      this.mongoose = require('mongoose');
+      var self = this;
+      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) {
+          return done(err);
+        }
+        mockery.registerMock('../../core/invitation', handler);
+        Invitation = require(self.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        done();
+      });
+    });
+
+    afterEach(function(done) {
+      this.mongoose.connection.db.dropDatabase();
+      this.mongoose.disconnect(done);
     });
 
     it('should fail on empty payload', function(done) {
@@ -94,12 +103,23 @@ describe('The invitation controller', function() {
       }
     };
 
-    beforeEach(function() {
-      mongoose.connect(this.testEnv.mongoUrl);
-      mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
-      Invitation = mongoose.model('Invitation');
+    beforeEach(function(done) {
+      this.mongoose = require('mongoose');
+      var self = this;
+      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) {
+          return done(err);
+        }
+        mockery.registerMock('../../core/invitation', handler);
+        Invitation = require(self.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        done();
+      });
+    });
+
+    afterEach(function(done) {
+      this.mongoose.connection.db.dropDatabase();
+      this.mongoose.disconnect(done);
     });
 
     it('should fail if UUID is unknown', function(done) {
@@ -130,8 +150,22 @@ describe('The invitation controller', function() {
   describe('GET /api/invitation', function() {
     var webserver = null;
 
-    before(function() {
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
+    beforeEach(function(done) {
+      this.mongoose = require('mongoose');
+      var self = this;
+      this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
+        if (err) {
+          return done(err);
+        }
+        Invitation = require(self.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        done();
+      });
+    });
+
+    afterEach(function(done) {
+      this.mongoose.connection.db.dropDatabase();
+      this.mongoose.disconnect(done);
     });
 
     it('should return 404 on root resource', function(done) {
