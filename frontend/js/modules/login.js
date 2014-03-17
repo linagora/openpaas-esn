@@ -1,6 +1,21 @@
 'use strict';
 
 angular.module('esn.login', ['restangular', 'vcRecaptcha'])
+  .directive('esnLoginAutofill', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        scope.autofill = function() {
+          element.find('input').each(function() {
+            var $this = angular.element(this);
+            if ($this.attr('ng-model') && $this.attr('type') !== 'checkbox') {
+              angular.element(this).controller('ngModel').$setViewValue($this.val());
+            }
+          });
+        };
+      }
+    };
+  })
   .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService) {
     $scope.loginIn = false;
     $scope.recaptcha = {
