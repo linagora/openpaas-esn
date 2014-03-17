@@ -37,7 +37,7 @@ module.exports.verify = function(req, res, next) {
       });
     }
 
-    if(!recaptchaConfig) {
+    if (!recaptchaConfig) {
       return next();
     }
 

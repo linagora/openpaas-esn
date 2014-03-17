@@ -4,7 +4,7 @@ var expect = require('chai').expect,
     mockery = require('mockery');
 
 describe('The verify-recaptcha middleware', function() {
-  var req, next, goodEsnConfig, badEsnConfig;
+  var req, next;
 
   beforeEach(function() {
     req = {
