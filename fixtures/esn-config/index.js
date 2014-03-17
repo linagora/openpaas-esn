@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var mongoose = require('mongoose');
 
 var loadFile = function(name, done) {
   console.log('[INFO] Loading file ', name);
@@ -15,11 +16,14 @@ var loadFile = function(name, done) {
   }
   var item = name.slice(name.lastIndexOf('/') + 1, name.lastIndexOf('.'));
   try {
+    require('../../backend/core/');
     var e = require('../../backend/core/esn-config')(item);
-    e.store(data, function(err) {
-      if (done) {
-        return done(err);
-      }
+    mongoose.connection.on('connected', function() {
+      e.store(data, function(err) {
+        if (done) {
+          return done(err);
+        }
+      });
     });
   } catch(err) {
     return done(err);
@@ -37,12 +41,10 @@ var loadDirectory = function(name, done) {
         } else {
           console.log('[INFO] ' + f + ' has been loaded');
         }
+        done();
       });
     }
   });
-  if (done) {
-    done();
-  }
 };
 
 module.exports = function(done) {

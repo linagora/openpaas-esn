@@ -20,7 +20,7 @@ html
     script(src='js/modules/company.js')
     script(src='js/modules/login.js')
 
-  body(ng-app='welcomeApp')
+  body(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     #wrap
       include ./header
       div(ng-view ng-cloak)
