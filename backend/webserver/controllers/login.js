@@ -16,6 +16,7 @@ module.exports.index = index;
 var login = function(req, res, next) {
   if (!req.body.username || !req.body.password) {
     return res.json(400, {
+      recaptcha: req.recaptchaFlag || false,
       error: {
         code: 400,
         message: 'Login error',
@@ -38,6 +39,7 @@ var login = function(req, res, next) {
           logger.error('Problem while setting login failure for user ' + username, err);
         }
         return res.json(403, {
+          recaptcha: req.recaptchaFlag || false,
           error: {
             code: 403,
             message: 'Login error',
