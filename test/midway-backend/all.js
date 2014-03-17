@@ -25,7 +25,8 @@ before(function(done) {
     }
   };
 
-  this.helpers = helpers;
+  this.helpers = {};
+  helpers(this.helpers, this.testEnv);
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.writeFileSync(this.testEnv.tmp + '/db.json', JSON.stringify(
@@ -41,8 +42,7 @@ before(function(done) {
 
 after(function(done) {
   fs.unlinkSync(this.testEnv.tmp + '/db.json');
-  //helpers.mongo.disconnect(done);
-  done();
+  this.helpers.mongo.dropDatabase(done);
 });
 
 beforeEach(function() {
