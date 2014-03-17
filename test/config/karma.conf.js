@@ -5,12 +5,14 @@ module.exports = function(config) {
     basePath: '../../',
 
     files: [
+      'test/frontend/karma-include/*.js',
       'frontend/components/jquery/jquery.js',
       'frontend/components/angular/angular.js',
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-mocks/angular-mocks.js',
       'frontend/components/underscore/underscore.js',
       'frontend/components/restangular/dist/restangular.js',
+      'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js'
