@@ -7,11 +7,11 @@ This describes the implemented REST API of the official Hiveety API v1. The Hive
 In this present document, the following conventions are applied:
 
 - **uid** : the uid stands for Unique IDentifier. Two resources of the same type can't have the same uid.
-- {something} : brackets marks some variable that need to be changed at runtime.   
+- {something} : brackets marks some variable that need to be changed at runtime.
     Example:
 
         GET /api/{resource type}/1
-    
+
     Here we mean that {resource type} should be replaced by the real resource type.
 
 ## Prefix
@@ -91,8 +91,9 @@ Example:
 
 A large part of the API requires you to be authenticated. Authentication API are listed later in this document. Please note however that Hiveety server expect the authentication to be in a cookie header.
 
-# Detailled API
+# Detailed API
 
-For a better readibility, REST API is split into several files :
+For a better readability, REST API is split into several files :
 
+* [company](REST_company.md)
 * [domain](REST_domain.md)
