@@ -1,9 +1,14 @@
 'use strict';
 
-angular.module('esn.login', ['restangular'])
-  .controller('login', function($scope, $location, $window, loginAPI, loginErrorService) {
+angular.module('esn.login', ['restangular', 'vcRecaptcha'])
+  .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService) {
     $scope.loginIn = false;
+    $scope.recaptcha = {
+      needed: false,
+      data: null
+    };
     $scope.credentials = loginErrorService.getCredentials() || {username: '', password: '', rememberme: false};
+    $scope.credentials.recaptcha = $scope.recaptcha;
     $scope.error = loginErrorService.getError();
 
     $scope.loginButton = {
@@ -35,6 +40,10 @@ angular.module('esn.login', ['restangular'])
           $scope.error = err.data;
           loginErrorService.set($scope.credentials, err.data);
           $location.path('/login');
+          $scope.recaptcha.needed = err.data.recaptcha || false;
+          try {
+            vcRecaptchaService.reload();
+          } catch (e) {}
         }
       );
     };
@@ -46,7 +55,7 @@ angular.module('esn.login', ['restangular'])
   .factory('loginAPI', ['Restangular', function(Restangular) {
 
     function login(credentials) {
-      return Restangular.one('login').post('', credentials);
+      return Restangular.all('login').post(credentials);
     }
 
     return {

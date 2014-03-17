@@ -14,8 +14,9 @@ function index(req, res) {
 module.exports.index = index;
 
 var login = function(req, res, next) {
-  if (!req.body.username ||   !req.body.password) {
+  if (!req.body.username || !req.body.password) {
     return res.json(400, {
+      recaptcha: req.recaptchaFlag || false,
       error: {
         code: 400,
         message: 'Login error',
@@ -33,44 +34,39 @@ var login = function(req, res, next) {
     }
 
     if (!user) {
-      return res.json(404, {
-        error: {
-          code: 404,
-          message: 'Login error',
-          details: 'User not found'
+      userlogin.failure(username, function(err, data) {
+        if (err) {
+          logger.error('Problem while setting login failure for user ' + username, err);
         }
+        return res.json(403, {
+          recaptcha: req.recaptchaFlag || false,
+          error: {
+            code: 403,
+            message: 'Login error',
+            details: 'Bad username or password'
+          }
+        });
+      });
+    } else {
+      req.logIn(user, function(err) {
+        if (err) {
+          return next(err);
+        }
+
+        userlogin.success(username, function(err, user) {
+          if (err) {
+            logger.error('Problem while setting login success for user ' + username, err);
+          }
+
+          var result = {};
+          if (user) {
+            result = user.toObject();
+            delete result.password;
+          }
+          return res.json(200, result);
+        });
       });
     }
-
-    req.logIn(user, function(err) {
-      if (err) {
-        userlogin.failure(username, function(err, data) {
-          if (err) {
-            logger.error('Problem while setting login failure for user ' + username, err);
-          }
-          return res.json(400, {
-            error: {
-              code: 400,
-              message: 'Login error',
-              details: err.message
-            }
-          });
-        });
-      }
-
-      userlogin.success(username, function(err, user) {
-        if (err) {
-          logger.error('Problem while setting login success for user ' + username, err);
-        }
-
-        var result = {};
-        if (user) {
-          result = user.toObject();
-          delete result.password;
-        }
-        return res.json(200, result);
-      });
-    });
   })(req, res, next);
 };
 module.exports.login = login;
