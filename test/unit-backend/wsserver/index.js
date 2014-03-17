@@ -5,6 +5,10 @@ var expect = require('chai').expect,
 
 describe('The WebSockets server module', function() {
 
+  beforeEach(function(done) {
+    this.testEnv.initCore(done);
+  });
+
   it('should contains all needed properties.', function() {
     var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
     expect(wsserver).to.exist;

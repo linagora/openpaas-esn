@@ -2,7 +2,8 @@
 
 var mockery = require('mockery'),
     path = require('path'),
-    fs = require('fs-extra');
+    fs = require('fs-extra'),
+    helpers = require('../helpers');
 var testConfig = require('../config/servers-conf.js');
 
 before(function() {
@@ -19,26 +20,37 @@ before(function() {
     },
     removeDBConfigFile: function() {
       fs.unlinkSync(tmpPath + '/db.json');
+    },
+    initCore: function(callback) {
+      var core = require(basePath + '/backend/core');
+      core.init();
+      if (callback) {
+        callback();
+      }
+      return core;
     }
   };
+  this.helpers = {};
+  helpers(this.helpers, this.testEnv);
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');
 });
 
-after(function() {
+after(function(done) {
   delete process.env.NODE_CONFIG;
   fs.unlinkSync(this.testEnv.tmp + '/default.json');
+  this.helpers.mongo.dropDatabase(done);
 });
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
 });
 
-afterEach(function(done) {
+afterEach(function() {
   try {
-    require('mongoose').disconnect(function() {done();});
-  } catch (e) {done();}
+    require('mongoose').disconnect();
+  } catch (e) {}
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();
