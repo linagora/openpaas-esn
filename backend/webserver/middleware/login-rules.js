@@ -11,7 +11,7 @@ module.exports.checkLoginCount = function(req, res, next) {
         return res.json(500, {
           error: 500,
           message: 'Server Error',
-          details: ''
+          details: 'Internal server error'
         });
       } else {
         if (!status) {

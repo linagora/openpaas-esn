@@ -4,7 +4,7 @@ var expect = require('chai').expect,
     mockery = require('mockery');
 
 describe('The verify-recaptcha middleware', function() {
-  var req;
+  var req, next, goodEsnConfig, badEsnConfig;
 
   beforeEach(function() {
     req = {
@@ -23,18 +23,18 @@ describe('The verify-recaptcha middleware', function() {
       },
       recaptchaFlag: true
     };
+    next = function(cb) {
+      return cb;
+    };
   });
 
   it('should be pass through and call next() if there is no recaptchaFlag setted to true in req', function(done) {
     delete req.recaptchaFlag;
-    var next = function() {
-      done();
-    };
     var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
-    verify(req, {}, next);
+    verify(req, {}, next(done));
   });
 
-  it('should response a 403 json with a flag recpatcha setted to true for the client if recaptcha is not in the req', function(done) {
+  it('should response a 403 json with a flag recpatcha setted to true for the client if recaptcha data is not in the req', function(done) {
     delete req.body.recaptcha;
     var res = {
       json: function(code, data) {
@@ -59,6 +59,16 @@ describe('The verify-recaptcha middleware', function() {
       done();
     };
     mockery.registerMock('recaptcha', RecaptchaMock);
+
+    var esnConfig = function() {
+      return {
+        get: function(callback) {
+          return callback(null, {publickey: 'publickey', privatekey: 'privatekey'});
+        }
+      };
+    };
+    mockery.registerMock('../../core/esn-config', esnConfig);
+
     var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
     verify(req, {}, {});
   });
@@ -70,12 +80,19 @@ describe('The verify-recaptcha middleware', function() {
     RecaptchaMock.Recaptcha.prototype.verify = function(callback) {
       return callback(true, null);
     };
-    var next = function() {
-      done();
-    };
     mockery.registerMock('recaptcha', RecaptchaMock);
+
+    var esnConfig = function() {
+      return {
+        get: function(callback) {
+          return callback(null, {publickey: 'publickey', privatekey: 'privatekey'});
+        }
+      };
+    };
+    mockery.registerMock('../../core/esn-config', esnConfig);
+
     var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
-    verify(req, {}, next);
+    verify(req, {}, next(done));
   });
 
   it('should return a json error if verify is a fail witch recaptcha setted to true', function(done) {
@@ -94,8 +111,33 @@ describe('The verify-recaptcha middleware', function() {
       return callback(false, null);
     };
     mockery.registerMock('recaptcha', RecaptchaMock);
+
+    var esnConfig = function() {
+      return {
+        get: function(callback) {
+          return callback(null, {publickey: 'publickey', privatekey: 'privatekey'});
+        }
+      };
+    };
+    mockery.registerMock('../../core/esn-config', esnConfig);
+
     var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
     verify(req, res, {});
   });
 
+  it('should be pass through if the no recaptcha config from the esnConfig is available', function(done) {
+    mockery.registerMock('recaptcha', {});
+
+    var esnConfig = function() {
+      return {
+        get: function(callback) {
+          return callback(null, null);
+        }
+      };
+    };
+    mockery.registerMock('../../core/esn-config', esnConfig);
+
+    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    verify(req, {}, next(done));
+  });
 });

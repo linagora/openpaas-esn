@@ -1,9 +1,8 @@
 'use strict';
 
-var Recaptcha = require('recaptcha').Recaptcha;
-
-var PUBLIC_KEY = '6Ldu4O8SAAAAAHqn2ifj-eQVetUksEo7VQdvzXM9',
-    PRIVATE_KEY = '6Ldu4O8SAAAAAGfiRRJCaqbVTid4a19W-CRux_nn';
+var Recaptcha = require('recaptcha').Recaptcha,
+    config = require('../../core/esn-config')('recaptcha'),
+    logger = require('../../core/logger');
 
 module.exports.verify = function(req, res, next) {
 
@@ -28,12 +27,26 @@ module.exports.verify = function(req, res, next) {
     response: req.body.recaptcha.data.response
   };
 
-  var recaptcha = new Recaptcha(PUBLIC_KEY, PRIVATE_KEY, data);
+  config.get(function(err, recaptchaConfig) {
+    if (err) {
+      logger.error('Could not get recaptcha keys in esn config.', err.message);
+      return res.json(500, {
+        error: 500,
+        message: 'Server Error',
+        details: 'Internal server error'
+      });
+    }
 
-  recaptcha.verify(function(success, error_code) {
-    if (success) {
+    if(!recaptchaConfig) {
       return next();
-    } else {
+    }
+
+    var recaptcha = new Recaptcha(recaptchaConfig.publickey, recaptchaConfig.privatekey, data);
+
+    recaptcha.verify(function(success, error_code) {
+      if (success) {
+        return next();
+      }
       return res.json(403, {
         recaptcha: true,
         error: {
@@ -42,6 +55,6 @@ module.exports.verify = function(req, res, next) {
           details: 'Invalid recaptcha'
         }
       });
-    }
+    });
   });
 };
