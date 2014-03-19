@@ -1,15 +1,6 @@
 'use strict';
 
-var path = require('path');
-var fs = require('fs');
 var mongodb = require('../../core').db.mongo;
-var root = path.resolve(__dirname + '/../../..');
-var config = require('../../core').config('default');
-var settings = root + '/config/db.json';
-
-if (config.core && config.core.config && config.core.config.db) {
-  settings = path.resolve(root + '/' + config.core.config.db);
-}
 
 /**
  * Store the document store configuration values
@@ -40,12 +31,11 @@ function store(req, res) {
   }
 
   data.connectionOptions = mongodb.getDefaultOptions();
-
-  fs.writeFile(settings, JSON.stringify(data), function(err) {
+  mongodb.storeConfiguration(data, function(err, mongoConfig) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Can not write database settings in ' + settings}});
+      return res.json(500, { error: { status: 500, message: 'Server Error', details: err.message}});
     }
-    res.json(201, config);
+    res.json(201, mongoConfig);
     mongodb.init();
   });
 }
