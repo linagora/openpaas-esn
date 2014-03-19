@@ -5,8 +5,10 @@
 var MongoClient = require('mongodb').MongoClient;
 var url = require('url');
 var fs = require('fs');
+var path = require('path');
 var mongoose = require('mongoose');
 var logger = require('../../../core').logger;
+var config = require('../../../core').config;
 var initialized = false;
 
 function onConnectError(err) {
@@ -21,6 +23,27 @@ mongoose.connection.on('error', function(e) {
 var getTimeout = function() {
   return process.env.MONGO_TIMEOUT || 10000;
 };
+
+function storeConfiguration(configuration, callback) {
+  var root = path.resolve(__dirname + '/../../../..');
+  var defaultConfig = config('default');
+  var dbConfigurationFile;
+  if (defaultConfig.core && defaultConfig.core.config && defaultConfig.core.config.db) {
+    dbConfigurationFile = path.resolve(root + '/' + defaultConfig.core.config.db);
+  } else {
+    dbConfigurationFile = root + '/config/db.json';
+  }
+  fs.writeFile(dbConfigurationFile, JSON.stringify(configuration), function(err) {
+    if (err) {
+      logger.error('Cannot write database configuration file', dbConfigurationFile, err);
+      var error = new Error('Can not write database settings in ' + dbConfigurationFile);
+      return callback(error);
+    }
+    return callback(null, configuration);
+  });
+}
+
+module.exports.storeConfiguration = storeConfiguration;
 
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
