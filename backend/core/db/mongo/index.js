@@ -24,27 +24,6 @@ var getTimeout = function() {
   return process.env.MONGO_TIMEOUT || 10000;
 };
 
-function storeConfiguration(configuration, callback) {
-  var root = path.resolve(__dirname + '/../../../..');
-  var defaultConfig = config('default');
-  var dbConfigurationFile;
-  if (defaultConfig.core && defaultConfig.core.config && defaultConfig.core.config.db) {
-    dbConfigurationFile = path.resolve(root + '/' + defaultConfig.core.config.db);
-  } else {
-    dbConfigurationFile = root + '/config/db.json';
-  }
-  fs.writeFile(dbConfigurationFile, JSON.stringify(configuration), function(err) {
-    if (err) {
-      logger.error('Cannot write database configuration file', dbConfigurationFile, err);
-      var error = new Error('Can not write database settings in ' + dbConfigurationFile);
-      return callback(error);
-    }
-    return callback(null, configuration);
-  });
-}
-
-module.exports.storeConfiguration = storeConfiguration;
-
 function openDatabase(connectionString, callback) {
   MongoClient.connect(connectionString, function(err, db) {
     if (err && db && ('close' in db)) {
@@ -94,6 +73,41 @@ function getConnectionString(hostname, port, dbname, username, password, connect
 
   return 'mongodb:' + url.format(connectionHash);
 }
+
+function getDbConfigurationFile() {
+  var root = path.resolve(__dirname + '/../../../..');
+  var defaultConfig = config('default');
+  var dbConfigurationFile;
+  if (defaultConfig.core && defaultConfig.core.config && defaultConfig.core.config.db) {
+    dbConfigurationFile = path.resolve(root + '/' + defaultConfig.core.config.db);
+  } else {
+    dbConfigurationFile = root + '/config/db.json';
+  }
+  return dbConfigurationFile;
+}
+
+function storeConfiguration(configuration, callback) {
+  var dbConfigurationFile = getDbConfigurationFile();
+  var finalConfiguration = {};
+  finalConfiguration.connectionOptions = configuration.connectionOptions;
+  finalConfiguration.connectionString = getConnectionString(configuration.hostname,
+                                                            configuration.port,
+                                                            configuration.dbname,
+                                                            configuration.username,
+                                                            configuration.password,
+                                                            {});
+
+  fs.writeFile(dbConfigurationFile, JSON.stringify(finalConfiguration), function(err) {
+    if (err) {
+      logger.error('Cannot write database configuration file', dbConfigurationFile, err);
+      var error = new Error('Can not write database settings in ' + dbConfigurationFile);
+      return callback(error);
+    }
+    return callback(null, finalConfiguration);
+  });
+}
+
+module.exports.storeConfiguration = storeConfiguration;
 
 /**
  * Checks that we can connect to mongodb
@@ -156,12 +170,11 @@ function getConnectionStringAndOptions() {
   } catch (e) {
     return false;
   }
-  if (!config || !config.hostname) {
+  if (!config || !config.connectionString) {
     return false;
   }
   var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
-  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, {});
-  return {url: url, options: options};
+  return {url: config.connectionString, options: options};
 }
 
 module.exports.init = function() {

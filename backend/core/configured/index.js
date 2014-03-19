@@ -12,7 +12,7 @@ function isConfigured() {
     dbConfig = core.config('db');
   } catch (e) {}
 
-  if (dbConfig && dbConfig.port) {
+  if (dbConfig && dbConfig.connectionString) {
     configured = true;
   }
   return configured;

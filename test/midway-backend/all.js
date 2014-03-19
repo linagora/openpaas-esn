@@ -31,13 +31,10 @@ before(function(done) {
   process.env.NODE_ENV = 'test';
   fs.writeFileSync(this.testEnv.tmp + '/db.json', JSON.stringify(
     {
-      hostname: 'localhost',
-      dbname: testConfig.mongodb.dbname,
-      port: testConfig.mongodb.port
+      connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname
     }
   ));
   done();
-  //helpers.mongo.connect(done);
 });
 
 after(function(done) {
