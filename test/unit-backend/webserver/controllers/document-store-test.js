@@ -152,6 +152,7 @@ describe('The document store routes resource', function() {
 
     it('should store configuration to file', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+      var mongoConnectionString = 'mongodb://localhost:27017/hiveety-test-ok';
 
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -160,9 +161,7 @@ describe('The document store routes resource', function() {
         fs.readFile(tmpDbConfigFile, function(e, data) {
           expect(e).to.be.null;
           var json = JSON.parse(data);
-          expect(json.hostname).to.equal(mongo.hostname);
-          expect(json.port).to.equal(mongo.port);
-          expect(json.dbname).to.equal(mongo.dbname);
+          expect(json.connectionString).to.equal(mongoConnectionString);
           done();
         });
       });
@@ -189,6 +188,7 @@ describe('The document store routes resource', function() {
 
     it('should store configuration to file with username and password', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok', username: 'toto', password: 'chain'};
+      var mongoConnectionString = 'mongodb://toto:chain@localhost:27017/hiveety-test-ok';
 
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -197,11 +197,7 @@ describe('The document store routes resource', function() {
         fs.readFile(tmpDbConfigFile, function(e, data) {
           expect(e).to.be.null;
           var json = JSON.parse(data);
-          expect(json.hostname).to.equal(mongo.hostname);
-          expect(json.port).to.equal(mongo.port);
-          expect(json.dbname).to.equal(mongo.dbname);
-          expect(json.username).to.equal(mongo.username);
-          expect(json.password).to.equal(mongo.password);
+          expect(json.connectionString).to.equal(mongoConnectionString);
           done();
         });
       });
