@@ -5,17 +5,13 @@ The monitoring resource is available at /api/monitoring.
 
 ## Operations
 
-### Get the application monitoring data
+### GET /api/monitoring
 
-The application provides a collection of monitoring data which may be useful to clients/managers.
-
-**Request**
-
-- GET /api/monitoring
+Get monitoring data. The application provides a collection of monitoring data which may be useful to clients/managers.
 
 **Response**
 
-- HTTP 200
+- HTTP 200 with monitoring data as JSON
 
     {
       "lag": 134
