@@ -20,7 +20,7 @@ div.login-bg
                 .form-group
                     include ./recaptcha
                 .form-group
-                    button.btn.btn-primary.pull-right(type='submit', ng-click='login()', ng-disabled='loginTask.running')
+                    button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
                         i.fa.fa-sign-in(ng-hide='loginTask.running') &nbsp;
                         i.fa.fa-spinner(ng-hide='!loginTask.running') &nbsp;
                         | #{__('{{loginButton.label}}')}
