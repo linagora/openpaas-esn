@@ -4,13 +4,9 @@ This describes the REST API for the company resources. The company resource avai
 
 ## Operations
 
-### Search a company
+### GET /api/companies?name=company_name
 
 Search a company from its name.
-
-**Request**
-
-- GET /api/companies?name=company_name
 
 **Response**
 
