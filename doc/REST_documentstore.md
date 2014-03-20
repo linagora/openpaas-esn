@@ -6,14 +6,14 @@ This describes the REST API for the document store resource. The document store 
 
 ## Operations
 
-### Check connection
+### PUT /api/document-store/connection/:hostname/:port/:dbname
 
 Check if a connection can be established with the document store.
 
 **Request**
 
-- PUT /api/document-store/connection/:hostname/:port/:dbname
 - Content Type: application/json
+- Payload:
 
     {
       "username": "admin",
@@ -27,14 +27,14 @@ Check if a connection can be established with the document store.
 - HTTP 200 if a connection can be established with the document store
 - HTTP 503 with JSON error message if there is a connection error.
 
-### Save the configuration
+### PUT /api/document-store/connection
 
 Save the connection parameters on the server side.
 
 **Request**
 
-- PUT /api/document-store/connection
 - Content Type: application/json
+- Payload:
 
     {
       "hostname": "localhost",
