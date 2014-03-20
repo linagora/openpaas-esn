@@ -5,13 +5,9 @@ The locale resource is available at /api/locales.
 
 ## Operations
 
-### List available locales
+### GET /api/locales
 
 Get the list of available locales.
-
-**Request**
-
-- GET /api/locales
 
 **Response**
 
@@ -19,11 +15,12 @@ Get the list of available locales.
 
     ['en', 'fr']
 
-### Get the locale data
+### GET /api/locales/:locale
+
+Get the locale data
 
 **Request**
 
-- GET /api/locales/:locale
 - Content Type: application/json
 
 **Response**
@@ -36,11 +33,12 @@ Get the list of available locales.
     }
 
 
-### Get the current locale data
+### GET /api/locales/current
+
+Get the current locale data
 
 **Request**
 
-- GET /api/locales/current
 - Content Type: application/json
 
 **Response**
