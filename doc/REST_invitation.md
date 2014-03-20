@@ -4,11 +4,12 @@ This describes the REST API for the invitation resource. The document store reso
 
 ## Operations
 
-### Get invitation
+### GET /api/invitation/:uuid
+
+Get an invitation.
 
 **Request**
 
-- GET /api/invitation/:uuid
 - Content Type: application/json
 
 **Response**
@@ -26,12 +27,14 @@ This describes the REST API for the invitation resource. The document store reso
 
 - HTTP 404 if there is no such invitation
 
-### Create an invitation
+### POST /api/invitation
+
+Create an invitation.
 
 **Request**
 
-- POST /api/invitation
 - Content Type: application/json
+- Payload:
 
     {
       "type": "invitation_type",
@@ -61,12 +64,14 @@ This describes the REST API for the invitation resource. The document store reso
 - HTTP 500 for server-side error
 
 
-### Finalize the invitation
+### PUT /api/invitation/:uuid
+
+Finalize the invitation.
 
 **Request**
 
-- PUT /api/invitation/:uuid
 - Content Type: application/json
+- Payload:
 
     {
       "data": {
