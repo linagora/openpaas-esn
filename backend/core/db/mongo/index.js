@@ -9,6 +9,7 @@ var path = require('path');
 var mongoose = require('mongoose');
 var logger = require('../../../core').logger;
 var config = require('../../../core').config;
+var configurationWatcher = require('./file-watcher');
 var initialized = false;
 
 function onConnectError(err) {
@@ -164,30 +165,34 @@ function getDefaultOptions() {
 module.exports.getDefaultOptions = getDefaultOptions;
 
 function getConnectionStringAndOptions() {
-  var config;
+  var dbConfig;
   try {
-    config = require(__dirname + '/../../../core').config('db');
+    dbConfig = config('db');
   } catch (e) {
     return false;
   }
-  if (!config || !config.connectionString) {
+  if (!dbConfig || !dbConfig.connectionString) {
     return false;
   }
-  var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
-  return {url: config.connectionString, options: options};
+  var options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
+  return {url: dbConfig.connectionString, options: options};
 }
 
-module.exports.init = function() {
-  if (initialized) {
-    mongoose.disconnect();
-    initialized = false;
+var dbConfigWatcher = null;
+
+function mongooseConnect(reinit) {
+  if (!dbConfigWatcher) {
+    dbConfigWatcher = configurationWatcher(logger, getDbConfigurationFile(), reinit);
   }
+  dbConfigWatcher();
+
   var connectionInfos = getConnectionStringAndOptions();
   if (!connectionInfos) {
     return false;
   }
 
   try {
+    logger.debug('launch mongoose.connect on ' + connectionInfos.url);
     mongoose.connect(connectionInfos.url, connectionInfos.options);
   } catch (e) {
     onConnectError(e);
@@ -195,7 +200,27 @@ module.exports.init = function() {
   }
   initialized = true;
   return true;
-};
+}
+
+function init() {
+  function reinit() {
+    logger.info('Database configuration updated, reloading mongoose');
+    config.clear();
+    init();
+  }
+
+  if (initialized) {
+    mongoose.disconnect(function() {
+      initialized = false;
+      mongooseConnect(reinit);
+    });
+    return;
+  }
+  return mongooseConnect(reinit);
+}
+
+
+module.exports.init = init;
 
 module.exports.isInitalized = function() {
   return initialized;

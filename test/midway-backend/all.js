@@ -47,6 +47,9 @@ beforeEach(function() {
 });
 
 afterEach(function() {
+  try {
+    require(this.testEnv.basePath + '/backend/core/db/mongo/file-watcher').clear();
+  } catch (e) {}
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();

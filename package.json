@@ -6,7 +6,7 @@
   "dependencies": {
     "express": "~3.4.7",
     "socket.io": "~0.9.16",
-    "konphyg": "~1.2.3",
+    "konphyg": "git+https://github.com/linagora/konphyg.git",
     "winston": "~0.7.2",
     "async": "~0.2.9",
     "i18n": "~0.4.1",
@@ -33,7 +33,9 @@
     "trim": "0.0.1",
     "connect-dynamic-middleware": "~0.1.0",
     "connect-mongo": "~0.4.0",
-    "recaptcha": "~1.2.0"
+    "recaptcha": "~1.2.0",
+    "chokidar": "~0.8.1",
+    "hash_file": "~0.1.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
