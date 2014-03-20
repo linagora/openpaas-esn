@@ -4,12 +4,14 @@ This describes the REST API for the domain resources. The domain resource availa
 
 ## Operations
 
-### Create a domain
+### POST /api/domains
+
+Create a domain.
 
 **Request**
 
-- POST /api/domains
 - Content-Type : application/json
+- Payload:
 
     {
       "name": "foo",
@@ -22,13 +24,9 @@ This describes the REST API for the domain resources. The domain resource availa
 - HTTP 400 for client-side error
 - HTTP 500 for server-side error
 
-### Check company exists in domain
+### GET /api/domains/:domain_name/:company_name
 
 Checks if a domain and company pair already exists.
-
-**Request**
-
-- GET /api/domains/:domain_name/:company_name
 
 **Response**
 
