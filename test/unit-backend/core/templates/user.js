@@ -1,7 +1,6 @@
 'use strict';
 
-var expect = require('chai').expect,
-    fs = require('fs');
+var expect = require('chai').expect;
 
 describe('The User template module', function() {
 
@@ -9,7 +8,7 @@ describe('The User template module', function() {
 
     before(function() {
       try {
-        fs.unlinkSync(this.testEnv.tmp + '/db.json');
+        this.testEnv.removeDBConfigFile();
       } catch (e) {}
     });
 
@@ -26,9 +25,7 @@ describe('The User template module', function() {
 
     beforeEach(function() {
       this.testEnv.writeDBConfigFile();
-
       this.mongoose = require('mongoose');
-//      this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
 
     it('should inject templates', function(done) {

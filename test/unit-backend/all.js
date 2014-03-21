@@ -16,7 +16,7 @@ before(function() {
     fixtures: path.resolve(__dirname + '/fixtures'),
     mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
     writeDBConfigFile: function() {
-      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({hostname: 'localhost', port: testConfig.mongodb.port, dbname: testConfig.mongodb.dbname}));
+      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname}));
     },
     removeDBConfigFile: function() {
       fs.unlinkSync(tmpPath + '/db.json');
@@ -45,11 +45,15 @@ after(function(done) {
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
+  mockery.registerMock('./logger', require(this.testEnv.fixtures + '/logger-noop')());
 });
 
 afterEach(function() {
   try {
     require('mongoose').disconnect();
+  } catch (e) {}
+  try {
+    require(this.testEnv.basePath + '/backend/core/db/mongo/file-watcher').clear();
   } catch (e) {}
   mockery.resetCache();
   mockery.deregisterAll();

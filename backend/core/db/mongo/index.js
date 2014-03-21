@@ -5,8 +5,11 @@
 var MongoClient = require('mongodb').MongoClient;
 var url = require('url');
 var fs = require('fs');
+var path = require('path');
 var mongoose = require('mongoose');
 var logger = require('../../../core').logger;
+var config = require('../../../core').config;
+var configurationWatcher = require('./file-watcher');
 var initialized = false;
 
 function onConnectError(err) {
@@ -72,6 +75,41 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   return 'mongodb:' + url.format(connectionHash);
 }
 
+function getDbConfigurationFile() {
+  var root = path.resolve(__dirname + '/../../../..');
+  var defaultConfig = config('default');
+  var dbConfigurationFile;
+  if (defaultConfig.core && defaultConfig.core.config && defaultConfig.core.config.db) {
+    dbConfigurationFile = path.resolve(root + '/' + defaultConfig.core.config.db);
+  } else {
+    dbConfigurationFile = root + '/config/db.json';
+  }
+  return dbConfigurationFile;
+}
+
+function storeConfiguration(configuration, callback) {
+  var dbConfigurationFile = getDbConfigurationFile();
+  var finalConfiguration = {};
+  finalConfiguration.connectionOptions = configuration.connectionOptions;
+  finalConfiguration.connectionString = getConnectionString(configuration.hostname,
+                                                            configuration.port,
+                                                            configuration.dbname,
+                                                            configuration.username,
+                                                            configuration.password,
+                                                            {});
+
+  fs.writeFile(dbConfigurationFile, JSON.stringify(finalConfiguration), function(err) {
+    if (err) {
+      logger.error('Cannot write database configuration file', dbConfigurationFile, err);
+      var error = new Error('Can not write database settings in ' + dbConfigurationFile);
+      return callback(error);
+    }
+    return callback(null, finalConfiguration);
+  });
+}
+
+module.exports.storeConfiguration = storeConfiguration;
+
 /**
  * Checks that we can connect to mongodb
  *
@@ -127,31 +165,34 @@ function getDefaultOptions() {
 module.exports.getDefaultOptions = getDefaultOptions;
 
 function getConnectionStringAndOptions() {
-  var config;
+  var dbConfig;
   try {
-    config = require(__dirname + '/../../../core').config('db');
+    dbConfig = config('db');
   } catch (e) {
     return false;
   }
-  if (!config || !config.hostname) {
+  if (!dbConfig || !dbConfig.connectionString) {
     return false;
   }
-  var options = config.connectionOptions ? config.connectionOptions : getDefaultOptions();
-  var url = getConnectionString(config.hostname, config.port, config.dbname, config.username, config.password, {});
-  return {url: url, options: options};
+  var options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
+  return {url: dbConfig.connectionString, options: options};
 }
 
-module.exports.init = function() {
-  if (initialized) {
-    mongoose.disconnect();
-    initialized = false;
+var dbConfigWatcher = null;
+
+function mongooseConnect(reinit) {
+  if (!dbConfigWatcher) {
+    dbConfigWatcher = configurationWatcher(logger, getDbConfigurationFile(), reinit);
   }
+  dbConfigWatcher();
+
   var connectionInfos = getConnectionStringAndOptions();
   if (!connectionInfos) {
     return false;
   }
 
   try {
+    logger.debug('launch mongoose.connect on ' + connectionInfos.url);
     mongoose.connect(connectionInfos.url, connectionInfos.options);
   } catch (e) {
     onConnectError(e);
@@ -159,7 +200,27 @@ module.exports.init = function() {
   }
   initialized = true;
   return true;
-};
+}
+
+function init() {
+  function reinit() {
+    logger.info('Database configuration updated, reloading mongoose');
+    config.clear();
+    init();
+  }
+
+  if (initialized) {
+    mongoose.disconnect(function() {
+      initialized = false;
+      mongooseConnect(reinit);
+    });
+    return;
+  }
+  return mongooseConnect(reinit);
+}
+
+
+module.exports.init = init;
 
 module.exports.isInitalized = function() {
   return initialized;
