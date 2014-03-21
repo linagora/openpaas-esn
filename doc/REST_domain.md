@@ -1,35 +1,71 @@
-# Domain API
+# /api/domains
 
-This describes the REST API for the domain resources. The domain resource available at /api/domains.
+## POST /api/domains
 
-## Operations
+Create an ESN domain.
 
-### POST /api/domains
+**Request Headers:**
 
-Create a domain.
+- Accept: application/json
 
-**Request**
+**Request JSON Object:**
 
-- Content-Type : application/json
-- Payload:
+- name: The domain name
+- company_name: The company name
 
+**Response Headers:**
+
+- Content-Length: Document size
+
+**Status Codes:**
+
+- 201 Created. The domain has been created.
+- 400 Bad Request. Invalid request body or parameters
+
+**Request:**
+
+    POST /api/domains
+    Accept: application/json
+    Host: localhost:8080
     {
       "name": "foo",
       "company_name": "bar"
     }
 
-**Response**
+**Response:**
 
-- HTTP 201 if the domain has been created
-- HTTP 400 for client-side error
-- HTTP 500 for server-side error
+    HTTP/1.1 201 Created
 
-### GET /api/domains/:domain_name/:company_name
+## GET /api/domains/{domain_name}/{company_name}
 
 Checks if a domain and company pair already exists.
 
-**Response**
+**Parameters:**
 
-- HTTP 200 if the company (company_name) is found in the domain (domain_name)
-- HTTP 400 for client-side error
-- HTTP 500 for server-side error
+- domain_name: A domain name
+- company_name: A company name
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK. The company (company_name) is found in the domain (domain_name)
+- 400 Bad Request. Invalid request body or parameters
+- 404 Not Found. The company (company_name) has not been found in the domain (domain_name)
+
+**Request:**
+
+    GET /api/domains/esn/linagora
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
