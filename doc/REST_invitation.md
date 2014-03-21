@@ -1,41 +1,80 @@
-# Invitation API
+# /api/invitation
 
-This describes the REST API for the invitation resource. The document store resource is available at /api/invitation.
+## GET /api/invitation/{uuid}
 
-## Operations
+Get an invitation from its UUID.
 
-### GET /api/invitation/:uuid
+**Parameters:**
 
-Get an invitation.
+- uuid: The invitation identifier
 
-**Request**
+**Request Headers:**
 
-- Content Type: application/json
+- Accept: application/json
 
-**Response**
+**Response Headers:**
 
-- HTTP 200
+- Content-Length: Document size
+- Content-Type: application/json
 
+**Response JSON Object:**
+
+- uuid: The invitation identifier
+- type: The invitation type
+- data: The invitation data
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad Request. Invalid request body or parameters
+- 404 Not Found. The invitation has not been found.
+
+**Request:**
+
+    GET /api/invitation/34560
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
     {
-      "type": "invitation_type",
-      "uuid": "123456789",
-      "data": {
-        "foo": "bar",
-        "bar": "baz"
-      }
+        "type": "invitation_type",
+        "uuid": "123456789",
+        "data": {
+            "foo": "bar",
+            "bar": "baz"
+        }
     }
 
-- HTTP 404 if there is no such invitation
+## POST /api/invitation
 
-### POST /api/invitation
+Creates an invitation.
 
-Create an invitation.
+**Request Headers:**
+
+- Accept: application/json
+
+**Request JSON Object:**
+
+- type (string): The invitation type. It will be used to fire the right invitation handler.
+- data (object): The invitation data. It is up to the invitation handler implementation to deal with its validation.
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 201 Created.
+- 400 Bad Request. Invalid request body or parameters
 
 **Request**
 
-- Content Type: application/json
-- Payload:
-
+    POST /api/invitation
+    Accept: application/json
+    Host: localhost:8080
     {
       "type": "invitation_type",
       "data": {
@@ -44,46 +83,61 @@ Create an invitation.
       }
     }
 
-- The invitation_type os mandatory and will be used to fire the right invitation handler
-- The data fragment is 'open'. It is up to the invitation handler implementation to deal with its validation.
-
 **Response**
 
-- HTTP 201 if the invitation has been created with the invitation as JSON:
-
+    HTTP/1.1 201 Created
     {
-      "type": "invitation_type",
-      "uuid": "123456789",
-      "data": {
-        "foo": "bar",
-        "bar": "baz"
-      }
+        "type": "invitation_type",
+        "uuid": "123456789",
+        "data": {
+            "foo": "bar",
+            "bar": "baz"
+        }
     }
 
-- HTTP 40X for client-side error
-- HTTP 500 for server-side error
-
-
-### PUT /api/invitation/:uuid
+## PUT /api/invitation/{uuid}
 
 Finalize the invitation.
 
+**Request Headers:**
+
+- Accept: application/json
+
+**Request JSON Object:**
+
+- data (object): The invitation data. It is up to the invitation handler implementation to deal with this data during the finalize if needed.
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 201 Created. The invitation has been finalized.
+- 400 Bad Request. Invalid request body or parameters
+
 **Request**
 
-- Content Type: application/json
-- Payload:
-
+    PUT /api/invitation/34560
+    Accept: application/json
+    Host: localhost:8080
     {
-      "data": {
-        "foo": "bar",
-        "bar": "baz"
-      }
+        "data": {
+            "foo": "bar",
+            "bar": ""baz
+        }
     }
-
-**Note**: The request payload is open. It is up to the invitation handler to get it and validate it.
 
 **Response**
 
-- HTTP 201 if the invitation is finalized. The invitation handler may also return some JSON within the response body.
-- HTTP 40X for client-side error
-- HTTP 500 for server-side error
+    HTTP/1.1 201 Created
+    {
+        "type": "invitation_type",
+        "uuid": "34560",
+        "data": {
+            "foo": "bar",
+            "bar": "baz",
+            "baz": "done"
+        }
+    }
