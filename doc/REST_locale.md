@@ -1,51 +1,97 @@
-# Locale API
+# /api/locales
 
-This describes the REST API for the locale resource.
-The locale resource is available at /api/locales.
-
-## Operations
-
-### GET /api/locales
+## GET /api/locales
 
 Get the list of available locales.
 
-**Response**
+**Request Headers:**
 
-- HTTP 200
+- Accept: application/json
 
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad Request. Invalid request body or parameters
+
+**Request:**
+
+    GET /api/locales
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
     ['en', 'fr']
 
-### GET /api/locales/:locale
+## GET /api/locales/{locale}
 
-Get the locale data
+Get the locale data.
 
-**Request**
+**Parameters:**
 
-- Content Type: application/json
+- locale: The name of the locale to get information from.
 
-**Response**
+**Request Headers:**
 
-- HTTP 200 with the locate content or default locale if no such locale:
+- Accept: application/json
 
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad Request. Invalid request body or parameters
+
+**Request:**
+
+    GET /api/locales/en
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
     {
-      "key1": "value1",
-      "key2": "value2"
+        "key1": "value1",
+        "key2": "value2"
     }
 
+## GET /api/locales/current
 
-### GET /api/locales/current
+Get the current locale data.
 
-Get the current locale data
+**Request Headers:**
 
-**Request**
+- Accept: application/json
 
-- Content Type: application/json
+**Response Headers:**
 
-**Response**
+- Content-Length: Document size
+- Content-Type: application/json
 
-- HTTP 200 with the current locale content:
+**Status Codes:**
 
+- 200 OK
+
+**Request:**
+
+    GET /api/locales/current
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
     {
-      "key1": "value1",
-      "key2": "value2"
+        "key1": "value1",
+        "key2": "value2"
     }
