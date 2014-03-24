@@ -36,13 +36,13 @@ Create an ESN domain.
 
     HTTP/1.1 201 Created
 
-## GET /api/domains/{domain_name}/{company_name}
+## GET /api/domains/?name={domain_name}&company_name={company_name}
 
-Checks if a domain and company pair already exists.
+Checks if a company is belongs to a domain.
 
-**Parameters:**
+**Query Parameters:**
 
-- domain_name: A domain name
+- name: A domain name
 - company_name: A company name
 
 **Request Headers:**
@@ -62,7 +62,7 @@ Checks if a domain and company pair already exists.
 
 **Request:**
 
-    GET /api/domains/esn/linagora
+    GET /api/domains/?name=esn&company_name=linagora
     Accept: application/json
     Host: localhost:8080
 
