@@ -118,6 +118,32 @@ describe('The domain model module', function() {
     });
   });
 
+  describe('members field', function() {
+    it('should be filled on domain save', function(done) {
+      var user = new User({firstname: 'foo', lastname: 'foo', emails: ['foo@linagora.com']});
+      user.save(function(err, u) {
+        expect(err).to.not.exist;
+        expect(u._id).to.exist;
+
+        var dom = {
+          name: 'the domain',
+          company_name: 'addMembersCompany001',
+          members: [u._id]
+        };
+
+        var domain = new Domain(dom);
+        domain.save(function(err, result) {
+          expect(err).to.not.exist;
+          expect(result._id).to.exist;
+          expect(result.members).to.exist;
+          expect(result.members.length).to.equal(1);
+          expect(result.members[0]).to.equal(u._id);
+          done();
+        });
+      });
+    });
+  });
+
   describe('testCompany static method', function() {
 
     it('should return an domain object where company=company_name', function(done) {
@@ -246,7 +272,201 @@ describe('The domain model module', function() {
         done();
       });
     });
-
   });
 
+  describe('The addMember Function', function() {
+
+    it('Should fail when user is null', function(done) {
+      var dom = {
+        name: 'the domain',
+        company_name: 'addMemberCompany000'
+      };
+
+      var domain = new Domain(dom);
+      domain.save(function(err, result) {
+        expect(err).to.not.exist;
+        expect(result._id).to.exist;
+        domain.addMember(null, function(err, data) {
+          expect(err).to.exist;
+          done();
+        });
+      });
+    });
+
+    it('Should add a member to the domain when domain list is null or empty', function(done) {
+      var user = new User({firstname: 'foo', lastname: 'bar', emails: emails});
+      var mongoUrl = this.testEnv.mongoUrl;
+      var dom = {
+        name: 'the domain',
+        company_name: 'addMemberCompany001'
+      };
+
+      user.save(function(err, u) {
+        expect(err).to.not.exist;
+        expect(u._id).to.exist;
+
+        var domain = new Domain(dom);
+        domain.save(function(err, result) {
+          expect(err).to.not.exist;
+          expect(result._id).to.exist;
+          domain.addMember(u, function(err, data) {
+            expect(err).to.not.exist;
+            expect(data).to.exist;
+            expect(data).to.equal(1);
+
+            mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+              if (err) { return done(err); }
+              db.collection('domains').findOne({_id: result._id}, function(err, domain) {
+                if (err) {
+                  return done(err);
+                }
+                expect(domain).to.be.not.null;
+                expect(domain.members).to.be.not.null;
+                expect(domain.members.length).to.equal(1);
+                expect(domain.members[0]).to.deep.equal(u._id);
+                db.close(done);
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it('Should not add a member to the domain when user is already in list', function(done) {
+      var user = new User({firstname: 'foo', lastname: 'bar', emails: emails});
+      var mongoUrl = this.testEnv.mongoUrl;
+      var dom = {
+        name: 'the domain',
+        company_name: 'addMemberCompany002'
+      };
+
+      user.save(function(err, u) {
+        expect(err).to.not.exist;
+        expect(u._id).to.exist;
+
+        var domain = new Domain(dom);
+        domain.save(function(err, result) {
+          expect(err).to.not.exist;
+          expect(result._id).to.exist;
+          domain.addMember(u, function(err, data) {
+            expect(err).to.not.exist;
+            expect(data).to.exist;
+
+            domain.addMember(u, function(err, data) {
+              expect(err).to.not.exist;
+
+              mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+                if (err) { return done(err); }
+                db.collection('domains').findOne({_id: result._id}, function(err, domain) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(domain).to.be.not.null;
+                  expect(domain.members).to.be.not.null;
+                  expect(domain.members.length).to.equal(1);
+                  db.close(done);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('The addMembers Function', function() {
+
+    it('Should fail when users is null', function(done) {
+      var dom = {
+        name: 'the domain',
+        company_name: 'addMembersCompany000'
+      };
+
+      var domain = new Domain(dom);
+      domain.save(function(err, result) {
+        expect(err).to.not.exist;
+        expect(result._id).to.exist;
+        domain.addMembers(null, function(err, data) {
+          expect(err).to.exist;
+          done();
+        });
+      });
+    });
+
+    it('Should add members to the domain when users are not in the members list', function(done) {
+
+      var fooUser = new User({firstname: 'foo', lastname: 'foo', emails: ['foo@linagora.com']});
+      var barUser = new User({firstname: 'bar', lastname: 'bar', emails: ['bar@linagora.com']});
+      var mongoUrl = this.testEnv.mongoUrl;
+
+      fooUser.save(function(err, foo) {
+        expect(err).to.not.exist;
+        expect(foo).to.exist;
+
+        barUser.save(function(err, bar) {
+          expect(err).to.not.exist;
+          expect(bar).to.exist;
+
+          var dom = {
+            name: 'the domain',
+            company_name: 'addMembersCompany001',
+            members: [foo._id]
+          };
+
+          var domain = new Domain(dom);
+          domain.save(function(err, result) {
+            expect(err).to.not.exist;
+            expect(result._id).to.exist;
+
+            domain.addMembers([foo, bar], function(err, data) {
+              expect(err).to.not.exist;
+              expect(data).to.exist;
+              expect(data).to.equal(1);
+
+              mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+                if (err) { return done(err); }
+                db.collection('domains').findOne({_id: result._id}, function(err, domain) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(domain).to.be.not.null;
+                  expect(domain.members).to.be.not.null;
+                  expect(domain.members.length).to.equal(2);
+                  db.close(done);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('The loadFromID static method', function() {
+
+    it('should return a valid domain', function(done) {
+      var domain = new Domain({
+        name: 'the domain',
+        company_name: 'loadFromID001'
+      });
+
+      domain.save(function(err, d) {
+        expect(err).to.not.exist;
+
+        Domain.loadFromID(d._id, function(err, result) {
+          expect(err).to.not.exist;
+          expect(result._id).to.deep.equal(d._id);
+          done();
+        });
+      });
+    });
+
+    it('should return error on null ID', function(done) {
+      Domain.loadFromID(null, function(err, result) {
+        expect(err).to.exist;
+        expect(result).to.not.exist;
+        done();
+      });
+    });
+  });
 });

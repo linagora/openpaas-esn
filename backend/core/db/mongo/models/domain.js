@@ -8,11 +8,41 @@ var DomainSchema = new Schema({
   name: {type: String, required: true, lowercase: true, trim: true},
   company_name: {type: String, required: true, lowercase: true, trim: true},
   administrator: {type: Schema.ObjectId, ref: 'User'},
+  members: {type: [Schema.ObjectId], ref: 'User'},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
   schemaVersion: {type: Number, default: 1}
 });
+
+DomainSchema.methods = {
+
+  /**
+   * Add a member to the domain only if it is not already registered in the domain.
+   *
+   * @param {User} user
+   * @param {Function} cb
+   */
+  addMember: function(user, cb) {
+    if (!user) {
+      return cb(new Error('User must nto be null'));
+    }
+    return this.update({ $addToSet: { members: user}}, cb);
+  },
+
+  /**
+   * Add members to the domain
+   *
+   * @param {Array} users
+   * @param {Function} cb
+   */
+  addMembers: function(users, cb) {
+    if (!users || users.length === 0) {
+      return cb(new Error('Users must not be null or empty'));
+    }
+    return this.update({ $addToSet: { members: {$each: users}}}, cb);
+  }
+};
 
 DomainSchema.statics = {
 
@@ -40,8 +70,20 @@ DomainSchema.statics = {
     var qdomain_name = trim(domain_name).toLowerCase();
     var query = {company_name: qcompany_name, name: qdomain_name};
     this.findOne(query, cb);
-  }
+  },
 
+  /**
+   * Load a domain from its ID
+   *
+   * @param {String} id
+   * @param {Function} cb
+   */
+  loadFromID: function(id, cb) {
+    if (!id) {
+      return cb(new Error('ID can not be null'));
+    }
+    this.findOne({_id: id}, cb);
+  }
 };
 
 module.exports = mongoose.model('Domain', DomainSchema);
