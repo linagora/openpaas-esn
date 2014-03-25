@@ -4,12 +4,14 @@ var expect = require('chai').expect;
 var mongodb = require('mongodb');
 
 describe('The User model', function() {
-  var User, emails, email, email2, email_ci, email2_ci;
+  var User, Domain, emails, email, email2, email_ci, email2_ci;
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     User = this.mongoose.model('User');
+    Domain = this.mongoose.model('Domain');
     emails = [];
     email = 'foo@linagora.com';
     email_ci = 'FOO@LiNaGoRa.com ';
@@ -233,6 +235,135 @@ describe('The User model', function() {
         expect(data).to.exist;
         expect(data.login.success).to.exist;
         done();
+      });
+    });
+  });
+
+  it('should add the domain when domain is not null', function(done) {
+    var mongoUrl = this.testEnv.mongoUrl;
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
+    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+    u.save(function(err, user) {
+      if (err) {
+        return done(err);
+      }
+
+      d.save(function(err, domain) {
+        if (err) {
+          return done(err);
+        }
+
+        user.joinDomain(domain, function(err, update) {
+          if (err) {
+            return done(err);
+          }
+
+          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+            if (err) { return done(err); }
+            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
+              if (err) {
+                return done(err);
+              }
+
+              expect(loaded).to.be.not.null;
+              expect(loaded.domains).to.be.not.null;
+              expect(loaded.domains.length).to.equal(1);
+              expect(loaded.domains[0].domain_id).to.deep.equals(domain._id);
+              db.close(done);
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it('should not add null domain', function(done) {
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
+    u.save(function(err, user) {
+      if (err) {
+        return done(err);
+      }
+
+      user.joinDomain(null, function(err, update) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+  });
+
+  it('should add domain from its ID', function(done) {
+    var mongoUrl = this.testEnv.mongoUrl;
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
+    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+    u.save(function(err, user) {
+      if (err) {
+        return done(err);
+      }
+
+      d.save(function(err, domain) {
+        if (err) {
+          return done(err);
+        }
+
+        user.joinDomain(domain._id, function(err, update) {
+          if (err) {
+            return done(err);
+          }
+
+          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+            if (err) { return done(err); }
+            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
+              if (err) {
+                return done(err);
+              }
+
+              expect(loaded).to.be.not.null;
+              expect(loaded.domains).to.be.not.null;
+              expect(loaded.domains.length).to.equal(1);
+              expect(loaded.domains[0].domain_id).to.deep.equals(domain._id);
+              db.close(done);
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it('should not add the domain to the user if the domain is already in the domain list', function(done) {
+    var mongoUrl = this.testEnv.mongoUrl;
+    var password = 'secret';
+    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
+    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+    d.save(function(err, domain) {
+      u.domains.push({domain_id: domain._id});
+      u.save(function(err, user) {
+        if (err) {
+          return done(err);
+        }
+
+        user.joinDomain(domain._id, function(err, update) {
+          expect(err).to.exist;
+
+          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+            if (err) { return done(err); }
+            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
+              if (err) {
+                return done(err);
+              }
+              expect(loaded).to.be.not.null;
+              expect(loaded.domains).to.be.not.null;
+              expect(loaded.domains.length).to.equal(1);
+              expect(loaded.domains[0].domain_id).to.deep.equals(domain._id);
+              db.close(done);
+            });
+          });
+        });
       });
     });
   });

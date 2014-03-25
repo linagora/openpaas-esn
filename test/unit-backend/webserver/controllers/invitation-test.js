@@ -19,7 +19,6 @@ describe('The invitation controller', function() {
     var webserver = null;
     var handler = {
       init: function(invitation, cb) {
-        console.log('Init');
         return cb(null, invitation);
       },
       process: function(req, res, next) {

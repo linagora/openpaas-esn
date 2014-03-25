@@ -2,35 +2,75 @@
 
 var expect = require('chai').expect;
 var request = require('supertest');
-var mongoose = require('mongoose');
 
 describe('The domains routes resource', function() {
 
   before(function() {
+    this.mongoose = require('mongoose');
     this.testEnv.writeDBConfigFile();
-    mongoose.connect(this.testEnv.mongoUrl);
-
+    this.mongoose.connect(this.testEnv.mongoUrl);
   });
 
   after(function(done) {
     this.testEnv.removeDBConfigFile();
-    mongoose.connection.db.dropDatabase();
-    mongoose.disconnect(done);
+    this.mongoose.connection.db.dropDatabase();
+    this.mongoose.disconnect(done);
+  });
+
+  beforeEach(function(done) {
+    this.testEnv.initCore(done);
+  });
+
+  describe('GET /api/domains/:uuid/members', function() {
+    var email = 'foo@linagora.com';
+    var Domain, User, webserver;
+
+    beforeEach(function(done) {
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      webserver = require(this.testEnv.basePath + '/backend/webserver');
+      done();
+    });
+
+    if ('should return 404 when domain is not found', function(done) {
+      request(webserver.application).get('/api/domains/123456789/members').expect(404).end(done);
+    });
+
+    it('should return all the members of the domain and contain the list size in the header', function(done) {
+      var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+      d.save(function(err, domain) {
+        if (err) {
+          return done(err);
+        }
+        var u = new User({domains: [{domain_id: domain._id}], emails: [email]});
+
+        u.save(function(err, user) {
+          if (err) {
+            return done(err);
+          }
+          request(webserver.application).get('/api/domains/' + domain._id + '/members').expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('1');
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('GET /api/domains/', function() {
     var webserver = null;
     var Domain;
-    var User, emails, email, email2;
+    var User;
+    var emails = [];
+    var email = 'foo@linagora.com';
+    var email2 = 'bar@linagora.com';
 
-    before(function() {
-      Domain = mongoose.model('Domain');
-
-      User = mongoose.model('User');
-      emails = [];
-      email = 'foo@linagora.com';
-      email2 = 'bar@linagora.com';
-
+    beforeEach(function() {
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
       webserver = require(this.testEnv.basePath + '/backend/webserver');
     });
 
@@ -42,7 +82,6 @@ describe('The domains routes resource', function() {
     });
 
     it('should return a JSON with 200 result domain (name, company_name) exists', function(done) {
-
       emails.push(email);
       emails.push(email2);
       var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
@@ -68,16 +107,15 @@ describe('The domains routes resource', function() {
   describe('POST /api/domains/createDomain/', function() {
     var webserver = null;
     var Domain;
-    var User, emails, email, email2;
+    var User;
 
-    before(function() {
-      Domain = mongoose.model('Domain');
+    var emails = [];
+    var email = 'foo@linagora.com';
+    var email2 = 'bar@linagora.com';
 
-      User = mongoose.model('User');
-      emails = [];
-      email = 'foo@linagora.com';
-      email2 = 'bar@linagora.com';
-
+    beforeEach(function() {
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
       webserver = require(this.testEnv.basePath + '/backend/webserver');
     });
 
@@ -129,7 +167,5 @@ describe('The domains routes resource', function() {
         done();
       });
     });
-
   });
-
 });

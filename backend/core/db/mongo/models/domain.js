@@ -8,41 +8,11 @@ var DomainSchema = new Schema({
   name: {type: String, required: true, lowercase: true, trim: true},
   company_name: {type: String, required: true, lowercase: true, trim: true},
   administrator: {type: Schema.ObjectId, ref: 'User'},
-  members: {type: [Schema.ObjectId], ref: 'User'},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
   schemaVersion: {type: Number, default: 1}
 });
-
-DomainSchema.methods = {
-
-  /**
-   * Add a member to the domain only if it is not already registered in the domain.
-   *
-   * @param {User} user
-   * @param {Function} cb
-   */
-  addMember: function(user, cb) {
-    if (!user) {
-      return cb(new Error('User must nto be null'));
-    }
-    return this.update({ $addToSet: { members: user}}, cb);
-  },
-
-  /**
-   * Add members to the domain
-   *
-   * @param {Array} users
-   * @param {Function} cb
-   */
-  addMembers: function(users, cb) {
-    if (!users || users.length === 0) {
-      return cb(new Error('Users must not be null or empty'));
-    }
-    return this.update({ $addToSet: { members: {$each: users}}}, cb);
-  }
-};
 
 DomainSchema.statics = {
 
