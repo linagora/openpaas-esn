@@ -22,7 +22,7 @@ describe('The local pubsub for MongoDB configuration', function() {
       port: 27017,
       dbname: 'hiveety-test'
     };
-    
+
     var topic = pubsub.topic('mongodb:configurationAvailable');
     var configuredMock =
       function() {
@@ -39,7 +39,7 @@ describe('The local pubsub for MongoDB configuration', function() {
       expect(config).to.deep.equal(mongodb);
       done();
     });
-    
+
     templates.inject(function() {});
   });
 });
