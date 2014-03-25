@@ -75,7 +75,8 @@
     "grunt-continue": "0.0.1",
     "mailparser": "~0.4.1",
     "nodemailer-browser": "git+http://chamerling@ci-openpaas.linagora.com/stash/scm/or/nodemailer-browser.git",
-    "cookie": "~0.1.1"
+    "cookie": "~0.1.1",
+    "karma-ng-jade2js-preprocessor": "~0.1.1"
   },
   "scripts": {
     "postinstall": "./node_modules/bower/bin/bower install"
