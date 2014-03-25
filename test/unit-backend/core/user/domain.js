@@ -240,6 +240,120 @@ describe('The user domain module', function() {
     });
   });
 
+  it('should return the users which belong to a domain and which contain the search terms as space separated string', function(done) {
+    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    var Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+
+    var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+
+    var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+    var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+    var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+    var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+    function saveUser(user, domain, cb) {
+      if (domain) {
+        user.domains.push({domain_id: domain._id});
+      }
+      user.save(function(err, saved) {
+        return cb(err, saved);
+      });
+    }
+
+    domain.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+
+      var async = require('async');
+      async.series([
+        function(callback) {
+          saveUser(foouser, saved, callback);
+        },
+        function(callback) {
+          saveUser(baruser, saved, callback);
+        },
+        function(callback) {
+          saveUser(bazuser, saved, callback);
+        },
+        function(callback) {
+          saveUser(quxuser, saved, callback);
+        }
+      ],
+        function(err) {
+          if (err) {
+            return done(err);
+          }
+          userDomain.getUsers(saved, {search: 'foo bar'}, function(err, users) {
+            expect(err).to.not.exist;
+            expect(users).to.exist;
+            expect(users.length).to.equal(2);
+            expect(users[0]._id).to.deep.equals(foouser._id);
+            expect(users[1]._id).to.deep.equals(bazuser._id);
+            done();
+          });
+        });
+    });
+  });
+
+  it('should return the users which belong to a domain and which contain the search terms as array', function(done) {
+    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    var Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+
+    var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+
+    var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+    var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+    var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+    var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+    function saveUser(user, domain, cb) {
+      if (domain) {
+        user.domains.push({domain_id: domain._id});
+      }
+      user.save(function(err, saved) {
+        return cb(err, saved);
+      });
+    }
+
+    domain.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+
+      var async = require('async');
+      async.series([
+        function(callback) {
+          saveUser(foouser, saved, callback);
+        },
+        function(callback) {
+          saveUser(baruser, saved, callback);
+        },
+        function(callback) {
+          saveUser(bazuser, saved, callback);
+        },
+        function(callback) {
+          saveUser(quxuser, saved, callback);
+        }
+      ],
+        function(err) {
+          if (err) {
+            return done(err);
+          }
+          userDomain.getUsers(saved, {search: ['foo', 'bar']}, function(err, users) {
+            expect(err).to.not.exist;
+            expect(users).to.exist;
+            expect(users.length).to.equal(2);
+            expect(users[0]._id).to.deep.equals(foouser._id);
+            expect(users[1]._id).to.deep.equals(bazuser._id);
+            done();
+          });
+        });
+    });
+  });
+
   it('should return an error when calling getUsers with a null domain', function(done) {
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');

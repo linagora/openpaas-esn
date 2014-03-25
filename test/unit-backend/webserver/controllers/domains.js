@@ -32,8 +32,11 @@ describe('The domains routes resource', function() {
       done();
     });
 
-    if ('should return 404 when domain is not found', function(done) {
-      request(webserver.application).get('/api/domains/123456789/members').expect(404).end(done);
+    it('should return 404 when domain is not found', function(done) {
+      request(webserver.application).get('/api/domains/123456789/members').expect(404).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
     });
 
     it('should return all the members of the domain and contain the list size in the header', function(done) {

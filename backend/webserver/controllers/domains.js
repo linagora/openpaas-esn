@@ -55,8 +55,8 @@ function getMembers(req, res) {
   }
 
   var query = {
-    limit: req.param('limit') ||  50,
-    offset: req.param('offset') ||  0,
+    limit: req.param('limit') || 50,
+    offset: req.param('offset') || 0,
     search: req.param('search') || null
   };
 
