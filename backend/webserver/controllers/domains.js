@@ -5,30 +5,6 @@ var Domain = mongoose.model('Domain');
 var User = mongoose.model('User');
 var userDomain = require('../../core/user/domain');
 
-function doDomainAndCompanyExist(req, res) {
-  var company_name = req.params.company_name;
-  var domain_name = req.params.domain_name;
-
-  if (!company_name || !domain_name) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'company and domain names are required'}});
-  }
-
-  Domain.testDomainCompany(company_name, domain_name, function(err, resp) {
-
-    if (err) {
-      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not access domains ' + domain_name + ' of ' + company_name}});
-    }
-
-    if (resp) {
-      return res.send(200);
-    }
-
-    return res.send(404);
-  });
-}
-
-module.exports.doDomainAndCompanyExist = doDomainAndCompanyExist;
-
 function createDomain(req, res) {
   var data = req.body;
   var company_name = data.company_name;

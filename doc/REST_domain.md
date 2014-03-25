@@ -36,40 +36,6 @@ Create an ESN domain.
 
     HTTP/1.1 201 Created
 
-## GET /api/domains/?name={domain_name}&company_name={company_name}
-
-Checks if a company is belongs to a domain.
-
-**Query Parameters:**
-
-- name: A domain name
-- company_name: A company name
-
-**Request Headers:**
-
-- Accept: application/json
-
-**Response Headers:**
-
-- Content-Length: Document size
-- Content-Type: application/json
-
-**Status Codes:**
-
-- 200 OK. The company (company_name) is found in the domain (domain_name)
-- 400 Bad Request. Invalid request body or parameters
-- 404 Not Found. The company (company_name) has not been found in the domain (domain_name)
-
-**Request:**
-
-    GET /api/domains/?name=esn&company_name=linagora
-    Accept: application/json
-    Host: localhost:8080
-
-**Response:**
-
-    HTTP/1.1 200 OK
-
 ## GET /api/domains/{domain_id}/members
 
 Get the list of members for a domain.

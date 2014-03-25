@@ -9,7 +9,6 @@ exports = module.exports = function(application) {
   var domains = require('./controllers/domains');
   application.get('/api/companies', companies.search);
   application.get('/api/domains/:uuid/members', domains.getMembers);
-  application.get('/api/domains/:domain_name/:company_name', domains.doDomainAndCompanyExist);
   application.post('/api/domains', domains.createDomain);
 
   var users = require('./controllers/users');
