@@ -10,10 +10,10 @@ var defaultOffset = 0;
  * Get all users in a domain.
  *
  * @param {Domain or ObjectId} domain
- * @param {Hash} query. Hash with 'limit' and 'offset' for pagination, 'search' for filtering.
+ * @param {Hash} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering.
  *  Search can be a single string, an array of strings, or a space separated string list which will be splitted.
  *  In the case of array or space separated string, a AND search will be performed with the input terms.
- * @param {Function} cb. as fn(err, [User])
+ * @param {Function} cb - as fn(err, [User])
  */
 var getUsers = function(domain, query, cb) {
   if (!domain) {
@@ -26,13 +26,13 @@ var getUsers = function(domain, query, cb) {
   if (query.search) {
 
     var terms = (query.search instanceof Array) ? query.search : query.search.split(' ');
-    if (terms.length > 1) {
 
+    if (terms.length > 1) {
       var firstname = [];
       var lastname = [];
       var emails = [];
 
-      for(var i = 0; i < terms.length; i++) {
+      for (var i = 0; i < terms.length; i++) {
         var term = terms[i];
         firstname.push({firstname: new RegExp(term, 'i')});
         lastname.push({lastname: new RegExp(term, 'i')});

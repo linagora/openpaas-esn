@@ -32,8 +32,25 @@ describe('The domains routes resource', function() {
       done();
     });
 
+    afterEach(function(done) {
+      var callback = function(item, fn) {
+        item.remove(fn);
+      };
+
+      var async = require('async');
+      async.parallel([
+        function(cb) {
+          User.find().exec(function(err, users) {
+            async.forEach(users, callback, cb);
+          });
+        }
+      ], function() {
+        this.mongoose.disconnect(done);
+      }.bind(this));
+    });
+
     it('should return 404 when domain is not found', function(done) {
-      request(webserver.application).get('/api/domains/123456789/members').expect(404).end(function(err, res) {
+      request(webserver.application).get('/api/domains/5331f287589a2ef541867680/members').expect(404).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
@@ -59,6 +76,221 @@ describe('The domains routes resource', function() {
             done();
           });
         });
+      });
+    });
+
+    it('should return all the members matching the search terms', function(done) {
+      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+      function saveUser(user, domain, cb) {
+        if (domain) {
+          user.domains.push({domain_id: domain._id});
+        }
+        user.save(function(err, saved) {
+          return cb(err, saved);
+        });
+      }
+
+      domain.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var async = require('async');
+        async.series([
+          function(callback) {
+            saveUser(foouser, saved, callback);
+          },
+          function(callback) {
+            saveUser(baruser, saved, callback);
+          },
+          function(callback) {
+            saveUser(bazuser, saved, callback);
+          },
+          function(callback) {
+            saveUser(quxuser, saved, callback);
+          }
+        ],
+        function(err) {
+          if (err) {
+            return done(err);
+          }
+          request(webserver.application).get('/api/domains/' + domain._id + '/members').query({search: 'foo bar'}).expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.body.length).to.equal(2);
+            expect(res.body[0]._id).to.equal('' + foouser._id);
+            expect(res.body[1]._id).to.equal('' + bazuser._id);
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('2');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return the first 2 members', function(done) {
+      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+      function saveUser(user, domain, cb) {
+        if (domain) {
+          user.domains.push({domain_id: domain._id});
+        }
+        user.save(function(err, saved) {
+          return cb(err, saved);
+        });
+      }
+
+      domain.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var async = require('async');
+        async.series([
+          function(callback) {
+            saveUser(foouser, saved, callback);
+          },
+          function(callback) {
+            saveUser(baruser, saved, callback);
+          },
+          function(callback) {
+            saveUser(bazuser, saved, callback);
+          },
+          function(callback) {
+            saveUser(quxuser, saved, callback);
+          }
+        ],
+        function(err) {
+          if (err) {
+            return done(err);
+          }
+          request(webserver.application).get('/api/domains/' + domain._id + '/members').query({limit: 2}).expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.body.length).to.equal(2);
+            expect(res.body[0]._id).to.equal('' + foouser._id);
+            expect(res.body[1]._id).to.equal('' + baruser._id);
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('2');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return the last 2 members', function(done) {
+      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+      function saveUser(user, domain, cb) {
+        if (domain) {
+          user.domains.push({domain_id: domain._id});
+        }
+        user.save(function(err, saved) {
+          return cb(err, saved);
+        });
+      }
+
+      domain.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var async = require('async');
+        async.series([
+          function(callback) {
+            saveUser(foouser, saved, callback);
+          },
+          function(callback) {
+            saveUser(baruser, saved, callback);
+          },
+          function(callback) {
+            saveUser(bazuser, saved, callback);
+          },
+          function(callback) {
+            saveUser(quxuser, saved, callback);
+          }
+        ],
+        function(err) {
+          if (err) {
+            return done(err);
+          }
+          request(webserver.application).get('/api/domains/' + domain._id + '/members').query({offset: 2}).expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.body.length).to.equal(2);
+            expect(res.body[0]._id).to.equal('' + bazuser._id);
+            expect(res.body[1]._id).to.equal('' + quxuser._id);
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('2');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return the third member', function(done) {
+      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+      function saveUser(user, domain, cb) {
+        if (domain) {
+          user.domains.push({domain_id: domain._id});
+        }
+        user.save(function(err, saved) {
+          return cb(err, saved);
+        });
+      }
+
+      domain.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var async = require('async');
+        async.series([
+          function(callback) {
+            saveUser(foouser, saved, callback);
+          },
+          function(callback) {
+            saveUser(baruser, saved, callback);
+          },
+          function(callback) {
+            saveUser(bazuser, saved, callback);
+          },
+          function(callback) {
+            saveUser(quxuser, saved, callback);
+          }
+        ],
+          function(err) {
+            if (err) {
+              return done(err);
+            }
+            request(webserver.application).get('/api/domains/' + domain._id + '/members').query({limit: 1, offset: 2}).expect(200).end(function(err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.not.null;
+              expect(res.body.length).to.equal(1);
+              expect(res.body[0]._id).to.equal('' + bazuser._id);
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('1');
+              done();
+            });
+          });
       });
     });
   });
