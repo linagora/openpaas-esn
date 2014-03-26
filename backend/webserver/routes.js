@@ -13,7 +13,6 @@ exports = module.exports = function(application) {
 
   var users = require('./controllers/users');
   application.get('/logout', users.logout);
-  application.get('/account', authorize.requiresLogin, users.account);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);

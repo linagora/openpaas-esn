@@ -13,16 +13,11 @@ html
     script(src='/components/angular/angular.js')
     script(src='/components/angular-route/angular-route.js')
     script(src='/components/restangular/dist/restangular.js')
-    script(type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js")
-    script(src='/components/angular-recaptcha/release/angular-recaptcha.js')
-    script(src='js/welcome/app.js')
-    script(src='js/modules/invitation.js')
-    script(src='js/modules/company.js')
-    script(src='js/modules/login.js')
+    script(src='js/esn/app.js')
 
-  body(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
+  body(ng-app='esnApp')
     #wrap
-      include ./header
+      include ../partials/header
       div(ng-view ng-cloak)
     include ../partials/footer
 
