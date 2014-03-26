@@ -1,4 +1,4 @@
-div.login-bg(ng-show="step === 0 && !error")
+div.login-bg(ng-show="!error")
   div.form-container
     form(name='form')
       legend #{__('No account yet ?')} #{__('Register today')}
@@ -14,10 +14,6 @@ div.login-bg(ng-show="step === 0 && !error")
           i.fa.fa-sign-in(ng-hide="signupTask.running") &nbsp;
           i.fa.fa-spinner(ng-hide="!signupTask.running") &nbsp;
           | #{__('{{signupButton.label}}')}
-div.login-bg(ng-show="step === 1 && !error")
-  div.form-container
-    h2 #{__('Sign Up is almost complete')}.
-    p #{__('Please check you mail box to confirm your inscription')}.
 div.login-bg(ng-show="error")
   div.form-container
     h2 #{__('Error')}.

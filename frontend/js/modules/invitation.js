@@ -1,9 +1,8 @@
 'use strict';
 
 angular.module('esn.invitation', ['restangular'])
-.controller('signup', function($scope, invitationAPI) {
+.controller('signup', function($scope, $location, invitationAPI) {
     $scope.settings = { firstname: '', lastname: '', email: ''};
-    $scope.step = 0;
     $scope.signupButton = {
       label: 'Sign up in Hiveet',
       notRunning: 'Sign up in Hiveet',
@@ -22,12 +21,10 @@ angular.module('esn.invitation', ['restangular'])
       var payload = {data: $scope.settings, type: 'signup'};
       invitationAPI.create(payload).then(
         function(data) {
-          $scope.step++;
           $scope.signupTask.running = false;
-          return data;
+          $location.path('/confirm');
         },
         function(err) {
-          $scope.step++;
           $scope.signupButton.label = $scope.signupButton.notRunning;
           $scope.signupTask.running = false;
           $scope.error = {

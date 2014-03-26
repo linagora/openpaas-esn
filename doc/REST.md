@@ -91,9 +91,10 @@ Example:
 
 A large part of the API requires you to be authenticated. Authentication API are listed later in this document. Please note however that Hiveety server expect the authentication to be in a cookie header.
 
-# Detailled API
+# Detailed API
 
-For a better readibility, REST API is split into several files :
+For a better readability, REST API is split into several files :
 
 * [document store](REST_documentstore.md)
+* [company](REST_company.md)
 * [domain](REST_domain.md)
