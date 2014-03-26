@@ -16,7 +16,7 @@ Check if a connection can be established with the document store.
 
 - Accept: application/json
 
-**Request JSON Object:**    
+**Request JSON Object:**
 
 The username and password are optional.
 
@@ -86,35 +86,20 @@ Save the connection parameters on the server side.
 
     HTTP/1.1 201 Created
     {
-        "webserver": {
-            "enabled": true,
-            "port": 8080,
-            "virtualhosts": []
+      "connectionOptions": {
+        "db": {
+          "w": 1,
+          "fsync": true,
+          "native_parser": true
         },
-        "wsserver": {
-            "enabled": true,
-            "port": 8080
-        },
-        "log": {
-            "file": {
-              "enabled": true,
-              "filename": "./log/application.log",
-              "level": "info",
-              "handleExceptions": true,
-              "json": false,
-              "prettyPrint": true,
-              "colorize": false
-            },
-            "console": {
-              "enabled": true,
-              "level": "debug",
-              "handleExceptions": true,
-              "json": false,
-              "prettyPrint": true,
-              "colorize": true
-            }
-        },
-        "auth": {
-        "strategies": ["local", "mongo"]
+        "server": {
+          "socketOptions": {
+            "keepAlive": 10000,
+            "connectTimeoutMS": 10000
+          },
+          "auto_reconnect": true,
+          "poolSize":10
         }
+      },
+      "connectionString": "mongodb://localhost:27017/esn"
     }
