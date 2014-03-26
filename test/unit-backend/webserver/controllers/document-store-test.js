@@ -30,10 +30,11 @@ describe('The document store routes resource', function() {
   describe('PUT /api/document-store/connection', function() {
     var webserver = null;
 
-    before(function() {
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
-      var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-      webserver.start(port);
+    beforeEach(function(done) {
+      this.testEnv.initCore(function() {
+        webserver = require(this.testEnv.basePath + '/backend/webserver');
+        done();
+      }.bind(this));
     });
 
     it('should fail on empty payload', function(done) {
@@ -151,6 +152,7 @@ describe('The document store routes resource', function() {
 
     it('should store configuration to file', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+      var mongoConnectionString = 'mongodb://localhost:27017/hiveety-test-ok';
 
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -159,9 +161,7 @@ describe('The document store routes resource', function() {
         fs.readFile(tmpDbConfigFile, function(e, data) {
           expect(e).to.be.null;
           var json = JSON.parse(data);
-          expect(json.hostname).to.equal(mongo.hostname);
-          expect(json.port).to.equal(mongo.port);
-          expect(json.dbname).to.equal(mongo.dbname);
+          expect(json.connectionString).to.equal(mongoConnectionString);
           done();
         });
       });
@@ -188,6 +188,7 @@ describe('The document store routes resource', function() {
 
     it('should store configuration to file with username and password', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok', username: 'toto', password: 'chain'};
+      var mongoConnectionString = 'mongodb://toto:chain@localhost:27017/hiveety-test-ok';
 
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -196,11 +197,7 @@ describe('The document store routes resource', function() {
         fs.readFile(tmpDbConfigFile, function(e, data) {
           expect(e).to.be.null;
           var json = JSON.parse(data);
-          expect(json.hostname).to.equal(mongo.hostname);
-          expect(json.port).to.equal(mongo.port);
-          expect(json.dbname).to.equal(mongo.dbname);
-          expect(json.username).to.equal(mongo.username);
-          expect(json.password).to.equal(mongo.password);
+          expect(json.connectionString).to.equal(mongoConnectionString);
           done();
         });
       });
@@ -210,6 +207,11 @@ describe('The document store routes resource', function() {
 
 
   describe('The document store routes resource', function() {
+
+    beforeEach(function(done) {
+      this.testEnv.initCore(done);
+    });
+
 
     it('should fail if the file is not written', function(done) {
       var config = require(this.testEnv.basePath + '/backend/core').config('default');
@@ -258,31 +260,35 @@ describe('The document store routes resource', function() {
   describe('PUT /api/document-store/connection/:hostname/:port/:dbname', function() {
 
     it('should be successful with test database parameters', function(done) {
-      var webserver = require(this.testEnv.basePath + '/backend/webserver');
-      var uri = '/api/document-store/connection/localhost/' +
-          this.testEnv.serversConfig.mongodb.port + '/' +
-          this.testEnv.serversConfig.mongodb.dbname;
-      request(webserver.application).put(uri).expect('Content-Type', /json/).expect(200).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
-    });
-
-    it('should fail on localhost with invalid port', function(done) {
-      // set higher timeout than the mongo one so we can catch error
-      this.timeout(30000);
-      var webserver = require(this.testEnv.basePath + '/backend/webserver');
-      var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-      webserver.start(port);
-
-      var findport = require('find-port');
-      findport(27020, 27050, function(ports) {
-        expect(ports).to.have.length.of.at.least(1);
-        request(webserver.application).put('/api/document-store/connection/localhost/' + ports[0] + '/rsetest').expect('Content-Type', /json/).expect(503).end(function(err, res) {
+      this.testEnv.initCore(function() {
+        var webserver = require(this.testEnv.basePath + '/backend/webserver');
+        var uri = '/api/document-store/connection/localhost/' +
+            this.testEnv.serversConfig.mongodb.port + '/' +
+            this.testEnv.serversConfig.mongodb.dbname;
+        request(webserver.application).put(uri).expect('Content-Type', /json/).expect(200).end(function(err, res) {
           expect(err).to.be.null;
           done();
         });
-      });
+      }.bind(this));
+    });
+
+    it('should fail on localhost with invalid port', function(done) {
+      this.testEnv.initCore(function() {
+        // set higher timeout than the mongo one so we can catch error
+        this.timeout(30000);
+        var webserver = require(this.testEnv.basePath + '/backend/webserver');
+        var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
+        webserver.start(port);
+
+        var findport = require('find-port');
+        findport(27020, 27050, function(ports) {
+          expect(ports).to.have.length.of.at.least(1);
+          request(webserver.application).put('/api/document-store/connection/localhost/' + ports[0] + '/rsetest').expect('Content-Type', /json/).expect(503).end(function(err, res) {
+            expect(err).to.be.null;
+            done();
+          });
+        });
+      }.bind(this));
     });
 
     it('should call the mongodb.validateConnection method with credentials when they are set', function(done) {
@@ -299,24 +305,26 @@ describe('The document store routes resource', function() {
       };
 
       mockery.registerMock('./mongo', this.mongoDbMock);
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/document-store');
-      var requestMock = {
-        params: {
-          hostname: 'localhost',
-          port: '42',
-          dbname: 'rsetest'
-        },
-        body: {
-          username: 'john',
-          password: 'doe'
-        }
-      };
+      this.testEnv.initCore(function() {
+        var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/document-store');
+        var requestMock = {
+          params: {
+            hostname: 'localhost',
+            port: '42',
+            dbname: 'rsetest'
+          },
+          body: {
+            username: 'john',
+            password: 'doe'
+          }
+        };
 
-      var responseMock = {
-        json: function() {}
-      };
+        var responseMock = {
+          json: function() {}
+        };
 
-      middleware.test(requestMock, responseMock);
+        middleware.test(requestMock, responseMock);
+      }.bind(this));
     });
 
   });

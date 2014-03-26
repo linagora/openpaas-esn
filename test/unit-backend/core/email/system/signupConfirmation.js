@@ -18,7 +18,7 @@ describe('The signup confirmation email module', function() {
         }
       }
     };
-
+    this.testEnv.initCore();
     conf.store(mail, function(err) {
       done(err);
     });

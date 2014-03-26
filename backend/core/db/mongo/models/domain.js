@@ -40,8 +40,20 @@ DomainSchema.statics = {
     var qdomain_name = trim(domain_name).toLowerCase();
     var query = {company_name: qcompany_name, name: qdomain_name};
     this.findOne(query, cb);
-  }
+  },
 
+  /**
+   * Load a domain from its ID
+   *
+   * @param {String} id
+   * @param {Function} cb
+   */
+  loadFromID: function(id, cb) {
+    if (!id) {
+      return cb(new Error('ID can not be null'));
+    }
+    this.findOne({_id: id}, cb);
+  }
 };
 
 module.exports = mongoose.model('Domain', DomainSchema);

@@ -1,7 +1,6 @@
 'use strict';
 
-var expect = require('chai').expect,
-    fs = require('fs');
+var expect = require('chai').expect;
 
 describe('The User template module', function() {
 
@@ -9,7 +8,7 @@ describe('The User template module', function() {
 
     before(function() {
       try {
-        fs.unlinkSync(this.testEnv.tmp + '/db.json');
+        this.testEnv.removeDBConfigFile();
       } catch (e) {}
     });
 
@@ -24,21 +23,20 @@ describe('The User template module', function() {
 
   describe('If configured', function() {
 
-    before(function(done) {
+    beforeEach(function() {
       this.testEnv.writeDBConfigFile();
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
 
     it('should inject templates', function(done) {
-      var core = require(this.testEnv.basePath + '/backend/core');
+      var core = this.testEnv.initCore();
       var templates = core.templates;
       var configured = core.configured;
       expect(configured()).to.be.true;
       templates.inject(done);
     });
 
-    after(function(done) {
+    afterEach(function(done) {
       this.testEnv.removeDBConfigFile();
       this.mongoose.connection.db.dropDatabase(function(err, ok) {
         if (err) { return done(err); }

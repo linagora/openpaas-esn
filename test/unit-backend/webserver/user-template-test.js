@@ -6,6 +6,7 @@ describe('The user-template module', function() {
 
   beforeEach(function() {
     this.testEnv.writeDBConfigFile();
+    this.testEnv.initCore();
   });
 
   afterEach(function() {

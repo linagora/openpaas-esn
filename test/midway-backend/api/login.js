@@ -2,7 +2,6 @@
 
 var request = require('supertest'),
   fs = require('fs-extra'),
-  mongoose = require('mongoose'),
   cookie = require('cookie'),
   expect = require('chai').expect;
 
@@ -17,29 +16,39 @@ describe('The login API', function() {
     }
   };
 
-  before(function(done) {
+  beforeEach(function(done) {
     fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
-    app = require(this.testEnv.basePath + '/backend/webserver/application');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var User = mongoose.model('User');
-    var u = new User(user);
-    u.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      done();
+    var self = this;
+    this.testEnv.initCore(function() {
+      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      self.mongoose = require('mongoose');
+      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      var u = new User(user);
+      u.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+        done();
+      });
     });
   });
 
-  after(function() {
+  afterEach(function(done) {
     fs.unlinkSync(this.testEnv.tmp + '/default.json');
+    var User = this.mongoose.model('User');
+    User.remove(done);
+  });
+
+  after(function(done) {
+    this.mongoose.connection.db.dropDatabase();
+    this.mongoose.disconnect(done);
   });
 
   it('should not log the user with wrong credentials', function(done) {
     request(app)
       .post('/api/login')
       .send({username: 'foo', password: 'bar'})
-      .expect(404)
+      .expect(500)
       .end(done);
   });
 
@@ -145,7 +154,7 @@ describe('The login API', function() {
 
   it('should not be able to login when user tried to log in too many times', function(done) {
 
-    var User = mongoose.model('User');
+    var User = this.mongoose.model('User');
     User.loadFromEmail(user.emails[0], function(err, currentUser) {
       if (err) {
         return done(err);

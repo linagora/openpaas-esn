@@ -2,7 +2,8 @@
 
 var mockery = require('mockery'),
     path = require('path'),
-    fs = require('fs-extra');
+    fs = require('fs-extra'),
+    helpers = require('../helpers');
 var testConfig = require('../config/servers-conf.js');
 
 before(function() {
@@ -15,30 +16,45 @@ before(function() {
     fixtures: path.resolve(__dirname + '/fixtures'),
     mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
     writeDBConfigFile: function() {
-      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({hostname: 'localhost', port: testConfig.mongodb.port, dbname: testConfig.mongodb.dbname}));
+      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname}));
     },
     removeDBConfigFile: function() {
       fs.unlinkSync(tmpPath + '/db.json');
+    },
+    initCore: function(callback) {
+      var core = require(basePath + '/backend/core');
+      core.init();
+      if (callback) {
+        callback();
+      }
+      return core;
     }
   };
+  this.helpers = {};
+  helpers(this.helpers, this.testEnv);
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');
 });
 
-after(function() {
+after(function(done) {
   delete process.env.NODE_CONFIG;
   fs.unlinkSync(this.testEnv.tmp + '/default.json');
+  this.helpers.mongo.dropDatabase(done);
 });
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
+  mockery.registerMock('./logger', require(this.testEnv.fixtures + '/logger-noop')());
 });
 
-afterEach(function(done) {
+afterEach(function() {
   try {
-    require('mongoose').disconnect(function() {done();});
-  } catch (e) {done();}
+    require('mongoose').disconnect();
+  } catch (e) {}
+  try {
+    require(this.testEnv.basePath + '/backend/core/db/mongo/file-watcher').clear();
+  } catch (e) {}
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();

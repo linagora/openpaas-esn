@@ -6,7 +6,9 @@ var mongodb = require('mongodb');
 describe('The signup handler', function() {
 
   describe('The validate fn', function() {
-
+    beforeEach(function() {
+      this.testEnv.initCore();
+    });
     it('should fail if invitation data is not set', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({}, function(err, result) {
@@ -59,6 +61,8 @@ describe('The signup handler', function() {
   describe('The init fn', function() {
     beforeEach(function(done) {
       this.testEnv.writeDBConfigFile();
+      this.testEnv.initCore();
+
       var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
       var mail = {
         mail: {
@@ -127,7 +131,9 @@ describe('The signup handler', function() {
   });
 
   describe('The process fn', function() {
-
+    beforeEach(function() {
+      this.testEnv.initCore();
+    });
     it('should redirect to the invitation app if invitation is found', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
 

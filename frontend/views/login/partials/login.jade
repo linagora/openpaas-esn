@@ -18,7 +18,9 @@ div.login-bg
                         input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
                         | #{__('Remember me')}
                 .form-group
-                    button.btn.btn-primary.pull-right(type='submit', ng-click='login()', ng-disabled='loginTask.running')
+                    include ./recaptcha
+                .form-group
+                    button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
                         i.fa.fa-sign-in(ng-hide='loginTask.running') &nbsp;
                         i.fa.fa-spinner(ng-hide='!loginTask.running') &nbsp;
                         | #{__('{{loginButton.label}}')}

@@ -1,8 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect,
-    mongodb = require('mongodb'),
-    mongoose = require('mongoose');
+    mongodb = require('mongodb');
 
 describe('The user core module', function() {
   var userModule = null;
@@ -11,9 +10,10 @@ describe('The user core module', function() {
     var self = this;
     var template = require(this.testEnv.fixtures + '/user-template').simple();
     this.testEnv.writeDBConfigFile();
-
-    mongoose.connect(this.testEnv.mongoUrl);
-    mongoose.connection.collection('templates').insert(template, function() {
+    var core = this.testEnv.initCore();
+    userModule = core.user;
+    this.mongoose = require('mongoose');
+    this.mongoose.connection.collection('templates').insert(template, function() {
       userModule = require(self.testEnv.basePath + '/backend/core').user;
       done();
     });
@@ -21,8 +21,8 @@ describe('The user core module', function() {
 
   afterEach(function(done) {
     this.testEnv.removeDBConfigFile();
-    mongoose.connection.db.dropDatabase();
-    mongoose.disconnect(done);
+    this.mongoose.connection.db.dropDatabase();
+    this.mongoose.disconnect(done);
   });
 
   describe('provisionUser method', function() {
@@ -30,7 +30,6 @@ describe('The user core module', function() {
     it('should record a user with the template informations', function(done) {
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
-        console.log(user);
         expect(user).to.exist;
         expect(user._id).to.exist;
         expect(user.emails).to.exist;

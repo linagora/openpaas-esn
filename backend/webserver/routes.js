@@ -8,7 +8,7 @@ exports = module.exports = function(application) {
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
   application.get('/api/companies', companies.search);
-  application.get('/api/domains/:domain_name/:company_name', domains.doDomainAndCompanyExist);
+  application.get('/api/domains/:uuid/members', domains.getMembers);
   application.post('/api/domains', domains.createDomain);
 
   var users = require('./controllers/users');
@@ -43,8 +43,9 @@ exports = module.exports = function(application) {
 
   var loginController = require('./controllers/login');
   var loginRules = require('./middleware/login-rules');
+  var recaptcha = require('./middleware/verify-recaptcha');
   application.get('/login', loginController.index);
-  application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, loginController.login);
+  application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify, loginController.login);
   application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
 

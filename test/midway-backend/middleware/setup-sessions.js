@@ -2,62 +2,65 @@
 
 var request = require('supertest'),
     fs = require('fs-extra'),
-    mongoose = require('mongoose'),
-    mockery = require('mockery'),
     expect = require('chai').expect;
 
 describe('The sessions middleware', function() {
 
-  before(function() {
-    fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
-  });
+  var user = {
+    username: 'Foo Bar Baz',
+    password: 'secret',
+    emails: ['foo@bar.com'],
+    login: {
+      failures: [new Date(), new Date(), new Date()]
+    }
+  };
 
-  after(function() {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
-  });
+  before(function(done) {
+    fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
+    var self = this;
 
-  beforeEach(function(done) {
-    mockery.registerMock('../../../config/users.json', { users: [{
-      id: 'secret@linagora.com',
-      emails: [{value: 'secret@linagora.com'}],
-      password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
-    }] });
-    var template = require(this.testEnv.fixtures + '/user-template').simple();
-    mongoose.connection.collection('templates').insert(template, function() {
-      done();
+    this.testEnv.initCore(function() {
+      self.mongoose = require('mongoose'),
+      self.app = require(self.testEnv.basePath + '/backend/webserver/application');
+      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      var u = new User(user);
+      u.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+        done();
+      });
     });
   });
 
-  afterEach(function(done) {
+  after(function(done) {
+    fs.unlinkSync(this.testEnv.tmp + '/default.json');
     this.helpers.mongo.dropCollections(done);
   });
 
   it('should be a MongoDB Session Storage on "connected" event', function(done) {
+    var self = this;
     function checkSession(err) {
       if (err) {
         return done(err);
       }
-      mongoose.connection.collection('sessions').find().toArray(function(err, results) {
+      self.mongoose.connection.collection('sessions').find().toArray(function(err, results) {
         expect(results[0]._id).to.exist;
         var session = results[0].session;
         expect(session).to.exist;
-        expect(JSON.parse(session).passport.user).to.equal('secret@linagora.com');
+        expect(JSON.parse(session).passport.user).to.equal(user.emails[0]);
         done();
       });
     }
 
-    this.app = require(this.testEnv.basePath + '/backend/webserver/application');
-
     request(this.app)
       .get('/')
       .expect(200);
-    var self = this;
     setTimeout(function() {
       request(self.app)
-        .post('/login')
-        .send('username=secret%40linagora.com&password=secret')
-        .expect(302)
-        .expect('Location', '/')
+        .post('/api/login')
+        .send({username: user.emails[0], password: user.password, rememberme: false})
+        .expect(200)
         .end(checkSession);
     }, 50);
   });

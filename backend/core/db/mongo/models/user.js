@@ -22,6 +22,12 @@ function validateEmails(emails) {
   return valid;
 }
 
+var MemberOfDomainSchema = new mongoose.Schema({
+  domain_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Domain', required: true},
+  joined_at: {type: Date, default: Date.now},
+  status: {type: String, lowercase: true, trim: true}
+}, { _id: false });
+
 var UserSchema = new mongoose.Schema({
   emails: {type: [String], required: true, unique: true, validate: validateEmails},
   firstname: {type: String, lowercase: true, trim: true},
@@ -30,6 +36,7 @@ var UserSchema = new mongoose.Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
+  domains: {type: [MemberOfDomainSchema]},
   login: {
     failures: {
       type: [Date]
@@ -93,6 +100,30 @@ UserSchema.methods = {
   resetLoginFailure: function(cb) {
     this.login.failures = [];
     this.save(cb);
+  },
+
+  joinDomain: function(domain, cb) {
+    if (!domain) {
+      return cb(new Error('Domain must not be null'));
+    }
+    var domainId = domain._id || domain;
+
+    var self = this;
+    function validateDomains(domain) {
+      var valid = true;
+      self.domains.forEach(function(d) {
+        if (d.domain_id === domain) {
+          valid = false;
+        }
+      });
+      return valid;
+    }
+
+    if (!validateDomains(domainId)) {
+      return cb(new Error('User is already in domain ' + domainId));
+    } else {
+      return this.update({ $push: { domains: {domain_id: domain}}}, cb);
+    }
   }
 };
 
@@ -107,6 +138,16 @@ UserSchema.statics = {
   loadFromEmail: function(email, cb) {
     var qemail = trim(email).toLowerCase();
     this.findOne({emails: qemail}, cb);
+  },
+
+  /**
+   * Get domains for an user
+   *
+   * @param {String} email
+   * @param {Function} cb
+   */
+  loadDomains: function(email, cb) {
+    cb(new Error('Not implemented'));
   }
 };
 module.exports = mongoose.model('User', UserSchema);

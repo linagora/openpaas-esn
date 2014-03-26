@@ -17,7 +17,7 @@ module.exports = function(grunt) {
       files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js'],
       options: {
         jshintrc: '.jshintrc',
-        ignores: []
+        ignores: ['test/frontend/karma-include/*']
       }
     },
     shell: {
@@ -202,7 +202,20 @@ module.exports = function(grunt) {
   grunt.registerTask('gjslint', 'run the closure linter', function() {
     var done = this.async();
 
-    var child = require('child_process').spawn('python', ['./scripts/gjslint.py', '--disable', '0110', '--nojsdoc', '-r', 'test', '-r', 'backend', '-r', 'frontend/js']);
+    var child = require('child_process').spawn('python', [
+      './scripts/gjslint.py',
+      '--disable',
+      '0110',
+      '--nojsdoc',
+      '-r',
+      'test',
+      '-r',
+      'backend',
+      '-r',
+      'frontend/js',
+      '-e',
+      'test/frontend/karma-include'
+    ]);
 
     child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
     child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
