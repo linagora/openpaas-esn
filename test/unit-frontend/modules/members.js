@@ -11,18 +11,35 @@ describe('The Members Angular module', function() {
   describe('memberDisplay directive', function() {
 
     //Load the karma built module containing the templates
-    beforeEach(module('templates'));
+    beforeEach(module('jadeTemplates'));
 
-    beforeEach(inject(['$compile', '$rootScope', '$httpBackend', function($c, $r, $h) {
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
       this.$rootScope = $r;
-//      this.$httpBackend = $h;
-//      this.response = [];
     }]));
 
-    it('should display a user from the scope using the template', function() {
-//      this.$httpBackend.expectGET('/views/members/partials/member').respond(this.response);
+    beforeEach(function() {
+      this.getExpectedHtmlForUser = function(firstName, lastName, email) {
+        var templateAsHtmlString =
+          '<div class="login-bg container-fluid">' +
+            '<div class="row">' +
+            '<div class="col-md-4">' +
+            '<img src="/images/user.png">' +
+            '</div>' +
+            '<div class="col-md-8">' +
+            '<h4 class="ng-binding">%FirstName %LastName</h4>' +
+            '<span><a href="mailto:%Email" class="ng-binding">%Email</a></span>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+        templateAsHtmlString = templateAsHtmlString.replace(/%FirstName/g, firstName);
+        templateAsHtmlString = templateAsHtmlString.replace(/%LastName/g, lastName);
+        templateAsHtmlString = templateAsHtmlString.replace(/%Email/g, email);
+        return templateAsHtmlString;
+      };
+    });
 
+    it('should display a user from the scope using the template', function() {
       var html = '<member-display user="testuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
 
@@ -32,22 +49,16 @@ describe('The Members Angular module', function() {
         emails: ['johndoe@linagora.com']
       };
 
-      console.log(element);
-      console.log(element.html());
-      console.log('SCOPE  '+JSON.stringify(this.$rootScope.testuser));
-
       this.$rootScope.$digest();
-
-      console.log(element);
-      console.log(element.html());
-
-      expect(element).to.equal('');
+      expect(element.html()).to.equal(this.getExpectedHtmlForUser(this.$rootScope.testuser.firstname,
+        this.$rootScope.testuser.lastname, this.$rootScope.testuser.emails[0]));
     });
 
-    it('should be empty if the provided user does not exist in the scope', function() {
+    it('should display the empty template if the provided user does not exist in the scope', function() {
       var html = '<member-display user="ghostuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
-      expect(element.html()).to.equal('');
+      this.$rootScope.$digest();
+      expect(element.html()).to.equal(this.getExpectedHtmlForUser('', '', ''));
     });
   });
 
