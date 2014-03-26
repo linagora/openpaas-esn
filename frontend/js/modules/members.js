@@ -5,7 +5,7 @@ angular.module('esn.members', [])
     return {
       restrict: 'E',
       scope: {
-        user: '=user'
+        member: '=member'
       },
       templateUrl: '/views/members/partials/member.html'
     };

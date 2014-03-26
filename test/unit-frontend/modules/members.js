@@ -40,7 +40,7 @@ describe('The Members Angular module', function() {
     });
 
     it('should display a user from the scope using the template', function() {
-      var html = '<member-display user="testuser"></member-display>';
+      var html = '<member-display member="testuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
 
       this.$rootScope.testuser = { _id: 123456789,
@@ -55,7 +55,7 @@ describe('The Members Angular module', function() {
     });
 
     it('should display the empty template if the provided user does not exist in the scope', function() {
-      var html = '<member-display user="ghostuser"></member-display>';
+      var html = '<member-display member="ghostuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       expect(element.html()).to.equal(this.getExpectedHtmlForUser('', '', ''));
