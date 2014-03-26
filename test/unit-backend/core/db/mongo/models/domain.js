@@ -246,7 +246,33 @@ describe('The domain model module', function() {
         done();
       });
     });
-
   });
 
+  describe('The loadFromID static method', function() {
+
+    it('should return a valid domain', function(done) {
+      var domain = new Domain({
+        name: 'the domain',
+        company_name: 'loadFromID001'
+      });
+
+      domain.save(function(err, d) {
+        expect(err).to.not.exist;
+
+        Domain.loadFromID(d._id, function(err, result) {
+          expect(err).to.not.exist;
+          expect(result._id).to.deep.equal(d._id);
+          done();
+        });
+      });
+    });
+
+    it('should return error on null ID', function(done) {
+      Domain.loadFromID(null, function(err, result) {
+        expect(err).to.exist;
+        expect(result).to.not.exist;
+        done();
+      });
+    });
+  });
 });

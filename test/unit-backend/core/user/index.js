@@ -30,7 +30,6 @@ describe('The user core module', function() {
     it('should record a user with the template informations', function(done) {
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
-        console.log(user);
         expect(user).to.exist;
         expect(user._id).to.exist;
         expect(user.emails).to.exist;
