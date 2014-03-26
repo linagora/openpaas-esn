@@ -24,7 +24,7 @@ function index(req, res) {
       });
     });
   } else {
-    return res.render('index', {
+    return res.render('esn/index', {
       title: 'Home'
     });
   }
