@@ -16,7 +16,7 @@ module.exports = function(config) {
       'frontend/components/chai/chai.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
-      'frontend/views/members/**/*.jade'
+      'frontend/views/member/**/*.jade'
     ],
 
     frameworks: ['mocha'],

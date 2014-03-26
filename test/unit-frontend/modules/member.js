@@ -4,9 +4,9 @@
 
 var expect = chai.expect;
 
-describe('The Members Angular module', function() {
+describe('The Member Angular module', function() {
 
-  beforeEach(angular.mock.module('esn.members'));
+  beforeEach(angular.mock.module('esn.member'));
 
   describe('memberDisplay directive', function() {
 
