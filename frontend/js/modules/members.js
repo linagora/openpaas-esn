@@ -7,6 +7,6 @@ angular.module('esn.members', [])
       scope: {
         user: '=user'
       },
-      templateUrl: '/views/members/partials/member'
+      templateUrl: '/views/members/partials/member.html'
     };
   });
