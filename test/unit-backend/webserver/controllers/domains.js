@@ -11,10 +11,8 @@ describe('The domains routes resource', function() {
     this.mongoose.connect(this.testEnv.mongoUrl);
   });
 
-  after(function(done) {
+  after(function() {
     this.testEnv.removeDBConfigFile();
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
   });
 
   beforeEach(function(done) {
