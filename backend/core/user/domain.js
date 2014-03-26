@@ -43,7 +43,7 @@ var getUsers = function(domain, query, cb) {
       q.or([{firstname: new RegExp(terms[0], 'i')}, {lastname: new RegExp(terms[0], 'i')}, {emails: new RegExp(terms[0], 'i')}]);
     }
   }
-  q.skip(query.offset).limit(query.limit).sort({'timestamps.creation' : 'asc'});
+  q.skip(query.offset).limit(query.limit).sort({'firstname' : 'asc'});
   return q.exec(cb);
 };
 module.exports.getUsers = getUsers;

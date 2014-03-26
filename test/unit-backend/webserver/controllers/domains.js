@@ -81,9 +81,9 @@ describe('The domains routes resource', function() {
 
     it('should return all the members matching the search terms', function(done) {
       var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
       var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
       function saveUser(user, domain, cb) {
@@ -123,8 +123,8 @@ describe('The domains routes resource', function() {
             expect(err).to.be.null;
             expect(res.body).to.be.not.null;
             expect(res.body.length).to.equal(2);
-            expect(res.body[0]._id).to.equal('' + foouser._id);
-            expect(res.body[1]._id).to.equal('' + bazuser._id);
+            expect(res.body[0]._id).to.equal('' + bazuser._id);
+            expect(res.body[1]._id).to.equal('' + foouser._id);
             expect(res.headers['x-esn-items-count']).to.exist;
             expect(res.headers['x-esn-items-count']).to.equal('2');
             done();
@@ -134,10 +134,10 @@ describe('The domains routes resource', function() {
     });
 
     it('should return the first 2 members', function(done) {
-      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
       var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
       function saveUser(user, domain, cb) {
@@ -188,10 +188,10 @@ describe('The domains routes resource', function() {
     });
 
     it('should return the last 2 members', function(done) {
-      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
       var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
       function saveUser(user, domain, cb) {
@@ -242,10 +242,10 @@ describe('The domains routes resource', function() {
     });
 
     it('should return the third member', function(done) {
-      var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-      var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-      var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-      var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+      var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
+      var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+      var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+      var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
       var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
       function saveUser(user, domain, cb) {

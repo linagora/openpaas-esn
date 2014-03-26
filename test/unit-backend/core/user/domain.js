@@ -130,10 +130,10 @@ describe('The user domain module', function() {
 
     var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
 
-    var foouser = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ password: 'secret', emails: ['baz@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+    var foouser = new User({ firstname: 'a', password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
+    var baruser = new User({ firstname: 'b', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['baz@bar.com'], login: { failures: [new Date()]}});
+    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
     var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
     function saveUser(user, domain, cb) {
@@ -189,9 +189,9 @@ describe('The user domain module', function() {
     var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
 
     var foouser = new User({ firstname: 'foo', password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ password: 'secret', emails: ['fooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['fooo@bar.com'], login: { failures: [new Date()]}});
+    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
     var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
     function saveUser(user, domain, cb) {
@@ -231,9 +231,9 @@ describe('The user domain module', function() {
             expect(err).to.not.exist;
             expect(users).to.exist;
             expect(users.length).to.equal(3);
-            expect(users[0]._id).to.deep.equals(foouser._id);
-            expect(users[1]._id).to.deep.equals(baruser._id);
-            expect(users[2]._id).to.deep.equals(bazuser._id);
+            expect(users[0]._id).to.deep.equals(baruser._id);
+            expect(users[1]._id).to.deep.equals(bazuser._id);
+            expect(users[2]._id).to.deep.equals(foouser._id);
             done();
           });
         });
@@ -247,9 +247,9 @@ describe('The user domain module', function() {
     var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
 
     var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
     var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
     function saveUser(user, domain, cb) {
@@ -289,8 +289,8 @@ describe('The user domain module', function() {
             expect(err).to.not.exist;
             expect(users).to.exist;
             expect(users.length).to.equal(2);
-            expect(users[0]._id).to.deep.equals(foouser._id);
-            expect(users[1]._id).to.deep.equals(bazuser._id);
+            expect(users[0]._id).to.deep.equals(bazuser._id);
+            expect(users[1]._id).to.deep.equals(foouser._id);
             done();
           });
         });
@@ -304,9 +304,9 @@ describe('The user domain module', function() {
     var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
 
     var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
+    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['bar@bar.com'], login: { failures: [new Date()]}});
+    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
+    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
     var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
 
     function saveUser(user, domain, cb) {
@@ -346,8 +346,8 @@ describe('The user domain module', function() {
             expect(err).to.not.exist;
             expect(users).to.exist;
             expect(users.length).to.equal(2);
-            expect(users[0]._id).to.deep.equals(foouser._id);
-            expect(users[1]._id).to.deep.equals(bazuser._id);
+            expect(users[0]._id).to.deep.equals(bazuser._id);
+            expect(users[1]._id).to.deep.equals(foouser._id);
             done();
           });
         });
