@@ -1,0 +1,23 @@
+doctype html
+html
+  head
+    meta(charset='utf8')
+    base(href='/')
+    title #{title} - Hiveety
+    link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
+    link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
+    link(rel='stylesheet', href='/css/styles.css')
+    script(src='/components/jquery/jquery.js')
+    script(src='/components/underscore/underscore.js')
+    script(src='/components/bootstrap/dist/js/bootstrap.js')
+    script(src='/components/angular/angular.js')
+    script(src='/components/angular-route/angular-route.js')
+    script(src='/components/restangular/dist/restangular.js')
+    script(src='js/esn/app.js')
+
+  body(ng-app='esnApp')
+    #wrap
+      include ./header
+      div(ng-view ng-cloak)
+      include ../partials/footer
+
