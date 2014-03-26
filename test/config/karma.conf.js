@@ -16,7 +16,7 @@ module.exports = function(config) {
       'frontend/components/chai/chai.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
-      'frontend/views/members/partials/*.jade'
+      'frontend/views/members/**/*.jade'
     ],
 
     frameworks: ['mocha'],
@@ -27,8 +27,7 @@ module.exports = function(config) {
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'frontend/js/*.js': ['coverage'],
-      '**/*.jade': 'ng-html2js',
-      'frontend/views/members/partials/*.jade': 'ng-jade2js'
+      '**/*.jade': 'ng-jade2js'
     },
 
     plugins: [
@@ -38,7 +37,6 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-coverage',
       'karma-spec-reporter',
-      'karma-ng-html2js-preprocessor',
       'karma-ng-jade2js-preprocessor'
     ],
 
@@ -50,9 +48,10 @@ module.exports = function(config) {
     coverageReporter: {type: 'text', dir: '/tmp'},
 
     ngJade2JsPreprocessor: {
+      stripPrefix: 'frontend',
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')
-      moduleName: 'templates'
+      moduleName: 'jadeTemplates'
     }
 
   });
