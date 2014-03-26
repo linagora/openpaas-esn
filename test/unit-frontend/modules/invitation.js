@@ -194,10 +194,6 @@ describe('The Invitation Angular module', function() {
       });
     }));
 
-    it('should start at step 0', function() {
-      expect(this.scope.step).to.equals(0);
-    });
-
     describe('signup()', function() {
       it('should call the invitationAPI.create() method', function(done) {
         this.scope.form = {$invalid: false};
