@@ -31,6 +31,10 @@ angular.module('welcomeApp', ['esn.login', 'esn.invitation', 'esn.company', 'res
       templateUrl: '/views/welcome/partials/home'
     });
 
+    $routeProvider.when('/confirm', {
+      templateUrl: '/views/welcome/partials/confirm'
+    });
+
     $routeProvider.otherwise({redirectTo: '/'});
 
     RestangularProvider.setBaseUrl('/api');
