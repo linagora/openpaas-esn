@@ -14,7 +14,7 @@ Installation
 
 3. install the npm dependencies
 
-        npm install -g mocha grunt-cli bower karma
+        npm install -g mocha grunt-cli bower karma-cli
     
 4. install the gjslint dependency
 

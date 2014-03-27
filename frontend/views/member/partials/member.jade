@@ -1,0 +1,8 @@
+div.login-bg.container-fluid
+    div.row
+        div.col-md-4
+            img(src='/images/user.png')
+        div.col-md-8
+            h4 {{member.firstname}} {{member.lastname}}
+            span
+                a(href='mailto:{{member.emails[0]}}') {{member.emails[0]}}
