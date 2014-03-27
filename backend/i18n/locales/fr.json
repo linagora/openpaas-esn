@@ -36,5 +36,9 @@
   "Sign up in Hiveet": "S'inscrire sur Hiveet",
   "Remember me": "se souvenir de moi",
   "Forgot password ?": "Mot de passe oublié ?",
-  "This company is already registered. Please choose another one.": "Cette société est déjà enregistrée. Merci d'entrer un autre nom."
+  "This company is already registered. Please choose another one.": "Cette société est déjà enregistrée. Merci d'entrer un autre nom.",
+  "Email address is required": "Merci d'indiquer votre adresse email",
+  "This email address is invalid": "Cette adresse email est invalide",
+  "First name is required": "Veuillez indiquer votre prénom",
+  "Last name is required": "Veuillez indiquer votre nom"
 }

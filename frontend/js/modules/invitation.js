@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.invitation', ['restangular'])
+angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
 .controller('signup', function($scope, $location, invitationAPI) {
     $scope.settings = { firstname: '', lastname: '', email: ''};
     $scope.signupButton = {
