@@ -2,6 +2,7 @@
 
 var configured = false;
 var core = require('..');
+var pubsub = require('..').pubsub.local;
 
 function isConfigured() {
   if (configured) {
@@ -14,6 +15,8 @@ function isConfigured() {
 
   if (dbConfig && dbConfig.connectionString) {
     configured = true;
+    var topic = pubsub.topic('mongodb:configurationAvailable');
+    topic.publish(dbConfig);
   }
   return configured;
 }
