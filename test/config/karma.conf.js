@@ -18,7 +18,8 @@ module.exports = function(config) {
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/member/**/*.jade',
-      'frontend/views/infinite-list/**/*.jade'
+      'frontend/views/infinite-list/**/*.jade',
+      'frontend/views/search/**/*.jade'
     ],
 
     frameworks: ['mocha'],

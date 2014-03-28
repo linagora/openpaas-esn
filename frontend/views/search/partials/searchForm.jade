@@ -1,0 +1,11 @@
+form(role="form")
+	div(id='custom-search-input')
+		div(class='input-group col-md-12')
+			input(type='text' class='search-query form-control' ng-model='searchInput' ng-change='search.status="none"' id='searchInput' placeholder='Search')
+			span(class='input-group-btn')
+				button(class='btn btn-info' type='button' ng-click='search()')
+					span(class='glyphicon glyphicon-search')
+		div(ng-show="search.status=='error'")
+			div.text-danger {{search.err.message}}: {{search.err.details}}
+		div(ng-show="search.running=='true'")
+			div.throbber
