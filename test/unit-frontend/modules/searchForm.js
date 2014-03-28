@@ -9,7 +9,6 @@ describe('The Search Form Angular module', function() {
   beforeEach(angular.mock.module('esn.search'));
 
   describe('searchForm directive', function() {
-
     beforeEach(module('jadeTemplates'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
