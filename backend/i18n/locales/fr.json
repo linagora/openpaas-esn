@@ -7,6 +7,7 @@
   "Database Server Port": "Database Server Port",
   "Error": "Erreur",
   "Fill the username and password fields only if your MongoDB connection requires it": "Fill the username and password fields only if your MongoDB connection requires it",
+  "Finalize Sign Up": "Inscription",
   "Home": "Home",
   "My Account": "My Account",
   "Login": "Login",
@@ -40,5 +41,13 @@
   "Email address is required": "Merci d'indiquer votre adresse email",
   "This email address is invalid": "Cette adresse email est invalide",
   "First name is required": "Veuillez indiquer votre prénom",
-  "Last name is required": "Veuillez indiquer votre nom"
+  "Last name is required": "Veuillez indiquer votre nom",
+  "Last Name": "Nom",
+  "First Name": "Prénom",
+  "Company Name": "Société",
+  "Domain Name": "Domaine dans la société",
+  "Confirm Password": "Confirmation du mot de passe"
+  "Company name is required": "Veuillez indiquer le nom de la société",
+  "Domain name is required": "Veuillez indiquer le nom du domaine dans la société",
+  "The two passwords does not match": "Les mots de passe ne sont pas identiques"
 }

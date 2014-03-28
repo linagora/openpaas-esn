@@ -8,7 +8,11 @@ angular.module('esn.form.helper', [])
     link: function(scope, elem, attr, controller) {
       elem.one('blur', function() {
         controller._blur = true;
-        scope.$digest();
+        if ( scope.$parent ) {
+          scope.$parent.$digest();
+        } else {
+          scope.$digest();
+        }
       });
     }
   };
