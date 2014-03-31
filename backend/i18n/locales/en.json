@@ -42,5 +42,17 @@
   "Sign up in Hiveet": "Sign up in Hiveet",
   "Remember me": "Remember me",
   "Forgot password ?": "Forgot password ?",
-  "This company is already registered. Please choose another one.": "This company is already registered. Please choose another one."
+  "This company is already registered. Please choose another one.": "This company is already registered. Please choose another one.",
+  "Email address is required": "Email address is required",
+  "This email address is invalid": "This email address is invalid",
+  "First name is required": "First name is required",
+  "Last name is required": "Last name is required",
+  "Last name": "Last name",
+  "First name": "First name",
+  "Company name": "Company name",
+  "Domain name": "Domain name",
+  "Confirm Password": "Confirm Password",
+  "Company name is required": "Company name is required",
+  "Domain name is required": "Domain name is required",
+  "The two passwords do not match": "The two passwords do not match"
 }

@@ -16,31 +16,38 @@ angular.module('esn.company', ['restangular'])
     scope: true,
     require: 'ngModel',
     link: function(scope, elem , attrs, control) {
-      var lastTest = null;
-      elem.on('blur', function() {
-        var companyName = elem.val();
-        if (companyName === lastTest) {
-          return;
+      var lastValue = null;
+      control.$viewChangeListeners.push(function() {
+        var companyName = control.$viewValue;
+        if ( companyName === lastValue ) {
+          return ;
         }
-
-        lastTest = companyName;
-
-        if (!companyName.length) {
-          return;
+        
+        lastValue = companyName;
+        
+        if ( !companyName.length ) {
+          return ;
         }
-
+        
         control.$setValidity('ajax', false);
-
-        companyAPI.search({name: companyName}).then(
-          function() {
-            control.$setValidity('ajax', true);
-            control.$setValidity('unique', false);
-          },
-          function() {
-            control.$setValidity('ajax', true);
-            control.$setValidity('unique', true);
-          }
-        );
+        (function(searchField) {
+          companyAPI.search({name: companyName}).then(
+            function() {
+              if ( lastValue !== searchField ) {
+                return;
+              }
+              control.$setValidity('ajax', true);
+              control.$setValidity('unique', false);
+            },
+            function() {
+              if ( lastValue !== searchField ) {
+                return;
+              }
+              control.$setValidity('ajax', true);
+              control.$setValidity('unique', true);
+            }
+          );
+        })(lastValue);
       });
     }
   };

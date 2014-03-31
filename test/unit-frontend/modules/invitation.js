@@ -147,41 +147,6 @@ describe('The Invitation Angular module', function() {
         this.scope.finalize();
       });
     });
-
-    describe('passwordMatch directive', function() {
-      var html = '<form name="form"><input type="password" name="password1" password-match="settings.password2" ng-model="settings.password1">' +
-          '<input type="password" name="password2" ng-model="settings.password2"></form>';
-      beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
-        this.$compile = $c;
-        this.$rootScope = $r;
-      }]));
-
-      it('should set unique to true when the password does not match', function() {
-        var element = this.$compile(html)(this.$rootScope);
-        var scope = element.scope();
-        scope.settings = {
-          password1: 'test',
-          password2: 'test2'
-        };
-        this.$rootScope.$digest();
-        expect(scope.form.$invalid).to.be.true;
-        expect(scope.form.password1.$error.unique).to.be.true;
-      });
-
-      it('should set unique to false when the password does not match', function() {
-        var element = this.$compile(html)(this.$rootScope);
-        var scope = element.scope();
-        scope.settings = {
-          password1: 'test',
-          password2: 'test'
-        };
-        this.$rootScope.$digest();
-        expect(scope.form.$invalid).to.be.false;
-        expect(scope.form.password1.$error.unique).to.be.false;
-      });
-
-    });
-
   });
 
   describe('signupController', function() {

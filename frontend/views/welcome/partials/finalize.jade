@@ -3,14 +3,16 @@ div.login-bg(id='form', ng-show="!notFound && !error && !complete")
         form(name='form')
             legend #{__('Finalize Sign Up')}
             .row
-                .col-xs-6.form-group(ng-class='{"has-error": form.firstname.$invalid, "has-success": form.firstname.$valid}')
+                .col-xs-6.form-group(ng-class='{"has-error": form.firstname._blur && form.firstname.$invalid}')
                     label.control-label(for='firstname') #{__('First Name')}
-                    input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required ng-minlength='1')
-                .col-xs-6.form-group(ng-class='{"has-error": form.lastname.$invalid, "has-success": form.lastname.$valid}')
+                    input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required ng-minlength='1' esn-track-first-blur)
+                    .help-block(ng-show='form.firstname._blur && !form.firstname.$viewValue') #{__('First name is required')}
+                .col-xs-6.form-group(ng-class='{"has-error": form.lastname._blur && form.lastname.$invalid}')
                     label.control-label(for='lastname') #{__('Last Name')}
-                    input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required ng-minlength='1')
+                    input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required ng-minlength='1' esn-track-first-blur)
+                    .help-block(ng-show='form.lastname._blur && !form.lastname.$viewValue') #{__('Last name is required')}
                     
-            .form-group(ng-class='{"has-error": form.company.$dirty && form.company.$invalid, "has-success": form.company.$valid}')
+            .form-group.has-feedback(ng-class='{"has-error": form.company._blur && form.company.$invalid}')
                 label.control-label(for='company') #{__('Company Name')}
                 input.form-control( type='company'
                                     ng-model='settings.company'
@@ -20,23 +22,30 @@ div.login-bg(id='form', ng-show="!notFound && !error && !complete")
                                     autocomplete='off'
                                     ng-minlength='1'
                                     ensure-unique-company
+                                    esn-track-first-blur
                                     )
+                span.glyphicon.glyphicon-asterisk.form-control-feedback.rotate(ng-show='form.company.$error.ajax')
                 
-                p.help-block(ng-show='form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
+                .help-block(ng-show='form.company.$dirty && form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
+                .help-block(ng-show='form.company._blur && !form.company.$viewValue') #{__('Company name is required')}
                 
-            .form-group(ng-class='{"has-error": form.domain.$dirty && form.domain.$invalid, "has-success": form.domain.$valid}')
+            .form-group(ng-class='{"has-error": form.domain._blur && form.domain.$invalid}')
                 label.control-label(for='domain') #{__('Domain Name')}
-                input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1')
-            .form-group(ng-class='{"has-error": form.password.$dirty && form.password.$invalid, "has-success": form.password.$valid}')
+                input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1' esn-track-first-blur)
+                .help-block(ng-show='form.domain._blur && !form.domain.$viewValue') #{__('Domain name is required')}
+
+            .form-group(ng-class='{"has-error": form.confirmpassword._blur && form.confirmpassword.$invalid}')
                 .row
                     .col-xs-6.pull-left
                         label.control-label(for='password') #{__('Password')}
-                        input.form-control(type='password', ng-model='settings.password', ng-change='passwordChange()', name='password', required password-match='settings.confirmpassword')
+                        input.form-control(type='password', ng-model='settings.password', name='password', required)
                         br
                 .row
                     .col-xs-6.pull-left
                         label.control-label(for='confirmpassword') #{__('Confirm Password')}
-                        input.form-control(type='password', ng-model='settings.confirmpassword', ng-change='passwordChange()', name='confirmpassword', required)
+                        input.form-control(type='password', ng-model='settings.confirmpassword', name='confirmpassword', required, password-match='settings.password' esn-track-first-blur)
+                .help-block(ng-show='form.confirmpassword._blur && form.confirmpassword.$error.unique') #{__('The two passwords do not match')}
+                
             .form-group
                 button.btn.btn-warning.pull-right(type='submit', ng-click='finalize()', ng-disabled='form.$invalid')
                     i.fa.fa-sign-in

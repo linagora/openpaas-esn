@@ -66,4 +66,65 @@ body {
   margin-right: 5px;
 }
 
+.rotate {
+  animation-duration: 2s;
+  animation-name: rotate;
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-name: rotate;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-duration: 2s;
+  -moz-animation-name: rotate;
+  -ie-animation-iteration-count: infinite;
+  -ie-animation-duration: 2s;
+  -ie-animation-name: rotate;
+}
 
+@keyframes rotate {
+  from {
+    tranform: rotate(0deg);
+    -webkit-tranform: rotate(0deg);
+  }
+
+  to {
+    tranform: rotate(360deg);
+    -webkit-tranform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-ie-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+    -ie-transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+    -ie-transform: rotate(360deg);
+  }
+}
