@@ -19,28 +19,28 @@ angular.module('esn.company', ['restangular'])
       var lastValue = null;
       control.$viewChangeListeners.push(function() {
         var companyName = control.$viewValue;
-        if ( companyName === lastValue ) {
-          return ;
+        if (companyName === lastValue) {
+          return;
         }
-        
+
         lastValue = companyName;
-        
-        if ( !companyName.length ) {
-          return ;
+
+        if (!companyName.length) {
+          return;
         }
-        
+
         control.$setValidity('ajax', false);
         (function(searchField) {
-          companyAPI.search({name: companyName}).then(
+          companyAPI.search({name: searchField}).then(
             function() {
-              if ( lastValue !== searchField ) {
+              if (lastValue !== searchField) {
                 return;
               }
               control.$setValidity('ajax', true);
               control.$setValidity('unique', false);
             },
             function() {
-              if ( lastValue !== searchField ) {
+              if (lastValue !== searchField) {
                 return;
               }
               control.$setValidity('ajax', true);

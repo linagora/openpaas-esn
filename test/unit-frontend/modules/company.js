@@ -49,9 +49,8 @@ describe('The Company Angular module', function() {
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
-      input.focus();
       input.val(this.companyName);
-      input.blur();
+      input.trigger('change');
       expect(scope.form.company.$error.ajax).to.be.true;
     });
 
@@ -59,9 +58,8 @@ describe('The Company Angular module', function() {
       this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
-      input.focus();
       input.val(this.companyName);
-      input.blur();
+      input.trigger('change');
       this.$httpBackend.flush();
     });
 
@@ -70,9 +68,8 @@ describe('The Company Angular module', function() {
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
-      input.focus();
       input.val(this.companyName);
-      input.blur();
+      input.trigger('change');
       this.$httpBackend.flush();
       scope.$digest();
       expect(scope.form.company.$error.ajax).to.be.false;
@@ -84,9 +81,8 @@ describe('The Company Angular module', function() {
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
-      input.focus();
       input.val(this.companyName);
-      input.blur();
+      input.trigger('change');
       this.$httpBackend.flush();
       scope.$digest();
       expect(scope.form.company.$error.ajax).to.be.false;
