@@ -52,3 +52,7 @@ module.exports.findByEmail = function(email, callback) {
   }
   User.findOne(query, callback);
 };
+
+module.exports.get = function(uuid, callback) {
+  User.findOne({_id: uuid}, callback);
+};

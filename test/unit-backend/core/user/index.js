@@ -191,4 +191,31 @@ describe('The user core module', function() {
       });
     });
   });
+
+  describe('get method', function() {
+
+    it('should return a user from its uuid', function(done) {
+      var user = {
+        emails: ['test1@linagora.com']
+      };
+
+      var finduser = function(err, saved) {
+        userModule.get(saved[0]._id, function(err, user) {
+          expect(err).to.be.null;
+          expect(user).to.exist;
+          expect(user).to.be.an.object;
+          expect(user.emails).to.be.an.array;
+          expect(user.emails).to.include('test1@linagora.com');
+          done();
+        });
+      };
+
+      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        db.collection('users').insert(user, finduser);
+      });
+    });
+  });
 });
