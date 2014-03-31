@@ -4,6 +4,7 @@ html
     meta(charset='utf8')
     base(href='/')
     title #{title} - Hiveety
+    meta(name="viewport", content="width=device-width, initial-scale=1")
     link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
     link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
     link(rel='stylesheet', href='/css/styles.css')
@@ -15,9 +16,14 @@ html
     script(src='/components/restangular/dist/restangular.js')
     script(src='js/esn/app.js')
 
-  body(ng-app='esnApp')
+  body.ng-cloak(ng-app='esnApp')
     #wrap
       include ../partials/header
-      div(ng-view ng-cloak)
+      
+      div.container-fluid
+        .row
+          div.leftPane.col-sm-2.hidden-xs Left Pane
+          div.col-sm-10.col-xs-12
+            .row(ng-view)
     include ../partials/footer
 
