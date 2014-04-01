@@ -20,7 +20,6 @@ var LinkSchema = new mongoose.Schema({
   },
   // the type of link between the user and the target: profile view, message, ...
   type: {type: String, required: true},
-  status: {type: String, lowercase: true, trim: true},
   date: {type: Date, default: Date.now},
   schemaVersion: {type: Number, default: 1}
 });
