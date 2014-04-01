@@ -25,6 +25,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
     $scope.credentials = loginErrorService.getCredentials() || {username: '', password: '', rememberme: false};
     $scope.credentials.recaptcha = $scope.recaptcha;
     $scope.error = loginErrorService.getError();
+    $scope.autocomplete = ($location.path() === '/') ? 'on' : 'off';
 
     $scope.loginButton = {
       label: 'Sign In',
@@ -53,6 +54,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
           $scope.loginButton.label = $scope.loginButton.notRunning;
           $scope.loginTask.running = false;
           $scope.error = err.data;
+          $scope.credentials.password = '';
           loginErrorService.set($scope.credentials, err.data);
           $location.path('/login');
           $scope.recaptcha.needed = err.data.recaptcha || false;

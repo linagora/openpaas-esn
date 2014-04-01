@@ -48,7 +48,11 @@ describe('The Login Angular module', function() {
       };
       $controller('login', {
         $scope: this.scope,
-        $location: {},
+        $location: {
+          path: function() {
+            return '';
+          }
+        },
         loginAPI: this.loginAPI
       });
     }));
