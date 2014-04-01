@@ -24,35 +24,29 @@ describe('The link middleware', function() {
 
   describe('The trackProfileView fn', function() {
 
-    it('should send an error if request does not content a user', function(done) {
+    it('should not send an error if request does not content a user', function(done) {
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/link');
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/link').trackProfileView;
       var req = {
       };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          done();
-        }
+      var res = {};
+      var next = function() {
+        done();
       };
-      var next = function() {};
       middleware(req, res, next);
     });
 
-    it('should send an error if request does not content a profile uuid', function(done) {
+    it('should not send an error if request does not content a profile uuid', function(done) {
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/link');
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/link').trackProfileView;
       var req = {
         user: {},
         params: {}
       };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          done();
-        }
+      var res = {};
+      var next = function() {
+        done();
       };
-      var next = function() {};
       middleware(req, res, next);
     });
 

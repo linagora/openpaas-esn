@@ -5,11 +5,7 @@ var Link = mongoose.model('Link');
 
 module.exports.trackProfileView = function(req, res, next) {
   if (!req.user || !req.params.uuid) {
-    return res.json(400, {
-      error: 400,
-      message: 'Bad parameters',
-      details: 'Missing User or UUID'
-    });
+    next();
   } else {
     var target = req.params.uuid;
     var link = new Link({
