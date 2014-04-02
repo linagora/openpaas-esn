@@ -5,14 +5,6 @@ var mockery = require('mockery');
 
 describe('The add member email module', function() {
 
-  beforeEach(function(done) {
-    done();
-  });
-
-  afterEach(function(done) {
-    done();
-  });
-
   it('should fail when invitation is not set', function(done) {
     var coreMock = function() {
       return {
