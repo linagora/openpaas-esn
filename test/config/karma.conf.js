@@ -54,6 +54,9 @@ module.exports = function(config) {
       stripPrefix: 'frontend',
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')
+      jadeRenderConfig: function(str){
+        return str;
+      },
       moduleName: 'jadeTemplates'
     }
 

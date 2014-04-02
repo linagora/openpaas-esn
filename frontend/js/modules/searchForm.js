@@ -5,7 +5,7 @@ searchForm.directive('searchForm', function() {
     return {
       restrict: 'E',
       scope: {
-      	search: '=search'
+      	searchSpinnerKey: '='
       },
       templateUrl: '/views/search/partials/searchForm.html'
     };
