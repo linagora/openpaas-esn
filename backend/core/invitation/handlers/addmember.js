@@ -2,6 +2,7 @@
 
 var emailAddresses = require('email-addresses');
 var logger = require('../..').logger;
+var sendMail = require('../../email/system/addMember');
 
 /**
  * Validate the input data ie this is a valid email.
@@ -33,11 +34,7 @@ module.exports.init = function(invitation, done) {
     return done(new Error('Invitation URL is required'));
   }
 
-  var addmemberEmail = function(invitation, cb) {
-    return cb(new Error('The add member email is not implemented'));
-  };
-
-  addmemberEmail(invitation, function(err, result) {
+  sendMail(invitation, function(err, result) {
     if (err) {
       logger.warn('Add member invitation have not been sent %s', err.message);
     } else {
