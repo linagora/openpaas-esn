@@ -17,7 +17,7 @@ describe('The addmember handler', function() {
 
     it('should fail if email is not set', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
-      addmember.validate({data: {foo: 'bar'}}, function(err, result) {
+      addmember.validate({data: {user: {}, domain: {}, foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
       });
@@ -25,7 +25,7 @@ describe('The addmember handler', function() {
 
     it('should be ok if required data is set', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
-      addmember.validate({data: {firstname: 'foo', lastname: 'bar', domain: 'domain', email: 'baz@me.org'}}, function(err, result) {
+      addmember.validate({data: {user: {}, domain: {}, email: 'baz@me.org'}}, function(err, result) {
         expect(result).to.be.true;
         done();
       });
@@ -33,7 +33,7 @@ describe('The addmember handler', function() {
 
     it('should fail is email is not an email', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
-      addmember.validate({data: {firstname: 'foo', lastname: 'bar', domain: 'domain', email: 'baz'}}, function(err, result) {
+      addmember.validate({data: {user: {}, domain: {}, email: 'baz'}}, function(err, result) {
         expect(result).to.be.false;
         done();
       });

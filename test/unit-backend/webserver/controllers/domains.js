@@ -511,7 +511,7 @@ describe('The domains controller', function() {
         body: []
       };
       var res = {
-        json: function(status) {
+        send: function(status) {
           expect(status).to.equal(202);
           done();
         }
@@ -545,7 +545,7 @@ describe('The domains controller', function() {
       };
 
       var res = {
-        json: function() {
+        send: function() {
         }
       };
 
@@ -586,7 +586,7 @@ describe('The domains controller', function() {
       };
 
       var res = {
-        json: function() {
+        send: function() {
         }
       };
 
@@ -628,7 +628,7 @@ describe('The domains controller', function() {
       };
 
       var res = {
-        json: function() {
+        send: function() {
         }
       };
 
