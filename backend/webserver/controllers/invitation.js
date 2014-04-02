@@ -8,6 +8,7 @@ var getInvitationURL = function(req, invitation) {
   var baseURL = req.protocol + '://' + req.get('host');
   return baseURL + '/invitation/' + invitation.uuid;
 };
+module.exports.getInvitationURL = getInvitationURL;
 
 /**
  * Call the signup app main page
