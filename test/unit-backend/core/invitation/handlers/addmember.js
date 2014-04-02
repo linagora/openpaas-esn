@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The addmember handler', function() {
 
@@ -58,6 +59,11 @@ describe('The addmember handler', function() {
     });
 
     it('should send an invitation email if all data is valid', function(done) {
+      var mock = function(invitation, cb) {
+        return cb(null, true);
+      };
+
+      mockery.registerMock('../../email/system/addMember', mock);
       var invitation = {
         uuid: '123456789',
         data: {
@@ -68,7 +74,8 @@ describe('The addmember handler', function() {
 
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
       addmember.init(invitation, function(err, response) {
-        expect(err).to.exist;
+        expect(err).to.not.exist;
+        expect(response).to.be.true;
         done();
       });
     });
