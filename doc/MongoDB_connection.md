@@ -14,7 +14,7 @@ ConnexionString example :
 
        mongodb://myVM1/test
 
-Replicat set setup
+Replica set setup
 ==================
 
 ConnexionString syntax :
