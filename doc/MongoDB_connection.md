@@ -1,7 +1,7 @@
 This file describe the content of `config/db.json`.
 
-* The key `connectionOptions` is use to give the `option` parameter of `mangoose.connect`.
-* The key `connectionString` is the first parameter of `mangoose.connect`.
+* The key `connectionOptions` is used to give the `option` parameter of `mongoose.connect`.
+* The key `connectionString` is the first parameter of `mongoose.connect`.
 
 Single instance setup
 =====================
@@ -48,4 +48,4 @@ ConnexionString example :
 
        mongodb://myVM1/test,myVM2:27018/test
 
-With option `mangos` to `true`. (You must add `"mongos":true` as a parameter of `connectionOptions`)
+With option `mongos` to `true`. (You must add `"mongos":true` as a parameter of `connectionOptions`)
