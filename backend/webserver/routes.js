@@ -2,6 +2,7 @@
 
 var authorize = require('./middleware/authorization');
 var cookielifetime = require('./middleware/cookie-lifetime');
+var link = require('./middleware/link');
 
 exports = module.exports = function(application) {
 
@@ -13,6 +14,7 @@ exports = module.exports = function(application) {
 
   var users = require('./controllers/users');
   application.get('/logout', users.logout);
+  application.get('/api/profile/:uuid', authorize.requiresAPILogin, link.trackProfileView, users.profile);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);

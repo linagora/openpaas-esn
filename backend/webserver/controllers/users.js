@@ -72,3 +72,36 @@ function logout(req, res) {
   res.redirect('/login');
 }
 module.exports.logout = logout;
+
+/**
+ * Get a user profile.
+ *
+ * @param {request} req
+ * @param {response} res
+ */
+function profile(req, res) {
+  var uuid = req.params.uuid;
+  if (!uuid) {
+    return res.json(400, {error: {code: 400, message: 'Bad parameters', details: 'User ID is missing'}});
+  }
+
+  userModule.get(uuid, function(err, user) {
+    if (err) {
+      return res.json(500, {
+        error: 500,
+        message: 'Error while loading user ' + uuid,
+        details: err.message
+      });
+    }
+
+    if (!user) {
+      return res.json(404, {
+        error: 404,
+        message: 'User not found',
+        details: 'User ' + uuid + ' has not been found'
+      });
+    }
+    return res.json(200, user);
+  });
+}
+module.exports.profile = profile;
