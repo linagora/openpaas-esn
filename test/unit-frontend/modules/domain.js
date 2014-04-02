@@ -9,6 +9,29 @@ describe('The Domain Angular module', function() {
 
   describe('domainAPI service', function() {
 
+    describe('inviteUsers() method', function() {
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+        this.domainAPI = domainAPI;
+        this.$httpBackend = $httpBackend;
+        this.domainId = '123456789';
+        // The full response configuration option has to be set at the application level
+        // It is set here to get the same behavior
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a POST to /domains/:uuid/invitations', function() {
+        var users = ['foo@bar.com'];
+        this.$httpBackend.expectPOST('/domains/' + this.domainId + '/invitations', users).respond(202);
+        this.domainAPI.inviteUsers(this.domainId, users);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.domainAPI.inviteUsers(this.domainId, {});
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
     describe('getMembers() method', function() {
 
       beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {

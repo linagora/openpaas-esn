@@ -13,7 +13,18 @@ angular.module('esn.domain', ['restangular'])
       return Restangular.one('domains', id).getList('members', options);
     }
 
+    /**
+     * Invite users to join a domain
+     *
+     * @param {String} id
+     * @param {Array} emails - Array of emails (string)
+     */
+    function inviteUsers(id, emails) {
+      return Restangular.one('domains', id).customPOST(emails, 'invitations');
+    }
+
     return {
-      getMembers: getMembers
+      getMembers: getMembers,
+      inviteUsers: inviteUsers
     };
   }]);
