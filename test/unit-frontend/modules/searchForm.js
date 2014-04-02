@@ -46,6 +46,5 @@ describe('The Search Form Angular module', function() {
       this.$rootScope.$digest();
       this.checkGeneratedElement(element, 'spinnerKey', {radius: 30, width: 8, length: 16});
     });
-
   });
 });
