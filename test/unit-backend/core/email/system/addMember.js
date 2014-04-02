@@ -1,39 +1,139 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The add member email module', function() {
 
   beforeEach(function(done) {
-    this.testEnv.writeDBConfigFile();
-    var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-    var mail = {
-      mail: {
-        noreply: 'no-reply@hiveety.org'
-      },
-      transport: {
-        type: 'Pickup',
-        config: {
-          directory: this.testEnv.tmp
-        }
-      }
-    };
-    this.testEnv.initCore();
-    conf.store(mail, function(err) {
-      done(err);
-    });
+    done();
   });
 
   afterEach(function(done) {
-    var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-    conf.store({}, done);
-    this.testEnv.removeDBConfigFile();
+    done();
   });
 
-  it('should send an email with valid data', function(done) {
-    var tmp = this.testEnv.tmp;
-    var path = require('path');
-    var fs = require('fs');
+  it('should fail when invitation is not set', function(done) {
+    var coreMock = function() {
+      return {
+        get: function(callback) {
+          return callback();
+        }
+      };
+    };
+
+    var i18nMock = {
+      __: function() {
+        return '';
+      }
+    };
+
+    var emailMock = {
+      sendHTML: function() {}
+    };
+
+    mockery.registerMock('../../../../core/esn-config', coreMock);
+    mockery.registerMock('../../../i18n', i18nMock);
+    mockery.registerMock('../index', emailMock);
+
+    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    confirmation(null, function(err, response) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+
+  it('should fail when invitation data is not set', function(done) {
+    var coreMock = function() {
+      return {
+        get: function(callback) {
+          return callback();
+        }
+      };
+    };
+
+    var i18nMock = {
+      __: function() {
+        return '';
+      }
+    };
+
+    var emailMock = {
+      sendHTML: function() {}
+    };
+
+    mockery.registerMock('../../../../backend/core/esn-config', coreMock);
+    mockery.registerMock('../../../i18n', i18nMock);
+    mockery.registerMock('../index', emailMock);
+
+    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    confirmation({}, function(err, response) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('should fail if configuration fails', function(done) {
+    var esnConfig = function() {
+      return {
+        get: function(callback) {
+          return callback(new Error('Configuration fails'));
+        }
+      };
+    };
+
+    var i18nMock = {
+      __: function() {
+        return '';
+      }
+    };
+
+    var emailMock = {
+      sendHTML: function() {}
+    };
+
+    mockery.registerMock('../../../../backend/core/esn-config', esnConfig);
+    mockery.registerMock('../../../i18n', i18nMock);
+    mockery.registerMock('../index', emailMock);
+
+    var invitation = {
+      data: {
+        email: 'foo@bar.com'
+      }
+    };
+
+    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    confirmation(invitation, function(err, response) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('should send an email when invitation data is set', function(done) {
+    var coreMock = function() {
+      return {
+        get: function(callback) {
+          return callback(null, {foo: 'bar'});
+        }
+      };
+    };
+
+    var i18nMock = {
+      __: function() {
+        return '';
+      }
+    };
+
+    var emailMock = {
+      sendHTML: function(from, to, subject, template, invitation, done) {
+        return done(null, {sent: true});
+      }
+    };
+
+    mockery.registerMock('../../../../backend/core/esn-config', coreMock);
+    mockery.registerMock('../../../i18n', i18nMock);
+    mockery.registerMock('../index', emailMock);
 
     var invitation = {
       data: {
@@ -48,22 +148,9 @@ describe('The add member email module', function() {
     var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
     confirmation(invitation, function(err, response) {
       expect(err).to.not.exist;
-      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-      expect(fs.existsSync(file)).to.be.true;
-      var MailParser = require('mailparser').MailParser;
-      var mailparser = new MailParser();
-      mailparser.on('end', function(mail_object) {
-        expect(mail_object.html).to.be.not.null;
-        expect(mail_object.html).to.contain(invitation.data.firstname);
-        expect(mail_object.html).to.contain(invitation.data.lastname);
-        expect(mail_object.html).to.contain(invitation.data.domain);
-        expect(mail_object.html).to.contain(invitation.data.url);
-        expect(mail_object.to).to.exist;
-        expect(mail_object.to[0]).to.exist;
-        expect(mail_object.to[0].address).to.equal(invitation.data.email);
-        done();
-      });
-      fs.createReadStream(file).pipe(mailparser);
+      expect(response).to.exist;
+      expect(response.sent).to.be.true;
+      done();
     });
   });
 });
