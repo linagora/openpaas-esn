@@ -114,13 +114,15 @@ describe('The authorization middleware', function() {
 
   it('should return 403 if req.user is not the domain administrator', function(done) {
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+    var mongoose = require('mongoose');
+
     var req = {
       user: {
-        _id: 123456789
+        _id: mongoose.Types.ObjectId()
       },
       domain: {
-        _id: 987654321,
-        administrator: 123
+        _id: mongoose.Types.ObjectId(),
+        administrator: mongoose.Types.ObjectId()
       }
     };
     var res = {
@@ -136,13 +138,16 @@ describe('The authorization middleware', function() {
 
   it('should call next if req.user is the domain administrator', function(done) {
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+    var mongoose = require('mongoose');
+    var id = mongoose.Types.ObjectId();
+
     var req = {
       user: {
-        _id: 123456789
+        _id: id
       },
       domain: {
-        _id: 987654321,
-        administrator: 123456789
+        _id: mongoose.Types.ObjectId(),
+        administrator: id
       }
     };
     var res = {

@@ -12,7 +12,7 @@ module.exports.validate = function(invitation, done) {
     return done(null, false);
   }
 
-  if (!invitation.data.firstname || !invitation.data.lastname || !invitation.data.domain || !invitation.data.email) {
+  if (!invitation.data.user || !invitation.data.domain || !invitation.data.email) {
     return done(null, false);
   }
 

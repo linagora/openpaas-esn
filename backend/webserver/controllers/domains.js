@@ -123,15 +123,16 @@ function sendInvitations(req, res) {
   var Invitation = mongoose.model('Invitation');
   var sent = [];
 
-  res.json(202);
+  res.send(202);
 
   var sendInvitation = function(email, callback) {
+
     var payload = {
       type: 'addmember',
       data: {
-        email: email,
-        emitter: user._id,
-        domain: domain._id
+        user: user,
+        domain: domain,
+        email: email
       }
     };
 
@@ -165,7 +166,7 @@ function sendInvitations(req, res) {
     if (err) {
       logger.error('Unexpected error occured : %s', err);
     }
-    logger.info('Invitations have been sent to emails %', sent);
+    logger.info('Invitations have been sent to emails %s', '' + sent);
     pubsub.topic('domain:invitations:sent').publish({user: user, domain: domain, emails: sent});
   });
 }

@@ -36,7 +36,7 @@ exports.requiresDomainManager = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
 
-  if (req.domain.administrator !== req.user._id) {
+  if (!req.domain.administrator.equals(req.user._id)) {
     return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the domain manager'});
   }
   next();
