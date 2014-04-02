@@ -114,10 +114,6 @@ Only the domain manager is able to invite people to join a domain.
 - 400 Bad Request. Invalid request body or parameters.
 - 403 Forbidden. The user who created the request is not the domain manager and is not authorized to invite people.
 
-**Response JSON Object**
-
-Array of valid email addresses an invitation will be sent to.
-
 **Request:**
 
     POST /api/domains/123456789/invitations
@@ -128,4 +124,3 @@ Array of valid email addresses an invitation will be sent to.
 **Response:**
 
     HTTP/1.1 202 Accepted
-    ['foo@bar.com', 'bar@baz.com']
