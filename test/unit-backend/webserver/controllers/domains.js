@@ -2,8 +2,9 @@
 
 var expect = require('chai').expect;
 var request = require('supertest');
+var mockery = require('mockery');
 
-describe('The domains routes resource', function() {
+describe('The domains controller', function() {
 
   before(function() {
     this.mongoose = require('mongoose');
@@ -355,6 +356,293 @@ describe('The domains routes resource', function() {
         expect(res.body).to.be.not.null;
         done();
       });
+    });
+  });
+
+  describe('The load domain middleware', function() {
+
+    var Domain;
+
+    beforeEach(function(done) {
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      done();
+    });
+
+    afterEach(function(done) {
+      var callback = function(item, fn) {
+        item.remove(fn);
+      };
+
+      var async = require('async');
+      async.parallel([
+        function(cb) {
+          Domain.find().exec(function(err, domains) {
+            async.forEach(domains, callback, cb);
+          });
+        }
+      ], function() {
+        this.mongoose.disconnect(done);
+      }.bind(this));
+    });
+
+    it('should call next(err) if domain can not be loaded', function(done) {
+      var req = {
+        params: {
+          uuid: '123'
+        }
+      };
+      var res = {};
+      var next = function(err) {
+        expect(err).to.exist;
+        done();
+      };
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.load(req, res, next);
+    });
+
+    it('should send 404 if domain is not found', function(done) {
+      // this is just used to generate a valid uuid
+      var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+      console.log(domain._id);
+
+      var req = {
+        params: {
+          uuid: domain._id
+        }
+      };
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+      var next = function() {};
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.load(req, res, next);
+    });
+
+    it('should inject the domain into the request', function(done) {
+      var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+      var self = this;
+
+      domain.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = {
+          params: {
+            uuid: saved._id
+          }
+        };
+
+        var res = {
+        };
+
+        var next = function() {
+          expect(req.domain).to.exist;
+          expect(req.domain._id).to.deep.equal(saved._id);
+          done();
+        };
+
+        var controller = require(self.testEnv.basePath + '/backend/webserver/controllers/domains');
+        controller.load(req, res, next);
+      });
+    });
+  });
+
+  describe('The sendInvitations fn', function() {
+
+    var Invitation;
+
+    beforeEach(function(done) {
+      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      done();
+    });
+
+    afterEach(function(done) {
+      var callback = function(item, fn) {
+        item.remove(fn);
+      };
+
+      var async = require('async');
+      async.parallel([
+        function(cb) {
+          Invitation.find().exec(function(err, invitations) {
+            async.forEach(invitations, callback, cb);
+          });
+        }
+      ], function() {
+        this.mongoose.disconnect(done);
+      }.bind(this));
+    });
+
+    it('should fail if request body is empty', function(done) {
+      var req = {};
+      var res = {
+        json: function(status) {
+          expect(status).to.equal(400);
+          done();
+        }
+      };
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.sendInvitations(req, res);
+    });
+
+    it('should fail if request body is not an array', function(done) {
+      var req = {
+        body: {}
+      };
+      var res = {
+        json: function(status) {
+          expect(status).to.equal(400);
+          done();
+        }
+      };
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.sendInvitations(req, res);
+    });
+
+    it('should send HTTP 202 if request body is an array', function(done) {
+      var req = {
+        body: []
+      };
+      var res = {
+        json: function(status) {
+          expect(status).to.equal(202);
+          done();
+        }
+      };
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.sendInvitations(req, res);
+    });
+
+    it('should publish a notification to the local pubsub when invitations are sent', function(done) {
+      var handlerMock = {
+        validate: function(invitation, cb) {
+          return cb(null, true);
+        },
+        init: function(invitation, cb) {
+          return cb(null, true);
+        }
+      };
+      mockery.registerMock('../../core/invitation', handlerMock);
+
+      var req = {
+        body: ['foo@bar.com', 'bar@baz.com'],
+        user: {
+          _id: 123456789
+        },
+        domain: {
+          _id: 987654321
+        },
+        get: function() {
+          return '';
+        }
+      };
+
+      var res = {
+        json: function() {
+        }
+      };
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('domain:invitations:sent').subscribe(function(message) {
+        expect(message).to.exist;
+        expect(message.user).to.exist;
+        expect(message.domain).to.exist;
+        expect(message.emails).to.exist;
+        done();
+      });
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.sendInvitations(req, res);
+    });
+
+    it('should publish a notification to the local pubsub even if handler#validate is throwing an error', function(done) {
+      var handlerMock = {
+        validate: function(invitation, cb) {
+          return cb(new Error('Fail!'));
+        },
+        init: function(invitation, cb) {
+          return cb(null, true);
+        }
+      };
+      mockery.registerMock('../../core/invitation', handlerMock);
+
+      var req = {
+        body: ['foo@bar.com', 'bar@baz.com'],
+        user: {
+          _id: 123456789
+        },
+        domain: {
+          _id: 987654321
+        },
+        get: function() {
+          return '';
+        }
+      };
+
+      var res = {
+        json: function() {
+        }
+      };
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('domain:invitations:sent').subscribe(function(message) {
+        expect(message).to.exist;
+        expect(message.user).to.exist;
+        expect(message.domain).to.exist;
+        expect(message.emails).to.exist;
+        expect(message.emails).to.be.empty;
+        done();
+      });
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.sendInvitations(req, res);
+    });
+
+    it('should publish a notification to the local pubsub even if handler#init is throwing an error', function(done) {
+      var handlerMock = {
+        validate: function(invitation, cb) {
+          return cb(null, true);
+        },
+        init: function(invitation, cb) {
+          return cb(new Error('Fail!'));
+        }
+      };
+      mockery.registerMock('../../core/invitation', handlerMock);
+
+      var req = {
+        body: ['foo@bar.com', 'bar@baz.com'],
+        user: {
+          _id: 123456789
+        },
+        domain: {
+          _id: 987654321
+        },
+        get: function() {
+          return '';
+        }
+      };
+
+      var res = {
+        json: function() {
+        }
+      };
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('domain:invitations:sent').subscribe(function(message) {
+        expect(message).to.exist;
+        expect(message.user).to.exist;
+        expect(message.domain).to.exist;
+        expect(message.emails).to.exist;
+        expect(message.emails).to.be.empty;
+        done();
+      });
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.sendInvitations(req, res);
     });
   });
 });
