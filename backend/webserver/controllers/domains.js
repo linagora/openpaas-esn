@@ -171,3 +171,11 @@ function sendInvitations(req, res) {
   });
 }
 module.exports.sendInvitations = sendInvitations;
+
+function getDomain(req, res) {
+  if (req.domain) {
+    return res.json(200, req.domain);
+  }
+  return res.json(404, {error: 404, message: 'Not found', details: 'Domain not found'});
+}
+module.exports.getDomain = getDomain;

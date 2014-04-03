@@ -56,5 +56,7 @@
   "Company name is required": "Company name is required",
   "Domain name is required": "Domain name is required",
   "The two passwords do not match": "The two passwords do not match",
-  "Search": "Search"
+  "Search": "Search",
+  "Send invitations": "Send invitations",
+  "Invitations have been sent. You will be notified when new users join the platform": "Invitations have been sent. You will be notified when new users join the platform"
 }

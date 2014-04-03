@@ -88,5 +88,64 @@ describe('The Domain Angular module', function() {
         expect(promise.then).to.be.a.function;
       });
     });
+
+    describe('isManager() method', function() {
+
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+        this.domainAPI = domainAPI;
+        this.$httpBackend = $httpBackend;
+        this.domainId = '123456789';
+        this.response = {name: 'MyDomain', company_name: 'MyAwesomeCompany'};
+
+        // The full response configuration option has to be set at the application level
+        // It is set here to get the same behavior
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a request to /domains/:uuid/manager', function() {
+        this.$httpBackend.expectGET('/domains/' + this.domainId + '/manager').respond(200, this.response);
+        this.domainAPI.isManager(this.domainId);
+        this.$httpBackend.flush();
+      });
+    });
+  });
+
+  describe('inviteMembers controller', function() {
+    beforeEach(inject(function($rootScope, $controller) {
+      this.domainAPI = {};
+      this.domain = {_id: 123456789};
+      this.scope = $rootScope.$new();
+      this.scope.emails = [{email: 'foo@baz.com'}, {email: 'bar@baz.com'}];
+
+      $controller('inviteMembers', {
+        $scope: this.scope,
+        domainAPI: this.domainAPI,
+        domain: this.domain
+      });
+    }));
+
+    it('should call the domainAPI inviteMember when invite is called', function(done) {
+      this.domainAPI.inviteUsers = function() {
+        done();
+      };
+      this.scope.invite();
+    });
+
+    it('should call the domainAPI inviteMember with domain id and array of emails', function(done) {
+      this.scope.emails = [{email: 'foo@baz.com'}, {email: 'bar@baz.com'}];
+
+      var self = this;
+      this.domainAPI.inviteUsers = function(id, emails) {
+        expect(id).exist;
+        expect(emails).exist;
+        expect(id).is.equal(self.domain._id);
+        expect(emails.length).is.equal(2);
+        expect(emails[0]).is.equal(self.scope.emails[0].email);
+        expect(emails[1]).is.equal(self.scope.emails[1].email);
+
+        done();
+      };
+      this.scope.invite();
+    });
   });
 });
