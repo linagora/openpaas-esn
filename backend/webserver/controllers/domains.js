@@ -162,12 +162,12 @@ function sendInvitations(req, res) {
     });
   };
 
-  async.each(emails, sendInvitation, function(err) {
+  async.eachLimit(emails, 10, sendInvitation, function(err) {
     if (err) {
       logger.error('Unexpected error occured : %s', err);
     }
     logger.info('Invitations have been sent to emails %s', '' + sent);
-    pubsub.topic('domain:invitations:sent').publish({user: user, domain: domain, emails: sent});
+    pubsub.topic('domain:invitations:sent').publish({user: user._id, domain: domain._id, emails: sent});
   });
 }
 module.exports.sendInvitations = sendInvitations;

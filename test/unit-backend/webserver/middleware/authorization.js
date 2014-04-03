@@ -56,7 +56,7 @@ describe('The authorization middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should return 400 is req.domain does not exist', function(done) {
+    it('should return 400 if req.domain does not exist', function(done) {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
       var req = {
         user: {
@@ -73,7 +73,7 @@ describe('The authorization middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should return 400 is req.user._id does not exist', function(done) {
+    it('should return 400 if req.user._id does not exist', function(done) {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
       var req = {
         user: {
@@ -91,7 +91,7 @@ describe('The authorization middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should return 400 is req.domain.administrator does not exist', function(done) {
+    it('should return 400 if req.domain.administrator does not exist', function(done) {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
       var req = {
         user: {
