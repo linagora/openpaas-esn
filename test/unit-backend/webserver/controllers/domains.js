@@ -508,7 +508,13 @@ describe('The domains controller', function() {
 
     it('should send HTTP 202 if request body is an array', function(done) {
       var req = {
-        body: []
+        body: [],
+        user: {
+          _id: 123
+        },
+        domain: {
+          _id: 456
+        }
       };
       var res = {
         send: function(status) {
