@@ -11,6 +11,7 @@ exports = module.exports = function(application) {
   application.get('/api/companies', companies.search);
   application.get('/api/domains/:uuid/members', domains.getMembers);
   application.post('/api/domains', domains.createDomain);
+  application.post('/api/domains/:uuid/invitations', authorize.requiresAPILogin, domains.load, authorize.requiresDomainManager, domains.sendInvitations);
 
   var users = require('./controllers/users');
   application.get('/logout', users.logout);

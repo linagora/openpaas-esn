@@ -4,6 +4,9 @@ var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 var User = mongoose.model('User');
 var userDomain = require('../../core/user/domain');
+var logger = require('../../core').logger;
+var async = require('async');
+var pubsub = require('../../core/pubsub').local;
 
 function createDomain(req, res) {
   var data = req.body;
@@ -80,3 +83,91 @@ function getMembers(req, res) {
   });
 }
 module.exports.getMembers = getMembers;
+
+/**
+ * Load middleware. Load a domain from its UUID and push it into the request (req.domain) for later use.
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+function load(req, res, next) {
+  Domain.loadFromID(req.params.uuid, function(err, domain) {
+    if (err) {
+      return next(err);
+    }
+    if (!domain) {
+      return res.send(404);
+    }
+    req.domain = domain;
+    return next();
+  });
+}
+module.exports.load = load;
+
+/**
+ * Send invitations to a list of emails.
+ *
+ * @param {Request} req - The request with user and domain as attribute. The body MUST contains an array of emails.
+ * @param {Response} res
+ */
+function sendInvitations(req, res) {
+  if (!req.body || !(req.body instanceof Array)) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
+  }
+
+  var emails = req.body;
+  var user = req.user;
+  var domain = req.domain;
+  var handler = require('../../core/invitation');
+  var Invitation = mongoose.model('Invitation');
+  var sent = [];
+
+  res.send(202);
+
+  var sendInvitation = function(email, callback) {
+
+    var payload = {
+      type: 'addmember',
+      data: {
+        user: user,
+        domain: domain,
+        email: email
+      }
+    };
+
+    handler.validate(payload, function(err, result) {
+      if (err || !result) {
+        logger.warn('Invitation data is not valid %s : %s', payload, err ? err.message : result);
+        return callback();
+      }
+
+      var invitation = new Invitation(payload);
+      invitation.save(function(err, saved) {
+        if (err) {
+          logger.error('Can not save invitation %s : %s', payload, err.message);
+          return callback();
+        }
+
+        saved.data.url = require('./invitation').getInvitationURL(req, saved);
+        handler.init(saved, function(err, result) {
+          if (err || !result) {
+            logger.error('Invitation can not be initialized %s : %s', saved, err ? err.message : result);
+          } else {
+            sent.push(email);
+          }
+          return callback();
+        });
+      });
+    });
+  };
+
+  async.eachLimit(emails, 10, sendInvitation, function(err) {
+    if (err) {
+      logger.error('Unexpected error occured : %s', err);
+    }
+    logger.info('Invitations have been sent to emails %s', '' + sent);
+    pubsub.topic('domain:invitations:sent').publish({user: user._id, domain: domain._id, emails: sent});
+  });
+}
+module.exports.sendInvitations = sendInvitations;
