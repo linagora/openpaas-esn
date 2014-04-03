@@ -20,7 +20,7 @@ describe('The Domain Angular module', function() {
       }));
 
       it('should send a POST to /domains/:uuid/invitations', function() {
-        var users = ['foo@bar.com'];
+        var users = ['foo@bar.com', 'baz@bar.com', 'qux@bar.com', 'yolo@bar.com'];
         this.$httpBackend.expectPOST('/domains/' + this.domainId + '/invitations', users).respond(202);
         this.domainAPI.inviteUsers(this.domainId, users);
         this.$httpBackend.flush();
