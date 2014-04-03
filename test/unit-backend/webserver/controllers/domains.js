@@ -651,4 +651,34 @@ describe('The domains controller', function() {
       controller.sendInvitations(req, res);
     });
   });
+
+  describe('The getDomain fn', function() {
+    it('should return HTTP 404 when domain is not available in the request', function(done) {
+      var req = {
+      };
+      var res = {
+        json: function(status) {
+          expect(status).to.equal(404);
+          done();
+        }
+      };
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.getDomain(req, res);
+    });
+
+    it('should return HTTP 200 when domain is available in the request', function(done) {
+      var req = {
+        domain: {}
+      };
+      var res = {
+        json: function(status, domain) {
+          expect(status).to.equal(200);
+          expect(domain).to.exist;
+          done();
+        }
+      };
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.getDomain(req, res);
+    });
+  });
 });

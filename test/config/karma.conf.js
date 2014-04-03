@@ -14,6 +14,7 @@ module.exports = function(config) {
       'frontend/components/restangular/dist/restangular.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
+      'frontend/components/ng-tags-input/ng-tags-input.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/member/**/*.jade'
