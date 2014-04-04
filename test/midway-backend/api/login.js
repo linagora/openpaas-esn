@@ -108,7 +108,7 @@ describe('The login API', function() {
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop().split(';')[0];
-        var req = request(app).get('/api/login/user');
+        var req = request(app).get('/api/user');
         req.cookies = cookies;
         req.expect(200)
           .end(function(err, res) {
@@ -130,7 +130,7 @@ describe('The login API', function() {
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop().split(';')[0];
-        var req = request(app).get('/api/login/user');
+        var req = request(app).get('/api/user');
         req.cookies = cookies;
         req.expect(200)
           .end(function(err, res) {
@@ -147,7 +147,7 @@ describe('The login API', function() {
   it('should not be able to retrieve the user information without the cookie', function(done) {
     user.rememberme = true;
     request(app)
-      .get('/api/login/user')
+      .get('/api/user')
       .expect(401)
       .end(done);
   });

@@ -52,4 +52,36 @@ describe('The User controller', function() {
       users.logmein(req, res);
     });
   });
+
+  describe('The user fn', function() {
+    it('should return the request user if available', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        user: {
+          emails: ['foo@bar.com']
+        }
+      };
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data).to.deep.equal(req.user);
+          done();
+        }
+      };
+      users.user(req, res);
+    });
+
+    it('should return HTTP 404 if user is not defined in the request', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+      };
+      var res = {
+        json: function(status) {
+          expect(status).to.equal(404);
+          done();
+        }
+      };
+      users.user(req, res);
+    });
+  });
 });

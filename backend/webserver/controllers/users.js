@@ -105,3 +105,17 @@ function profile(req, res) {
   });
 }
 module.exports.profile = profile;
+
+/**
+ * Returns the current authenticated user
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+function user(req, res) {
+  if (!req.user) {
+    return res.json(404, {error: 404, message: 'Not found', details: 'Domain not found'});
+  }
+  return res.json(200, req.user);
+}
+module.exports.user = user;
