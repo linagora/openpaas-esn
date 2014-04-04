@@ -43,6 +43,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
 
     $scope.placeholder = 'Add an email';
     $scope.displayProperty = 'email';
+    // Regular expression to check that the input text is a valid email
     // regexp as string, single \ are \\ escaped, doubles \ are \\\ escaped
     // original regexp is
     // var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
