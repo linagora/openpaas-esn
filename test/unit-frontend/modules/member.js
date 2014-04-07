@@ -102,7 +102,7 @@ describe('The Member Angular module', function() {
           expect(opts.limit).to.equal(self.searchConf.searchLimit);
           expect(opts.search).to.equal('');
 
-          if(self.callCount <= self.successfullCallsCount) {
+          if (self.callCount <= self.successfullCallsCount) {
             expect(opts.offset).to.equal(self.searchConf.searchLimit * (self.callCount - 1));
           }
           else {
@@ -111,7 +111,7 @@ describe('The Member Angular module', function() {
 
           //emulate the fact that the call is succesfull
           // -> the member list grows
-          if(self.callCount <= self.successfullCallsCount) {
+          if (self.callCount <= self.successfullCallsCount) {
             self.scope.members.length += self.searchConf.searchLimit;
           }
 
@@ -128,7 +128,7 @@ describe('The Member Angular module', function() {
 
     });
 
-    describe('search method', function() {
+    describe('doSearch method', function() {
 
       it('should call the domainAPI.getMembers() method with the correct query', function(done) {
         this.scope.searchInput = 'testQuery';
