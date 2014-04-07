@@ -63,7 +63,7 @@ describe('The Member Angular module', function() {
   });
 
   describe('memberscontroller', function() {
-    beforeEach(angular.mock.inject(function($controller, $rootScope, $route, Restangular, memberSearchConfiguration) {
+    beforeEach(angular.mock.inject(function($controller, $rootScope, $routeParams, Restangular, memberSearchConfiguration) {
       this.searchConf = memberSearchConfiguration;
 
       this.domainAPI = {};
@@ -73,16 +73,13 @@ describe('The Member Angular module', function() {
       this.domainId = '123456789';
       this.$controller = $controller;
       this.scope = $rootScope.$new();
-      this.$route = $route;
-      this.$route.current = {
-        params: {
-          id: this.domainId
-        }
+      this.$routeParams = {
+        domain_id: this.domainId
       };
       $controller('memberscontroller', {
         $scope: this.scope,
         domainAPI: this.domainAPI,
-        $route: $route
+        $routeParams: this.$routeParams
       });
 
       Restangular.setFullResponse(true);

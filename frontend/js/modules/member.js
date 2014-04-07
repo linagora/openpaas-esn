@@ -12,9 +12,9 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       },
       templateUrl: '/views/member/partials/member.html'
     };
-  }).controller('memberscontroller', ['$scope', 'domainAPI', '$route', 'memberSearchConfiguration', function($scope, $domainAPI, $route, memberSearchConfiguration) {
+  }).controller('memberscontroller', ['$scope', 'domainAPI', '$routeParams', 'memberSearchConfiguration', function($scope, $domainAPI, $routeParams, memberSearchConfiguration) {
 
-    var domain_id = $route.current.params.id;
+    var domain_id = $routeParams.domain_id;
     $scope.spinnerKey = 'memberSpinner';
 
     var opts = {

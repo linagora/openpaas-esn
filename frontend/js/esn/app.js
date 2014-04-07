@@ -11,7 +11,7 @@ angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member'])
       templateUrl: '/views/esn/partials/account'
     });
 
-    $routeProvider.when('/domains/:id/members', {
+    $routeProvider.when('/domains/:domain_id/members', {
       templateUrl: '/views/esn/partials/members',
       controller: 'memberscontroller'
     });
