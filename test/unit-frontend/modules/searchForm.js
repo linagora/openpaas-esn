@@ -10,7 +10,6 @@ describe('The Search Form Angular module', function() {
 
   describe('searchForm directive', function() {
 
-    //Load the karma built module containing the templates
     beforeEach(module('jadeTemplates'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
@@ -19,39 +18,35 @@ describe('The Search Form Angular module', function() {
     }]));
 
     beforeEach(function() {
-      this.getExpectedHtmlForSearchForm = function() {
-      var templateAsHtmlString ='<form role="form" class="ng-pristine ng-valid">'+
-        '<div>'+
-        '<div class="input-group col-md-12">'+
-        '<input type="text" ng-model="searchInput" ng-change="search.status=&quot;none&quot;" placeholder="Search" class="search-query form-control ng-pristine ng-valid">'+
-        '<span class="input-group-btn">'+
-        '<button type="button" ng-click="doSearch()" class="btn btn-info">'+
-        '<span class="glyphicon glyphicon-search"></span>'+
-        '</button>'+
-        '</span>'+
-        '</div>'+
-        '<div ng-show="search.status==&quot;error&quot;" class="ng-hide">'+
-        '<div class="text-danger ng-binding">: </div>'+
-        '</div>'+
-        '<div ng-show="search.running==&quot;true&quot;" class="throbber ng-hide">'+
-        '<span us-spinner="us-spinner" spinner-key="searchSpinner" spinner-start-active="1"></span>'+
-        '</div>'+
-        '</div>'+
-        '</form>';
-        return templateAsHtmlString;
+      this.checkGeneratedElement = function(element, spinnerKey, spinnerConf) {
+
+        var checkGeneratedAttributeValue = function(element, attrName, attrValue) {
+          expect(element.find('span')[2].attributes.getNamedItem(attrName).value).to.equal(attrValue);
+        };
+
+        checkGeneratedAttributeValue(element, 'spinner-key', spinnerKey);
+        checkGeneratedAttributeValue(element, 'us-spinner', JSON.stringify(spinnerConf));
       };
     });
 
-    it('should display a search from the scope using the template', function() {
-      var html = '<search-form search-spinner-key="searchspinner"></search-form>';
+    it('should fill the search-form template with default throbber values if no values were defined in the scope', inject(function(defaultSpinnerConfiguration) {
+      var html = '<search-form></search-form>';
       var element = this.$compile(html)(this.$rootScope);
-
-      this.$rootScope.searchspinner = 'searchSpinner';
-
       this.$rootScope.$digest();
-      expect(element.html()).to.equal(this.getExpectedHtmlForSearchForm());
+
+      this.checkGeneratedElement(element, defaultSpinnerConfiguration.spinnerKey, defaultSpinnerConfiguration.spinnerConf);
+    }));
+
+    it('should fill the search-form template with throbber values from the scope', function() {
+      var html = '<search-form></search-form>';
+
+      this.$rootScope.spinnerKey = 'spinnerKey';
+      this.$rootScope.spinnerConf= {radius:30, width:8, length: 16};
+
+      var element = this.$compile(html)(this.$rootScope);
+      this.$rootScope.$digest();
+      this.checkGeneratedElement(element, 'spinnerKey', {radius:30, width:8, length: 16});
     });
+
   });
-
 });
-

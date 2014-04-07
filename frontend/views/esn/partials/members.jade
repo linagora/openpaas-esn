@@ -1,2 +1,7 @@
 .col-xs-12
   h2 Members
+     div(ng-controller="memberscontroller")
+         search-form(search-spinner-key="membersSpinner")
+         infinite-list
+            div(ng-repeat="member in members")
+                member-display(member="member")

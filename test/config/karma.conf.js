@@ -12,14 +12,16 @@ module.exports = function(config) {
       'frontend/components/angular-mocks/angular-mocks.js',
       'frontend/components/underscore/underscore.js',
       'frontend/components/restangular/dist/restangular.js',
+      'frontend/components/angular-spinner/angular-spinner.js',
+      'frontend/components/spin.js/spin.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
       'frontend/components/ngInfiniteScroll/ng-infinite-scroll.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/member/**/*.jade',
-      'frontend/views/infinite-list/**/*.jade',
-      'frontend/views/search/**/*.jade'
+      'frontend/views/search/**/*.jade',
+      'frontend/views/infinite-list/**/*.jade'
     ],
 
     frameworks: ['mocha'],
