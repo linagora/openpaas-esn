@@ -62,4 +62,74 @@ describe('The Member Angular module', function() {
     });
   });
 
+  describe('memberscontroller', function() {
+    beforeEach(angular.mock.inject(function($controller, $rootScope, $route, Restangular, memberSearchConfiguration) {
+      this.searchConf = memberSearchConfiguration;
+
+      this.domainAPI = {};
+      //initialize the getMembers method because it isa called at controller's instantiation
+      this.domainAPI.getMembers = function(id, opts) {};
+
+      this.domainId = '123456789';
+      this.$controller = $controller;
+      this.scope = $rootScope.$new();
+      this.$route = $route;
+      this.$route.current = {
+        params: {
+          id: this.domainId
+        }
+      };
+      $controller('memberscontroller', {
+        $scope: this.scope,
+        domainAPI: this.domainAPI,
+        $route: $route
+      });
+
+      Restangular.setFullResponse(true);
+    }));
+
+    describe('loadMoreElements method', function() {
+
+      it('should call the domainAPI.getMembers() method', function(done) {
+        this.callCount = 0;
+        this.maxCount = 10;
+        var self = this;
+        this.domainAPI.getMembers = function(domain_id, opts) {
+          self.callCount++;
+          expect(domain_id).to.equal(self.domainId);
+          expect(opts.limit).to.equal(self.searchConf.searchLimit);
+          expect(opts.offset).to.equal(self.searchConf.searchLimit * self.callCount);
+          expect(opts.search).to.equal('');
+          if (self.callCount < self.maxCount) {
+            self.scope.loadMoreElements();
+          }
+          else if (self.callCount === self.maxCount) {
+            done();
+          }
+        };
+        this.scope.loadMoreElements();
+      });
+
+    });
+
+    describe('search method', function() {
+
+      it('should call the domainAPI.getMembers() method with the correct query', function(done) {
+        this.scope.searchInput = 'testQuery';
+
+        var self = this;
+        this.domainAPI.getMembers = function(domain_id, opts) {
+          expect(domain_id).to.equal(self.domainId);
+          expect(opts.limit).to.equal(self.searchConf.searchLimit);
+          expect(opts.offset).to.equal(0);
+          expect(opts.search).to.equal(self.scope.searchInput);
+          done();
+        };
+        this.scope.doSearch();
+      });
+
+    });
+
+  });
+
 });
