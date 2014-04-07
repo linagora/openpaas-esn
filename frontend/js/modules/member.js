@@ -50,7 +50,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     };
 
     $scope.loadMoreElements = function() {
-      opts.offset += opts.limit;
+      opts.offset = $scope.members.length;
       updateMembersList();
     };
   }]);
