@@ -41,11 +41,11 @@ describe('The Search Form Angular module', function() {
       var html = '<search-form></search-form>';
 
       this.$rootScope.spinnerKey = 'spinnerKey';
-      this.$rootScope.spinnerConf= {radius:30, width:8, length: 16};
+      this.$rootScope.spinnerConf = {radius: 30, width: 8, length: 16};
 
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
-      this.checkGeneratedElement(element, 'spinnerKey', {radius:30, width:8, length: 16});
+      this.checkGeneratedElement(element, 'spinnerKey', {radius: 30, width: 8, length: 16});
     });
 
   });
