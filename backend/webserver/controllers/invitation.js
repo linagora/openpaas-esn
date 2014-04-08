@@ -46,8 +46,29 @@ module.exports.load = function(req, res, next) {
 /**
  * Dispatch the invitation to the invitation handler.
  */
-module.exports.confirm = function(req, res, next) {
-  return handler.process(req, res, next);
+module.exports.confirm = function(req, res) {
+  if (!req.invitation) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Invitation is missing'});
+  }
+
+  return handler.process(req.invitation, {}, function(err, result) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Internal error', details: 'Handler is unable to process the invitation ' + err.message});
+    }
+
+    if (result) {
+      if (result.redirect) {
+        return res.redirect(result.redirect);
+      }
+
+      if (result.status && result.status >= 200 && result.status < 300) {
+        return res.json(result.status, result.result);
+      }
+
+    } else {
+      return res.json(200);
+    }
+  });
 };
 
 /**
@@ -89,6 +110,33 @@ module.exports.create = function(req, res) {
 /**
  * Finalize the process.
  */
-module.exports.finalize = function(req, res, next) {
-  return handler.finalize(req, res, next);
+module.exports.finalize = function(req, res) {
+
+  if (!req.invitation) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Invitation is missing'});
+  }
+
+  var data = {
+    body: req.body,
+    params: req.params
+  };
+
+  handler.finalize(req.invitation, data, function(err, result) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Internal error', details: 'Handler is unable to finalize the invitation ' + err.message});
+    }
+
+    if (result) {
+      if (result.redirect) {
+        return res.redirect(result.redirect);
+      }
+
+      if (result.status && result.status >= 200 && result.status < 300) {
+        return res.json(result.status, result.result);
+      }
+
+    } else {
+      return res.json(200);
+    }
+  });
 };

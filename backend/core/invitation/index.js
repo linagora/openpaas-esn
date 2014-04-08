@@ -1,5 +1,7 @@
 'use strict';
 
+var pubsub = require('../pubsub').local;
+
 function getHandler(name) {
   name = name.replace(/[^A-Za-z0-9]+/, '');
   return require('./handlers/' + name);
@@ -12,10 +14,6 @@ function getHandler(name) {
 module.exports.validate = function(invitation, done) {
   if (!invitation) {
     return done(new Error('Can not validate null invitation'));
-  }
-
-  if (!invitation.type) {
-    return done(new Error('Invitation type is mandatory'));
   }
 
   try {
@@ -31,49 +29,70 @@ module.exports.validate = function(invitation, done) {
  *
  */
 module.exports.init = function(invitation, done) {
-  if (!invitation || !invitation.type) {
+  if (!invitation) {
     return done(new Error('Can not handle null invitation'));
   }
   try {
     var handler = getHandler(invitation.type);
-    return handler.init(invitation, done);
+    return handler.init(invitation, function(err, result) {
+      if (err) {
+        pubsub.topic('invitation:init:failure').publish({invitation: invitation, error: err});
+        return done(err, result);
+      }
+      pubsub.topic('invitation:init:success').publish(invitation);
+      return done(err, result);
+    });
   } catch (err) {
-    return done('Can not find invitation handler for ' + invitation.type);
+    return done(new Error('Can not find invitation handler for ' + invitation.type));
   }
 };
 
 /**
- * Process an invitation. Invitation is already loaded and injected in the request.
- * Using an express middleware allows to chain handlers and to work with request, response and next.
+ * Process an invitation. The process step may have some additional data which is not part of the initial invitation.
+ * This additional data is the data parameter.
  */
-module.exports.process = function(req, res, next) {
-  var invitation = req.invitation;
+module.exports.process = function(invitation, data, done) {
   if (!invitation) {
-    return next(new Error('Can not process empty invitation'));
+    return done(new Error('Can not process empty invitation'));
   }
   var handler;
   try {
     handler = getHandler(invitation.type);
   } catch (err) {
-    return next(new Error('Can not find invitation handler for ' + invitation.type));
+    return done(new Error('Can not find invitation handler for ' + invitation.type));
   }
-  return handler.process(req, res, next);
+  return handler.process(invitation, data, function(err, result) {
+    if (err) {
+      pubsub.topic('invitation:process:failure').publish({invitation: invitation, error: err});
+    } else {
+      pubsub.topic('invitation:process:success').publish(invitation);
+    }
+    return done(err, result);
+  });
 };
 
 /**
- * Finalize the process
+ * Finalize the process. The finalize step may have some additional user data which is not part of the initial invitation.
+ * This additional data is the data parameter.
  */
-module.exports.finalize = function(req, res, next) {
-  var invitation = req.invitation;
+module.exports.finalize = function(invitation, data, done) {
   if (!invitation) {
-    return next(new Error('Can not finalize empty invitation'));
+    return done(new Error('Can not finalize empty invitation'));
   }
   var handler;
   try {
     handler = getHandler(invitation.type);
   } catch (err) {
-    return next(new Error('Can not find invitation handler for ' + invitation.type));
+    return done(new Error('Can not find invitation handler for ' + invitation.type));
   }
-  return handler.finalize(req, res, next);
+
+  return handler.finalize(invitation, data, function(err, result) {
+    if (err) {
+      pubsub.topic('invitation:finalize:failure').publish({invitation: invitation, error: err});
+    } else {
+      pubsub.topic('invitation:finalize:success').publish(invitation);
+    }
+    return done(err, result);
+  });
 };
 
