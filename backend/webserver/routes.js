@@ -16,6 +16,8 @@ exports = module.exports = function(application) {
   var users = require('./controllers/users');
   application.get('/logout', users.logout);
   application.get('/api/profile/:uuid', authorize.requiresAPILogin, link.trackProfileView, users.profile);
+  application.get('/api/user', authorize.requiresAPILogin, users.user);
+  application.get('/api/user/:uuid', authorize.requiresAPILogin, users.profile);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);
@@ -48,6 +50,5 @@ exports = module.exports = function(application) {
   var recaptcha = require('./middleware/verify-recaptcha');
   application.get('/login', loginController.index);
   application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify, loginController.login);
-  application.get('/api/login/user', authorize.requiresAPILogin, loginController.user);
 };
 
