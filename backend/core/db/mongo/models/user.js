@@ -48,7 +48,9 @@ var UserSchema = new mongoose.Schema({
     },
     success: {type: Date}
   },
-  schemaVersion: {type: Number, default: 1}
+  schemaVersion: {type: Number, default: 1},
+  avatars: [String],
+  defaultAvatar: String
 });
 
 UserSchema.pre('save', function(next) {
