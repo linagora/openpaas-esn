@@ -13,17 +13,17 @@ module.exports.init = function(invitation, done) {
   return done(null, result);
 };
 
-module.exports.process = function(req, res, next) {
-  if (req.invitation) {
-    console.log('Process the invitation ', req.invitation);
-    res.redirect('/');
+module.exports.process = function(invitation, data, done) {
+  if (invitation) {
+    console.log('Process the invitation ', invitation);
+    done(null, {redirect: '/'});
   } else {
     console.log('No invitation found');
-    next();
+    done(new Error('Null invitation'));
   }
 };
 
-module.exports.finalize = function(req, res, next) {
+module.exports.finalize = function(invitation, data, done) {
   console.log('Finalized');
-  next();
+  done();
 };

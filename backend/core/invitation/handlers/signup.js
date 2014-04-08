@@ -46,37 +46,36 @@ module.exports.init = function(invitation, done) {
 /**
  * Redirect the user to the right invitation page
  */
-module.exports.process = function(req, res, next) {
-  if (req.invitation) {
-    return res.redirect('/#/signup/' + req.invitation.uuid);
+module.exports.process = function(invitation, data, done) {
+  if (invitation) {
+    return done(null, {redirect: '/#/signup/' + invitation.uuid});
   }
-  return next(new Error('Can not find any valid invitation'));
+  return done(new Error('Can not find any valid invitation'));
 };
 
 /**
  * Create the user resources
  */
-module.exports.finalize = function(req, res, next) {
+module.exports.finalize = function(invitation, data, done) {
 
-  if (!req.invitation) {
-    return next(new Error('Invalid invitation request'));
+  if (!invitation) {
+    return done(new Error('Invalid invitation request'));
   }
 
-  if (!req.body.data) {
-    return next(new Error('Request data is required'));
+  if (!data) {
+    return done(new Error('Request data is required'));
   }
 
   var Domain = mongoose.model('Domain');
   var User = mongoose.model('User');
   var Invitation = mongoose.model('Invitation');
-  var formValues = req.body.data;
-  var invitation = req.invitation;
+  var formValues = data.body.data;
 
   var userJson = {
     firstname: formValues.firstname,
     lastname: formValues.lastname,
     password: formValues.password,
-    emails: [req.invitation.data.email]
+    emails: [invitation.data.email]
   };
 
   var finalized = function(callback) {
@@ -178,9 +177,9 @@ module.exports.finalize = function(req, res, next) {
   async.waterfall([finalized, testDomainCompany, checkUser, createUser, createDomain, finalize, result], function(err, result) {
     if (err) {
       logger.error('Error while finalizing invitation', err);
-      return next(err);
+      return done(err);
     } else if (result) {
-      return res.json(201, result);
+      return done(null, {status: 201, result: result});
     }
   });
 };

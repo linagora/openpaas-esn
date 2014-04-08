@@ -137,38 +137,24 @@ describe('The signup handler', function() {
     it('should redirect to the invitation app if invitation is found', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
 
-      var req = {
-        invitation: {
-          uuid: 12345678
-        }
+      var invitation = {
+        uuid: 12345678
       };
 
-      var res = {
-        redirect: function() {
-          done();
-        }
-      };
-
-      var next = function() {
-      };
-      signup.process(req, res, next);
+      signup.process(invitation, {}, function(err, data) {
+        expect(err).to.not.exist;
+        expect(data).to.exist;
+        expect(data.redirect).to.exist;
+        done();
+      });
     });
 
-    it('should call next if invitation is not found', function(done) {
+    it('should send back error if invitation is not set', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-
-      var req = {
-      };
-
-      var res = {
-        redirect: function() {
-        }
-      };
-
-      var next = function() {
+      signup.process(null, {}, function(err) {
+        expect(err).to.exist;
         done();
-      };
-      signup.process(req, res, next);
+      });
     });
   });
 
@@ -204,43 +190,23 @@ describe('The signup handler', function() {
       this.mongoose.disconnect(done);
     });
 
-    it('should call next if invitation is not found', function(done) {
+    it('should send back error if invitation is not set', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-
-      var req = {
-      };
-
-      var res = {
-        redirect: function() {
-        }
-      };
-
-      var next = function() {
+      signup.finalize(null, null, function(err) {
+        expect(err).to.exist;
         done();
-      };
-      signup.finalize(req, res, next);
+      });
     });
 
-    it('should call next if body data is not set', function(done) {
+    it('should send back error if data is not set', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
-
-      var req = {
-        body: {},
-        invitation: {}
-      };
-
-      var res = {
-        redirect: function() {
-        }
-      };
-
-      var next = function() {
+      signup.finalize({}, null, function(err) {
+        expect(err).to.exist;
         done();
-      };
-      signup.finalize(req, res, next);
+      });
     });
 
-    it('should call next when domain / company exist', function(done) {
+    it('should send back error when domain / company exist', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       var emails = [];
 
@@ -259,17 +225,17 @@ describe('The signup handler', function() {
         };
 
         var i = new Domain(dom);
-        i.save(function(err, data) {
+        i.save(function(err, saved) {
           if (err) {
             return done(err);
           }
 
-          var req = {
-            invitation: {
-              data: {
-                email: 'foo@bar.com'
-              }
-            },
+          var invitation = {
+            data: {
+              email: 'foo@bar.com'
+            }
+          };
+          var data = {
             body: {
               data: {
                 firstname: 'foo',
@@ -282,16 +248,10 @@ describe('The signup handler', function() {
             }
           };
 
-          var res = {
-            redirect: function() {
-            }
-          };
-
-          var next = function(err) {
+          signup.finalize(invitation, data, function(err) {
+            expect(err).to.exist;
             done();
-          };
-
-          signup.finalize(req, res, next);
+          });
         });
       });
     });
@@ -312,8 +272,7 @@ describe('The signup handler', function() {
           return done(err);
         }
 
-        var req = {
-          invitation: saved,
+        var data = {
           body: {
             data: {
               firstname: 'foo',
@@ -326,41 +285,37 @@ describe('The signup handler', function() {
           }
         };
 
-        var res = {
-          redirect: function() {
-          },
-          json: function(code, data) {
-            expect(code).to.equal(201);
-            mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+        signup.finalize(saved, data, function(err, result) {
+          expect(err).to.not.exist;
+          expect(result).to.exist;
+          expect(result.status).to.equal(201);
+
+          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+            if (err) {
+              return done(err);
+            }
+            db.collection('users').findOne({_id: result.result.resources.user}, function(err, user) {
               if (err) {
                 return done(err);
               }
-              db.collection('users').findOne({_id: data.resources.user}, function(err, user) {
+              expect(user).to.exist;
+
+              db.collection('domains').findOne({_id: result.result.resources.domain}, function(err, domain) {
                 if (err) {
                   return done(err);
                 }
-                expect(user).to.exist;
-
-                db.collection('domains').findOne({_id: data.resources.domain}, function(err, domain) {
-                  if (err) {
-                    return done(err);
-                  }
-                  expect(domain).to.exist;
-                  db.close(function() {
-                    done();
-                  });
+                expect(domain).to.exist;
+                db.close(function() {
+                  done();
                 });
               });
             });
-          }
-        };
-        var next = function() {
-        };
-        signup.finalize(req, res, next);
+          });
+        });
       });
     });
 
-    it('should call next if invitation is already finalized', function(done) {
+    it('should send back error if invitation is already finalized', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
 
       var invitation = {
@@ -371,30 +326,22 @@ describe('The signup handler', function() {
         data: {}
       };
 
+      var data = {
+        body: {
+          data: {}
+        }
+      };
+
       var invit = new Invitation(invitation);
       invit.save(function(err, saved) {
         if (err) {
           return done(err);
         }
 
-        var req = {
-          invitation: saved,
-          body: {
-            data: {}
-          }
-        };
-
-        var res = {
-          redirect: function() {
-          }
-        };
-
-        var next = function() {
+        signup.finalize(saved, data, function(err) {
+          expect(err).to.exist;
           done();
-        };
-
-        signup.finalize(req, res, next);
-
+        });
       });
     });
   });

@@ -47,25 +47,19 @@ module.exports.init = function(invitation, done) {
 /**
  * Redirect the user to the right invitation page
  */
-module.exports.process = function(req, res, next) {
-  if (req.invitation) {
-    return res.redirect('/#/addmember/' + req.invitation.uuid);
+module.exports.process = function(invitation, data, done) {
+  if (invitation) {
+    return done(null, {redirect: '/#/addmember/' + invitation.uuid});
   }
-  return next(new Error('Can not find any valid invitation'));
+  return done(new Error('Can not find any valid invitation'));
 };
 
 /**
  * Create the user resources.
  */
-module.exports.finalize = function(req, res, next) {
-
-  if (!req.invitation) {
-    return next(new Error('Invalid invitation request'));
+module.exports.finalize = function(invitation, data, done) {
+  if (!invitation) {
+    return done(new Error('Invitation is missing'));
   }
-
-  if (!req.body.data) {
-    return next(new Error('Request data is required'));
-  }
-
-  return res.json(500, {error: 500, message: 'Not implemented', details: 'The add member finalize is not implemented'});
+  return done(new Error('Not implemented'));
 };

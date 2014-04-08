@@ -31,14 +31,61 @@ describe('The invitation core module', function() {
         done();
       });
     });
+
+    it('should publish an event on failure', function(done) {
+      var handler = {
+        init: function(invitation, cb) {
+          return cb(new Error('Fail'));
+        },
+        process: function(invitation, data, done) {
+          return done(null, true);
+        }
+      };
+
+      mockery.registerMock('./handlers/foobar', handler);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('invitation:init:failure').subscribe(function(data) {
+        done();
+      });
+      var i = {type: 'foobar', data: {foo: 'bar'}};
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
+      invitation.init(i, function(err, result) {
+        expect(err).to.exist;
+      });
+    });
+
+    it('should publish an event on success', function(done) {
+      var handler = {
+        init: function(invitation, cb) {
+          return cb(null, {});
+        },
+        process: function(invitation, data, done) {
+          return done(null, true);
+        }
+      };
+
+      mockery.registerMock('./handlers/foobarbaz', handler);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('invitation:init:success').subscribe(function(data) {
+        done();
+      });
+
+      var i = {type: 'foobarbaz', data: {foo: 'bar'}};
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
+      invitation.init(i, function(err, result) {
+        expect(err).to.not.exist;
+      });
+    });
   });
 
   describe('The process method', function() {
     it('should fail when invitation is not set', function(done) {
       var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
-      var req = {};
-      var res = {};
-      invitation.process(req, res, function(err) {
+      var invit = {};
+      var data = {};
+      invitation.process(invit, data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -49,16 +96,11 @@ describe('The invitation core module', function() {
       var i = {
         type: 'console'
       };
-      var req = {};
-      req.invitation = i;
-      var res = {
-        redirect: function() {
-          done();
-        }
-      };
-      invitation.process(req, res, function(err) {
+      var data = {};
+      invitation.process(i, data, function(err, result) {
         // next has been called by the console handler
         expect(err).to.not.exist;
+        done();
       });
     });
 
@@ -69,8 +111,8 @@ describe('The invitation core module', function() {
         init: function(invitation, cb) {
           return cb();
         },
-        process: function(req, res, next) {
-          return next(null, true);
+        process: function(invitation, data, done) {
+          return done(null, true);
         }
       };
 
@@ -84,19 +126,56 @@ describe('The invitation core module', function() {
         }
       };
 
-      var req = {};
-      req.invitation = i;
-      var res = {
-        redirect: function(path) {
-          console.log('Redirect to path : ', path);
-          done();
-        }
-      };
-
-      invitation.process(req, res, function(err, result) {
+      invitation.process(i, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
+      });
+    });
+
+    it('should publish an event on failure', function(done) {
+      var handler = {
+        init: function(invitation, cb) {
+          return cb(null, {});
+        },
+        process: function(invitation, data, done) {
+          return done(new Error('Fail'), true);
+        }
+      };
+
+      mockery.registerMock('./handlers/foobar', handler);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('invitation:process:failure').subscribe(function(data) {
+        done();
+      });
+      var i = {type: 'foobar', data: {foo: 'bar'}};
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
+      invitation.process(i, {}, function(err, result) {
+        expect(err).to.exist;
+      });
+    });
+
+    it('should publish an event on success', function(done) {
+      var handler = {
+        init: function(invitation, cb) {
+          return cb(null, {});
+        },
+        process: function(invitation, data, done) {
+          return done(null, true);
+        }
+      };
+
+      mockery.registerMock('./handlers/foobar', handler);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      pubsub.topic('invitation:process:success').subscribe(function(data) {
+        done();
+      });
+      var i = {type: 'foobar', data: {foo: 'bar'}};
+      var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
+      invitation.process(i, {}, function(err, result) {
+        expect(err).to.not.exist;
       });
     });
   });
@@ -144,28 +223,68 @@ describe('The invitation core module', function() {
     it('should call the handler to finalize the request', function(done) {
       var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
       var handler = {
-        finalize: function(req, res, next) {
-          return next(null, true);
+        finalize: function(invitation, data, done) {
+          return done(null, true);
         }
       };
 
-      var req = {};
-      var res = {};
-      req.invitation = {
+      var i = {
         type: 'finalizetest'
       };
-      req.body = {
-        foo: 'bar'
+      var data = {
+        body: {
+          foo: 'bar'
+        }
       };
 
       mockery.registerMock('./handlers/finalizetest', handler);
       mockery.registerMock('../../../../backend/core/invitation/handlers/finalizetest', handler);
 
-      invitation.finalize(req, res, function(err, result) {
+      invitation.finalize(i, data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
       });
+    });
+  });
+
+  it('should publish an event on failure', function(done) {
+    var handler = {
+      finalize: function(invitation, data, done) {
+        return done(new Error('Fail'), true);
+      }
+    };
+
+    mockery.registerMock('./handlers/foobar', handler);
+
+    var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+    pubsub.topic('invitation:finalize:failure').subscribe(function(data) {
+      done();
+    });
+    var i = {type: 'foobar', data: {foo: 'bar'}};
+    var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
+    invitation.finalize(i, {}, function(err, result) {
+      expect(err).to.exist;
+    });
+  });
+
+  it('should publish an event on success', function(done) {
+    var handler = {
+      finalize: function(invitation, data, done) {
+        return done(null, true);
+      }
+    };
+
+    mockery.registerMock('./handlers/foobar', handler);
+
+    var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+    pubsub.topic('invitation:finalize:success').subscribe(function(data) {
+      done();
+    });
+    var i = {type: 'foobar', data: {foo: 'bar'}};
+    var invitation = require(this.testEnv.basePath + '/backend/core/invitation');
+    invitation.finalize(i, {}, function(err, result) {
+      expect(err).to.not.exist;
     });
   });
 });
