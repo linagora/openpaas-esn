@@ -57,7 +57,7 @@ module.exports = function(config) {
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')
       jadeRenderConfig: {
-        __: function(str){
+        __: function(str) {
           return str;
         }
       },
