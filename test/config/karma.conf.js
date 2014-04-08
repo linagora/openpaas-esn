@@ -12,11 +12,16 @@ module.exports = function(config) {
       'frontend/components/angular-mocks/angular-mocks.js',
       'frontend/components/underscore/underscore.js',
       'frontend/components/restangular/dist/restangular.js',
+      'frontend/components/angular-spinner/angular-spinner.js',
+      'frontend/components/spin.js/spin.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
+      'frontend/components/ngInfiniteScroll/ng-infinite-scroll.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
-      'frontend/views/member/**/*.jade'
+      'frontend/views/member/**/*.jade',
+      'frontend/views/search/**/*.jade',
+      'frontend/views/infinite-list/**/*.jade'
     ],
 
     frameworks: ['mocha'],
@@ -51,6 +56,11 @@ module.exports = function(config) {
       stripPrefix: 'frontend',
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')
+      jadeRenderConfig: {
+        __: function(str){
+          return str;
+        }
+      },
       moduleName: 'jadeTemplates'
     }
 
