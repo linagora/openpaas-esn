@@ -135,8 +135,10 @@ module.exports.finalize = function(req, res) {
         return res.json(result.status, result.result);
       }
 
+      return res.json(201, result);
+
     } else {
-      return res.json(200);
+      return res.json(201);
     }
   });
 };

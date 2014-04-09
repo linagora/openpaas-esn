@@ -86,9 +86,9 @@ describe('The invitation controller', function() {
     var webserver = null;
     var called = false;
     var handler = {
-      finalize: function(req, res, next) {
+      finalize: function(invitation, data, done) {
         called = true;
-        return res.send(201);
+        return done(null, true);
       }
     };
 
