@@ -10,7 +10,6 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
      * @param {Hash} options - Hash with limit (int), offset (int) and search (string)
      */
     function getMembers(id, options) {
-      Restangular.setFullResponse(true);
       return Restangular.one('domains', id).getList('members', options);
     }
 
