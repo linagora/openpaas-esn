@@ -179,7 +179,7 @@ describe('The domains controller', function() {
             expect(res.body[0]._id).to.equal('' + foouser._id);
             expect(res.body[1]._id).to.equal('' + baruser._id);
             expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('2');
+            expect(res.headers['x-esn-items-count']).to.equal('4');
             done();
           });
         });
@@ -233,7 +233,7 @@ describe('The domains controller', function() {
             expect(res.body[0]._id).to.equal('' + bazuser._id);
             expect(res.body[1]._id).to.equal('' + quxuser._id);
             expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('2');
+            expect(res.headers['x-esn-items-count']).to.equal('4');
             done();
           });
         });
@@ -286,7 +286,7 @@ describe('The domains controller', function() {
               expect(res.body.length).to.equal(1);
               expect(res.body[0]._id).to.equal('' + bazuser._id);
               expect(res.headers['x-esn-items-count']).to.exist;
-              expect(res.headers['x-esn-items-count']).to.equal('1');
+              expect(res.headers['x-esn-items-count']).to.equal('4');
               done();
             });
           });
