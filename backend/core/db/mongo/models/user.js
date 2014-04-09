@@ -124,6 +124,22 @@ UserSchema.methods = {
     } else {
       return this.update({ $push: { domains: {domain_id: domain}}}, cb);
     }
+  },
+
+  isMemberOfDomain: function(domain, cb) {
+    if (!domain) {
+      return cb(new Error('Domain must not be null'));
+    }
+    var domainId = domain._id || domain;
+
+    var found = false;
+    this.domains.forEach(function(d) {
+      if (d.domain_id.equals(domainId)) {
+        found = true;
+      }
+    });
+
+    cb(null, found);
   }
 };
 
