@@ -3,7 +3,9 @@
 var emailAdresses = require('email-addresses');
 var userModule = require('../../core').user;
 var validator = require('validator');
-
+var imageModule = require('../../core').image;
+var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
+var uuid = require('node-uuid');
 //
 // Users controller
 //
@@ -179,3 +181,54 @@ function user(req, res) {
   return res.json(200, req.user);
 }
 module.exports.user = user;
+
+function postProfileAvatar(req, res) {
+  if (!req.user) {
+    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+  }
+  if (!req.query.mimetype) {
+    return res.json(400, {error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
+  }
+  var mimetype = req.query.mimetype.toLowerCase();
+  if (acceptedImageTypes.indexOf(mimetype) < 0) {
+    return res.json(400, {error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
+  }
+  if (!req.query.size) {
+    return res.json(400, {error: 400, message: 'Parameter missing', details: 'size parameter is required'});
+  }
+  var size = parseInt(req.query.size);
+  if (isNaN(size)) {
+    return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
+  }
+  var avatarId = uuid.v1();
+
+  function updateUserProfile() {
+    req.user.avatars.push(avatarId);
+    req.user.defaultAvatar = avatarId;
+    req.user.save(function(err, user) {
+      if (err) {
+        return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+      }
+      return res.json(201, {_id: avatarId});
+    });
+  }
+
+  function avatarRecordResponse(err, storedBytes) {
+    if (err) {
+      if (err.code === 1) {
+        return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+      } else if (err.code === 2) {
+        return res.json(500, {error: 500, message: 'Image processing failure', details: err.message});
+      } else {
+        return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+      }
+    } else if (storedBytes !== size) {
+      return res.json(412, {error: 412, message: 'Image size does not match', details: 'Image size given by user agent is ' + size +
+                           ' and image size returned by storage system is ' + storedBytes});
+    }
+    updateUserProfile();
+  }
+
+  imageModule.recordAvatar(avatarId, mimetype, {}, req, avatarRecordResponse);
+}
+module.exports.postProfileAvatar = postProfileAvatar;
