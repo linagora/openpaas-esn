@@ -280,18 +280,16 @@ describe('The addmember handler', function() {
                     return done(err);
                   }
                   expect(user).to.exist;
-                  new User(user).isMemberOfDomain(result.result.resources.domain, function(err, isMember) {
-                    expect(err).to.not.exist;
-                    expect(isMember).to.be.true;
-                    db.close(function() {
-                      done();
-                    });
+                  var isMember = new User(user).isMemberOfDomain(result.result.resources.domain);
+                  expect(isMember).to.be.true;
+                  db.close(function() {
+                    done();
                   });
                 });
               });
             });
-
           });
+
         });
       });
     });

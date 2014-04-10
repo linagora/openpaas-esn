@@ -378,7 +378,7 @@ describe('The User model', function() {
         user.isMemberOfDomain(null);
         done(new Error('An error should have been thrown'));
       }
-      catch(err) {
+      catch (err) {
         expect(err).to.exist;
         done();
       }
