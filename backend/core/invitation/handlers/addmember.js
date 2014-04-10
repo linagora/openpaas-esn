@@ -156,7 +156,6 @@ module.exports.finalize = function(invitation, data, done) {
   };
 
   var result = function(domain, user, callback) {
-    //TODO check what is the expected returned object
     var result = {
       status: 'created',
       resources: {
