@@ -126,9 +126,9 @@ UserSchema.methods = {
     }
   },
 
-  isMemberOfDomain: function(domain, cb) {
+  isMemberOfDomain: function(domain) {
     if (!domain) {
-      return cb(new Error('Domain must not be null'));
+      throw new Error('Domain must not be null');
     }
     var domainId = domain._id || domain;
 
@@ -136,10 +136,11 @@ UserSchema.methods = {
     this.domains.forEach(function(d) {
       if (d.domain_id.equals(domainId)) {
         found = true;
+        return false;
       }
+      return true;
     });
-
-    cb(null, found);
+    return found;
   }
 };
 

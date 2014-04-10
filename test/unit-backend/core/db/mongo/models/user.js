@@ -374,10 +374,14 @@ describe('The User model', function() {
       if (err) {
         done(err);
       }
-      user.isMemberOfDomain(null, function(err, isMember) {
+      try {
+        user.isMemberOfDomain(null);
+        done(new Error('An error should have been thrown'));
+      }
+      catch(err) {
         expect(err).to.exist;
         done();
-      });
+      }
     });
   });
 
@@ -390,11 +394,9 @@ describe('The User model', function() {
           done(err);
         }
 
-        user.isMemberOfDomain('wrongDomainId', function(err, isMember) {
-          expect(err).to.not.exist;
-          expect(isMember).to.be.false;
-          done();
-        });
+        var isMember = user.isMemberOfDomain('wrongDomainId');
+        expect(isMember).to.be.false;
+        done();
       });
     });
   });
@@ -425,19 +427,14 @@ describe('The User model', function() {
               }
 
               var loadedUser = new User(loaded);
-              loadedUser.isMemberOfDomain(domain, function(err, isMember) {
-                expect(err).to.not.exist;
-                expect(isMember).to.be.true;
+              var isMember = loadedUser.isMemberOfDomain(domain);
+              expect(isMember).to.be.true;
 
-                loadedUser.isMemberOfDomain(domain._id, function(err, isMember) {
-                  expect(err).to.not.exist;
-                  expect(isMember).to.be.true;
-                  db.close(done);
-                });
-              });
+              isMember = loadedUser.isMemberOfDomain(domain._id);
+              expect(isMember).to.be.true;
+              db.close(done);
             });
           });
-
         });
 
       });
