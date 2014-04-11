@@ -5,7 +5,6 @@ var async = require('async');
 var signupEmail = require('../../email/system/signupConfirmation');
 var logger = require('../..').logger;
 var mongoose = require('mongoose');
-var helper = require('./invitationHandlerHelper');
 
 /**
  * Validate the input data: required properties are firstname, lastname and email.
@@ -70,7 +69,7 @@ module.exports.finalize = function(invitation, data, done) {
   var User = mongoose.model('User');
   var formValues = data.body.data;
 
-  helper.initHelper(invitation, formValues);
+  var helper = require('./invitationHandlerHelper').initHelper(invitation, formValues);
 
   var createDomain = function(user, callback) {
     var domain = {

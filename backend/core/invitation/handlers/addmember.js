@@ -73,8 +73,7 @@ module.exports.finalize = function(invitation, data, done) {
   var formValues = data.body.data;
   var domain;
 
-  var helper = require('./invitationHandlerHelper');
-  helper.initHelper(invitation, formValues);
+  var helper = require('./invitationHandlerHelper').initHelper(invitation, formValues);
 
   var testDomainExists = function(callback) {
     Domain.testDomainCompany(formValues.company, formValues.domain, function(err, foundDomain) {
