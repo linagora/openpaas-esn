@@ -114,7 +114,7 @@ module.exports.profile = profile;
  */
 function user(req, res) {
   if (!req.user) {
-    return res.json(404, {error: 404, message: 'Not found', details: 'Domain not found'});
+    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
   }
   return res.json(200, req.user);
 }
