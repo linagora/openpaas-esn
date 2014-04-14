@@ -23,5 +23,13 @@ module.exports = {
     'suffix': 'o=rse',
     'ldapadmin': 'cn=root',
     'pwd': 'secret'
+  },
+
+  elasticsearch: {
+    'cmd': process.env.CMD_ELASTICSEARCH || 'elasticsearch',
+    'port': process.env.PORT_ELASTICSEARCH || 23459,
+    'communication_port': process.env.COMMUNICATION_PORT_ELASTICSEARCH || 23460,
+    'cluster_name': 'elasticsearch',
+    'data_path': 'tmp/elasticsearch'
   }
 };
