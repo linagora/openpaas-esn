@@ -33,6 +33,11 @@ var UserSchema = new mongoose.Schema({
   firstname: {type: String, lowercase: true, trim: true},
   lastname: {type: String, lowercase: true, trim: true},
   password: {type: String},
+  job_title: {type: String, trim: true},
+  service: {type: String, trim: true},
+  building_location: {type: String, trim: true},
+  office_location: {type: String, trim: true},
+  main_phone: {type: String, trim: true},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
