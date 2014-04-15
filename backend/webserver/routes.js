@@ -19,6 +19,7 @@ exports = module.exports = function(application) {
   application.get('/api/user', authorize.requiresAPILogin, users.user);
   application.get('/api/user/:uuid', authorize.requiresAPILogin, users.profile);
   application.get('/api/user/profile', authorize.requiresAPILogin, users.user);
+  application.put('/api/user/profile/:attribute', authorize.requiresAPILogin, users.updateProfile);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);
