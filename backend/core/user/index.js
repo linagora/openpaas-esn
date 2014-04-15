@@ -56,3 +56,7 @@ module.exports.findByEmail = function(email, callback) {
 module.exports.get = function(uuid, callback) {
   User.findOne({_id: uuid}, callback);
 };
+
+module.exports.updateProfile = function(user, parameter, value, callback) {
+  return callback();
+};

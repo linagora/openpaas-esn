@@ -2,6 +2,7 @@
 
 var emailAdresses = require('email-addresses');
 var userModule = require('../../core').user;
+var validator = require('validator');
 
 //
 // Users controller
@@ -105,6 +106,59 @@ function profile(req, res) {
   });
 }
 module.exports.profile = profile;
+
+/**
+ * Update a parameter value in the current user profile
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+function updateProfile(req, res) {
+  if (!req.user) {
+    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+  }
+
+  var validate = {
+    firstname: function() {
+      return validator.isAlpha(req.body) && validator.isLength(req.body, 1, 100);
+    },
+    lastname: function() {
+      return validator.isAlpha(req.body) && validator.isLength(req.body, 1, 100);
+    },
+    job_title: function() {
+      return !validator.isNull(req.body) && validator.isLength(req.body, 1, 100);
+    },
+    service: function() {
+      return !validator.isNull(req.body) && validator.isLength(req.body, 1, 400);
+    },
+    building_location: function() {
+      return !validator.isNull(req.body) && validator.isLength(req.body, 1, 400);
+    },
+    office_location: function() {
+      return !validator.isNull(req.body) && validator.isLength(req.body, 1, 400);
+    },
+    main_phone: function() {
+      return !validator.isNull(req.body) && validator.isLength(req.body, 1, 20);
+    }
+  };
+
+  var parameter = req.params.parameter;
+  if (!validate[parameter]) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Unknown parameter ' + parameter}});
+  }
+
+  if (!validate[parameter]()) {
+    return res.json(400, {error: {code: 400, message: 'Bad Parameter', details: 'Wrong parameter value for ' + parameter}});
+  }
+
+  userModule.updateProfile(user, req.params.parameter, req.body, function(err) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Server Error', details: err.message});
+    }
+    return res.json(200);
+  });
+}
+module.exports.updateProfile = updateProfile;
 
 /**
  * Returns the current authenticated user
