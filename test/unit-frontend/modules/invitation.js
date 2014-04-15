@@ -117,6 +117,10 @@ describe('The Invitation Angular module', function() {
       });
     }));
 
+    it('should initialize the editCompany scope variable', function() {
+      expect(this.scope.editCompany).to.equal(this.invitation.type !== 'addmember');
+    });
+
     describe('finalize() method', function() {
       it('should call the invitationAPI.finalize() method', function(done) {
         this.invitationAPI.finalize = function(id, settings) {
