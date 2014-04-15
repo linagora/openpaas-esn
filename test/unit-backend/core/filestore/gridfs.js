@@ -165,11 +165,8 @@ describe('The filestore gridfs module', function() {
         filestore.get(id, function(err, meta, stream) {
           expect(err).to.not.exist;
           expect(meta).to.not.exist;
-          stream.on('error', function(err) {
-            expect(err).to.match(/does not exist/);
-            done();
-          });
-          stream.pipe(process.stdout);
+          expect(stream).to.not.exist;
+          done();
         });
       });
     });
@@ -256,4 +253,47 @@ describe('The filestore gridfs module', function() {
       });
     });
   });
+
+  // getAsFileStoreMeta
+
+  it('should return {} on undefined input', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    expect(filestore.getAsFileStoreMeta()).to.be.empty;
+    done();
+  });
+
+  it('should return a hash on empty input', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    expect(filestore.getAsFileStoreMeta({})).to.exist;
+    done();
+  });
+
+  it('should return a valid hash', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var meta = {
+      id: '534cee93a56a09ae8bcac4cb',
+      filename: 'd946c3cc-00ec-440f-b984-01ef165a263e',
+      contentType: 'application/text',
+      length: 61,
+      chunkSize: 1024,
+      uploadDate: 'Tue Apr 15 2014 10:32:19 GMT+0200 (CEST)',
+      aliases: null,
+      metadata: {
+        filename: 'README.md',
+        foo: 'bar',
+        bar: 'baz'
+      },
+      md5: 'ab33e0dd1b82dd06cb8c8172c3df8b21'
+    };
+
+    var out = filestore.getAsFileStoreMeta(meta);
+    expect(out).to.exist;
+    expect(out.id).to.equal(meta.filename);
+    expect(out.contentType).to.equal(meta.contentType);
+    expect(out.length).to.equal(meta.length);
+    expect(out.metadata).to.deep.equal(meta.metadata);
+    expect(out.md5).to.equal(meta.md5);
+    done();
+  });
+
 });
