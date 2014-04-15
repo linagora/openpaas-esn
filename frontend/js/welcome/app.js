@@ -4,7 +4,7 @@ angular.module('welcomeApp', ['esn.login', 'esn.invitation', 'esn.company', 'res
   .config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/signup/:id', {
-      templateUrl: '/views/welcome/partials/finalize',
+      templateUrl: '/views/invitation/partials/finalize',
       controller: 'finalize',
       resolve: {
         invitation: function(invitationAPI, $route) {
