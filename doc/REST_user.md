@@ -99,7 +99,7 @@ The attribute value.
 
 **Request:**
 
-    POST /api/user/profile/firstname
+    PUT /api/user/profile/firstname
     Accept: application/json
     Host: localhost:8080
 
