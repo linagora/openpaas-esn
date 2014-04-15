@@ -218,4 +218,59 @@ describe('The user core module', function() {
       });
     });
   });
+
+  describe('updateProfile fn', function() {
+
+    it('should send back an error when user is undefined', function(done) {
+      userModule.updateProfile(null, 'param', 'value', function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back an error when param is undefined', function(done) {
+      userModule.updateProfile('1223', null, 'value', function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back an error when value is undefined', function(done) {
+      userModule.updateProfile('1223', 'param', null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should update the firstname', function(done) {
+      var firstname = 'John';
+      var database;
+
+      var user = {
+        firstname: 'foo',
+        emails: ['test1@linagora.com']
+      };
+
+      var updateUser = function(err, saved) {
+        userModule.updateProfile(saved[0]._id, 'firstname', firstname, function(err) {
+          expect(err).to.be.null;
+          database.collection('users').findOne({_id: saved[0]._id}, function(err, updated) {
+            if (err) {
+              return done(err);
+            }
+            expect(updated.firstname).to.equal(firstname);
+            done();
+          });
+        });
+      };
+
+      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        database = db;
+        db.collection('users').insert(user, updateUser);
+      });
+    });
+  });
 });

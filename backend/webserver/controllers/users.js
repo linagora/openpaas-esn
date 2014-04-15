@@ -151,7 +151,7 @@ function updateProfile(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Parameter', details: 'Wrong parameter value for ' + parameter}});
   }
 
-  userModule.updateProfile(user, req.params.parameter, req.body, function(err) {
+  userModule.updateProfile(req.user, parameter, req.body, function(err) {
     if (err) {
       return res.json(500, {error: 500, message: 'Server Error', details: err.message});
     }
