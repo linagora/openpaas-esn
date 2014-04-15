@@ -30,8 +30,8 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should store the file without error', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
-    var file = path.resolve(__dirname + '/data/README.md');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
 
     var id = uuid.v4();
@@ -43,8 +43,8 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should store the file and return valid values', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
-    var file = path.resolve(__dirname + '/data/README.md');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
 
     hash_file(file, 'md5', function(err, hash) {
       if (err) {
@@ -66,7 +66,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should fail to store when input stream is not set', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     var id = uuid.v4();
     filestore.store(id, 'application/text', {}, null, function(err, data) {
       expect(err).to.exist;
@@ -75,7 +75,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should fail to store when input id is not set', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     filestore.store(null, 'application/text', {}, null, function(err, data) {
       expect(err).to.exist;
       done();
@@ -85,7 +85,7 @@ describe('The filestore gridfs module', function() {
   // META
 
   it('should fail to get meta when input id is not set', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     filestore.getMeta(null, function(err, data) {
       expect(err).to.exist;
       expect(data).to.not.exist;
@@ -94,8 +94,8 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should return valid metadata', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
-    var file = path.resolve(__dirname + '/data/README.md');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
     var userMeta = {
       foo: 'bar',
@@ -123,7 +123,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should return null when trying to get metadata from unknown file', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     filestore.getMeta('123', function(err, data) {
       expect(err).to.not.exist;
       expect(data).to.not.exist;
@@ -133,7 +133,7 @@ describe('The filestore gridfs module', function() {
 
   // DELETE
   it('should fail to delete when input id is not set', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     filestore.delete(null, function(err, data) {
       expect(err).to.exist;
       done();
@@ -141,7 +141,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should send back null when trying to get delete from an unknown id', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     filestore.delete('123', function(err) {
       expect(err).to.not.exist;
       done();
@@ -149,8 +149,8 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should delete a file from its id', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
-    var file = path.resolve(__dirname + '/data/README.md');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
 
     var id = uuid.v4();
@@ -177,16 +177,16 @@ describe('The filestore gridfs module', function() {
 
   // GET
   it('should send back an error when trying to get a file from a null id', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     filestore.get(null, function(err, meta, stream) {
       expect(err).to.exist;
       done();
     });
   });
 
-  it('should send back an the file from its id', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
-    var file = path.resolve(__dirname + '/data/README.md');
+  it('should send back an he file from its id', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
 
     var id = uuid.v4();
@@ -208,7 +208,7 @@ describe('The filestore gridfs module', function() {
           done(err);
         });
         stream.on('end', function() {
-          expect(calls > 0).to.be.true;
+          expect(calls).to.be.above(0);
           done();
         });
       });
@@ -216,8 +216,8 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should return a valid content', function(done) {
-    var filestore = require('../../../../backend/core/filestore/gridfs');
-    var file = path.resolve(__dirname + '/data/README.md');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var fs = require('fs');
     var stream = fs.createReadStream(file);
     var out = this.testEnv.tmp + '/' + uuid.v4();

@@ -3,6 +3,7 @@
 
 var Grid = require('gridfs-stream');
 var mongoose = require('mongoose');
+var chunk_size = 1024;
 
 module.exports.store = function(id, contentType, metadata, stream, callback) {
   if (!id) {
@@ -26,7 +27,7 @@ module.exports.store = function(id, contentType, metadata, stream, callback) {
     content_type: contentType
   };
 
-  opts.chunk_size = 1024;
+  opts.chunk_size = chunk_size;
   opts.metadata = metadata;
 
   var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
