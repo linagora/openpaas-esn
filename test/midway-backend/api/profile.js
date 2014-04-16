@@ -18,6 +18,7 @@ describe('The profile API', function() {
       var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
 
       foouser = new User({
+        firstname: 'John',
         username: 'Foo',
         password: password,
         emails: ['foo@bar.com']
@@ -95,6 +96,31 @@ describe('The profile API', function() {
               expect(links[0].target).to.exist;
               expect(links[0].target.resource).to.deep.equal(baruser._id);
               expect(links[0].target.type).to.equal('User');
+              done();
+            });
+          });
+      });
+  });
+
+  it('should be able to update his profile', function(done) {
+    var User = this.mongoose.model('User');
+    var firstname = 'foobarbaz';
+    request(app)
+      .post('/api/login')
+      .send({username: foouser.emails[0], password: password, rememberme: true})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).put('/api/user/profile/firstname');
+        req.cookies = cookies;
+        req.send({value: firstname}).expect(200)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            User.findOne({_id: foouser._id}, function(err, user) {
+              if (err) {
+                return done(err);
+              }
+              expect(user.firstname).to.equal(firstname);
               done();
             });
           });

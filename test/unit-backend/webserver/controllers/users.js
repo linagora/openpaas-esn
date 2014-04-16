@@ -134,7 +134,7 @@ describe('The User controller', function() {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {
         params: {
-          parameter: 'foobarbazqix'
+          attribute: 'foobarbazqix'
         },
         user: {
           emails: ['foo@bar.com']
@@ -145,7 +145,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.details).to.match(/Unknown parameter/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
@@ -157,7 +157,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'firstname'
+          attribute: 'firstname'
         },
         body: {},
         user: {
@@ -169,7 +169,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -181,9 +181,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'firstname'
+          attribute: 'firstname'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -193,7 +193,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -205,9 +205,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'firstname'
+          attribute: 'firstname'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -217,7 +217,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -229,9 +229,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'firstname'
+          attribute: 'firstname'
         },
-        body: 'John',
+        body: {value: 'John'},
         user: {
           emails: ['foo@bar.com']
         }
@@ -252,7 +252,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'lastname'
+          attribute: 'lastname'
         },
         body: {},
         user: {
@@ -264,7 +264,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -276,9 +276,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'lastname'
+          attribute: 'lastname'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -288,7 +288,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -300,9 +300,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'lastname'
+          attribute: 'lastname'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -312,7 +312,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -324,9 +324,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'lastname'
+          attribute: 'lastname'
         },
-        body: 'Doe',
+        body: {value: 'Doe'},
         user: {
           emails: ['foo@bar.com']
         }
@@ -347,7 +347,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'job_title'
+          attribute: 'job_title'
         },
         body: undefined,
         user: {
@@ -359,7 +359,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -371,9 +371,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'job_title'
+          attribute: 'job_title'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -383,7 +383,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -395,9 +395,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'job_title'
+          attribute: 'job_title'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -407,7 +407,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -419,9 +419,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'job_title'
+          attribute: 'job_title'
         },
-        body: 'Node Hacker',
+        body: {value: 'Node Hacker'},
         user: {
           emails: ['foo@bar.com']
         }
@@ -442,7 +442,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'service'
+          attribute: 'service'
         },
         body: undefined,
         user: {
@@ -454,7 +454,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -466,9 +466,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'service'
+          attribute: 'service'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -478,7 +478,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -490,9 +490,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'service'
+          attribute: 'service'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -502,7 +502,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -514,9 +514,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'service'
+          attribute: 'service'
         },
-        body: 'Development Team',
+        body: {value: 'Development Team'},
         user: {
           emails: ['foo@bar.com']
         }
@@ -537,7 +537,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'building_location'
+          attribute: 'building_location'
         },
         body: undefined,
         user: {
@@ -549,7 +549,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -561,9 +561,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'building_location'
+          attribute: 'building_location'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -573,7 +573,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -585,9 +585,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'building_location'
+          attribute: 'building_location'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -597,7 +597,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -609,9 +609,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'building_location'
+          attribute: 'building_location'
         },
-        body: '80, rue Roque de Fillol - 92800 Puteaux',
+        body: {value: '80, rue Roque de Fillol - 92800 Puteaux'},
         user: {
           emails: ['foo@bar.com']
         }
@@ -632,7 +632,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'office_location'
+          attribute: 'office_location'
         },
         body: undefined,
         user: {
@@ -644,7 +644,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -656,9 +656,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'office_location'
+          attribute: 'office_location'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -668,7 +668,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -680,9 +680,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'office_location'
+          attribute: 'office_location'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -692,7 +692,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -704,9 +704,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'building_location'
+          attribute: 'building_location'
         },
-        body: 'First floor, Room 123456789',
+        body: {value: 'First floor, Room 123456789'},
         user: {
           emails: ['foo@bar.com']
         }
@@ -727,7 +727,7 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'main_phone'
+          attribute: 'main_phone'
         },
         body: undefined,
         user: {
@@ -739,7 +739,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -751,9 +751,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'main_phone'
+          attribute: 'main_phone'
         },
-        body: '',
+        body: {value: ''},
         user: {
           emails: ['foo@bar.com']
         }
@@ -763,7 +763,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -775,9 +775,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'main_phone'
+          attribute: 'main_phone'
         },
-        body: new Array(1000).join('a'),
+        body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
         }
@@ -787,7 +787,7 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Parameter/);
+          expect(error.error.message).to.match(/Bad Request/);
           done();
         }
       };
@@ -799,9 +799,9 @@ describe('The User controller', function() {
 
       var req = {
         params: {
-          parameter: 'building_location'
+          attribute: 'building_location'
         },
-        body: '+33645560000',
+        body: {value: '+33645560000'},
         user: {
           emails: ['foo@bar.com']
         }
