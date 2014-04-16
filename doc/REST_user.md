@@ -84,7 +84,7 @@ Update an element of the current user profile.
 
 **Request JSON Object:**
 
-The attribute value.
+- value: The attribute value.
 
 **Response Headers:**
 
@@ -103,7 +103,7 @@ The attribute value.
     Accept: application/json
     Host: localhost:8080
 
-    Johnny
+    {value: 'Johnny'}
 
 **Response:**
 
