@@ -36,7 +36,8 @@
     "recaptcha": "~1.2.0",
     "chokidar": "~0.8.1",
     "hash_file": "~0.1.1",
-    "q": "~1.0.0"
+    "q": "~1.0.0",
+    "gridfs-stream": "~0.4.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
