@@ -181,7 +181,7 @@ describe('The filestore gridfs module', function() {
     });
   });
 
-  it('should send back an he file from its id', function(done) {
+  it('should send back the file from its id', function(done) {
     var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
