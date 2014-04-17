@@ -8,8 +8,8 @@
 var defaultAvatarSize = 128;
 var logger = require('..').logger;
 var PassThrough = require('stream').PassThrough;
-var gm = require('gm');
-var filestore = require('..').filestore;
+var gm = require('gm').subClass({ imageMagick: true });
+var filestore = require('../filestore');
 var async = require('async');
 
 function getDuplicates(readable) {
