@@ -60,14 +60,15 @@ function recordAvatar(id, contentType, opts, readable, callback) {
   async.parallel(
     [
       function(callback) {
-        filestore.store(id, contentType, opts, streams[0], function(err, size) {
+        filestore.store(id, contentType, opts, streams[0], function(err, file) {
+          var fileStoreMeta = filestore.getAsFileStoreMeta(file);
           if (err) {
             logger.debug('failed to record original image');
             logger.debug(err);
-            responses.datastore = {error: err, size: size};
+            responses.datastore = {error: err, size: fileStoreMeta.length};
             responses.datastore.error.code = 1;
           } else {
-            responses.datastore.size = size;
+            responses.datastore.size = fileStoreMeta.length;
           }
           callback();
         });

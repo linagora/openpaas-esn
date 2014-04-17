@@ -59,19 +59,29 @@ describe('The core image module', function() {
   });
 
   describe('recordAvatar method', function() {
+    var tmpdir, called;
+
+    beforeEach(function() {
+      tmpdir = this.testEnv.tmp;
+      called = 0;
+    });
+
     it('should return an error if the image is not a square', function(done) {
-      var tmpdir = this.testEnv.tmp;
       var filestoreMock = {
         store: function(id, contentType, opts, readableStream, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
-          return callback(null, 42);
+          return callback(null, { length: 42 });
         },
         'delete': function(id, callback) {
           return callback(null);
+        },
+        getAsFileStoreMeta: function(file) {
+          return { length: file.length };
         }
       };
-      mockery.registerMock('./filestore', filestoreMock);
+
+      mockery.registerMock('../filestore', filestoreMock);
       var core = require(this.testEnv.basePath + '/backend/core'),
           image = core.image;
 
@@ -85,15 +95,13 @@ describe('The core image module', function() {
     });
 
     it('should call filestore.store and then filestore.delete if the image is not a square', function(done) {
-      var tmpdir = this.testEnv.tmp;
-      var called = 0;
       var filestoreMock = {
         store: function(id, contentType, opts, readableStream, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           expect(id).to.equal('666');
           called++;
-          return callback(null, 42);
+          return callback(null, { length: 42 });
         },
         'delete': function(id, callback) {
           expect(id).to.equal('666');
@@ -101,9 +109,13 @@ describe('The core image module', function() {
           expect(called).to.equal(2);
           done();
           return callback(null);
+        },
+        getAsFileStoreMeta: function(file) {
+          return { length: file.length };
         }
       };
-      mockery.registerMock('./filestore', filestoreMock);
+
+      mockery.registerMock('../filestore', filestoreMock);
       var core = require(this.testEnv.basePath + '/backend/core'),
           image = core.image;
 
@@ -113,18 +125,21 @@ describe('The core image module', function() {
     });
 
     it('should return a gm error if the image is not an image', function(done) {
-      var tmpdir = this.testEnv.tmp;
       var filestoreMock = {
         store: function(id, contentType, opts, readableStream, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
-          return callback(null, 42);
+          return callback(null, { length: 42 });
         },
         'delete': function(id, callback) {
           return callback(null);
+        },
+        getAsFileStoreMeta: function(file) {
+          return { length: file.length };
         }
       };
-      mockery.registerMock('./filestore', filestoreMock);
+
+      mockery.registerMock('../filestore', filestoreMock);
       var core = require(this.testEnv.basePath + '/backend/core'),
           image = core.image;
 
@@ -132,21 +147,20 @@ describe('The core image module', function() {
       image.recordAvatar('666', 'image/jpeg', {}, is, function(err, size) {
         expect(err).to.be.defined;
         expect(err.code).to.equal(2);
-        expect(err.message).to.match(/No decode delegate for this image format/);
+        expect(err.message).to.match(/format/);
+        expect(err.message).to.match(/image/);
         done();
       });
     });
 
     it('should call filestore.store and then filestore.delete if the image is not an image', function(done) {
-      var tmpdir = this.testEnv.tmp;
-      var called = 0;
       var filestoreMock = {
         store: function(id, contentType, opts, readableStream, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           expect(id).to.equal('666');
           called++;
-          return callback(null, 42);
+          return callback(null, { length: 42 });
         },
         'delete': function(id, callback) {
           expect(id).to.equal('666');
@@ -154,9 +168,13 @@ describe('The core image module', function() {
           expect(called).to.equal(2);
           done();
           return callback(null);
+        },
+        getAsFileStoreMeta: function(file) {
+          return { length: file.length };
         }
       };
-      mockery.registerMock('./filestore', filestoreMock);
+
+      mockery.registerMock('../filestore', filestoreMock);
       var core = require(this.testEnv.basePath + '/backend/core'),
           image = core.image;
 
@@ -166,7 +184,6 @@ describe('The core image module', function() {
     });
 
     it('should call filestore.store twice if the image is correct', function(done) {
-      var tmpdir = this.testEnv.tmp;
       var filestorestore2 = function(id, contentType, opts, readableStream, callback) {
         expect(id).to.equal('666-128');
         done();
@@ -177,10 +194,14 @@ describe('The core image module', function() {
           readableStream.pipe(ws);
           expect(id).to.equal('666');
           filestoreMock.store = filestorestore2;
-          return callback(null, 42);
+          return callback(null, { length: 42 });
+        },
+        getAsFileStoreMeta: function(file) {
+          return { length: file.length };
         }
       };
-      mockery.registerMock('./filestore', filestoreMock);
+
+      mockery.registerMock('../filestore', filestoreMock);
       var core = require(this.testEnv.basePath + '/backend/core'),
           image = core.image;
 
