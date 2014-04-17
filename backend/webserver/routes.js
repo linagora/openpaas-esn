@@ -22,6 +22,7 @@ exports = module.exports = function(application) {
   application.get('/api/user/profile', authorize.requiresAPILogin, users.user);
   application.put('/api/user/profile/:attribute', authorize.requiresAPILogin, users.updateProfile);
   application.post('/api/user/profile/avatar', authorize.requiresAPILogin, users.postProfileAvatar);
+  application.get('/api/user/profile/avatar', authorize.requiresAPILogin, users.getProfileAvatar);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);

@@ -231,4 +231,21 @@ function postProfileAvatar(req, res) {
 
   imageModule.recordAvatar(avatarId, mimetype, {}, req, avatarRecordResponse);
 }
+
 module.exports.postProfileAvatar = postProfileAvatar;
+
+function getProfileAvatar(req, res) {
+  if (!req.user) {
+    return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
+  }
+
+  imageModule.getAvatar(req.user.defaultAvatar, function(err, fileStoreMeta, readable) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+    }
+    res.status(200);
+    return readable.pipe(res);
+  });
+}
+
+module.exports.getProfileAvatar = getProfileAvatar;

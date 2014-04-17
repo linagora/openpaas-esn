@@ -129,7 +129,12 @@ function setDefaultAvatarSize(size) {
   return true;
 }
 
+function getAvatar(id, callback) {
+  return filestore.get(id, callback);
+}
+
 module.exports.getSize = getSize;
+module.exports.getAvatar = getAvatar;
 module.exports.checkImageSquare = checkImageSquare;
 module.exports.recordAvatar = recordAvatar;
 module.exports.setDefaultAvatarSize = setDefaultAvatarSize;
