@@ -209,7 +209,7 @@ function postProfileAvatar(req, res) {
       if (err) {
         return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
       }
-      return res.json(201, {_id: avatarId});
+      return res.json(200, {_id: avatarId});
     });
   }
 

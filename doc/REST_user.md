@@ -122,7 +122,7 @@ Post a new avatar for the currently logged in user. The posted avatar is set as 
 
 This endpoint expects the request body to be the raw image data
 
-- 201 Created. With the recorded image ID
+- 200 Ok. With the recorded image ID
 - 400 Bad request. The current request is missing mandatory parameters
 - 412 Precondition failed. The number of bytes recoreded by the file storage service differs from the number of bytes given by the user agent
 - 500 Internal server error: there was a problem, either storing the file, manipulating the image, or updating the user properties.
@@ -135,7 +135,7 @@ This endpoint expects the request body to be the raw image data
 
 **Response:**
 
-    HTTP/1.1 201 Created
+    HTTP/1.1 200 Ok
     {
         _id: '9f888058-e9e6-4915-814b-935d5b88389d'
     }

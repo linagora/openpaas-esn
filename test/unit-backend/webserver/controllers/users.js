@@ -1055,7 +1055,7 @@ describe('The User controller', function() {
       users.postProfileAvatar(req, res);
     });
 
-    it('should return 201 and the avatar id, if recording is successfull', function(done) {
+    it('should return 200 and the avatar id, if recording is successfull', function(done) {
       var imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
           avatarRecordResponse(null, 42);
@@ -1075,7 +1075,7 @@ describe('The User controller', function() {
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
-          expect(code).to.equal(201);
+          expect(code).to.equal(200);
           expect(data._id).to.exist;
           expect(data._id).to.match(/^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$/);
           done();
