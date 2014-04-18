@@ -147,20 +147,21 @@ Get the avatar for the currently logged in user.
 **Request Headers:**
 
 - Accept: application/json
+- If-Modified-Since: Date
 
 **Response Headers:**
 
 - Content-Length: Document size
 - Content-Type: application/json
+- Last-Modified: Date
 
 **Status Codes:**
 
 - 200 Ok. With the stream of the avatar
 - 304 Not modified. The avatar has not been changed since the last GET
-- 400 Bad request. The current request is missing mandatory parameters
 - 401 Unauthorized. The current request does not contains any valid data to be used for authentication
 - 404 Not found.
-- 500 Internal server error: there was a problem, either storing the file, manipulating the image, or updating the user properties.
+- 500 Internal server error: there was a problem with recovering the file.
 
 **Request:**
 
@@ -171,12 +172,5 @@ Get the avatar for the currently logged in user.
 **Response:**
 
     HTTP/1.1 200 Ok
+    Last-Modified: Wed, 18 Dec 2013 14:51:51 GMT
 
-    {
-        "_id":"534f9b2b11cc722458b09afe",
-        "contentType":"image/jpeg",
-        "length":10755,
-        "md5":"26d7bd52a5da0f24b4e9fb1d07cbc824",
-        "uploadDate":"2014-04-17T09:13:15.599Z",
-        "metadata":{}
-    }
