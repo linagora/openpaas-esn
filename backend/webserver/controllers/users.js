@@ -243,8 +243,14 @@ function getProfileAvatar(req, res) {
     if (err) {
       return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
     }
-    res.status(200);
-    return readable.pipe(res);
+
+    if (req.headers['if-modified-since'] && req.headers['if-modified-since'] === fileStoreMeta.uploadDate.toString()) {
+      return res.send(304);
+    } else {
+      res.header('Last-Modified', fileStoreMeta.uploadDate);
+      res.status(200);
+      return readable.pipe(res);
+    }
   });
 }
 
