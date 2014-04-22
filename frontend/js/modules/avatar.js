@@ -3,6 +3,7 @@
 angular.module('esn.avatar', []).controller('avatarEdit', function($scope) {
 
   $scope.error = null;
+  $scope.preview = false;
 
 }).factory('selectionService', function($rootScope) {
 
@@ -120,6 +121,7 @@ angular.module('esn.avatar', []).controller('avatarEdit', function($scope) {
             scope.error = 'Wrong file type, please select a valid image';
             scope.$apply();
           } else {
+            scope.preview = true;
             scope.error = null;
             scope.$apply();
             var reader = new FileReader();
