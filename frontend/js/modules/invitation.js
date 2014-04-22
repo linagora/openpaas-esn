@@ -43,6 +43,8 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
     if (!$scope.notFound) {
       $scope.invitationId = invitation.uuid;
       $scope.settings = invitation.data;
+
+      $scope.editCompany = invitation.type === 'addmember' ? false : true;
     }
 
     $scope.finalizeButton = {

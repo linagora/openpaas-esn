@@ -23,6 +23,7 @@ div.login-bg(id='form', ng-show="!notFound && !error && !complete")
                                     ng-minlength='1'
                                     ensure-unique-company
                                     esn-track-first-blur
+                                    ng-disabled='{{!editCompany}}'
                                     )
                 span.glyphicon.glyphicon-asterisk.form-control-feedback.rotate(ng-show='form.company.$error.ajax')
                 
@@ -31,7 +32,7 @@ div.login-bg(id='form', ng-show="!notFound && !error && !complete")
                 
             .form-group(ng-class='{"has-error": form.domain._blur && form.domain.$invalid}')
                 label.control-label(for='domain') #{__('Domain Name')}
-                input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1' esn-track-first-blur)
+                input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1' esn-track-first-blur ng-disabled='{{!editCompany}}')
                 .help-block(ng-show='form.domain._blur && !form.domain.$viewValue') #{__('Domain name is required')}
 
             .form-group(ng-class='{"has-error": form.confirmpassword._blur && form.confirmpassword.$invalid}')
