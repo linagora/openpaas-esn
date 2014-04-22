@@ -56,3 +56,14 @@ module.exports.findByEmail = function(email, callback) {
 module.exports.get = function(uuid, callback) {
   User.findOne({_id: uuid}, callback);
 };
+
+module.exports.updateProfile = function(user, parameter, value, callback) {
+  if (!user || !parameter || !value) {
+    return callback(new Error('User, parameter and value are required'));
+  }
+
+  var id = user._id || user;
+  var update = {};
+  update[parameter] = value;
+  User.update({_id: id}, {$set: update}, callback);
+};
