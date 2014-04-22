@@ -1,39 +1,8 @@
 'use strict';
 
-angular.module('esn.avatar', []).controller('avatarEdit', function($scope, selectionService) {
+angular.module('esn.avatar', []).controller('avatarEdit', function($scope) {
 
   $scope.error = null;
-  var inputFile = document.getElementById('profile_image');
-
-  $scope.selected = function(x) {
-    selectionService.broadcastSelection(x);
-  };
-
-  $scope.readData = function(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    var file = evt.dataTransfer !== undefined ? evt.dataTransfer.files[0] : evt.target.files[0];
-
-    if (!file.type.match(/^image\//)) {
-      $scope.error = 'Wrong file type, please select an image';
-      $scope.$apply();
-    } else {
-      $scope.error = null;
-      $scope.$apply();
-      var reader = new FileReader();
-      reader.onload = (function(theFile) {
-        return function(e) {
-          var image = new Image();
-          image.src = e.target.result;
-          image.onload = function() {
-            selectionService.setImage(image);
-          };
-        };
-      })(file);
-      reader.readAsDataURL(file);
-    }
-  };
-  inputFile.addEventListener('change', $scope.readData, false);
 
 }).factory('selectionService', function($rootScope) {
 
@@ -62,8 +31,9 @@ angular.module('esn.avatar', []).controller('avatarEdit', function($scope, selec
     replace: true,
     link: function($scope, element) {
       $scope.$on('crop:selected', function(context, data) {
+
         var selection = data.cords;
-        var ratio = data.ratio;
+        var ratio = data.ratio || 1;
 
         var img = selectionService.getImage();
         var canvas = element[0];
@@ -79,11 +49,11 @@ angular.module('esn.avatar', []).controller('avatarEdit', function($scope, selec
     }
   };
 }).directive('imgLoaded', function(selectionService) {
+
   return {
     restrict: 'E',
     replace: true,
     scope: {
-      selected: '&',
       width: '='
     },
     link: function(scope, element, attr) {
@@ -124,10 +94,10 @@ angular.module('esn.avatar', []).controller('avatarEdit', function($scope, selec
           minSize: [128, 128],
           aspectRatio: 1,
           onSelect: function(x) {
-            scope.selected({data: {cords: x, ratio: ratio}});
+            selectionService.broadcastSelection({cords: x, ratio: ratio});
           },
           onChange: function(x) {
-            scope.selected({data: {cords: x, ratio: ratio}});
+            selectionService.broadcastSelection({cords: x, ratio: ratio});
           }
         });
 
@@ -135,4 +105,37 @@ angular.module('esn.avatar', []).controller('avatarEdit', function($scope, selec
       scope.$on('$destroy', clear);
     }
   };
-});
+}).directive('loadButton', function(selectionService) {
+
+    return {
+      restrict: 'A',
+      replace: true,
+      link: function(scope, element, attrs) {
+        element.bind('change', function(evt) {
+          evt.stopPropagation();
+          evt.preventDefault();
+
+          var file = evt.dataTransfer !== undefined ? evt.dataTransfer.files[0] : evt.target.files[0];
+          if (!file || !file.type.match(/^image\//)) {
+            scope.error = 'Wrong file type, please select a valid image';
+            scope.$apply();
+          } else {
+            scope.error = null;
+            scope.$apply();
+            var reader = new FileReader();
+            reader.onload = (function(theFile) {
+              return function(e) {
+                var image = new Image();
+                image.src = e.target.result;
+                image.onload = function() {
+                  selectionService.setImage(image);
+                };
+              };
+            })(file);
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+    };
+  });
+

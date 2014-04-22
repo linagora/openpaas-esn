@@ -4,10 +4,10 @@
     strong {{error}}
   .well
     span.btn.btn-info.btn-file Select a file...
-      input(type="file", id="profile_image")
+      input(type="file", id="profile_image", load-button)
   .row.text-center
     .col-xs-10.col-md-8
-      img-loaded(selected="selected(data)", width="512")
+      img-loaded(width="512")
     .col-xs-10.col-md-4
       .thumbnail
         canvas(width="128", height="128", id="preview", style="width: 128px; height: 128px;", img-preview)
