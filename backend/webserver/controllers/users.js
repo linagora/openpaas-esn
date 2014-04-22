@@ -205,7 +205,7 @@ function postProfileAvatar(req, res) {
   function updateUserProfile() {
     req.user.avatars.push(avatarId);
     req.user.currentAvatar = avatarId;
-    req.user.save(function(err, user) {
+    userModule.recordUser(req.user, function(err, user) {
       if (err) {
         return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
       }

@@ -1,7 +1,38 @@
 'use strict';
 
 var expect = require('chai').expect,
-    mongodb = require('mongodb');
+    mongodb = require('mongodb'),
+    mockery = require('mockery');
+
+describe('recordUser method', function() {
+  var User = null;
+  var userModule = null;
+
+  beforeEach(function() {
+    User = function User(user) {
+      this.name = user.name;
+      this.emails = ['email1', 'email2'];
+    };
+    User.prototype.save = function(callback) {
+      callback();
+    };
+    var mongooseMocked = {
+      model: function(model) {
+        return User;
+      }
+    };
+    mockery.registerMock('mongoose', mongooseMocked);
+    userModule = require(this.testEnv.basePath + '/backend/core').user;
+  });
+
+  it('should save a user if it is not an instance of User model', function(done) {
+    userModule.recordUser({name: 'aName'}, done);
+  });
+
+  it('should also save a user if it is an instance of User model', function(done) {
+    userModule.recordUser(new User({name: 'aName'}), done);
+  });
+});
 
 describe('The user core module', function() {
   var userModule = null;
