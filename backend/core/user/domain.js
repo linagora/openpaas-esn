@@ -23,7 +23,6 @@ var getUsers = function(domain, query, cb) {
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
   var q = User.find().where('domains').elemMatch({domain_id: domainId});
-  var c = User.find().where('domains').elemMatch({domain_id: domainId});
   if (query.search) {
 
     var terms = (query.search instanceof Array) ? query.search : query.search.split(' ');
@@ -40,13 +39,14 @@ var getUsers = function(domain, query, cb) {
         emails.push({emails: new RegExp(term, 'i')});
       }
       q.or([{$and: firstname}, {$and: lastname}, {$and: emails}]);
-      c.or([{$and: firstname}, {$and: lastname}, {$and: emails}]);
     } else {
       q.or([{firstname: new RegExp(terms[0], 'i')}, {lastname: new RegExp(terms[0], 'i')}, {emails: new RegExp(terms[0], 'i')}]);
-      c.or([{firstname: new RegExp(terms[0], 'i')}, {lastname: new RegExp(terms[0], 'i')}, {emails: new RegExp(terms[0], 'i')}]);
     }
   }
+
+  var c = require('extend')(true, {}, q);
   c.count();
+
   q.skip(query.offset).limit(query.limit).sort({'firstname' : 'asc'});
 
   return c.exec(function(err, count) {

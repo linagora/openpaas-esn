@@ -27,15 +27,15 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     };
     $scope.members = [];
 
-    var formatResultsCount = function (count) {
+    var formatResultsCount = function(count) {
       $scope.search.count = count;
 
-      if(count < 1000){
+      if (count < 1000) {
         $scope.search.formattedCount = count;
       }
-      else{
+      else {
         var len = Math.ceil(Math.log(count + 1) / Math.LN10);
-        var num = Math.round(count * Math.pow(10, -(len-3))) * Math.pow(10, len-3);
+        var num = Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3);
 
         $scope.search.formattedCount = num.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1 ');
       }
