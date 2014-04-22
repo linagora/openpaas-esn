@@ -1,0 +1,18 @@
+.col-xs-10.col-md-10
+  .alert.alert-danger.alert-dismissable(ng-hide="!error")
+    button.close(type="button", data-dismiss="alert", aria-hidden="true") &times;
+    strong {{error}}
+  .well
+    span.btn.btn-info.btn-file Select a file...
+      input(type="file", id="profile_image")
+  .row.text-center
+    .col-xs-10.col-md-8
+      img-loaded(selected="selected(data)", width="512")
+    .col-xs-10.col-md-4
+      .thumbnail
+        canvas(width="128", height="128", id="preview", style="width: 128px; height: 128px;", img-preview)
+        .caption
+          h3 Preview
+          p This image will replace your current avatar.
+          p
+            button.btn.btn-primary.btn-large Upload!

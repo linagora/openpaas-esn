@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain'])
+angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain', 'esn.avatar'])
   .config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
@@ -35,6 +35,11 @@ angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain'])
     $routeProvider.when('/domains/:domain_id/members', {
       templateUrl: '/views/esn/partials/members',
       controller: 'memberscontroller'
+    });
+
+    $routeProvider.when('/profile/avatar', {
+      templateUrl: '/views/esn/partials/avatar',
+      controller: 'avatarEdit'
     });
 
     $routeProvider.otherwise({redirectTo: '/'});
