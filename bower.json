@@ -34,6 +34,7 @@
     "underscore": "~1.6.0",
     "angular-recaptcha": "~0.0.7",
     "ngInfiniteScroll": "~1.0.0",
-    "angular-spinner": "0.4.0"
+    "angular-spinner": "0.4.0",
+    "ng-tags-input": "2.0.0"
   }
 }

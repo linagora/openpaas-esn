@@ -17,6 +17,7 @@ module.exports = function(config) {
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
       'frontend/components/ngInfiniteScroll/ng-infinite-scroll.js',
+      'frontend/components/ng-tags-input/ng-tags-input.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/member/**/*.jade',

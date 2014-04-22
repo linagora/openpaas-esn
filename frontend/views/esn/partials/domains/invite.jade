@@ -1,0 +1,18 @@
+.col-xs-12
+  h3 #{__('Invite people to join Hiveety')}
+
+  div(ng-show='error')
+    p {{error}}
+
+  div.form-container(ng-show='step===0')
+    form(name='form')
+      fieldset
+        .form-group
+          tags-input(ng-model='emails', display-property='{{displayProperty}}', placeholder='{{placeholder}}', allowed-tags-pattern='{{pattern}}', min-tags='1', add-on-enter='true', add-on-space='true', add-on-comma='true')
+        .form-group
+          button.btn.btn-primary.pull-right(type='submit', ng-click='invite()')
+            | #{__('Send invitations')}
+
+  div(ng-show='step===1')
+    .alert.alert-success.animated
+      p #{__('Invitations have been sent. You will be notified when new users join the platform')}.
