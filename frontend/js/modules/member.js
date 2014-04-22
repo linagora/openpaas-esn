@@ -12,7 +12,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       },
       templateUrl: '/views/member/partials/member.html'
     };
-  }).controller('memberscontroller', ['$scope', 'domainAPI', '$routeParams', 'memberSearchConfiguration', function($scope, $domainAPI, $routeParams, memberSearchConfiguration) {
+  }).controller('memberscontroller', ['$scope', 'domainAPI', '$routeParams', 'memberSearchConfiguration', 'usSpinnerService', function($scope, $domainAPI, $routeParams, memberSearchConfiguration, usSpinnerService) {
 
     var domain_id = $routeParams.domain_id;
     $scope.spinnerKey = 'memberSpinner';
@@ -44,11 +44,13 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     var updateMembersList = function() {
       $scope.search.running = true;
       formatResultsCount(0);
+      usSpinnerService.spin('memberSpinner');
 
       $domainAPI.getMembers(domain_id, opts).then(function(data) {
         formatResultsCount(data.headers('X-ESN-Items-Count'));
         $scope.members = $scope.members.concat(data.data);
         $scope.search.running = false;
+        usSpinnerService.stop('memberSpinner');
       });
     };
 
