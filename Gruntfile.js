@@ -79,6 +79,28 @@ module.exports = function(grunt) {
             grunt.log.error(chunk);
           }
         }
+      },
+      elasticsearch: {
+        command: servers.elasticsearch.cmd +
+          ' -Des.http.port=' + servers.elasticsearch.port +
+          ' -Des.transport.tcp.port=' + servers.elasticsearch.communication_port +
+          ' -Des.cluster.name=' + servers.elasticsearch.cluster_name +
+          ' -Des.path.data=' + servers.elasticsearch.data_path,
+        options: {
+          async: false,
+          stdout: function(chunk){
+            var done = grunt.task.current.async();
+            var out = '' + chunk;
+            var started=/started/;
+            if(started.test(out)) {
+              grunt.log.write('Elasticsearch server is started.');
+              done(true);
+            }
+          },
+          stderr: function(chunk) {
+            grunt.log.error(chunk);
+          }
+        }
       }
     },
     nodemon: {
@@ -177,7 +199,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-run-grunt');
 
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:ldap:kill']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:ldap:kill', 'shell:elasticsearch:kill']);
 
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
