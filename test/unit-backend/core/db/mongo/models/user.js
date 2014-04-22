@@ -368,6 +368,80 @@ describe('The User model', function() {
     });
   });
 
+  it('should return error when calling isMemberOfDomain with null domain', function(done) {
+    var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.com']});
+    u.save(function(err, user) {
+      if (err) {
+        done(err);
+      }
+      try {
+        user.isMemberOfDomain(null);
+        done(new Error('An error should have been thrown'));
+      }
+      catch (err) {
+        expect(err).to.exist;
+        done();
+      }
+    });
+  });
+
+  it('should return false when calling isMemberOfDomain with wrong domain id', function(done) {
+    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    d.save(function(err, domain) {
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.com']});
+      u.save(function(err, user) {
+        if (err) {
+          done(err);
+        }
+
+        var isMember = user.isMemberOfDomain('wrongDomainId');
+        expect(isMember).to.be.false;
+        done();
+      });
+    });
+  });
+
+  it('should return true when calling isMemberOfDomain with correct domain id', function(done) {
+    var mongoUrl = this.testEnv.mongoUrl;
+    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+
+    d.save(function(err, domain) {
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.com']});
+      u.save(function(err, user) {
+        if (err) {
+          done(err);
+        }
+
+        user.joinDomain(domain._id, function(err, update) {
+          if (err) {
+            return done(err);
+          }
+
+          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+            if (err) {
+              return done(err);
+            }
+            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
+              if (err) {
+                return done(err);
+              }
+
+              var loadedUser = new User(loaded);
+              var isMember = loadedUser.isMemberOfDomain(domain);
+              expect(isMember).to.be.true;
+
+              isMember = loadedUser.isMemberOfDomain(domain._id);
+              expect(isMember).to.be.true;
+              db.close(done);
+            });
+          });
+        });
+
+      });
+    });
+  });
+
+
   afterEach(function(done) {
     emails = [];
 

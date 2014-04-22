@@ -5,7 +5,6 @@ var async = require('async');
 var signupEmail = require('../../email/system/signupConfirmation');
 var logger = require('../..').logger;
 var mongoose = require('mongoose');
-var userModule = require('../..').user;
 
 /**
  * Validate the input data: required properties are firstname, lastname and email.
@@ -68,72 +67,16 @@ module.exports.finalize = function(invitation, data, done) {
 
   var Domain = mongoose.model('Domain');
   var User = mongoose.model('User');
-  var Invitation = mongoose.model('Invitation');
   var formValues = data.body.data;
 
-  var userJson = {
-    firstname: formValues.firstname,
-    lastname: formValues.lastname,
-    password: formValues.password,
-    emails: [invitation.data.email]
-  };
+  var helper = require('./invitationHandlerHelper').initHelper(invitation, formValues);
 
-  var finalized = function(callback) {
-    Invitation.isFinalized(invitation.uuid, function(err, finalized) {
-      if (err) {
-        return callback(new Error('Can not check invitation status'));
-      }
-
-      if (finalized) {
-        return callback(new Error('Invitation is already finalized'));
-      }
-      callback();
-    });
-  };
-
-  var testDomainCompany = function(callback) {
-    Domain.testDomainCompany(formValues.company, formValues.domain, function(err, domain) {
-      if (err) {
-        return callback(new Error('Unable to lookup domain/company: ' + formValues.domain + '/' + formValues.company + err));
-      }
-      if (domain) {
-        return callback(new Error('Domain/company: ' + formValues.domain + '/' + formValues.company + ' already exist.' + err));
-      }
-    });
-    callback();
-  };
-
-  var checkUser = function(callback) {
-    userModule.findByEmail(userJson.emails, function(err, user) {
-      if (err) {
-        return callback(new Error('Unable to lookup user ' + userJson.emails + ': ' + err));
-      } else if (user && user.emails) {
-        return callback(new Error('User already exists'));
-      }
-    });
-    callback();
-  };
-
-  var createUser = function(callback) {
-    userModule.provisionUser(userJson, function(err, user) {
-      if (err) {
-        return callback(new Error('Cannot create user resources ' + err.message));
-      }
-
-      if (user) {
-        var domain = {
-          name: formValues.domain,
-          company_name: formValues.company,
-          administrator: user
-        };
-        return callback(null, domain, user);
-      } else {
-        return callback(new Error('Can not create user'));
-      }
-    });
-  };
-
-  var createDomain = function(domain, user, callback) {
+  var createDomain = function(user, callback) {
+    var domain = {
+      name: formValues.domain,
+      company_name: formValues.company,
+      administrator: user
+    };
     var domainObject = new Domain(domain);
     domainObject.save(function(err, saved) {
       if (err) {
@@ -149,20 +92,6 @@ module.exports.finalize = function(invitation, data, done) {
     });
   };
 
-  var finalize = function(domain, user, callback) {
-    Invitation.loadFromUUID(invitation.uuid, function(err, loaded) {
-      if (err) {
-        logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
-      }
-      loaded.finalize(function(err, updated) {
-        if (err) {
-          logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
-        }
-        callback(null, domain, user);
-      });
-    });
-  };
-
   var result = function(domain, user, callback) {
     var result = {
       status: 'created',
@@ -174,7 +103,7 @@ module.exports.finalize = function(invitation, data, done) {
     callback(null, result);
   };
 
-  async.waterfall([finalized, testDomainCompany, checkUser, createUser, createDomain, finalize, result], function(err, result) {
+  async.waterfall([helper.isInvitationFinalized, helper.testDomainCompany, helper.checkUser, helper.createUser, createDomain, helper.finalizeInvitation, result], function(err, result) {
     if (err) {
       logger.error('Error while finalizing invitation', err);
       return done(err);

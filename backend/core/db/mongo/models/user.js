@@ -129,6 +129,16 @@ UserSchema.methods = {
     } else {
       return this.update({ $push: { domains: {domain_id: domain}}}, cb);
     }
+  },
+
+  isMemberOfDomain: function(domain) {
+    if (!domain) {
+      throw new Error('Domain must not be null');
+    }
+    var domainId = domain._id || domain;
+    return this.domains.some(function(d) {
+      return d.domain_id.equals(domainId);
+    });
   }
 };
 
