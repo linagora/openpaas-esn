@@ -1006,10 +1006,10 @@ describe('The User controller', function() {
 
       var usermock = {
         avatars: [],
-        defaultAvatar: undefined,
+        currentAvatar: undefined,
         save: function() {
           expect(usermock.avatars).to.have.length(1);
-          expect(usermock.defaultAvatar).to.equal(usermock.avatars[0]);
+          expect(usermock.currentAvatar).to.equal(usermock.avatars[0]);
           done();
         }
       };
@@ -1033,7 +1033,7 @@ describe('The User controller', function() {
 
       var usermock = {
         avatars: [],
-        defaultAvatar: undefined,
+        currentAvatar: undefined,
         save: function(callback) {
           var err = new Error('yolo');
           callback(err);
@@ -1064,7 +1064,7 @@ describe('The User controller', function() {
 
       var usermock = {
         avatars: [],
-        defaultAvatar: undefined,
+        currentAvatar: undefined,
         save: function(callback) {
           callback();
         }

@@ -50,7 +50,7 @@ var UserSchema = new mongoose.Schema({
   },
   schemaVersion: {type: Number, default: 1},
   avatars: [String],
-  defaultAvatar: String
+  currentAvatar: String
 });
 
 UserSchema.pre('save', function(next) {
