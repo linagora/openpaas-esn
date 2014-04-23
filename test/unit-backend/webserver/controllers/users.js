@@ -1085,7 +1085,7 @@ describe('The User controller', function() {
     });
   });
 
-  describe('the getProfilAvatar function', function() {
+  describe('the getProfileAvatar function', function() {
     it('should return 404 if the user is not logged in', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {};
@@ -1138,11 +1138,7 @@ describe('The User controller', function() {
           return callback(null,
             {
               meta: 'data',
-              uploadDate: {
-                toString: function() {
-                  return 'date';
-                }
-              }
+              uploadDate: new Date('Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)')
             }, image);
         }
       };
@@ -1151,11 +1147,7 @@ describe('The User controller', function() {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {
         headers: {
-          'if-modified-since': {
-            getTime: function() {
-              return 'date2';
-            }
-          }
+          'if-modified-since': 'Thu Apr 17 2013 11:13:15 GMT+0200 (CEST)'
         },
         user: {
           _id: '_id',
@@ -1187,11 +1179,7 @@ describe('The User controller', function() {
           return callback(null,
             {
               meta: 'data',
-              uploadDate: {
-                toString: function() {
-                  return 'date';
-                }
-              }
+              uploadDate: new Date('Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)')
             }, image);
         }
       };
@@ -1200,7 +1188,7 @@ describe('The User controller', function() {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {
         headers: {
-          'if-modified-since': 'date'
+          'if-modified-since': 'Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)'
         },
         user: {
           _id: '_id',
