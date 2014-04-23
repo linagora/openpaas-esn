@@ -60,8 +60,8 @@
   "Send invitations": "Send invitations",
   "Invitations have been sent. You will be notified when new users join the platform": "Invitations have been sent. You will be notified when new users join the platform",
   "The two passwords does not match": "The two passwords does not match",
-  "Results": "Results",
-  "Result": "Result",
-  "About": "About",
-  "There is no result matching your query": "There is no result matching your query"
+  "There is no result matching your query": "There is no result matching your query",
+  "Results": "results",
+  "Result": "result",
+  "About": "About"
 }
