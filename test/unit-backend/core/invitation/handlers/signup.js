@@ -299,12 +299,15 @@ describe('The signup handler', function() {
                 return done(err);
               }
               expect(user).to.exist;
+              expect(user.domains).to.exist;
+              expect(user.domains.length).to.equal(1);
 
               db.collection('domains').findOne({_id: result.result.resources.domain}, function(err, domain) {
                 if (err) {
                   return done(err);
                 }
                 expect(domain).to.exist;
+                expect(user.domains[0].domain_id).to.deep.equal(domain._id);
                 db.close(function() {
                   done();
                 });
