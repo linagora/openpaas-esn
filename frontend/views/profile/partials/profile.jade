@@ -10,7 +10,7 @@ div.row(ng-controller='profileeditioncontroller')
                 span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
                     spinner-start-active='1',
                     ng-show='running.name')
-                span.h3(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)') {{ initFullName(user.firstname, user.lastname) }}
+                span.h3(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)') {{ fullName || initFullName(user.firstname, user.lastname) }}
             div.col-md-4
                 button.btn.btn-link(ng-click='nameForm.$show()', ng-hide='nameForm.$visible', ng-disabled='running.name') Change
         //Job
@@ -19,8 +19,8 @@ div.row(ng-controller='profileeditioncontroller')
                 span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
                 spinner-start-active='1',
                 ng-show='running.job')
-                span(ng-show='!user.job && !jobForm.$visible', style='color:grey;') #{__('Job Title')}
-                span(editable-text='user.job', e-form='jobForm', onbeforesave='updateJob($data)') {{ user.job }}
+                span(ng-show='!user.job_title && !jobForm.$visible', style='color:grey;') #{__('Job Title')}
+                span(editable-text='user.job_title', e-form='jobForm', onbeforesave='updateJob($data)') {{ user.job_title }}
             div.col-md-4
                 button.btn.btn-link(ng-click='jobForm.$show()', ng-hide='jobForm.$visible', ng-disabled='running.job') Edit
         //Service
@@ -59,7 +59,7 @@ div.row(ng-controller='profileeditioncontroller')
                 span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
                 spinner-start-active='1',
                 ng-show='running.phone')
-                span(ng-show='!user.phone && !phoneForm.$visible', style='color:grey;') #{__('Phone')}
-                span(editable-text='user.phone', e-form='phoneForm', onbeforesave='updatePhone($data)') {{ user.phone }}
+                span(ng-show='!user.main_phone && !phoneForm.$visible', style='color:grey;') #{__('Phone')}
+                span(editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)') {{ user.main_phone }}
             div.col-md-4
                 button.btn.btn-link(ng-click='phoneForm.$show()', ng-hide='phoneForm.$visible', ng-disabled='running.phone') Edit

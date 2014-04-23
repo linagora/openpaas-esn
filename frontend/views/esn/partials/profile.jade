@@ -1,0 +1,8 @@
+.col-xs-12
+  h2 Account
+  .alert.alert-success.animated
+    strong #{__('You are connected as %s',  user.username || user.emails[0] || user.id)}
+
+  div.row(ng-controller="profilecontroller")
+    div.col-md-6
+        profile-display(user='user')
