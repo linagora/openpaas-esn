@@ -92,6 +92,17 @@ module.exports.finalize = function(invitation, data, done) {
     });
   };
 
+  var addUserToDomain = function(domain, user, callback) {
+    user.joinDomain(domain, function(err, update) {
+      if (err) {
+        return callback(new Error('User cannot join domain' + err.message));
+      }
+      else {
+        callback(null, domain, user);
+      }
+    });
+  };
+
   var result = function(domain, user, callback) {
     var result = {
       status: 'created',
@@ -103,7 +114,7 @@ module.exports.finalize = function(invitation, data, done) {
     callback(null, result);
   };
 
-  async.waterfall([helper.isInvitationFinalized, helper.testDomainCompany, helper.checkUser, helper.createUser, createDomain, helper.finalizeInvitation, result], function(err, result) {
+  async.waterfall([helper.isInvitationFinalized, helper.testDomainCompany, helper.checkUser, helper.createUser, createDomain, addUserToDomain, helper.finalizeInvitation, result], function(err, result) {
     if (err) {
       logger.error('Error while finalizing invitation', err);
       return done(err);
