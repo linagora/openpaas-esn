@@ -85,7 +85,7 @@ describe('The Profile Angular module', function() {
       it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
         var newJob = 'newJob';
         this.profileAPI.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('job');
+          expect(fieldName).to.equal('job_title');
           expect(fieldValue).to.equal(newJob);
           done();
         };
@@ -133,7 +133,7 @@ describe('The Profile Angular module', function() {
       it('should call the profileAPI.updateProfileField() method with the correct parameters', function(done) {
         var newPhone = 'newPhone';
         this.profileAPI.updateProfileField = function(fieldName, fieldValue) {
-          expect(fieldName).to.equal('phone');
+          expect(fieldName).to.equal('main_phone');
           expect(fieldValue).to.equal(newPhone);
           done();
         };

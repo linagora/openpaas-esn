@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner'])
+angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'esn.user'])
   .directive('profileDisplay', function() {
     return {
       restrict: 'E',
@@ -24,8 +24,11 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner'])
       phone: false
     };
 
+
     $scope.initFullName = function(firstname, lastname) {
-      $scope.fullName = firstname + ' ' + lastname;
+      if (firstname && lastname) {
+        $scope.fullName = firstname + ' ' + lastname;
+      }
       return $scope.fullName;
     };
 
@@ -55,6 +58,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner'])
       $scope.running.name = true;
       return profileAPI.updateProfileField('firstname', firstName).then(
         function(data) {
+          $scope.running.name = false;
           return updateField(lastName, $scope.running.name, 'lastname');
         },
         function(error) {
@@ -65,7 +69,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner'])
     };
 
     $scope.updateJob = function(data) {
-      return updateField(data, $scope.running.job, 'job');
+      return updateField(data, $scope.running.job, 'job_title');
     };
 
     $scope.updateService = function(data) {
@@ -81,7 +85,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner'])
     };
 
     $scope.updatePhone = function(data) {
-      return updateField(data, $scope.running.phone, 'phone');
+      return updateField(data, $scope.running.phone, 'main_phone');
     };
 
   }])
@@ -97,4 +101,10 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner'])
     return {
       updateProfileField: updateProfileField
     };
+  }])
+
+  .controller('profilecontroller', ['$scope', 'userAPI', function($scope, userAPI) {
+    userAPI.currentUser().then(function(response) {
+      $scope.user = response.data;
+    });
   }]);
