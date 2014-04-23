@@ -33,12 +33,12 @@ describe('The Profile Angular module', function() {
     });
   });
 
-  describe('profileeditioncontroller', function() {
+  describe('profileEditionController', function() {
     beforeEach(inject(function($rootScope, $controller) {
       this.profileAPI = {};
       this.scope = $rootScope.$new();
 
-      $controller('profileeditioncontroller', {
+      $controller('profileEditionController', {
         $scope: this.scope,
         profileAPI: this.profileAPI
       });

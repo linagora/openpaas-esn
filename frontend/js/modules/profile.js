@@ -11,7 +11,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
     };
   })
 
-  .controller('profileeditioncontroller', ['$scope', 'profileAPI', 'editableOptions', function($scope, profileAPI, editableOptions) {
+  .controller('profileEditionController', ['$scope', 'profileAPI', 'editableOptions', function($scope, profileAPI, editableOptions) {
     //theming for yes/no buttons in field modification confirmation
     editableOptions.theme = 'bs3';
 
