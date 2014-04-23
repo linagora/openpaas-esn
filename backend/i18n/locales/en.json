@@ -62,5 +62,6 @@
   "The two passwords does not match": "The two passwords does not match",
   "Results": "Results",
   "Result": "Result",
-  "About": "About"
+  "About": "About",
+  "There is no result matching your query": "There is no result matching your query"
 }
