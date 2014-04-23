@@ -997,25 +997,29 @@ describe('The User controller', function() {
       users.postProfileAvatar(req, res);
     });
 
-    it('should call the save function of the user model', function(done) {
-      var imageMock = {
-        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          avatarRecordResponse(null, 42);
+    it('should call the recordUser function of the user model', function(done) {
+      var moduleMock = {
+        user: {
+          recordUser: function() {
+            expect(usermock.avatars).to.have.length(1);
+            expect(usermock.currentAvatar).to.equal(usermock.avatars[0]);
+            done();
+          }
+        },
+        image: {
+          recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+            avatarRecordResponse(null, 42);
+          }
         }
       };
+      mockery.registerMock('../../core', moduleMock);
+
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var usermock = {
         avatars: [],
-        currentAvatar: undefined,
-        save: function() {
-          expect(usermock.avatars).to.have.length(1);
-          expect(usermock.currentAvatar).to.equal(usermock.avatars[0]);
-          done();
-        }
+        currentAvatar: undefined
       };
-
-      mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
@@ -1025,23 +1029,27 @@ describe('The User controller', function() {
     });
 
     it('should return 500 if the model cannot be saved', function(done) {
-      var imageMock = {
-        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          avatarRecordResponse(null, 42);
+      var moduleMock = {
+        user: {
+          recordUser: function(user, callback) {
+            var err = new Error('yolo');
+            callback(err);
+          }
+        },
+        image: {
+          recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+            avatarRecordResponse(null, 42);
+          }
         }
       };
+      mockery.registerMock('../../core', moduleMock);
+
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var usermock = {
         avatars: [],
-        currentAvatar: undefined,
-        save: function(callback) {
-          var err = new Error('yolo');
-          callback(err);
-        }
+        currentAvatar: undefined
       };
-
-      mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
@@ -1056,22 +1064,26 @@ describe('The User controller', function() {
     });
 
     it('should return 200 and the avatar id, if recording is successfull', function(done) {
-      var imageMock = {
-        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          avatarRecordResponse(null, 42);
+      var moduleMock = {
+        user: {
+          recordUser: function(user, callback) {
+            callback();
+          }
+        },
+        image: {
+          recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+            avatarRecordResponse(null, 42);
+          }
         }
       };
+      mockery.registerMock('../../core', moduleMock);
+
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var usermock = {
         avatars: [],
-        currentAvatar: undefined,
-        save: function(callback) {
-          callback();
-        }
+        currentAvatar: undefined
       };
-
-      mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
