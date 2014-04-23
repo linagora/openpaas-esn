@@ -2,8 +2,9 @@
   .alert.alert-danger.alert-dismissable(ng-hide="!error")
     button.close(type="button", data-dismiss="alert", aria-hidden="true") &times;
     strong {{error}}
+
   .well
-    span.btn.btn-info.btn-file Select a file...
+    span.btn.btn-info.btn-file #{__('Select a file')}...
       input(type="file", id="profile_image", load-button)
   .row.text-center
     .col-xs-10.col-md-8
@@ -12,7 +13,13 @@
       .thumbnail
         canvas(width="128", height="128", id="preview", style="width: 128px; height: 128px;", img-preview)
         .caption
-          h3 Preview
-          p This image will replace your current avatar.
+          .alert.alert-info(ng-show="progress < 100") #{__('Crop and upload your avatar')}.
+          .alert.alert-success(ng-show="progress === 100 && !error") #{__('Avatar has been uploaded')}!
+          .progress.progress-striped.active(ng-show='progress < 100')
+            .progress-bar(role="progressbar", ng-style="{ 'width': progress + '%' }")
+          .progress.progress-striped(ng-show='progress === 100')
+            .progress-bar.progress-bar-success(role="progressbar", style="width: 100%")
+          .progress.progress-striped(ng-show='progress === 100 && error')
+            .progress-bar.progress-bar-danger(role="progressbar", style="width: 100%")
           p
-            button.btn.btn-primary.btn-large Upload!
+            button.btn.btn-primary.btn-large(ng-click="upload()") {{status}}

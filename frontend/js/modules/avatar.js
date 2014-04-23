@@ -1,14 +1,86 @@
 'use strict';
 
-angular.module('esn.avatar', []).controller('avatarEdit', function($scope) {
+angular.module('esn.avatar', [])
 
-  $scope.error = null;
-  $scope.preview = false;
+  .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI) {
 
-}).factory('selectionService', function($rootScope) {
+    var initUploadContext = function() {
+      $scope.error = null;
+      $scope.progress = 0;
+      $scope.status = 'Upload';
+      $scope.uploading = false;
+      $scope.$apply();
+    };
+
+    $scope.preview = false;
+
+    $scope.upload = function() {
+
+      $scope.uploading = true;
+      $scope.status = 'Uploading';
+      $scope.progress = 1;
+
+      var canvas = document.createElement('canvas');
+      var context = canvas.getContext('2d');
+      canvas.width = canvas.height = 128;
+      context.drawImage(selectionService.getImage(), 0, 0, 128, 128);
+      var mime = 'image/png';
+
+      canvas.toBlob(function(blob) {
+        avatarAPI.uploadAvatar(blob, mime, function(percent) {
+          $scope.progress = percent;
+          $scope.$apply();
+        }, function(err) {
+          $scope.status = 'Upload';
+          if (err) {
+            $scope.error = 'Error while uploading the avatar';
+          }
+          $scope.$apply();
+          canvas = null;
+        });
+      }, mime);
+    };
+
+    $rootScope.$on('crop:loaded', initUploadContext);
+    initUploadContext();
+
+  }).factory('avatarAPI', function() {
+
+    function uploadAvatar(blob, mime, progress, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = function(event) {
+        var p = event.lengthComputable ? event.loaded * 100 / event.total : 0;
+        progress(p);
+      };
+
+      xhr.onload = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            return callback();
+          } else {
+            return callback(new Error('Server Side Error (onload)'));
+          }
+        }
+      };
+
+      xhr.onerror = function() {
+        return callback(new Error('Server Side Error (onerror)'));
+      };
+
+      xhr.open('POST', '/api/user/profile/avatar?mimetype=' + mime + '&size=' + blob.size);
+      xhr.withCredentials = true;
+      xhr.send(blob);
+    }
+
+    return {
+      uploadAvatar: uploadAvatar
+    };
+
+  }).factory('selectionService', function($rootScope) {
 
   var sharedService = {};
   sharedService.image = null;
+  sharedService.selection = {};
 
   sharedService.setImage = function(image) {
     this.image = image;
@@ -20,6 +92,7 @@ angular.module('esn.avatar', []).controller('avatarEdit', function($scope) {
   };
 
   sharedService.broadcastSelection = function(x) {
+    this.selection = x;
     $rootScope.$broadcast('crop:selected', x);
   };
 

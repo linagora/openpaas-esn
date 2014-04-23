@@ -37,6 +37,7 @@
     "angular-spinner": "0.4.0",
     "ng-tags-input": "2.0.0",
     "jcrop": "~0.9.12",
-    "angular-xeditable": "0.1.8"
+    "angular-xeditable": "0.1.8",
+    "blueimp-canvas-to-blob": "~2.1.0"
   }
 }
