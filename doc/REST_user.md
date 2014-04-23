@@ -108,3 +108,34 @@ Update an element of the current user profile.
 **Response:**
 
     HTTP/1.1 200 OK
+
+## POST /api/user/profile/avatar
+
+Post a new avatar for the currently logged in user. The posted avatar is set as the default avatar for the user. The image should be a square, and at least be 128x128 px.
+
+**Request query strings parameters**
+
+- mimetype: the MIME type of the image. Valid values are 'image/png', 'image/gif' and 'image/jpeg'
+- size: the size, in bytes, of the POSTed image. This size will be compared with the number of bytes recorded in the file storage service, thus ensuring that there were no data loss.
+
+**Request Body:**
+
+This endpoint expects the request body to be the raw image data
+
+- 200 Ok. With the recorded image ID
+- 400 Bad request. The current request is missing mandatory parameters
+- 412 Precondition failed. The number of bytes recoreded by the file storage service differs from the number of bytes given by the user agent
+- 500 Internal server error: there was a problem, either storing the file, manipulating the image, or updating the user properties.
+
+**Request:**
+
+    POST /api/user/profile/avatar?mimetype=image%2Fpng&size=12345
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 Ok
+    {
+        _id: '9f888058-e9e6-4915-814b-935d5b88389d'
+    }

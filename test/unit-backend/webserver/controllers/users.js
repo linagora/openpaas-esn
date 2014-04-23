@@ -815,4 +815,273 @@ describe('The User controller', function() {
       users.updateProfile(req, res);
     });
   });
+
+  describe('the postProfileAvatar function', function() {
+    it('should return 404 if the user is not actually logged in', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(404);
+          expect(data.error).to.equal(404);
+          expect(data.message).to.equal('Not found');
+          expect(data.details).to.equal('User not found');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 400 if the mimetype argument is not set', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(400);
+          expect(data.error).to.equal(400);
+          expect(data.message).to.equal('Parameter missing');
+          expect(data.details).to.equal('mimetype parameter is required');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 400 if the mimetype argument is not an image mimetype', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'application/yolo'}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(400);
+          expect(data.error).to.equal(400);
+          expect(data.message).to.equal('Bad parameter');
+          expect(data.details).to.equal('mimetype application/yolo is not acceptable');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 400 if the size argument is not set', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png'}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(400);
+          expect(data.error).to.equal(400);
+          expect(data.message).to.equal('Parameter missing');
+          expect(data.details).to.equal('size parameter is required');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 400 if the size argument is not an integer', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png', size: 'yolo'}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(400);
+          expect(data.error).to.equal(400);
+          expect(data.message).to.equal('Bad parameter');
+          expect(data.details).to.equal('size parameter should be an integer');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should call the image.recordAvatar method', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          expect(avatarId).to.match(/^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$/);
+          expect(mimetype).to.equal('image/png');
+          expect(avatarRecordResponse).to.be.a.function;
+          done();
+        }
+      };
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 500 if the recordAvatar response is a datastore failure', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          var err = new Error('yolo');
+          err.code = 1;
+          avatarRecordResponse(err);
+        }
+      };
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(500);
+          expect(data.error).to.equal(500);
+          expect(data.message).to.equal('Datastore failure');
+          expect(data.details).to.equal('yolo');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 500 if the recordAvatar response is an image manipulation failure', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          var err = new Error('yolo');
+          err.code = 2;
+          avatarRecordResponse(err);
+        }
+      };
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(500);
+          expect(data.error).to.equal(500);
+          expect(data.message).to.equal('Image processing failure');
+          expect(data.details).to.equal('yolo');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 500 if the recordAvatar response is a generic error', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          var err = new Error('yolo');
+          avatarRecordResponse(err);
+        }
+      };
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(500);
+          expect(data.error).to.equal(500);
+          expect(data.message).to.equal('Internal server error');
+          expect(data.details).to.equal('yolo');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 412 if the object recorded size is not the size provided by the user agent', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          avatarRecordResponse(null, 666);
+        }
+      };
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(412);
+          expect(data.error).to.equal(412);
+          expect(data.message).to.equal('Image size does not match');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should call the save function of the user model', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          avatarRecordResponse(null, 42);
+        }
+      };
+
+      var usermock = {
+        avatars: [],
+        currentAvatar: undefined,
+        save: function() {
+          expect(usermock.avatars).to.have.length(1);
+          expect(usermock.currentAvatar).to.equal(usermock.avatars[0]);
+          done();
+        }
+      };
+
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 500 if the model cannot be saved', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          avatarRecordResponse(null, 42);
+        }
+      };
+
+      var usermock = {
+        avatars: [],
+        currentAvatar: undefined,
+        save: function(callback) {
+          var err = new Error('yolo');
+          callback(err);
+        }
+      };
+
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(500);
+          expect(data.error).to.equal(500);
+          expect(data.message).to.equal('Datastore failure');
+          expect(data.details).to.equal('yolo');
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+
+    it('should return 200 and the avatar id, if recording is successfull', function(done) {
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          avatarRecordResponse(null, 42);
+        }
+      };
+
+      var usermock = {
+        avatars: [],
+        currentAvatar: undefined,
+        save: function(callback) {
+          callback();
+        }
+      };
+
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._id).to.exist;
+          expect(data._id).to.match(/^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$/);
+          done();
+        }
+      };
+      users.postProfileAvatar(req, res);
+    });
+  });
 });

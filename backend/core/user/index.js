@@ -17,16 +17,18 @@ function extendUserTemplate(template, data) {
 }
 
 function recordUser(userData, callback) {
-  var user = new User(userData);
-  user.save(function(err, resp) {
+  var userAsModel = userData instanceof User ? userData : new User(userData);
+  userAsModel.save(function(err, resp) {
     if (!err) {
-      logger.info('User provisioned in datastore:', userData.emails.join(','));
+      logger.info('User provisioned in datastore:', userAsModel.emails.join(','));
     } else {
       logger.warn('Error while trying to provision user in database:', err.message);
     }
     callback(err, resp);
   });
 }
+
+module.exports.recordUser = recordUser;
 
 module.exports.provisionUser = function(data, callback) {
   getUserTemplate(function(err, user) {

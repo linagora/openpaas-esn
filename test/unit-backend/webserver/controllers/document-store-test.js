@@ -16,7 +16,7 @@ describe('The document store Settings module', function() {
 describe('The document store routes resource', function() {
   var tmpDbConfigFile = null;
 
-  before(function() {
+  beforeEach(function() {
     tmpDbConfigFile = this.testEnv.tmp + '/db.json';
     fs.copySync(this.testEnv.fixtures + '/config/db.json', tmpDbConfigFile);
   });
