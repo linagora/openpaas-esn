@@ -67,8 +67,12 @@ describe('The Member Angular module', function() {
       this.searchConf = memberSearchConfiguration;
 
       this.domainAPI = {};
-      //initialize the getMembers method because it isa called at controller's instantiation
+      //initialize the getMembers method because it is called at controller's instantiation
       this.domainAPI.getMembers = function(id, opts) {};
+
+      this.usSpinnerService = {};
+      this.usSpinnerService.spin = function(id) {};
+      this.usSpinnerService.stop = function(id) {};
 
       this.domainId = '123456789';
       this.$controller = $controller;
@@ -79,7 +83,8 @@ describe('The Member Angular module', function() {
       $controller('memberscontroller', {
         $scope: this.scope,
         domainAPI: this.domainAPI,
-        $routeParams: this.$routeParams
+        $routeParams: this.$routeParams,
+        usSpinnerService: this.usSpinnerService
       });
 
       Restangular.setFullResponse(true);
@@ -126,6 +131,30 @@ describe('The Member Angular module', function() {
         this.scope.loadMoreElements();
       });
 
+      it('should spin when running and stop when finished', function(done) {
+        var isSpinning = false;
+        this.usSpinnerService.spin = function(id) {
+          expect(id).to.equal('memberSpinner');
+          isSpinning = true;
+        };
+        this.usSpinnerService.stop = function(id) {
+          expect(isSpinning).to.be.true;
+          expect(id).to.equal('memberSpinner');
+          done();
+        };
+        this.domainAPI.getMembers = function(domain_id, opts) {
+          return {
+            then: function(callback) {
+              var data = {
+                headers: function() {}
+              };
+              callback(data);
+            }
+          };
+        };
+
+        this.scope.loadMoreElements();
+      });
     });
 
     describe('doSearch method', function() {
