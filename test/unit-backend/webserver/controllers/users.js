@@ -1096,4 +1096,125 @@ describe('The User controller', function() {
       users.postProfileAvatar(req, res);
     });
   });
+
+  describe('the getProfileAvatar function', function() {
+    it('should return 404 if the user is not logged in', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {};
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(404);
+          expect(data).to.deep.equal({error: 404, message: 'Not found', details: 'User not found'});
+          done();
+        }
+      };
+      users.getProfileAvatar(req, res);
+    });
+
+    it('should return 500 if the image Module return an error', function(done) {
+      var imageModuleMock = {
+        getAvatar: function(defaultAvatar, callback) {
+          return callback(new Error('error !'));
+        }
+      };
+      mockery.registerMock('./image', imageModuleMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        user: {
+          defaultAvatar: 'id'
+        }
+      };
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(500);
+          expect(data).to.deep.equal({error: 500, message: 'Internal server error', details: 'error !'});
+          done();
+        }
+      };
+
+      users.getProfileAvatar(req, res);
+    });
+
+    it('should return 200, add to the cache, and the stream of the avatar file if all is ok', function(done) {
+      var image = {
+        stream: 'test',
+        pipe: function(res) {
+          expect(res.header['Last-Modified']).to.exist;
+          expect(res.code).to.equal(200);
+          done();
+        }
+      };
+
+      var imageModuleMock = {
+        getAvatar: function(defaultAvatar, callback) {
+          return callback(null,
+            {
+              meta: 'data',
+              uploadDate: new Date('Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)')
+            }, image);
+        }
+      };
+      mockery.registerMock('./image', imageModuleMock);
+
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        headers: {
+          'if-modified-since': 'Thu Apr 17 2013 11:13:15 GMT+0200 (CEST)'
+        },
+        user: {
+          _id: '_id',
+          defaultAvatar: 'id'
+        }
+      };
+      var res = {
+        status: function(code) {
+          this.code = code;
+        },
+        header: function(header, value) {
+          this.header[header] = value;
+        }
+      };
+
+      users.getProfileAvatar(req, res);
+    });
+
+    it('should return 304 if the avatar has not changed til the last GET', function(done) {
+      var image = {
+        stream: 'test',
+        pipe: function() {
+          throw new Error();
+        }
+      };
+
+      var imageModuleMock = {
+        getAvatar: function(defaultAvatar, callback) {
+          return callback(null,
+            {
+              meta: 'data',
+              uploadDate: new Date('Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)')
+            }, image);
+        }
+      };
+      mockery.registerMock('./image', imageModuleMock);
+
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        headers: {
+          'if-modified-since': 'Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)'
+        },
+        user: {
+          _id: '_id',
+          defaultAvatar: 'id'
+        }
+      };
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(304);
+          done();
+        }
+      };
+
+      users.getProfileAvatar(req, res);
+    });
+  });
 });
