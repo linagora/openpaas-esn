@@ -46,7 +46,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       formatResultsCount(0);
 
       $domainAPI.getMembers(domain_id, opts).then(function(data) {
-        formatResultsCount(data.headers('X-ESN-Items-Count'));
+        formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
         $scope.members = $scope.members.concat(data.data);
         $scope.search.running = false;
       });
