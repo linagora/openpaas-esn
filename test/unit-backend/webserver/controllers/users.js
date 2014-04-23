@@ -340,6 +340,27 @@ describe('The User controller', function() {
       users.updateProfile(req, res);
     });
 
+    it('should be OK if lastname is set with special characters in it', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+
+      var req = {
+        params: {
+          attribute: 'lastname'
+        },
+        body: {value: 'Doe Big\'Last-Name_'},
+        user: {
+          emails: ['foo@bar.com']
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+      users.updateProfile(req, res);
+    });
+
     // job_title
 
     it('should send back error if job_title is not set in body', function(done) {
