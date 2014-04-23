@@ -77,8 +77,8 @@ function getMembers(req, res) {
         return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while getting members: ' + err.message}});
       }
 
-      res.header('X-ESN-Items-Count', result.length);
-      return res.json(200, result);
+      res.header('X-ESN-Items-Count', result.total_count);
+      return res.json(200, result.list);
     });
   });
 }

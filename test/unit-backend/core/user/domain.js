@@ -66,7 +66,7 @@ describe('The user domain module', function() {
         userDomain.getUsers(saved, null, function(err, users) {
           expect(err).to.not.exist;
           expect(users).to.exist;
-          expect(users.length).to.equal(2);
+          expect(users.list.length).to.equal(2);
           done();
         });
       });
@@ -117,7 +117,7 @@ describe('The user domain module', function() {
           userDomain.getUsers(saved, {limit: 2}, function(err, users) {
             expect(err).to.not.exist;
             expect(users).to.exist;
-            expect(users.length).to.equal(2);
+            expect(users.list.length).to.equal(2);
             done();
           });
         });
@@ -172,10 +172,10 @@ describe('The user domain module', function() {
         userDomain.getUsers(saved, {offset: 2}, function(err, users) {
           expect(err).to.not.exist;
           expect(users).to.exist;
-          expect(users.length).to.equal(2);
+          expect(users.list.length).to.equal(2);
 
-          expect(users[0]._id).to.deep.equals(bazuser._id);
-          expect(users[1]._id).to.deep.equals(quxuser._id);
+          expect(users.list[0]._id).to.deep.equals(bazuser._id);
+          expect(users.list[1]._id).to.deep.equals(quxuser._id);
           done();
         });
       });
@@ -230,10 +230,10 @@ describe('The user domain module', function() {
           userDomain.getUsers(saved, {search: 'foo'}, function(err, users) {
             expect(err).to.not.exist;
             expect(users).to.exist;
-            expect(users.length).to.equal(3);
-            expect(users[0]._id).to.deep.equals(baruser._id);
-            expect(users[1]._id).to.deep.equals(bazuser._id);
-            expect(users[2]._id).to.deep.equals(foouser._id);
+            expect(users.list.length).to.equal(3);
+            expect(users.list[0]._id).to.deep.equals(baruser._id);
+            expect(users.list[1]._id).to.deep.equals(bazuser._id);
+            expect(users.list[2]._id).to.deep.equals(foouser._id);
             done();
           });
         });
@@ -288,9 +288,9 @@ describe('The user domain module', function() {
           userDomain.getUsers(saved, {search: 'foo bar'}, function(err, users) {
             expect(err).to.not.exist;
             expect(users).to.exist;
-            expect(users.length).to.equal(2);
-            expect(users[0]._id).to.deep.equals(bazuser._id);
-            expect(users[1]._id).to.deep.equals(foouser._id);
+            expect(users.list.length).to.equal(2);
+            expect(users.list[0]._id).to.deep.equals(bazuser._id);
+            expect(users.list[1]._id).to.deep.equals(foouser._id);
             done();
           });
         });
@@ -345,9 +345,9 @@ describe('The user domain module', function() {
           userDomain.getUsers(saved, {search: ['foo', 'bar']}, function(err, users) {
             expect(err).to.not.exist;
             expect(users).to.exist;
-            expect(users.length).to.equal(2);
-            expect(users[0]._id).to.deep.equals(bazuser._id);
-            expect(users[1]._id).to.deep.equals(foouser._id);
+            expect(users.list.length).to.equal(2);
+            expect(users.list[0]._id).to.deep.equals(bazuser._id);
+            expect(users.list[1]._id).to.deep.equals(foouser._id);
             done();
           });
         });

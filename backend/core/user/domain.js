@@ -22,7 +22,7 @@ var getUsers = function(domain, query, cb) {
   var domainId = domain._id || domain;
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
-  var q = User.find().where('domains').elemMatch({domain_id: domainId});
+  var userQuery = User.find().where('domains').elemMatch({domain_id: domainId});
   if (query.search) {
 
     var terms = (query.search instanceof Array) ? query.search : query.search.split(' ');
@@ -38,12 +38,36 @@ var getUsers = function(domain, query, cb) {
         lastname.push({lastname: new RegExp(term, 'i')});
         emails.push({emails: new RegExp(term, 'i')});
       }
-      q.or([{$and: firstname}, {$and: lastname}, {$and: emails}]);
+      userQuery.or([{$and: firstname}, {$and: lastname}, {$and: emails}]);
     } else {
-      q.or([{firstname: new RegExp(terms[0], 'i')}, {lastname: new RegExp(terms[0], 'i')}, {emails: new RegExp(terms[0], 'i')}]);
+      userQuery.or([{firstname: new RegExp(terms[0], 'i')}, {lastname: new RegExp(terms[0], 'i')}, {emails: new RegExp(terms[0], 'i')}]);
     }
   }
-  q.skip(query.offset).limit(query.limit).sort({'firstname' : 'asc'});
-  return q.exec(cb);
+
+  var totalCountQuery = require('extend')(true, {}, userQuery);
+  totalCountQuery.count();
+
+  userQuery.skip(query.offset).limit(query.limit).sort({'firstname' : 'asc'});
+
+  return totalCountQuery.exec(function(err, count) {
+    if (!err) {
+      userQuery.exec(function(err, list) {
+        if (!err) {
+          var result = {
+            total_count: count,
+            list: list
+          };
+          cb(null, result);
+        }
+        else {
+          return cb(new Error('Cannot execute find request correctly on domains collection'));
+        }
+      });
+    }
+    else {
+      return cb(new Error('Cannot count users of domain'));
+    }
+  });
 };
+
 module.exports.getUsers = getUsers;

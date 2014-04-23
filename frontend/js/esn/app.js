@@ -40,4 +40,5 @@ angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain'])
     $routeProvider.otherwise({redirectTo: '/'});
 
     RestangularProvider.setBaseUrl('/api');
+    RestangularProvider.setFullResponse(true);
   });
