@@ -63,5 +63,12 @@
   "There is no result matching your query": "There is no result matching your query",
   "Results": "results",
   "Result": "result",
-  "About": "About"
+  "About": "About",
+  "Job Title": "Job Title",
+  "Service": "Service",
+  "Building Location": "Building Location",
+  "Service location": "Service location",
+  "Phone": "Phone",
+  "Edit or add photos": "Edit or add photos"
+
 }

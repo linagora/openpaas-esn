@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain', 'esn.avatar'])
+angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain', 'esn.avatar', 'esn.profile'])
   .config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
