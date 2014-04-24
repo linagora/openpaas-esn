@@ -13,13 +13,9 @@
       .thumbnail
         canvas(width="128", height="128", id="preview", style="width: 128px; height: 128px;", img-preview)
         .caption
-          .alert.alert-info(ng-show="progress < 100") #{__('Crop and upload your avatar')}.
+          .alert.alert-info(ng-show="progress === 0") #{__('Crop and upload your avatar')}.
+          .alert.alert-info(ng-show="progress > 0 && progress < 100 && !error") #{__('Uploading, please wait')}...
           .alert.alert-success(ng-show="progress === 100 && !error") #{__('Avatar has been uploaded')}!
-          .progress.progress-striped.active(ng-show='progress < 100')
-            .progress-bar(role="progressbar", ng-style="{ 'width': progress + '%' }")
-          .progress.progress-striped(ng-show='progress === 100')
-            .progress-bar.progress-bar-success(role="progressbar", style="width: 100%")
-          .progress.progress-striped(ng-show='progress === 100 && error')
-            .progress-bar.progress-bar-danger(role="progressbar", style="width: 100%")
+          .alert.alert-danger(ng-show="progress === 100 && error") #{__('Error while uploading')}!
           p
             button.btn.btn-primary.btn-large(ng-click="upload()") {{status}}

@@ -127,5 +127,51 @@ describe('The Avatar Angular module', function() {
     });
   });
 
-});
+  describe('avatarEdit controller', function() {
+    beforeEach(angular.mock.inject(function(selectionService, avatarAPI, $rootScope, $controller) {
+      this.selectionService = selectionService;
+      this.$rootScope = $rootScope;
+      this.avatarAPI = avatarAPI;
+      this.scope = $rootScope.$new();
 
+      $controller('avatarEdit', {
+        $rootScope: this.$rootScope,
+        $scope: this.scope,
+        selectionService: this.selectionService,
+        avatarAPI: this.avatarAPI
+      });
+    }));
+
+    it('should call the avatarAPI when calling send function', function(done) {
+      this.avatarAPI.uploadAvatar = function() {
+        done();
+      };
+      this.scope.send('foo', 'bar');
+      done();
+    });
+
+  });
+
+  describe('avatarAPI service', function() {
+    beforeEach(angular.mock.inject(function(selectionService, $rootScope, $httpBackend, avatarAPI) {
+      this.selectionService = selectionService;
+      this.$rootScope = $rootScope;
+      this.avatarAPI = avatarAPI;
+      this.$httpBackend = $httpBackend;
+    }));
+
+    it('should send POST to /api/user/profile/avatar with valid mime, parameters and blob', function() {
+      var blob = '123';
+      var mime = 'image/png';
+
+      this.$httpBackend.expectPOST('/api/user/profile/avatar?mimetype=image%2Fpng', blob).respond(200);
+      this.avatarAPI.uploadAvatar(blob, mime);
+      this.$httpBackend.flush();
+    });
+
+    it('should return a promise', function() {
+      var promise = this.avatarAPI.uploadAvatar('foo', 'bar');
+      expect(promise.then).to.be.a.function;
+    });
+  });
+});
