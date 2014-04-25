@@ -1,7 +1,8 @@
 .col-xs-12
-     h2 Members
-     div(ng-controller="memberscontroller")
-         search-form(search-spinner-key="membersSpinner")
-         infinite-list
+    div(ng-controller="memberscontroller")
+        div(style='position: fixed; background-color: white; z-index: 1030; top: 46px;')
+            h2 Members
+            search-form(search-spinner-key="membersSpinner")
+        infinite-list
             div(ng-repeat="member in members")
                 member-display(member="member")
