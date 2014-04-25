@@ -130,7 +130,8 @@ function updateProfile(req, res) {
       return validator.isAlpha(req.body.value) && validator.isLength(req.body.value, 1, 100);
     },
     lastname: function() {
-      return validator.isAlpha(req.body.value) && validator.isLength(req.body.value, 1, 100);
+      var lastNameLetters = req.body.value.replace(' ', '').replace('-', '').replace('\'', '').replace('_', '');
+      return !validator.isNull(req.body.value) && validator.isAlpha(lastNameLetters) && validator.isLength(req.body.value, 1, 100);
     },
     job_title: function() {
       return !validator.isNull(req.body.value) && validator.isLength(req.body.value, 1, 100);

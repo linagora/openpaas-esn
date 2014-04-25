@@ -58,5 +58,12 @@
   "There is no result matching your query": "Aucun résultat ne correspond à votre requête",
   "Results": "résultats",
   "Result": "résultat",
-  "About": "Environ"
+  "About": "Environ",
+  "Job Title": "Poste occupé",
+  "Service": "Service",
+  "Building Location": "Bâtiment",
+  "Office Location": "Bureau",
+  "Phone": "Téléphone",
+  "Edit or add photos": "Changer ou ajouter des photos"
+
 }
