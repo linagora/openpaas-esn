@@ -5,7 +5,7 @@
 
   .well
     span.btn.btn-info.btn-file #{__('Select a file')}...
-      input(type="file", id="profile_image", load-button)
+      input(type="file", id="profile_image", load-button, max-size="10")
   .row.text-center
     .col-xs-10.col-md-8
       img-loaded(width="512")
@@ -14,8 +14,8 @@
         canvas(width="128", height="128", id="preview", style="width: 128px; height: 128px;", img-preview)
         .caption
           .alert.alert-info(ng-show="progress === 0") #{__('Crop and upload your avatar')}.
-          .alert.alert-info(ng-show="progress > 0 && progress < 100 && !error") #{__('Uploading, please wait')}...
-          .alert.alert-success(ng-show="progress === 100 && !error") #{__('Avatar has been uploaded')}!
-          .alert.alert-danger(ng-show="progress === 100 && error") #{__('Error while uploading')}!
+          .alert.alert-info(ng-show="progress > 0 && progress < 100 && !uploadError") #{__('Uploading, please wait')}...
+          .alert.alert-success(ng-show="progress === 100 && !uploadError") #{__('Avatar has been uploaded')}!
+          .alert.alert-danger(ng-show="uploadError") #{__('Error while uploading')}!
           p
             button.btn.btn-primary.btn-large(ng-click="upload()") {{status}}

@@ -6,6 +6,7 @@ angular.module('esn.avatar', [])
 
     $scope.initUploadContext = function() {
       $scope.error = null;
+      $scope.uploadError = false;
       $scope.progress = 0;
       $scope.status = 'Upload';
       $scope.uploading = false;
@@ -20,7 +21,7 @@ angular.module('esn.avatar', [])
         $scope.uploading = false;
         $scope.status = 'Upload';
       }, function() {
-        $scope.error = true;
+        $scope.uploadError = true;
         $scope.uploading = false;
         $scope.status = 'Upload';
       });
@@ -55,6 +56,17 @@ angular.module('esn.avatar', [])
     };
 
     $rootScope.$on('crop:loaded', $scope.initUploadContext);
+
+    $rootScope.$on('crop:error', function(context, error) {
+      $scope.error = error;
+      $scope.$apply();
+    });
+
+    $rootScope.$on('crop:loaded', function() {
+      $scope.preview = true;
+      $scope.$apply();
+    });
+
     $scope.initUploadContext();
 
   }).factory('avatarAPI', function($http) {
@@ -79,6 +91,7 @@ angular.module('esn.avatar', [])
   var sharedService = {};
   sharedService.image = null;
   sharedService.selection = {};
+  sharedService.error = null;
 
   sharedService.setImage = function(image) {
     this.image = image;
@@ -87,6 +100,15 @@ angular.module('esn.avatar', [])
 
   sharedService.getImage = function() {
     return this.image;
+  };
+
+  sharedService.getError = function() {
+    return this.error;
+  };
+
+  sharedService.setError = function(error) {
+    this.error = error;
+    $rootScope.$broadcast('crop:error', error);
   };
 
   sharedService.broadcastSelection = function(x) {
@@ -183,6 +205,9 @@ angular.module('esn.avatar', [])
     return {
       restrict: 'A',
       replace: true,
+      scope: {
+        maxSize: '='
+      },
       link: function(scope, element, attrs) {
         element.bind('change', function(evt) {
           evt.stopPropagation();
@@ -190,23 +215,25 @@ angular.module('esn.avatar', [])
 
           var file = evt.dataTransfer !== undefined ? evt.dataTransfer.files[0] : evt.target.files[0];
           if (!file || !file.type.match(/^image\//)) {
-            scope.error = 'Wrong file type, please select a valid image';
-            scope.$apply();
+            selectionService.setError('Wrong file type, please select a valid image');
           } else {
-            scope.preview = true;
-            scope.error = null;
-            scope.$apply();
-            var reader = new FileReader();
-            reader.onload = (function(theFile) {
-              return function(e) {
-                var image = new Image();
-                image.src = e.target.result;
-                image.onload = function() {
-                  selectionService.setImage(image);
+            var maxSize = scope.maxSize || 10;
+            if (file.size > maxSize * 1048576) {
+              selectionService.setError('File is too large (maximum size is ' + scope.maxSize + ' Mb)');
+            } else {
+              var reader = new FileReader();
+              reader.onload = (function(theFile) {
+                return function(e) {
+                  var image = new Image();
+                  image.src = e.target.result;
+                  image.onload = function() {
+                    selectionService.setError();
+                    selectionService.setImage(image);
+                  };
                 };
-              };
-            })(file);
-            reader.readAsDataURL(file);
+              })(file);
+              reader.readAsDataURL(file);
+            }
           }
         });
       }

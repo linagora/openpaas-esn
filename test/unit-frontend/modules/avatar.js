@@ -69,16 +69,17 @@ describe('The Avatar Angular module', function() {
 
   describe('loadButton directive', function() {
     var html = '<input type="file" load-button/>';
-    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+    beforeEach(inject(['$compile', '$rootScope', 'selectionService', function($c, $r, selectionService) {
       this.$compile = $c;
       this.$rootScope = $r;
+      this.selectionService = selectionService;
     }]));
 
     it('should set an error in the scope if file is not set', function(done) {
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       element.trigger('change');
-      expect(this.$rootScope.error).to.equal('Wrong file type, please select a valid image');
+      expect(this.selectionService.getError()).to.equal('Wrong file type, please select a valid image');
       done();
     });
   });
@@ -116,6 +117,24 @@ describe('The Avatar Angular module', function() {
       this.selectionService.setImage(input);
       expect(this.selectionService.image).to.equal(input);
       done();
+    });
+
+    it('should save the error', function(done) {
+      var error = 'fail';
+      this.selectionService.setError(error);
+      expect(this.selectionService.error).to.equal(error);
+      done();
+    });
+
+    it('should broadcast the error to crop:error topic when calling setError(err)', function(done) {
+      var error = 'fail';
+
+      this.$rootScope.$broadcast = function(topic, data) {
+        expect(topic).to.equal('crop:error');
+        expect(data).to.equal(error);
+        done();
+      };
+      this.selectionService.setError(error);
     });
 
     it('should return the stored image when calling getImage', function(done) {
