@@ -1,9 +1,10 @@
 div.row(ng-controller='profileEditionController')
     div.col-md-4
         div
-            img(src='/images/user.png')
+          a.thumbnail
+            img(width="150", heigth="150", src='/api/user/profile/avatar')
         div
-            a #{__('Edit or add photos')}
+          a.btn.btn-default.btn-block(href="/#/profile/avatar") #{__('Edit Avatar')}
     div.col-md-8
         //Name
         div.row(style="margin:5px;")
@@ -11,7 +12,7 @@ div.row(ng-controller='profileEditionController')
                 span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
                     spinner-start-active='1',
                     ng-show='running.name')
-                span.h3(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)') {{ fullName || initFullName(user.firstname, user.lastname) }}
+                span.h4(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)') {{ fullName || initFullName(user.firstname, user.lastname) }}
             div.col-md-4
                 button.btn.btn-link(ng-click='nameForm.$show()', ng-hide='nameForm.$visible', ng-disabled='running.name') Change
         //Job
