@@ -1,6 +1,8 @@
 'use strict';
 
-var expect = require('chai').expect;
+var chai = require('chai');
+chai.use(require('chai-datetime'));
+var expect = chai.expect;
 var mongodb = require('mongodb');
 
 describe('The domain model module', function() {
@@ -23,6 +25,108 @@ describe('The domain model module', function() {
     this.mongoose.connection.db.dropDatabase();
     this.mongoose.disconnect(done);
   });
+
+  describe('activity_stream field', function() {
+    it('should be generated on save if not set in the input object', function(done) {
+      var name = 'mystreamtestdomain';
+      var mongoUrl = this.testEnv.mongoUrl;
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+
+      function saveUser(callback) {
+        u.save(function(err, savedUser) {
+          if (err) { return done(err); }
+          return callback(savedUser);
+        });
+      }
+
+      function saveDomain(domainJSON, callback) {
+        var domain = new Domain(domainJSON);
+        domain.save(function(err, savedDomain) {
+          if (err) { return done(err); }
+          return callback(savedDomain);
+        });
+      }
+
+      function test(savedDomain) {
+        mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+          if (err) { return done(err); }
+          db.collection('domains').findOne({_id: savedDomain._id}, function(err, domain) {
+            if (err) { return done(err); }
+            expect(domain).to.be.not.null;
+            expect(domain.activity_stream).to.exist;
+            expect(domain.activity_stream.uuid).to.exist;
+            expect(domain.activity_stream.timestamps).to.exist;
+            expect(domain.activity_stream.timestamps.creation).to.exist;
+            db.close(done);
+          });
+        });
+      }
+
+      saveUser(function(savedUser) {
+        var dom = {
+          name: name,
+          company_name: 'Foo Corporate',
+          administrator: savedUser
+        };
+        saveDomain(dom, test);
+      });
+    });
+
+    it('should save the input value if set', function(done) {
+      var name = 'mystreamtestdomainwithuuid';
+      var uuid = '123456789';
+      var date = new Date();
+      var mongoUrl = this.testEnv.mongoUrl;
+      var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
+
+      function saveUser(callback) {
+        u.save(function(err, savedUser) {
+          if (err) { return done(err); }
+          return callback(savedUser);
+        });
+      }
+
+      function saveDomain(domainJSON, callback) {
+        var domain = new Domain(domainJSON);
+        domain.save(function(err, savedDomain) {
+          if (err) { return done(err); }
+          return callback(savedDomain);
+        });
+      }
+
+      function test(savedDomain) {
+        mongodb.MongoClient.connect(mongoUrl, function(err, db) {
+          if (err) { return done(err); }
+          db.collection('domains').findOne({_id: savedDomain._id}, function(err, domain) {
+            if (err) { return done(err); }
+            expect(domain).to.be.not.null;
+            expect(domain.activity_stream).to.exist;
+            expect(domain.activity_stream.uuid).to.equal(uuid);
+            expect(domain.activity_stream.timestamps).to.exist;
+            expect(domain.activity_stream.timestamps.creation).to.exist;
+            expect(domain.activity_stream.timestamps.creation).to.equalDate(date);
+            db.close(done);
+          });
+        });
+      }
+
+      saveUser(function(savedUser) {
+        var dom = {
+          name: name,
+          company_name: 'Foo Corporate',
+          administrator: savedUser,
+          activity_stream: {
+            uuid: uuid,
+            timestamps: {
+              creation: date
+            }
+          }
+        };
+        saveDomain(dom, test);
+      });
+    });
+  });
+
 
   describe('name field', function() {
     it('should be recorded in lowercase, without spaces', function(done) {
