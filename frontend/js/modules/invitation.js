@@ -39,11 +39,23 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
 .controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation) {
     $scope.notFound = invitation.status === 'error' ? true : false;
     $scope.form = {};
+    $scope.settings = {};
+    $scope.invited = false;
+
+    var company_name, domain_name;
+    if (invitation.type === 'addmember') {
+      company_name = invitation.data.domain.company_name;
+      domain_name = invitation.data.domain.name;
+      $scope.invited = true;
+    }
 
     if (!$scope.notFound) {
       $scope.invitationId = invitation.uuid;
       $scope.settings = invitation.data;
-
+      if (invitation.type === 'addmember') {
+        $scope.settings.domain = domain_name;
+        $scope.settings.company = company_name;
+      }
       $scope.editCompany = invitation.type === 'addmember' ? false : true;
     }
 
@@ -63,7 +75,7 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
       $scope.finalizeTask.running = true;
       $scope.finalizeButton.label = $scope.finalizeButton.running;
 
-      var payload = {data: $scope.settings, type: 'signup'};
+      var payload = {data: $scope.settings, type: invitation.type || 'signup'};
       invitationAPI.finalize($scope.invitationId, payload).then(
         function(data) {
           $scope.finalizeButton.label = $scope.finalizeButton.notRunning;
