@@ -63,3 +63,59 @@ If a message is not found from the input ID, the result array will contain an er
             }
         },
     ]
+
+## POST /api/messages
+
+Post a new message by the currently logged in user.
+
+**Request Headers:**
+
+- Content-Type: application/json
+
+**Request JSON Object:**
+
+- object: the definition of the object
+
+  object: {
+    objectType: "whatsup",             # Type of the message
+    content: whatsup message content,  # Content of the message
+  }
+
+- targets: An array of targets
+
+  targets: [{
+    objectType: "activitystream",                                 # Type of the target
+    id: "urn:linagora.com:activitystream:<activitystream uuid>",  # This is an activity stream id
+  }]
+
+**Status Codes:**
+
+- 201 Created.
+- 400 Bad request. The current request is missing mandatory parameters
+- 500 Internal server error: there was a problem.
+
+**Request:**
+
+    POST /api/messages
+    Content-Type: application/json
+    Host: localhost:8080
+
+    {
+        "object": {
+            "objectType": "whatsupmessage",
+            "description": "whatsup message content"
+        },
+        "targets": [
+            {
+                "objectType": "activitystream",
+                "id": "urn:linagora:esn:activitystream:<activitystream uuid>"
+            }
+        ]
+    }
+
+**Response:**
+
+    HTTP/1.1 201 Ok
+    {
+        _id: '7f281054-e7a6-1547-012f-935d5b88389d'
+    }
