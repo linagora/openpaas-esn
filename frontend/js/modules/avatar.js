@@ -44,8 +44,8 @@ angular.module('esn.avatar', [])
         canvas.height = 128;
         context.drawImage(image, 0, 0, 128, 128);
       } else {
-        canvas.width = selection.w / ratio;
-        canvas.height = selection.h / ratio;
+        canvas.width = selection.w * ratio;
+        canvas.height = selection.h * ratio;
         context.drawImage(image, selection.x * ratio, selection.y * ratio, selection.w * ratio, selection.h * ratio, 0, 0, canvas.width, canvas.height);
       }
 
@@ -134,7 +134,7 @@ angular.module('esn.avatar', [])
         canvas.width = canvas.height = 128;
 
         var ctx = canvas.getContext('2d');
-        if (selection.w / ratio < 128 || selection.h / ratio < 128) {
+        if (Math.round(selection.w * ratio) < 128 || Math.round(selection.h * ratio) < 128) {
           ctx.drawImage(img, 0, 0, 128, 128);
         } else {
           ctx.drawImage(img, selection.x * ratio, selection.y * ratio, selection.w * ratio, selection.h * ratio, 0, 0, canvas.width, canvas.height);
@@ -168,7 +168,11 @@ angular.module('esn.avatar', [])
         var width = scope.width || 512;
         var height = image.height * (width / image.width);
         var ratio = image.width / width;
-        var minsize = 128 * ratio;
+        var minsize = 128 / ratio;
+
+        /*si image.w == 1024 -> ratio = 2. minsize = 256
+        si image.w == 2048 -> ratio = 4. minsize = 512
+*/
 
         canvas.width = width;
         canvas.height = height;
