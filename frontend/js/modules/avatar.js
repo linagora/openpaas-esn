@@ -1,11 +1,10 @@
 'use strict';
 
-angular.module('esn.avatar', [])
+angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate'])
 
-  .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI) {
+  .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert) {
 
     $scope.initUploadContext = function() {
-      $scope.error = null;
       $scope.uploadError = false;
       $scope.progress = 0;
       $scope.status = 'Upload';
@@ -58,8 +57,18 @@ angular.module('esn.avatar', [])
     $rootScope.$on('crop:loaded', $scope.initUploadContext);
 
     $rootScope.$on('crop:error', function(context, error) {
-      $scope.error = error;
-      $scope.$apply();
+      if (error) {
+        $alert({
+          title: 'Error',
+          content: error,
+          type: 'danger',
+          show: true,
+          position: 'bottom',
+          container: '#error',
+          duration: '3',
+          animation: 'am-fade'
+        });
+      }
     });
 
     $rootScope.$on('crop:loaded', function() {

@@ -9,6 +9,7 @@ html
     link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
     link(rel='stylesheet', href='/components/ng-tags-input/ng-tags-input.css')
     link(rel='stylesheet', href='/components/jcrop/css/jquery.Jcrop.css')
+    link(rel='stylesheet', href='/components/angular-motion/dist/angular-motion.css')
     link(rel='stylesheet', href='/css/styles.css')
     link(rel='stylesheet', href='/components/angular-xeditable/dist/css/xeditable.css')
     script(src='/components/jquery/jquery.js')
@@ -16,12 +17,15 @@ html
     script(src='/components/bootstrap/dist/js/bootstrap.js')
     script(src='/components/angular/angular.js')
     script(src='/components/angular-route/angular-route.js')
+    script(src='/components/angular-animate/angular-animate.js')
     script(src='/components/restangular/dist/restangular.js')
     script(src='/components/ngInfiniteScroll/ng-infinite-scroll.js')
     script(src='/components/ng-tags-input/ng-tags-input.js')
     script(src='/components/jcrop/js/jquery.Jcrop.js')
     script(src='/components/angular-xeditable/dist/js/xeditable.js')
     script(src='/components/blueimp-canvas-to-blob/js/canvas-to-blob.js')
+    script(src='/components/angular-strap/dist/angular-strap.js')
+    script(src='/components/angular-strap/dist/angular-strap.tpl.js')
     script(src='js/esn/app.js')
     script(src='/components/spin.js/spin.js')
     script(src='/components/angular-spinner/angular-spinner.js')
@@ -36,7 +40,7 @@ html
   body.ng-cloak(ng-app='esnApp')
     #wrap
       include ../partials/header
-      
+
       div.container-fluid
         .row
           div.leftPane.col-sm-2.hidden-xs Left Pane

@@ -1,11 +1,8 @@
 .col-xs-10.col-md-10
-  .alert.alert-danger.alert-dismissable(ng-hide="!error")
-    button.close(type="button", data-dismiss="alert", aria-hidden="true") &times;
-    strong {{error}}
-
   .well
     span.btn.btn-info.btn-file #{__('Select a file')}...
       input(type="file", id="profile_image", load-button, max-size="10")
+  #error
   .row.text-center
     .col-xs-10.col-md-8
       img-loaded(width="512")
