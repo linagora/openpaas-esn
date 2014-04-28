@@ -1142,7 +1142,7 @@ describe('The User controller', function() {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {
         user: {
-          defaultAvatar: 'id'
+          currentAvatar: 'id'
         }
       };
       var res = {
@@ -1184,7 +1184,7 @@ describe('The User controller', function() {
         },
         user: {
           _id: '_id',
-          defaultAvatar: 'id'
+          currentAvatar: 'id'
         }
       };
       var res = {
@@ -1225,7 +1225,7 @@ describe('The User controller', function() {
         },
         user: {
           _id: '_id',
-          defaultAvatar: 'id'
+          currentAvatar: 'id'
         }
       };
       var res = {

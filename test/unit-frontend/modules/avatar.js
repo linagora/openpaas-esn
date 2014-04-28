@@ -69,16 +69,17 @@ describe('The Avatar Angular module', function() {
 
   describe('loadButton directive', function() {
     var html = '<input type="file" load-button/>';
-    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+    beforeEach(inject(['$compile', '$rootScope', 'selectionService', function($c, $r, selectionService) {
       this.$compile = $c;
       this.$rootScope = $r;
+      this.selectionService = selectionService;
     }]));
 
     it('should set an error in the scope if file is not set', function(done) {
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       element.trigger('change');
-      expect(this.$rootScope.error).to.equal('Wrong file type, please select a valid image');
+      expect(this.selectionService.getError()).to.equal('Wrong file type, please select a valid image');
       done();
     });
   });
@@ -118,6 +119,24 @@ describe('The Avatar Angular module', function() {
       done();
     });
 
+    it('should save the error', function(done) {
+      var error = 'fail';
+      this.selectionService.setError(error);
+      expect(this.selectionService.error).to.equal(error);
+      done();
+    });
+
+    it('should broadcast the error to crop:error topic when calling setError(err)', function(done) {
+      var error = 'fail';
+
+      this.$rootScope.$broadcast = function(topic, data) {
+        expect(topic).to.equal('crop:error');
+        expect(data).to.equal(error);
+        done();
+      };
+      this.selectionService.setError(error);
+    });
+
     it('should return the stored image when calling getImage', function(done) {
       var input = 'foo.png';
       this.selectionService.image = input;
@@ -127,5 +146,51 @@ describe('The Avatar Angular module', function() {
     });
   });
 
-});
+  describe('avatarEdit controller', function() {
+    beforeEach(angular.mock.inject(function(selectionService, avatarAPI, $rootScope, $controller) {
+      this.selectionService = selectionService;
+      this.$rootScope = $rootScope;
+      this.avatarAPI = avatarAPI;
+      this.scope = $rootScope.$new();
 
+      $controller('avatarEdit', {
+        $rootScope: this.$rootScope,
+        $scope: this.scope,
+        selectionService: this.selectionService,
+        avatarAPI: this.avatarAPI
+      });
+    }));
+
+    it('should call the avatarAPI when calling send function', function(done) {
+      this.avatarAPI.uploadAvatar = function() {
+        done();
+      };
+      this.scope.send('foo', 'bar');
+      done();
+    });
+
+  });
+
+  describe('avatarAPI service', function() {
+    beforeEach(angular.mock.inject(function(selectionService, $rootScope, $httpBackend, avatarAPI) {
+      this.selectionService = selectionService;
+      this.$rootScope = $rootScope;
+      this.avatarAPI = avatarAPI;
+      this.$httpBackend = $httpBackend;
+    }));
+
+    it('should send POST to /api/user/profile/avatar with valid mime, parameters and blob', function() {
+      var blob = '123';
+      var mime = 'image/png';
+
+      this.$httpBackend.expectPOST('/api/user/profile/avatar?mimetype=image%2Fpng', blob).respond(200);
+      this.avatarAPI.uploadAvatar(blob, mime);
+      this.$httpBackend.flush();
+    });
+
+    it('should return a promise', function() {
+      var promise = this.avatarAPI.uploadAvatar('foo', 'bar');
+      expect(promise.then).to.be.a.function;
+    });
+  });
+});

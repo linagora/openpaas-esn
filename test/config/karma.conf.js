@@ -10,6 +10,8 @@ module.exports = function(config) {
       'frontend/components/angular/angular.js',
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-mocks/angular-mocks.js',
+      'frontend/components/angular-animate/angular-animate.js',
+      'frontend/components/angular-strap/dist/angular-strap.js',
       'frontend/components/underscore/underscore.js',
       'frontend/components/restangular/dist/restangular.js',
       'frontend/components/angular-spinner/angular-spinner.js',
