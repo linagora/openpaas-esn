@@ -243,11 +243,20 @@ describe('The messages module', function() {
       messages.getMessages(validReq, res);
     });
 
-    it('should return 200 and the messages found by ids', function (done) {
+    it('should return 200 and the messages found by ids, also not found ones', function (done) {
       var res = {
         send: function (code, message) {
           expect(code).to.equal(200);
-          expect(message).to.deep.equal(['message1', 'message2']);
+          expect(message[0]._id.toString()).to.equal('1');
+          expect(message[1]).to.deep.equal(
+            {
+              error: {
+                status: 404,
+                message: 'Not Found',
+                details: 'The message 2 can not be found'
+              }
+            });
+          expect(message.length).to.equal(2);
           done();
         }
       }
@@ -255,7 +264,15 @@ describe('The messages module', function() {
       var messageModuleMocked = {
         findByIds: function (ids, callback) {
           expect(ids).to.deep.equal(['1', '2']);
-          callback(null, ['message1', 'message2']);
+          callback(null, [
+            {
+              _id: {
+                toString: function() {
+                  return '1';
+                }
+              }
+            }
+          ]);
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -264,17 +281,36 @@ describe('The messages module', function() {
       messages.getMessages(validReq, res);
     });
 
-    it('should return 404 otherwise', function (done) {
+    it('should return 200 and only the messages found by ids', function (done) {
       var res = {
-        send: function (code) {
-          expect(code).to.equal(404);
+        send: function (code, message) {
+          expect(code).to.equal(200);
+          expect(message[0]._id.toString()).to.equal('1');
+          expect(message[1]._id.toString()).to.equal('2');
+          expect(message.length).to.equal(2);
           done();
         }
       }
 
       var messageModuleMocked = {
         findByIds: function (ids, callback) {
-          callback(null, []);
+          expect(ids).to.deep.equal(['1', '2']);
+          callback(null, [
+            {
+              _id: {
+                toString: function() {
+                  return '1';
+                }
+              }
+            },
+            {
+              _id: {
+                toString: function() {
+                  return '2';
+                }
+              }
+            }
+          ]);
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);

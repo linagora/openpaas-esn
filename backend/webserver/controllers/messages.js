@@ -55,11 +55,22 @@ function get(req, res) {
         { error: { status: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
     }
 
-    if(result.length > 0) {
-      return res.send(200, result);
-    }
+    var foundIds = result.map(function(message) {
+      return message._id.toString();
+    });
+    req.query.ids.filter(function(id) {
+      return foundIds.indexOf(id) < 0;
+    }).forEach(function(id) {
+      result.push({
+        error: {
+          status: 404,
+          message: 'Not Found',
+          details: 'The message ' + id + ' can not be found'
+        }
+      });
+    });
 
-    return res.send(404);
+    return res.send(200, result);
   });
 }
 
