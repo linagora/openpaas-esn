@@ -8,7 +8,7 @@ angular.module('esn.message', ['restangular'])
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/widgets/message/whatsupEdition.html'
+      templateUrl: '/views/modules/message/whatsupEdition.html'
     };
   })
   .factory('messageAPI', ['Restangular', function(Restangular) {

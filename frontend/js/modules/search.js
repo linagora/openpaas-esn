@@ -12,6 +12,6 @@ angular.module('esn.search', [])
         $scope.spinnerKey = angular.isDefined($scope.spinnerKey) ? $scope.spinnerKey : defaultSpinnerConfiguration.spinnerKey;
         $scope.spinnerConf = angular.isDefined($scope.spinnerConf) ? $scope.spinnerConf : defaultSpinnerConfiguration.spinnerConf;
       },
-      templateUrl: '/views/search/partials/searchForm.html'
+      templateUrl: '/views/modules/search/searchForm.html'
     };
   });
