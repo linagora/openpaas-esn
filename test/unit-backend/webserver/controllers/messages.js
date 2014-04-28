@@ -33,7 +33,7 @@ describe('The messages module', function() {
         expect(message.error.details).to.contain('User');
         done();
       }
-    }
+    };
 
     var messageModuleMocked = {};
     mockery.registerMock('../../core/message', messageModuleMocked);
@@ -47,14 +47,14 @@ describe('The messages module', function() {
       user: {
         emails: ['aEmail']
       }
-    }
+    };
     var res = {
       send: function(code, message) {
         expect(code).to.equal(400);
         expect(message).to.contain('Missing');
         done();
       }
-    }
+    };
 
     var messageModuleMocked = {};
     mockery.registerMock('../../core/message', messageModuleMocked);
@@ -70,7 +70,7 @@ describe('The messages module', function() {
         expect(message.error.details).to.contain('Cannot');
         done();
       }
-    }
+    };
 
     var messageModuleMocked = {
       save: function(message, callback) {
@@ -90,7 +90,7 @@ describe('The messages module', function() {
         expect(message._id).to.equal('a new id');
         done();
       }
-    }
+    };
 
     var messageModuleMocked = {
       save: function(message, callback) {
@@ -109,7 +109,7 @@ describe('The messages module', function() {
         expect(code).to.equal(404);
         done();
       }
-    }
+    };
 
     var messageModuleMocked = {
       save: function(message, callback) {

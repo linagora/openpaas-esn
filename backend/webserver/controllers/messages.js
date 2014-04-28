@@ -29,4 +29,4 @@ function create(req, res) {
 
 module.exports = {
   createMessage: create
-}
+};

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var logger = require(__dirname + '/../../core').logger,
     mongoose = require('mongoose'),
@@ -14,4 +14,4 @@ module.exports.save = function(message, callback) {
     }
     callback(err, response);
   });
-}
+};

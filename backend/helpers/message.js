@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 module.exports.postToModelMessage = function(message, user) {
   var objectType = message.object.objectType,
@@ -12,4 +12,4 @@ module.exports.postToModelMessage = function(message, user) {
     author: author,
     shares: shares
   };
-}
+};
