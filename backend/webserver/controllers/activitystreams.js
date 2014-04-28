@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
-var timeline = require('../../core/activitystreams');
+var activitystreams = require('../../core/activitystreams');
 
 /**
  * Get an activity stream from its uuid
@@ -38,9 +38,9 @@ function get(req, res) {
       options.before = req.query.before;
     }
 
-    timeline.query(options, function(err, result) {
+    activitystreams.query(options, function(err, result) {
       if (err) {
-        return res.json(500, {error: {code: 500, message: 'Internal error', details: 'Can not get timeline for domain ' + domain._id}});
+        return res.json(500, {error: {code: 500, message: 'Internal error', details: 'Can not get activitystream for domain ' + domain._id}});
       }
       return res.json(result);
     });
