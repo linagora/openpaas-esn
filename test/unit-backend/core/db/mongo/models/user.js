@@ -270,7 +270,7 @@ describe('The User model', function() {
               expect(loaded).to.be.not.null;
               expect(loaded.domains).to.be.not.null;
               expect(loaded.domains.length).to.equal(1);
-              expect(loaded.domains[0].domain_id).to.deep.equals(domain._id);
+              expect(loaded.domains[0].domain_id.equals(domain._id)).to.be.true;
               db.close(done);
             });
           });
@@ -325,7 +325,7 @@ describe('The User model', function() {
               expect(loaded).to.be.not.null;
               expect(loaded.domains).to.be.not.null;
               expect(loaded.domains.length).to.equal(1);
-              expect(loaded.domains[0].domain_id).to.deep.equals(domain._id);
+              expect(loaded.domains[0].domain_id.equals(domain._id)).to.be.true;
               db.close(done);
             });
           });
@@ -359,7 +359,7 @@ describe('The User model', function() {
               expect(loaded).to.be.not.null;
               expect(loaded.domains).to.be.not.null;
               expect(loaded.domains.length).to.equal(1);
-              expect(loaded.domains[0].domain_id).to.deep.equals(domain._id);
+              expect(loaded.domains[0].domain_id.equals(domain._id)).to.be.true;
               db.close(done);
             });
           });

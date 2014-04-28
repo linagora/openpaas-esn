@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var trim = require('trim');
+var uuid = require('node-uuid');
 var Schema = mongoose.Schema;
 
 var DomainSchema = new Schema({
@@ -11,7 +12,21 @@ var DomainSchema = new Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
+  activity_stream: {
+    uuid: {type: String},
+    timestamps: {
+      creation: {type: Date, default: Date.now}
+    }
+  },
   schemaVersion: {type: Number, default: 1}
+});
+
+DomainSchema.pre('save', function(next) {
+  this.activity_stream = this.activity_stream || {};
+  if (!this.activity_stream.uuid) {
+    this.activity_stream.uuid = uuid.v4();
+  }
+  next();
 });
 
 DomainSchema.statics = {
