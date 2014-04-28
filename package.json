@@ -52,6 +52,7 @@
     "grunt-mocha-cli": "~1.4.0",
     "bower": "~1.2.8",
     "chai": "~1.8.1",
+    "chai-datetime": "~1.1.2",
     "mockery": "~1.4.0",
     "mocha": "~1.17.0",
     "karma-script-launcher": "~0.1.0",
