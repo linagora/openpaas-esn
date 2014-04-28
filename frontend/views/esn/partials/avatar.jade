@@ -8,7 +8,7 @@
       img-loaded(width="512")
     .col-xs-10.col-md-4(ng-hide="!preview")
       .thumbnail
-        canvas(width="128", height="128", id="preview", style="width: 128px; height: 128px;", img-preview)
+        canvas(width="128", height="128", id="preview", img-preview)
         .caption
           .alert.alert-info(ng-show="progress === 0") #{__('Crop and upload your avatar')}.
           .alert.alert-info(ng-show="progress > 0 && progress < 100 && !uploadError") #{__('Uploading, please wait')}...
