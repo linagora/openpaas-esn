@@ -8,7 +8,7 @@ describe('The messages module', function() {
   describe('POST /api/messages', function() {
     var validReq;
 
-    before(function () {
+    before(function() {
       validReq = {
         user: {
           emails: ['aEmail'],
@@ -29,9 +29,9 @@ describe('The messages module', function() {
       };
     });
 
-    it('should return 500 if the user is not set in the request', function (done) {
+    it('should return 500 if the user is not set in the request', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('User');
           done();
@@ -45,14 +45,14 @@ describe('The messages module', function() {
       messages.createMessage({}, res);
     });
 
-    it('should return 400 if the message is not in the body', function (done) {
+    it('should return 400 if the message is not in the body', function(done) {
       var req = {
         user: {
           emails: ['aEmail']
         }
-      }
+      };
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(400);
           expect(message).to.contain('Missing');
           done();
@@ -66,17 +66,17 @@ describe('The messages module', function() {
       messages.createMessage(req, res);
     });
 
-    it('should return 500 if it cannot save the message in the database', function (done) {
+    it('should return 500 if it cannot save the message in the database', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
         }
-      }
+      };
 
       var messageModuleMocked = {
-        save: function (message, callback) {
+        save: function(message, callback) {
           callback(new Error('an error has occured'));
         }
       };
@@ -86,9 +86,9 @@ describe('The messages module', function() {
       messages.createMessage(validReq, res);
     });
 
-    it('should return 201 and the id of the newly created message', function (done) {
+    it('should return 201 and the id of the newly created message', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(201);
           expect(message._id).to.equal('a new id');
           done();
@@ -96,7 +96,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {
-        save: function (message, callback) {
+        save: function(message, callback) {
           callback(null, {_id: 'a new id'});
         }
       };
@@ -152,16 +152,16 @@ describe('The messages module', function() {
       messages.createMessage(validReq, res);
     });
 
-    it('should return 404 otherwise', function (done) {
+    it('should return 404 otherwise', function(done) {
       var res = {
-        send: function (code) {
+        send: function(code) {
           expect(code).to.equal(404);
           done();
         }
-      }
+      };
 
       var messageModuleMocked = {
-        save: function (message, callback) {
+        save: function(message, callback) {
           callback(null, false);
         }
       };
@@ -175,7 +175,7 @@ describe('The messages module', function() {
   describe('GET /api/messages', function() {
     var validReq;
 
-    before(function () {
+    before(function() {
       validReq = {
         user: {
           emails: ['aEmail']
@@ -186,9 +186,9 @@ describe('The messages module', function() {
       };
     });
 
-    it('should return 500 if the user is not set in the request', function (done) {
+    it('should return 500 if the user is not set in the request', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('User');
           done();
@@ -202,19 +202,19 @@ describe('The messages module', function() {
       messages.getMessages({}, res);
     });
 
-    it('should return 400 if the ids is not in the query', function (done) {
+    it('should return 400 if the ids is not in the query', function(done) {
       var req = {
         user: {
           emails: ['aEmail']
         }
-      }
+      };
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(400);
           expect(message).to.contain('Missing');
           done();
         }
-      }
+      };
 
       var messageModuleMocked = {};
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -223,9 +223,9 @@ describe('The messages module', function() {
       messages.getMessages(req, res);
     });
 
-    it('should return 500 if it cannot findByIds the messages in the database', function (done) {
+    it('should return 500 if it cannot findByIds the messages in the database', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
@@ -233,7 +233,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {
-        findByIds: function (ids, callback) {
+        findByIds: function(ids, callback) {
           callback(new Error('an error has occured'));
         }
       };
@@ -243,9 +243,9 @@ describe('The messages module', function() {
       messages.getMessages(validReq, res);
     });
 
-    it('should return 200 and the messages found by ids, also not found ones', function (done) {
+    it('should return 200 and the messages found by ids, also not found ones', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(200);
           expect(message[0]._id.toString()).to.equal('1');
           expect(message[1]).to.deep.equal(
@@ -259,10 +259,10 @@ describe('The messages module', function() {
           expect(message.length).to.equal(2);
           done();
         }
-      }
+      };
 
       var messageModuleMocked = {
-        findByIds: function (ids, callback) {
+        findByIds: function(ids, callback) {
           expect(ids).to.deep.equal(['1', '2']);
           callback(null, [
             {
@@ -281,19 +281,19 @@ describe('The messages module', function() {
       messages.getMessages(validReq, res);
     });
 
-    it('should return 200 and only the messages found by ids', function (done) {
+    it('should return 200 and only the messages found by ids', function(done) {
       var res = {
-        send: function (code, message) {
+        send: function(code, message) {
           expect(code).to.equal(200);
           expect(message[0]._id.toString()).to.equal('1');
           expect(message[1]._id.toString()).to.equal('2');
           expect(message.length).to.equal(2);
           done();
         }
-      }
+      };
 
       var messageModuleMocked = {
-        findByIds: function (ids, callback) {
+        findByIds: function(ids, callback) {
           expect(ids).to.deep.equal(['1', '2']);
           callback(null, [
             {

@@ -22,6 +22,6 @@ module.exports.save = function(message, callback) {
 module.exports.findByIds = function(ids, callback) {
   var query = {
     _id: { $in: ids}
-  }
+  };
   Whatsup.find(query, callback);
 };
