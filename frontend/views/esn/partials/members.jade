@@ -1,8 +1,11 @@
-.col-xs-12
+.col-xs-12.col-sm-10
     div(ng-controller="memberscontroller")
-        div(style='position: fixed; background-color: white; z-index: 1030; top: 46px;')
-            h2 Members
-            search-form(search-spinner-key="membersSpinner")
-        infinite-list
-            div(ng-repeat="member in members")
-                member-display(member="member")
+        .row
+            .col-xs-12.col-sm-10.search-form
+                h2 Members
+                search-form(search-spinner-key="membersSpinner")
+        .row
+            .col-xs-12.col-sm-10.col-sm-offset-2.col-xs-offset-4.infinite-list
+                infinite-list
+                    div(ng-repeat="member in members")
+                        member-display(member="member")
