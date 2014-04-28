@@ -252,6 +252,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-unit-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:unit_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:all', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('linters', ['jshint', 'gjslint']);
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
     var done = this.async();
