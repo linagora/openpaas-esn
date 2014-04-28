@@ -15,6 +15,9 @@ exports = module.exports = function(application) {
   application.post('/api/domains/:uuid/invitations', authorize.requiresAPILogin, domains.load, authorize.requiresDomainManager, domains.sendInvitations);
   application.get('/api/domains/:uuid/manager', authorize.requiresAPILogin, domains.load, authorize.requiresDomainManager, domains.getDomain);
 
+  var activitystreams = require('./controllers/activitystreams');
+  application.get('/api/activitystreams/:uuid', authorize.requiresAPILogin, activitystreams.get);
+
   var users = require('./controllers/users');
   application.get('/logout', users.logout);
   application.get('/api/profile/:uuid', authorize.requiresAPILogin, link.trackProfileView, users.profile);
