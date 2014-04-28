@@ -125,6 +125,45 @@ Only the domain manager is able to invite people to join a domain.
 
     HTTP/1.1 202 Accepted
 
+## GET /api/domains/{domain_id}
+
+Get the domain information.
+
+**Parameters**
+
+- domain_id: The domain ID
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Response JSON Object:**
+
+- The domain object
+
+**Status Codes:**
+
+- 200 OK
+- 401 Unauthorized. The user is not authenticated on the platform.
+
+**Request:**
+
+    GET /api/domains/123456789
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+      "name": "foo",
+      "company_name": "bar"
+    }
+
 ## GET /api/domains/{domain_id}/manager
 
 Check if the authenticated user is the domain manager

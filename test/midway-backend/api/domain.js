@@ -1,7 +1,9 @@
 'use strict';
 
 var request = require('supertest'),
-  fs = require('fs-extra');
+  fs = require('fs-extra'),
+  expect = require('chai').expect;
+
 
 describe('The domain API', function() {
   var app;
@@ -115,6 +117,26 @@ describe('The domain API', function() {
         req.cookies = cookies;
         req.send(['foo@bar.com']);
         req.expect(202).end(done);
+      });
+  });
+
+  it('should be able to get a domain information when logged in', function(done) {
+    request(app)
+      .post('/api/login')
+      .send({username: foouser.emails[0], password: password, rememberme: false})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).get('/api/domains/' + domain._id);
+        req.cookies = cookies;
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body.administrator).to.equal('' + domain.administrator);
+          expect(res.body.name).to.equal(domain.name);
+          expect(res.body.company_name).to.equal(domain.company_name);
+          done();
+        });
       });
   });
 });
