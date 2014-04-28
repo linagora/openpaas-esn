@@ -379,4 +379,54 @@ describe('The domain model module', function() {
       });
     });
   });
+
+  describe('The getFromActivityStreamID static method', function() {
+
+    it('should return a valid domain', function(done) {
+      var domain = new Domain({
+        name: 'the domain',
+        company_name: 'getFromActivityStreamID001',
+        activity_stream: {
+          uuid: '123456789'
+        }
+      });
+
+      domain.save(function(err, d) {
+        expect(err).to.not.exist;
+        expect(d).to.exist;
+        Domain.getFromActivityStreamID(d.activity_stream.uuid, function(err, result) {
+          expect(err).to.not.exist;
+          expect(result._id).to.deep.equal(d._id);
+          done();
+        });
+      });
+    });
+
+    it('should return a null domain', function(done) {
+      var domain = new Domain({
+        name: 'the domain',
+        company_name: 'getFromActivityStreamID002',
+        activity_stream: {
+          uuid: '1234567890'
+        }
+      });
+
+      domain.save(function(err, d) {
+        expect(err).to.not.exist;
+        Domain.getFromActivityStreamID('123', function(err, result) {
+          expect(err).to.not.exist;
+          expect(result).to.not.exist;
+          done();
+        });
+      });
+    });
+
+    it('should return error on null ID', function(done) {
+      Domain.getFromActivityStreamID(null, function(err, result) {
+        expect(err).to.exist;
+        expect(result).to.not.exist;
+        done();
+      });
+    });
+  });
 });

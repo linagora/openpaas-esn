@@ -68,6 +68,19 @@ DomainSchema.statics = {
       return cb(new Error('ID can not be null'));
     }
     this.findOne({_id: id}, cb);
+  },
+
+  /**
+   * Find a domain with the given activity stream uuid.
+   *
+   * @param {String} id
+   * @param {Function} cb
+   */
+  getFromActivityStreamID: function(id, cb) {
+    if (!id) {
+      return cb(new Error('Activity stream id can not be null'));
+    }
+    this.findOne().where('activity_stream.uuid').equals(id).exec(cb);
   }
 };
 
