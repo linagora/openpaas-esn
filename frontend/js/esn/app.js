@@ -1,7 +1,15 @@
 'use strict';
 
-angular.module('esnApp', ['restangular', 'ngRoute', 'esn.member', 'esn.domain', 'esn.avatar', 'esn.profile', 'esn.user'])
-  .config(function($routeProvider, RestangularProvider) {
+angular.module('esnApp', [
+  'restangular',
+  'ngRoute',
+  'esn.member',
+  'esn.domain',
+  'esn.avatar',
+  'esn.profile',
+  'esn.user',
+  'esn.message'
+]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
       templateUrl: '/views/esn/partials/home'

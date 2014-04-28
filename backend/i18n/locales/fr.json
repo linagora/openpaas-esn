@@ -70,5 +70,8 @@
   "Uploading, please wait": "Envoi en cours",
   "Avatar has been uploaded": "L'avatar a été envoyé",
   "Error while uploading": "Problème lors de l'envoi",
-  "Select a file": "Selectionner un fichier"
+  "Select a file": "Selectionner un fichier",
+  "Publish a new whatsup message": "Publier un nouveau message rapide",
+  "Cancel": "Annuler",
+  "Publish": "Publier"
 }
