@@ -3,10 +3,9 @@
 var getURN = function(type, id) {
   return 'urn:linagora.com:' + type + ':' + id;
 };
-
 module.exports.getURN = getURN;
 
-module.exports.timelineToActivity = function(entry, actor) {
+module.exports.timelineToActivity = function(entry) {
   return {
     _id: entry._id,
     verb: entry.verb,
@@ -14,10 +13,10 @@ module.exports.timelineToActivity = function(entry, actor) {
     published: entry.published,
     actor: {
       _id: entry.actor._id,
-      objectType: 'user',
-      id: getURN('user', entry.actor._id),
-      image: getURN('avatar', actor.currentAvatar),
-      displayName: entry.displayName
+      objectType: entry.actor.objectType,
+      id: getURN(entry.actor.objectType, entry.actor._id),
+      image: getURN('avatar', entry.actor.image),
+      displayName: entry.actor.displayName
     },
     object: {
       _id: entry.object._id,
