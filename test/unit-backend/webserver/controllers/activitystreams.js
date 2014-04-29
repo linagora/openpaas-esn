@@ -9,7 +9,7 @@ describe('The activitystreams controller module', function() {
     var mock = {
       model: function() {
         return {
-          getOneFromActivityStream: function(uuid, cb) {
+          getFromActivityStreamID: function(uuid, cb) {
             return cb(new Error());
           }
         };
@@ -35,7 +35,7 @@ describe('The activitystreams controller module', function() {
     var mongooseMock = {
       model: function() {
         return {
-          getOneFromActivityStream: function(uuid, cb) {
+          getFromActivityStreamID: function(uuid, cb) {
             return cb(new Error());
           }
         };
@@ -66,7 +66,7 @@ describe('The activitystreams controller module', function() {
     var mongooseMock = {
       model: function() {
         return {
-          getOneFromActivityStream: function(uuid, cb) {
+          getFromActivityStreamID: function(uuid, cb) {
             return cb(null, domain);
           }
         };
@@ -102,7 +102,7 @@ describe('The activitystreams controller module', function() {
     var mongooseMock = {
       model: function() {
         return {
-          getOneFromActivityStream: function(uuid, cb) {
+          getFromActivityStreamID: function(uuid, cb) {
             return cb(null, null);
           }
         };
@@ -139,7 +139,7 @@ describe('The activitystreams controller module', function() {
     var mongooseMock = {
       model: function() {
         return {
-          getOneFromActivityStream: function(uuid, cb) {
+          getFromActivityStreamID: function(uuid, cb) {
             return cb(null, domain);
           }
         };

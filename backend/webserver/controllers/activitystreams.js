@@ -14,7 +14,7 @@ function get(req, res) {
   }
 
   // get the domain from the activity_stream id
-  Domain.getOneFromActivityStream(uuid, function(err, domain) {
+  Domain.getFromActivityStreamID(uuid, function(err, domain) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Internal error', details: 'Can not load domain from activitystream uuid ' + uuid}});
     }
