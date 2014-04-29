@@ -19,13 +19,13 @@
                         a(href='/invitation/signup') #{__('Sign up')}
                 else
                     li.dropdown(class=title=='Account Management'?'active':undefined)
-                        a.dropdown-toggle(href='#', data-toggle='dropdown')
+                        a.dropdown-toggle(href='', data-toggle='dropdown')
                             if user.picture
                                 img.profile-image(src='#{user.picture}')
                             | #{user.username || user.emails[0] || user.id}&nbsp;
                             i.caret
                         ul.dropdown-menu
-                            li: a(href='/#account') #{__('My Account')}
+                            li: a(href='/#profile') #{__('My Account')}
                             li.divider
                             li: a(href='/logout') #{__('Logout')}
 
