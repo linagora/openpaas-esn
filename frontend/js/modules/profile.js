@@ -14,6 +14,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
   .controller('profileEditionController', ['$scope', 'profileAPI', 'editableOptions', function($scope, profileAPI, editableOptions) {
     //theming for yes/no buttons in field modification confirmation
     editableOptions.theme = 'bs3';
+    var maxNameLength = 100;
 
     $scope.running = {
       name: false,
@@ -54,6 +55,12 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
       }
       var firstName = nameParts.shift();
       var lastName = nameParts.join(' ');
+      if (firstName.length > maxNameLength) {
+        return 'First name is too long';
+      }
+      if (lastName.length > maxNameLength) {
+        return 'Last name is too long';
+      }
 
       $scope.running.name = true;
       return profileAPI.updateProfileField('firstname', firstName).then(
