@@ -37,15 +37,8 @@ html
     script(src='js/modules/profile.js')
     script(src='js/modules/user.js')
     script(src='js/modules/message.js')
+    script(src='js/modules/session.js')
 
-  body.ng-cloak(ng-app='esnApp')
-    #wrap
-      include ../partials/header
-
-      div.container-fluid
-        .row
-          div.leftPane.col-sm-2.hidden-xs Left Pane
-          div.col-sm-10.col-xs-12
-            .row(ng-view)
-    include ../partials/footer
-
+  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitController")
+    #wrap(ng-include='session.template')
+      
