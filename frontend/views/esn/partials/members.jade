@@ -1,11 +1,11 @@
-.col-xs-12.col-sm-10
+.col-xs-12.col-sm-8
     div(ng-controller="memberscontroller")
         .row
-            .col-xs-12.col-sm-10.search-form
+            .col-xs-12.col-sm-8.search-form
                 h2 Members
                 search-form(search-spinner-key="membersSpinner")
         .row
-            .col-xs-12.col-sm-10.col-sm-offset-2.col-xs-offset-4.infinite-list
+            .col-xs-12.col-sm-8.col-sm-offset-3.col-xs-offset-4.infinite-list
                 infinite-list
                     div(ng-repeat="member in members")
                         member-display(member="member")
