@@ -159,7 +159,7 @@ describe('The User controller', function() {
         params: {
           attribute: 'firstname'
         },
-        body: {},
+        body: undefined,
         user: {
           emails: ['foo@bar.com']
         }
@@ -169,14 +169,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if firstname is too short', function(done) {
+    it('should not send back error if firstname is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -190,17 +190,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if firstname is too long', function(done) {
+    it('should not send back error if firstname is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -214,10 +211,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
@@ -254,7 +248,7 @@ describe('The User controller', function() {
         params: {
           attribute: 'lastname'
         },
-        body: {},
+        body: undefined,
         user: {
           emails: ['foo@bar.com']
         }
@@ -264,14 +258,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if lastname is too short', function(done) {
+    it('should not send back error if lastname is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -285,17 +279,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if lastname is too long', function(done) {
+    it('should not send back error if lastname is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -309,10 +300,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
@@ -380,14 +368,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if job_title is too short', function(done) {
+    it('should not send back error if job_title is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -401,17 +389,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if job_title is too long', function(done) {
+    it('should not send back error if job_title is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -425,10 +410,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
@@ -475,14 +457,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if service is too short', function(done) {
+    it('should not send back error if service is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -496,17 +478,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if service is too long', function(done) {
+    it('should not send back error if service is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -520,10 +499,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
@@ -570,14 +546,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if building_location is too short', function(done) {
+    it('should not send back error if building_location is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -591,17 +567,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if building_location is too long', function(done) {
+    it('should not send back error if building_location is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -615,10 +588,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
@@ -648,7 +618,7 @@ describe('The User controller', function() {
 
     // office_location
 
-    it('should send back error if office_location is not set in body', function(done) {
+    it('should not back error if office_location is not set in body', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -665,14 +635,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if office_location is too short', function(done) {
+    it('should not send back error if office_location is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -686,17 +656,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if office_location is too long', function(done) {
+    it('should not send back error if office_location is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -710,10 +677,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
@@ -743,7 +707,7 @@ describe('The User controller', function() {
 
     // main_phone
 
-    it('should send back error if main_phone is not set in body', function(done) {
+    it('should not send back error if main_phone is not set in body', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -760,14 +724,14 @@ describe('The User controller', function() {
           expect(code).to.equal(400);
           expect(error).to.exist;
           expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(error.error.details).to.match(/No value defined/);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if main_phone is too short', function(done) {
+    it('should not send back error if main_phone is empty', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -781,17 +745,14 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if office_location is too long', function(done) {
+    it('should not send back error if main_phone is too long', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
 
       var req = {
@@ -805,10 +766,7 @@ describe('The User controller', function() {
       };
       var res = {
         json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.message).to.match(/Bad Request/);
+          expect(code).to.equal(200);
           done();
         }
       };

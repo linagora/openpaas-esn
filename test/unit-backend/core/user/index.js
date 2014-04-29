@@ -303,5 +303,36 @@ describe('The user core module', function() {
         db.collection('users').insert(user, updateUser);
       });
     });
+
+    it('should update the firstname even if value is the empty string', function(done) {
+      var database;
+
+      var user = {
+        firstname: 'foo',
+        emails: ['test2@linagora.com']
+      };
+
+      var updateUser = function(err, saved) {
+        userModule.updateProfile(saved[0]._id, 'firstname', '', function(err) {
+          expect(err).to.be.null;
+          database.collection('users').findOne({_id: saved[0]._id}, function(err, updated) {
+            if (err) {
+              return done(err);
+            }
+            expect(updated.firstname).to.equal('');
+            done();
+          });
+        });
+      };
+
+      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
+        if (err) {
+          return done(err);
+        }
+        database = db;
+        db.collection('users').insert(user, updateUser);
+      });
+    });
+
   });
 });
