@@ -5,6 +5,30 @@ var getURN = function(type, id) {
 };
 module.exports.getURN = getURN;
 
+module.exports.userMessageToTimelineEntry = function(message, user) {
+  return {
+    verb: 'post',
+    language: message.language,
+    published: message.published,
+    actor: {
+      objectType: 'user',
+      _id: user._id,
+      image: user.currentAvatar,
+      displayName: user.firstName + ' ' + user.lastName
+    },
+    object: {
+      objectType: message.objectType,
+      _id: message._id
+    },
+    target: message.shares.map(function(share) {
+      return {
+        _id: share._id,
+        objectType: share.objectType
+      };
+    })
+  };
+};
+
 module.exports.timelineToActivity = function(entry) {
   return {
     _id: entry._id,

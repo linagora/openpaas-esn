@@ -28,3 +28,4 @@ Here is a list of the available topics with their associated data.
 - mongodb:configurationAvailable. Fired when the mongodb configuration is available.
 - mongodb:connexionAvailable. Fired every time the connection to the mongodb server is established.
 - domain:invitations:sent({user, domain, emails}). Fired when domain invitations have been sent.
+- timeline:message:created({message, user}). Fired when a new message is posted on the timeline.

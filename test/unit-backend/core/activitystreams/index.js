@@ -374,21 +374,8 @@ describe('The activitystreams core module', function() {
   });
 
   describe('The addTimelineEntry fn', function() {
-    it('should send back error when activity stream uuid is not set', function(done) {
-      var mock = {
-        model: function() {
-          return {};
-        }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
-      var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
-      timeline.addTimelineEntry(null, {}, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
 
-    it('should send back error when event date is not set', function(done) {
+    it('should send back error when event is not set', function(done) {
       var mock = {
         model: function() {
           return {};
@@ -396,7 +383,7 @@ describe('The activitystreams core module', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
-      timeline.addTimelineEntry('1234', null, function(err) {
+      timeline.addTimelineEntry(null, function(err) {
         expect(err).to.exist;
         done();
       });

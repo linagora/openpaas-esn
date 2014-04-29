@@ -56,20 +56,15 @@ module.exports.query = query;
 /**
  * Add an timeline entry to an activity stream
  *
- * @param {String} uuid - The activity stream ID
  * @param {Hash} entry - The event to add to the stream
  * @param {Function} cb - as cb(err, saved) where saved is the object saved in the storage layer
  */
-function addTimelineEntry(uuid, entry, cb) {
-  if (!uuid) {
-    return cb(new Error('Activity Stream ID is mandatory'));
-  }
-
+function addTimelineEntry(entry, cb) {
   if (!entry) {
     return cb(new Error('Timeline entry payload is mandatory'));
   }
 
   var timelineEntry = new TimelineEntry(entry);
-  timelineEntry.save(cb);
+  return timelineEntry.save(cb);
 }
 module.exports.addTimelineEntry = addTimelineEntry;
