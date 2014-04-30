@@ -60,7 +60,8 @@ module.exports.get = function(uuid, callback) {
 };
 
 module.exports.updateProfile = function(user, parameter, value, callback) {
-  if (!user || !parameter || !value) {
+  //unlike user and parameter, value cannot be null but can be empty
+  if (!user || !parameter || value === undefined) {
     return callback(new Error('User, parameter and value are required'));
   }
 

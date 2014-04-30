@@ -2,7 +2,6 @@
 
 var emailAdresses = require('email-addresses');
 var userModule = require('../../core').user;
-var validator = require('validator');
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var uuid = require('node-uuid');
@@ -121,32 +120,32 @@ function updateProfile(req, res) {
     return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
   }
 
-  if (!req.body || !req.body.value) {
+  if (!req.body) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'No value defined'}});
   }
 
+  //these empty function are necessary to check if the paramter is known
   var validate = {
     firstname: function() {
-      return validator.isAlpha(req.body.value) && validator.isLength(req.body.value, 1, 100);
+      return true;
     },
     lastname: function() {
-      var lastNameLetters = req.body.value.replace(' ', '').replace('-', '').replace('\'', '').replace('_', '');
-      return !validator.isNull(req.body.value) && validator.isAlpha(lastNameLetters) && validator.isLength(req.body.value, 1, 100);
+      return true;
     },
     job_title: function() {
-      return !validator.isNull(req.body.value) && validator.isLength(req.body.value, 1, 100);
+      return true;
     },
     service: function() {
-      return !validator.isNull(req.body.value) && validator.isLength(req.body.value, 1, 400);
+      return true;
     },
     building_location: function() {
-      return !validator.isNull(req.body.value) && validator.isLength(req.body.value, 1, 400);
+      return true;
     },
     office_location: function() {
-      return !validator.isNull(req.body.value) && validator.isLength(req.body.value, 1, 400);
+      return true;
     },
     main_phone: function() {
-      return !validator.isNull(req.body.value) && validator.isLength(req.body.value, 1, 20);
+      return true;
     }
   };
 
@@ -154,10 +153,6 @@ function updateProfile(req, res) {
 
   if (!validate[parameter]) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Unknown parameter ' + parameter}});
-  }
-
-  if (!validate[parameter]()) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Invalid parameter value for ' + parameter + ' : ' + req.body.value}});
   }
 
   userModule.updateProfile(req.user, parameter, req.body.value, function(err) {

@@ -45,8 +45,24 @@ describe('The Profile Angular module', function() {
     }));
 
     describe('updateName() method', function() {
+      var getMoreThan100CharString = function() {
+        return new Array(1000).join('a');
+      };
+
       it('should return a message error if the provided name is not "firstname /space/ lastname"', function() {
         var res = this.scope.updateName('incorrectName');
+        expect(res).to.be.not.null;
+        expect(typeof res === 'string').to.be.true;
+      });
+
+      it('should return an error message if the firstname is too long', function() {
+        var res = this.scope.updateName(getMoreThan100CharString() + ' Doe');
+        expect(res).to.be.not.null;
+        expect(typeof res === 'string').to.be.true;
+      });
+
+      it('should return an error message if the lastname is too long', function() {
+        var res = this.scope.updateName('John ' + getMoreThan100CharString());
         expect(res).to.be.not.null;
         expect(typeof res === 'string').to.be.true;
       });
