@@ -5,6 +5,130 @@
 var expect = chai.expect;
 
 describe('The esn.activitystream Angular module', function() {
+  describe('activitystreamMessageDecorator service', function() {
+
+    beforeEach(function() {
+      this.msgAPI = {
+        get: function() {}
+      };
+
+      var self = this;
+
+      angular.mock.module('esn.activitystream');
+      angular.mock.module(function($provide) {
+        $provide.value('messageAPI', self.msgAPI);
+      });
+    });
+
+    beforeEach(inject(function(activitystreamMessageDecorator, $rootScope, $q) {
+      this.decorator = activitystreamMessageDecorator;
+      this.$rootScope = $rootScope;
+      this.$q = $q;
+    }));
+
+    it('should be a function', function() {
+      expect(this.decorator).to.be.a.function;
+    });
+
+    it('should return a function', function() {
+      var instance = this.decorator(function() {});
+      expect(instance).to.be.a.function;
+    });
+
+    it('should forward any error', function(done) {
+      var instance = this.decorator(function(err) {
+        expect(err).to.equal('ERROR');
+        done();
+      });
+      instance('ERROR');
+    });
+
+    it('should call messageAPI.get with according ids', function(done) {
+      var tl = [
+        {object: { _id: 'ID5' }},
+        {object: { _id: 'ID2' }}
+      ];
+      this.msgAPI.get = function(options) {
+        expect(options).to.deep.equal({'ids[]': ['ID5', 'ID2']});
+        done();
+      };
+      var instance = this.decorator(function() { });
+      instance(null, tl);
+    });
+
+    it('should forward messageAPI.get error', function(done) {
+      var tl = [
+        {object: { _id: 'ID5' }},
+        {object: { _id: 'ID2' }}
+      ];
+      var d = this.$q.defer();
+      d.reject({data: 'ERROR'});
+      this.msgAPI.get = function(options) {
+        return d.promise;
+      };
+      var instance = this.decorator(function(err) {
+        expect(err).to.equal('ERROR');
+        done();
+      });
+      instance(null, tl);
+      this.$rootScope.$digest();
+    });
+
+    it('should return an error if some messages cannot be fetched', function(done) {
+      var tl = [
+        {object: { _id: 'ID5' }},
+        {object: { _id: 'ID2' }}
+      ];
+
+      var msgResp = [
+        {_id: 'ID5', objectType: 'whatsup' },
+        {error: 404, message: 'Not found', details: 'message ID2 could not be found'}
+      ];
+      var d = this.$q.defer();
+      d.resolve({data: msgResp});
+      this.msgAPI.get = function(options) {
+        return d.promise;
+      };
+      var instance = this.decorator(function(err) {
+        expect(err.code).to.equal(400);
+        expect(err.message).to.equal('message download failed');
+        expect(err.details).to.be.an.array;
+        expect(err.details).to.have.length(1);
+        done();
+      });
+      instance(null, tl);
+      this.$rootScope.$digest();
+    });
+
+    it('should return the decorated timeline object', function(done) {
+      var tl = [
+        {object: { _id: 'ID5' }},
+        {object: { _id: 'ID2' }}
+      ];
+
+      var msgResp = [
+        {_id: 'ID5', objectType: 'whatsup', content: 'yolo' },
+        {_id: 'ID2', objectType: 'whatsup', content: 'lgtm' }
+      ];
+      var d = this.$q.defer();
+      d.resolve({data: msgResp});
+      this.msgAPI.get = function(options) {
+        return d.promise;
+      };
+      var instance = this.decorator(function(err, response) {
+        expect(response).to.deep.equal([
+          {object: {_id: 'ID5', objectType: 'whatsup', content: 'yolo' }},
+          {object: {_id: 'ID2', objectType: 'whatsup', content: 'lgtm' }}
+        ]);
+        done();
+      });
+      instance(null, tl);
+      this.$rootScope.$digest();
+    });
+
+
+  });
+
   describe('activitystreamAPI service', function() {
 
     beforeEach(function() {
