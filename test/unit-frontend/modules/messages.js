@@ -30,7 +30,7 @@ describe('The Message Angular module', function() {
         };
 
         this.$httpBackend.expectPOST('/api/messages', message).respond();
-        this.messagePOST.post(message.object.objectType, message.object.description, message.targets);
+        this.messagePOST.post(message.object.objectType, message.object, message.targets);
         this.$httpBackend.flush();
       });
     });

@@ -18,13 +18,11 @@ angular.module('esn.message', ['restangular'])
     }
 
     function post(objectType, data, targets) {
-      var payload = {
-        object: {
-          objectType: objectType,
-          description: data
-        },
-        targets: targets
-      };
+      var payload = {};
+
+      payload.object = angular.copy(data);
+      payload.object.objectType = objectType;
+      payload.targets = targets;
 
       return Restangular.all('api/messages').post(payload);
     }
