@@ -9,7 +9,6 @@ describe('The Search Form Angular module', function() {
   beforeEach(angular.mock.module('esn.search'));
 
   describe('searchForm directive', function() {
-
     beforeEach(module('jadeTemplates'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
@@ -47,6 +46,5 @@ describe('The Search Form Angular module', function() {
       this.$rootScope.$digest();
       this.checkGeneratedElement(element, 'spinnerKey', {radius: 30, width: 8, length: 16});
     });
-
   });
 });
