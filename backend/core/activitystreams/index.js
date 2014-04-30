@@ -23,7 +23,7 @@ function query(options, cb) {
   var getEntries = function(q, callback) {
     q.exec(function(err, results) {
       if (err) {
-        return cb(err);
+        return callback(err);
       }
       return callback(null, results.map(helpers.timelineToActivity));
     });
