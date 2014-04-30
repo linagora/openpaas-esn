@@ -5,9 +5,9 @@ var getURN = function(type, id) {
 };
 module.exports.getURN = getURN;
 
-module.exports.userMessageToTimelineEntry = function(message, user) {
+module.exports.userMessageToTimelineEntry = function(message, verb, user) {
   return {
-    verb: 'post',
+    verb: verb,
     language: message.language,
     published: message.published,
     actor: {

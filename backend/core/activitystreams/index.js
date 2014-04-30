@@ -54,9 +54,9 @@ function query(options, cb) {
 module.exports.query = query;
 
 /**
- * Add an timeline entry to an activity stream
+ * Add an timeline entry
  *
- * @param {Hash} entry - The event to add to the stream
+ * @param {Hash} entry - The event to add to the timeline
  * @param {Function} cb - as cb(err, saved) where saved is the object saved in the storage layer
  */
 function addTimelineEntry(entry, cb) {

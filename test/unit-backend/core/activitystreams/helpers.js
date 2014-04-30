@@ -82,7 +82,7 @@ describe('The activitystreams helper module', function() {
         ]
       };
 
-      var out = helper.userMessageToTimelineEntry(message, user);
+      var out = helper.userMessageToTimelineEntry(message, 'post', user);
       expect(out).to.exist;
       expect(out.actor).to.exist;
       expect(out.object).to.exist;

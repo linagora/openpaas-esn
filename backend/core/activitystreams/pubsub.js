@@ -20,7 +20,7 @@ function saveMessageAsActivityEvent(data) {
     return;
   }
 
-  var entry = helpers.userMessageToTimelineEntry(message, user);
+  var entry = helpers.userMessageToTimelineEntry(message, 'post', user);
   activitystream.addTimelineEntry(entry, function(err, saved) {
     if (err) {
       logger.warn('Error while adding timeline entry : ', + err.message);
