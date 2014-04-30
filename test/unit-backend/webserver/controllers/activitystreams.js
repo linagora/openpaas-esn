@@ -5,17 +5,17 @@ var mockery = require('mockery');
 
 describe('The activitystreams controller module', function() {
 
-  it('get should return HTTP 400 when uuid is not set', function(done) {
-    var mock = {
+  it('get should return HTTP 400 when activity_stream is not set', function(done) {
+    var mongooseMock = {
       model: function() {
         return {
           getFromActivityStreamID: function(uuid, cb) {
-            return cb(new Error());
+            return cb(null, {});
           }
         };
       }
     };
-    this.mongoose = mockery.registerMock('mongoose', mock);
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
     var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
     var req = {
       params: {}
@@ -28,33 +28,6 @@ describe('The activitystreams controller module', function() {
       }
     };
 
-    activitystreams.get(req, res);
-  });
-
-  it('get should return HTTP 500 when Domain returns error', function(done) {
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(new Error());
-          }
-        };
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
-    var req = {
-      params: {
-        uuid: '12345'
-      }
-    };
-
-    var res = {
-      json: function(code) {
-        expect(code).to.equal(500);
-        done();
-      }
-    };
     activitystreams.get(req, res);
   });
 
@@ -86,40 +59,13 @@ describe('The activitystreams controller module', function() {
       params: {
         uuid: '12345'
       },
-      query: {}
+      query: {},
+      activity_stream: {}
     };
 
     var res = {
       json: function(code) {
         expect(code).to.equal(500);
-        done();
-      }
-    };
-    activitystreams.get(req, res);
-  });
-
-  it('get should return HTTP 404 if domain can not be found', function(done) {
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(null, null);
-          }
-        };
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
-    var req = {
-      params: {
-        uuid: '12345'
-      },
-      query: {}
-    };
-
-    var res = {
-      json: function(code) {
-        expect(code).to.equal(404);
         done();
       }
     };
@@ -159,7 +105,8 @@ describe('The activitystreams controller module', function() {
       params: {
         uuid: '12345'
       },
-      query: {}
+      query: {},
+      activity_stream: {}
     };
 
     var res = {

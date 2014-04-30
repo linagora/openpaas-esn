@@ -7,7 +7,7 @@ var helpers = require('./helpers');
 /**
  * Query the timeline
  *
- * @param {Hash} options
+ * @param {Object} options
  * @param {Function} cb
  */
 function query(options, cb) {
@@ -21,11 +21,6 @@ function query(options, cb) {
   }
 
   var getEntries = function(q, callback) {
-    q.sort({published: -1});
-    if (options.limit) {
-      q.limit(options.limit);
-    }
-
     q.exec(function(err, results) {
       if (err) {
         return cb(err);
@@ -34,7 +29,10 @@ function query(options, cb) {
     });
   };
 
-  var q = TimelineEntry.find().where('target.objectType').equals(options.target.objectType).where('target._id').equals(options.target._id);
+  var q = TimelineEntry.find().where('target.objectType').equals(options.target.objectType).where('target._id').equals(options.target._id).sort({published: -1});
+  if (options.limit) {
+    q.limit(options.limit);
+  }
 
   if (options.before) {
     TimelineEntry.findOne({_id: options.before}).exec(function(err, before) {

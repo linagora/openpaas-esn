@@ -80,7 +80,7 @@ DomainSchema.statics = {
     if (!id) {
       return cb(new Error('Activity stream id can not be null'));
     }
-    this.findOne().where('activity_stream.uuid').equals(id).exec(cb);
+    this.findOne({'activity_stream.uuid': id}).exec(cb);
   }
 };
 
