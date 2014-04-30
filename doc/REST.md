@@ -95,6 +95,7 @@ A large part of the API requires you to be authenticated. Authentication API are
 
 For a better readability, REST API is split into several files :
 
+* [activity stream](REST_activitystream.md)
 * [document store](REST_documentstore.md)
 * [company](REST_company.md)
 * [domain](REST_domain.md)
