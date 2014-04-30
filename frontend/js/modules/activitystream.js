@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.activitystream', ['restangular', 'esn.message'])
+angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper'])
 .factory('activitystreamAPI', ['Restangular', function(Restangular) {
   function get(id, options) {
     return Restangular.all('activitystreams/' + id).getList(options);
@@ -77,4 +77,52 @@ angular.module('esn.activitystream', ['restangular', 'esn.message'])
       });
     };
   };
+}])
+.factory(
+'activitystreamAggregator',
+['activitystreamFilter', 'filteredcursor', 'restcursor', 'activitystreamMessageDecorator', 'activitystreamAPI',
+function(activitystreamFilter, filteredcursor, restcursor, activitystreamMessageDecorator, activitystreamAPI) {
+
+  function apiWrapper(id) {
+    function api(options) {
+      return activitystreamAPI.get(id, options);
+    }
+    return api;
+  }
+
+  function getRestcursor(id, limit) {
+    var restcursorOptions = {
+      apiArgs: {limit: limit},
+      updateApiArgs: function(cursor, items, apiArgs) {
+        apiArgs.before = items[(items.length - 1)]._id;
+      }
+    };
+    return restcursor(apiWrapper(id), limit, restcursorOptions);
+  }
+
+  function activitystreamAggregator(id, limit) {
+
+    var restcursorlimit = limit * 3;
+    var restcursorinstance = getRestcursor(id, restcursorlimit);
+
+    var filter = activitystreamFilter();
+
+    var filteredcursorOptions = { filter: filter.filter };
+    var filteredcursorInstance = filteredcursor(restcursorinstance, limit, filteredcursorOptions);
+
+    function loadMoreElements(callback) {
+      filteredcursorInstance.nextItems(activitystreamMessageDecorator(callback));
+    }
+
+    var aggregator = {
+      filter: filter,
+      cursor: filteredcursorInstance,
+      loadMoreElements: loadMoreElements
+    };
+    aggregator.__defineGetter__('endOfStream', function() { return filteredcursorInstance.endOfStream; });
+
+    return aggregator;
+  }
+
+  return activitystreamAggregator;
 }]);

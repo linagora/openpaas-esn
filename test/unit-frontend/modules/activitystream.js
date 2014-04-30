@@ -5,6 +5,79 @@
 var expect = chai.expect;
 
 describe('The esn.activitystream Angular module', function() {
+  describe('activitystreamAggregator service', function() {
+    beforeEach(function() {
+      var filteredcursorInstance = {
+        nextItems: function() {},
+        endOfStream: false
+      };
+      this.asAPI = { get: function() {} };
+      this.asDecorator = function(callback) { return callback; };
+      this.restcursor = function() {
+        return {
+          nextItems: function() {},
+          endOfStream: false
+        };
+      };
+      this.filteredcursorInstance = filteredcursorInstance;
+      this.filteredcursor = function() {
+        return filteredcursorInstance;
+      };
+      this.asfilter = function() {
+        return {
+          filter: function() {return true;}
+        };
+      };
+
+      var self = this;
+
+      angular.mock.module('esn.activitystream');
+      angular.mock.module(function($provide) {
+        $provide.value('activitystreamAPI', self.asAPI);
+        $provide.value('activitystreamMessageDecorator', self.asDecorator);
+        $provide.value('restcursor', self.restcursor);
+        $provide.value('filteredcursor', self.filteredcursor);
+        $provide.value('activitystreamFilter', self.asfilter);
+      });
+    });
+
+    beforeEach(inject(function(activitystreamAggregator, $rootScope, $q) {
+      this.agg = activitystreamAggregator;
+      this.$rootScope = $rootScope;
+      this.$q = $q;
+    }));
+
+    it('should be a function', function() {
+      expect(this.agg).to.be.a.function;
+    });
+
+    it('should return an object having a endOfStream property', function() {
+      var instance = this.agg('ID1', 30);
+      expect(instance).to.have.property('endOfStream');
+    });
+
+    it('should return an object having a loadMoreElements method', function() {
+      var instance = this.agg('ID1', 30);
+      expect(instance).to.respondTo('loadMoreElements');
+    });
+
+    describe('endOfStream property', function() {
+      it('should return the endofstream property of the associated filteredcursor', function() {
+        var instance = this.agg('ID1', 30);
+        expect(instance.endOfStream).to.be.false;
+        this.filteredcursorInstance.endOfStream = true;
+        expect(instance.endOfStream).to.be.true;
+      });
+    });
+
+    describe('loadMoreElements method', function() {
+      it('should call the nextItems method of the associated filteredcursor', function(done) {
+        var instance = this.agg('ID1', 30);
+        this.filteredcursorInstance.nextItems = function() {done();};
+        instance.loadMoreElements();
+      });
+    });
+  });
   describe('activitystreamMessageDecorator service', function() {
 
     beforeEach(function() {
