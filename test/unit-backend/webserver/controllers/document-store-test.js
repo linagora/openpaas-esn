@@ -14,11 +14,10 @@ describe('The document store Settings module', function() {
 });
 
 describe('The document store routes resource', function() {
-  var tmpDbConfigFile = null;
+  var tmpDbConfigFile;
 
-  beforeEach(function() {
+  before(function() {
     tmpDbConfigFile = this.testEnv.tmp + '/db.json';
-    fs.copySync(this.testEnv.fixtures + '/config/db.json', tmpDbConfigFile);
   });
 
   afterEach(function() {
