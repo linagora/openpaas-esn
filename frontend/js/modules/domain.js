@@ -33,10 +33,21 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
       return Restangular.one('domains', id).one('manager').get();
     }
 
+    /**
+    * retrieve a domain basic informations
+    * returns HTTP 200 if OK, HTTP 403 if not manager.
+    *
+    * @param {String} id - The domain id
+    */
+    function get(id) {
+      return Restangular.one('domains', id).get();
+    }
+
     return {
       getMembers: getMembers,
       inviteUsers: inviteUsers,
-      isManager: isManager
+      isManager: isManager,
+      get: get
     };
   }])
   .controller('inviteMembers', function($scope, domainAPI, domain) {

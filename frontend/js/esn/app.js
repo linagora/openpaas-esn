@@ -8,7 +8,8 @@ angular.module('esnApp', [
   'esn.avatar',
   'esn.profile',
   'esn.user',
-  'esn.message'
+  'esn.message',
+  'esn.session'
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {

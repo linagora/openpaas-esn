@@ -108,6 +108,26 @@ describe('The Domain Angular module', function() {
         this.$httpBackend.flush();
       });
     });
+
+    describe('get() method', function() {
+
+      beforeEach(angular.mock.inject(function(domainAPI, $httpBackend, Restangular) {
+        this.domainAPI = domainAPI;
+        this.$httpBackend = $httpBackend;
+        this.domainId = '123456789';
+        this.response = {name: 'MyDomain', company_name: 'MyAwesomeCompany'};
+
+        // The full response configuration option has to be set at the application level
+        // It is set here to get the same behavior
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a request to /domains/:uuid', function() {
+        this.$httpBackend.expectGET('/domains/' + this.domainId).respond(200, this.response);
+        this.domainAPI.get(this.domainId);
+        this.$httpBackend.flush();
+      });
+    });
   });
 
   describe('inviteMembers controller', function() {
