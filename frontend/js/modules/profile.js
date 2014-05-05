@@ -7,7 +7,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
       scope: {
         user: '='
       },
-      templateUrl: '/views/profile/partials/profile.html'
+      templateUrl: '/views/modules/profile/profile.html'
     };
   })
 

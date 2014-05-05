@@ -23,9 +23,9 @@ module.exports = function(config) {
       'frontend/components/angular-xeditable/dist/js/xeditable.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
-      'frontend/views/member/**/*.jade',
-      'frontend/views/search/**/*.jade',
-      'frontend/views/infinite-list/**/*.jade'
+      'frontend/views/modules/member/**/*.jade',
+      'frontend/views/modules/search/**/*.jade',
+      'frontend/views/modules/infinite-list/**/*.jade'
     ],
 
     frameworks: ['mocha'],

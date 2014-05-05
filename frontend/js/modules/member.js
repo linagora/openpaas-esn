@@ -10,7 +10,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       scope: {
         member: '=member'
       },
-      templateUrl: '/views/member/partials/member.html'
+      templateUrl: '/views/modules/member/member.html'
     };
   }).controller('memberscontroller', ['$scope', 'domainAPI', '$routeParams', 'memberSearchConfiguration', 'usSpinnerService', function($scope, $domainAPI, $routeParams, memberSearchConfiguration, usSpinnerService) {
 

@@ -9,7 +9,7 @@ angular.module('signupApp', ['esn.invitation', 'restangular', 'ngRoute'])
     });
 
     $routeProvider.when('/:id', {
-      templateUrl: '/views/invitation/partials/finalize',
+      templateUrl: '/views/modules/invitation/finalize',
       controller: 'finalize',
       resolve: {
         invitation: function(invitationAPI, $route) {

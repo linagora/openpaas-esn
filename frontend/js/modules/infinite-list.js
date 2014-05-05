@@ -16,6 +16,6 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
         $scope.infiniteScrollDisabled = angular.isDefined($scope.infiniteScrollDisabled) ? $scope.infiniteScrollDisabled : defaultConfiguration.scrollDisabled;
         $scope.infiniteScrollImmediateCheck = angular.isDefined($scope.infiniteScrollImmediateCheck) ? $scope.infiniteScrollImmediateCheck : defaultConfiguration.scrollImmediateCheck;
       },
-      templateUrl: '/views/infinite-list/partials/infinite-list.html'
+      templateUrl: '/views/modules/infinite-list/infinite-list.html'
     };
   });
