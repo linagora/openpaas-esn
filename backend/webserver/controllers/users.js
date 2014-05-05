@@ -235,6 +235,10 @@ function getProfileAvatar(req, res) {
     return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
   }
 
+  if (!req.user.currentAvatar) {
+    return res.redirect('/images/user.png');
+  }
+
   imageModule.getAvatar(req.user.currentAvatar, function(err, fileStoreMeta, readable) {
     if (err) {
       return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
