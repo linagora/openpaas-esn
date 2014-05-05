@@ -28,20 +28,21 @@ Here is a list of the available topics with their associated data.
 - mongodb:configurationAvailable. Fired when the mongodb configuration is available.
 - mongodb:connexionAvailable. Fired every time the connection to the mongodb server is established.
 - domain:invitations:sent({user, domain, emails}). Fired when domain invitations have been sent.
-- message:created(message). Fired when a new message is stored in the datastore layer.
-- message:posted({from, targets, message}). Fired when a message is posted by a user to one or more targets.
+- message:stored(message). Fired when a new message is stored in the datastore layer.
+- message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message.
 
-#### message:created
+#### message:stored
 
 A message has been persisted in the datastore.
 The notification data contains the message object (ie the one which has been persisted with its id).
 
-    pubsub.topic('message:created').publish(message);
+    pubsub.topic('message:stored').publish(message);
 
-#### message:posted
+#### message:activity
 
-A message has been posted by a resource (user, bot, ...) on one or more targets (domain, user, ...).
-The notification data contains the source, the targets and the message id. Source and targets are defined using the 'resource-way' (resource type and resource id):
+Some resource (user,bot,...), called the author did some activity on the message. This activity **may** be specific to some targets.
+The notification data contains the source, the targets, the message, the activity date and the verb.
+Source and targets are defined using the 'resource-way' (resource type and resource id):
 
     {
       type: 'user',
@@ -52,7 +53,14 @@ For example, when a user 123 has sent a message 456 to the user 789:
 
     var from = {type: 'user', resource: 123};
     var target = {type: 'user', resource: 789};
-    pubsub.topic('message:posted').publish({source: from, targets: [target], message: message._id});
+    pubsub.topic('message:activity').publish(
+      {
+        source: from,
+        targets: [target],
+        message: message,
+        date: Date,
+        verb: 'post'
+      });
 
 *Use cases*
 

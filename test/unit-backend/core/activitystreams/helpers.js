@@ -104,6 +104,7 @@ describe('The activitystreams helper module', function() {
       expect(out.target).to.exist;
       expect(out.target.length).to.equal(3);
       expect(out.target).to.deep.equal(targets);
+      expect(out.published).to.exist;
       done();
     });
   });

@@ -1,11 +1,9 @@
 'use strict';
 
-var async = require('async');
 var pubsub = require('../pubsub').local;
 var logger = require('../logger');
 var activitystream = require('./index');
 var helpers = require('./helpers');
-var messageModule = require('../message');
 var userModule = require('../user');
 var initialized = false;
 
@@ -15,45 +13,39 @@ function saveMessageAsActivityEvent(data) {
     return;
   }
 
-  var from = data.from;
+  var source = data.source;
   var targets = data.targets;
-  var messageId = data.message;
+  var message = data.message;
+  var date = data.date || Date.now;
+  var verb = data.verb;
 
-  if (!messageId || !from || !from.resource || !targets || targets.length === 0) {
+  if (!message || !source || !source.resource || !targets || targets.length === 0 || !verb) {
     logger.error('Can not save message with null attributes', data);
     return;
   }
 
-  if (!from.type || from.type !== 'user') {
+  if (!source.type || source.type !== 'user') {
     logger.error('Can not handle non user message');
     return;
   }
 
-  var getUser = function(callback) {
-    userModule.get(from.resource, callback);
-  };
-
-  var getMessage = function(callback) {
-    messageModule.get(messageId, callback);
-  };
-
-  var addEntry = function(user, message, callback) {
-    var entry = helpers.userMessageToTimelineEntry(message, 'post', user, targets);
+  var addEntry = function(user, callback) {
+    var entry = helpers.userMessageToTimelineEntry(message, verb, user, targets, date);
     activitystream.addTimelineEntry(entry, callback);
   };
 
-  async.parallel({user: getUser, message: getMessage}, function(err, results) {
+  userModule.get(source.resource, function(err, user) {
     if (err) {
-      logger.error('Can not save message', err);
+      logger.error('Error while getting user: ' + source.resource, err);
       return;
     }
 
-    if (!results.user || !results.message) {
-      logger.error('Null user of message', results);
+    if (!user) {
+      logger.error('Can not find user ' + source.resource);
       return;
     }
 
-    addEntry(results.user, results.message, function(err, saved) {
+    addEntry(user, function(err, saved) {
       if (err) {
         logger.warn('Error while adding timeline entry : ', + err.message);
       } else {
@@ -71,7 +63,7 @@ function init() {
     logger.warn('Activity Stream Pubsub is already initialized');
     return;
   }
-  pubsub.topic('message:posted').subscribe(saveMessageAsActivityEvent);
+  pubsub.topic('message:activity').subscribe(saveMessageAsActivityEvent);
   initialized = true;
 }
 module.exports.init = init;
