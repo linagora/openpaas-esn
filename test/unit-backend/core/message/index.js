@@ -13,7 +13,7 @@ describe('The core messages module', function() {
         }
         Whatsup.prototype.save = function(callback) {
           return callback(new Error('There was an error !'));
-        }
+        };
         return Whatsup;
       }
     };
@@ -48,7 +48,7 @@ describe('The core messages module', function() {
         }
         Whatsup.prototype.save = function(callback) {
           return callback(null, {_id: ''});
-        }
+        };
         return Whatsup;
       }
     };
