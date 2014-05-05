@@ -82,12 +82,28 @@ describe('The activitystreams helper module', function() {
         ]
       };
 
-      var out = helper.userMessageToTimelineEntry(message, 'post', user);
+      var targets = [
+        {
+          objectType: 'activitystream',
+          _id: 111111
+        },
+        {
+          objectType: 'user',
+          _id: 222222
+        },
+        {
+          objectType: 'user',
+          _id: 3333333
+        }
+      ];
+
+      var out = helper.userMessageToTimelineEntry(message, 'post', user, targets);
       expect(out).to.exist;
       expect(out.actor).to.exist;
       expect(out.object).to.exist;
       expect(out.target).to.exist;
-      expect(out.target.length).to.equal(2);
+      expect(out.target.length).to.equal(3);
+      expect(out.target).to.deep.equal(targets);
       done();
     });
   });

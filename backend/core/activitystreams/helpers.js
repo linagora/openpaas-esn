@@ -5,7 +5,7 @@ var getURN = function(type, id) {
 };
 module.exports.getURN = getURN;
 
-module.exports.userMessageToTimelineEntry = function(message, verb, user) {
+module.exports.userMessageToTimelineEntry = function(message, verb, user, shares) {
   return {
     verb: verb,
     language: message.language,
@@ -20,12 +20,7 @@ module.exports.userMessageToTimelineEntry = function(message, verb, user) {
       objectType: message.objectType,
       _id: message._id
     },
-    target: message.shares.map(function(share) {
-      return {
-        _id: share._id,
-        objectType: share.objectType
-      };
-    })
+    target: shares
   };
 };
 

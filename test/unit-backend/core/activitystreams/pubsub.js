@@ -19,7 +19,7 @@ describe('The activitystreams pubsub module', function() {
     it('should not call activity stream module when data is not set', function(done) {
       var called = false;
       var mock = {
-        addTimelineEntry: function(uuid, data, callback) {
+        addTimelineEntry: function() {
           called = true;
         }
       };
@@ -31,10 +31,10 @@ describe('The activitystreams pubsub module', function() {
       done();
     });
 
-    it('should not call activity stream module when uuid is not set', function(done) {
+    it('should not call activity stream module when data is empty', function(done) {
       var called = false;
       var mock = {
-        addTimelineEntry: function(data, callback) {
+        addTimelineEntry: function() {
           called = true;
         }
       };
@@ -49,27 +49,87 @@ describe('The activitystreams pubsub module', function() {
     it('should not call activity stream module when message is not set', function(done) {
       var called = false;
       var mock = {
-        addTimelineEntry: function(data, callback) {
+        addTimelineEntry: function() {
           called = true;
         }
       };
       mockery.registerMock('./index', mock);
       var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
 
-      pubsub.saveMessageAsActivityEvent({user: '123'});
+      pubsub.saveMessageAsActivityEvent({from: {type: 'user', resource: 1234}, targets: [{foo: 'bar'}]});
       expect(called).to.be.false;
       done();
     });
 
-    it('should call activity stream module when message and user are set', function(done) {
+    it('should not call activity stream module when from is not set', function(done) {
+      var called = false;
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+      mockery.registerMock('./index', mock);
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+
+      pubsub.saveMessageAsActivityEvent({message: 123, targets: [{foo: 'bar'}]});
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should not call activity stream module when from resource is not set', function(done) {
+      var called = false;
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+      mockery.registerMock('./index', mock);
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+
+      pubsub.saveMessageAsActivityEvent({from: {}, message: 123, targets: [{foo: 'bar'}]});
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should not call activity stream module when targets is not set', function(done) {
+      var called = false;
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+      mockery.registerMock('./index', mock);
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+
+      pubsub.saveMessageAsActivityEvent({from: {type: 'user', resource: 123}, message: 123});
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should not call activity stream module when targets is empty', function(done) {
+      var called = false;
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+      mockery.registerMock('./index', mock);
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+
+      pubsub.saveMessageAsActivityEvent({from: {type: 'user', resource: 123}, message: 123, targets: []});
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should call activity stream module when data is fully set', function(done) {
       var data = {
-        user: {firstname: 'foo'},
-        message: {}
+        from: {type: 'user', resource: 123},
+        message: 123,
+        targets: [{foo: 'bar'}]
       };
 
       var mock = {
-        addTimelineEntry: function(message, callback) {
-          expect(message).to.deep.equal(data.message);
+        addTimelineEntry: function() {
           done();
         }
       };
@@ -79,11 +139,198 @@ describe('The activitystreams pubsub module', function() {
           return message;
         }
       };
+
+      var messageMock = {
+        get: function(uuid, callback) {
+          return callback(null, {_id: uuid});
+        }
+      };
+
+      var userMock = {
+        get: function(uuid, callback) {
+          return callback(null, {_id: uuid});
+        }
+      };
+
       mockery.registerMock('./index', mock);
       mockery.registerMock('./helpers', helper);
+      mockery.registerMock('../message', messageMock);
+      mockery.registerMock('../user', userMock);
 
       var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
       pubsub.saveMessageAsActivityEvent(data);
+    });
+
+    it('should not call activity stream module when user module send back an error', function(done) {
+      var data = {
+        from: {type: 'user', resource: 123},
+        message: 123,
+        targets: [{foo: 'bar'}]
+      };
+      var called = false;
+
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+
+      var helper = {
+        userMessageToTimelineEntry: function(message) {
+          return message;
+        }
+      };
+
+      var messageMock = {
+        get: function(uuid, callback) {
+          return callback(null, {_id: uuid});
+        }
+      };
+
+      var userMock = {
+        get: function(uuid, callback) {
+          return callback(new Error());
+        }
+      };
+
+      mockery.registerMock('./index', mock);
+      mockery.registerMock('./helpers', helper);
+      mockery.registerMock('../message', messageMock);
+      mockery.registerMock('../user', userMock);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      pubsub.saveMessageAsActivityEvent(data);
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should not call activity stream module when message module send back an error', function(done) {
+      var data = {
+        from: {type: 'user', resource: 123},
+        message: 123,
+        targets: [{foo: 'bar'}]
+      };
+      var called = false;
+
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+
+      var helper = {
+        userMessageToTimelineEntry: function(message) {
+          return message;
+        }
+      };
+
+      var messageMock = {
+        get: function(uuid, callback) {
+          return callback(new Error());
+        }
+      };
+
+      var userMock = {
+        get: function(uuid, callback) {
+          return callback(null, {});
+        }
+      };
+
+      mockery.registerMock('./index', mock);
+      mockery.registerMock('./helpers', helper);
+      mockery.registerMock('../message', messageMock);
+      mockery.registerMock('../user', userMock);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      pubsub.saveMessageAsActivityEvent(data);
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should not call activity stream module when message is not found', function(done) {
+      var data = {
+        from: {type: 'user', resource: 123},
+        message: 123,
+        targets: [{foo: 'bar'}]
+      };
+      var called = false;
+
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+
+      var helper = {
+        userMessageToTimelineEntry: function(message) {
+          return message;
+        }
+      };
+
+      var messageMock = {
+        get: function(uuid, callback) {
+          return callback(null, null);
+        }
+      };
+
+      var userMock = {
+        get: function(uuid, callback) {
+          return callback(null, {});
+        }
+      };
+
+      mockery.registerMock('./index', mock);
+      mockery.registerMock('./helpers', helper);
+      mockery.registerMock('../message', messageMock);
+      mockery.registerMock('../user', userMock);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      pubsub.saveMessageAsActivityEvent(data);
+      expect(called).to.be.false;
+      done();
+    });
+
+    it('should not call activity stream module when user is not found', function(done) {
+      var data = {
+        from: {type: 'user', resource: 123},
+        message: 123,
+        targets: [{foo: 'bar'}]
+      };
+      var called = false;
+
+      var mock = {
+        addTimelineEntry: function() {
+          called = true;
+        }
+      };
+
+      var helper = {
+        userMessageToTimelineEntry: function(message) {
+          return message;
+        }
+      };
+
+      var messageMock = {
+        get: function(uuid, callback) {
+          return callback(null, {});
+        }
+      };
+
+      var userMock = {
+        get: function(uuid, callback) {
+          return callback(null, null);
+        }
+      };
+
+      mockery.registerMock('./index', mock);
+      mockery.registerMock('./helpers', helper);
+      mockery.registerMock('../message', messageMock);
+      mockery.registerMock('../user', userMock);
+
+      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      pubsub.saveMessageAsActivityEvent(data);
+      expect(called).to.be.false;
+      done();
     });
   });
 
