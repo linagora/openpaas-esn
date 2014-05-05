@@ -26,6 +26,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
       running: false
     };
     $scope.members = [];
+    $scope.restActive = false;
 
     var formatResultsCount = function(count) {
       $scope.search.count = count;
@@ -42,16 +43,23 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     };
 
     var updateMembersList = function() {
-      $scope.search.running = true;
-      formatResultsCount(0);
-      usSpinnerService.spin('memberSpinner');
+      if ($scope.restActive) {
+        return;
+      }
+      else {
+        $scope.restActive = true;
+        $scope.search.running = true;
+        formatResultsCount(0);
+        usSpinnerService.spin('memberSpinner');
 
-      $domainAPI.getMembers(domain_id, opts).then(function(data) {
-        formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
-        $scope.members = $scope.members.concat(data.data);
-        $scope.search.running = false;
-        usSpinnerService.stop('memberSpinner');
-      });
+        $domainAPI.getMembers(domain_id, opts).then(function(data) {
+          formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
+          $scope.members = $scope.members.concat(data.data);
+          $scope.search.running = false;
+          $scope.restActive = false;
+          usSpinnerService.stop('memberSpinner');
+        });
+      }
     };
 
     $scope.init = function() {
@@ -67,7 +75,9 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     };
 
     $scope.loadMoreElements = function() {
-      opts.offset = $scope.members.length;
-      updateMembersList();
+      if ($scope.members.length === 0 || $scope.members.length < $scope.search.count) {
+        opts.offset = $scope.members.length;
+        updateMembersList();
+      }
     };
   }]);
