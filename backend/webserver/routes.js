@@ -20,6 +20,7 @@ exports = module.exports = function(application) {
   application.get('/api/profile/:uuid', authorize.requiresAPILogin, link.trackProfileView, users.profile);
   application.get('/api/user', authorize.requiresAPILogin, users.user);
   application.get('/api/user/:uuid', authorize.requiresAPILogin, users.profile);
+  application.get('/api/user/:uuid/profile/avatar', users.load, users.getProfileAvatar);
   application.get('/api/user/profile', authorize.requiresAPILogin, users.user);
   application.put('/api/user/profile/:attribute', authorize.requiresAPILogin, users.updateProfile);
   application.post('/api/user/profile/avatar', authorize.requiresAPILogin, users.postProfileAvatar);
