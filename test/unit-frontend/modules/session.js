@@ -118,7 +118,7 @@ describe('The esn.session Angular module', function() {
       this.userdefer.resolve({data: {_id: 'user1', name: 'foo'}});
       this.$scope.$digest();
       expect(this.$scope.session.template).to.equal('/views/esn/partials/loading-error.html');
-      expect(this.$scope.session.error).to.deep.equal({error: 400, message: 'Invalid user', details: 'User does not belong to a domain'});
+      expect(this.$scope.session.error).to.deep.equal({error: 400, message: 'Invalid user', details: 'User does not belong to a domain', displayLogout: true});
     });
 
     it('should call domainAPI.get() with the first domain id in user.domains', function(done) {
