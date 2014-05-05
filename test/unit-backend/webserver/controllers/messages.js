@@ -9,6 +9,7 @@ describe('The messages module', function() {
   before(function() {
     validReq = {
       user: {
+        _id: 123,
         emails: ['aEmail']
       },
       body: {
@@ -18,8 +19,8 @@ describe('The messages module', function() {
         },
         'targets': [
           {
-            'objectType': 'wall',
-            'id': 'urn:linagora:esn:wall:<wall uuid>'
+            'objectType': 'activitystream',
+            'id': 'urn:linagora:esn:activitystream:<activitystream uuid>'
           }
         ]
       }
@@ -98,6 +99,52 @@ describe('The messages module', function() {
       }
     };
     mockery.registerMock('../../core/message', messageModuleMocked);
+
+    var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+    messages.createMessage(validReq, res);
+  });
+
+  it('should publish into "message:activity" on success', function(done) {
+    var topicUsed = '';
+    var dataPublished = '';
+
+    var res = {
+      send: function() {
+        expect(topicUsed).to.equal('message:activity');
+        expect(dataPublished.source).to.deep.equal({ type: 'user', resource: 123 });
+        expect(dataPublished.targets).to.deep.equal([
+          {
+            'objectType': 'activitystream',
+            'id': 'urn:linagora:esn:activitystream:<activitystream uuid>'
+          }
+        ]);
+        expect(dataPublished.message).to.deep.equal({_id: 'a new id', message: 123 });
+        expect(dataPublished.date).to.exist;
+        expect(dataPublished.verb).to.equal('post');
+        done();
+      }
+    };
+
+    var messageModuleMocked = {
+      save: function(message, callback) {
+        callback(null, {_id: 'a new id', message: 123 });
+      }
+    };
+    mockery.registerMock('../../core/message', messageModuleMocked);
+
+    var pubsubMocked = {
+      local: {
+        topic: function(topic) {
+          return {
+            publish: function(data) {
+              topicUsed = topic;
+              dataPublished = data;
+            }
+          };
+        }
+      }
+    };
+    mockery.registerMock('../../core/pubsub', pubsubMocked);
 
     var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
     messages.createMessage(validReq, res);
