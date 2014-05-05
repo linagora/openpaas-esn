@@ -43,7 +43,8 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
         $scope.session.error = {
           error: 400,
           message: 'Invalid user',
-          details: 'User does not belong to a domain'
+          details: 'User does not belong to a domain',
+          displayLogout: true
         };
         $scope.session.template = '/views/esn/partials/loading-error.html';
         return;
