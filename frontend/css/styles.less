@@ -1,6 +1,7 @@
 @import "../components/bootstrap/less/bootstrap";
-
+g
 @icon-font-path: '/components/bootstrap/dist/fonts/';
+@bottom-height: 60px;
 
 // Scaffolding
 // -------------------------
@@ -11,6 +12,8 @@ html, body {
 
 body {
   padding-top: 70px;
+  /* Margin bottom by footer height */
+  margin-bottom: @bottom-height;
 }
 
 #wrap {
@@ -26,9 +29,9 @@ body {
 #footer {
   position: fixed;
   bottom: 0px;
-  height: 60px;
+  height: @bottom-height;
   width: 100%;
-  padding-top: 20px;
+  padding-top: @bottom-height / 3;
   color: @navbar-inverse-color;
   background-color: @navbar-default-bg;
   border-top: 1px solid @navbar-default-border;
