@@ -179,6 +179,22 @@ module.exports = function(grunt) {
           task: ['test-frontend']
         },
         src: ['Gruntfile-tests.js']
+      },
+      unit_storage: {
+        options: {
+          log: true,
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-unit-storage']
+        },
+        src: ['Gruntfile-tests.js']
       }
     },
     watch: {
@@ -249,7 +265,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('dev', ['nodemon:dev']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('test-unit-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:unit_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
+  grunt.registerTask('test-unit-storage', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:all', 'kill-servers', 'clean-environment']);
   grunt.registerTask('linters', ['jshint', 'gjslint']);

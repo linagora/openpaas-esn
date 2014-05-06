@@ -23,6 +23,11 @@ module.exports = function(grunt) {
         options: {
           files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/*.js']
         }
+      },
+      storage: {
+        options: {
+          files: ['test/unit-storage/all.js', grunt.option('test') || 'test/unit-storage/**/*.js']
+        }
       }
     }
   });
@@ -32,7 +37,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test-unit-backend', 'run the backend unit tests', ['mochacli:backend']);
   grunt.registerTask('test-midway-backend', 'run midway tests', ['mochacli:midway']);
-  grunt.registerTask('test-backend', 'run both the unit & midway tests', ['test-unit-backend', 'test-midway-backend']);
+  grunt.registerTask('test-unit-storage', 'run storage tests', ['mochacli:storage']);
+  grunt.registerTask('test-backend', 'run both the unit & midway tests', ['test-unit-backend', 'test-unit-storage', 'test-midway-backend']);
 
   grunt.registerTask('test-frontend', 'run the FrontEnd tests', function() {
     var done = this.async();
