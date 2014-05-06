@@ -19,12 +19,12 @@ describe('The Member Angular module', function() {
     }]));
 
     beforeEach(function() {
-      this.getExpectedHtmlForUser = function(firstName, lastName, email) {
+      this.getExpectedHtmlForUser = function(firstName, lastName, email, id) {
         var templateAsHtmlString =
           '<div class="login-bg container-fluid">' +
             '<div class="row">' +
             '<div class="col-md-4">' +
-            '<img src="/images/user.png">' +
+            '<img width="128" height="128" src="/api/users/%Id/profile/avatar" ng-src="/api/users/%Id/profile/avatar">' +
             '</div>' +
             '<div class="col-md-8">' +
             '<h4 class="ng-binding">%FirstName %LastName</h4>' +
@@ -35,6 +35,7 @@ describe('The Member Angular module', function() {
         templateAsHtmlString = templateAsHtmlString.replace(/%FirstName/g, firstName);
         templateAsHtmlString = templateAsHtmlString.replace(/%LastName/g, lastName);
         templateAsHtmlString = templateAsHtmlString.replace(/%Email/g, email);
+        templateAsHtmlString = templateAsHtmlString.replace(/%Id/g, id);
         return templateAsHtmlString;
       };
     });
@@ -51,14 +52,14 @@ describe('The Member Angular module', function() {
 
       this.$rootScope.$digest();
       expect(element.html()).to.equal(this.getExpectedHtmlForUser(this.$rootScope.testuser.firstname,
-        this.$rootScope.testuser.lastname, this.$rootScope.testuser.emails[0]));
+        this.$rootScope.testuser.lastname, this.$rootScope.testuser.emails[0], this.$rootScope.testuser._id));
     });
 
     it('should display the empty template if the provided user does not exist in the scope', function() {
       var html = '<member-display member="ghostuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
-      expect(element.html()).to.equal(this.getExpectedHtmlForUser('', '', ''));
+      expect(element.html()).to.equal(this.getExpectedHtmlForUser('', '', '', ''));
     });
   });
 
