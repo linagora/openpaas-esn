@@ -8,8 +8,6 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var frontendPath = path.normalize(__dirname + '/../../frontend');
 var cssPath = frontendPath + '/css';
-var core = require('../core');
-var logger = core.logger;
 
 var lessMiddlewareConfig = {
   production: {
