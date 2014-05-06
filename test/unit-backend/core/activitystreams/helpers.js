@@ -39,11 +39,7 @@ describe('The activitystreams helper module', function() {
         }]
       };
 
-      var user = {
-        currentAvatar: '987373333'
-      };
-
-      var out = helper.timelineToActivity(input, user);
+      var out = helper.timelineToActivity(input);
       expect(out).to.exist;
       expect(out.actor).to.exist;
       expect(out.actor.id).to.equal('urn:linagora.com:user:' + input.actor._id);
@@ -51,6 +47,64 @@ describe('The activitystreams helper module', function() {
       expect(out.object.id).to.equal('urn:linagora.com:whatsup:' + input.object._id);
       expect(out.target.length).to.equal(1);
       expect(out.target[0].id).to.equal('urn:linagora.com:activitystream:' + input.target[0]._id);
+      done();
+    });
+  });
+
+  describe('userMessageToTimelineEntry fn', function() {
+
+    it('should return a timeline entry', function(done) {
+      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+
+      var user = {
+        firstName: 'foo',
+        lastName: 'bar',
+        currentAvatar: '123',
+        _id: '456'
+      };
+
+      var message = {
+        _id: 123,
+        objectType: 'whatsup',
+        language: 'en',
+        content: 'yolo !',
+        published: new Date(),
+        author: user._id,
+        shares: [
+          {
+            objectType: 'activitystream',
+            _id: 111
+          },
+          {
+            objectType: 'user',
+            _id: 222
+          }
+        ]
+      };
+
+      var targets = [
+        {
+          objectType: 'activitystream',
+          _id: 111111
+        },
+        {
+          objectType: 'user',
+          _id: 222222
+        },
+        {
+          objectType: 'user',
+          _id: 3333333
+        }
+      ];
+
+      var out = helper.userMessageToTimelineEntry(message, 'post', user, targets);
+      expect(out).to.exist;
+      expect(out.actor).to.exist;
+      expect(out.object).to.exist;
+      expect(out.target).to.exist;
+      expect(out.target.length).to.equal(3);
+      expect(out.target).to.deep.equal(targets);
+      expect(out.published).to.exist;
       done();
     });
   });

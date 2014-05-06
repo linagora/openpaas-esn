@@ -5,6 +5,25 @@ var getURN = function(type, id) {
 };
 module.exports.getURN = getURN;
 
+module.exports.userMessageToTimelineEntry = function(message, verb, user, shares, date) {
+  return {
+    verb: verb,
+    language: message.language,
+    published: date || Date.now,
+    actor: {
+      objectType: 'user',
+      _id: user._id,
+      image: user.currentAvatar,
+      displayName: user.firstName + ' ' + user.lastName
+    },
+    object: {
+      objectType: message.objectType,
+      _id: message._id
+    },
+    target: shares
+  };
+};
+
 module.exports.timelineToActivity = function(entry) {
   return {
     _id: entry._id,

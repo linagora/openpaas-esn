@@ -303,7 +303,20 @@ describe('The document store routes resource', function() {
         }
       };
 
+      this.pubsubMock = {
+        init: function() {},
+        local: {
+          topic: function(name) {
+            return {
+              subscribe: function() {},
+              publish: function() {}
+            };
+          }
+        }
+      };
+
       mockery.registerMock('./mongo', this.mongoDbMock);
+      mockery.registerMock('./pubsub', this.pubsubMock);
       this.testEnv.initCore(function() {
         var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/document-store');
         var requestMock = {

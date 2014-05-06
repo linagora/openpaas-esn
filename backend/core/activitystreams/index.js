@@ -52,3 +52,19 @@ function query(options, cb) {
   }
 }
 module.exports.query = query;
+
+/**
+ * Add an timeline entry
+ *
+ * @param {Hash} entry - The event to add to the timeline
+ * @param {Function} cb - as cb(err, saved) where saved is the object saved in the storage layer
+ */
+function addTimelineEntry(entry, cb) {
+  if (!entry) {
+    return cb(new Error('Timeline entry payload is mandatory'));
+  }
+
+  var timelineEntry = new TimelineEntry(entry);
+  return timelineEntry.save(cb);
+}
+module.exports.addTimelineEntry = addTimelineEntry;
