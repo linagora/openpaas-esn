@@ -1,20 +1,32 @@
 'use strict';
 
-var configured = require('../configured');
+var core = require('..'),
+    mongo = core.db.mongo,
+    pubsub = core.pubsub.local;
 
 var user = require('./user');
 module.exports.user = user;
 
-module.exports.inject = function(callback) {
-  if (!configured()) {
-    console.log('DB is not configured, templates will not be injected');
-    callback();
-    return;
-  }
+function injectTemplates() {
   user.store(function(err) {
     if (err) {
       console.log('user template cannot be injected into database', err);
     }
-    callback.apply(this, arguments);
   });
+}
+
+
+module.exports.inject = function(callback) {
+  if (mongo.isConnected()) {
+    injectTemplates();
+    return callback();
+  }
+
+  var topic = pubsub.topic('mongodb:connectionAvailable');
+  function subscriber() {
+    injectTemplates();
+    topic.unsubscribe(subscriber);
+  }
+  topic.subscribe(subscriber);
+  return callback();
 };

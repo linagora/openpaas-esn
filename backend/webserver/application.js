@@ -24,10 +24,6 @@ var lessMiddlewareConfig = {
   }
 };
 
-core.db.mongoAvailable.then(function(config) {
-  logger.debug('MongoDB configuration is now available', config);
-});
-
 var application = express();
 exports = module.exports = application;
 application.set('views', frontendPath + '/views');

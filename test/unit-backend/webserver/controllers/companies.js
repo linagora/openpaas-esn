@@ -28,7 +28,7 @@ describe('The companies routes', function() {
     var Domain;
     var User, emails;
 
-    before(function() {
+    beforeEach(function() {
 
       Domain = this.mongoose.model('Domain');
       User = this.mongoose.model('User');
@@ -67,7 +67,7 @@ describe('The companies routes', function() {
     var Domain;
     var User, emails;
 
-    before(function() {
+    beforeEach(function() {
 
       Domain = this.mongoose.model('Domain');
       User = this.mongoose.model('User');

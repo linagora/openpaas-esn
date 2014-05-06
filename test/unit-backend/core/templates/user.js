@@ -1,47 +1,27 @@
 'use strict';
 
-var expect = require('chai').expect;
-
 describe('The User template module', function() {
 
-  describe('If not configured', function() {
-
-    before(function() {
-      try {
-        this.testEnv.removeDBConfigFile();
-      } catch (e) {}
-    });
-
-    it('should not inject templates', function(done) {
-      var core = require(this.testEnv.basePath + '/backend/core');
-      var templates = core.templates;
-      var configured = core.configured;
-      expect(configured()).to.be.false;
-      templates.inject(done);
-    });
-  });
-
-  describe('If configured', function() {
-
+  describe('store function', function() {
     beforeEach(function() {
       this.testEnv.writeDBConfigFile();
-      this.mongoose = require('mongoose');
     });
-
-    it('should inject templates', function(done) {
-      var core = this.testEnv.initCore();
-      var templates = core.templates;
-      var configured = core.configured;
-      expect(configured()).to.be.true;
-      templates.inject(done);
-    });
-
-    afterEach(function(done) {
+    afterEach(function() {
       this.testEnv.removeDBConfigFile();
-      this.mongoose.connection.db.dropDatabase(function(err, ok) {
-        if (err) { return done(err); }
-        this.mongoose.disconnect(done);
-      }.bind(this));
+    });
+
+    it('should inject the user template in the templates collection', function(done) {
+      var self = this;
+      var userInject = require(this.testEnv.basePath + '/backend/core/templates/user');
+      var template = require(this.testEnv.basePath + '/backend/core/templates/data/user-template').simple();
+      this.testEnv.initCore();
+      template._id = 'user';
+      userInject.store(function(err) {
+        if (err) {
+          return done(err);
+        }
+        self.helpers.mongo.checkDoc('templates', 'user', template, done);
+      });
     });
   });
 
