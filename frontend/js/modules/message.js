@@ -13,8 +13,11 @@ angular.module('esn.message', ['restangular'])
   })
   .factory('messageAPI', ['Restangular', function(Restangular) {
 
-    function get() {
-      return Restangular.one('messages').get();
+    function get(options) {
+      if (angular.isString(options)) {
+        return Restangular.one('messages', options).get();
+      }
+      return Restangular.all('messages').getList(options);
     }
 
     function post(objectType, data, targets) {
