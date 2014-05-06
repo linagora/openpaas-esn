@@ -20,8 +20,8 @@ module.exports.findStreamResource = function(req, res, next) {
     }
 
     req.activity_stream = {
-      objectType: 'domain',
-      _id: domain._id
+      objectType: 'activitystream',
+      _id: uuid
     };
     next();
   });

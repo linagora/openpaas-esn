@@ -116,8 +116,8 @@ describe('The messages module', function() {
           expect(dataPublished.source).to.deep.equal({ type: 'user', resource: 123 });
           expect(dataPublished.targets).to.deep.equal([
             {
-              'objectType': 'activitystream',
-              'id': 'urn:linagora:esn:activitystream:<activitystream uuid>'
+              'type': 'activitystream',
+              'resource': 'urn:linagora:esn:activitystream:<activitystream uuid>'
             }
           ]);
           expect(dataPublished.message).to.deep.equal({_id: 'a new id', message: 123 });

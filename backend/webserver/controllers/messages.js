@@ -24,7 +24,12 @@ function create(req, res) {
 
     if (saved) {
       var from = { type: 'user', resource: req.user._id },
-          targets = req.body.targets;
+          targets = req.body.targets.map(function(e) {
+            return {
+              type: e.objectType,
+              resource: e.id
+            };
+          });
       topic.publish({
         source: from,
         targets: targets,
