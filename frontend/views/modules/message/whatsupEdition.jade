@@ -1,7 +1,10 @@
-div.login-bg.form-container
+div.login-bg.form-container(ng-controller='messageController')
+    #error
     form(name='whatsupform')
         .form-group
-            textarea.form-control(placeholder="#{__('Publish a new whatsup message')}")
+            textarea.form-control(ng-model='whatsupmessage', placeholder="#{__('Publish a new whatsup message')}")
         .form-group
-            button.btn.btn-primary.pull-left(type='submit') #{__('Publish')}
-            button.btn.btn-default.pull-left(type='reset') #{__('Cancel')}
+            .pull-left
+                button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Publish')}
+                &nbsp;
+                button.btn.btn-default(type='reset', ng-click='resetMessage()') #{__('Cancel')}
