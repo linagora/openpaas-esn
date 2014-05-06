@@ -15,7 +15,7 @@ describe('The Message Angular module', function() {
         this.messageValue = 'messageValue';
       }));
 
-      it('should send a POST request to a /api/message', function() {
+      it('should send a POST request to /messages', function() {
         var message = {
           'object': {
             'objectType': 'whatsup',
@@ -29,7 +29,7 @@ describe('The Message Angular module', function() {
           ]
         };
 
-        this.$httpBackend.expectPOST('/api/messages', message).respond();
+        this.$httpBackend.expectPOST('/messages', message).respond();
         this.messagePOST.post(message.object.objectType, message.object, message.targets);
         this.$httpBackend.flush();
       });
