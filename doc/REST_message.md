@@ -103,7 +103,7 @@ Post a new message by the currently logged in user.
     {
         "object": {
             "objectType": "whatsupmessage",
-            "description": "whatsup message content"
+            "content": "whatsup message content"
         },
         "targets": [
             {

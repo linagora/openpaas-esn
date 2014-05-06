@@ -18,3 +18,10 @@ module.exports.save = function(message, callback) {
     callback(err, response);
   });
 };
+
+module.exports.findByIds = function(ids, callback) {
+  var query = {
+    _id: { $in: ids}
+  };
+  Whatsup.find(query, callback);
+};
