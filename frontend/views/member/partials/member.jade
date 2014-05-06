@@ -1,7 +1,7 @@
 div.login-bg.container-fluid
     div.row
         div.col-md-4
-            img(width='128', height='128', src='/images/user.png', ng-src='/api/user/{{member._id}}/profile/avatar')
+            img(width='128', height='128', src='/images/user.png', ng-src='/api/users/{{member._id}}/profile/avatar')
         div.col-md-8
             h4 {{member.firstname}} {{member.lastname}}
             span
