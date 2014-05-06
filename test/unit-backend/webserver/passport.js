@@ -1,7 +1,8 @@
 'use strict';
 
 var expect = require('chai').expect,
-    fs = require('fs');
+    fs = require('fs'),
+    mockery = require('mockery');
 
 describe('The passport configuration module', function() {
 
@@ -17,13 +18,8 @@ describe('The passport configuration module', function() {
   });
 
   describe('Invalid configuration', function() {
-    var oldDefaultJson = null;
 
-    before(function() {
-      oldDefaultJson = fs.readFileSync(this.testEnv.tmp + '/default.json');
-    });
-
-    it('should not fail when auth module is defined but does not exists', function(done) {
+    it('should not fail when auth module is defined but does not exists', function() {
       var conf = {
         log: {
           file: {
@@ -37,23 +33,28 @@ describe('The passport configuration module', function() {
           strategies: ['foobar']
         }
       };
-      fs.writeFileSync(this.testEnv.tmp + '/default.json', JSON.stringify(conf));
+      var configMock = {
+        config: function(config) {
+          return conf;
+        }
+      };
+      mockery.registerMock('../core', configMock);
       require(this.testEnv.basePath + '/backend/webserver/passport');
       var passport = require('passport');
       expect(passport._strategy('foobar')).to.be.undefined;
-      done();
-    });
-
-    after(function() {
-      fs.writeFileSync(this.testEnv.tmp + '/default.json', oldDefaultJson);
     });
 
   });
 
   describe('The serialize fn', function() {
-    it('should serialize ESN user', function(done) {
+    var passport;
+
+    beforeEach(function() {
       require(this.testEnv.basePath + '/backend/webserver/passport');
-      var passport = require('passport');
+      passport = require('passport');
+    });
+
+    it('should serialize ESN user', function(done) {
       var mail = 'foo@bar.com';
       var user = {
         emails: [mail]
@@ -66,8 +67,6 @@ describe('The passport configuration module', function() {
     });
 
     it('should serialize a passport user', function(done) {
-      require(this.testEnv.basePath + '/backend/webserver/passport');
-      var passport = require('passport');
       var mail = 'foo@bar.com';
       var user = {
         emails: [{type: 'home', value: mail}]
@@ -80,8 +79,6 @@ describe('The passport configuration module', function() {
     });
 
     it('should fail when no email is set', function(done) {
-      require(this.testEnv.basePath + '/backend/webserver/passport');
-      var passport = require('passport');
       var user = {};
       passport.serializeUser(user, function(err, serialized) {
         expect(err).to.exist;

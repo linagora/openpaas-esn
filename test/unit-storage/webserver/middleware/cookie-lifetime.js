@@ -1,26 +1,95 @@
 'use strict';
 
-var expect = require('chai').expect;
+var expect = require('chai').expect,
+    mockery = require('mockery');
 
 describe('The cookie-lifetime middleware', function() {
 
   describe('if config is up', function() {
 
-    before(function() {
-      this.testEnv.writeDBConfigFile();
-    });
-
-    after(function() {
-      this.testEnv.removeDBConfigFile();
-    });
-
     beforeEach(function(done) {
       this.testEnv.initCore(done);
     });
 
+    it('should set the cookie maxAge even config.get return an error', function(done) {
+      var esnConfigMock = {
+        'esn-config': function(session) {
+          return {
+            get: function(callback) {
+              callback(new Error('ERROR'), { remember: 10 });
+            }
+          };
+        }
+      };
+      mockery.registerMock('../../core', esnConfigMock);
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+
+      var req = {
+        body: {
+          rememberme: true
+        },
+        session: {
+          cookie: {
+          }
+        }
+      };
+      var res = {};
+
+      var next = function() {
+        expect(req.session.cookie.maxAge).to.equal(2592000000);
+        done();
+      };
+
+      middleware(req, res, next);
+    });
 
     it('should set the cookie maxAge even if not configured (session is not set in config)', function(done) {
-      require(this.testEnv.basePath + '/backend/core')['esn-config']('session');
+      var esnConfigMock = {
+        'esn-config': function(session) {
+          return {
+            get: function(callback) {
+              callback(null, null);
+            }
+          };
+        }
+      };
+      mockery.registerMock('../../core', esnConfigMock);
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+
+      var req = {
+        body: {
+          rememberme: true
+        },
+        session: {
+          cookie: {
+          }
+        }
+      };
+      var res = {};
+
+      var next = function() {
+        expect(req.session.cookie.maxAge).to.equal(2592000000);
+        done();
+      };
+
+      middleware(req, res, next);
+    });
+
+    it('should set the cookie maxAge to configured value', function(done) {
+      var esnConfigMock = {
+        'esn-config': function(session) {
+          return {
+            get: function(callback) {
+              callback(null, { remember: 10 });
+            }
+          };
+        }
+      };
+
+      mockery.registerMock('../../core', esnConfigMock);
+
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
       var req = {
         body: {
@@ -31,73 +100,35 @@ describe('The cookie-lifetime middleware', function() {
           }
         }
       };
-      var res = {
-      };
+
+      var res = {};
 
       var next = function() {
-        expect(req.session.cookie.maxAge).to.exist;
+        expect(req.session.cookie.maxAge).to.equal(10);
         done();
       };
       middleware(req, res, next);
-    });
-
-    it('should set the cookie maxAge to configured value', function(done) {
-      var maxAge = 10;
-      var self = this;
-
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('session');
-      var session = {
-        remember: maxAge
-      };
-      conf.store(session, function(err) {
-        if (err) {
-          return done(err);
-        }
-        var middleware = require(self.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
-        var req = {
-          body: {
-            rememberme: true
-          },
-          session: {
-            cookie: {
-            }
-          }
-        };
-
-        var res = {
-        };
-
-        var next = function() {
-          expect(req.session.cookie.maxAge).to.exist;
-          expect(req.session.cookie.maxAge).to.equal(maxAge);
-          done();
-        };
-        middleware(req, res, next);
-      });
     });
   });
 
-  describe('when do not want to remember', function() {
-    it('should set the cookie expire to false if rememberme is false', function(done) {
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
-      var req = {
-        body: {
-          rememberme: false
-        },
-        session: {
-          cookie: {
-          }
+  it('should set the cookie expire to false if rememberme is false', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+    var req = {
+      body: {
+        rememberme: false
+      },
+      session: {
+        cookie: {
         }
-      };
+      }
+    };
 
-      var res = {
-      };
+    var res = {};
 
-      var next = function() {
-        expect(req.session.cookie.expires).is.false;
-        done();
-      };
-      middleware(req, res, next);
-    });
+    var next = function() {
+      expect(req.session.cookie.expires).is.false;
+      done();
+    };
+    middleware(req, res, next);
   });
 });

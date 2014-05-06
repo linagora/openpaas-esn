@@ -14,8 +14,8 @@ describe('The user-template module', function() {
   });
 
   it('should store user-template.json into database : collection = templates, _id=user', function(done) {
-    var esnConf = require('../../../backend/core/esn-config');
-    var template = require('../../../backend/core/templates');
+    var esnConf = require('../../../backend/core/esn-config/index');
+    var template = require('../../../backend/core/templates/index');
 
     template.user.store(function(err) {
       expect(err).to.be.null;
