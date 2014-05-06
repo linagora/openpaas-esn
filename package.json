@@ -79,7 +79,7 @@
     "grunt-shell-spawn": "sergkr/grunt-shell-spawn",
     "grunt-continue": "0.0.1",
     "mailparser": "~0.4.1",
-    "nodemailer-browser": "git+http://chamerling@ci-openpaas.linagora.com/stash/scm/or/nodemailer-browser.git",
+    "nodemailer-browser": "~0.0.1",
     "cookie": "~0.1.1",
     "karma-ng-jade2js-preprocessor": "git://github.com/th0masm/karma-ng-jade2js-preprocessor.git"
   },
