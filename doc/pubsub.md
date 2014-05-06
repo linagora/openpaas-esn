@@ -5,6 +5,12 @@ The ESN comes with two types of publish/subscribe feature:
 - Local: Inside an ESN instance (using event emitter)
 - Remote: Between several ESN nodes (using redis)
 
+## API
+
+    var pubsub = require(_pathToPubsub_).local(|global);  // import
+    pubsub.topic(_channel_).subscribe(callback);          // subscribe to a topic
+    pubsub.topic(_channel_).publish(data);                // publish data into a topic
+
 ## Topics
 
 Here is a list of the available topics with their associated data.
