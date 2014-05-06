@@ -27,5 +27,5 @@ module.exports.findByIds = function(ids, callback) {
 };
 
 module.exports.get = function(uuid, callback) {
-  return callback(null, {_id: uuid});
+  Whatsup.findById(uuid, callback);
 };
