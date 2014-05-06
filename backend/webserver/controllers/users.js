@@ -255,3 +255,16 @@ function getProfileAvatar(req, res) {
 }
 
 module.exports.getProfileAvatar = getProfileAvatar;
+
+function load(req, res, next) {
+  if (req.params.uuid) {
+    userModule.get(req.params.uuid, function(err, user) {
+      req.user = user;
+      next();
+    });
+  } else {
+    next();
+  }
+}
+module.exports.load = load;
+
