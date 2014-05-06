@@ -99,6 +99,9 @@ describe('The Member Angular module', function() {
         this.scope.members = {
           length: 0
         };
+        this.scope.search = {
+          count: this.searchConf.searchLimit * (this.maxCount + 1)
+        };
         var self = this;
         this.domainAPI.getMembers = function(domain_id, opts) {
           self.callCount++;
@@ -122,7 +125,12 @@ describe('The Member Angular module', function() {
 
           //do maxCount calls
           if (self.callCount < self.maxCount) {
-            self.scope.loadMoreElements();
+            var promise = {then: function(callback, errorCallBack) {
+              self.scope.search.count = self.searchConf.searchLimit * (self.maxCount + 1);
+              self.scope.restActive = false;
+              self.scope.loadMoreElements();
+            }};
+            return promise;
           }
           else if (self.callCount === self.maxCount) {
             done();
