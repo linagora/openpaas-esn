@@ -253,7 +253,7 @@ describe('The messages API', function() {
       objectType: 'activitystream',
       id: domain.activity_stream.uuid
     };
-    console.log(target);
+    var TimelineEntry = this.mongoose.model('TimelineEntry');
 
     request(app)
       .post('/api/login')
@@ -272,9 +272,29 @@ describe('The messages API', function() {
         });
         req.expect(201)
           .end(function(err, res) {
+
             expect(err).to.not.exist;
             expect(res.body).to.exist;
-            done();
+
+            process.nextTick(function() {
+
+              TimelineEntry.find({}, function(err, results) {
+                expect(results).to.exist;
+                expect(results.length).to.equal(1);
+                expect(results[0].verb).to.equal('post');
+                expect(results[0].target).to.exist;
+                expect(results[0].target.length).to.equal(1);
+                expect(results[0].target[0].objectType).to.equal('activitystream');
+                expect(results[0].target[0]._id).to.equal(domain.activity_stream.uuid);
+                expect(results[0].object).to.exist;
+                expect(results[0].object.objectType).to.equal('whatsup');
+                expect(results[0].object._id + '').to.equal(res.body._id);
+                expect(results[0].actor).to.exist;
+                expect(results[0].actor.objectType).to.equal('user');
+                expect(results[0].actor._id + '').to.equal('' + testuser._id);
+                done();
+              });
+            });
           });
       });
   });
