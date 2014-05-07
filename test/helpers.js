@@ -94,6 +94,9 @@ module.exports = function(mixin, testEnv) {
         });
       });
     },
+    clearCollection: function(collectionName, callback) {
+      require('mongoose').connection.db.collection(collectionName).remove(callback);
+    },
     dropCollections: function(callback) {
       mongoose.connection.db.collections(function(err, collections) {
         if (err) { return callback(err); }
@@ -103,6 +106,15 @@ module.exports = function(mixin, testEnv) {
         async.forEach(collections, function(collection, done) {
           mongoose.connection.db.dropCollection(collection.collectionName, done);
         }, callback);
+      });
+    },
+    saveDoc: function(collection, doc, done) {
+      MongoClient.connect(testEnv.mongoUrl, function(err, db) {
+        function close(err) { db.close(function() { done(err); }); }
+
+        if (err) { return done(err); }
+
+        db.collection(collection).save(doc, close);
       });
     },
     /*
