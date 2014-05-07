@@ -39,8 +39,10 @@ before(function() {
   fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
 });
 
-after(function() {
-  fs.unlinkSync(this.testEnv.tmp + '/default.json');
+after(function(done) {
+  try {
+    fs.unlinkSync(this.testEnv.tmp + '/default.json');
+  } catch (e) {}
   delete process.env.NODE_CONFIG;
   delete process.env.NODE_ENV;
 });
