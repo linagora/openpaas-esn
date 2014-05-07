@@ -2,11 +2,108 @@
 
 describe('The esn.message Angular module', function() {
 
-  describe('messageAPI service', function() {
+  beforeEach(function() {
+    angular.mock.module('esn.message');
+  });
 
-    beforeEach(function() {
-      angular.mock.module('esn.message');
+  describe('messageController', function() {
+    beforeEach(inject(function($rootScope, $controller) {
+      this.messageAPI = {};
+      this.scope = $rootScope.$new();
+      this.session = {};
+      this.alert = function() {
+      };
+
+      $controller('messageController', {
+        $scope: this.scope,
+        messageAPI: this.messageAPI,
+        session: this.session,
+        $alert: this.alert
+      });
+    }));
+
+    it('$scope.sendMessage should not call $messageAPI.post when message is null', function(done) {
+      this.messageAPI.post = function() {
+        return done(new Error('Should not be called'));
+      };
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupmessage = undefined;
+      this.scope.sendMessage();
     });
+
+    it('$scope.sendMessage should not call $messageAPI.post when message is empty', function(done) {
+      this.messageAPI.post = function() {
+        return done(new Error('Should not be called'));
+      };
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupmessage = '';
+      this.scope.sendMessage();
+    });
+
+    it('$scope.sendMessage should not call $messageAPI.post when session domain is not set', function(done) {
+      this.messageAPI.post = function() {
+        return done(new Error('Should not be called'));
+      };
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+      this.scope.sendMessage();
+      done();
+    });
+
+    it('$scope.sendMessage should not call $messageAPI.post when session domain.activity_stream is not set', function(done) {
+      this.messageAPI.post = function() {
+        return done(new Error('Should not be called'));
+      };
+      this.scope.displayError = function() {
+        done();
+      };
+      this.session.domain = {};
+      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+      this.scope.sendMessage();
+      done();
+    });
+
+    it('$scope.sendMessage should not call $messageAPI.post when session domain.activity_stream.uuid is not set', function(done) {
+      this.messageAPI.post = function() {
+        return done(new Error('Should not be called'));
+      };
+      this.scope.displayError = function() {
+        done();
+      };
+      this.session.domain = {
+        activity_stream: {
+        }
+      };
+      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+      this.scope.sendMessage();
+      done();
+    });
+
+    it('$scope.sendMessage should call $messageAPI.post when all data is set', function(done) {
+      this.messageAPI.post = function() {
+        done();
+      };
+      this.scope.displayError = function() {
+        done(new Error());
+      };
+      this.session.domain = {
+        activity_stream: {
+          uuid: '1234'
+        }
+      };
+      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+      this.scope.sendMessage();
+      done();
+    });
+  });
+
+  describe('messageAPI service', function() {
 
     beforeEach(inject(function(messageAPI, $httpBackend) {
       this.api = messageAPI;
