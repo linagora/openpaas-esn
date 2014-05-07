@@ -1,11 +1,13 @@
 'use strict';
 
 describe('The esn.message Angular module', function() {
+
   describe('messageAPI service', function() {
 
     beforeEach(function() {
       angular.mock.module('esn.message');
     });
+
     beforeEach(inject(function(messageAPI, $httpBackend) {
       this.api = messageAPI;
       this.$httpBackend = $httpBackend;
@@ -37,5 +39,30 @@ describe('The esn.message Angular module', function() {
       });
     });
 
+    describe('post method', function() {
+
+      beforeEach(angular.mock.inject(function() {
+        this.messageValue = 'messageValue';
+      }));
+
+      it('should send a POST request to /messages', function() {
+        var message = {
+          'object': {
+            'objectType': 'whatsup',
+            'description': 'whatsup message content'
+          },
+          'targets': [
+            {
+              'objectType': 'wall',
+              'id': 'urn:linagora:esn:wall:<wall uuid>'
+            }
+          ]
+        };
+
+        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.api.post(message.object.objectType, message.object, message.targets);
+        this.$httpBackend.flush();
+      });
+    });
   });
 });
