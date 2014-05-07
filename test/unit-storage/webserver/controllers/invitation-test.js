@@ -48,7 +48,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on empty payload', function(done) {
-      request(webserver.application).post('/api/invitation').expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitations').expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -56,7 +56,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on missing type', function(done) {
-      request(webserver.application).post('/api/invitation').send({name: 'hiveety'}).expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitations').send({name: 'hiveety'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -64,7 +64,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on any other JSON data', function(done) {
-      request(webserver.application).post('/api/invitation').send({ foo: 'bar', baz: 1}).expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitations').send({ foo: 'bar', baz: 1}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -73,7 +73,7 @@ describe('The invitation controller', function() {
 
     it('should save the invitation', function(done) {
       var invitation = { type: 'test', data: {}};
-      request(webserver.application).post('/api/invitation').send(invitation).expect(201).end(function(err, res) {
+      request(webserver.application).post('/api/invitations').send(invitation).expect(201).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         expect(res.body.uuid).to.be.not.null;
@@ -82,7 +82,7 @@ describe('The invitation controller', function() {
     });
   });
 
-  describe('PUT /api/invitation/:uuid', function() {
+  describe('PUT /api/invitations/:uuid', function() {
     var webserver = null;
     var called = false;
     var handler = {
@@ -103,7 +103,7 @@ describe('The invitation controller', function() {
 
     it('should fail if UUID is unknown', function(done) {
       var data = { foo: 'bar'};
-      request(webserver.application).put('/api/invitation/123456789').send(data).expect(404).end(function(err, res) {
+      request(webserver.application).put('/api/invitations/123456789').send(data).expect(404).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
@@ -117,7 +117,7 @@ describe('The invitation controller', function() {
           return done(err);
         }
         var data = { foo: 'bar'};
-        request(webserver.application).put('/api/invitation/' + invitation.uuid).send(data).expect(201).end(function(err, res) {
+        request(webserver.application).put('/api/invitations/' + invitation.uuid).send(data).expect(201).end(function(err, res) {
           expect(err).to.be.null;
           expect(called).to.be.true;
           done();
@@ -139,14 +139,14 @@ describe('The invitation controller', function() {
     });
 
     it('should return 404 on root resource', function(done) {
-      request(webserver.application).get('/api/invitation').expect(404).end(function(err, res) {
+      request(webserver.application).get('/api/invitations').expect(404).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
     });
 
     it('should return 404 on unknown resource', function(done) {
-      request(webserver.application).get('/api/invitation/123').expect(404).end(function(err, res) {
+      request(webserver.application).get('/api/invitations/123').expect(404).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
@@ -159,7 +159,7 @@ describe('The invitation controller', function() {
         if (err) {
           return done(err);
         }
-        request(webserver.application).get('/api/invitation/' + invitation.uuid).expect(200).end(function(err, res) {
+        request(webserver.application).get('/api/invitations/' + invitation.uuid).expect(200).end(function(err, res) {
           expect(err).to.be.null;
           expect(res.body).to.exist;
           expect(res.body.uuid).to.equals(invitation.uuid);
