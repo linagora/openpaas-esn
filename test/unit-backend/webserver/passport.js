@@ -1,7 +1,6 @@
 'use strict';
 
 var expect = require('chai').expect,
-    fs = require('fs'),
     mockery = require('mockery');
 
 describe('The passport configuration module', function() {

@@ -26,7 +26,7 @@ describe('The Core configured module', function() {
     var coreMock = {
       config: function() {
         return {
-          foo:'bar'
+          foo: 'bar'
         };
       }
     };

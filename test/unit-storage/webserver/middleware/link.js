@@ -59,7 +59,7 @@ describe('The link middleware', function() {
           };
         },
         Types: {
-          ObjectId: function (target) {
+          ObjectId: function(target) {
             return target;
           }
         }

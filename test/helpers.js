@@ -51,7 +51,7 @@ function mockPubSub(stub) {
 
   var mockedPubSub = {
     local: {
-      topic : function(topic) {
+      topic: function(topic) {
         stub.topics.push(topic);
         stub.topics[topic] = {
           data: [],

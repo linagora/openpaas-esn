@@ -104,7 +104,7 @@ describe.skip('The signup handler', function() {
       var signupEmailMocked = function(invitation, callback) {
         called = true;
         callback();
-      }
+      };
       mockery.registerMock('../../email/system/signupConfirmation', signupEmailMocked);
 
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');

@@ -4,7 +4,6 @@ var emailAddresses = require('email-addresses');
 var logger = require('../..').logger;
 var async = require('async');
 var sendMail = require('../../email/system/addMember');
-var mongoose = require('mongoose');
 
 /**
  * Validate the input data ie this is a valid email.
@@ -69,7 +68,6 @@ module.exports.finalize = function(invitation, data, done) {
     return done(new Error('Request data is required'));
   }
 
-  var Domain = mongoose.model('Domain');
   var formValues = data.body.data;
   var domain;
 

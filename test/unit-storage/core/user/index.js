@@ -1,7 +1,6 @@
 'use strict';
 
-var expect = require('chai').expect,
-    mockery = require('mockery');
+var expect = require('chai').expect;
 
 describe('The user core module', function() {
   var mockModels, mockPubSub, mockEsnConfig;
@@ -48,7 +47,7 @@ describe('The user core module', function() {
 
       var get = function(callback) {
         callback(null, template);
-      }
+      };
       mockEsnConfig(get);
     });
 
@@ -67,7 +66,7 @@ describe('The user core module', function() {
         User: User
       });
       userModule = require(this.testEnv.basePath + '/backend/core').user;
-      userModule.provisionUser({emails: ['test@linagora.com']}, function (err, user) {
+      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
         expect(user._id).to.exist;
@@ -90,7 +89,7 @@ describe('The user core module', function() {
         findOne: function(query, callback) {
           callback(null, query);
         }
-      }
+      };
       mockModels({
         User: User
       });
@@ -125,7 +124,7 @@ describe('The user core module', function() {
         update: function(query, option, callback) {
           callback(query, option);
         }
-      }
+      };
       mockModels({
         User: User
       });
