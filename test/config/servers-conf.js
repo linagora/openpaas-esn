@@ -30,6 +30,8 @@ module.exports = {
     'port': process.env.PORT_ELASTICSEARCH || 23459,
     'communication_port': process.env.COMMUNICATION_PORT_ELASTICSEARCH || 23460,
     'cluster_name': 'elasticsearch',
-    'data_path': 'tmp/elasticsearch'
+    'data_path': 'tmp/elasticsearch/data',
+    'work_path': 'tmp/elasticsearch/work',
+    'logs_path': 'tmp/elasticsearch/logs'
   }
 };
