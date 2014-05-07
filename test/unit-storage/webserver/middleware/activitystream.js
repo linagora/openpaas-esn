@@ -59,7 +59,7 @@ describe('The activitystream middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should send an error if targets is empty', function(done) {
+    it('should send an error if targets is undefined', function(done) {
       var mock = {
         model: function() {
           return {
@@ -73,7 +73,7 @@ describe('The activitystream middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
-          targets: []
+          targets: undefined
         }
       };
       var res = {
