@@ -1,9 +1,20 @@
 'use strict';
 
-var emailAddresses = require('email-addresses'),
-    async = require('async'),
-    logger = require('../../logger'),
-    signupEmail = require('../../email/system/signupConfirmation');
+var emailAddresses = require('email-addresses');
+var async = require('async');
+var signupEmail = require('../../email/system/signupConfirmation');
+var logger = require('../..').logger;
+var invitationValidityDays = 7;
+
+module.exports.isStillValid = function(invitation, done) {
+  var limitDate = new Date(invitation.timestamps.created.getTime());
+  limitDate.setDate(limitDate.getDate() + invitationValidityDays);
+  if (limitDate.getTime() < Date.now()) {
+    return done(null, false);
+  }
+  return done(null, true);
+};
+
 
 /**
  * Validate the input data: required properties are firstname, lastname and email.
