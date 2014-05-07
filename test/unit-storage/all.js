@@ -13,7 +13,7 @@ before(function() {
     serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
-    fixtures: path.resolve(__dirname + '/../fixtures'),
+    fixtures: path.resolve(__dirname + '/fixtures'),
     mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
     writeDBConfigFile: function() {
       fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname}));

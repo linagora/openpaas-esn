@@ -12,7 +12,7 @@ before(function() {
     serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
-    fixtures: path.resolve(__dirname + '/../fixtures'),
+    fixtures: path.resolve(__dirname + '/fixtures'),
     initCore: function(callback) {
       var core = require(basePath + '/backend/core');
       core.init();
