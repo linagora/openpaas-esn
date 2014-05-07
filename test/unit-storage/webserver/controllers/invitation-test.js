@@ -15,7 +15,7 @@ describe('The invitation controller', function() {
     this.testEnv.removeDBConfigFile();
   });
 
-  describe('POST /api/invitation', function() {
+  describe('POST /api/invitations', function() {
     var webserver = null;
     var handler = {
       init: function(invitation, cb) {
@@ -126,7 +126,7 @@ describe('The invitation controller', function() {
     });
   });
 
-  describe('GET /api/invitation', function() {
+  describe('GET /api/invitations', function() {
     var webserver = null;
 
     beforeEach(function(done) {

@@ -109,15 +109,15 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
 .factory('invitationAPI', ['Restangular', function(Restangular) {
 
   function get(id) {
-    return Restangular.one('invitation', id).get();
+    return Restangular.one('invitations', id).get();
   }
 
   function create(settings) {
-    return Restangular.all('invitation').post(settings);
+    return Restangular.all('invitations').post(settings);
   }
 
   function finalize(id, settings) {
-    return Restangular.one('invitation', id).customPUT(settings);
+    return Restangular.one('invitations', id).customPUT(settings);
   }
 
   return {
