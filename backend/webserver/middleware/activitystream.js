@@ -26,3 +26,26 @@ module.exports.findStreamResource = function(req, res, next) {
     next();
   });
 };
+
+module.exports.filterValidTargets = function(req, res, next) {
+  var targets = req.body.targets;
+  if (!targets || targets.length === 0) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Message targets are required'}});
+  }
+
+  var async = require('async');
+  async.filter(targets,
+    function(item, callback) {
+      Domain.getFromActivityStreamID(item.id, function(err, domain) {
+        return callback(!err && domain);
+      });
+    },
+    function(results) {
+      if (!results || results.length === 0) {
+        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Invalid message targets'}});
+      }
+      req.body.targets = results;
+      next();
+    }
+  );
+};
