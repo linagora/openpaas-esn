@@ -6,33 +6,33 @@ var config = require('../esn-config')('login');
 var pubsub = require('../pubsub').local;
 var defaultLoginFailure = 5;
 
-module.exports.success = function(email, cb) {
+module.exports.success = function(email, callback) {
   User.loadFromEmail(email, function(err, user) {
     if (err) {
-      return cb(err);
+      return callback(err);
     }
     if (!user) {
-      return cb(new Error('No such user ' + email));
+      return callback(new Error('No such user ' + email));
     }
     pubsub.topic('login:success').publish(user);
-    user.loginSuccess(cb);
+    user.loginSuccess(callback);
   });
 };
 
-module.exports.failure = function(email, cb) {
+module.exports.failure = function(email, callback) {
   User.loadFromEmail(email, function(err, user) {
     if (err) {
-      return cb(err);
+      return callback(err);
     }
     if (!user) {
-      return cb(new Error('No such user ' + email));
+      return callback(new Error('No such user ' + email));
     }
     pubsub.topic('login:failure').publish(user);
-    user.loginFailure(cb);
+    user.loginFailure(callback);
   });
 };
 
-module.exports.canLogin = function(email, cb) {
+module.exports.canLogin = function(email, callback) {
   var size = defaultLoginFailure;
   config.get(function(err, data) {
     if (data && data.failure && data.failure.size) {
@@ -41,15 +41,15 @@ module.exports.canLogin = function(email, cb) {
 
     User.loadFromEmail(email, function(err, user) {
       if (err) {
-        return cb(err);
+        return callback(err);
       }
       if (!user) {
-        return cb(new Error('No such user ' + email));
+        return callback(new Error('No such user ' + email));
       }
       if (user.login.failures && user.login.failures.length >= size) {
-        return cb(null, false);
+        return callback(null, false);
       }
-      return cb(err, true);
+      return callback(err, true);
     });
   });
 };

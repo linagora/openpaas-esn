@@ -1,7 +1,7 @@
 'use strict';
 
 var chai = require('chai'),
-  expect = chai.expect;
+    expect = chai.expect;
 
 describe('The ldap-based authentication module', function() {
   it('should translate profile into user with mailAlias array', function(done) {

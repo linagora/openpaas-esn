@@ -3,13 +3,10 @@
 var expect = require('chai').expect;
 
 describe('The local pubsub for MongoDB configuration', function() {
+  var pubsub = null;
 
-  beforeEach(function() {
-    this.testEnv.writeDBConfigFile();
-  });
-
-  afterEach(function() {
-    this.testEnv.removeDBConfigFile();
+  before(function() {
+    pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
   });
 
   it('should fire a publish when mongodb configuration is available', function(done) {

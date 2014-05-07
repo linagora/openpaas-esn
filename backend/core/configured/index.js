@@ -2,7 +2,7 @@
 
 var configured = false;
 var core = require('..');
-var pubsub = require('..').pubsub.local;
+var pubsub = require('../pubsub').local;
 
 function isConfigured() {
   if (configured) {

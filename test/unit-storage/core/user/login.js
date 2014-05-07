@@ -1,204 +1,302 @@
 'use strict';
 
-var expect = require('chai').expect;
+var expect = require('chai').expect,
+    mockery = require('mockery');
 
 describe('The user login module', function() {
+  var mockModels, mockPubSub;
 
-  before(function() {
-    this.testEnv.writeDBConfigFile();
+  beforeEach(function() {
+    mockModels = this.helpers.mock.models;
+    mockPubSub = this.helpers.mock.pubsub;
   });
 
-  after(function() {
-    this.testEnv.removeDBConfigFile();
-  });
+  describe('The success function', function() {
 
-  beforeEach(function(done) {
-    this.mongoose = require('mongoose');
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
-  });
+    beforeEach(function() {
+      mockery.registerMock('../esn-config', function() {});
+    });
 
-  afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
-  });
+    it('should call loginSuccess of a mongoose User model', function(done) {
+      var called = false;
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            var user = {
+              loginSuccess: function(callback) {
+                called = true;
+                callback();
+              }
+            };
+            callback(null, user);
+          }
+        }
+      });
 
-
-  it('the success fn should reset the login failure counter', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    user.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
-      login.success(saved.emails[0], function(err, data) {
+      login.success('email', function(err) {
         expect(err).to.not.exist;
-        expect(data).to.exist;
-        expect(data.login.failures[0]).to.not.exist;
+        expect(called).to.be.true;
+        expect(pubSubStub.topics).to.include('login:success');
+        expect(pubSubStub.topics['login:success'].data[0].loginSuccess).to.be.a.function;
         done();
       });
     });
-  });
 
-  it('the success fn should set the login success field', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    user.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
+    it('should propagate err on error', function(done) {
+      var called = false;
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            var user = {
+              loginSuccess: function(callback) {
+                called = true;
+                callback();
+              }
+            };
+            callback(new Error('ERROR'), user);
+          }
+        }
+      });
+
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
-      login.success(saved.emails[0], function(err, data) {
-        expect(err).to.not.exist;
-        expect(data).to.exist;
-        expect(data.login.success).to.exist;
+      login.success('email', function(err) {
+        expect(err).to.exist;
+        expect(called).to.be.false;
+        expect(pubSubStub.topics).to.be.empty;
         done();
       });
     });
-  });
 
-  it('the failure fn should increment the login failure counter', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com']});
-    user.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
+    it('should fail if no user is retrieved from the database', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(null, null);
+          }
+        }
+      });
+
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
-      login.failure(saved.emails[0], function(err, data) {
-        expect(err).to.not.exist;
-        expect(data.login.failures.length).to.equal(1);
+      login.success('email', function(err) {
+        expect(err).to.exist;
+        expect(pubSubStub.topics).to.be.empty;
         done();
       });
     });
+
   });
 
-  it('the canLogin fn should return true if size is lower than configured value', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    user.save(function(err, u) {
-      if (err) {
-        return done(err);
-      }
+  describe('The failure function', function() {
 
-      var conf = require('../../../../backend/core')['esn-config']('login');
-      conf.store({ failure: { size: 2}}, function(err, saved) {
-        if (err) {
-          return done(err);
-        }
-
-        var login = require('../../../../backend/core/user/login');
-        login.canLogin(u.emails[0], function(err, status) {
-          expect(err).to.not.exist;
-          expect(status).to.be.true;
-          done();
-        });
-      });
+    beforeEach(function() {
+      mockery.registerMock('../esn-config', function() {});
     });
-  });
 
-  it('the canLogin fn should return false if size is equal to configured value', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date(), new Date()]}});
-    user.save(function(err, u) {
-      if (err) {
-        return done(err);
-      }
-
-      var conf = require('../../../../backend/core')['esn-config']('login');
-      conf.store({ failure: { size: 2}}, function(err, saved) {
-        if (err) {
-          return done(err);
+    it('should call loginFailuer of a mongoose User model', function(done) {
+      var called = false;
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            var user = {
+              loginFailure: function(callback) {
+                called = true;
+                callback();
+              }
+            };
+            callback(null, user);
+          }
         }
-
-        var login = require('../../../../backend/core/user/login');
-        login.canLogin(u.emails[0], function(err, status) {
-          expect(err).to.not.exist;
-          expect(status).to.be.false;
-          done();
-        });
       });
-    });
-  });
 
-  it('the canLogin fn should return false if size is greater than default value', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date(), new Date(), new Date()]}});
-    user.save(function(err, u) {
-      if (err) {
-        return done(err);
-      }
-
-      var conf = require('../../../../backend/core')['esn-config']('login');
-      conf.store({ failure: { size: 2}}, function(err, saved) {
-        if (err) {
-          return done(err);
-        }
-
-        var login = require('../../../../backend/core/user/login');
-        login.canLogin(u.emails[0], function(err, status) {
-          expect(err).to.not.exist;
-          expect(status).to.be.false;
-          done();
-        });
-      });
-    });
-  });
-
-  it('should receive a local notification on user login success', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    var count = 0;
-    user.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-
-      var pubsub = require('../../../../backend/core/pubsub').local;
-      var topic = pubsub.topic('login:success');
-      var handler = function(user) {
-        count++;
-      };
-      topic.subscribe(handler);
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
-      login.success(saved.emails[0], function(err, data) {
+      login.failure('email', function(err) {
         expect(err).to.not.exist;
-        process.nextTick(function() {
-          expect(count).to.equal(1);
-          done();
-        });
+        expect(called).to.be.true;
+        expect(pubSubStub.topics).to.include('login:failure');
+        expect(pubSubStub.topics['login:failure'].data[0].loginFailure).to.be.a.function;
+        done();
       });
     });
-  });
 
-  it('should receive a local notification on user login failure', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var user = new User({ password: 'secret', emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    var count = 0;
-    user.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
+    it('should propagate err on error', function(done) {
+      var called = false;
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            var user = {
+              loginFailure: function(callback) {
+                called = true;
+                callback();
+              }
+            };
+            callback(new Error('ERROR'), user);
+          }
+        }
+      });
 
-      var pubsub = require('../../../../backend/core/pubsub').local;
-      var topic = pubsub.topic('login:failure');
-      var handler = function(user) {
-        count++;
-      };
-      topic.subscribe(handler);
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
-      login.failure(saved.emails[0], function(err, data) {
-        expect(err).to.not.exist;
-        process.nextTick(function() {
-          expect(count).to.equal(1);
-          done();
-        });
+      login.failure('email', function(err) {
+        expect(err).to.exist;
+        expect(called).to.be.false;
+        expect(pubSubStub.topics).to.be.empty;
+        done();
       });
     });
+
+    it('should fail if no user is retrieved from the database', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(null, null);
+          }
+        }
+      });
+
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
+
+      var login = require('../../../../backend/core/user/login');
+      login.failure('email', function(err) {
+        expect(err).to.exist;
+        expect(pubSubStub.topics).to.be.empty;
+        done();
+      });
+    });
+
+  });
+
+  describe('The canLogin function', function() {
+
+    beforeEach(function() {
+      mockery.registerMock('../esn-config', function() {
+        return {
+          get: function(callback) {
+            var data = {
+              failure: {
+                size: 5
+              }
+            };
+            callback(null, data);
+          }
+        };
+      });
+    });
+
+    it('should return true if size is lower than configured value', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(null, {
+              login: {
+                failures: [1, 2, 3, 4]
+              }
+            });
+          }
+        }
+      });
+
+      var login = require('../../../../backend/core/user/login');
+      login.canLogin('email', function(err, result) {
+        expect(result).to.be.true;
+        done();
+      });
+    });
+
+    it('should return false if size is equal to configured value', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(null, {
+              login: {
+                failures: [1, 2, 3, 4, 5]
+              }
+            });
+          }
+        }
+      });
+
+      var login = require('../../../../backend/core/user/login');
+      login.canLogin('email', function(err, result) {
+        expect(result).to.be.false;
+        done();
+      });
+    });
+
+    it('should return false if size is greater than default value', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(null, {
+              login: {
+                failures: [1, 2, 3, 4, 5, 6]
+              }
+            });
+          }
+        }
+      });
+
+      var login = require('../../../../backend/core/user/login');
+      login.canLogin('email', function(err, result) {
+        expect(result).to.be.false;
+        done();
+      });
+    });
+
+    it('should propagate err on error', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(new Error('ERROR'), {});
+          }
+        }
+      });
+
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
+
+      var login = require('../../../../backend/core/user/login');
+      login.canLogin('email', function(err) {
+        expect(err).to.exist;
+        expect(pubSubStub.topics).to.be.empty;
+        done();
+      });
+    });
+
+    it('should fail if no user is retrieved from the database', function(done) {
+      mockModels({
+        'User': {
+          loadFromEmail: function(email, callback) {
+            callback(null, null);
+          }
+        }
+      });
+
+      var pubSubStub = {};
+      mockPubSub(pubSubStub);
+
+      var login = require('../../../../backend/core/user/login');
+      login.canLogin('email', function(err) {
+        expect(err).to.exist;
+        expect(pubSubStub.topics).to.be.empty;
+        done();
+      });
+    });
+
   });
 });

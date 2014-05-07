@@ -75,49 +75,24 @@ module.exports.finalize = function(invitation, data, done) {
 
   var helper = require('./invitationHandlerHelper').initHelper(invitation, formValues);
 
-  var testDomainExists = function(callback) {
-    Domain.testDomainCompany(formValues.company, formValues.domain, function(err, foundDomain) {
+  async.waterfall(
+    [
+      helper.isInvitationFinalized,
+      function(callback) {
+        helper.testDomainExists(formValues, domain, callback);
+      },
+      helper.checkUser,
+      helper.createUser,
+      helper.addUserToDomain,
+      helper.finalizeInvitation,
+      helper.result
+    ], function(err, result) {
       if (err) {
-        return callback(new Error('Unable to lookup domain/company: ' + formValues.domain + '/' + formValues.company + err));
-      }
-      if (!foundDomain) {
-        return callback(new Error('Domain/company: ' + formValues.domain + '/' + formValues.company + ' do not exist.' + err));
-      }
-      domain = foundDomain;
-      callback(null);
-    });
-  };
-
-
-  var addUserToDomain = function(user, callback) {
-    user.joinDomain(domain, function(err, update) {
-      if (err) {
-        return callback(new Error('User cannot join domain' + err.message));
-      }
-      else {
-        callback(null, domain, user);
+        logger.error('Error while finalizing invitation', err);
+        return done(err);
+      } else if (result) {
+        return done(null, {status: 201, result: result});
       }
     });
-  };
-
-  var result = function(domain, user, callback) {
-    var result = {
-      status: 'created',
-      resources: {
-        user: user._id,
-        domain: domain._id
-      }
-    };
-    callback(null, result);
-  };
-
-  async.waterfall([helper.isInvitationFinalized, testDomainExists, helper.checkUser, helper.createUser, addUserToDomain, helper.finalizeInvitation, result], function(err, result) {
-    if (err) {
-      logger.error('Error while finalizing invitation', err);
-      return done(err);
-    } else if (result) {
-      return done(null, {status: 201, result: result});
-    }
-  });
 
 };

@@ -3,7 +3,73 @@
 var mongoose = require('mongoose'),
     async = require('async'),
     expect = require('chai').expect,
-    MongoClient = require('mongodb').MongoClient;
+    MongoClient = require('mongodb').MongoClient,
+    mockery = require('mockery');
+
+/*
+ *
+ */
+function mockEsnConfig(get) {
+  var mockedEsnConfig = {
+    'esn-config': function() {
+      return {
+        get: get
+      };
+    }
+  };
+  mockery.registerMock('../../core', mockedEsnConfig);
+}
+
+/*
+ * mockedModels = {
+ *   'User': function User() {
+ *     ...
+ *   },
+ *   'Domain': function Domain() {
+ *     ...
+ *   }
+ * }
+ *
+ */
+function mockModels(mockedModels) {
+  var mongooseMock = {
+    model: function(model) {
+      return mockedModels[model];
+    }
+  };
+  mockery.registerMock('mongoose', mongooseMock);
+}
+
+/*
+ * stub.topics is an Array which contains every topic.
+ * stub.topics[topic].data is an Array named topic and contains every published data for the 'topic' topic.
+ * stub.topics[topic].handler is the handler for the 'topic' topic.
+ */
+function mockPubSub(stub) {
+  stub.topics = [];
+  stub.subscribe = {};
+
+  var mockedPubSub = {
+    local: {
+      topic : function(topic) {
+        stub.topics.push(topic);
+        stub.topics[topic] = {
+          data: [],
+          handler: {}
+        };
+        return {
+          publish: function(data) {
+            stub.topics[topic].data.push(data);
+          },
+          subscribe: function(handler) {
+            stub.topics[topic].handler = handler;
+          }
+        };
+      }
+    }
+  };
+  mockery.registerMock('../pubsub', mockedPubSub);
+}
 
 module.exports = function(mixin, testEnv) {
   mixin.mongo = {
@@ -79,4 +145,9 @@ module.exports = function(mixin, testEnv) {
     }
   };
 
+  mixin.mock = {
+    models: mockModels,
+    pubsub: mockPubSub,
+    esnConfig: mockEsnConfig
+  };
 };

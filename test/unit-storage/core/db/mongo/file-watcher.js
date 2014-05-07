@@ -4,14 +4,17 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('the file-watcher module', function() {
+
   beforeEach(function() {
     this.modulePath = this.testEnv.basePath + '/backend/core/db/mongo/file-watcher';
     this.logger = require(this.testEnv.fixtures + '/logger-noop')();
   });
+
   it('should be a function', function() {
     var fw = require(this.modulePath);
     expect(fw).to.be.a.function;
   });
+
   it('should be a function that returns a function', function() {
     var fw = require(this.modulePath);
     expect(fw()).to.be.a.function;

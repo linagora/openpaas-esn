@@ -5,20 +5,26 @@ var mockery = require('mockery');
 
 describe('The template module', function() {
 
-  describe('inject function', function() {
+  describe('inject function', function () {
 
-    it('should call user.store function if mongo is connected', function(done) {
-      var userMock = { store: function() { done(); } };
+    it('should call user.store function if mongo is connected', function (done) {
+      var userMock = { store: function () {
+        done();
+      } };
       var coreMock = {
         db: {
           mongo: {
-            isConnected: function() { return true; }
+            isConnected: function () {
+              return true;
+            }
           }
         },
         pubsub: {
           local: {
-            publish: function() {},
-            subscribe: function() {}
+            publish: function () {
+            },
+            subscribe: function () {
+            }
           }
         }
       };
@@ -26,23 +32,29 @@ describe('The template module', function() {
       mockery.registerMock('./user', userMock);
       mockery.registerMock('..', coreMock);
       var templates = require(this.testEnv.basePath + '/backend/core').templates;
-      templates.inject(function() {});
+      templates.inject(function () {
+      });
     });
 
-    it('should register a callback if mongo is not connnected', function(done) {
+    it('should register a callback if mongo is not connnected', function (done) {
       var subscriptions = {};
       var coreMock = {
         db: {
           mongo: {
-            isConnected: function() { return false; }
+            isConnected: function () {
+              return false;
+            }
           }
         },
         pubsub: {
           local: {
-            topic: function(channel) {
+            topic: function (channel) {
               return {
-                publish: function() {},
-                subscribe: function(subscriber) { subscriptions[channel] = subscriber; }
+                publish: function () {
+                },
+                subscribe: function (subscriber) {
+                  subscriptions[channel] = subscriber;
+                }
               };
             }
           }
@@ -51,27 +63,36 @@ describe('The template module', function() {
 
       mockery.registerMock('..', coreMock);
       var templates = require(this.testEnv.basePath + '/backend/core').templates;
-      templates.inject(function() {
+      templates.inject(function () {
         expect(subscriptions).to.have.property('mongodb:connectionAvailable');
         done();
       });
     });
-    it('should register a callback that launch user.store if mongo is not connnected', function(done) {
+
+    it('should register a callback that launch user.store if mongo is not connnected', function (done) {
       var subscriptions = {};
-      var userMock = { store: function() { done(); } };
+      var userMock = { store: function () {
+        done();
+      } };
       var coreMock = {
         db: {
           mongo: {
-            isConnected: function() { return false; }
+            isConnected: function () {
+              return false;
+            }
           }
         },
         pubsub: {
           local: {
-            topic: function(channel) {
+            topic: function (channel) {
               return {
-                publish: function() {},
-                subscribe: function(subscriber) { subscriptions[channel] = subscriber; },
-                unsubscribe: function() {}
+                publish: function () {
+                },
+                subscribe: function (subscriber) {
+                  subscriptions[channel] = subscriber;
+                },
+                unsubscribe: function () {
+                }
               };
             }
           }
@@ -81,11 +102,51 @@ describe('The template module', function() {
       mockery.registerMock('./user', userMock);
       mockery.registerMock('..', coreMock);
       var templates = require(this.testEnv.basePath + '/backend/core').templates;
-      templates.inject(function() {
-        subscriptions['mongodb:connectionAvailable'](function() {});
+      templates.inject(function () {
+        subscriptions['mongodb:connectionAvailable'](function () {
+        });
       });
     });
 
 
+  });
+
+  describe('The templates module', function() {
+    var called = null;
+
+    beforeEach(function () {
+      called = false;
+      var userMock = {
+        store: function (callback) {
+          called = true;
+          callback();
+        }
+      };
+      mockery.registerMock('./user', userMock);
+    });
+
+    it('should not inject templates if not configured', function (done) {
+      mockery.registerMock('../configured', function () {
+        return false;
+      });
+      var templates = require(this.testEnv.basePath + '/backend/core/templates');
+      templates.inject(function () {
+        expect(called).to.be.false;
+        done();
+      });
+    });
+
+    it('should inject templates otherwise', function (done) {
+      mockery.registerMock('../configured', function () {
+        return true;
+      });
+      var templates = require(this.testEnv.basePath + '/backend/core/templates');
+      templates.inject({
+        apply: function () {
+          expect(called).to.be.true;
+          done();
+        }
+      });
+    });
   });
 });

@@ -7,14 +7,6 @@ var from = 'from@baz.org';
 
 describe('The email module', function() {
 
-  before(function() {
-    this.testEnv.writeDBConfigFile();
-  });
-
-  after(function() {
-    this.testEnv.removeDBConfigFile();
-  });
-
   beforeEach(function() {
     this.testEnv.initCore();
   });

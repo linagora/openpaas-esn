@@ -5,7 +5,7 @@ var uuid = require('node-uuid');
 var path = require('path');
 var hash_file = require('hash_file');
 
-describe('The filestore gridfs module', function() {
+describe.skip('The filestore gridfs module', function() {
 
   before(function() {
     this.testEnv.writeDBConfigFile();

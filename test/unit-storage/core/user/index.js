@@ -1,65 +1,73 @@
 'use strict';
 
 var expect = require('chai').expect,
-    mongodb = require('mongodb'),
     mockery = require('mockery');
 
-describe('recordUser method', function() {
-  var User = null;
-  var userModule = null;
+describe('The user core module', function() {
+  var mockModels, mockPubSub, mockEsnConfig;
 
   beforeEach(function() {
-    User = function User(user) {
-      this.name = user.name;
-      this.emails = ['email1', 'email2'];
-    };
-    User.prototype.save = function(callback) {
-      callback();
-    };
-    var mongooseMocked = {
-      model: function(model) {
-        return User;
-      }
-    };
-    mockery.registerMock('mongoose', mongooseMocked);
-    userModule = require(this.testEnv.basePath + '/backend/core').user;
+    mockModels = this.helpers.mock.models;
+    mockPubSub = this.helpers.mock.pubsub;
+    mockEsnConfig = this.helpers.mock.esnConfig;
   });
 
-  it('should save a user if it is not an instance of User model', function(done) {
-    userModule.recordUser({name: 'aName'}, done);
-  });
+  describe('recordUser method', function() {
+    var User = null;
+    var userModule = null;
 
-  it('should also save a user if it is an instance of User model', function(done) {
-    userModule.recordUser(new User({name: 'aName'}), done);
-  });
-});
+    beforeEach(function() {
+      User = function User(user) {
+        this.name = user.name;
+        this.emails = ['email1', 'email2'];
+      };
+      User.prototype.save = function(callback) {
+        callback();
+      };
+      mockModels({
+        User: User
+      });
+      userModule = require(this.testEnv.basePath + '/backend/core').user;
+    });
 
-describe('The user core module', function() {
-  var userModule = null;
+    it('should save a user if it is not an instance of User model', function(done) {
+      userModule.recordUser({name: 'aName'}, done);
+    });
 
-  beforeEach(function(done) {
-    var self = this;
-    var template = require(this.testEnv.fixtures + '/user-template').simple();
-    this.testEnv.writeDBConfigFile();
-    var core = this.testEnv.initCore();
-    userModule = core.user;
-    this.mongoose = require('mongoose');
-    this.mongoose.connection.collection('templates').insert(template, function() {
-      userModule = require(self.testEnv.basePath + '/backend/core').user;
-      done();
+    it('should also save a user if it is an instance of User model', function(done) {
+      userModule.recordUser(new User({name: 'aName'}), done);
     });
   });
 
-  afterEach(function(done) {
-    this.testEnv.removeDBConfigFile();
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
-  });
-
   describe('provisionUser method', function() {
+    var User = null;
+    var userModule = null;
+
+    beforeEach(function() {
+      var template = require(this.testEnv.fixtures + '/user-template').simple();
+
+      var get = function(callback) {
+        callback(null, template);
+      }
+      mockEsnConfig(get);
+    });
 
     it('should record a user with the template informations', function(done) {
-      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
+      User = function User(user) {
+        this.emails = user.emails;
+        this._id = user._id,
+        this.firstname = user.firstname;
+        this.lastname = user.lastname;
+      };
+      User.prototype.save = function(callback) {
+        this._id = 12345;
+        callback(null, this);
+      };
+      mockModels({
+        User: User
+      });
+      userModule = require(this.testEnv.basePath + '/backend/core').user;
+      userModule.provisionUser({emails: ['test@linagora.com']}, function (err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
         expect(user._id).to.exist;
@@ -67,190 +75,62 @@ describe('The user core module', function() {
         expect(user.emails).to.be.an.array;
         expect(user.emails).to.have.length(1);
         expect(user.emails[0]).to.equal('test@linagora.com');
-        expect(user.firstname).to.equal('john');
-        expect(user.lastname).to.equal('doe');
-        done();
-      });
-    });
-
-    it('should add a schemaVersion to the user object', function(done) {
-      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
-        expect(err).to.be.null;
-        expect(user).to.exist;
-        expect(user.schemaVersion).to.exist;
-        expect(user.schemaVersion).to.be.a.number;
-        expect(user.schemaVersion).to.be.at.least(1);
-        done();
-      });
-    });
-
-    it('should add a timestamps.creation to the user object', function(done) {
-      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
-        expect(err).to.be.null;
-        expect(user).to.exist;
-        expect(user.timestamps).to.exist;
-        expect(user.timestamps.creation).to.exist;
-        expect(user.timestamps.creation).to.be.a.Date;
-        done();
-      });
-    });
-
-
-    it('should return an error if the user does not have an emails property', function(done) {
-      userModule.provisionUser({foo: 'bar'}, function(err, user) {
-        expect(err).to.not.be.null;
-        expect(err.name).to.exist;
-        expect(err.name).to.equal('ValidationError');
-        done();
-      });
-
-    });
-
-    it('should return an error if some user with the same email is already in the database', function(done) {
-      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
-        expect(err).to.be.null;
-        userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
-          expect(err).to.not.be.null;
-          expect(err.name).to.be.a.string;
-          expect(err.name).to.equal('MongoError');
-          expect(err.code).to.equal(11000);
-          done();
-        });
-      });
-    });
-
-    it('should return an error if some user with the same email is already in the database (multi values)', function(done) {
-      userModule.provisionUser({emails: ['test@linagora.com', 'test2@linagora.com']}, function(err, user) {
-        expect(err).to.be.null;
-        userModule.provisionUser({emails: ['test3@linagora.com', 'test@linagora.com']}, function(err, user) {
-          expect(err).to.not.be.null;
-          expect(err.name).to.be.a.string;
-          expect(err.name).to.equal('MongoError');
-          expect(err.code).to.equal(11000);
-          done();
-        });
-      });
-    });
-
-    it('should return an error if the email array is empty', function(done) {
-      userModule.provisionUser({emails: []}, function(err, user) {
-        expect(err).to.not.be.not.null;
-        expect(err.name).to.be.a.string;
-        expect(err.name).to.equal('ValidationError');
-        done();
-      });
-    });
-
-    it('should return an error if some email is invalid', function(done) {
-      userModule.provisionUser({emails: ['test1@linagora.com', 'invalid', 'test2@linagora.com']}, function(err, user) {
-        expect(err).to.not.be.not.null;
-        expect(err.name).to.be.a.string;
-        expect(err.name).to.equal('ValidationError');
+        expect(user.firstname).to.equal('John');
+        expect(user.lastname).to.equal('Doe');
         done();
       });
     });
   });
 
   describe('findByEmail method', function() {
+    var userModule = null;
 
-    it('should find a user when we provide an email address', function(done) {
-      var user = {
-        emails: ['test1@linagora.com', 'test2@linagora.com']
-      };
-
-      var finduser = function() {
-        userModule.findByEmail('test2@linagora.com', function(err, user) {
-          expect(err).to.be.null;
-          expect(user).to.exist;
-          expect(user).to.be.an.object;
-          expect(user.emails).to.be.an.array;
-          expect(user.emails).to.include('test2@linagora.com');
-          done();
-        });
-      };
-
-      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
-        if (err) {
-          return done(err);
+    beforeEach(function() {
+      var User = {
+        findOne: function(query, callback) {
+          callback(null, query);
         }
-        db.collection('users').insert(user, finduser);
+      }
+      mockModels({
+        User: User
+      });
+      userModule = require(this.testEnv.basePath + '/backend/core').user;
+    });
+
+    it('should lowercased the email array and flatten it into an $or array', function(done) {
+      userModule.findByEmail(['Test@linagora.com', 'tESt2@linagora.com'], function(err, query) {
+        expect(query).to.deep.equal({
+          '$or': [
+            { emails: 'test@linagora.com' },
+            { emails: 'test2@linagora.com' }
+          ]
+        });
+        done();
       });
     });
 
-    it('should find a user when we provide an array of email addresses', function(done) {
-      var user = {
-        emails: ['test1@linagora.com', 'test2@linagora.com']
-      };
-
-      var finduser = function() {
-        userModule.findByEmail(['test2@linagora.com'], function(err, user) {
-          expect(err).to.be.null;
-          expect(user).to.exist;
-          expect(user).to.be.an.object;
-          expect(user.emails).to.be.an.array;
-          expect(user.emails).to.include('test2@linagora.com');
-          done();
-        });
-      };
-
-      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        db.collection('users').insert(user, finduser);
-      });
-    });
-
-    it('should not find a user if we provide an non existing email addresses', function(done) {
-      var user = {
-        emails: ['test1@linagora.com', 'test2@linagora.com']
-      };
-
-      var finduser = function() {
-        userModule.findByEmail(['test22@linagora.com'], function(err, user) {
-          expect(err).to.be.null;
-          expect(user).to.be.null;
-          done();
-        });
-      };
-
-      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        db.collection('users').insert(user, finduser);
-      });
-    });
-  });
-
-  describe('get method', function() {
-
-    it('should return a user from its uuid', function(done) {
-      var user = {
-        emails: ['test1@linagora.com']
-      };
-
-      var finduser = function(err, saved) {
-        userModule.get(saved[0]._id, function(err, user) {
-          expect(err).to.be.null;
-          expect(user).to.exist;
-          expect(user).to.be.an.object;
-          expect(user.emails).to.be.an.array;
-          expect(user.emails).to.include('test1@linagora.com');
-          done();
-        });
-      };
-
-      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        db.collection('users').insert(user, finduser);
+    it('should lowercased a single email', function(done) {
+      userModule.findByEmail('Test@linagora.com', function(err, query) {
+        expect(query).to.deep.equal({ emails: 'test@linagora.com' });
+        done();
       });
     });
   });
 
   describe('updateProfile fn', function() {
+    var userModule = null;
+
+    beforeEach(function() {
+      var User = {
+        update: function(query, option, callback) {
+          callback(query, option);
+        }
+      }
+      mockModels({
+        User: User
+      });
+      userModule = require(this.testEnv.basePath + '/backend/core').user;
+    });
 
     it('should send back an error when user is undefined', function(done) {
       userModule.updateProfile(null, 'param', 'value', function(err) {
@@ -273,66 +153,28 @@ describe('The user core module', function() {
       });
     });
 
-    it('should update the firstname', function(done) {
-      var firstname = 'John';
-      var database;
-
-      var user = {
-        firstname: 'foo',
-        emails: ['test1@linagora.com']
-      };
-
-      var updateUser = function(err, saved) {
-        userModule.updateProfile(saved[0]._id, 'firstname', firstname, function(err) {
-          expect(err).to.be.null;
-          database.collection('users').findOne({_id: saved[0]._id}, function(err, updated) {
-            if (err) {
-              return done(err);
-            }
-            expect(updated.firstname).to.equal(firstname);
-            done();
-          });
+    it('should pass directly user if user_id is not set', function(done) {
+      userModule.updateProfile('1234', 'param', 'value', function(query, option) {
+        expect(query).to.deep.equal({ _id: '1234'});
+        expect(option).to.deep.equal({
+          $set: {
+            'param': 'value'
+          }
         });
-      };
-
-      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        database = db;
-        db.collection('users').insert(user, updateUser);
+        done();
       });
     });
 
-    it('should update the firstname even if value is the empty string', function(done) {
-      var database;
-
-      var user = {
-        firstname: 'foo',
-        emails: ['test2@linagora.com']
-      };
-
-      var updateUser = function(err, saved) {
-        userModule.updateProfile(saved[0]._id, 'firstname', '', function(err) {
-          expect(err).to.be.null;
-          database.collection('users').findOne({_id: saved[0]._id}, function(err, updated) {
-            if (err) {
-              return done(err);
-            }
-            expect(updated.firstname).to.equal('');
-            done();
-          });
+    it('should pass directly user_id otherwise', function(done) {
+      userModule.updateProfile({ _id: '1235'}, 'param', 'value', function(query, option) {
+        expect(query).to.deep.equal({ _id: '1235'});
+        expect(option).to.deep.equal({
+          $set: {
+            'param': 'value'
+          }
         });
-      };
-
-      mongodb.MongoClient.connect(this.testEnv.mongoUrl, function(err, db) {
-        if (err) {
-          return done(err);
-        }
-        database = db;
-        db.collection('users').insert(user, updateUser);
+        done();
       });
     });
-
   });
 });

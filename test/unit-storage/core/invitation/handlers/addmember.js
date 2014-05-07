@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var mongodb = require('mongodb');
 
 
-describe('The addmember handler', function() {
+describe.skip('The addmember handler', function() {
 
   describe('The validate fn', function() {
 
