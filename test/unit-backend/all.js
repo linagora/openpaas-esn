@@ -2,7 +2,8 @@
 
 var mockery = require('mockery'),
     path = require('path'),
-    fs = require('fs-extra');
+    fs = require('fs-extra'),
+    helpers = require('../helpers');
 var testConfig = require('../config/servers-conf.js');
 
 before(function() {
@@ -22,6 +23,8 @@ before(function() {
       return core;
     }
   };
+  this.helpers = {};
+  helpers(this.helpers, this.testEnv);
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');

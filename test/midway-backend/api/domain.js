@@ -5,7 +5,7 @@ var request = require('supertest'),
   expect = require('chai').expect;
 
 
-describe('The domain API', function() {
+describe.skip('The domain API', function() {
   var app;
   var foouser, baruser;
   var domain;

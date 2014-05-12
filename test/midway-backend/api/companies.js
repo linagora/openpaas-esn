@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 
-describe('The companies routes', function() {
+describe.skip('The companies routes', function() {
   before(function() {
     this.mongoose = require('mongoose');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');

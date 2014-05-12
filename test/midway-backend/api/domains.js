@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var mockery = require('mockery');
 
-describe('The domains controller', function() {
+describe.skip('The domains controller', function() {
 
   before(function() {
     this.mongoose = require('mongoose');

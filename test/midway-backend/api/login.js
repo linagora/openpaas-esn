@@ -5,7 +5,7 @@ var request = require('supertest'),
   cookie = require('cookie'),
   expect = require('chai').expect;
 
-describe('The login API', function() {
+describe.skip('The login API', function() {
   var app;
   var user = {
     username: 'Foo Bar Baz',

@@ -6,7 +6,7 @@ var createWriteStream = require('fs').createWriteStream;
 
 var expect = require('chai').expect;
 
-describe('The core image module', function() {
+describe.skip('The core image module', function() {
 
   afterEach(function() {
     try {

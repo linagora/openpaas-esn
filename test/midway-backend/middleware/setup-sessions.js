@@ -4,7 +4,7 @@ var request = require('supertest'),
     fs = require('fs-extra'),
     expect = require('chai').expect;
 
-describe('The sessions middleware', function() {
+describe.skip('The sessions middleware', function() {
 
   var user = {
     username: 'Foo Bar Baz',
