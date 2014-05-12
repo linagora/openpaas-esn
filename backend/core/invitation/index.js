@@ -9,6 +9,28 @@ function getHandler(name) {
 
 /**
  * Validate the input invitation data.
+ * Called when we want to deliver the invitation: we loaded it from
+ * the datastore, and we want to know if this invitation is still valid.
+ * For example, an invitation having an end date can become invalid after
+ * a period of time
+ */
+module.exports.isStillValid = function(invitation, done) {
+  if (!invitation) {
+    return done(new Error('Can not validate null invitation'));
+  }
+
+  try {
+    var handler = getHandler(invitation.type);
+    return handler.isStillValid(invitation, done);
+  } catch (err) {
+    console.log(err);
+    return done(new Error('Can not find invitation handler for ' + invitation.type));
+  }
+};
+
+
+/**
+ * Validate the input invitation data.
  * First, validate locally then delegate to the handler for specific check.
  */
 module.exports.validate = function(invitation, done) {

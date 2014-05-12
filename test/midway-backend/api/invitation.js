@@ -3,6 +3,7 @@
 var expect = require('chai').expect,
     request = require('supertest'),
     mockery = require('mockery');
+var fs = require('fs-extra');
 
 describe('The invitation controller', function() {
   var Invitation;
@@ -83,6 +84,9 @@ describe('The invitation controller', function() {
     var webserver = null;
     var called = false;
     var handler = {
+      isStillValid: function(invitation, done) {
+        return done(null, true);
+      },
       finalize: function(invitation, data, done) {
         called = true;
         return done(null, true);
@@ -150,6 +154,21 @@ describe('The invitation controller', function() {
     });
 
     it('should return invitation for valid UUID', function(done) {
+      var handler = {
+        init: function(invitation, cb) {
+          return cb();
+        },
+        process: function(invitation, data, done) {
+          return done(null, true);
+        },
+        isStillValid: function(invitation, callback) {
+          return callback(null, true);
+        }
+      };
+
+      mockery.registerMock('./handlers/test', handler);
+      mockery.registerMock('../../../../backend/core/invitation/handlers/test', handler);
+
       var json = {type: 'test'};
       var i = new Invitation(json);
       i.save(function(err, invitation) {
@@ -165,5 +184,119 @@ describe('The invitation controller', function() {
         });
       });
     });
+  });
+
+  describe('GET /api/invitation/:uuid', function() {
+
+    beforeEach(function(done) {
+      var self = this;
+      var mailTransport = {
+        _id: 'mail',
+        mail: { noreply: 'noreply@linagora.com' },
+        transport: {
+          type: 'Pickup',
+          config: {directory: this.testEnv.tmp}
+        }
+      };
+
+      fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
+      this.testEnv.writeDBConfigFile();
+      var core = this.testEnv.initCore(function() {
+        core.pubsub.local.topic('mongodb:connectionAvailable').subscribe(function() {
+          self.helpers.mongo.saveDoc('configuration', mailTransport, function(err) {
+            if (err) { return done(err); }
+            self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+              if (err) { return done(err); }
+              self.models = models;
+              done();
+            });
+          });
+        });
+      });
+      this.core = core;
+    });
+
+    afterEach(function(done) {
+      var self = this;
+      require('async').parallel([
+        function(done) {
+          self.helpers.api.cleanDomainDeployment(self.models, done);
+        },
+        function(done) {
+          self.helpers.mongo.clearCollection('invitations', done);
+        }
+      ], done);
+    });
+
+    it('should return 404 for an unknown invitation', function(done) {
+      this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+      request(this.app)
+      .get('/api/invitation/' + 'Idontexist')
+      .expect(404)
+      .end(done);
+    });
+
+    it('should return 200 for a valid invitation', function(done) {
+      var self = this;
+
+      self.core.pubsub.local.topic('invitation:init:success').subscribe(function(invitation) {
+        request(self.app)
+          .get('/api/invitations/' + invitation.uuid)
+          .expect(200)
+          .end(done);
+      });
+
+
+      this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+      var app = this.app;
+      var admUser = this.models.users[0],
+          email = admUser.emails[0],
+          password = 'secret';
+      this.helpers.api.loginAsUser(this.app, email, password, function(err, loginAsUser0) {
+        if (err) { return done(err); }
+        var req = loginAsUser0(request(app).post('/api/domains/' + self.models.domain._id + '/invitations'));
+        req.send(['foo@bar.com']);
+        req.expect(202);
+        req.end(function() {});
+      });
+
+    });
+
+
+    it('should return 404 for a too old invitation', function(done) {
+      var self = this;
+
+      self.core.pubsub.local.topic('invitation:init:success').subscribe(function(invitation) {
+        var d = new Date();
+        d.setFullYear(2000, 0, 1);
+        invitation.timestamps.created = d;
+        invitation.save(function(err, invitation) {
+          if (err) {
+            return done(err);
+          }
+          request(self.app)
+            .get('/api/invitation/' + invitation.uuid)
+            .expect(404)
+            .end(done);
+        });
+      });
+
+
+
+      this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+      var app = this.app;
+      var admUser = this.models.users[0],
+          email = admUser.emails[0],
+          password = 'secret';
+      this.helpers.api.loginAsUser(this.app, email, password, function(err, loginAsUser0) {
+        if (err) { return done(err); }
+        var req = loginAsUser0(request(app).post('/api/domains/' + self.models.domain._id + '/invitations'));
+        req.send(['foo@bar.com']);
+        req.expect(202);
+        req.end(function() {});
+      });
+
+    });
+
   });
 });

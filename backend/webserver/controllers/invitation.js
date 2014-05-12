@@ -38,8 +38,16 @@ module.exports.load = function(req, res, next) {
     if (!invitation) {
       return res.send(404);
     }
-    req.invitation = invitation;
-    return next();
+    handler.isStillValid(invitation, function(err, stillValid) {
+      if (err) {
+        return res.json(500, {error: 500, message: 'Internal Server Error', details: err});
+      }
+      if (!stillValid) {
+        return res.json(404, {error: 404, message: 'Not found', details: 'Invitation expired'});
+      }
+      req.invitation = invitation;
+      return next();
+    });
   });
 };
 
