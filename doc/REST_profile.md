@@ -1,6 +1,6 @@
 # /api/profile
 
-## GET /api/user/{uuid}/profile
+## GET /api/users/{uuid}/profile
 
 Get a user profile.
 
