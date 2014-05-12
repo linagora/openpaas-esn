@@ -306,40 +306,45 @@ module.exports = function(grunt) {
     var async = require('async');
     var functionsArray = [];
 
+    var wrapper = function (collection) {
+      var functionToAdd = function (callback) {
+        request
+          .put(elasticsearchURL + '/_river/' + collection + '/_meta')
+          .set('Content-Type', 'application/json')
+          .send({
+            'type': 'mongodb',
+            'mongodb': {
+              'servers': [ { host: 'localhost', port : servers.mongodb.port  } ],
+              'db': servers.mongodb.db,
+              'collection': collection
+            },
+            'index': {
+              'name': collection + '.idx',
+              'type': collection
+            }
+          })
+          .end(function(res){
+            if (res.status === 201) {
+              callback(null, res.body);
+            }
+            else {
+              callback(new Error('Error HTTP status : ' + res.status + ', expected status code 201 Created !'), null);
+            }
+          });
+      };
+      functionsArray.push(functionToAdd);
+    };
+
     for (var i = 0 ; i < servers.mongodb.elasticsearch.rivers.length ; i++) {
       var collection = servers.mongodb.elasticsearch.rivers[i];
-      var wrapper = function (collection) {
-        var functionToAdd = function (callback) {
-          request
-            .put(elasticsearchURL + '/_river/' + collection + '/_meta')
-            .set('Content-Type', 'application/json')
-            .send({
-              'type': 'mongodb',
-              'mongodb': {
-                'servers': [ { host: 'localhost', port : servers.mongodb.port  } ],
-                'db': servers.mongodb.db,
-                'collection': collection
-              },
-              'index': {
-                'name': collection + '.idx',
-                'type': collection
-              }
-            })
-            .end(function(res){
-              if (res.status == 201)
-                callback(null, res.body);
-              else
-                callback(new Error('Error HTTP status : ' + res.status + ', expected status code 201 Created !'), null);
-            });
-        };
-        functionsArray.push(functionToAdd);
-      }(collection);
-
+      wrapper(collection);
     }
 
     async.parallel(functionsArray, function (err, results) {
-      if (err) throw err;
-      grunt.log.write("Elasticsearch rivers are successfully setup");
+      if (err) {
+        throw err;
+      }
+      grunt.log.write('Elasticsearch rivers are successfully setup');
       done(true);
     });
 
