@@ -5,7 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var from = 'from@baz.org';
 
-describe('The email module', function() {
+describe.skip('The email module', function() {
 
   beforeEach(function() {
     this.testEnv.initCore();

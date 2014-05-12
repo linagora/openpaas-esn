@@ -110,43 +110,4 @@ describe('The template module', function() {
 
 
   });
-
-  describe('The templates module', function() {
-    var called = null;
-
-    beforeEach(function() {
-      called = false;
-      var userMock = {
-        store: function(callback) {
-          called = true;
-          callback();
-        }
-      };
-      mockery.registerMock('./user', userMock);
-    });
-
-    it('should not inject templates if not configured', function(done) {
-      mockery.registerMock('../configured', function() {
-        return false;
-      });
-      var templates = require(this.testEnv.basePath + '/backend/core/templates');
-      templates.inject(function() {
-        expect(called).to.be.false;
-        done();
-      });
-    });
-
-    it('should inject templates otherwise', function(done) {
-      mockery.registerMock('../configured', function() {
-        return true;
-      });
-      var templates = require(this.testEnv.basePath + '/backend/core/templates');
-      templates.inject({
-        apply: function() {
-          expect(called).to.be.true;
-          done();
-        }
-      });
-    });
-  });
 });
