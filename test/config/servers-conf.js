@@ -8,7 +8,10 @@ module.exports = {
     'replicat_set_name' : 'rs',
     'dbname': 'tests',
     'dbpath' : 'tmp/mongo/',
-    'logpath' : ''
+    'logpath' : '',
+    'elasticsearch': {
+      'rivers': ['users', 'domains', 'messages']
+    }
   },
 
   redis: {

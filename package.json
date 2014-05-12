@@ -39,7 +39,8 @@
     "q": "~1.0.0",
     "gm": "~1.14.2",
     "gridfs-stream": "~0.4.1",
-    "validator": "~3.9.0"
+    "validator": "~3.9.0",
+    "superagent": "~0.18.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
