@@ -2,7 +2,15 @@
 
 var expect = require('chai').expect;
 
-describe.skip('The local pubsub for MongoDB configuration', function() {
+describe('The local pubsub for MongoDB configuration', function() {
+
+  beforeEach(function() {
+    this.testEnv.writeDBConfigFile();
+  });
+
+  afterEach(function() {
+    this.testEnv.removeDBConfigFile();
+  });
 
   it('should fire a publish when mongodb configuration is available', function(done) {
     var mongodbConfiguration = { connectionString: 'mongodb://localhost:23456/tests' };

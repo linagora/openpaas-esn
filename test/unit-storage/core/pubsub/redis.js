@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-describe.skip('The redis pubsub module', function() {
+describe('The redis pubsub module', function() {
   var handler;
 
   beforeEach(function() {
