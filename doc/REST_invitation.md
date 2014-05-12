@@ -1,6 +1,6 @@
-# /api/invitation
+# /api/invitations
 
-## GET /api/invitation/{uuid}
+## GET /api/invitations/{uuid}
 
 Get an invitation from its UUID.
 
@@ -31,7 +31,7 @@ Get an invitation from its UUID.
 
 **Request:**
 
-    GET /api/invitation/34560
+    GET /api/invitations/34560
     Accept: application/json
     Host: localhost:8080
 
@@ -47,7 +47,7 @@ Get an invitation from its UUID.
         }
     }
 
-## POST /api/invitation
+## POST /api/invitations
 
 Creates an invitation.
 
@@ -72,7 +72,7 @@ Creates an invitation.
 
 **Request**
 
-    POST /api/invitation
+    POST /api/invitations
     Accept: application/json
     Host: localhost:8080
     {
@@ -95,7 +95,7 @@ Creates an invitation.
         }
     }
 
-## PUT /api/invitation/{uuid}
+## PUT /api/invitations/{uuid}
 
 Finalize the invitation.
 
@@ -119,7 +119,7 @@ Finalize the invitation.
 
 **Request**
 
-    PUT /api/invitation/34560
+    PUT /api/invitations/34560
     Accept: application/json
     Host: localhost:8080
     {

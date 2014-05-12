@@ -1,6 +1,6 @@
 # /api/profile
 
-## GET /api/profile/{uuid}
+## GET /api/users/{uuid}/profile
 
 Get a user profile.
 
@@ -25,7 +25,7 @@ Get a user profile.
 
 **Request:**
 
-    GET /api/profile/34560130
+    GET /api/users/34560130/profile
     Accept: application/json
     Host: localhost:8080
 

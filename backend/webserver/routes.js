@@ -21,10 +21,11 @@ exports = module.exports = function(application) {
 
   var users = require('./controllers/users');
   application.get('/logout', users.logout);
-  application.get('/api/profile/:uuid', authorize.requiresAPILogin, link.trackProfileView, users.profile);
+  application.get('/api/users/:uuid/profile', authorize.requiresAPILogin, link.trackProfileView, users.profile);
   application.get('/api/user', authorize.requiresAPILogin, users.user);
-  application.get('/api/user/:uuid', authorize.requiresAPILogin, users.profile);
+
   application.get('/api/users/:uuid/profile/avatar', users.load, users.getProfileAvatar);
+  application.get('/api/users/:uuid', authorize.requiresAPILogin, users.profile);
   application.get('/api/user/profile', authorize.requiresAPILogin, users.user);
   application.put('/api/user/profile/:attribute', authorize.requiresAPILogin, users.updateProfile);
   application.post('/api/user/profile/avatar', authorize.requiresAPILogin, users.postProfileAvatar);
@@ -49,9 +50,9 @@ exports = module.exports = function(application) {
   application.put('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
 
   var invitation = require('./controllers/invitation');
-  application.post('/api/invitation', invitation.create);
-  application.put('/api/invitation/:uuid', invitation.load, invitation.finalize);
-  application.get('/api/invitation/:uuid', invitation.load, invitation.get);
+  application.post('/api/invitations', invitation.create);
+  application.put('/api/invitations/:uuid', invitation.load, invitation.finalize);
+  application.get('/api/invitations/:uuid', invitation.load, invitation.get);
   application.get('/invitation/signup', invitation.signup);
   application.get('/invitation/:uuid', invitation.load, invitation.confirm);
 
