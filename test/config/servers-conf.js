@@ -4,6 +4,8 @@ module.exports = {
   mongodb: {
     'cmd' : process.env.CMD_MONGODB || 'mongod',
     'port' : process.env.PORT_MONGODB || 23456,
+    'mongo_shell': process.env.CMD_MONGO || 'mongo',
+    'replicat_set_name' : 'rs',
     'dbname': 'tests',
     'dbpath' : 'tmp/mongo/',
     'logpath' : ''

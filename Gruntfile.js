@@ -62,6 +62,26 @@ module.exports = function(grunt) {
           }
         }
       },
+      mongo_replSet: {
+        command: servers.mongodb.cmd + ' --dbpath ' + servers.mongodb.dbpath + ' --port ' +
+          (servers.mongodb.port ? servers.mongodb.port : '23456') + ' --replSet \'' +
+          servers.mongodb.replicat_set_name + '\' --smallfiles --oplogSize 128',
+        options: {
+          async: false,
+          stdout: function(chunk){
+            var done = grunt.task.current.async();
+            var out = '' + chunk;
+            var started = new RegExp('connections on port '+ servers.mongodb.port);
+            if(started.test(out)) {
+              grunt.log.write('MongoDB server is started.');
+              done(true);
+            }
+          },
+          stderr: function(chunk) {
+            grunt.log.error(chunk);
+          }
+        }
+      },
       ldap: {
         command: servers.ldap.cmd,
         options: {
@@ -214,8 +234,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
 
-  grunt.registerTask('spawn-servers', 'spawn servers', ['shell']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:ldap:kill', 'shell:elasticsearch:kill']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill']);
 
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
@@ -261,6 +281,20 @@ module.exports = function(grunt) {
     child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
     child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
     child.on('close',function(code) { done(code ? false : true); });
+  });
+
+  grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', function() {
+    var done = this.async();
+
+    require('child_process').exec(
+        servers.mongodb.mongo_shell + ' --eval \'JSON.stringify(rs.initiate())\' --port 23456',
+      function (error, stdout, stderr) {
+        grunt.log.write(stdout);
+        grunt.log.error(stderr);
+        setTimeout(function () {
+          done(true);
+        }, 1000);
+      });
   });
 
   grunt.registerTask('dev', ['nodemon:dev']);
