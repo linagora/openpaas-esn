@@ -70,7 +70,7 @@ describe('The profile API', function() {
 
   it('should not be able to get a profile without being authenticated', function(done) {
     request(app)
-      .get('/api/users/'+ baruser._id +'/profile')
+      .get('/api/users/' + baruser._id + '/profile')
       .expect(401)
       .end(done);
   });
@@ -83,7 +83,7 @@ describe('The profile API', function() {
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop().split(';')[0];
-        var req = request(app).get('/api/users/'+ baruser._id +'/profile');
+        var req = request(app).get('/api/users/' + baruser._id + '/profile');
         req.cookies = cookies;
         req.expect(200)
           .end(function(err, res) {
