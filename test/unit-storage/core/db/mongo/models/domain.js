@@ -5,7 +5,7 @@ chai.use(require('chai-datetime'));
 var expect = chai.expect;
 var mongodb = require('mongodb');
 
-describe.skip('The domain model module', function() {
+describe('The domain model module', function() {
   var Domain, User, emails;
 
   beforeEach(function(done) {

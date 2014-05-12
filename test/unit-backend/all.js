@@ -27,7 +27,7 @@ before(function() {
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');
 });
 
-after(function(done) {
+after(function() {
   delete process.env.NODE_CONFIG;
   fs.unlinkSync(this.testEnv.tmp + '/default.json');
 });

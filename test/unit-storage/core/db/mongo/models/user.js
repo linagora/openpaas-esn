@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mongodb = require('mongodb');
 
-describe.skip('The User model', function() {
+describe('The User model', function() {
   var User, Domain, emails, email, email2, email_ci, email2_ci;
 
   beforeEach(function(done) {

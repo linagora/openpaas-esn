@@ -3,7 +3,7 @@
 var expect = require('chai').expect,
   mongoose = require('mongoose');
 
-describe.skip('The Invitation model', function() {
+describe('The Invitation model', function() {
   var Invitation;
 
   before(function() {
