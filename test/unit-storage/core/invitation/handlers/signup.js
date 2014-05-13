@@ -4,14 +4,7 @@ var expect = require('chai').expect,
     mongodb = require('mongodb'),
     mockery = require('mockery');
 
-describe.skip('The signup handler', function() {
-  var mockModels, mockPubSub, mockEsnConfig;
-
-  beforeEach(function() {
-    mockModels = this.helpers.mock.models;
-    mockPubSub = this.helpers.mock.pubsub;
-    mockEsnConfig = this.helpers.mock.esnConfig;
-  });
+describe('The signup handler', function() {
 
   describe('The validate fn', function() {
 
@@ -151,9 +144,8 @@ describe.skip('The signup handler', function() {
     var Domain;
     var Invitation;
 
-    before(function(done) {
+    before(function() {
       this.testEnv.writeDBConfigFile();
-      done();
     });
 
     after(function() {
@@ -161,6 +153,12 @@ describe.skip('The signup handler', function() {
     });
 
     beforeEach(function(done) {
+      this.mongoose = require('mongoose');
+      this.mongoose.connect(this.testEnv.mongoUrl);
+
+      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
 
       var template = require(this.testEnv.basePath + '/backend/core/templates');
       template.user.store(done);

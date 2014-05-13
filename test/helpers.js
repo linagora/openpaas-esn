@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
     mockery = require('mockery');
 
 /*
- *
+ * Mocks esnConf(<key>) object.
+ * get: callback of the esnConf(<key>).get(get) method.
  */
 function mockEsnConfig(get) {
   var mockedEsnConfig = {
@@ -17,7 +18,13 @@ function mockEsnConfig(get) {
       };
     }
   };
+  var mockedEsnConfigFunction = function() {
+    return {
+      get: get
+    };
+  };
   mockery.registerMock('../../core', mockedEsnConfig);
+  mockery.registerMock('../esn-config', mockedEsnConfigFunction);
 }
 
 /*

@@ -5,7 +5,7 @@ var expect = chai.expect;
 var mockery = require('mockery');
 var async = require('async');
 
-describe.skip('The activitystreams core module', function() {
+describe('The activitystreams core module', function() {
 
   it('query should send back error when options is undefined', function(done) {
     var mock = {

@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-describe.skip('The user domain module', function() {
+describe('The user domain module', function() {
 
   before(function() {
     this.testEnv.writeDBConfigFile();

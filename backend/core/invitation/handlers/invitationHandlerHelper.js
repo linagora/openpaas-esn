@@ -36,16 +36,15 @@ module.exports.initHelper = function(invitation, data) {
       callback();
     },
 
-    testDomainExists: function(formValues, domain, callback) {
-      Domain.testDomainCompany(formValues.company, formValues.domain, function(err, foundDomain) {
+    testDomainExists: function(callback) {
+      Domain.testDomainCompany(data.company, data.domain, function(err, foundDomain) {
         if (err) {
-          return callback(new Error('Unable to lookup domain/company: ' + formValues.domain + '/' + formValues.company + err));
+          return callback(new Error('Unable to lookup domain/company: ' + data.domain + '/' + data.company + err));
         }
         if (!foundDomain) {
-          return callback(new Error('Domain/company: ' + formValues.domain + '/' + formValues.company + ' do not exist.' + err));
+          return callback(new Error('Domain/company: ' + data.domain + '/' + data.company + ' do not exist.' + err));
         }
-        domain = foundDomain;
-        callback(null);
+        callback(foundDomain);
       });
     },
 
@@ -80,10 +79,10 @@ module.exports.initHelper = function(invitation, data) {
       });
     },
 
-    createDomain: function(user, formValues, callback) {
+    createDomain: function(user, callback) {
       var domain = {
-        name: formValues.domain,
-        company_name: formValues.company,
+        name: data.domain,
+        company_name: data.company,
         administrator: user
       };
       var domainObject = new Domain(domain);

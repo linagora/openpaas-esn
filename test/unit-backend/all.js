@@ -4,13 +4,11 @@ var mockery = require('mockery'),
     path = require('path'),
     fs = require('fs-extra'),
     helpers = require('../helpers');
-var testConfig = require('../config/servers-conf.js');
 
 before(function() {
   var basePath = path.resolve(__dirname + '/../..');
   var tmpPath = path.resolve(basePath, 'tmp');
   this.testEnv = {
-    serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
     fixtures: path.resolve(__dirname + '/fixtures'),

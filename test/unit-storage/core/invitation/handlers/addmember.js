@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var mongodb = require('mongodb');
 
 
-describe.skip('The addmember handler', function() {
+describe('The addmember handler', function() {
 
   describe('The validate fn', function() {
 
@@ -115,9 +115,8 @@ describe.skip('The addmember handler', function() {
     var Domain;
     var Invitation;
 
-    before(function(done) {
+    before(function() {
       this.testEnv.writeDBConfigFile();
-      done();
     });
 
     after(function() {
@@ -187,7 +186,7 @@ describe.skip('The addmember handler', function() {
     });
 
 
-    it('should send back error when domain / company do not exist', function(done) {
+    it.skip('should send back error when domain / company do not exist', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
 
       var invitation = {

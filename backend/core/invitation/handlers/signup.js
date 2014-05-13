@@ -72,9 +72,7 @@ module.exports.finalize = function(invitation, data, done) {
       helper.testDomainCompany,
       helper.checkUser,
       helper.createUser,
-      function(user, callback) {
-        helper.createDomain(user, formValues, callback);
-      },
+      helper.createDomain,
       helper.addUserToDomain,
       helper.finalizeInvitation,
       helper.result

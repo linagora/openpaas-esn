@@ -5,10 +5,13 @@ var path = require('path');
 var fs = require('fs');
 var from = 'from@baz.org';
 
-describe.skip('The email module', function() {
+describe('The email module', function() {
 
   beforeEach(function() {
-    this.testEnv.initCore();
+    var get = function(callback) {
+      callback(null, {});
+    };
+    this.helpers.mock.esnConfig(get);
   });
 
   it('should throw error if recipient is not defined', function(done) {
@@ -168,8 +171,7 @@ describe.skip('The email module', function() {
   });
 
   describe('with configured ESN', function() {
-    beforeEach(function(done) {
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
+    beforeEach(function() {
       var mail = {
         transport: {
           type: 'Pickup',
@@ -178,12 +180,10 @@ describe.skip('The email module', function() {
           }
         }
       };
-      conf.store(mail, done);
-    });
-
-    afterEach(function(done) {
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-      conf.store({}, done);
+      var get = function(callback) {
+        callback(null, mail);
+      };
+      this.helpers.mock.esnConfig(get);
     });
 
     it('should send an email', function(done) {
@@ -221,11 +221,11 @@ describe.skip('The email module', function() {
   });
 
   describe('With unconfigured ESN', function() {
-    beforeEach(function(done) {
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-      conf.store({}, function(err) {
-        done(err);
-      });
+    beforeEach(function() {
+      var get = function(callback) {
+        callback(null, {});
+      };
+      this.helpers.mock.esnConfig(get);
     });
 
     it('should fail when transport is not defined', function(done) {
@@ -238,8 +238,7 @@ describe.skip('The email module', function() {
   });
 
   describe('with unknown external mail transport', function() {
-    beforeEach(function(done) {
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
+    beforeEach(function() {
       var mail = {
         transport: {
           module: 'nodemailer-unknownmodule',
@@ -248,12 +247,10 @@ describe.skip('The email module', function() {
           }
         }
       };
-      conf.store(mail, done);
-    });
-
-    afterEach(function(done) {
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-      conf.store({}, done);
+      var get = function(callback) {
+        callback(null, mail);
+      };
+      this.helpers.mock.esnConfig(get);
     });
 
     it('should fail on send', function(done) {

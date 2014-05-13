@@ -70,18 +70,22 @@ module.exports.finalize = function(invitation, data, done) {
 
   var formValues = data.body.data;
   var domain;
-
   var helper = require('./invitationHandlerHelper').initHelper(invitation, formValues);
 
   async.waterfall(
     [
       helper.isInvitationFinalized,
       function(callback) {
-        helper.testDomainExists(formValues, domain, callback);
+        helper.testDomainExists(function(foundDomain) {
+          domain = foundDomain;
+          callback();
+        });
       },
       helper.checkUser,
       helper.createUser,
-      helper.addUserToDomain,
+      function(user, callback) {
+        helper.addUserToDomain(domain, user, callback);
+      },
       helper.finalizeInvitation,
       helper.result
     ], function(err, result) {

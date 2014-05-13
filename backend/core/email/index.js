@@ -9,7 +9,7 @@ var emailTemplates = require('email-templates');
 var path = require('path');
 var templatesDir = path.resolve(__dirname + '/templates');
 var esnConf = require('../esn-config');
-var logger = require('../../core').logger;
+var logger = require('../../core/logger');
 var transport;
 
 var opts = {
