@@ -2,14 +2,13 @@
 
 var mockery = require('mockery'),
     path = require('path'),
-    fs = require('fs-extra');
-var testConfig = require('../config/servers-conf.js');
+    fs = require('fs-extra'),
+    helpers = require('../helpers');
 
 before(function() {
   var basePath = path.resolve(__dirname + '/../..');
   var tmpPath = path.resolve(basePath, 'tmp');
   this.testEnv = {
-    serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
     fixtures: path.resolve(__dirname + '/fixtures'),
@@ -22,12 +21,14 @@ before(function() {
       return core;
     }
   };
+  this.helpers = {};
+  helpers(this.helpers, this.testEnv);
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');
 });
 
-after(function(done) {
+after(function() {
   delete process.env.NODE_CONFIG;
   fs.unlinkSync(this.testEnv.tmp + '/default.json');
 });

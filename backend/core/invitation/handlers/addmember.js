@@ -4,7 +4,6 @@ var emailAddresses = require('email-addresses');
 var logger = require('../..').logger;
 var async = require('async');
 var sendMail = require('../../email/system/addMember');
-var mongoose = require('mongoose');
 
 /**
  * Validate the input data ie this is a valid email.
@@ -69,55 +68,37 @@ module.exports.finalize = function(invitation, data, done) {
     return done(new Error('Request data is required'));
   }
 
-  var Domain = mongoose.model('Domain');
   var formValues = data.body.data;
   var domain;
-
   var helper = require('./invitationHandlerHelper').initHelper(invitation, formValues);
 
-  var testDomainExists = function(callback) {
-    Domain.testDomainCompany(formValues.company, formValues.domain, function(err, foundDomain) {
+  async.waterfall(
+    [
+      helper.isInvitationFinalized,
+      function(callback) {
+        helper.testDomainExists(function(err, foundDomain) {
+          if (err) {
+            callback(err);
+          } else {
+            domain = foundDomain;
+            callback();
+          }
+        });
+      },
+      helper.checkUser,
+      helper.createUser,
+      function(user, callback) {
+        helper.addUserToDomain(domain, user, callback);
+      },
+      helper.finalizeInvitation,
+      helper.result
+    ], function(err, result) {
       if (err) {
-        return callback(new Error('Unable to lookup domain/company: ' + formValues.domain + '/' + formValues.company + err));
-      }
-      if (!foundDomain) {
-        return callback(new Error('Domain/company: ' + formValues.domain + '/' + formValues.company + ' do not exist.' + err));
-      }
-      domain = foundDomain;
-      callback(null);
-    });
-  };
-
-
-  var addUserToDomain = function(user, callback) {
-    user.joinDomain(domain, function(err, update) {
-      if (err) {
-        return callback(new Error('User cannot join domain' + err.message));
-      }
-      else {
-        callback(null, domain, user);
+        logger.error('Error while finalizing invitation', err);
+        return done(err);
+      } else if (result) {
+        return done(null, {status: 201, result: result});
       }
     });
-  };
-
-  var result = function(domain, user, callback) {
-    var result = {
-      status: 'created',
-      resources: {
-        user: user._id,
-        domain: domain._id
-      }
-    };
-    callback(null, result);
-  };
-
-  async.waterfall([helper.isInvitationFinalized, testDomainExists, helper.checkUser, helper.createUser, addUserToDomain, helper.finalizeInvitation, result], function(err, result) {
-    if (err) {
-      logger.error('Error while finalizing invitation', err);
-      return done(err);
-    } else if (result) {
-      return done(null, {status: 201, result: result});
-    }
-  });
 
 };

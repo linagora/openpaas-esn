@@ -115,9 +115,8 @@ describe('The addmember handler', function() {
     var Domain;
     var Invitation;
 
-    before(function(done) {
+    before(function() {
       this.testEnv.writeDBConfigFile();
-      done();
     });
 
     after(function() {
@@ -140,7 +139,6 @@ describe('The addmember handler', function() {
       this.mongoose.connection.db.dropDatabase();
       this.mongoose.disconnect(done);
     });
-
 
     it('should send back error if invitation is not set', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');

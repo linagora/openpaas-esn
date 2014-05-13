@@ -25,4 +25,5 @@ describe('The local pubsub for MongoDB configuration', function() {
 
     core.configured();
   });
+
 });

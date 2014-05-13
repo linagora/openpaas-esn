@@ -3,6 +3,7 @@
 describe('The User template module', function() {
 
   describe('store function', function() {
+
     beforeEach(function() {
       this.testEnv.writeDBConfigFile();
     });

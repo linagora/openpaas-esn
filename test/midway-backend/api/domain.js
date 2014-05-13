@@ -1,8 +1,7 @@
 'use strict';
 
 var request = require('supertest'),
-  fs = require('fs-extra'),
-  expect = require('chai').expect;
+    expect = require('chai').expect;
 
 
 describe('The domain API', function() {
@@ -12,7 +11,6 @@ describe('The domain API', function() {
   var password = 'secret';
 
   beforeEach(function(done) {
-    fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
     var self = this;
     this.testEnv.initCore(function() {
       app = require(self.testEnv.basePath + '/backend/webserver/application');
@@ -73,15 +71,6 @@ describe('The domain API', function() {
   });
 
   afterEach(function(done) {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    var User = this.mongoose.model('User');
-    var Domain = this.mongoose.model('Domain');
-    User.remove(function() {
-      Domain.remove(done);
-    });
-  });
-
-  after(function(done) {
     this.mongoose.connection.db.dropDatabase();
     this.mongoose.disconnect(done);
   });

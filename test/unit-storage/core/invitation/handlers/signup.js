@@ -1,14 +1,17 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mongodb = require('mongodb');
+var expect = require('chai').expect,
+    mongodb = require('mongodb'),
+    mockery = require('mockery');
 
 describe('The signup handler', function() {
 
   describe('The validate fn', function() {
+
     beforeEach(function() {
       this.testEnv.initCore();
     });
+
     it('should fail if invitation data is not set', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.validate({}, function(err, result) {
@@ -59,32 +62,9 @@ describe('The signup handler', function() {
   });
 
   describe('The init fn', function() {
-    beforeEach(function(done) {
-      this.testEnv.writeDBConfigFile();
+
+    beforeEach(function() {
       this.testEnv.initCore();
-
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-      var mail = {
-        mail: {
-          noreply: 'no-reply@hiveety.org'
-        },
-        transport: {
-          type: 'Pickup',
-          config: {
-            directory: this.testEnv.tmp
-          }
-        }
-      };
-
-      conf.store(mail, function(err) {
-        done(err);
-      });
-    });
-
-    afterEach(function(done) {
-      var conf = require(this.testEnv.basePath + '/backend/core')['esn-config']('mail');
-      conf.store({}, done);
-      this.testEnv.removeDBConfigFile();
     });
 
     it('should fail if invitation uuid is not set', function(done) {
@@ -95,9 +75,15 @@ describe('The signup handler', function() {
       });
     });
 
-    it('should send an invitation email if all data is valid', function(done) {
-      var tmp = this.testEnv.tmp;
+    it('should fail if invitation.data.url is not set', function(done) {
+      var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
+      signup.init({uuid: 123, data: {}}, function(err, result) {
+        expect(err).to.exist;
+        done();
+      });
+    });
 
+    it('should send an invitation email if all data is valid', function(done) {
       var invitation = {
         uuid: '123456789',
         data: {
@@ -107,33 +93,27 @@ describe('The signup handler', function() {
           url: 'http://localhost:8080/invitation/123456789'
         }
       };
+      var called = false;
+      var signupEmailMocked = function(invitation, callback) {
+        called = true;
+        callback();
+      };
+      mockery.registerMock('../../email/system/signupConfirmation', signupEmailMocked);
 
-      var path = require('path');
-      var fs = require('fs');
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
       signup.init(invitation, function(err, response) {
-        expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
-        var MailParser = require('mailparser').MailParser;
-        var mailparser = new MailParser();
-        mailparser.on('end', function(mail_object) {
-          expect(mail_object.html).to.be.not.null;
-          console.log(mail_object.html);
-          expect(mail_object.html).to.have.string(invitation.data.firstname);
-          expect(mail_object.html).to.have.string(invitation.data.lastname);
-          expect(mail_object.html).to.have.string(invitation.data.url);
-          done();
-        });
-        fs.createReadStream(file).pipe(mailparser);
+        expect(called).to.be.true;
+        done();
       });
     });
   });
 
   describe('The process fn', function() {
+
     beforeEach(function() {
       this.testEnv.initCore();
     });
+
     it('should redirect to the invitation app if invitation is found', function(done) {
       var signup = require(this.testEnv.basePath + '/backend/core/invitation/handlers/signup');
 
@@ -164,9 +144,8 @@ describe('The signup handler', function() {
     var Domain;
     var Invitation;
 
-    before(function(done) {
+    before(function() {
       this.testEnv.writeDBConfigFile();
-      done();
     });
 
     after(function() {

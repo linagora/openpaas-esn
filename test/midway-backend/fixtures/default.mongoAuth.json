@@ -29,5 +29,10 @@
   },
   "auth": {
     "strategies": ["mongo"]
+  },
+  "core": {
+    "config": {
+      "db": "./tmp/db.json"
+    }
   }
 }

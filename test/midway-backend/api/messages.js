@@ -1,7 +1,6 @@
 'use strict';
 
 var request = require('supertest'),
-  fs = require('fs-extra'),
   expect = require('chai').expect,
   async = require('async');
 
@@ -14,7 +13,6 @@ describe('The messages API', function() {
   var email = 'foo@bar.com';
 
   beforeEach(function(done) {
-    fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
     var self = this;
     this.testEnv.initCore(function() {
       app = require(self.testEnv.basePath + '/backend/webserver/application');
@@ -65,31 +63,6 @@ describe('The messages API', function() {
   });
 
   afterEach(function(done) {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    var User = this.mongoose.model('User');
-    var Domain = this.mongoose.model('Domain');
-    var Whatsup = this.mongoose.model('Whatsup');
-    var TimelineEntry = this.mongoose.model('TimelineEntry');
-
-    async.series([
-      function(callback) {
-        User.remove(callback);
-      },
-      function(callback) {
-        Domain.remove(callback);
-      },
-      function(callback) {
-        Whatsup.remove(callback);
-      },
-      function(callback) {
-        TimelineEntry.remove(callback);
-      }
-    ], function(err) {
-      done();
-    });
-  });
-
-  after(function(done) {
     this.mongoose.connection.db.dropDatabase();
     this.mongoose.disconnect(done);
   });

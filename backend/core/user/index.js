@@ -1,8 +1,8 @@
 'use strict';
 
 var util = require('util');
-var esnConfig = require(__dirname + '/../../core')['esn-config'];
-var logger = require(__dirname + '/../../core').logger;
+var esnConfig = require('../../core')['esn-config'];
+var logger = require('../logger');
 var extend = require('extend');
 var mongoose = require('mongoose');
 var trim = require('trim');
