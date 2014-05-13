@@ -49,6 +49,7 @@ describe('The invitation controller', function() {
 
     it('should fail on empty payload', function(done) {
       request(webserver.application).post('/api/invitations').expect(400).end(function(err, res) {
+        console.log(err);
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -57,6 +58,7 @@ describe('The invitation controller', function() {
 
     it('should fail on missing type', function(done) {
       request(webserver.application).post('/api/invitations').send({name: 'hiveety'}).expect(400).end(function(err, res) {
+        console.log(err);
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -65,6 +67,7 @@ describe('The invitation controller', function() {
 
     it('should fail on any other JSON data', function(done) {
       request(webserver.application).post('/api/invitations').send({ foo: 'bar', baz: 1}).expect(400).end(function(err, res) {
+        console.log(err);
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
