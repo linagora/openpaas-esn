@@ -29,8 +29,15 @@ function saveMessageAsActivityEvent(data) {
     return;
   }
 
+  var shares = targets.map(function(e) {
+    return {
+      objectType: e.type,
+      _id: e.resource
+    };
+  });
+
   var addEntry = function(user, callback) {
-    var entry = helpers.userMessageToTimelineEntry(message, verb, user, targets, date);
+    var entry = helpers.userMessageToTimelineEntry(message, verb, user, shares, date);
     activitystream.addTimelineEntry(entry, callback);
   };
 

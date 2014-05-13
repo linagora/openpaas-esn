@@ -33,7 +33,7 @@ exports = module.exports = function(application) {
 
   var messages = require('./controllers/messages');
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
-  application.post('/api/messages', authorize.requiresAPILogin, messages.createMessage);
+  application.post('/api/messages', authorize.requiresAPILogin, asMiddleware.filterValidTargets, messages.createMessage);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);

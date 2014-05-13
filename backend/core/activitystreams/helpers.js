@@ -13,8 +13,8 @@ module.exports.userMessageToTimelineEntry = function(message, verb, user, shares
     actor: {
       objectType: 'user',
       _id: user._id,
-      image: user.currentAvatar,
-      displayName: user.firstName + ' ' + user.lastName
+      image: user.currentAvatar || '',
+      displayName: user.firstname + ' ' + user.lastname
     },
     object: {
       objectType: message.objectType,
