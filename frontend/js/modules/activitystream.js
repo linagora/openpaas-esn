@@ -136,16 +136,16 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
   })
 
   .controller('activitystreamController', ['$scope', 'session', 'activitystreamAggregator', 'usSpinnerService', '$alert',
-    function($scope, session, $aggregatorService,  usSpinnerService, $alert) {
+    function($scope, session, aggregatorService,  usSpinnerService, alert) {
 
     var spinnerKey = 'activityStreamSpinner';
     $scope.restActive = false;
     $scope.threads = [];
 
-    var aggregator = $aggregatorService(session.domain.activity_stream.uuid, 25);
+    var aggregator = aggregatorService(session.domain.activity_stream.uuid, 25);
 
     $scope.displayError = function(err) {
-      $alert({
+      alert({
         content: err,
         type: 'danger',
         show: true,
