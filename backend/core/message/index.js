@@ -27,5 +27,5 @@ module.exports.findByIds = function(ids, callback) {
 };
 
 module.exports.get = function(uuid, callback) {
-  Whatsup.findById(uuid, callback);
+  Whatsup.findById(uuid).populate('author', null, 'User').exec(callback);
 };

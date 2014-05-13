@@ -79,7 +79,27 @@ function get(req, res) {
   });
 }
 
+function getOne(req, res) {
+  if (!req.param('uuid')) {
+    return res.send(400, { error: { status: 400, message: 'Bad request', details: 'Message ID is required'}});
+  }
+
+  var uuid = req.param('uuid');
+
+  messageModule.get(uuid, function(err, result) {
+    if (err) {
+      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
+    }
+
+    if (!result) {
+      return res.json(404, { error: { status: 404, message: 'Message not found', details: 'Message has not been found ' + uuid}});
+    }
+    res.json(200, result);
+  });
+}
+
 module.exports = {
   createMessage: create,
-  getMessages: get
+  getMessages: get,
+  getMessage: getOne
 };

@@ -34,6 +34,23 @@ angular.module('esnApp', [
       }
     });
 
+    $routeProvider.when('/messages/:id', {
+      templateUrl: '/views/esn/partials/message',
+      controller: 'whatsupMessageDisplayController',
+      resolve: {
+        message: function(messageAPI, $route, $location) {
+          return messageAPI.get($route.current.params.id).then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/');
+            }
+          );
+        }
+      }
+    });
+
     $routeProvider.when('/profile', {
       templateUrl: '/views/esn/partials/profile',
       controller: 'profilecontroller'

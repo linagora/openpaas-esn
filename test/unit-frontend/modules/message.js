@@ -1,9 +1,44 @@
 'use strict';
 
+/* global chai: false */
+
+var expect = chai.expect;
+
 describe('The esn.message Angular module', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.message');
+  });
+
+  describe('whatsupMessage directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should display the message content', function() {
+      var html = '<whatsup-message message="testMessage"></whatsup-message>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testMessage = { _id: 123456789,
+        content: 'This is the message content',
+        published: '123',
+        author: {
+          _id: '123456789',
+          firstname: 'Foo',
+          lastname: 'Bar'
+        }
+      };
+
+      this.$rootScope.$digest();
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.content);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.published);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.author.firstname);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.author.lastname);
+    });
   });
 
   describe('messageController', function() {
