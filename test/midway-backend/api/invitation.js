@@ -1,18 +1,15 @@
 'use strict';
 
 var expect = require('chai').expect,
-  request = require('supertest'),
-  mockery = require('mockery');
+    request = require('supertest'),
+    mockery = require('mockery');
 
-describe.skip('The invitation controller', function() {
+describe('The invitation controller', function() {
   var Invitation;
 
-  before(function() {
-    this.testEnv.writeDBConfigFile();
-  });
-
-  after(function() {
-    this.testEnv.removeDBConfigFile();
+  afterEach(function(done) {
+    this.mongoose.connection.db.dropDatabase();
+    this.mongoose.disconnect(done);
   });
 
   describe('POST /api/invitations', function() {

@@ -1,27 +1,26 @@
 'use strict';
 
-var expect = require('chai').expect;
-var request = require('supertest');
+var expect = require('chai').expect,
+    request = require('supertest');
 
-describe.skip('The companies routes', function() {
+describe('The companies routes', function() {
+
   before(function() {
     this.mongoose = require('mongoose');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    this.testEnv.writeDBConfigFile();
-    this.mongoose.connect(this.testEnv.mongoUrl);
-
   });
 
-  after(function(done) {
-    this.testEnv.removeDBConfigFile();
+  beforeEach(function(done) {
+    this.mongoose.connect(this.testEnv.mongoUrl);
+    this.testEnv.initCore(done);
+  });
+
+  afterEach(function(done) {
     this.mongoose.connection.db.dropDatabase();
     this.mongoose.disconnect(done);
   });
 
-  beforeEach(function(done) {
-    this.testEnv.initCore(done);
-  });
 
   describe('HEAD /api/companies', function() {
     var webserver = null;

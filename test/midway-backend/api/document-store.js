@@ -5,22 +5,21 @@ var expect = require('chai').expect,
     fs = require('fs-extra'),
     mockery = require('mockery');
 
-describe.skip('The document store Settings module', function() {
+describe('The document store Settings module', function() {
   it('should exist', function() {
     var settings = require(this.testEnv.basePath + '/backend/webserver/controllers/document-store');
     expect(settings).to.exists;
-
   });
 });
 
-describe.skip('The document store routes resource', function() {
+describe('The document store routes resource', function() {
   var tmpDbConfigFile;
 
   before(function() {
     tmpDbConfigFile = this.testEnv.tmp + '/db.json';
   });
 
-  afterEach(function() {
+  beforeEach(function() {
     try {
       fs.unlinkSync(tmpDbConfigFile);
     } catch (err) {}
@@ -210,7 +209,6 @@ describe.skip('The document store routes resource', function() {
     beforeEach(function(done) {
       this.testEnv.initCore(done);
     });
-
 
     it('should fail if the file is not written', function(done) {
       var config = require(this.testEnv.basePath + '/backend/core').config('default');

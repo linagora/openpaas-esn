@@ -1,10 +1,9 @@
 'use strict';
 
 var request = require('supertest'),
-    fs = require('fs-extra'),
     expect = require('chai').expect;
 
-describe.skip('The sessions middleware', function() {
+describe('The sessions middleware', function() {
 
   var user = {
     username: 'Foo Bar Baz',
@@ -15,8 +14,7 @@ describe.skip('The sessions middleware', function() {
     }
   };
 
-  before(function(done) {
-    fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
+  beforeEach(function(done) {
     var self = this;
 
     this.testEnv.initCore(function() {
@@ -33,9 +31,9 @@ describe.skip('The sessions middleware', function() {
     });
   });
 
-  after(function(done) {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    this.helpers.mongo.dropCollections(done);
+  afterEach(function(done) {
+    this.mongoose.connection.db.dropDatabase();
+    this.mongoose.disconnect(done);
   });
 
   it('should be a MongoDB Session Storage on "connected" event', function(done) {

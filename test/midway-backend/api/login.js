@@ -1,11 +1,10 @@
 'use strict';
 
 var request = require('supertest'),
-  fs = require('fs-extra'),
-  cookie = require('cookie'),
-  expect = require('chai').expect;
+    cookie = require('cookie'),
+    expect = require('chai').expect;
 
-describe.skip('The login API', function() {
+describe('The login API', function() {
   var app;
   var user = {
     username: 'Foo Bar Baz',
@@ -17,7 +16,6 @@ describe.skip('The login API', function() {
   };
 
   beforeEach(function(done) {
-    fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
     var self = this;
     this.testEnv.initCore(function() {
       app = require(self.testEnv.basePath + '/backend/webserver/application');
@@ -34,12 +32,6 @@ describe.skip('The login API', function() {
   });
 
   afterEach(function(done) {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
-    var User = this.mongoose.model('User');
-    User.remove(done);
-  });
-
-  after(function(done) {
     this.mongoose.connection.db.dropDatabase();
     this.mongoose.disconnect(done);
   });

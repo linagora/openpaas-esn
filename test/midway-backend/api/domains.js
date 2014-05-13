@@ -4,48 +4,27 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var mockery = require('mockery');
 
-describe.skip('The domains controller', function() {
-
-  before(function() {
-    this.mongoose = require('mongoose');
-    this.testEnv.writeDBConfigFile();
-    this.mongoose.connect(this.testEnv.mongoUrl);
-  });
-
-  after(function() {
-    this.testEnv.removeDBConfigFile();
-  });
+describe('The domains controller', function() {
 
   beforeEach(function(done) {
+    this.mongoose = require('mongoose');
+    this.mongoose.connect(this.testEnv.mongoUrl);
     this.testEnv.initCore(done);
+  });
+
+  afterEach(function(done) {
+    this.mongoose.connection.db.dropDatabase();
+    this.mongoose.disconnect(done);
   });
 
   describe('GET /api/domains/:uuid/members', function() {
     var email = 'foo@linagora.com';
     var Domain, User, webserver;
 
-    beforeEach(function(done) {
+    beforeEach(function() {
       Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
       User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
       webserver = require(this.testEnv.basePath + '/backend/webserver');
-      done();
-    });
-
-    afterEach(function(done) {
-      var callback = function(item, fn) {
-        item.remove(fn);
-      };
-
-      var async = require('async');
-      async.parallel([
-        function(cb) {
-          User.find().exec(function(err, users) {
-            async.forEach(users, callback, cb);
-          });
-        }
-      ], function() {
-        this.mongoose.disconnect(done);
-      }.bind(this));
     });
 
     it('should return 404 when domain is not found', function(done) {
@@ -363,26 +342,8 @@ describe.skip('The domains controller', function() {
 
     var Domain;
 
-    beforeEach(function(done) {
+    beforeEach(function() {
       Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      done();
-    });
-
-    afterEach(function(done) {
-      var callback = function(item, fn) {
-        item.remove(fn);
-      };
-
-      var async = require('async');
-      async.parallel([
-        function(cb) {
-          Domain.find().exec(function(err, domains) {
-            async.forEach(domains, callback, cb);
-          });
-        }
-      ], function() {
-        this.mongoose.disconnect(done);
-      }.bind(this));
     });
 
     it('should call next(err) if domain can not be loaded', function(done) {
@@ -458,26 +419,8 @@ describe.skip('The domains controller', function() {
 
     var Invitation;
 
-    beforeEach(function(done) {
+    beforeEach(function() {
       Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
-      done();
-    });
-
-    afterEach(function(done) {
-      var callback = function(item, fn) {
-        item.remove(fn);
-      };
-
-      var async = require('async');
-      async.parallel([
-        function(cb) {
-          Invitation.find().exec(function(err, invitations) {
-            async.forEach(invitations, callback, cb);
-          });
-        }
-      ], function() {
-        this.mongoose.disconnect(done);
-      }.bind(this));
     });
 
     it('should fail if request body is empty', function(done) {
