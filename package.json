@@ -4,7 +4,7 @@
   "description": "Linagora RSE",
   "main": "index.js",
   "dependencies": {
-    "express": "~3.4.7",
+    "express": "~4.2.0",
     "socket.io": "~0.9.16",
     "konphyg": "git+https://github.com/linagora/konphyg.git",
     "winston": "~0.7.2",
@@ -41,7 +41,11 @@
     "gridfs-stream": "~0.4.1",
     "validator": "~3.9.0",
     "superagent": "~0.18.0",
-    "elasticsearch": "~2.1.4"
+    "elasticsearch": "~2.1.4",
+    "cookie-parser": "~1.1.0",
+    "morgan": "~1.0.1",
+    "express-session": "~1.1.0",
+    "body-parser": "~1.2.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
