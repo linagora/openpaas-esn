@@ -1,0 +1,7 @@
+div(ng-controller="activitystreamController")
+    div#error
+    span.throbber(us-spinner, spinner-key='activityStreamSpinner')
+    whatsup-edition
+    infinite-list
+        div(ng-repeat="thread in threads")
+            {{ thread | json }}
