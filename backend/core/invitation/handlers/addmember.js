@@ -76,9 +76,13 @@ module.exports.finalize = function(invitation, data, done) {
     [
       helper.isInvitationFinalized,
       function(callback) {
-        helper.testDomainExists(function(foundDomain) {
-          domain = foundDomain;
-          callback();
+        helper.testDomainExists(function(err, foundDomain) {
+          if (err) {
+            callback(err);
+          } else {
+            domain = foundDomain;
+            callback();
+          }
         });
       },
       helper.checkUser,

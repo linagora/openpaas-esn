@@ -44,7 +44,7 @@ module.exports.initHelper = function(invitation, data) {
         if (!foundDomain) {
           return callback(new Error('Domain/company: ' + data.domain + '/' + data.company + ' do not exist.' + err));
         }
-        callback(foundDomain);
+        callback(null, foundDomain);
       });
     },
 

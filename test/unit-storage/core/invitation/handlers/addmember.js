@@ -140,7 +140,6 @@ describe('The addmember handler', function() {
       this.mongoose.disconnect(done);
     });
 
-
     it('should send back error if invitation is not set', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
       addmember.finalize(null, {}, function(err) {
@@ -186,7 +185,7 @@ describe('The addmember handler', function() {
     });
 
 
-    it.skip('should send back error when domain / company do not exist', function(done) {
+    it('should send back error when domain / company do not exist', function(done) {
       var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
 
       var invitation = {
