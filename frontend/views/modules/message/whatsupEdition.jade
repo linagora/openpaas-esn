@@ -2,7 +2,7 @@ div.login-bg.form-container(ng-controller='messageController')
     #error
     form(name='whatsupform')
         .form-group
-            textarea.whatsup-input.form-control(ng-model='whatsupmessage', placeholder="#{__('Publish a new whatsup message')}", rows="3")
+            textarea.whatsup-input.form-control(ng-model='whatsupmessage', ng-focus='expand($event)', ng-blur='shrink($event)', placeholder="#{__('Publish a new whatsup message')}", rows="3")
         .form-group
             .pull-left
                 button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Publish')}

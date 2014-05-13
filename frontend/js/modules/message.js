@@ -2,8 +2,20 @@
 
 angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
   .controller('messageController', ['$scope', 'messageAPI', 'session', '$alert', function($scope, $messageAPI, $session, $alert) {
-    var initialMessage = 'Hey! what\'s up?';
-    $scope.whatsupmessage = initialMessage;
+
+
+    var textarea = null;
+
+    $scope.expand = function(event) {
+      textarea = event.target;
+      textarea.rows = 5;
+    };
+
+    $scope.shrink = function(event) {
+      if (!$scope.whatsupmessage) {
+        event.target.rows = 3;
+      }
+    };
 
     $scope.sendMessage = function() {
       if (!$scope.whatsupmessage || $scope.whatsupmessage.trim().length === 0) {
@@ -27,7 +39,8 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
       $messageAPI.post(objectType, data, [target]).then(
         function(data) {
-          $scope.whatsupmessage = initialMessage;
+          $scope.whatsupmessage = '';
+          textarea.rows = 3;
           $alert({
             content: 'Message has been published',
             type: 'success',
@@ -42,9 +55,6 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
           $scope.displayError('Error while sharing your whatsup message');
         }
       );
-    };
-    $scope.resetMessage = function() {
-      $scope.whatsupmessage = initialMessage;
     };
 
     $scope.displayError = function(err) {
