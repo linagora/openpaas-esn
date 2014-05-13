@@ -8,11 +8,6 @@ var fs = require('fs-extra');
 describe('The invitation controller', function() {
   var Invitation;
 
-  afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
-  });
-
   describe('POST /api/invitations', function() {
     var webserver = null;
     var handler = {

@@ -71,7 +71,6 @@ describe('The domain API', function() {
   });
 
   afterEach(function(done) {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
     var User = this.mongoose.model('User');
     var Domain = this.mongoose.model('Domain');
     User.remove(function() {
