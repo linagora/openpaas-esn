@@ -7,7 +7,7 @@
     "express": "~4.2.0",
     "socket.io": "~0.9.16",
     "konphyg": "git+https://github.com/linagora/konphyg.git",
-    "async": "~0.2.9",
+    "async": "~0.8.0",
     "awesome-node-redis-pubsub": "git+http://mbailly@ci-openpaas.linagora.com/stash/scm/or/awesome-node-redis-pubsub.git",
     "bcrypt-nodejs": "~0.0.3",
     "connect-flash": "0.1.1",
