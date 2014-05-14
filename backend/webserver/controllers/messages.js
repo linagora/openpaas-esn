@@ -81,7 +81,7 @@ function get(req, res) {
 
 function getOne(req, res) {
   if (!req.param('uuid')) {
-    return res.send(400, { error: { status: 400, message: 'Bad request', details: 'Message ID is required'}});
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Message ID is required'}});
   }
 
   var uuid = req.param('uuid');

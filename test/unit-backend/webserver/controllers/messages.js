@@ -319,4 +319,103 @@ describe('The messages module', function() {
       messages.getMessages(validReq, res);
     });
   });
+
+  describe('The getMessage fn', function() {
+    it('should return send back HTTP 400 if req.param.uuid is undefined', function(done) {
+      mockery.registerMock('../../core/message', {});
+
+      var req = {
+        param: function() {
+          return null;
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.getMessage(req, res);
+    });
+
+    it('should return send back HTTP 500 if core module returns an error', function(done) {
+
+      var mock = {
+        get: function(id, callback) {
+          return callback(new Error());
+        }
+      };
+      mockery.registerMock('../../core/message', mock);
+
+      var req = {
+        param: function() {
+          return '1234';
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.getMessage(req, res);
+    });
+
+    it('should return send back HTTP 404 if core module does not find the message', function(done) {
+      var mock = {
+        get: function(id, callback) {
+          return callback();
+        }
+      };
+      mockery.registerMock('../../core/message', mock);
+
+      var req = {
+        param: function() {
+          return '1234';
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.getMessage(req, res);
+    });
+
+    it('should return send back HTTP 200 if core module finds the message', function(done) {
+      var mock = {
+        get: function(id, callback) {
+          return callback(null, {_id: 123});
+        }
+      };
+      mockery.registerMock('../../core/message', mock);
+
+      var req = {
+        param: function() {
+          return '1234';
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.getMessage(req, res);
+    });
+
+  });
 });
