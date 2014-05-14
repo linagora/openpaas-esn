@@ -4,17 +4,7 @@ var messageModule = require('../../core/message'),
     postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
     pubsub = require('../../core/pubsub').local;
 
-function create(req, res) {
-  if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.send(500, { error: { status: 500, message: 'Server Error', details: 'User is not set.'}});
-  }
-
-  if (!req.body) {
-    return res.send(400, 'Missing message in body');
-  }
-
-  var message = postToModel(req.body, req.user),
-      topic = pubsub.topic('message:activity');
+function createNewMessage(message, topic, req, res) {
   messageModule.save(message, function(err, saved) {
     if (err) {
       return res.send(
@@ -24,10 +14,10 @@ function create(req, res) {
 
     if (saved) {
       var from = { type: 'user', resource: req.user._id },
-          targets = req.body.targets.map(function(e) {
+          targets = req.body.targets.map(function(target) {
             return {
-              type: e.objectType,
-              resource: e.id
+              type: target.objectType,
+              resource: target.id
             };
           });
       topic.publish({
@@ -42,6 +32,46 @@ function create(req, res) {
 
     return res.send(404);
   });
+}
+
+function commentMessage(message, inReplyTo, topic, req, res) {
+  messageModule.addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
+    if (err) {
+      return res.send(
+        500,
+        { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message}});
+    }
+
+    var from = { type: 'user', resource: req.user._id },
+        targets = parentMessage.targets;
+    topic.publish({
+      source: from,
+      targets: targets,
+      inReplyTo: inReplyTo,
+      date: new Date(),
+      verb: 'post'
+    });
+    return res.send(200, { _id: childMessage._id, parentId: parentMessage._id });
+  });
+}
+
+function create(req, res) {
+  if (!req.user || !req.user.emails || !req.user.emails.length) {
+    return res.send(500, { error: { status: 500, message: 'Server Error', details: 'User is not set.'}});
+  }
+
+  if (!req.body) {
+    return res.send(400, 'Missing message in body');
+  }
+
+  var message = postToModel(req.body, req.user),
+      topic = pubsub.topic('message:activity');
+
+  if (req.body.inReplyTo) {
+    commentMessage(message, req.body.inReplyTo, topic, req, res);
+  } else {
+    createNewMessage(message, topic, req, res);
+  }
 }
 
 function get(req, res) {
@@ -99,7 +129,7 @@ function getOne(req, res) {
 }
 
 module.exports = {
-  createMessage: create,
+  createOrReplyToMessage: create,
   getMessages: get,
   getMessage: getOne
 };
