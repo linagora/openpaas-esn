@@ -90,7 +90,7 @@ Post a new message by the currently logged in user.
 
 **Status Codes:**
 
-- 201 Created.
+- 201 Created. With the _id of the new message.
 - 400 Bad request. The current request is missing mandatory parameters
 - 500 Internal server error: there was a problem.
 
@@ -118,4 +118,59 @@ Post a new message by the currently logged in user.
     HTTP/1.1 201 Ok
     {
         _id: '7f281054-e7a6-1547-012f-935d5b88389d'
+    }
+
+## POST /api/messages with inReplyTo parameter
+
+Post a new comment in reply to a message, by the currently logged in user.
+
+**Request Headers:**
+
+- Content-Type: application/json
+
+**Request JSON Object:**
+
+- object: the definition of the object
+
+  object: {
+    objectType: "whatsup",             # Type of the message
+    content: whatsup message content,  # Content of the message
+  }
+
+- inReplyTo: the definition of the parent message
+
+  inReplyTo: {
+    objectType: "whatsup",                                 # Type of the target
+    id: "urn:linagora.com:whatsup:<whatsup uuid>",  # This is an activity stream id
+  }
+
+**Status Codes:**
+
+- 200 Ok. With the _id of the new comment.
+- 400 Bad request. The current request is missing mandatory parameters
+- 500 Internal server error: there was a problem.
+
+**Request:**
+
+    POST /api/messages
+    Content-Type: application/json
+    Host: localhost:8080
+
+    {
+        "object": {
+            "objectType": "whatsup",
+            "content": "comment message content"
+        },
+        "inReplyTo": {
+                "objectType": "activitystream",
+                "id": "urn:linagora:esn:whatsup:<whatsup uuid>"
+        }
+    }
+
+**Response:**
+
+    HTTP/1.1 200 Ok
+    {
+        _id: '7f281054-e7a6-1547-012f-935d5b88389d',
+        parentId: '7f281054-e7a6-1547-012f-935d5b883833'
     }
