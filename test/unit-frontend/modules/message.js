@@ -41,6 +41,67 @@ describe('The esn.message Angular module', function() {
     });
   });
 
+  describe('whatsupThread directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should display the message thread', function() {
+      var html = '<whatsup-thread message="testMessage"></whatsup-thread>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testMessage = { _id: 123456789,
+        content: 'This is the message content',
+        published: '123',
+        author: {
+          _id: '123456789',
+          firstname: 'Foo',
+          lastname: 'Bar'
+        },
+        responses: [
+          {
+            content: 'The first response',
+            published: '456',
+            author: {
+              _id: '123456789',
+              firstname: 'Foo1',
+              lastname: 'Bar1'
+            }
+          },
+          {
+            content: 'The scond response',
+            published: '789',
+            author: {
+              _id: '123456789',
+              firstname: 'Foo2',
+              lastname: 'Bar2'
+            }
+          }
+        ]
+      };
+
+      this.$rootScope.$digest();
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.content);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.published);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.author.firstname);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.author.lastname);
+
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[0].content);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[0].published);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[0].author.firstname);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[0].author.lastname);
+
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[1].content);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[1].published);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[1].author.firstname);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.responses[1].author.lastname);
+    });
+  });
+
   describe('messageController', function() {
     beforeEach(inject(function($rootScope, $controller) {
       this.messageAPI = {};

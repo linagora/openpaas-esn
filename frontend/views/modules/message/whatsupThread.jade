@@ -1,0 +1,11 @@
+div.row
+  div.col-md-12
+    whatsup-message(message='message')
+    p.pull-right
+      button.btn.btn-link(type='button')
+        span.glyphicon.glyphicon-comment
+        | &nbsp; #{__('Comment')}
+
+  div.col-md-12.well(ng-hide='!message.responses')
+    div.message-comment(ng-repeat='response in message.responses')
+      whatsup-message(message='response')

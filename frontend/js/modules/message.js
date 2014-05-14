@@ -149,6 +149,16 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       templateUrl: '/views/modules/message/whatsupMessage.html'
     };
   })
+  .directive('whatsupThread', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/whatsupThread.html'
+    };
+  })
   .factory('messageAPI', ['Restangular', function(Restangular) {
 
     function get(options) {
