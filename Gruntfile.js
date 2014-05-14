@@ -5,6 +5,7 @@ var fs = require('fs-extra');
 var conf_path = './test/config/';
 var tmp_path = './tmp';
 var servers = require( conf_path + 'servers-conf');
+var config = require('./config/default.json');
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -131,7 +132,19 @@ module.exports = function(grunt) {
         options: {
           env: {NODE_ENV: 'dev'},
           ignore: ['.git', 'README.md', 'node_modules/**'],
-          watchedExtensions: ['js', 'jade']
+          watchedExtensions: ['js', 'jade'],
+          callback: function (nodemon) {
+            nodemon.on('log', function (event) {
+              console.log(event.colour);
+            });
+
+            nodemon.on('config:update', function () {
+              // Delay before server listens on port
+              setTimeout(function() {
+                require('open')('http://localhost:' + config.webserver.port || 8080);
+              }, 1000);
+            });
+          }
         }
       }
     },

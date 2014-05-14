@@ -87,7 +87,8 @@
     "mailparser": "~0.4.1",
     "nodemailer-browser": "~0.0.1",
     "cookie": "~0.1.1",
-    "karma-ng-jade2js-preprocessor": "git://github.com/th0masm/karma-ng-jade2js-preprocessor.git"
+    "karma-ng-jade2js-preprocessor": "git://github.com/th0masm/karma-ng-jade2js-preprocessor.git",
+    "open": "0.0.5"
   },
   "scripts": {
     "postinstall": "./node_modules/bower/bin/bower install"
