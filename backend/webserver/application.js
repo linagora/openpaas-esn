@@ -31,15 +31,19 @@ application.use(lessMiddleware(
   process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production : lessMiddlewareConfig.dev
 ));
 application.use('/css', express.static(cssPath));
-application.use(express.logger());
+var morgan = require('morgan');
+application.use(morgan());
 application.use('/components', express.static(frontendPath + '/components'));
 application.use('/images', express.static(frontendPath + '/images'));
 application.use('/js', express.static(frontendPath + '/js'));
 
-application.use(express.json());
-application.use(express.urlencoded());
-application.use(express.cookieParser('this is the secret!'));
-var sessionMiddleware = cdm(express.session({ cookie: { maxAge: 60000 }}));
+var bodyParser = require('body-parser');
+application.use(bodyParser.json());
+application.use(bodyParser.urlencoded());
+var cookieParser = require('cookie-parser');
+application.use(cookieParser('this is the secret!'));
+var session = require('express-session');
+var sessionMiddleware = cdm(session({ cookie: { maxAge: 60000 }}));
 application.use(sessionMiddleware);
 require('./middleware/setup-sessions')(sessionMiddleware);
 application.use(i18n.init); // Should stand before app.route

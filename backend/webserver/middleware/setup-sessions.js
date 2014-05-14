@@ -1,7 +1,7 @@
 'use strict';
 
-var express = require('express'),
-    MongoStore = require('connect-mongo')(express),
+var expressSession = require('express-session'),
+    MongoStore = require('connect-mongo')(expressSession),
     mongoose = require('mongoose'),
     core = require('../../core'),
     mongo = core.db.mongo,
@@ -11,7 +11,7 @@ var express = require('express'),
 function setupSession(session) {
   var setSession = function() {
     logger.debug('mongo is connected, setting up mongo session store');
-    session.setMiddleware(express.session({
+    session.setMiddleware(expressSession({
       cookie: { maxAge: 6000000 },
       store: new MongoStore({
         auto_reconnect: true,

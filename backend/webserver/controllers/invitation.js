@@ -88,21 +88,21 @@ module.exports.create = function(req, res) {
     if (!result) {
       return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Data is invalid'}});
     }
-  });
 
-  var invitation = new Invitation(payload);
-  invitation.save(function(err, saved) {
-    if (err) {
-      return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
-    }
-
-    saved.data.url = getInvitationURL(req, saved);
-
-    handler.init(saved, function(err, result) {
+    var invitation = new Invitation(payload);
+    invitation.save(function(err, saved) {
       if (err) {
-        return res.json(500, { error: { status: 500, message: 'Server error', details: err.message}});
+        return res.json(400, { error: { status: 400, message: 'Bad request', details: err.message}});
       }
-      return res.json(201, result);
+
+      saved.data.url = getInvitationURL(req, saved);
+
+      handler.init(saved, function(err, result) {
+        if (err) {
+          return res.json(500, { error: { status: 500, message: 'Server error', details: err.message}});
+        }
+        return res.json(201, result);
+      });
     });
   });
 };
