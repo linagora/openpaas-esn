@@ -313,47 +313,122 @@ describe('The esn.activitystream Angular module', function() {
       angular.mock.module('esn.activitystream');
     });
 
-    beforeEach(angular.mock.inject(function($controller, $rootScope) {
-      this.usSpinnerService = {};
-      this.usSpinnerService.spin = function(id) {};
-      this.usSpinnerService.stop = function(id) {};
-
-      this.loadCount = 0;
-      var self = this;
-      this.aggregatorService = function(id, limit) {
-        return {
-          loadMoreElements: function(callback) {
-            self.loadCount++;
-            callback(null, []);
-          },
-          endOfStream: false
-        };
-      };
-
-      this.$controller = $controller;
-      this.scope = $rootScope.$new();
-      this.session = {
-        domain: {
-          activity_stream: {
-            uuid: 'ID'
-          }
-        }
-      };
-      $controller('activitystreamController', {
-        $scope: this.scope,
-        session: this.session,
-        activitystreamAggregator: this.aggregatorService,
-        usSpinnerService: this.usSpinnerService
-      });
-    }));
-
     describe('loadMoreElements method', function() {
+
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
+        this.usSpinnerService = {};
+        this.usSpinnerService.spin = function(id) {};
+        this.usSpinnerService.stop = function(id) {};
+
+        this.loadCount = 0;
+        var self = this;
+        this.aggregatorService = function(id, limit) {
+          return {
+            loadMoreElements: function(callback) {
+              self.loadCount++;
+              callback(null, [{thread1: {}},{thread2: {}},{thread3: {}}]);
+            },
+            endOfStream: false
+          };
+        };
+
+        this.$controller = $controller;
+        this.scope = $rootScope.$new();
+        this.session = {
+          domain: {
+            activity_stream: {
+              uuid: 'ID'
+            }
+          }
+        };
+        this.alert = function(msgObject) {};
+        $controller('activitystreamController', {
+          $scope: this.scope,
+          session: this.session,
+          activitystreamAggregator: this.aggregatorService,
+          usSpinnerService: this.usSpinnerService,
+          alert: this.alert
+        });
+      }));
+
+      it('should not call the aggregator loadMoreElements method if a rest request is active', function() {
+        this.loadCount = 0;
+        this.scope.restActive = true;
+        this.scope.loadMoreElements();
+        expect(this.loadCount).to.equal(0);
+      });
 
       it('should call the aggregator loadMoreElements method', function() {
         this.loadCount = 0;
         this.scope.restActive = false;
         this.scope.loadMoreElements();
         expect(this.loadCount).to.equal(1);
+      });
+
+      it('should handle aggregator loadMoreElements method responding an error', function() {
+        var self = this;
+        var errorMsg = 'An Error';
+        this.aggregatorService = function(id, limit) {
+          return {
+            loadMoreElements: function(callback) {
+              self.loadCount++;
+              callback(errorMsg, [{thread1: {}}]);
+            },
+            endOfStream: false
+          };
+        };
+        this.thrownError = null;
+        this.spinnerStopped = false;
+        this.usSpinnerService.stop = function(id) {
+          expect(id).to.equal('activityStreamSpinner');
+          self.spinnerStopped = true;
+        };
+
+        angular.mock.inject(function($controller) {
+          $controller('activitystreamController', {
+            $scope: this.scope,
+            session: this.session,
+            activitystreamAggregator: this.aggregatorService,
+            usSpinnerService: this.usSpinnerService
+          });
+        });
+
+        this.loadCount = 0;
+        this.scope.restActive = false;
+        this.scope.displayError = function(err) {
+          self.thrownError = err;
+        };
+
+        this.scope.loadMoreElements();
+        expect(this.thrownError).to.contain(errorMsg);
+        expect(this.loadCount).to.equal(1);
+        expect(this.scope.restActive).to.be.false;
+        expect(this.spinnerStopped).to.be.true;
+        expect(this.scope.threads.length).to.equal(0);
+      });
+
+      it('should handle aggregator loadMoreElements method returning elements', function() {
+        this.spinnerStopped = false;
+        var self = this;
+        this.usSpinnerService.stop = function(id) {
+          expect(id).to.equal('activityStreamSpinner');
+          self.spinnerStopped = true;
+        };
+
+        this.loadCount = 0;
+        this.scope.restActive = false;
+        this.thrownError = null;
+        this.scope.displayError = function(err) {
+          self.thrownError = err;
+        };
+        this.scope.threads = [];
+
+        this.scope.loadMoreElements();
+        expect(this.thrownError).to.be.null;
+        expect(this.loadCount).to.equal(1);
+        expect(this.scope.restActive).to.be.false;
+        expect(this.spinnerStopped).to.be.true;
+        expect(this.scope.threads.length).to.equal(3);
       });
 
       it('should start and stop the spinner service', function(done) {
