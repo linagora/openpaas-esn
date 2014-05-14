@@ -115,7 +115,7 @@ Post a new message by the currently logged in user.
 
 **Response:**
 
-    HTTP/1.1 201 Ok
+    HTTP/1.1 201 Created
     {
         _id: '7f281054-e7a6-1547-012f-935d5b88389d'
     }
@@ -146,7 +146,7 @@ Post a new comment in reply to a message, by the currently logged in user.
 
 **Status Codes:**
 
-- 200 Ok. With the _id of the new comment.
+- 201 Created. With the _id of the new comment.
 - 400 Bad request. The current request is missing mandatory parameters
 - 500 Internal server error: there was a problem.
 
@@ -169,7 +169,7 @@ Post a new comment in reply to a message, by the currently logged in user.
 
 **Response:**
 
-    HTTP/1.1 200 Ok
+    HTTP/1.1 201 Created
     {
         _id: '7f281054-e7a6-1547-012f-935d5b88389d',
         parentId: '7f281054-e7a6-1547-012f-935d5b883833'

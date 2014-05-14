@@ -214,10 +214,10 @@ describe('The messages module', function() {
       messages.createOrReplyToMessage(validReq, res);
     });
 
-    it('should return 200 with the _id of the new comment and the parentId', function(done) {
+    it('should return 201 with the _id of the new comment and the parentId', function(done) {
       var res = {
         send: function(code, data) {
-          expect(code).to.equal(200);
+          expect(code).to.equal(201);
           expect(data._id).to.equal('an id');
           expect(data.parentId).to.equal('a parent id');
           done();

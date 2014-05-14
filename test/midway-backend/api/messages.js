@@ -307,7 +307,7 @@ describe('The messages API', function() {
                   _id: res.body._id
                 }
               })
-              .expect(200)
+              .expect(201)
               .end(function(err, res) {
                 expect(err).to.not.exist;
                 expect(res.body).to.exist;

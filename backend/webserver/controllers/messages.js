@@ -55,7 +55,7 @@ function commentMessage(message, inReplyTo, topic, req, res) {
       date: new Date(),
       verb: 'post'
     });
-    return res.send(200, { _id: childMessage._id, parentId: parentMessage._id });
+    return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
   });
 }
 
