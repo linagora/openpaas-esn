@@ -188,7 +188,7 @@ describe('The messages module', function() {
           },
           inReplyTo: {
             'objectType': 'whatsup',
-            'id': 'commentUuid'
+            '_id': 'commentUuid'
           }
         }
       };
@@ -246,7 +246,7 @@ describe('The messages module', function() {
           expect(dataPublished.targets).to.equal('some targets');
           expect(dataPublished.inReplyTo).to.deep.equal({
             'objectType': 'whatsup',
-            'id': 'commentUuid'
+            '_id': 'commentUuid'
           });
           expect(dataPublished.date).to.exist;
           expect(dataPublished.verb).to.equal('post');

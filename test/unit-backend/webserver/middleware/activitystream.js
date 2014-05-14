@@ -164,6 +164,26 @@ describe('The activitystream middleware', function() {
       };
       middleware(req, res, next);
     });
+
+    it('should be passthrough if inReplyTo is in the body', function(done) {
+      var mock = {
+        model: function() {
+          return {};
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var req = {
+        body: {
+          targets: undefined,
+          inReplyTo: 'reply'
+        }
+      };
+      var next = function() {
+        done();
+      };
+      middleware(req, {}, next);
+    });
   });
 
   describe('The findStreamResource fn', function() {

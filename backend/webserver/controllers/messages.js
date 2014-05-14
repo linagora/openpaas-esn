@@ -35,6 +35,10 @@ function createNewMessage(message, topic, req, res) {
 }
 
 function commentMessage(message, inReplyTo, topic, req, res) {
+  if (!inReplyTo._id) {
+    return res.send(400, 'Missing inReplyTo _id in body');
+  }
+
   messageModule.addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
     if (err) {
       return res.send(

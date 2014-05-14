@@ -86,10 +86,9 @@ describe('The core messages module', function() {
     it('should not publish in topic message:comment if there was an error', function(done) {
       var mongooseMocked = {
         model: function(model) {
-          function Whatsup(message) {
-            this.message = message;
-          }
-          Whatsup.findByIdAndUpdate = function(id, update, callback) {
+          function Whatsup() {}
+
+          Whatsup.findById = function(id, callback) {
             return callback(new Error('There was an error !'));
           };
           return Whatsup;
@@ -121,11 +120,15 @@ describe('The core messages module', function() {
     it('should publish in topic message:comment (adding inReplyTo) if there is no error', function(done) {
       var mongooseMocked = {
         model: function(model) {
-          function Whatsup(message) {
-            this.message = message;
-          }
-          Whatsup.findByIdAndUpdate = function(id, update, callback) {
-            return callback();
+          function Whatsup() {}
+
+          Whatsup.findById = function(id, callback) {
+            return callback(null, {
+              responses: [],
+              save: function(callback) {
+                callback(null);
+              }
+            });
           };
           return Whatsup;
         }
@@ -158,17 +161,24 @@ describe('The core messages module', function() {
       require(this.testEnv.basePath + '/backend/core/message').addNewComment({}, { id: 'replied' }, callback);
     });
 
-    it('should remove targets from the comment before adding it to the message', function(done) {
-      var message = {};
+
+    it('should push a comment in responses if there is no error', function(done) {
+      var called = false;
       var mongooseMocked = {
         model: function(model) {
-          function Whatsup(message) {
-            this.content = message.content;
-            this.targets = message.targets;
-          }
-          Whatsup.findByIdAndUpdate = function(id, update, callback) {
-            message = update.$push.responses;
-            return callback(null, {_id: 'a parent id'});
+          function Whatsup() {}
+
+          Whatsup.findById = function(id, callback) {
+            return callback(null, {
+              responses: {
+                push: function() {
+                  called = true;
+                }
+              },
+              save: function(callback) {
+                callback();
+              }
+            });
           };
           return Whatsup;
         }
@@ -189,15 +199,11 @@ describe('The core messages module', function() {
 
       function callback(err, comment, parent) {
         expect(err).not.to.exist;
-        expect(message.content).to.equal('a content');
-        expect(message.targets).not.to.exist;
-        expect(parent._id).to.equal('a parent id');
-        expect(comment).to.deep.equal(message);
+        expect(called).to.be.true;
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message').addNewComment({content: 'a content', targets: 'some targets'}, { id: 'replied' }, callback);
+      require(this.testEnv.basePath + '/backend/core/message').addNewComment({content: 'a comment'}, { id: 'replied' }, callback);
     });
   });
-
 });

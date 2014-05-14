@@ -3,6 +3,7 @@
 var logger = require(__dirname + '/../../core').logger,
     mongoose = require('mongoose'),
     Whatsup = mongoose.model('Whatsup'),
+    Comment = mongoose.model('Comment'),
     pubsub = require('../pubsub').local;
 
 module.exports.save = function(message, callback) {
@@ -31,16 +32,22 @@ module.exports.get = function(uuid, callback) {
 };
 
 module.exports.addNewComment = function(message, inReplyTo, callback) {
-  var whatsupComment = new Whatsup(message),
+  var whatsupComment = new Comment(message),
       topic = pubsub.topic('message:comment');
-  delete whatsupComment.targets;
-  Whatsup.findByIdAndUpdate(inReplyTo.id, {$push: {'responses': whatsupComment}}, function(err, whatsupParent) {
+
+  Whatsup.findById(inReplyTo._id, function(err, whatsupParent) {
     if (err) {
       return callback(err);
     }
+    whatsupParent.responses.push(whatsupComment);
+    whatsupParent.save(function(err, newWhatsupParent) {
+      if (err) {
+        return callback(err);
+      }
 
-    message.inReplyTo = inReplyTo;
-    topic.publish(message);
-    callback(null, whatsupComment, whatsupParent);
+      message.inReplyTo = inReplyTo;
+      topic.publish(message);
+      callback(null, whatsupComment, newWhatsupParent);
+    });
   });
 };
