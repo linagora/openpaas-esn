@@ -29,3 +29,18 @@ module.exports.findByIds = function(ids, callback) {
 module.exports.get = function(uuid, callback) {
   Whatsup.findById(uuid).populate('author', null, 'User').exec(callback);
 };
+
+module.exports.addNewComment = function(message, inReplyTo, callback) {
+  var whatsupComment = new Whatsup(message),
+      topic = pubsub.topic('message:comment');
+  delete whatsupComment.targets;
+  Whatsup.findByIdAndUpdate(inReplyTo.id, {$push: {'responses': whatsupComment}}, function(err, whatsupParent) {
+    if (err) {
+      return callback(err);
+    }
+
+    message.inReplyTo = inReplyTo;
+    topic.publish(message);
+    callback(null, whatsupComment, whatsupParent);
+  });
+};
