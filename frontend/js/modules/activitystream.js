@@ -150,7 +150,7 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         type: 'danger',
         show: true,
         position: 'bottom',
-        container: '#error',
+        container: '#activitystreamerror',
         duration: '3',
         animation: 'am-fade'
       });
