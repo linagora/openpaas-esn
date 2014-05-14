@@ -11,7 +11,8 @@ var WhatsupSchema = new mongoose.Schema({
   shares: [{
     objectType: {type: String},
     id: {type: String}
-  }]
+  }],
+  reponses: [WhatsupSchema]
 }, { collection: 'messages' });
 
 module.exports = mongoose.model('Whatsup', WhatsupSchema);
