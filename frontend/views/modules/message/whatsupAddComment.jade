@@ -1,0 +1,10 @@
+div.form-container(ng-controller='messageCommentController')
+  #commenterror
+  form(name='whatsupcommentform')
+    .form-group
+      textarea.form-control(ng-model='whatsupcomment', placeholder="#{__('Add a comment')}", rows="3")
+    .form-group
+      .pull-left
+        button.btn.btn-primary(type='submit', ng-click='addComment(message)') #{__('Publish')}
+        &nbsp;
+        button.btn.btn-default(type='reset', ng-click='resetComment()') #{__('Cancel')}
