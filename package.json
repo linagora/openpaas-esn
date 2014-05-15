@@ -32,7 +32,7 @@
     "mocha": "^1.18.2",
     "mongoconfig": "~1.0.0",
     "mongodb": "^1.4.3",
-    "mongoose": "~3.8.6",
+    "mongoose": "^3.8.9",
     "morgan": "~1.0.1",
     "node-uuid": "~1.4.1",
     "nodemailer": "~0.6.0",
