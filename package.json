@@ -86,7 +86,7 @@
     "mocha": "~1.17.0",
     "mockery": "~1.4.0",
     "nodemailer-browser": "~0.0.1",
-    "nodemon": "1.0.13",
+    "nodemon": "1.0.19",
     "open": "0.0.5",
     "requirejs": "~2.1.10",
     "supertest": "^0.12.1"
