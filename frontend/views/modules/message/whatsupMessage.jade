@@ -4,5 +4,7 @@ div.media
   div.media-body
     h4.media-heading
       a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-      small &nbsp; on {{message.published}}
+      small
+        | &nbsp;on&nbsp;
+        a(href="/#messages/{{message._id}}") {{message.published}}
     p {{message.content}}
