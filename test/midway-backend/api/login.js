@@ -114,6 +114,27 @@ describe('The login API', function() {
       });
   });
 
+  describe('the loginAsUser api helper', function() {
+    it('should return a request creation function that is logged with the credentials', function(done) {
+      user.rememberme = true;
+      this.helpers.api.loginAsUser(app, user.emails[0], user.password, function(err, logAsUser0) {
+        expect(err).to.be.null;
+        expect(logAsUser0).to.be.a.function;
+        var r = logAsUser0(request(app).get('/api/user'));
+        r.expect(200)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body.emails).to.be.an.array;
+            expect(res.body.emails).to.have.length(1);
+            expect(res.body.emails[0]).to.exist;
+            expect(res.body.emails[0]).to.equal(user.emails[0]);
+            done();
+          });
+      });
+    });
+  });
+
   it('should be able to retrieve the user information with the cookie and remember=false', function(done) {
     user.rememberme = true;
     request(app)

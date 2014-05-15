@@ -4,6 +4,17 @@ var emailAddresses = require('email-addresses');
 var logger = require('../..').logger;
 var async = require('async');
 var sendMail = require('../../email/system/addMember');
+var invitationValidityDays = 7;
+
+
+module.exports.isStillValid = function(invitation, done) {
+  var limitDate = new Date(invitation.timestamps.created.getTime());
+  limitDate.setDate(limitDate.getDate() + invitationValidityDays);
+  if (limitDate.getTime() < Date.now()) {
+    return done(null, false);
+  }
+  return done(null, true);
+};
 
 /**
  * Validate the input data ie this is a valid email.

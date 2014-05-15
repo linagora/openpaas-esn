@@ -1,5 +1,10 @@
 'use strict';
 
+module.exports.isStillValid = function(invitation, done) {
+  console.log('isStillValid on data ', invitation);
+  return done(null, true);
+};
+
 module.exports.validate = function(invitation, done) {
   console.log('Validating data ', invitation);
   return done(null, true);

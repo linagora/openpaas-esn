@@ -121,6 +121,7 @@ function sendInvitations(req, res) {
   var domain = req.domain;
   var handler = require('../../core/invitation');
   var Invitation = mongoose.model('Invitation');
+  var getInvitationURL = require('./invitation').getInvitationURL;
   var sent = [];
 
   res.send(202);
@@ -149,7 +150,7 @@ function sendInvitations(req, res) {
           return callback();
         }
 
-        saved.data.url = require('./invitation').getInvitationURL(req, saved);
+        saved.data.url = getInvitationURL(req, saved);
         handler.init(saved, function(err, result) {
           if (err || !result) {
             logger.error('Invitation can not be initialized %s : %s', saved, err ? err.message : result);

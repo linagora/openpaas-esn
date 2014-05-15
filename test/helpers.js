@@ -1,7 +1,6 @@
 'use strict';
 
-var mongoose = require('mongoose'),
-    async = require('async'),
+var async = require('async'),
     expect = require('chai').expect,
     MongoClient = require('mongodb').MongoClient,
     mockery = require('mockery');
@@ -81,10 +80,10 @@ function mockPubSub(stub) {
 module.exports = function(mixin, testEnv) {
   mixin.mongo = {
     connect: function(callback) {
-      mongoose.connect(testEnv.mongoUrl, callback);
+      require('mongoose').connect(testEnv.mongoUrl, callback);
     },
     disconnect: function(callback) {
-      mongoose.disconnect(callback);
+      require('mongoose').disconnect(callback);
     },
     dropDatabase: function(callback) {
       MongoClient.connect(testEnv.mongoUrl, function(err, db) {
@@ -94,15 +93,27 @@ module.exports = function(mixin, testEnv) {
         });
       });
     },
+    clearCollection: function(collectionName, callback) {
+      require('mongoose').connection.db.collection(collectionName).remove(callback);
+    },
     dropCollections: function(callback) {
-      mongoose.connection.db.collections(function(err, collections) {
+      require('mongoose').connection.db.collections(function(err, collections) {
         if (err) { return callback(err); }
         collections = collections.filter(function(collection) {
           return collection.collectionName !== 'system.indexes';
         });
         async.forEach(collections, function(collection, done) {
-          mongoose.connection.db.dropCollection(collection.collectionName, done);
+          require('mongoose').connection.db.dropCollection(collection.collectionName, done);
         }, callback);
+      });
+    },
+    saveDoc: function(collection, doc, done) {
+      MongoClient.connect(testEnv.mongoUrl, function(err, db) {
+        function close(err) { db.close(function() { done(err); }); }
+
+        if (err) { return done(err); }
+
+        db.collection(collection).save(doc, close);
       });
     },
     /*
