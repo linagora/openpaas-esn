@@ -1,0 +1,10 @@
+div.media
+  a.pull-left(href='#')
+    img.media-object(src='/images/user.png', width='64', height='64', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  div.media-body
+    h4.media-heading
+      a(href="#") {{message.author.firstname}} {{message.author.lastname}}
+      small
+        | &nbsp;on&nbsp;
+        a(href="/#messages/{{message._id}}") {{message.published}}
+    p {{message.content}}

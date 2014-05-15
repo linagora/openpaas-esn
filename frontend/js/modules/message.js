@@ -3,7 +3,6 @@
 angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
   .controller('messageController', ['$scope', 'messageAPI', 'session', '$alert', function($scope, $messageAPI, $session, $alert) {
 
-
     var textarea = null;
 
     $scope.expand = function(event) {
@@ -120,6 +119,9 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
     };
 
   }])
+  .controller('whatsupMessageDisplayController', function($scope, message) {
+    $scope.message = message;
+  })
   .directive('whatsupEdition', function() {
     return {
       restrict: 'E',
@@ -135,6 +137,26 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
         message: '='
       },
       templateUrl: '/views/modules/message/whatsupAddComment.html'
+    };
+  })
+  .directive('whatsupMessage', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/whatsupMessage.html'
+    };
+  })
+  .directive('whatsupThread', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/whatsupThread.html'
     };
   })
   .factory('messageAPI', ['Restangular', function(Restangular) {

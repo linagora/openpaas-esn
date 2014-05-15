@@ -3,4 +3,4 @@ div(ng-controller="activitystreamController")
     span.throbber(us-spinner, spinner-key='activityStreamSpinner')
     infinite-list
         div(ng-repeat="thread in threads")
-            {{ thread | json }}
+            whatsup-thread(message='thread')
