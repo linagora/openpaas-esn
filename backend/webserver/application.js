@@ -11,15 +11,20 @@ var cssPath = frontendPath + '/css';
 
 var lessMiddlewareConfig = {
   production: {
-    src: frontendPath,
-    once: true
+    options: {
+      once: true
+    }
   },
   dev: {
-    src: frontendPath,
-    force: true,
-    debug: true,
-    sourceMap: true
+    options: {
+      force: true,
+      debug: true,
+      compiler: {
+        sourceMap: true
+      }
+    }
   }
+
 };
 
 var application = express();
@@ -28,8 +33,8 @@ application.set('views', frontendPath + '/views');
 application.set('view engine', 'jade');
 
 application.use(lessMiddleware(
-  process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production : lessMiddlewareConfig.dev
-));
+  frontendPath,
+  process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production.options : lessMiddlewareConfig.dev.options));
 application.use('/css', express.static(cssPath));
 var morgan = require('morgan');
 application.use(morgan());
