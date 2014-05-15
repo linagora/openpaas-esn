@@ -151,11 +151,7 @@ describe('The document store routes resource', function() {
     it('should store configuration to file', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
       var mongoConnectionString = 'mongodb://localhost:27017/hiveety-test-ok';
-      var validationPending = true;
-      var core = this.testEnv.initCore();
-      core.pubsub.local.topic('mongodb:connectionAvailable').subscribe(function() {
-        done(validationPending);
-      });
+      this.testEnv.initCore();
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
@@ -164,19 +160,14 @@ describe('The document store routes resource', function() {
           expect(e).to.be.null;
           var json = JSON.parse(data);
           expect(json.connectionString).to.equal(mongoConnectionString);
-          validationPending = null;
+          done();
         });
       });
     });
 
     it('should store configuration default options to file', function(done) {
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
-      var validationPending = true;
-      var core = this.testEnv.initCore();
-      core.pubsub.local.topic('mongodb:connectionAvailable').subscribe(function() {
-        done(validationPending);
-      });
-
+      this.testEnv.initCore();
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
@@ -187,7 +178,7 @@ describe('The document store routes resource', function() {
           expect(json.connectionOptions).to.exist;
           expect(json.connectionOptions.server).to.exist;
           expect(json.connectionOptions.server.auto_reconnect).to.be.true;
-          validationPending = null;
+          done();
         });
       });
     });
@@ -205,7 +196,7 @@ describe('The document store routes resource', function() {
           expect(e).to.be.null;
           var json = JSON.parse(data);
           expect(json.connectionString).to.equal(mongoConnectionString);
-          setTimeout(done, 1000);
+          done();
         });
       });
     });
