@@ -1,0 +1,6 @@
+div(ng-controller="activitystreamController")
+    div#activitystreamerror
+    span.throbber(us-spinner, spinner-key='activityStreamSpinner')
+    infinite-list
+        div(ng-repeat="thread in threads")
+            {{ thread | json }}
