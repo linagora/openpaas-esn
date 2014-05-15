@@ -1,6 +1,7 @@
 div(ng-controller="activitystreamController")
     div#activitystreamerror
     span.throbber(us-spinner, spinner-key='activityStreamSpinner')
+    div.text-center.bg-info(ng-show="threads.length===0") #{__('There is no message on this activity stream yet. Be the first to post !')}
     infinite-list
         div(ng-repeat="thread in threads")
             whatsup-thread(message='thread')
