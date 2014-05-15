@@ -22,7 +22,7 @@ var WhatsupSchema = new mongoose.Schema({
     objectType: {type: String},
     id: {type: String}
   }],
-  responses: [CommentSchema]
+  responses: [mongoose.Schema.Mixed]
 }, { collection: 'messages' });
 
 module.exports = mongoose.model('Whatsup', WhatsupSchema);
