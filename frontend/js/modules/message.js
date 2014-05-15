@@ -69,11 +69,72 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       });
     };
   }])
+  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
+    $scope.whatsupcomment = '';
+
+    $scope.addComment = function() {
+      if (!$scope.message) {
+        $scope.displayError('Client problem, message is missing!');
+        return;
+      }
+
+      if (!$scope.whatsupcomment || $scope.whatsupcomment.trim().length === 0) {
+        $scope.displayError('You can not say nothing!');
+        return;
+      }
+
+      var objectType = 'whatsup';
+      var data = {
+        description: $scope.whatsupcomment
+      };
+      var inReplyTo = {
+        objectType: $scope.message.objectType,
+        id: 'urn:linagora.com:' + $scope.message.objectType + ':' + $scope.message.id
+      };
+
+      $messageAPI.addComment(objectType, data, inReplyTo).then(
+        function(data) {
+          $scope.whatsupcomment = '';
+          $scope.$emit('message:comment', {id: data._id, parent: $scope.message.id});
+        },
+        function(err) {
+          $scope.displayError('Error while adding comment');
+        }
+      );
+    };
+
+    $scope.resetComment = function() {
+      $scope.whatsupcomment = '';
+    };
+
+    $scope.displayError = function(err) {
+      $alert({
+        content: err,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '#commenterror',
+        duration: '3',
+        animation: 'am-fade'
+      });
+    };
+
+  }])
   .directive('whatsupEdition', function() {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/whatsupEdition.html'
+    };
+  })
+  .directive('whatsupAddComment', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/whatsupAddComment.html'
     };
   })
   .factory('messageAPI', ['Restangular', function(Restangular) {
@@ -95,9 +156,19 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       return Restangular.all('messages').post(payload);
     }
 
+    function addComment(objectType, data, inReplyTo) {
+      var payload = {};
+      payload.object = angular.copy(data);
+      payload.object.objectType = objectType;
+      payload.inReplyTo = inReplyTo;
+
+      return Restangular.all('messages').post(payload);
+    }
+
     return {
       get: get,
-      post: post
+      post: post,
+      addComment: addComment
     };
 
   }]);

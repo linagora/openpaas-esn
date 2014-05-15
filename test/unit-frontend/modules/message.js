@@ -103,6 +103,81 @@ describe('The esn.message Angular module', function() {
     });
   });
 
+  describe('messageCommentController controller', function() {
+
+    beforeEach(inject(function($rootScope, $controller) {
+      this.messageAPI = {};
+      this.scope = $rootScope.$new();
+      this.alert = function() {
+      };
+
+      $controller('messageCommentController', {
+        $scope: this.scope,
+        messageAPI: this.messageAPI,
+        $alert: this.alert
+      });
+    }));
+
+    it('$scope.addComment should not call the addComment API when $scope.message is undefined', function(done) {
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+      this.scope.addComment();
+    });
+
+    it('$scope.addComment should not call the addComment API when $scope.whatsupcomment is empty', function(done) {
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupcomment = '';
+      this.scope.message = {
+        _id: 123,
+        objectType: 'whatsup'
+      },
+      this.scope.addComment();
+    });
+
+    it('$scope.addComment should not call the addComment API when $scope.whatsupcomment is null', function(done) {
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupcomment = null;
+      this.scope.message = {
+        _id: 123,
+        objectType: 'whatsup'
+      },
+      this.scope.addComment();
+    });
+
+    it('$scope.addComment should not call the addComment API when $scope.whatsupcomment contains only spaces', function(done) {
+      this.scope.displayError = function() {
+        done();
+      };
+      this.scope.whatsupcomment = '        ';
+      this.scope.message = {
+        _id: 123,
+        objectType: 'whatsup'
+      },
+      this.scope.addComment();
+    });
+
+    it('$scope.addComment should call the addComment API when all data is set', function(done) {
+      this.messageAPI.addComment = function() {
+        done();
+      };
+      this.scope.displayError = function() {
+        done(new Error());
+      };
+      this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+      this.scope.message = {
+        _id: 123,
+        objectType: 'whatsup'
+      },
+      this.scope.addComment();
+    });
+  });
+
   describe('messageAPI service', function() {
 
     beforeEach(inject(function(messageAPI, $httpBackend) {
@@ -158,6 +233,28 @@ describe('The esn.message Angular module', function() {
 
         this.$httpBackend.expectPOST('/messages', message).respond();
         this.api.post(message.object.objectType, message.object, message.targets);
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('addComment method', function() {
+
+      it('should send a POST request to /messages', function() {
+        var message = {
+          'object': {
+            'objectType': 'whatsup',
+            'description': 'whatsup response content'
+          },
+          'inReplyTo': [
+            {
+              'objectType': 'whatsup',
+              'id': 'urn:linagora:esn:whatsup:<message uuid>'
+            }
+          ]
+        };
+
+        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.api.addComment(message.object.objectType, message.object, message.inReplyTo);
         this.$httpBackend.flush();
       });
     });
