@@ -50,6 +50,9 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         if (err) {
           return callback(err);
         }
+        if (items.length === 0) {
+          return callback(null, []);
+        }
         var messageIds = items.map(function(item) {return item.object._id;});
         messageAPI.get({'ids[]': messageIds}).then(function(response) {
           var msgHash = {};
@@ -95,7 +98,9 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
           var restcursorOptions = {
             apiArgs: {limit: limit},
             updateApiArgs: function(cursor, items, apiArgs) {
-              apiArgs.before = items[(items.length - 1)]._id;
+              if (items.length > 0) {
+                apiArgs.before = items[(items.length - 1)]._id;
+              }
             }
           };
           return restcursor(apiWrapper(id), limit, restcursorOptions);
