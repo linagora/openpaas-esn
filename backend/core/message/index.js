@@ -23,7 +23,7 @@ module.exports.findByIds = function(ids, callback) {
   var query = {
     _id: { $in: ids}
   };
-  Whatsup.find(query, callback);
+  Whatsup.find(query).populate('author', null, 'User').exec(callback);
 };
 
 module.exports.get = function(uuid, callback) {
