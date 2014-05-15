@@ -8,6 +8,9 @@
     "enabled": true,
     "port": 8080
   },
+  "db": {
+    "reconnectOnConfigurationChange": true
+  },
   "log": {
     "file": {
       "enabled": true,

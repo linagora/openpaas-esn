@@ -194,10 +194,13 @@ function getConnectionStringAndOptions() {
 var dbConfigWatcher = null;
 
 function mongooseConnect(reinit) {
-  if (!dbConfigWatcher) {
-    dbConfigWatcher = configurationWatcher(logger, getDbConfigurationFile(), reinit);
+  var defaultConfig = config('default');
+  if (defaultConfig.db && defaultConfig.db.reconnectOnConfigurationChange) {
+    if (!dbConfigWatcher) {
+      dbConfigWatcher = configurationWatcher(logger, getDbConfigurationFile(), reinit);
+    }
+    dbConfigWatcher();
   }
-  dbConfigWatcher();
 
   var connectionInfos = getConnectionStringAndOptions();
   if (!connectionInfos) {
