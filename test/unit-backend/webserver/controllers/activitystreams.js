@@ -118,4 +118,65 @@ describe('The activitystreams controller module', function() {
     };
     activitystreams.get(req, res);
   });
+
+  it('get should return HTTP 400 when limit parameter is negative', function(done) {
+    var mongooseMock = {
+      model: function() {
+        return {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, {});
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var req = {
+      params: {
+        uuid: '12345'
+      },
+      query: {limit: -12},
+      activity_stream: {}
+    };
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    activitystreams.get(req, res);
+  });
+
+  it('get should return HTTP 400 when before parameter is not an ObjectId as a String', function(done) {
+    var mongooseMock = {
+      model: function() {
+        return {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, {});
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var req = {
+      params: {
+        uuid: '12345'
+      },
+      query: {before: 12345},
+      activity_stream: {}
+    };
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    activitystreams.get(req, res);
+  });
+
 });
