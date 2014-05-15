@@ -27,7 +27,7 @@
     "i18n": "~0.4.1",
     "jade": "~1.1.5",
     "konphyg": "git+https://github.com/linagora/konphyg.git",
-    "ldapjs": "~0.7.0",
+    "ldapjs": "^0.7.1",
     "less-middleware": "^1.0.3",
     "mocha": "^1.18.2",
     "mongoconfig": "~1.0.0",
