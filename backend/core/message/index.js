@@ -3,7 +3,6 @@
 var logger = require(__dirname + '/../../core').logger,
     mongoose = require('mongoose'),
     Whatsup = mongoose.model('Whatsup'),
-    Comment = mongoose.model('Comment'),
     pubsub = require('../pubsub').local;
 
 module.exports.save = function(message, callback) {
@@ -32,7 +31,7 @@ module.exports.get = function(uuid, callback) {
 };
 
 module.exports.addNewComment = function(message, inReplyTo, callback) {
-  var whatsupComment = new Comment(message),
+  var whatsupComment = new Whatsup(message),
       topic = pubsub.topic('message:comment');
 
   Whatsup.findById(inReplyTo._id, function(err, whatsupParent) {
