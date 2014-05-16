@@ -88,7 +88,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       };
       var inReplyTo = {
         objectType: $scope.message.objectType,
-        id: 'urn:linagora.com:' + $scope.message.objectType + ':' + $scope.message.id
+        _id: $scope.message._id
       };
 
       $messageAPI.addComment(objectType, data, inReplyTo).then(
@@ -133,9 +133,9 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
     return {
       restrict: 'E',
       replace: true,
-      scope: {
-        message: '='
-      },
+      //scope: {
+        //message: '='
+      //},
       templateUrl: '/views/modules/message/whatsupAddComment.html'
     };
   })
