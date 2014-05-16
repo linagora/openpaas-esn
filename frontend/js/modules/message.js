@@ -71,6 +71,19 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
   .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
     $scope.whatsupcomment = '';
 
+    var textarea = null;
+
+    $scope.expand = function(event) {
+      textarea = event.target;
+      textarea.rows = 4;
+    };
+
+    $scope.shrink = function(event) {
+      if (!$scope.whatsupcomment) {
+        event.target.rows = 2;
+      }
+    };
+
     $scope.addComment = function() {
       if (!$scope.message) {
         $scope.displayError('Client problem, message is missing!');
@@ -104,6 +117,9 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.resetComment = function() {
       $scope.whatsupcomment = '';
+      if (textarea) {
+        textarea.rows = 2;
+      }
     };
 
     $scope.displayError = function(err) {
