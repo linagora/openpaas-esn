@@ -51,6 +51,7 @@ function commentMessage(message, inReplyTo, topic, req, res) {
     topic.publish({
       source: from,
       targets: targets,
+      message: childMessage,
       inReplyTo: inReplyTo,
       date: new Date(),
       verb: 'post'

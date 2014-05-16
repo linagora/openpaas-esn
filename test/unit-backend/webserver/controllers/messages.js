@@ -248,6 +248,7 @@ describe('The messages module', function() {
             'objectType': 'whatsup',
             '_id': 'commentUuid'
           });
+          expect(dataPublished.message).to.deep.equal({_id: 'an id'});
           expect(dataPublished.date).to.exist;
           expect(dataPublished.verb).to.equal('post');
           done();
