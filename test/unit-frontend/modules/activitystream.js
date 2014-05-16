@@ -129,6 +129,16 @@ describe('The esn.activitystream Angular module', function() {
       instance(null, tl);
     });
 
+    it('should not call messageAPI.get if the array of ids is empty', function() {
+      var msgAPIcalled = false;
+      this.msgAPI.get = function(options) {
+        msgAPIcalled = true;
+      };
+      var instance = this.decorator(function() { });
+      instance(null, []);
+      expect(msgAPIcalled).to.be.false;
+    });
+
     it('should forward messageAPI.get error', function(done) {
       var tl = [
         {object: { _id: 'ID5' }},

@@ -1,6 +1,21 @@
 'use strict';
 
 var activitystreams = require('../../core/activitystreams');
+var mongoose = require('mongoose');
+
+var isLimitvalid = function(limit) {
+  return limit > 0;
+};
+
+var isBeforeValid = function(before) {
+  try {
+    new mongoose.Types.ObjectId(before);
+    return true;
+  }
+  catch (err) {
+    return false;
+  }
+};
 
 function get(req, res) {
   var activity_stream = req.activity_stream;
@@ -14,10 +29,16 @@ function get(req, res) {
   };
 
   if (req.query.limit) {
+    if (!isLimitvalid(req.query.limit)) {
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Limit parameter must be strictly positive'}});
+    }
     options.limit = req.query.limit;
   }
 
   if (req.query.before) {
+    if (!isBeforeValid(req.query.before)) {
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Before parameter must be a valid Date.'}});
+    }
     options.before = req.query.before;
   }
 

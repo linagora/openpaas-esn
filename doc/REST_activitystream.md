@@ -30,6 +30,7 @@ Array of activities.
 
 - 200 OK
 - 400 Bad Request. Invalid request body or parameters
+- 404 Not Found. The activity stream has not been found.
 
 **Request:**
 
