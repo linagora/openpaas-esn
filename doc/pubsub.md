@@ -29,7 +29,10 @@ Here is a list of the available topics with their associated data.
 - mongodb:connexionAvailable. Fired every time the connection to the mongodb server is established.
 - domain:invitations:sent({user, domain, emails}). Fired when domain invitations have been sent.
 - message:stored(message). Fired when a new message is stored in the datastore layer.
+- message:comment(message). Fired when a new comment is added to a message responses attribut in the datastore layer.
+                            Note that the message (which is the comment) contains a new 'inReplyTo' field.
 - message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message.
+- message:activity({source, targets, inReplyTo, date, verb}). Fired when there is a new comment to a message.
 
 #### message:stored
 

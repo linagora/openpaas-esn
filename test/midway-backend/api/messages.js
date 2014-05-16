@@ -271,4 +271,51 @@ describe('The messages API', function() {
           });
       });
   });
+
+  it('should be able to post a comment to a whatsup message', function(done) {
+    var target = {
+      objectType: 'activitystream',
+      id: domain.activity_stream.uuid
+    };
+    var cookies = {};
+    request(app)
+      .post('/api/login')
+      .send({username: email, password: password, rememberme: true})
+      .expect(200)
+      .end(function(err, res) {
+        cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).post('/api/messages');
+        req.cookies = cookies;
+        req.send({
+          object: {
+            description: 'a new whatsup message',
+            objectType: 'whatsup'
+          },
+          targets: [target]
+        });
+        req.expect(201)
+          .end(function(err, res) {
+            var req = request(app).post('/api/messages');
+            req.cookies = cookies;
+            req.send({
+                object: {
+                  description: 'a new comment to the previous whatsup message',
+                  objectType: 'whatsup'
+                },
+                inReplyTo: {
+                  objectType: 'whatsup',
+                  _id: res.body._id
+                }
+              })
+              .expect(201)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body._id).to.exist;
+                expect(res.body.parentId).to.exist;
+                done();
+              });
+          });
+      });
+  });
 });

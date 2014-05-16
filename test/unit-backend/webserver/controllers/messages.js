@@ -42,7 +42,7 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
-      messages.createMessage({}, res);
+      messages.createOrReplyToMessage({}, res);
     });
 
     it('should return 400 if the message is not in the body', function(done) {
@@ -63,7 +63,7 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
-      messages.createMessage(req, res);
+      messages.createOrReplyToMessage(req, res);
     });
 
     it('should return 500 if it cannot save the message in the database', function(done) {
@@ -83,7 +83,7 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
-      messages.createMessage(validReq, res);
+      messages.createOrReplyToMessage(validReq, res);
     });
 
     it('should return 201 and the id of the newly created message', function(done) {
@@ -103,7 +103,7 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
-      messages.createMessage(validReq, res);
+      messages.createOrReplyToMessage(validReq, res);
     });
 
     it('should publish into "message:activity" on success', function(done) {
@@ -149,7 +149,7 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/pubsub', pubsubMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
-      messages.createMessage(validReq, res);
+      messages.createOrReplyToMessage(validReq, res);
     });
 
     it('should return 404 otherwise', function(done) {
@@ -168,8 +168,118 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
-      messages.createMessage(validReq, res);
+      messages.createOrReplyToMessage(validReq, res);
     });
+  });
+
+  describe('POST /api/messages with inReplyTo parameter', function() {
+    var validReq;
+
+    before(function() {
+      validReq = {
+        user: {
+          emails: ['aEmail'],
+          _id: 123
+        },
+        body: {
+          'object': {
+            'objectType': 'whatsup',
+            'description': 'whatsup message content'
+          },
+          inReplyTo: {
+            'objectType': 'whatsup',
+            '_id': 'commentUuid'
+          }
+        }
+      };
+    });
+
+    it('should return 500 if it cannot save the comment in the database', function(done) {
+      var res = {
+        send: function(code, message) {
+          expect(code).to.equal(500);
+          expect(message.error.details).to.contain('Cannot');
+          done();
+        }
+      };
+
+      var messageModuleMocked = {
+        addNewComment: function(message, inReplyTo, callback) {
+          callback(new Error('an error has occured'));
+        }
+      };
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createOrReplyToMessage(validReq, res);
+    });
+
+    it('should return 201 with the _id of the new comment and the parentId', function(done) {
+      var res = {
+        send: function(code, data) {
+          expect(code).to.equal(201);
+          expect(data._id).to.equal('an id');
+          expect(data.parentId).to.equal('a parent id');
+          done();
+        }
+      };
+
+      var messageModuleMocked = {
+        addNewComment: function(message, inReplyTo, callback) {
+          callback(null, {_id: 'an id'}, {_id: 'a parent id'});
+        }
+      };
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createOrReplyToMessage(validReq, res);
+    });
+
+    it('should publish into "message:activity" on success', function(done) {
+      var topicUsed = '';
+      var dataPublished = '';
+
+      var res = {
+        send: function() {
+          expect(topicUsed).to.equal('message:activity');
+          expect(dataPublished.source).to.deep.equal({ type: 'user', resource: 123 });
+          expect(dataPublished.targets).to.equal('some targets');
+          expect(dataPublished.inReplyTo).to.deep.equal({
+            'objectType': 'whatsup',
+            '_id': 'commentUuid'
+          });
+          expect(dataPublished.message).to.deep.equal({_id: 'an id'});
+          expect(dataPublished.date).to.exist;
+          expect(dataPublished.verb).to.equal('post');
+          done();
+        }
+      };
+
+      var messageModuleMocked = {
+        addNewComment: function(message, inReplyTo, callback) {
+          callback(null, {_id: 'an id'}, {targets: 'some targets'});
+        }
+      };
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var pubsubMocked = {
+        local: {
+          topic: function(topic) {
+            return {
+              publish: function(data) {
+                topicUsed = topic;
+                dataPublished = data;
+              }
+            };
+          }
+        }
+      };
+      mockery.registerMock('../../core/pubsub', pubsubMocked);
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createOrReplyToMessage(validReq, res);
+    });
+
   });
 
   describe('GET /api/messages', function() {

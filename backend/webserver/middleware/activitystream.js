@@ -28,6 +28,11 @@ module.exports.findStreamResource = function(req, res, next) {
 };
 
 module.exports.filterValidTargets = function(req, res, next) {
+  var inReplyTo = req.body.inReplyTo;
+  if (inReplyTo) {
+    return next();
+  }
+
   var targets = req.body.targets;
   if (!targets || targets.length === 0) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Message targets are required'}});
