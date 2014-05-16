@@ -31,8 +31,7 @@ Here is a list of the available topics with their associated data.
 - message:stored(message). Fired when a new message is stored in the datastore layer.
 - message:comment(message). Fired when a new comment is added to a message responses attribut in the datastore layer.
                             Note that the message (which is the comment) contains a new 'inReplyTo' field.
-- message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message.
-- message:activity({source, targets, inReplyTo, date, verb}). Fired when there is a new comment to a message.
+- message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message (create, comment, ...).
 
 #### message:stored
 
@@ -44,26 +43,31 @@ The notification data contains the message object (ie the one which has been per
 #### message:activity
 
 Some resource (user,bot,...), called the author did some activity on the message. This activity **may** be specific to some targets.
-The notification data contains the source, the targets, the message, the activity date and the verb.
-Source and targets are defined using the 'resource-way' (resource type and resource id):
-
-    {
-      type: 'user',
-      resource: 123456789
-    }
+The notification data contains a timelineentry compliant message.
 
 For example, when a user 123 has sent a message 456 to the user 789:
 
-    var from = {type: 'user', resource: 123};
-    var target = {type: 'user', resource: 789};
-    pubsub.topic('message:activity').publish(
-      {
-        source: from,
-        targets: [target],
-        message: message,
-        date: Date,
-        verb: 'post'
-      });
+    pubsub.topic('message:activity').publish({
+      verb: 'post',
+      language: 'en',
+      published: Date.now(),
+      actor: {
+        objectType: 'user',
+        _id: 123,
+        image: 987654321,
+        displayName: 'Awesome User'
+      },
+      object: {
+        objectType: 'whatsup',
+        _id: 456
+      },
+      target: [
+        {
+          objectType: 'user',
+          _id: 798
+        }
+      ]
+    });
 
 *Use cases*
 
