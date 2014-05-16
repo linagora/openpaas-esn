@@ -158,9 +158,6 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
     return {
       restrict: 'E',
       replace: true,
-      //scope: {
-        //message: '='
-      //},
       templateUrl: '/views/modules/message/whatsupAddComment.html'
     };
   })
