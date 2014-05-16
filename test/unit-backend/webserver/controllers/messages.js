@@ -108,21 +108,12 @@ describe('The messages module', function() {
 
     it('should publish into "message:activity" on success', function(done) {
       var topicUsed = '';
-      var dataPublished = '';
+      var dataPublished = null;
 
       var res = {
         send: function() {
           expect(topicUsed).to.equal('message:activity');
-          expect(dataPublished.source).to.deep.equal({ type: 'user', resource: 123 });
-          expect(dataPublished.targets).to.deep.equal([
-            {
-              'type': 'activitystream',
-              'resource': 'urn:linagora:esn:activitystream:<activitystream uuid>'
-            }
-          ]);
-          expect(dataPublished.message).to.deep.equal({_id: 'a new id', message: 123 });
-          expect(dataPublished.date).to.exist;
-          expect(dataPublished.verb).to.equal('post');
+          expect(dataPublished).to.exist;
           done();
         }
       };

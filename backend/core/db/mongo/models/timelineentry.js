@@ -19,6 +19,10 @@ var TimelineEntrySchema = new mongoose.Schema({
   target: [{
     objectType: {type: String},
     _id: {type: String, required: true}
+  }],
+  inReplyTo: [{
+    objectType: {type: String},
+    _id: {type: mongoose.Schema.ObjectId, required: true}
   }]
 }, {collection: 'timelineentries'});
 

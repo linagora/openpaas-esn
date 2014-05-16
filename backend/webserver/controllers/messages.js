@@ -13,20 +13,14 @@ function createNewMessage(message, topic, req, res) {
     }
 
     if (saved) {
-      var from = { type: 'user', resource: req.user._id },
-          targets = req.body.targets.map(function(target) {
-            return {
-              type: target.objectType,
-              resource: target.id
-            };
-          });
-      topic.publish({
-        source: from,
-        targets: targets,
-        message: saved,
-        date: new Date(),
-        verb: 'post'
+      var targets = req.body.targets.map(function(e) {
+        return {
+          objectType: e.objectType,
+          _id: e.id
+        };
       });
+      var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(saved, 'post', req.user, targets);
+      topic.publish(activity);
       return res.send(201, { _id: saved._id});
     }
 

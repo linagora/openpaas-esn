@@ -5,23 +5,38 @@ var getURN = function(type, id) {
 };
 module.exports.getURN = getURN;
 
+var getUserAsActor = function(user) {
+  if (!user) {
+    return {};
+  }
+
+  return {
+    objectType: 'user',
+    _id: user._id,
+    image: user.currentAvatar || '',
+    displayName: user.firstname + ' ' + user.lastname
+  };
+};
+module.exports.getUserAsActor = getUserAsActor;
+
 module.exports.userMessageToTimelineEntry = function(message, verb, user, shares, date) {
   return {
     verb: verb,
-    language: message.language,
-    published: date || Date.now,
-    actor: {
-      objectType: 'user',
-      _id: user._id,
-      image: user.currentAvatar || '',
-      displayName: user.firstname + ' ' + user.lastname
-    },
+    language: message.language || '',
+    published: date || Date.now(),
+    actor: getUserAsActor(user),
     object: {
       objectType: message.objectType,
       _id: message._id
     },
     target: shares
   };
+};
+
+module.exports.userMessageCommentToTimelineEntry = function(comment, verb, user, shares, inReplyTo, date) {
+  var result = this.userMessageToTimelineEntry(comment, verb, user, shares, date);
+  result.inReplyTo = [inReplyTo];
+  return result;
 };
 
 module.exports.timelineToActivity = function(entry) {
