@@ -40,16 +40,8 @@ function commentMessage(message, inReplyTo, topic, req, res) {
         { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message}});
     }
 
-    var from = { type: 'user', resource: req.user._id },
-        targets = parentMessage.targets;
-    topic.publish({
-      source: from,
-      targets: targets,
-      message: childMessage,
-      inReplyTo: inReplyTo,
-      date: new Date(),
-      verb: 'post'
-    });
+    var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, parentMessage.targets, inReplyTo, new Date());
+    topic.publish(activity);
     return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
   });
 }
