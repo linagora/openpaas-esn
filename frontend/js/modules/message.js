@@ -70,6 +70,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
   }])
   .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
     $scope.whatsupcomment = '';
+    $scope.sending = false;
 
     var textarea = null;
 
@@ -85,6 +86,11 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
     };
 
     $scope.addComment = function() {
+      if ($scope.sending) {
+        $scope.displayError('Client problem, unexpected action!');
+        return;
+      }
+
       if (!$scope.message) {
         $scope.displayError('Client problem, message is missing!');
         return;
@@ -104,12 +110,15 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
         _id: $scope.message._id
       };
 
+      $scope.sending = true;
       $messageAPI.addComment(objectType, data, inReplyTo).then(
         function(data) {
+          $scope.sending = false;
           $scope.whatsupcomment = '';
           $scope.$emit('message:comment', {id: data._id, parent: $scope.message.id});
         },
         function(err) {
+          $scope.sending = false;
           $scope.displayError('Error while adding comment');
         }
       );
