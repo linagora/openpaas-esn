@@ -2,7 +2,7 @@ div.form-container(ng-controller='messageCommentController')
   #commenterror
   form(name='whatsupcommentform')
     .form-group
-      textarea.whatsupcomment-input.form-control(ng-model='whatsupcomment', ng-focus='expand($event)', ng-blur='shrink($event)', placeholder="#{__('Add a comment')}", rows="2")
+      textarea.whatsupcomment-input.form-control(ng-model='whatsupcomment', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}")
     .form-group
       .pull-right
         button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
