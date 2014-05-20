@@ -1,19 +1,19 @@
 ul.message-bottom-links.list-inline
   li
     button.btn.btn-link(type='button')
-      | #UI
+      | #fakeForNow
   li
     button.btn.btn-link(type='button')
       | #barcamp
   li.pull-right
     button.btn.btn-link(type='button')
-      | #{__('Useful')} &nbsp;
+      span.hidden-xs #{__('Share')} &nbsp;
+      i.fa.fa-share
+  li.pull-right
+    button.btn.btn-link(type='button')
+      span.hidden-xs #{__('Comment')} &nbsp;
       i.fa.fa-comment
   li.pull-right
     button.btn.btn-link(type='button')
-      | #{__('Comment')} &nbsp;
-      i.fa.fa-comment
-  li.pull-right
-    button.btn.btn-link(type='button')
-      | #{__('Share')} &nbsp;
-      i.fa.fa-comment
+      span.hidden-xs #{__('Useful')} &nbsp;
+      i.fa.fa-thumbs-up
