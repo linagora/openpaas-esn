@@ -1,0 +1,61 @@
+
+// Site Colors
+// -----------
+
+@grey: #eff0f4;
+@light-grey: #f8f8f8;
+@dark-grey: #adadad;
+@blue: #4982eb;
+@yellow: #eecb25;
+@green: #abc85c;
+@red: #bc015c;
+@black: #232323;
+
+@defaultRadius: 4px;
+@defaultShadow: 1px 1px 0 #ddd;
+@defaultFontColor: #343434;
+@defaultBorderColor: #dce4e7;
+@defaultBorder: solid @defaultBorderColor 1px;
+
+@site-background: @grey;
+@header-background: @black;
+@widget-background: @light-grey;
+@inner-widget-background: #eeeeee;
+@button-standard-background: @yellow;
+@button-standard-boder-color: #ecc925;
+
+// Site Rules
+// ----------
+
+body {
+  background: @site-background;
+}
+
+.esn-widget {
+  background: @widget-background;
+  border: @defaultBorder;
+  .RoundedShape();
+  .ShadowedShape();
+  .btn-primary {
+    background: @button-standard-background;
+    border-color: @button-standard-boder-color;
+    color: @defaultFontColor;
+    .RoundedShape();
+    .ShadowedShape();
+  }
+}
+
+// Helpers
+// -------
+
+.RoundedShape(@radius:@defaultRadius){
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.ShadowedShape(@shadow:@defaultShadow){
+  box-shadow: @shadow;
+  -moz-box-shadow: @shadow;
+  -webkit-box-shadow: @shadow;
+}
