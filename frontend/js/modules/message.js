@@ -56,9 +56,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
     };
 
     $scope.resetMessage = function() {
-      if (textarea) {
-        textarea.rows = 3;
-      }
+      $scope.rows = 3;
       $scope.whatsupmessage = '';
     };
 
