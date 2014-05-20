@@ -11,7 +11,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.shrink = function(event) {
       if (!$scope.whatsupmessage) {
-        $scope.rows = 3;
+        $scope.rows = 1;
       }
     };
 
