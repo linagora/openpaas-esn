@@ -3,16 +3,15 @@
 angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
   .controller('messageController', ['$scope', 'messageAPI', 'session', '$alert', function($scope, $messageAPI, $session, $alert) {
 
-    var textarea = null;
+    $scope.rows = 3;
 
     $scope.expand = function(event) {
-      textarea = event.target;
-      textarea.rows = 5;
+      $scope.rows = 5;
     };
 
     $scope.shrink = function(event) {
       if (!$scope.whatsupmessage) {
-        event.target.rows = 3;
+        $scope.rows = 3;
       }
     };
 
@@ -39,7 +38,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       $messageAPI.post(objectType, data, [target]).then(
         function(data) {
           $scope.whatsupmessage = '';
-          textarea.rows = 3;
+          $scope.rows = 3;
           $alert({
             content: 'Message has been published',
             type: 'success',
