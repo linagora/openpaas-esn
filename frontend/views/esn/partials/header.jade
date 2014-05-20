@@ -1,0 +1,36 @@
+header(class="topbar" role="navigation")
+  .container
+    a(href="#/")
+      img(src="/images/logo.png")
+    div.pull-right.avatar
+      div.dropdown
+        button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
+          img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
+          span.caret
+        ul.dropdown-menu.dropdown-menu-right(role="menu" aria-labelledby="userPreferencesMenu")
+            li: a(href='/#profile') #{__('My Account')}
+            li.divider
+            li: a(href='/logout') #{__('Logout')}
+
+
+
+    div.pull-right.help
+      span.horiz-space
+        i.fa.fa-question
+
+    form.navbar-form.navbar-right.hidden-xs(role="search")
+      .form-group
+        input.input-sm(type="text" class="form-control" placeholder="Search...")
+nav(class="navbar navbar-default" role="navigation" data-offset-top="50" bs-affix)
+  .container
+    .row
+      .col-sm-2.hidden-xs.nopadding.esn-navbar-side.text-center LINAGORA
+      .col-sm-10.col-xs-12.nopadding.esn-navbar-main
+        .esn-item.active
+          span
+            i.fa.fa-hdd-o
+            span.hidden-xs Domain
+        .esn-item
+          span
+            i.fa.fa-comments-o
+            span.hidden-xs Discussions

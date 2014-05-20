@@ -3,6 +3,7 @@
 angular.module('esnApp', [
   'restangular',
   'ngRoute',
+  'mgcrea.ngStrap.affix',
   'esn.member',
   'esn.domain',
   'esn.avatar',

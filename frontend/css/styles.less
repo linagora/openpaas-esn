@@ -3,6 +3,14 @@
 @icon-font-path: '/components/bootstrap/dist/fonts/';
 @bottom-height: 60px;
 
+@esn-primary-dark: rgb(35,35,35);
+@esn-secondary-dark: rgb(75,129,237);
+@esn-primary-light: #fff;
+@esn-primary-lesslight: rgb(214,215,217);
+@esn-primary-middle: rgb(65,65,65);
+@esn-highlight: rgb(238,203,36);
+@esn-highlight-dark: rgb(21,21,21);
+
 // Scaffolding
 // -------------------------
 
@@ -11,19 +19,8 @@ html, body {
 }
 
 body {
-  padding-top: 70px;
   /* Margin bottom by footer height */
   margin-bottom: @bottom-height;
-}
-
-#wrap {
-  min-height: 100%;
-  height: auto !important;
-  height: 100%;
-  /* Negative indent footer by its height */
-  margin: 0 auto -100px;
-  /* Pad bottom by footer height + (optional) extra spacing */
-  padding: 0 0 100px;
 }
 
 #footer {
@@ -69,6 +66,12 @@ body {
   margin-bottom: 10px;
 }
 
+
+.nopadding {
+   padding: 0 !important;
+   margin: 0 !important;
+}
+
 // Upload file
 // Hide the input type file
 
@@ -92,23 +95,97 @@ body {
   display: block;
 }
 
-// Navbar
-// -------------------------
-
-@navbar-height: 45px;
-
-.navbar-brand {
-  background-repeat: no-repeat;
-  background-size: 30px;
-  background-position: left center;
-  padding-left: 40px;
-  margin-left: 15px;
+.horiz-space {
+  padding-right: 5px;
+  padding-left: 5px;
 }
 
-.navbar-nav .profile-image {
-  width: 30px;
-  height: 30px;
-  margin: -15px 15px -15px 0;
+// Navbar
+// -------------------------
+header.topbar {
+  background-color: @esn-primary-dark;
+  >.container {
+    border-bottom: 1px solid @esn-primary-middle;
+    .avatar {
+      margin-top: 11px;
+    }
+    .help {
+      margin-top: 8px;
+      color: @esn-primary-lesslight;
+      font-size: 1.8em;
+      margin-right: 10px;
+
+      >span {
+        border-right: 1px solid @esn-primary-lesslight;
+      }
+    }
+    form {
+      margin-top: 10px;
+      margin-right: 40px;
+    }
+  }
+}
+
+.navbar {
+  background-color: @esn-primary-dark;
+  border: none;
+  border-radius: 0px;
+  min-height: 0px;
+
+  >.container {
+    padding-top: 1px;
+  }
+}
+
+.navbar.affix {
+  width: 100%;
+  z-index: 1200;
+  top: 1px;
+  box-shadow: 0px -1px 0px 0px @esn-primary-dark;
+}
+
+.esn-navbar-side {
+  background-color: @esn-secondary-dark;
+  border-bottom: 1px solid @esn-secondary-dark;
+  -moz-box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
+  -webkit-box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
+  -o-box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
+  box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
+  filter:progid:DXImageTransform.Microsoft.Shadow(color=@esn-secondary-dark, Direction=90, Strength=0);
+}
+
+.esn-navbar-main {
+  border-bottom: 1px solid @esn-secondary-dark;
+  .row {
+    box-shadow: 0 0 33px #BBB;
+  }
+  .esn-item {
+    display: inline-block;
+    color: @esn-primary-light;
+    padding: 0 5px;
+
+    >span {
+      font-size: 1.5em;
+      font-weight: bold;
+      padding-bottom: 1px;
+      @media (min-width: 768px) {
+        font-size: 0.8em;
+      }
+    }
+  }
+
+  .esn-item:not(:last-child) {
+    border-right: 1px solid @esn-primary-middle;
+  }
+
+  .esn-item.active {
+    -moz-box-shadow: 0px -1px 0px 0px @esn-highlight;
+    -webkit-box-shadow: 0px -1px 0px 0px @esn-highlight;
+    -o-box-shadow: 0px -1px 0px 0px @esn-highlight;
+    box-shadow: 0px -1px 0px 0px @esn-highlight;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=@esn-highlight, Direction=90, Strength=0);
+    background-color: @esn-highlight-dark;
+  }
 }
 
 // Extra space between font-awesome icons and text
