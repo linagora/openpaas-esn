@@ -16,6 +16,11 @@
 @defaultFontColor: #343434;
 @defaultBorderColor: #dce4e7;
 @defaultBorder: solid @defaultBorderColor 1px;
+@defaultFontSize: 13px;
+
+@defaultImageSizeMedium: 48px;
+@defaultImageSizeSmall: 24px;
+@defaultImageSizeTiny: 12px;
 
 @site-background: @grey;
 @header-background: @black;
@@ -31,9 +36,20 @@ body {
   background: @site-background;
 }
 
-.esn-widget {
+.btn {
+  padding: 2px 12px;
+  font-size: @defaultFontSize;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.widget {
   background: @widget-background;
   border: @defaultBorder;
+  .ResizeImage(@defaultImageSizeMedium, auto);
   .RoundedShape();
   .ShadowedShape();
   .btn-primary {
@@ -43,6 +59,21 @@ body {
     .RoundedShape();
     .ShadowedShape();
   }
+}
+
+.thread {
+  margin-bottom: 10px;
+}
+
+.message-comment {
+  background: @inner-widget-background;
+  width: 75%;
+  .ResizeImage(@defaultImageSizeTiny, auto);
+  .RoundedShape(0);
+}
+
+.message-bottom-links {
+
 }
 
 // Helpers
@@ -58,4 +89,11 @@ body {
   box-shadow: @shadow;
   -moz-box-shadow: @shadow;
   -webkit-box-shadow: @shadow;
+}
+
+.ResizeImage(@width, @height) {
+  img {
+    width: @width;
+    height: @height;
+  }
 }
