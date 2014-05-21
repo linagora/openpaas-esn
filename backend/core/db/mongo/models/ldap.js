@@ -23,6 +23,6 @@ var LDAPSchema = new Schema({
     searchFilter: {type: String, required: true}
   },
   schemaVersion: {type: Number, default: 1}
-});
+}, {collection: 'ldap'});
 
 module.exports = mongoose.model('LDAP', LDAPSchema);
