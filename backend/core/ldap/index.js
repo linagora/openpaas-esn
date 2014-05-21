@@ -16,7 +16,6 @@ var emailExists = function(email, ldap, callback) {
   if (!email ||   !ldap) {
     return callback(new Error('Missing parameters'));
   }
-
   var ldapauth = new LdapAuth(ldap);
   return ldapauth._findUser(email, callback);
 };

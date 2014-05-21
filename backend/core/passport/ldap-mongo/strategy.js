@@ -130,7 +130,7 @@ var handleAuthentication = function(req, options) {
       }
 
       // authenticate user on the first LDAP for now
-      ldap.authenticate(username, password, ldaps[0], function(err, ldapuser) {
+      ldap.authenticate(username, password, ldaps[0].configuration, function(err, ldapuser) {
         if (err) {
           // Invalid credentials / user not found are not errors but login failures
           if (err.name === 'InvalidCredentialsError' || err.name === 'NoSuchObjectError' || (typeof err === 'string' && err.match(/no such user/i))) {

@@ -40,7 +40,7 @@ describe('The login API', function() {
     request(app)
       .post('/api/login')
       .send({username: 'foo', password: 'bar'})
-      .expect(500)
+      .expect(403)
       .end(done);
   });
 
