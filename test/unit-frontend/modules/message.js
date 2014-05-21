@@ -272,6 +272,22 @@ describe('The esn.message Angular module', function() {
       },
       this.scope.addComment();
     });
+
+    it('$scope.addComment should not call the addComment API when $scope.sending is true', function(done) {
+      this.scope.sending = true;
+      this.messageAPI.addComment = function() {
+        done(new Error('Should not be called'));
+      };
+      this.scope.displayError = function(err) {
+        done();
+      };
+      this.scope.message = {
+        _id: 123,
+        objectType: 'whatsup'
+      };
+      this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+      this.scope.addComment();
+    });
   });
 
   describe('messageAPI service', function() {

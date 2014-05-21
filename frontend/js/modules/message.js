@@ -74,8 +74,25 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
   }])
   .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
     $scope.whatsupcomment = '';
+    $scope.sending = false;
+    $scope.rows = 2;
+
+    $scope.expand = function() {
+      $scope.rows = 4;
+    };
+
+    $scope.shrink = function(event) {
+      if (!$scope.whatsupcomment) {
+        $scope.rows = 2;
+      }
+    };
 
     $scope.addComment = function() {
+      if ($scope.sending) {
+        $scope.displayError('Client problem, unexpected action!');
+        return;
+      }
+
       if (!$scope.message) {
         $scope.displayError('Client problem, message is missing!');
         return;
@@ -92,15 +109,18 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       };
       var inReplyTo = {
         objectType: $scope.message.objectType,
-        id: 'urn:linagora.com:' + $scope.message.objectType + ':' + $scope.message.id
+        _id: $scope.message._id
       };
 
+      $scope.sending = true;
       $messageAPI.addComment(objectType, data, inReplyTo).then(
         function(data) {
+          $scope.sending = false;
           $scope.whatsupcomment = '';
           $scope.$emit('message:comment', {id: data._id, parent: $scope.message.id});
         },
         function(err) {
+          $scope.sending = false;
           $scope.displayError('Error while adding comment');
         }
       );
@@ -108,6 +128,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.resetComment = function() {
       $scope.whatsupcomment = '';
+      $scope.rows = 2;
     };
 
     $scope.displayError = function(err) {
@@ -137,9 +158,6 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
     return {
       restrict: 'E',
       replace: true,
-      scope: {
-        message: '='
-      },
       templateUrl: '/views/modules/message/whatsupAddComment.html'
     };
   })
