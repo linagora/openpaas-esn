@@ -55,6 +55,11 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       );
     };
 
+    $scope.resetMessage = function() {
+      $scope.rows = 3;
+      $scope.whatsupmessage = '';
+    };
+
     $scope.displayError = function(err) {
       $alert({
         content: err,
