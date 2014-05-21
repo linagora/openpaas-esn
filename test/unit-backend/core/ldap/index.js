@@ -276,4 +276,119 @@ describe('The ldap core module', function() {
       });
     });
   });
+
+  describe('findLDAPForDomain fn', function() {
+
+    it('should send back error if domain is not set', function(done) {
+      var mockgoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.findLDAPForDomain(null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should call find with the domain id', function(done) {
+      var domain = {_id: 123};
+      var mockgoose = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+              expect(query.domain).to.equals(domain._id);
+              done();
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.findLDAPForDomain(domain);
+    });
+
+    it('should call find with an id', function(done) {
+      var domain = 123;
+      var mockgoose = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+              expect(query.domain).to.equals(domain);
+              done();
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.findLDAPForDomain(domain);
+    });
+  });
+
+  describe('save fn', function() {
+
+    it('should send back error if ldap is not set', function(done) {
+      var mockgoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.save(null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back error if ldap configuration is not set', function(done) {
+      var mockgoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.save({domain: 123}, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back error if ldap domain is not set', function(done) {
+      var mockgoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.save({configuration: 123}, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+  });
+
+  describe('loadFromID fn', function() {
+
+    it('should send back error if ID is not set', function(done) {
+      var mockgoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mockgoose);
+
+      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      ldap.loadFromID(null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+  });
 });

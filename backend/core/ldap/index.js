@@ -80,3 +80,33 @@ var authenticate = function(email, password, ldap, callback) {
   });
 };
 module.exports.authenticate = authenticate;
+
+var findLDAPForDomain = function(domain, callback) {
+  if (!domain) {
+    return callback(new Error('Domain is required'));
+  }
+  var id = domain._id ||  domain;
+  LDAP.find({domain: id}, callback);
+};
+module.exports.findLDAPForDomain = findLDAPForDomain;
+
+var save = function(ldap, callback) {
+  if (!ldap) {
+    return callback(new Error('LDAP parameter is required'));
+  }
+
+  if (!ldap.configuration ||   !ldap.domain) {
+    return callback(new Error('Bad LDAP parameter'));
+  }
+  var l = new LDAP(ldap);
+  l.save(callback);
+};
+module.exports.save = save;
+
+var loadFromID = function(id, callback) {
+  if (!id) {
+    return callback(new Error('ID is required'));
+  }
+  LDAP.findOne({_id: id}, callback);
+};
+module.exports.loadFromID = loadFromID;
