@@ -2,9 +2,9 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
   div.media-body
     #commenterror
     form(name='whatsupcommentform')
-      .form-group
+      .form-group(ng-class='{nopadding: rows !== 4}')
         textarea.whatsupcomment-input.form-control(ng-model='whatsupcomment', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}")
-      .form-group.text-right
+      .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
         button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
         &nbsp;
         button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}

@@ -1,10 +1,23 @@
 div.widget.whatsup-form.form-container(ng-controller='messageController')
   #error
+  ul.list-inline
+    li
+      button.btn.btn-link(type='button')
+        i.fa.fa-pencil
+    li
+      button.btn.btn-link(type='button')
+        i.fa.fa-comment
+    li
+      button.btn.btn-link(type='button')
+        i.fa.fa-question
+    li
+      button.btn.btn-link(type='button')
+        i.fa.fa-list-alt
   form(name='whatsupform')
-    .form-group
+    .form-group(ng-class='{nopadding: rows !== 5}')
       textarea.whatsup-input.form-control(ng-model='whatsupmessage', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}")
-    .form-group
-      .pull-left
-        button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Publish')}
+    .form-group(ng-class='{nopadding: rows !== 5}')
+      .text-left
+        button.btn.btn-primary(type='submit', ng-hide='rows !== 5', ng-click='sendMessage()') #{__('Publish')}
         &nbsp;
-        button.btn.btn-default(type='reset', ng-click='resetMessage()') #{__('Cancel')}
+        button.btn.btn-default(type='reset', ng-hide='rows !== 5', ng-click='resetMessage()') #{__('Cancel')}
