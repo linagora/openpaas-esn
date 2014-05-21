@@ -2,9 +2,9 @@ div.widget.thread.row
   div.col-md-12
     whatsup-message(message='message')
 
-  div.col-md-12.well
+  div.col-md-12
     div.col-md-12(ng-hide='!message.responses || message.responses.length === 0')
-      div.message-comment(ng-repeat='response in message.responses')
+      div.inner-widget.message-comment(ng-repeat='response in message.responses')
         whatsup-message(message='response')
-    div.col-md-12
+    div.col-md-12.inner-widget.message-add-comment
       whatsup-add-comment

@@ -20,7 +20,7 @@
 
 @defaultImageSizeMedium: 48px;
 @defaultImageSizeSmall: 24px;
-@defaultImageSizeTiny: 12px;
+@defaultImageSizeTiny: 20px;
 
 @defaultPaddingButton: 2px 12px;
 
@@ -67,11 +67,35 @@ body {
   margin-bottom: 10px;
 }
 
-.message-comment {
+.inner-widget {
   background: @inner-widget-background;
-  width: 75%;
-  .ResizeImage(@defaultImageSizeTiny, auto);
+  padding: 5px;
+}
+
+.message-comment {
+  margin-bottom: 1px;
+  margin-left: 40px;
+  margin-right: -15px;
+  .ResizeImage(@defaultImageSizeSmall, auto);
   .RoundedShape(0);
+
+  span {
+    display: none;
+  }
+}
+
+.message-add-comment {
+  margin-left: 55px;
+  margin-bottom: 15px;
+
+  @media (min-width: 992px) {
+    margin-left: 0px;
+  }
+
+  textarea {
+    .RoundedShape(0);
+    border: none;
+  }
 }
 
 .message-bottom-links {
