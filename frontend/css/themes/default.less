@@ -63,19 +63,18 @@ body {
   }
 }
 
-.thread {
-  margin-bottom: 10px;
-}
-
 .inner-widget {
   background: @inner-widget-background;
   padding: 5px;
 }
 
+.media {
+  .media {
+    margin-top: 1px;
+  }
+}
+
 .message-comment {
-  margin-bottom: 1px;
-  margin-left: 40px;
-  margin-right: -15px;
   .ResizeImage(@defaultImageSizeSmall, auto);
   .RoundedShape(0);
 
@@ -85,12 +84,7 @@ body {
 }
 
 .message-add-comment {
-  margin-left: 55px;
   margin-bottom: 15px;
-
-  @media (min-width: 992px) {
-    margin-left: 0px;
-  }
 
   textarea {
     .RoundedShape(0);

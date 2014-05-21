@@ -1,10 +1,16 @@
-div.widget.thread.row
-  div.col-md-12
-    whatsup-message(message='message')
+div.col-md-12.widget.thread
+  a.pull-left(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  div.media-body
+    h4.media-heading
+      a(href="#") {{message.author.firstname}} {{message.author.lastname}}
+      small
+        | &nbsp;on&nbsp;
+        a(href="/#messages/{{message._id}}") {{message.published}}
+    p {{message.content}}
+    include partials/whatsupBottomLinks
 
-  div.col-md-12
-    div.col-md-12(ng-hide='!message.responses || message.responses.length === 0')
-      div.inner-widget.message-comment(ng-repeat='response in message.responses')
-        whatsup-message(message='response')
-    div.col-md-12.inner-widget.message-add-comment
+    div.col-md-12.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
+      whatsup-message(message='response')
+    div.col-md-12.media.message-add-comment
       whatsup-add-comment
