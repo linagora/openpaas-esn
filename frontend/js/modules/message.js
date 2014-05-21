@@ -128,7 +128,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.resetComment = function() {
       $scope.whatsupcomment = '';
-      $scope.rows = 2;
+      $scope.rows = 1;
     };
 
     $scope.displayError = function(err) {
