@@ -1,4 +1,4 @@
-div.col-md-12.widget.thread
+div.widget.thread
   a.pull-left(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div.media-body
@@ -10,7 +10,7 @@ div.col-md-12.widget.thread
     p {{message.content}}
     include partials/whatsupBottomLinks
 
-    div.col-md-12.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
+    div.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
       whatsup-message(message='response')
-    div.col-md-12.media.message-add-comment
+    div.media.message-add-comment
       whatsup-add-comment

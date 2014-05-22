@@ -21,7 +21,7 @@
 
 @defaultImageSizeBig: 150px;
 @defaultImageSizeMedium: 48px;
-@defaultImageSizeSmall: 24px;
+@defaultImageSizeSmall: 32px;
 @defaultImageSizeTiny: 20px;
 
 @defaultPaddingButton: 2px 12px;
@@ -67,17 +67,22 @@ body {
 
 .inner-widget {
   background: @inner-widget-background;
+  padding-top: 10px;
+  padding-left: 5px;
 }
 
 .thread {
-  .media-object {
-    margin: 5px;
+  padding: 10px;
+  .media-body {
+    >h4, >p, >ul {
+      padding-left: 10px;
+    }
   }
 }
 
 .media {
   .media {
-    margin-top: 1px;
+    margin-top: 0px;
     padding: 0;
   }
   .media-body {
@@ -100,7 +105,6 @@ body {
 }
 
 .message-add-comment {
-  margin-bottom: 15px;
 
   textarea {
     .RoundedShape(0);
@@ -116,6 +120,7 @@ body {
     padding: 0;
   }
   margin-bottom: 5px;
+  margin-left: 0px;
   li {
     padding-left: 0px;
   }

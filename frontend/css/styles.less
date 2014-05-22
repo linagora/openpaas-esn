@@ -147,6 +147,8 @@ header.topbar {
   font-size: 1.2em;
   >.container {
     background-color: @esn-primary-dark;
+    border-bottom-left-radius: 9px;
+    border-bottom-right-radius: 9px;
     padding-left: 0px;
     padding-right: 0px;
     padding-top: 1px;
@@ -161,8 +163,9 @@ header.topbar {
 }
 
 .esn-navbar-side {
+  border-bottom-left-radius: 7px;
   background-color: @esn-secondary-dark;
-  border-bottom: 1px solid @esn-secondary-dark;
+  border-bottom: 2px solid @esn-secondary-dark;
   -moz-box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
   -webkit-box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
   -o-box-shadow: 0px -1px 0px 0px @esn-secondary-dark;
@@ -171,7 +174,8 @@ header.topbar {
 }
 
 .esn-navbar-main {
-  border-bottom: 1px solid @esn-secondary-dark;
+  border-bottom: 2px solid @esn-secondary-dark;
+  border-bottom-right-radius: 7px;
   .row {
     box-shadow: 0 0 33px #BBB;
   }
