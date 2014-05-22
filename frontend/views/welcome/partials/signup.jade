@@ -16,6 +16,7 @@ div.col-md-12.panel.widget(ng-show="!error")
         .col-lg-6.col-xs-12.form-group(ng-class="{'has-error':  form.lastname._blur && form.lastname.$invalid}")
           input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required, esn-track-first-blur)
           .help-block(ng-show='form.lastname._blur && !form.lastname.$viewValue') #{__('Last name is required')}
+
       .row
         .col-xs-6.col-xs-offset-6.form-group
           button.btn.btn-primary.pull-right(type='submit', ng-disabled='signupTask.running')
