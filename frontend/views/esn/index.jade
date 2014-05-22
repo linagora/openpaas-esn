@@ -26,6 +26,8 @@ html
     script(src='/components/blueimp-canvas-to-blob/js/canvas-to-blob.js')
     script(src='/components/angular-strap/dist/angular-strap.js')
     script(src='/components/angular-strap/dist/angular-strap.tpl.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='/components/angular-socket-io/socket.js')
     script(src='js/esn/app.js')
     script(src='/components/spin.js/spin.js')
     script(src='/components/angular-spinner/angular-spinner.js')
@@ -40,6 +42,7 @@ html
     script(src='js/modules/session.js')
     script(src='js/modules/rest-helper.js')
     script(src='js/modules/activitystream.js')
+    script(src='js/modules/websocket.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitController")
     #wrap(ng-include='session.template')

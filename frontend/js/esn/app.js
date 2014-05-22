@@ -11,7 +11,8 @@ angular.module('esnApp', [
   'esn.user',
   'esn.message',
   'esn.session',
-  'esn.activitystream'
+  'esn.activitystream',
+  'esn.websocket'
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
