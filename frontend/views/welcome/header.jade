@@ -1,11 +1,15 @@
-#welcome-header
-  div
-    .navbar.navbar-default.navbar-fixed-top
-      .container
-        .navbar-header
-          button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
-            span.sr-only Toggle navigation
-            span.icon-bar
-            span.icon-bar
-            span.icon-bar
-          a.navbar-brand(href='/') Hiveet
+header.topbar.navbar.esn-welcome-header(role="navigation")
+  .container
+    a(href="#/")
+      img.logo(src="/images/logo.png")
+    div.pull-right.avatar
+      div.dropdown
+        button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
+          | Langage: Français
+          span.caret
+        ul.dropdown-menu.dropdown-menu-right(role="menu" aria-labelledby="userPreferencesMenu")
+          li
+            a(href='/#') Français
+          li
+            a(href='/#') English
+                         
