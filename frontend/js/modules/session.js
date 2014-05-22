@@ -19,6 +19,9 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   return session;
 
 }])
+.controller('currentDomainController', ['session', '$scope', function(session, $scope) {
+  $scope.domain = session.domain;
+}])
 .controller('sessionInitController',
             ['$scope', '$q', 'userAPI', 'domainAPI', 'session', '$route',
              function($scope, $q, userAPI, domainAPI, session) {

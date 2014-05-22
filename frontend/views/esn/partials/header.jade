@@ -27,7 +27,7 @@ nav(class="navbar navbar-default" role="navigation" data-offset-top="50" bs-affi
         .esn-item.active
           span
             i.fa.fa-hdd-o
-            span.hidden-xs Domain
+            span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
         .esn-item
           span
             i.fa.fa-comments-o
