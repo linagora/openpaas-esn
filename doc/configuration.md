@@ -44,3 +44,13 @@ The ESN session attributes can be configured like:
 
 - remember: The persistent cookie lifetime
 - secret: The secret used to crypt cookies
+
+## Redis
+
+Defines the Redis configuration using the standard Redis options defined in the [redis node client](https://github.com/mranney/node_redis#rediscreateclientport-host-options):
+
+    {
+      "_id": "redis",
+      "host": "localhost",
+      "port": 6379
+    }
