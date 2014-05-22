@@ -67,7 +67,6 @@ body {
 
 .inner-widget {
   background: @inner-widget-background;
-  padding: 5px;
 }
 
 .thread {
@@ -79,6 +78,15 @@ body {
 .media {
   .media {
     margin-top: 1px;
+    padding: 0;
+  }
+  .media-body {
+    overflow: inherit;
+  }
+  @media (min-width: 992px) {
+    .media-body {
+      overflow: hidden;
+    }
   }
 }
 
@@ -96,6 +104,10 @@ body {
 
   textarea {
     .RoundedShape(0);
+  }
+
+  .inner-widget {
+    padding: 5px;
   }
 }
 
@@ -131,6 +143,12 @@ body {
 
 .esn-welcome {
   .ResizeImage(@defaultImageSizeBig, auto);
+}
+
+.esn-home-container {
+  .container {
+    padding: 0;
+  }
 }
 
 @media (min-width: 992px) {

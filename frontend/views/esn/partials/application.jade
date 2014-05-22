@@ -1,8 +1,9 @@
 include ./header
-
-div.container
-  .row
-    div.leftPane.col-sm-2.hidden-xs.nopadding Left Pane
-    div.col-sm-10.col-xs-12
-      .row(ng-view)
-include ../../partials/footer
+.esn-home-container
+  .container
+    .row
+      div.col-sm-2.widget.leftPane.hidden-xs.nopadding Left Widget
+      div.col-sm-8.col-xs-12
+        .row(ng-view)
+      div.col-sm-2.widget.rightPane.hidden-xs.nopadding Right Widget
+  include ../../partials/footer
