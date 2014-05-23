@@ -7,9 +7,9 @@ header(class="topbar" role="navigation")
         button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
           img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
           span.caret
-        ul.dropdown-menu.dropdown-menu-right(role="menu" aria-labelledby="userPreferencesMenu")
+        ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
             li: a(href='/#profile') #{__('My Account')}
-            li: a(href='/#/domains/53563716e285ec4e6ffce8f1/members') Membres
+            li: a(href='{{"/#/domains/" + domain._id + "/members"}}') Membres
             li.divider
             li: a(href='/logout') #{__('Logout')}
 
