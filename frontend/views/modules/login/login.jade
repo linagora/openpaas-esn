@@ -1,10 +1,10 @@
-div.col-md-12.panel.widget.form-container
+.col-md-12.panel.widget.form-container
   form(name='form')
-    div.alert.alert-danger(ng-hide='!showError()')
+    .alert.alert-danger(ng-hide='!showError()')
       p
         strong #{__('Error')} :&nbsp;
         | {{error.error.details}}
-    div.alert.alert-info(ng-show='loginIn')
+    .alert.alert-info(ng-show='loginIn')
       p #{__('Please Wait')}...
     fieldset(ng-disabled='loginIn')
       .row
