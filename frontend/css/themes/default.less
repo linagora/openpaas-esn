@@ -20,6 +20,8 @@
 @defaultFontSize: 13px;
 
 @defaultImageSizeBig: 150px;
+@defaultImageSizeLarge: 96px;
+@defaultImageSizeIntermediate: 72px;
 @defaultImageSizeMedium: 48px;
 @defaultImageSizeSmall: 32px;
 @defaultImageSizeTiny: 20px;
@@ -153,6 +155,23 @@ body {
 .esn-home-container {
   .container {
     padding: 0;
+  }
+}
+
+.esn-member {
+  .ResizeImage(@defaultImageSizeIntermediate, auto);
+  .btn {
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .ResizeImage(@defaultImageSizeLarge, auto);
+    .btn {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .thumbnail {
+      margin-bottom: 0;
+    }
   }
 }
 
