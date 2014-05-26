@@ -12,7 +12,7 @@ var defaultOptions = {
   port: 6379
 };
 
-function createClient(options, callback) {
+var createClient = function(options, callback) {
   options = options || defaultOptions;
 
   if (options.url) {
@@ -61,14 +61,19 @@ function createClient(options, callback) {
     connected = true;
   });
 
-  return callback(null, client);
-}
+  client.on('ready', function(err) {
+    logger.info('Redis is Ready', err);
+  });
 
-function init(callback) {
+  return callback(null, client);
+};
+module.exports.createClient = createClient;
+
+var init = function(callback) {
   esnconfig('redis').get(function(err, config) {
     if (err) {
       logger.error('Error while getting the redis configuration', err);
-      callback(err);
+      return callback(err);
     }
     createClient(config, function(err, client) {
       if (client) {
@@ -77,7 +82,7 @@ function init(callback) {
       return callback(err, client);
     });
   });
-}
+};
 module.exports.init = init;
 
 topic.subscribe(function() {
@@ -92,7 +97,7 @@ topic.subscribe(function() {
   });
 });
 
-module.exports.isInitalized = function() {
+module.exports.isInitialized = function() {
   return initialized;
 };
 
@@ -100,10 +105,14 @@ module.exports.isConnected = function() {
   return connected;
 };
 
+module.exports._getClient = function() {
+  return client;
+};
+
 module.exports.getClient = function(callback) {
-  if (connected && client) {
+  if (this.isConnected() && this._getClient()) {
     return callback(null, client);
   } else {
-    return init(callback);
+    return this.init(callback);
   }
 };

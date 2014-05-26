@@ -49,7 +49,16 @@ describe('The Core DB Mongo module', function() {
         events[evt] = callback;
       };
       mockery.registerMock('mongoose', this.mongoose);
+      var configmock = function() {
+        return {
+          get: function(callback) {
+            return callback(new Error('Not useful'));
+          }
+        };
+      };
+      mockery.registerMock('../../../core/esn-config', configmock);
       this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
+      this.mongo = require(this.testEnv.basePath + '/backend/core').db.redis;
       this.pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
       this.pubsub.topic('mongodb:connectionAvailable').subscribe(function() {
         done();
@@ -72,6 +81,15 @@ describe('The Core DB Mongo module', function() {
           events[evt] = callback;
         };
         mockery.registerMock('mongoose', this.mongoose);
+        var configmock = function() {
+          return {
+            get: function(callback) {
+              return callback(new Error('Not useful'));
+            }
+          };
+        };
+        mockery.registerMock('../../../core/esn-config', configmock);
+        require(this.testEnv.basePath + '/backend/core').db.redis;
         this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
         events.connected();
         expect(this.mongo.isConnected()).to.be.true;
@@ -84,6 +102,15 @@ describe('The Core DB Mongo module', function() {
           events[evt] = callback;
         };
         mockery.registerMock('mongoose', this.mongoose);
+        var configmock = function() {
+          return {
+            get: function(callback) {
+              return callback(new Error('Not useful'));
+            }
+          };
+        };
+        mockery.registerMock('../../../core/esn-config', configmock);
+        require(this.testEnv.basePath + '/backend/core').db.redis;
         this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
         events.connected();
         events.disconnected();

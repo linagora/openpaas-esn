@@ -3,8 +3,6 @@
 var logger = require('../core/logger');
 var io = require('socket.io');
 var express = require('express');
-var authtoken = require('../core/auth/token');
-var pubsub = require('../core/pubsub').local;
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -16,6 +14,15 @@ var wsserver = {
 };
 
 exports = module.exports = wsserver;
+
+var websockets = {};
+function getSocketForUser(user) {
+  if (!user) {
+    return null;
+  }
+  return websockets[user];
+}
+wsserver.getSocketForUser = getSocketForUser;
 
 function start(port, callback) {
   if (arguments.length === 0) {
@@ -30,7 +37,6 @@ function start(port, callback) {
     wsserver.server.removeListener('error', listenCallback);
     callback(err);
   }
-
 
   if (wsserver.started) {
     return callback();
@@ -52,39 +58,25 @@ function start(port, callback) {
   }
 
   var sio = io.listen(wsserver.server);
-  sio.configure(function() {
-    sio.set('authorization', function(handshakeData, callback) {
-      if (!handshakeData.query.token || !handshakeData.query.user) {
-        return callback(new Error('Token or user not found'));
-      }
-      authtoken.getToken(handshakeData.query.token, function(err, data) {
-        if (err ||   !data) {
-          return callback(null, false);
-        }
+  if (sio) {
+    sio.configure(function() {
+      sio.set('authorization', require('./auth/token'));
+    });
 
-        if (handshakeData.query.user !== data.user) {
-          return callback(new Error('Bad user'));
-        }
+    sio.sockets.on('connection', function(socket) {
+      var user = socket.handshake.user;
+      websockets[user] = socket;
 
-        handshakeData.user = data.user;
-        return callback(null, true);
+      socket.on('disconnect', function() {
+        logger.info('Socket is disconnected for user = ', user);
+        delete websockets[user];
       });
     });
-  });
 
-  sio.sockets.on('connection', function(socket) {
-    var user = socket.handshake.user;
-
-    socket.on('disconnect', function() {
-      console.log('Socket is disconnected for user = ', user);
-    });
-
-    pubsub.topic('login:success').subscribe(function(user) {
-      socket.broadcast.emit('user:login', user);
-    });
-  });
-
-  realCallback();
+    wsserver.io = sio;
+    require('./events')(sio);
+  }
+  return realCallback();
 }
 
 wsserver.start = start;

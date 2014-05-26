@@ -8,6 +8,11 @@ var getNewToken = function(options, callback) {
   options = options || {};
   options.ttl = options.ttl || 60;
   redis.getClient(function(err, client) {
+
+    if (err || !client) {
+      return callback(new Error('Error while getting client'));
+    }
+
     options.token = uuid.v4();
     options.created_at = new Date();
 
@@ -54,7 +59,7 @@ var getToken = function(token, callback) {
   redis.getClient(function(err, client) {
     if (err) {
       logger.error('Problem while getting redis client', err);
-      return callback(false);
+      return callback(err);
     }
     client.get(token, function(err, data) {
       if (err) {
@@ -63,7 +68,7 @@ var getToken = function(token, callback) {
       }
 
       if (!data) {
-        callback();
+        return callback();
       }
 
       return callback(null, JSON.parse(data));
