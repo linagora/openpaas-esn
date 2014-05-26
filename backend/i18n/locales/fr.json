@@ -36,7 +36,7 @@
   "No account yet ?": "Nouveau sur Hiveet ?",
   "Register today": "Inscrivez-vous",
   "Sign up in Hiveet": "S'inscrire sur Hiveet",
-  "Remember me": "se souvenir de moi",
+  "Remember me": "Se souvenir de moi",
   "Forgot password ?": "Mot de passe oublié ?",
   "This company is already registered. Please choose another one.": "Cette société est déjà enregistrée. Merci d'entrer un autre nom.",
   "Email address is required": "Merci d'indiquer votre adresse email",
@@ -81,6 +81,8 @@
   "Edit": "Editer",
   "Add a comment": "Ajouter un commentaire",
   "Comment": "Commenter",
-  "There are no messages on this activity stream yet. Be the first to post !" : "Il n'y a pas encore de message sur ce flux. Soyez le premier à en ajouter !"
+  "There are no messages on this activity stream yet. Be the first to post !" : "Il n'y a pas encore de message sur ce flux. Soyez le premier à en ajouter !",
+  "Useful": "Utile",
+  "Share": "Partager"
 
 }

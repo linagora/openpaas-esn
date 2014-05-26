@@ -1,71 +1,72 @@
-div.login-bg(id='form', ng-show="!notFound && !error && !complete")
+.container
+  div.col-md-12.widget(id='form', ng-show="!notFound && !error && !complete")
     div.form-container
-        div.alert.alert-success(ng-show="invited") #{__('You have been invited to join Hiveet. Please fill up the signup form to complete the process')}
-        form(name='form')
-            legend #{__('Finalize Sign Up')}
-            .row
-                .col-xs-6.form-group(ng-class='{"has-error": form.firstname._blur && form.firstname.$invalid}')
-                    label.control-label(for='firstname') #{__('First Name')}
-                    input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required ng-minlength='1' esn-track-first-blur)
-                    .help-block(ng-show='form.firstname._blur && !form.firstname.$viewValue') #{__('First name is required')}
-                .col-xs-6.form-group(ng-class='{"has-error": form.lastname._blur && form.lastname.$invalid}')
-                    label.control-label(for='lastname') #{__('Last Name')}
-                    input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required ng-minlength='1' esn-track-first-blur)
-                    .help-block(ng-show='form.lastname._blur && !form.lastname.$viewValue') #{__('Last name is required')}
-                    
-            .form-group.has-feedback(ng-class='{"has-error": form.company._blur && form.company.$invalid}')
-                label.control-label(for='company') #{__('Company Name')}
-                input.form-control( type='company'
-                                    ng-model='settings.company'
-                                    name='company'
-                                    id='company'
-                                    required
-                                    autocomplete='off'
-                                    ng-minlength='1'
-                                    ensure-unique-company
-                                    esn-track-first-blur
-                                    ng-disabled='{{!editCompany}}'
-                                    )
-                span.glyphicon.glyphicon-asterisk.form-control-feedback.rotate(ng-show='form.company.$error.ajax')
-                
-                .help-block(ng-show='form.company.$dirty && form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
-                .help-block(ng-show='form.company._blur && !form.company.$viewValue') #{__('Company name is required')}
-                
-            .form-group(ng-class='{"has-error": form.domain._blur && form.domain.$invalid}')
-                label.control-label(for='domain') #{__('Domain Name')}
-                input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1' esn-track-first-blur ng-disabled='{{!editCompany}}')
-                .help-block(ng-show='form.domain._blur && !form.domain.$viewValue') #{__('Domain name is required')}
+      div.alert.alert-success(ng-show="invited") #{__('You have been invited to join Hiveet. Please fill up the signup form to complete the process')}
+      form(name='form')
+        legend #{__('Finalize Sign Up')}
+        .row
+          .col-xs-6.form-group(ng-class='{"has-error": form.firstname._blur && form.firstname.$invalid}')
+            label.control-label(for='firstname') #{__('First Name')}
+            input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required ng-minlength='1' esn-track-first-blur)
+            .help-block(ng-show='form.firstname._blur && !form.firstname.$viewValue') #{__('First name is required')}
+          .col-xs-6.form-group(ng-class='{"has-error": form.lastname._blur && form.lastname.$invalid}')
+            label.control-label(for='lastname') #{__('Last Name')}
+            input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required ng-minlength='1' esn-track-first-blur)
+            .help-block(ng-show='form.lastname._blur && !form.lastname.$viewValue') #{__('Last name is required')}
 
-            .form-group(ng-class='{"has-error": form.confirmpassword._blur && form.confirmpassword.$invalid}')
-                .row
-                    .col-xs-6.pull-left
-                        label.control-label(for='password') #{__('Password')}
-                        input.form-control(type='password', ng-model='settings.password', name='password', required)
-                        br
-                .row
-                    .col-xs-6.pull-left
-                        label.control-label(for='confirmpassword') #{__('Confirm Password')}
-                        input.form-control(type='password', ng-model='settings.confirmpassword', name='confirmpassword', required, password-match='settings.password' esn-track-first-blur)
-                .help-block(ng-show='form.confirmpassword._blur && form.confirmpassword.$error.unique') #{__('The two passwords do not match')}
-                
-            .form-group
-                button.btn.btn-warning.pull-right(type='submit', ng-click='finalize()', ng-disabled='form.$invalid')
-                    i.fa.fa-sign-in
-                    | #{__('{{finalizeButton.label}}')}
+        .row
+          .col-xs-12.form-group.has-feedback(ng-class='{"has-error": form.company._blur && form.company.$invalid}')
+            label.control-label(for='company') #{__('Company Name')}
+            input.form-control( type='company'
+            ng-model='settings.company'
+            name='company'
+            id='company'
+            required
+            autocomplete='off'
+            ng-minlength='1'
+            ensure-unique-company
+            esn-track-first-blur
+            ng-disabled='{{!editCompany}}'
+            )
+            span.glyphicon.glyphicon-asterisk.form-control-feedback.rotate(ng-show='form.company.$error.ajax')
+            .help-block(ng-show='form.company.$dirty && form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
+            .help-block(ng-show='form.company._blur && !form.company.$viewValue') #{__('Company name is required')}
+        .row
+          .col-xs-12.form-group(ng-class='{"has-error": form.domain._blur && form.domain.$invalid}')
+            label.control-label(for='domain') #{__('Domain Name')}
+            input.form-control(type='domain', ng-model='settings.domain', name='domain', id='domain', required autocomplete='off' ng-minlength='1' esn-track-first-blur ng-disabled='{{!editCompany}}')
+            .help-block(ng-show='form.domain._blur && !form.domain.$viewValue') #{__('Domain name is required')}
 
-div.login-bg(id='notfound', ng-show="notFound && !error && !complete")
+        .row.form-group
+          div(ng-class='{"has-error": form.confirmpassword._blur && form.confirmpassword.$invalid}')
+            .col-xs-12
+              label.control-label(for='password') #{__('Password')}
+              input.form-control(type='password', ng-model='settings.password', name='password', required)
+              br
+            .col-xs-12
+              label.control-label(for='confirmpassword') #{__('Confirm Password')}
+              input.form-control(type='password', ng-model='settings.confirmpassword', name='confirmpassword', required, password-match='settings.password' esn-track-first-blur)
+            .help-block(ng-show='form.confirmpassword._blur && form.confirmpassword.$error.unique') #{__('The two passwords do not match')}
+
+        .row
+          .col-xs-6.col-xs-offset-6.form-group
+            button.btn.btn-warning.pull-right(type='submit', ng-click='finalize()', ng-disabled='form.$invalid')
+              i.fa.fa-sign-in
+              | #{__('{{finalizeButton.label}}')}
+
+  div.col-md-12.widget(id='notfound', ng-show="notFound && !error && !complete")
     div.form-container
-        h2 #{__('Not Found')}.
-        div.alert.alert-danger
-            strong #{__('We are not able to find the invitation you requested, please try again.')}
+      h2 #{__('Not Found')}.
+      div.alert.alert-danger
+        strong #{__('We are not able to find the invitation you requested, please try again.')}
 
-div.login-bg(id='error', ng-show="error")
+  div.col-md-12.widget(id='error', ng-show="error")
     div.form-container
-        h2 #{__('Error')}.
-        div.alert.alert-danger
-            strong #{__('There was an error while signin up to the platform. Please try again.')}
+      h2 #{__('Error')}.
+      div.alert.alert-danger
+        strong #{__('There was an error while signin up to the platform. Please try again.')}
 
-div.login-bg(ng-show="!error && complete")
+  div.col-md-12.widget(ng-show="!error && complete")
     div.form-container
-        h2 #{__('Sign Up is complete')}!
-        p #{__('Please hold on while login in')}...
+      h2 #{__('Sign Up is complete')}!
+      p #{__('Please hold on while login in')}...

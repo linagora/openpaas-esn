@@ -1,11 +1,12 @@
-.col-xs-12.col-sm-8
-    div(ng-controller="memberscontroller")
-        .row
-            .col-xs-12.col-sm-8.members-search-form
-                h2 Members
-                search-form(search-spinner-key="membersSpinner")
-        .row
-            .col-xs-12.col-sm-8.col-sm-offset-3.col-xs-offset-4.members-infinite-list
-                infinite-list
-                    div(ng-repeat="member in members")
-                        member-display(member="member")
+.col-xs-12.widget.nopadding
+  div(ng-controller="memberscontroller")
+    .row
+      .col-xs-12
+        h2
+          i.fa.fa-male
+          | Members
+        search-form(search-spinner-key="membersSpinner")
+    .members-infinite-list
+      infinite-list
+        .row(ng-repeat="member in members")
+          member-display(member="member")

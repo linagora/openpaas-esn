@@ -1,18 +1,17 @@
 header(class="topbar" role="navigation")
   .container
     a(href="#/")
-      img(src="/images/logo.png")
+      img.logo(src="/images/logo.png")
     div.pull-right.avatar
       div.dropdown
         button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
           img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
           span.caret
-        ul.dropdown-menu.dropdown-menu-right(role="menu" aria-labelledby="userPreferencesMenu")
+        ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
             li: a(href='/#profile') #{__('My Account')}
+            li: a(href='{{"/#/domains/" + domain._id + "/members"}}') Membres
             li.divider
             li: a(href='/logout') #{__('Logout')}
-
-
 
     div.pull-right.help
       span.horiz-space
@@ -29,7 +28,7 @@ nav(class="navbar navbar-default" role="navigation" data-offset-top="50" bs-affi
         .esn-item.active
           span
             i.fa.fa-hdd-o
-            span.hidden-xs Domain
+            span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
         .esn-item
           span
             i.fa.fa-comments-o

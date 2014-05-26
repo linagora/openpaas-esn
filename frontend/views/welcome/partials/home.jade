@@ -1,9 +1,9 @@
 .container
   include ../../partials/flash
   .row
-    .col-xs-12.col-sm-6
+    .col-xs-12.col-sm-5.col-sm-offset-1
       include ./welcome
-    .col-xs-12.col-sm-6
+    .col-xs-12.col-sm-5
         div(esn-login-autofill ng-controller='login')
             include ../../modules/login/login
         div(ng-controller='signup')

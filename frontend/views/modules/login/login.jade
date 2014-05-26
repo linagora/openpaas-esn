@@ -1,26 +1,29 @@
-div.login-bg
-    div.form-container
-        form(name='form')
-            legend #{__('Sign In')}
-            div.alert.alert-danger(ng-hide='!showError()')
-                p
-                    strong #{__('Error')} :&nbsp;
-                    | {{error.error.details}}
-            div.alert.alert-info(ng-show='loginIn')
-                p #{__('Please Wait')}...
-            fieldset(ng-disabled='loginIn')
-                .form-group
-                    input.form-control(type='email', ng-model='credentials.username', name='username', id='username', placeholder="#{__('Email')}", autofocus=true, required)
-                .form-group
-                    input.form-control(type='password', ng-model='credentials.password', name='password', id='password', placeholder="#{__('Password')}", required, autocomplete='{{autocomplete}}')
-                .checkbox
-                    label
-                        input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
-                        | #{__('Remember me')}
-                .form-group
-                    include recaptcha
-                .form-group
-                    button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
-                        i.fa.fa-sign-in(ng-hide='loginTask.running') &nbsp;
-                        i.fa.fa-spinner(ng-hide='!loginTask.running') &nbsp;
-                        | #{__('{{loginButton.label}}')}
+.col-md-12.panel.widget.form-container
+  form(name='form')
+    .alert.alert-danger(ng-hide='!showError()')
+      p
+        strong #{__('Error')} :&nbsp;
+        | {{error.error.details}}
+    .alert.alert-info(ng-show='loginIn')
+      p #{__('Please Wait')}...
+    fieldset(ng-disabled='loginIn')
+      .row
+        .col-md-12.col-sm-12.form-group
+          input.form-control(type='email', ng-model='credentials.username', name='username', id='username', placeholder="#{__('Email')}", autofocus=true, required)
+        .col-md-8.col-sm-12.form-group
+          input.form-control(type='password', ng-model='credentials.password', name='password', id='password', placeholder="#{__('Password')}", required, autocomplete='{{autocomplete}}')
+        .col-md-4.col-sm-12.form-group
+          button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
+            i.fa.fa-sign-in(ng-hide='loginTask.running') &nbsp;
+            i.fa.fa-spinner(ng-hide='!loginTask.running') &nbsp;
+            | #{__('{{loginButton.label}}')}
+      .row
+        .col-md-6.col-sm-12.form-group
+          label
+            input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
+            | &nbsp; #{__('Remember me')}
+        .col-md-6.col-sm-12.form-group
+          a.esn-pull-right-md(href='/#')
+            | #{__("Forgot password ?")}
+        .form-group
+          include recaptcha

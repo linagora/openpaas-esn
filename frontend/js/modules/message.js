@@ -3,7 +3,7 @@
 angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
   .controller('messageController', ['$scope', 'messageAPI', 'session', '$alert', function($scope, $messageAPI, $session, $alert) {
 
-    $scope.rows = 3;
+    $scope.rows = 1;
 
     $scope.expand = function(event) {
       $scope.rows = 5;
@@ -11,7 +11,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.shrink = function(event) {
       if (!$scope.whatsupmessage) {
-        $scope.rows = 3;
+        $scope.rows = 1;
       }
     };
 
@@ -38,7 +38,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       $messageAPI.post(objectType, data, [target]).then(
         function(data) {
           $scope.whatsupmessage = '';
-          $scope.rows = 3;
+          $scope.rows = 1;
           $alert({
             content: 'Message has been published',
             type: 'success',
@@ -75,7 +75,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
   .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
     $scope.whatsupcomment = '';
     $scope.sending = false;
-    $scope.rows = 2;
+    $scope.rows = 1;
 
     $scope.expand = function() {
       $scope.rows = 4;
@@ -83,7 +83,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.shrink = function(event) {
       if (!$scope.whatsupcomment) {
-        $scope.rows = 2;
+        $scope.rows = 1;
       }
     };
 
@@ -128,7 +128,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
 
     $scope.resetComment = function() {
       $scope.whatsupcomment = '';
-      $scope.rows = 2;
+      $scope.rows = 1;
     };
 
     $scope.displayError = function(err) {

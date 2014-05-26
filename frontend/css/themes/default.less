@@ -1,0 +1,219 @@
+
+// Site Colors
+// -----------
+
+@grey: #eff0f4;
+@light-grey: #f8f8f8;
+@dark-grey: #adadad;
+@blue: #4982eb;
+@yellow: #eecb25;
+@green: #abc85c;
+@red: #bc015c;
+@secondary-red: #e40c24;
+@black: #232323;
+
+@defaultRadius: 4px;
+@defaultShadow: 1px 1px 0 #ddd;
+@defaultFontColor: #343434;
+@defaultBorderColor: #dce4e7;
+@defaultBorder: solid @defaultBorderColor 1px;
+@defaultFontSize: 13px;
+
+@defaultImageSizeBig: 150px;
+@defaultImageSizeLarge: 96px;
+@defaultImageSizeIntermediate: 72px;
+@defaultImageSizeMedium: 48px;
+@defaultImageSizeSmall: 32px;
+@defaultImageSizeTiny: 20px;
+
+@defaultPaddingButton: 2px 12px;
+
+@site-background: @grey;
+@header-background: @black;
+@widget-background: @light-grey;
+@inner-widget-background: #eeeeee;
+@button-standard-background: @yellow;
+@button-standard-boder-color: #ecc925;
+
+// Site Rules
+// ----------
+
+body {
+  background: @site-background;
+}
+
+.btn {
+  padding: @defaultPaddingButton;
+  font-size: @defaultFontSize;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.widget {
+  background: @widget-background;
+  border: @defaultBorder;
+  .ResizeImage(@defaultImageSizeMedium, auto);
+  .RoundedShape();
+  .ShadowedShape();
+  .btn-primary {
+    background: @button-standard-background;
+    border-color: @button-standard-boder-color;
+    color: @defaultFontColor;
+    .RoundedShape();
+    .ShadowedShape();
+  }
+}
+
+.inner-widget {
+  background: @inner-widget-background;
+  padding-top: 10px;
+  padding-left: 5px;
+}
+
+.thread {
+  padding: 10px;
+  .media-body {
+    >h4, >p, >ul {
+      padding-left: 10px;
+    }
+  }
+}
+
+.media {
+  .media {
+    margin-top: 0px;
+    padding: 0;
+  }
+  .media-body {
+    overflow: inherit;
+  }
+  @media (min-width: 992px) {
+    .media-body {
+      overflow: hidden;
+    }
+  }
+}
+
+.message-comment {
+  .ResizeImage(@defaultImageSizeSmall, auto);
+  .RoundedShape(0);
+
+  span {
+    display: none;
+  }
+}
+
+.message-add-comment {
+
+  textarea {
+    .RoundedShape(0);
+  }
+
+  .inner-widget {
+    padding: 5px;
+  }
+}
+
+.message-bottom-links {
+  .btn {
+    padding: 0;
+  }
+  margin-bottom: 5px;
+  margin-left: 0px;
+  li {
+    padding-left: 0px;
+  }
+}
+
+.esn-welcome-header {
+  .container {
+    .ShadowedShape(0 1px 0 @secondary-red);
+  }
+  @media (min-width: 992px) {
+    margin-bottom: 100px;
+  }
+  img.logo {
+    padding-top: 2px;
+    padding-left: 4px;
+  }
+}
+
+.esn-solid-background {
+  margin: 10px auto; // top right bottom left
+  max-width: 640px;
+  .RoundedShape();
+  .ShadowedShape();
+}
+
+.esn-welcome {
+  .ResizeImage(@defaultImageSizeBig, auto);
+}
+
+.esn-home-container {
+  .container {
+    padding: 0;
+  }
+}
+
+.esn-member {
+  .ResizeImage(@defaultImageSizeIntermediate, auto);
+  .btn {
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .ResizeImage(@defaultImageSizeLarge, auto);
+    .btn {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .thumbnail {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  .esn-pull-right-md {
+    float: right;
+  }
+}
+
+.esn-search-form-input {
+  .btn {
+    padding: 7px 8px;
+  }
+}
+
+// Helpers
+// -------
+
+.nopadding {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.RoundedShape(@radius:@defaultRadius){
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.ShadowedShape(@shadow:@defaultShadow){
+  box-shadow: @shadow;
+  -moz-box-shadow: @shadow;
+  -webkit-box-shadow: @shadow;
+}
+
+.ResizeImage(@width, @height) {
+  img {
+    width: @width;
+    height: @height;
+  }
+}
+
+.vertical-centered {
+  vertical-align: middle;
+}

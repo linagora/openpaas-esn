@@ -1,8 +1,16 @@
-div.login-bg.container-fluid
-    div.row
-        div.col-md-4
-            img(width='128', height='128', src='/images/user.png', ng-src='/api/users/{{member._id}}/profile/avatar')
-        div.col-md-8
-            h4 {{member.firstname}} {{member.lastname}}
-            span
-                a(href='mailto:{{member.emails[0]}}') {{member.emails[0]}}
+div.col-xs-12.nopadding.esn-member
+  .col-xs-12
+    hr
+  .col-lg-2.col-sm-3.col-xs-4
+    img.thumbnail(src='/images/user.png', ng-src='/api/users/{{member._id}}/profile/avatar')
+  .col-lg-7.col-sm-5.col-xs-8
+    h4.media-heading {{member.firstname}} {{member.lastname}}
+    span
+      a(href='mailto:{{member.emails[0]}}') {{member.emails[0]}}
+  .col-lg-3.col-sm-4.col-xs-12
+    .col-sm-12.col-xs-6
+      button.btn.btn-primary
+        | Contacter
+    .col-sm-12.col-xs-6
+      button.btn.btn-primary
+        | Ajouter
