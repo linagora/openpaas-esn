@@ -31,7 +31,7 @@ describe('The Search Form Angular module', function() {
       var html = '<search-form></search-form>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
-      
+
       this.checkGeneratedElement(element, defaultSpinnerConfiguration.spinnerKey, defaultSpinnerConfiguration.spinnerConf);
     }));
 
