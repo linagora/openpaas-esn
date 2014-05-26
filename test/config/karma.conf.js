@@ -18,7 +18,7 @@ module.exports = function(config) {
       'frontend/components/spin.js/spin.js',
       'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
-      'frontend/components/ngInfiniteScroll/ng-infinite-scroll.js',
+      'frontend/components/ngInfiniteScroll/build/ng-infinite-scroll.js',
       'frontend/components/ng-tags-input/ng-tags-input.js',
       'frontend/components/angular-xeditable/dist/js/xeditable.js',
       'frontend/js/**/*.js',
