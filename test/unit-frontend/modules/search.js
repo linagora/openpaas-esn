@@ -18,9 +18,8 @@ describe('The Search Form Angular module', function() {
 
     beforeEach(function() {
       this.checkGeneratedElement = function(element, spinnerKey, spinnerConf) {
-
         var checkGeneratedAttributeValue = function(element, attrName, attrValue) {
-          expect(element.find('span')[2].attributes.getNamedItem(attrName).value).to.equal(attrValue);
+          expect(element.find('span')[0].attributes.getNamedItem(attrName).value).to.equal(attrValue);
         };
 
         checkGeneratedAttributeValue(element, 'spinner-key', spinnerKey);
@@ -32,7 +31,7 @@ describe('The Search Form Angular module', function() {
       var html = '<search-form></search-form>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
-
+      
       this.checkGeneratedElement(element, defaultSpinnerConfiguration.spinnerKey, defaultSpinnerConfiguration.spinnerConf);
     }));
 
