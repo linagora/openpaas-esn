@@ -71,5 +71,6 @@ exports = module.exports = function(application) {
   var authentication = require('./controllers/authtoken');
   application.get('/api/authenticationtoken', authorize.requiresAPILogin, authentication.getNewToken);
   application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authentication.getToken);
+  application.get('/api/users/:token', authentication.getUser);
 };
 
