@@ -15,6 +15,15 @@ var wsserver = {
 
 exports = module.exports = wsserver;
 
+var websockets = {};
+function getSocketForUser(user) {
+  if (!user) {
+    return null;
+  }
+  return websockets[user];
+}
+wsserver.getSocketForUser = getSocketForUser;
+
 function start(port, callback) {
   if (arguments.length === 0) {
     logger.error('Websocket server start method should have at least 1 argument');
@@ -28,7 +37,6 @@ function start(port, callback) {
     wsserver.server.removeListener('error', listenCallback);
     callback(err);
   }
-
 
   if (wsserver.started) {
     return callback();
@@ -48,8 +56,27 @@ function start(port, callback) {
     wsserver.server.on('error', listenCallback);
     realCallback = function() {};
   }
-  io.listen(wsserver.server);
-  realCallback();
+
+  var sio = io.listen(wsserver.server);
+  if (sio) {
+    sio.configure(function() {
+      sio.set('authorization', require('./auth/token'));
+    });
+
+    sio.sockets.on('connection', function(socket) {
+      var user = socket.handshake.user;
+      websockets[user] = socket;
+
+      socket.on('disconnect', function() {
+        logger.info('Socket is disconnected for user = ', user);
+        delete websockets[user];
+      });
+    });
+
+    wsserver.io = sio;
+    require('./events')(sio);
+  }
+  return realCallback();
 }
 
 wsserver.start = start;

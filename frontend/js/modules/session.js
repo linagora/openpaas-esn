@@ -1,10 +1,11 @@
 'use strict';
 
-angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
+angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', 'ngRoute'])
 .factory('session', [function() {
   var session = {
     user: {},
-    domain: {}
+    domain: {},
+    token: {}
   };
 
   function setUser(user) {
@@ -13,18 +14,21 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   function setDomain(domain) {
     angular.copy(domain, session.domain);
   }
+  function setWebsocketToken(token) {
+    angular.copy(token, session.token);
+  }
   session.setUser = setUser;
   session.setDomain = setDomain;
+  session.setWebsocketToken = setWebsocketToken;
 
   return session;
-
 }])
 .controller('currentDomainController', ['session', '$scope', function(session, $scope) {
   $scope.domain = session.domain;
 }])
 .controller('sessionInitController',
-            ['$scope', '$q', 'userAPI', 'domainAPI', 'session', '$route',
-             function($scope, $q, userAPI, domainAPI, session) {
+            ['$scope', '$q', 'userAPI', 'domainAPI', 'tokenAPI', 'session', '$route',
+             function($scope, $q, userAPI, domainAPI, tokenAPI, session) {
   $scope.session = {
     template: '/views/esn/partials/loading.html'
   };
@@ -53,6 +57,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
         return;
       }
       fetchDomain(domainIds[0]);
+      fetchWebsocketToken();
     }, onError);
   }
 
@@ -61,6 +66,16 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
       session.setDomain(response.data);
       $scope.session.template = '/views/esn/partials/application.html';
     }, onError);
+  }
+
+  function fetchWebsocketToken() {
+    tokenAPI.getNewToken().then(function(response) {
+      session.setWebsocketToken(response.data);
+    }), function(error) {
+      if (error && error.data) {
+        console.log('Error while getting auth token', error.data);
+      }
+    };
   }
 
   fetchUser();

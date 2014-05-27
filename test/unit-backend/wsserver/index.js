@@ -88,7 +88,7 @@ describe('The WebSockets server module', function() {
           listen: function(target) {
             expect(wsserver.server).to.equal(webserver.server);
             expect(target).to.equal(webserver.server);
-            done();
+            return done();
           }
         };
 
@@ -121,5 +121,87 @@ describe('The WebSockets server module', function() {
       wsserver.start(function() {done();});
     });
 
+  });
+
+  describe('socket.io instance', function() {
+    it('should add user on socket connection', function(done) {
+      var events = require('events');
+      var eventEmitter = new events.EventEmitter();
+
+      var ioMock = {
+        listen: function() {
+          return {
+            configure: function() {
+            },
+            set: function() {
+            },
+            sockets: eventEmitter
+          };
+        }
+      };
+
+      mockery.registerMock('./middleware/setup-sessions', function() {});
+      mockery.registerMock('socket.io', ioMock);
+
+      var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      wsserver.start(function() {
+        var socket = {
+          handshake: {
+            user: 123
+          },
+          on: function() {
+          }
+        };
+        eventEmitter.emit('connection', socket);
+
+        process.nextTick(function() {
+          expect(wsserver.getSocketForUser(123)).to.exist;
+          expect(wsserver.getSocketForUser(123)).to.deep.equal(socket);
+          done();
+        });
+      });
+    });
+
+    it('should remove user on socket disconnect event', function(done) {
+      var events = require('events');
+      var eventEmitter = new events.EventEmitter();
+      var util = require('util');
+
+      function Socket(handshake) {
+        this.handshake = handshake;
+        events.EventEmitter.call(this);
+      }
+      util.inherits(Socket, events.EventEmitter);
+
+      var ioMock = {
+        listen: function() {
+          return {
+            configure: function() {
+            },
+            set: function() {
+            },
+            sockets: eventEmitter
+          };
+        }
+      };
+
+      mockery.registerMock('./middleware/setup-sessions', function() {});
+      mockery.registerMock('socket.io', ioMock);
+
+      var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      wsserver.start(function() {
+        var socket = new Socket({user: 123});
+        eventEmitter.emit('connection', socket);
+
+        process.nextTick(function() {
+          expect(wsserver.getSocketForUser(123)).to.exist;
+          socket.emit('disconnect');
+          process.nextTick(function() {
+            expect(wsserver.getSocketForUser(123)).to.not.exist;
+            done();
+          });
+        });
+      });
+    });
   });
 });

@@ -15,14 +15,16 @@ describe('The esn.session Angular module', function() {
       });
     });
 
-    it('should return an object with 2 properties: user and domain', function() {
+    it('should return an object with 3 properties: user, domain and token', function() {
       expect(this.session.user).to.be.an.object;
       expect(this.session.domain).to.be.an.object;
+      expect(this.session.token).to.be.an.object;
     });
 
-    it('should return an object with 2 methods: setUser and setDomain', function() {
+    it('should return an object with 3 methods: setUser, setDomain, setWebsocketToken', function() {
       expect(this.session).to.respondTo('setUser');
       expect(this.session).to.respondTo('setDomain');
+      expect(this.session).to.respondTo('setWebsocketToken');
     });
 
     describe('setUser method', function() {
@@ -63,6 +65,25 @@ describe('The esn.session Angular module', function() {
       });
     });
 
+    describe('setWebsocketToken method', function() {
+      it('should set the session.token object', function() {
+        var token = this.session.token;
+        var token1 = {
+          _id: '1',
+          name: 'hello'
+        };
+        var token2 = {
+          _id: '2',
+          name2: 'yolo'
+        };
+
+        this.session.setWebsocketToken(token1);
+        expect(token).to.deep.equal(token1);
+        this.session.setWebsocketToken(token2);
+        expect(token).to.deep.equal(token2);
+      });
+    });
+
   });
 
 
@@ -70,8 +91,10 @@ describe('The esn.session Angular module', function() {
     beforeEach(inject(function($rootScope, $q, $controller, $route) {
       var userdefer = $q.defer();
       var domaindefer = $q.defer();
+      var tokendefer = $q.defer();
       this.userdefer = userdefer;
       this.domaindefer = domaindefer;
+      this.tokendefer = tokendefer;
       this.$scope = $rootScope.$new();
       this.$rootScope = $rootScope;
       this.$q = $q;
@@ -93,11 +116,18 @@ describe('The esn.session Angular module', function() {
         setDomain: function() {}
       };
 
+      this.tokenAPI = {
+        getNewToken: function() {
+          return tokendefer.promise;
+        }
+      };
+
       $controller('sessionInitController', {
         $scope: this.$scope,
         $q: this.$q,
         userAPI: this.userAPI,
         domainAPI: this.domainAPI,
+        tokenAPI: this.tokenAPI,
         session: this.session
       });
 
@@ -165,6 +195,17 @@ describe('The esn.session Angular module', function() {
       this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
       this.$scope.$digest();
       this.domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
+      this.$scope.$digest();
+    });
+
+    it('should call session.setWebsocketToken when token is retrieved', function(done) {
+      this.session.setWebsocketToken = function(token) {
+        expect(token).to.deep.equal({_id: 1});
+        done();
+      };
+      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      this.$scope.$digest();
+      this.tokendefer.resolve({data: {_id: 1}});
       this.$scope.$digest();
     });
 

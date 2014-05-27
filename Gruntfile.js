@@ -242,6 +242,12 @@ module.exports = function(grunt) {
       unit_storage: {
         options: {
           log: true,
+          stdout: function(data) {
+            grunt.log.write(data);
+          },
+          stderr: function(data) {
+            grunt.log.error(data);
+          },
           process: function(res){
             if (res.fail){
               grunt.config.set('esn.tests.success',false);

@@ -67,5 +67,10 @@ exports = module.exports = function(application) {
   var recaptcha = require('./middleware/verify-recaptcha');
   application.get('/login', loginController.index);
   application.post('/api/login', loginRules.checkLoginCount, cookielifetime.set, recaptcha.verify, loginController.login);
+
+  var authentication = require('./controllers/authtoken');
+  application.get('/api/authenticationtoken', authorize.requiresAPILogin, authentication.getNewToken);
+  application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authentication.getToken);
+  application.get('/api/users/:token', authentication.getUser);
 };
 
