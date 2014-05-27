@@ -8,6 +8,9 @@
     "enabled": true,
     "port": 8080
   },
+  "webrtc": {
+    "enabled": true
+  },
   "log": {
     "file": {
       "enabled": false,
