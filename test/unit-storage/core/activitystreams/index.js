@@ -87,6 +87,10 @@ describe('The activitystreams core module', function() {
         e.save(callback);
       };
 
+      var createTimelineEntryJob = function(callback) {
+        createTimelineEntry(domain, callback);
+      };
+
       var d = new Domain(domain);
       d.save(function(err, saved) {
         if (err) {
@@ -94,35 +98,22 @@ describe('The activitystreams core module', function() {
         }
         domain._id = saved._id;
 
-        async.series([
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+        async.series(
+          [createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob],
+          function(err) {
+            if (err) {
+              return done(err);
+            }
 
-          var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
-          timeline.query({target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
-            expect(err).to.not.exist;
-            expect(result).to.exist;
-            expect(result.length).to.equal(5);
-            done();
-          });
-        });
+            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            timeline.query({target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
+              expect(err).to.not.exist;
+              expect(result).to.exist;
+              expect(result.length).to.equal(5);
+              done();
+            });
+          }
+        );
       });
     });
 
@@ -157,6 +148,9 @@ describe('The activitystreams core module', function() {
         });
         e.save(callback);
       };
+      var createTimelineEntryJob = function(callback) {
+        createTimelineEntry(domain, callback);
+      };
 
       var d = new Domain(domain);
       d.save(function(err, saved) {
@@ -165,37 +159,24 @@ describe('The activitystreams core module', function() {
         }
         domain._id = saved._id;
 
-        async.series([
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, callback);
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+        async.series(
+          [createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob],
+          function(err) {
+            if (err) {
+              return done(err);
+            }
 
-          var limit = 2;
+            var limit = 2;
 
-          var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
-          timeline.query({limit: limit, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
-            expect(err).to.not.exist;
-            expect(result).to.exist;
-            expect(result.length).to.equal(limit);
-            done();
-          });
-        });
+            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            timeline.query({limit: limit, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
+              expect(err).to.not.exist;
+              expect(result).to.exist;
+              expect(result.length).to.equal(limit);
+              done();
+            });
+          }
+        );
       });
     });
 
@@ -242,6 +223,10 @@ describe('The activitystreams core module', function() {
         });
       };
 
+      var createTimelineEntryJob = function(callback) {
+        createTimelineEntry(domain, false, callback);
+      };
+
       var d = new Domain(domain);
       d.save(function(err, saved) {
         if (err) {
@@ -249,38 +234,27 @@ describe('The activitystreams core module', function() {
         }
         domain._id = saved._id;
 
-        async.series([
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          },
-          function(callback) {
+        async.series(
+          [createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, function(callback) {
             createTimelineEntry(domain, true, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          }, createTimelineEntryJob],
+          function(err) {
+            if (err) {
+              return done(err);
+            }
 
-          var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
-          timeline.query({before: limitEntry._id, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
-            expect(err).to.not.exist;
-            expect(result).to.exist;
-            expect(result.length).to.equal(limitEntries.length);
-            expect(result[0]._id.equals(limitEntries[2]._id)).to.be.true;
-            expect(result[1]._id.equals(limitEntries[1]._id)).to.be.true;
-            expect(result[2]._id.equals(limitEntries[0]._id)).to.be.true;
-            done();
-          });
-        });
+            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            timeline.query({before: limitEntry._id, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
+              expect(err).to.not.exist;
+              expect(result).to.exist;
+              expect(result.length).to.equal(limitEntries.length);
+              expect(result[0]._id.equals(limitEntries[2]._id)).to.be.true;
+              expect(result[1]._id.equals(limitEntries[1]._id)).to.be.true;
+              expect(result[2]._id.equals(limitEntries[0]._id)).to.be.true;
+              done();
+            });
+          }
+        );
       });
     });
 
@@ -330,6 +304,10 @@ describe('The activitystreams core module', function() {
         });
       };
 
+      var createTimelineEntryJob = function(callback) {
+        createTimelineEntry(domain, false, callback);
+      };
+
       var d = new Domain(domain);
       d.save(function(err, saved) {
         if (err) {
@@ -337,40 +315,190 @@ describe('The activitystreams core module', function() {
         }
         domain._id = saved._id;
 
-        async.series([
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, true, callback);
-          },
-          function(callback) {
-            createTimelineEntry(domain, false, callback);
+        async.series([createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, function(callback) {
+          createTimelineEntry(domain, true, callback);
+          }, createTimelineEntryJob],
+          function(err) {
+            if (err) {
+              return done(err);
+            }
+
+            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            timeline.query({before: limitEntry._id, limit: 2, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
+
+              expect(err).to.not.exist;
+              expect(result).to.exist;
+              expect(result.length).to.equal(2);
+              expect(result[0]._id).to.deep.equal(limitEntries[2]._id);
+              expect(result[1]._id).to.deep.equal(limitEntries[1]._id);
+              done();
+            });
           }
-        ], function(err) {
+        );
+      });
+    });
+
+    describe('"after" parameter', function() {
+      it('should send back the activities that are published after the specified activity', function(done) {
+        var domain = {
+          name: 'MyAwesomeDomainForTestLimit',
+          company_name: 'LinagoraOSS'
+        };
+        var limitEntry = null;
+        var limitEntries = [];
+
+        var self = this;
+
+        var createTimelineEntry = function(domain, before, callback) {
+          var e = new TimelineEntry({
+            verb: 'post',
+            language: 'en',
+            actor: {
+              objectType: 'user',
+              _id: self.mongoose.Types.ObjectId(),
+              image: '123456789',
+              displayName: 'foo bar baz'
+            },
+            object: {
+              objectType: 'message',
+              _id: self.mongoose.Types.ObjectId()
+            },
+            target: [
+              {
+                objectType: 'domain',
+                _id: domain._id
+              }
+            ]
+          });
+
+          e.published = new Date();
+          e.save(function(err, saved) {
+            // save all the entries before the limit for later test
+            if (!before) {
+              limitEntries.push(saved);
+            } else {
+              limitEntry = saved;
+            }
+            callback(err, saved);
+          });
+        };
+
+        var createTimelineEntryJob = function(callback) {
+          createTimelineEntry(domain, false, callback);
+        };
+
+
+        var d = new Domain(domain);
+        d.save(function(err, saved) {
           if (err) {
             return done(err);
           }
+          domain._id = saved._id;
 
-          var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
-          timeline.query({before: limitEntry._id, limit: 2, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
+          async.series([createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, function(callback) {
+            createTimelineEntry(domain, true, callback);
+            }, createTimelineEntryJob, createTimelineEntryJob],
+            function(err) {
+              if (err) {
+                return done(err);
+              }
 
-            expect(err).to.not.exist;
-            expect(result).to.exist;
-            expect(result.length).to.equal(2);
-            expect(result[0]._id).to.deep.equal(limitEntries[2]._id);
-            expect(result[1]._id).to.deep.equal(limitEntries[1]._id);
-            done();
-          });
+              var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+              timeline.query({after: limitEntry._id, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
+                expect(err).to.not.exist;
+                expect(result).to.exist;
+                expect(result.length).to.equal(2);
+                expect(result[0]._id).to.deep.equal(limitEntries[3]._id);
+                expect(result[1]._id).to.deep.equal(limitEntries[4]._id);
+                done();
+              });
+            }
+          );
+
         });
       });
+
+      it('should respect the limit option', function(done) {
+        var domain = {
+          name: 'MyAwesomeDomainForTestLimit',
+          company_name: 'LinagoraOSS'
+        };
+        var limitEntry = null;
+        var limitEntries = [];
+
+        var self = this;
+
+        var createTimelineEntry = function(domain, before, callback) {
+          var e = new TimelineEntry({
+            verb: 'post',
+            language: 'en',
+            actor: {
+              objectType: 'user',
+              _id: self.mongoose.Types.ObjectId(),
+              image: '123456789',
+              displayName: 'foo bar baz'
+            },
+            object: {
+              objectType: 'message',
+              _id: self.mongoose.Types.ObjectId()
+            },
+            target: [
+              {
+                objectType: 'domain',
+                _id: domain._id
+              }
+            ]
+          });
+
+          e.published = new Date();
+          e.save(function(err, saved) {
+            // save all the entries before the limit for later test
+            if (!before) {
+              limitEntries.push(saved);
+            } else {
+              limitEntry = saved;
+            }
+            callback(err, saved);
+          });
+        };
+
+        var createTimelineEntryJob = function(callback) {
+          createTimelineEntry(domain, false, callback);
+        };
+
+
+        var d = new Domain(domain);
+        d.save(function(err, saved) {
+          if (err) {
+            return done(err);
+          }
+          domain._id = saved._id;
+
+          async.series([createTimelineEntryJob, function(callback) {
+            createTimelineEntry(domain, true, callback);
+            }, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob, createTimelineEntryJob],
+            function(err) {
+              if (err) {
+                return done(err);
+              }
+
+              var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+              timeline.query({after: limitEntry._id, target: {objectType: 'domain', _id: domain._id}, limit: 2}, function(err, result) {
+                expect(err).to.not.exist;
+                expect(result).to.exist;
+                expect(result.length).to.equal(2);
+                expect(result[0]._id).to.deep.equal(limitEntries[1]._id);
+                expect(result[1]._id).to.deep.equal(limitEntries[2]._id);
+                done();
+              });
+            }
+          );
+
+        });
+      });
+
     });
+
   });
 
   describe('The addTimelineEntry fn', function() {

@@ -29,9 +29,27 @@ function query(options, cb) {
     });
   };
 
-  var q = TimelineEntry.find().where('target.objectType').equals(options.target.objectType).where('target._id').equals(options.target._id).sort({published: -1});
+  var q = TimelineEntry.find().where('target.objectType').equals(options.target.objectType).where('target._id').equals(options.target._id);
   if (options.limit) {
     q.limit(options.limit);
+  }
+
+  if (options.after) {
+    TimelineEntry.findOne({_id: options.after}).exec(function(err, after) {
+      if (err) {
+        return cb(err);
+      }
+      q.sort({published: 1});
+
+      if (!after) {
+        return getEntries(q, cb);
+      }
+      q.where({published: {$gt: after.published}});
+      return getEntries(q, cb);
+    });
+    return;
+  } else {
+    q.sort({published: -1});
   }
 
   if (options.before) {
