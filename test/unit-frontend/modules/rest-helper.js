@@ -252,6 +252,51 @@ describe('The esn.rest.helper Angular module', function() {
         this.$rootScope.$digest();
       });
 
+      describe('noEndOfStream option', function() {
+        it('should not set endOfStream to true if number of results < limit', function(done) {
+          var $q = this.$q;
+          function api(options) {
+            var d = $q.defer();
+            d.resolve({data: [1, 2]});
+            return d.promise;
+          }
+
+          var cursor = this.restcursor(api, 3, {noEndOfStream: true});
+          cursor.nextItems(function(err, results) {
+            expect(err).to.be.null;
+            expect(cursor.endOfStream).to.be.false;
+            done();
+          });
+          this.$rootScope.$digest();
+        });
+
+        it('should call the underlying API even after a call with no results', function(done) {
+          var $q = this.$q;
+          var data = [];
+          var self = this;
+          function api(options) {
+            var d = $q.defer();
+            d.resolve({data: data});
+            return d.promise;
+          }
+
+          var cursor = self.restcursor(api, 3, {noEndOfStream: true});
+          cursor.nextItems(function(err, results) {
+            expect(err).to.be.null;
+            expect(cursor.endOfStream).to.be.false;
+            data = [1, 5];
+            cursor.nextItems(function(err, results) {
+              expect(err).to.be.null;
+              expect(cursor.endOfStream).to.be.false;
+              expect(results).to.deep.equal(data);
+              done();
+            });
+          });
+          self.$rootScope.$digest();
+        });
+
+      });
+
     });
 
   });
