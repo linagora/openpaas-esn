@@ -51,30 +51,50 @@ function mockModels(mockedModels) {
  * stub.topics[topic].data is an Array named topic and contains every published data for the 'topic' topic.
  * stub.topics[topic].handler is the handler for the 'topic' topic.
  */
-function mockPubSub(stub) {
-  stub.topics = [];
-  stub.subscribe = {};
+function mockPubSub(path, localStub, globalStub) {
+  localStub.topics = [];
+  localStub.subscribe = {};
+  globalStub.topics = [];
+  globalStub.subscribe = {};
 
   var mockedPubSub = {
     local: {
       topic: function(topic) {
-        stub.topics.push(topic);
-        stub.topics[topic] = {
+        localStub.topics.push(topic);
+        localStub.topics[topic] = {
           data: [],
           handler: {}
         };
         return {
           publish: function(data) {
-            stub.topics[topic].data.push(data);
+            localStub.topics[topic].data.push(data);
           },
           subscribe: function(handler) {
-            stub.topics[topic].handler = handler;
+            localStub.topics[topic].handler = handler;
+          }
+        };
+      }
+    },
+    global: {
+      topic: function(topic) {
+        globalStub.topics.push(topic);
+        globalStub.topics[topic] = {
+          data: [],
+          handler: {}
+        };
+        return {
+          publish: function(data) {
+            globalStub.topics[topic].data.push(data);
+          },
+          subscribe: function(handler) {
+            globalStub.topics[topic].handler = handler;
           }
         };
       }
     }
   };
-  mockery.registerMock('../pubsub', mockedPubSub);
+
+  mockery.registerMock(path, mockedPubSub);
 }
 
 module.exports = function(mixin, testEnv) {
