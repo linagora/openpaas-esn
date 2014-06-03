@@ -4,6 +4,15 @@ var messageModule = require('../../core/message'),
     postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
     pubsub = require('../../core/pubsub').local;
 
+function messageSharesToTimelineTarget(shares) {
+  return shares.map(function(e) {
+    return {
+      objectType: e.objectType,
+      _id: e.id
+    };
+  });
+}
+
 function createNewMessage(message, topic, req, res) {
   messageModule.save(message, function(err, saved) {
     if (err) {
@@ -13,12 +22,7 @@ function createNewMessage(message, topic, req, res) {
     }
 
     if (saved) {
-      var targets = req.body.targets.map(function(e) {
-        return {
-          objectType: e.objectType,
-          _id: e.id
-        };
-      });
+      var targets = messageSharesToTimelineTarget(req.body.targets);
       var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(saved, 'post', req.user, targets);
       topic.publish(activity);
       return res.send(201, { _id: saved._id});
@@ -39,8 +43,8 @@ function commentMessage(message, inReplyTo, topic, req, res) {
         500,
         { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message}});
     }
-
-    var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, parentMessage.targets, inReplyTo, new Date());
+    var targets = messageSharesToTimelineTarget(parentMessage.shares);
+    var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, targets, inReplyTo, new Date());
     topic.publish(activity);
     return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
   });

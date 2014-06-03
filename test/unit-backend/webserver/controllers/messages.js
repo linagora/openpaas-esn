@@ -217,10 +217,38 @@ describe('The messages module', function() {
 
       var messageModuleMocked = {
         addNewComment: function(message, inReplyTo, callback) {
-          callback(null, {_id: 'an id'}, {_id: 'a parent id'});
+          callback(null, {_id: 'an id'}, {_id: 'a parent id', shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createOrReplyToMessage(validReq, res);
+    });
+
+    it('should inherits target from its parent', function(done) {
+      var res = {
+        send: function(code, data) {
+        }
+      };
+
+      var messageModuleMocked = {
+        addNewComment: function(message, inReplyTo, callback) {
+          callback(null, {_id: 'an id'}, {_id: 'a parent id', shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
+        }
+      };
+
+      var ashelpermock = {
+        userMessageCommentToTimelineEntry: function(child, method, user, targets) {
+          expect(targets).to.be.an.array;
+          expect(targets).to.have.length(1);
+          expect(targets[0].objectType).to.equal('activitystream');
+          expect(targets[0]._id).to.equal('abb5bd53-117e-4859-8a97-76392937fcc9');
+          done();
+        }
+      };
+      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/activitystreams/helpers', ashelpermock);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -240,7 +268,7 @@ describe('The messages module', function() {
 
       var messageModuleMocked = {
         addNewComment: function(message, inReplyTo, callback) {
-          callback(null, {_id: 'an id'}, {targets: 'some targets'});
+          callback(null, {_id: 'an id'}, {shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
