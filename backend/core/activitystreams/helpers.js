@@ -40,7 +40,7 @@ module.exports.userMessageCommentToTimelineEntry = function(comment, verb, user,
 };
 
 module.exports.timelineToActivity = function(entry) {
-  return {
+  var timelineentry = {
     _id: entry._id,
     verb: entry.verb,
     language: entry.language,
@@ -65,6 +65,18 @@ module.exports.timelineToActivity = function(entry) {
       };
     })
   };
+
+  if (entry.inReplyTo && entry.inReplyTo.length) {
+    timelineentry.inReplyTo = entry.inReplyTo.map(function(elt) {
+      return {
+        _id: elt._id,
+        objectType: elt.objectType,
+        id: getURN(elt.objectType, elt._id)
+      };
+    });
+  }
+
+  return timelineentry;
 };
 
 

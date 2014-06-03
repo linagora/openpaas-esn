@@ -73,6 +73,71 @@ describe('The activitystreams helper module', function() {
       expect(out.target[0].id).to.equal('urn:linagora.com:activitystream:' + input.target[0]._id);
       done();
     });
+
+    it('should correctly format the inReplyTo part', function(done) {
+      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var input = {
+        _id: '123',
+        verb: 'post',
+        language: 'fr',
+        published: new Date(),
+        actor: {
+          objectType: 'user',
+          _id: 456,
+          image: '789',
+          displayName: 'Foo Bar'
+        },
+        object: {
+          objectType: 'whatsup',
+          _id: '234'
+        },
+        target: [{
+          objectType: 'activitystream',
+          _id: '567'
+        }],
+        inReplyTo: [{
+          objectType: 'whatsup',
+          _id: '0987654321'
+        }]
+      };
+
+      var out = helper.timelineToActivity(input);
+      expect(out).to.exist;
+      expect(out.inReplyTo).to.have.length(1);
+      expect(out.inReplyTo[0].id).to.equal('urn:linagora.com:whatsup:0987654321');
+      expect(out.inReplyTo[0]._id).to.equal('0987654321');
+      expect(out.inReplyTo[0].objectType).to.equal('whatsup');
+      done();
+    });
+
+    it('should support an empty inReplyTo part', function(done) {
+      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var input = {
+        _id: '123',
+        verb: 'post',
+        language: 'fr',
+        published: new Date(),
+        actor: {
+          objectType: 'user',
+          _id: 456,
+          image: '789',
+          displayName: 'Foo Bar'
+        },
+        object: {
+          objectType: 'whatsup',
+          _id: '234'
+        },
+        target: [{
+          objectType: 'activitystream',
+          _id: '567'
+        }]
+      };
+
+      var out = helper.timelineToActivity(input);
+      expect(out).to.exist;
+      expect(out.inReplyTo).to.not.be.ok;
+      done();
+    });
   });
 
   describe('userMessageToTimelineEntry fn', function() {
