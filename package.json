@@ -44,7 +44,8 @@
     "toobusy-js": "~0.3.0",
     "trim": "0.0.1",
     "winston": "~0.7.2",
-    "redis": "~0.10.2"
+    "redis": "~0.10.2",
+    "easyrtc": "~1.0.11"
   },
   "devDependencies": {
     "bower": "~1.3.3",

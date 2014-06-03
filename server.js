@@ -9,9 +9,9 @@ function startWebServer(callback) {
  
   webserver.start(config.webserver.port, config.webserver.virtualhosts, function(err) {
     if ( err ) {
-      console.log('webserver failed to start:',err);
+      logger.error('Web server failed to start', err);
       if ( err.syscall === 'listen' && err.code === 'EADDRINUSE' ) {
-        console.log('Something is already listening on the webserver port', config.webserver.port);
+        logger.info('Something is already listening on the Web server port', config.webserver.port);
       }
     }
     callback.apply(this,arguments);
@@ -27,25 +27,51 @@ function startWsServer(callback) {
    
   server.start(config.wsserver.port, function(err) {
     if ( err ) {
-      console.log('websocket server failed to start:',err);
+      logger.error('websocket server failed to start', err);
     }
     callback.apply(this,arguments);
   });
 };
 
+function startWebRTCServer(callback) {
+  if (!config.webrtc.enabled) {
+    return callback();
+  }
+  if (!config.wsserver.enabled || !config.webserver.enabled) {
+    logger.warn('WebRTC server can not be started when Websocket and Web server are not activated');
+    return callback();
+  }
+
+  var webserver = require('./backend/webserver').application;
+  var wsserver = require('./backend/wsserver').io;
+
+  if (!webserver || !wsserver) {
+    logger.warn('WebRTC server can not be started without webserver and websocket server instances');
+    return callback();
+  }
+
+  var server = require('./backend/webrtc');
+  server.start(webserver, wsserver, function(err) {
+    if ( err ) {
+      logger.warn('webrtc server failed to start', err);
+    }
+    callback.apply(this, arguments);
+  });
+};
+
 var core = require('./backend/core');
 core.init();
-console.log('core bootstraped, configuration =',process.env.NODE_ENV);    
 var config = core.config('default');
+var logger = core.logger;
+logger.info('OpenPaaS Core bootstraped, configured in %s mode', process.env.NODE_ENV);
 
-
-async.series([core.templates.inject, startWebServer, startWsServer], function(err) {
+async.series([core.templates.inject, startWebServer, startWsServer, startWebRTCServer], function(err) {
   if ( err ) {
-    console.log('Fatal error:',err);
+    logger.error('Fatal error:', err);
     if ( err.stack ) {
-      console.log(err.stack);
+      logger.error(err.stack);
     }
     process.exit(1);
   }
-  console.log('started');
+  logger.info('OpenPaas ESN is now started on node %s', process.version);
 });
