@@ -115,7 +115,7 @@ describe('The activitystreams routes', function() {
         });
     });
 
-    it('should return a JSON with 400 result when before parameter is incorrect', function(done) {
+    it('should return a JSON with 400 result when "before" parameter is incorrect', function(done) {
       var date = new Date();
       date.setDate(date.getDate() - 1);
       request(webserver.application)
@@ -125,6 +125,24 @@ describe('The activitystreams routes', function() {
         .end(function(err, res) {
           var cookies = res.headers['set-cookie'].pop().split(';')[0];
           var req = request(webserver.application).get('/api/activitystreams/' + activitystreamId + '?before=pipo');
+          req.cookies = cookies;
+          req.expect(400).end(function(err, res) {
+            expect(err).to.not.exist;
+            done();
+          });
+        });
+    });
+
+    it('should return a JSON with 400 result when "after" parameter is incorrect', function(done) {
+      var date = new Date();
+      date.setDate(date.getDate() - 1);
+      request(webserver.application)
+        .post('/api/login')
+        .send({username: email, password: password, rememberme: false})
+        .expect(200)
+        .end(function(err, res) {
+          var cookies = res.headers['set-cookie'].pop().split(';')[0];
+          var req = request(webserver.application).get('/api/activitystreams/' + activitystreamId + '?after=pipo');
           req.cookies = cookies;
           req.expect(400).end(function(err, res) {
             expect(err).to.not.exist;

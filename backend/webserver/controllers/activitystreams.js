@@ -7,9 +7,9 @@ var isLimitvalid = function(limit) {
   return limit > 0;
 };
 
-var isBeforeValid = function(before) {
+var isValidObjectId = function(id) {
   try {
-    new mongoose.Types.ObjectId(before);
+    new mongoose.Types.ObjectId(id);
     return true;
   }
   catch (err) {
@@ -36,10 +36,17 @@ function get(req, res) {
   }
 
   if (req.query.before) {
-    if (!isBeforeValid(req.query.before)) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Before parameter must be a valid Date.'}});
+    if (!isValidObjectId(req.query.before)) {
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: '"before" parameter must be a valid ObjectId.'}});
     }
     options.before = req.query.before;
+  }
+
+  if (req.query.after) {
+    if (!isValidObjectId(req.query.after)) {
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: '"after" parameter must be a valid ObjectId.'}});
+    }
+    options.after = req.query.after;
   }
 
   activitystreams.query(options, function(err, result) {

@@ -10,8 +10,9 @@ Get the timeline of an activity stream from its uuid.
 
 **Query Parameters:**
 
-- before (string): Determines the last activity ID of the stream.
-- limit (int): The maximum number of activities to include in the stream.
+- before (string): Determines the last activity ID of the stream. (optional, this is the default)
+- after (string): Determines the previous activity ID of the stream.
+- limit (int): The maximum number of activities to include in the stream. (optional)
 
 **Request Headers:**
 
