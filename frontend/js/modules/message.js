@@ -48,6 +48,10 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
             duration: '3',
             animation: 'am-fade'
           });
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: $scope.activitystreamUuid,
+            id: response.data._id
+          });
         },
         function(err) {
           $scope.displayError('Error while sharing your whatsup message');

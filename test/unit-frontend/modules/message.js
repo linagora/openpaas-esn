@@ -105,6 +105,7 @@ describe('The esn.message Angular module', function() {
   describe('messageController', function() {
     beforeEach(inject(function($rootScope, $controller) {
       this.messageAPI = {};
+      this.rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.session = {};
       this.alert = function() {
@@ -113,89 +114,86 @@ describe('The esn.message Angular module', function() {
       $controller('messageController', {
         $scope: this.scope,
         messageAPI: this.messageAPI,
-        session: this.session,
-        $alert: this.alert
+        $alert: this.alert,
+        $rootScope: $rootScope
       });
     }));
 
-    it('$scope.sendMessage should not call $messageAPI.post when message is null', function(done) {
-      this.messageAPI.post = function() {
-        return done(new Error('Should not be called'));
-      };
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupmessage = undefined;
-      this.scope.sendMessage();
-    });
+    describe('sendMessage() method', function() {
 
-    it('$scope.sendMessage should not call $messageAPI.post when message is empty', function(done) {
-      this.messageAPI.post = function() {
-        return done(new Error('Should not be called'));
-      };
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupmessage = '';
-      this.scope.sendMessage();
-    });
+      it('should not call $messageAPI.post when message is null', function(done) {
+        this.messageAPI.post = function() {
+          return done(new Error('Should not be called'));
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupmessage = undefined;
+        this.scope.sendMessage();
+      });
 
-    it('$scope.sendMessage should not call $messageAPI.post when session domain is not set', function(done) {
-      this.messageAPI.post = function() {
-        return done(new Error('Should not be called'));
-      };
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
-      this.scope.sendMessage();
-      done();
-    });
+      it('should not call $messageAPI.post when message is empty', function(done) {
+        this.messageAPI.post = function() {
+          return done(new Error('Should not be called'));
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupmessage = '';
+        this.scope.sendMessage();
+      });
 
-    it('$scope.sendMessage should not call $messageAPI.post when session domain.activity_stream is not set', function(done) {
-      this.messageAPI.post = function() {
-        return done(new Error('Should not be called'));
-      };
-      this.scope.displayError = function() {
-        done();
-      };
-      this.session.domain = {};
-      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
-      this.scope.sendMessage();
-      done();
-    });
+      it('should not call $messageAPI.post when $scope.activitystreamUuid is not set', function(done) {
+        this.messageAPI.post = function() {
+          return done(new Error('Should not be called'));
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.sendMessage();
+      });
 
-    it('$scope.sendMessage should not call $messageAPI.post when session domain.activity_stream.uuid is not set', function(done) {
-      this.messageAPI.post = function() {
-        return done(new Error('Should not be called'));
-      };
-      this.scope.displayError = function() {
-        done();
-      };
-      this.session.domain = {
-        activity_stream: {
-        }
-      };
-      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
-      this.scope.sendMessage();
-      done();
-    });
+      it('should call $messageAPI.post when all data is set', function(done) {
+        this.messageAPI.post = function() {
+          done();
+        };
+        this.scope.displayError = function() {
+          done(new Error());
+        };
+        this.scope.activitystreamUuid = '0987654321';
+        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.sendMessage();
+      });
 
-    it('$scope.sendMessage should call $messageAPI.post when all data is set', function(done) {
-      this.messageAPI.post = function() {
-        done();
-      };
-      this.scope.displayError = function() {
-        done(new Error());
-      };
-      this.session.domain = {
-        activity_stream: {
-          uuid: '1234'
-        }
-      };
-      this.scope.whatsupmessage = 'Hey Oh, let\'s go';
-      this.scope.sendMessage();
-      done();
+      describe('POST response', function() {
+
+        it('should emit a message:posted event on rootScope', function(done) {
+          this.messageAPI.post = function() {
+            return {
+              then: function(callback) {
+                callback({
+                  data: {
+                    _id: 'message1'
+                  }
+                });
+              }
+            };
+          };
+          this.scope.displayError = function() {
+            done(new Error());
+          };
+          this.scope.activitystreamUuid = '0987654321';
+          this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+          this.rootScope.$on('message:posted', function(evt, data) {
+            expect(data.activitystreamUuid).to.equal('0987654321');
+            expect(data.id).to.equal('message1');
+            done();
+          });
+          this.scope.sendMessage();
+          this.rootScope.$digest();
+        });
+      });
     });
   });
 
