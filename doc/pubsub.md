@@ -30,6 +30,8 @@ Here is a list of the available topics with their associated data.
 - mongodb:configurationAvailable. Fired when the mongodb configuration is available.
 - mongodb:connexionAvailable. Fired every time the connection to the mongodb server is established.
 
+- redis:configurationAvailable. Fired when the redis configuration is available.
+
 - domain:invitations:sent({user, domain, emails}). Fired when domain invitations have been sent.
 
 - message:stored(message). Fired when a new message is stored in the datastore layer.
@@ -81,7 +83,7 @@ For example, when a user 123 has sent a message 456 to the user 789:
 
 ### Global
 
-- TODO
+- message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message (create, comment, ...).
 
 ### Summary
 
@@ -106,7 +108,7 @@ For example, when a user 123 has sent a message 456 to the user 789:
 |                 |                             |                             |         |           |       |
 | Controllers     |                             |                             |         |           |       |
 | domains         | domain:invitations:sent     |                             |         |           |       |
-| messages        | message:activity            |                             |         |           |       |
+| messages        | message:activity            | message:activity            |         |           |       |
 |                 |                             |                             |         |           |       |
 | Middleware      |                             |                             |         |           |       |
 | setup-sessions  |                             | mongodb:connectionAvailable |         |           |       |
