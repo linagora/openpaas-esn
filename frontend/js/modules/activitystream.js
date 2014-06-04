@@ -249,14 +249,11 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
     };
   })
 
-  .controller('activitystreamController', ['$scope', 'session', 'activitystreamAggregator', 'usSpinnerService', '$alert',
-    function($scope, session, aggregatorService,  usSpinnerService, alert) {
+  .controller('activitystreamController',
+  ['$scope', 'activitystreamAggregator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
+  function($scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates) {
 
-    var spinnerKey = 'activityStreamSpinner';
-    $scope.restActive = false;
-    $scope.threads = [];
-
-    var aggregator = aggregatorService(session.domain.activity_stream.uuid, 25);
+    var spinnerKey = 'activityStreamSpinner', aggregator;
 
     $scope.displayError = function(err) {
       alert({
@@ -270,35 +267,61 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
       });
     };
 
-    var updateMessageList = function() {
+    $scope.reset = function() {
+      $scope.restActive = false;
+      $scope.threads = [];
+      $scope.mostRecentActivityID = null;
+      aggregator = null;
+    };
+
+    $scope.reset();
+
+    $scope.getStreamUpdates = function() {
       if ($scope.restActive) {
         return;
       }
-      else {
-        $scope.restActive = true;
-        usSpinnerService.spin(spinnerKey);
-
-        aggregator.loadMoreElements(function(error, items) {
-          if (error) {
-            $scope.displayError('Error while retrieving messages. ' + error);
-          }
-          else {
-            for (var i = 0; i < items.length; i++) {
-              $scope.threads.push(items[i].object);
-            }
-          }
-          $scope.restActive = false;
-          usSpinnerService.stop(spinnerKey);
-        });
-      }
+      $scope.restActive = true;
+      activityStreamUpdates($scope.activitystreamUuid, $scope).then(function() {
+      }, function(err) {
+      }).finally (function() {
+        // we have to plug here the throbber once the websocket stuff is on
+        $scope.restActive = false;
+      });
     };
 
+    function updateMessageList() {
+      if ($scope.restActive) {
+        return;
+      }
+      $scope.restActive = true;
+      usSpinnerService.spin(spinnerKey);
+
+      aggregator.loadMoreElements(function(error, items) {
+        if (error) {
+          $scope.displayError('Error while retrieving messages. ' + error);
+        }
+        else {
+          for (var i = 0; i < items.length; i++) {
+            if (!$scope.mostRecentActivityID) {
+              $scope.mostRecentActivityID = items[i]._id;
+            }
+            $scope.threads.push(items[i].object);
+          }
+        }
+        $scope.restActive = false;
+        usSpinnerService.stop(spinnerKey);
+      });
+    }
+
     $scope.loadMoreElements = function() {
+      if (!$scope.activitystreamUuid) {
+        return;
+      }
+      if (!aggregator) {
+        aggregator = aggregatorService($scope.activitystreamUuid, 25);
+      }
       if (!aggregator.endOfStream) {
         updateMessageList();
       }
     };
-
-    //initialization code
-    updateMessageList();
   }]);
