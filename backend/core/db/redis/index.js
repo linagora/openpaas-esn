@@ -2,7 +2,8 @@
 
 var logger = require('../../../core').logger;
 var esnconfig = require('../../../core/esn-config');
-var topic = require('../../../core').pubsub.local.topic('mongodb:connectionAvailable');
+var pubsub = require('../../../core/pubsub').local;
+
 var initialized = false;
 var connected = false;
 var client;
@@ -12,41 +13,48 @@ var defaultOptions = {
   port: 6379
 };
 
-var createClient = function(options, callback) {
-  options = options || defaultOptions;
+var getRedisConfiguration = function(options) {
+  var redisConfig = options || defaultOptions;
 
-  if (options.url) {
-    var url = require('url').parse(options.url);
+  if (redisConfig.url) {
+    var url = require('url').parse(redisConfig.url);
     if (url.protocol === 'redis:') {
       if (url.auth) {
         var userparts = url.auth.split(':');
-        options.user = userparts[0];
+        redisConfig.user = userparts[0];
         if (userparts.length === 2) {
-          options.pass = userparts[1];
+          redisConfig.pass = userparts[1];
         }
       }
-      options.host = url.hostname;
-      options.port = url.port;
+      redisConfig.host = url.hostname;
+      redisConfig.port = url.port;
       if (url.pathname) {
-        options.db = url.pathname.replace('/', '', 1);
+        redisConfig.db = url.pathname.replace('/', '', 1);
       }
     }
   }
 
-  var client = options.client || new require('redis').createClient(options.port || options.socket, options.host, options);
-  if (options.pass) {
-    client.auth(options.pass, function(err) {
+  pubsub.topic('redis:configurationAvailable').publish(redisConfig);
+  return redisConfig;
+}
+
+var createClient = function(options, callback) {
+  var redisConfig = getRedisConfiguration(options);
+
+  var client = redisConfig.client || new require('redis').createClient(redisConfig.port || redisConfig.socket, redisConfig.host, redisConfig);
+  if (redisConfig.pass) {
+    client.auth(redisConfig.pass, function(err) {
       if (err) {
         callback(err);
       }
     });
   }
 
-  if (options.db) {
-    client.select(options.db);
+  if (redisConfig.db) {
+    client.select(redisConfig.db);
     client.on('connect', function() {
       client.send_anyways = true;
-      client.select(options.db);
+      client.select(redisConfig.db);
       client.send_anyways = false;
     });
   }
@@ -57,12 +65,12 @@ var createClient = function(options, callback) {
   });
 
   client.on('connect', function() {
-    logger.info('Connected to Redis', options);
+    logger.info('Connected to Redis', redisConfig);
     connected = true;
   });
 
-  client.on('ready', function(err) {
-    logger.info('Redis is Ready', err);
+  client.on('ready', function() {
+    logger.info('Redis is Ready');
   });
 
   return callback(null, client);
@@ -83,9 +91,10 @@ var init = function(callback) {
     });
   });
 };
+
 module.exports.init = init;
 
-topic.subscribe(function() {
+pubsub.topic('mongodb:connectionAvailable').subscribe(function() {
   init(function(err, c) {
     if (err) {
       logger.error('Error while creating redis client', err);
