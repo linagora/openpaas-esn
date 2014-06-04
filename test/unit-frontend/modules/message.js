@@ -201,6 +201,7 @@ describe('The esn.message Angular module', function() {
 
     beforeEach(inject(function($rootScope, $controller) {
       this.messageAPI = {};
+      this.rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.alert = function() {
       };
@@ -208,83 +209,199 @@ describe('The esn.message Angular module', function() {
       $controller('messageCommentController', {
         $scope: this.scope,
         messageAPI: this.messageAPI,
-        $alert: this.alert
+        $alert: this.alert,
+        $rootScope: this.rootScope
       });
     }));
 
-    it('$scope.addComment should not call the addComment API when $scope.message is undefined', function(done) {
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupcomment = 'Hey Oh, let\'s go';
-      this.scope.addComment();
-    });
+    describe('addComment() directive', function() {
+      it('should not call the addComment API when $scope.message is undefined', function(done) {
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.addComment();
+      });
 
-    it('$scope.addComment should not call the addComment API when $scope.whatsupcomment is empty', function(done) {
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupcomment = '';
-      this.scope.message = {
-        _id: 123,
-        objectType: 'whatsup'
-      },
-      this.scope.addComment();
-    });
+      it('should not call the addComment API when $scope.whatsupcomment is empty', function(done) {
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupcomment = '';
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
 
-    it('$scope.addComment should not call the addComment API when $scope.whatsupcomment is null', function(done) {
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupcomment = null;
-      this.scope.message = {
-        _id: 123,
-        objectType: 'whatsup'
-      },
-      this.scope.addComment();
-    });
+      it('should not call the addComment API when $scope.whatsupcomment is null', function(done) {
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupcomment = null;
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
 
-    it('$scope.addComment should not call the addComment API when $scope.whatsupcomment contains only spaces', function(done) {
-      this.scope.displayError = function() {
-        done();
-      };
-      this.scope.whatsupcomment = '        ';
-      this.scope.message = {
-        _id: 123,
-        objectType: 'whatsup'
-      },
-      this.scope.addComment();
-    });
+      it('should not call the addComment API when $scope.whatsupcomment contains only spaces', function(done) {
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.whatsupcomment = '        ';
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
 
-    it('$scope.addComment should call the addComment API when all data is set', function(done) {
-      this.messageAPI.addComment = function() {
-        done();
-      };
-      this.scope.displayError = function() {
-        done(new Error());
-      };
-      this.scope.whatsupcomment = 'Hey Oh, let\'s go';
-      this.scope.message = {
-        _id: 123,
-        objectType: 'whatsup'
-      },
-      this.scope.addComment();
-    });
+      it('should set $scope.sending to true when all data is set', function(done) {
+        var scope = this.scope;
+        this.messageAPI.addComment = function() {
+          expect(scope.sending).to.be.true;
+          done();
+        };
+        this.scope.displayError = function() {
+          done(new Error());
+        };
+        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
 
-    it('$scope.addComment should not call the addComment API when $scope.sending is true', function(done) {
-      this.scope.sending = true;
-      this.messageAPI.addComment = function() {
-        done(new Error('Should not be called'));
-      };
-      this.scope.displayError = function(err) {
-        done();
-      };
-      this.scope.message = {
-        _id: 123,
-        objectType: 'whatsup'
-      };
-      this.scope.whatsupcomment = 'Hey Oh, let\'s go';
-      this.scope.addComment();
+      it('should call the addComment API when all data is set', function(done) {
+        this.messageAPI.addComment = function() {
+          done();
+        };
+        this.scope.displayError = function() {
+          done(new Error());
+        };
+        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
+
+      it('should not call the addComment API when $scope.sending is true', function(done) {
+        this.scope.sending = true;
+        this.messageAPI.addComment = function() {
+          done(new Error('Should not be called'));
+        };
+        this.scope.displayError = function(err) {
+          done();
+        };
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.addComment();
+      });
+
+      describe('addComment response', function() {
+        it('should call the scope.shrink() method', function(done) {
+          this.messageAPI.addComment = function() {
+            return {
+              then: function(callback) {
+                callback({data: {_id: 'comment1'}});
+              }
+            };
+          };
+          this.scope.shrink = done;
+          this.scope.displayError = function() {
+            done(new Error('Should not call display error'));
+          };
+          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.message = {
+            _id: 123,
+            objectType: 'whatsup'
+          };
+          this.scope.addComment();
+        });
+
+        it('should set scope.sending to false', function(done) {
+          var scope = this.scope;
+          this.messageAPI.addComment = function() {
+            return {
+              then: function(callback) {
+                callback({data: {_id: 'comment1'}});
+                expect(scope.sending).to.be.false;
+                done();
+              }
+            };
+          };
+          this.scope.shrink = function() {};
+          this.scope.displayError = function() {
+            done(new Error('Should not call display error'));
+          };
+          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.message = {
+            _id: 123,
+            objectType: 'whatsup'
+          };
+          this.scope.addComment();
+        });
+
+        it('should set scope.whatsupcomment to an empty string', function(done) {
+          var scope = this.scope;
+          this.messageAPI.addComment = function() {
+            return {
+              then: function(callback) {
+                callback({data: {_id: 'comment1'}});
+                expect(scope.whatsupcomment).to.be.a.string;
+                expect(scope.whatsupcomment).to.have.length(0);
+                done();
+              }
+            };
+          };
+          this.scope.shrink = function() {};
+          this.scope.displayError = function() {
+            done(new Error('Should not call display error'));
+          };
+          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.message = {
+            _id: 123,
+            objectType: 'whatsup'
+          };
+          this.scope.addComment();
+        });
+
+        it('should emit a message:comment event on rootScope', function(done) {
+          var scope = this.scope;
+          this.messageAPI.addComment = function() {
+            return {
+              then: function(callback) {
+                callback({data: {_id: 'comment1'}});
+              }
+            };
+          };
+          this.scope.shrink = function() {};
+          this.scope.displayError = function() {
+            done(new Error('Should not call display error'));
+          };
+          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.message = {
+            _id: 123,
+            objectType: 'whatsup'
+          };
+          this.rootScope.$on('message:comment', function(evt, data) {
+            expect(data.id).to.equal('comment1');
+            expect(data.parent).to.deep.equal(scope.message);
+            done();
+          });
+          this.scope.addComment();
+        });
+      });
+
     });
   });
 

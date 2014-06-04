@@ -76,11 +76,10 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
       });
     };
   }])
-  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
+  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
     $scope.whatsupcomment = '';
     $scope.sending = false;
     $scope.rows = 1;
-
     $scope.expand = function() {
       $scope.rows = 4;
     };
@@ -117,11 +116,15 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
       };
 
       $scope.sending = true;
-      $messageAPI.addComment(objectType, data, inReplyTo).then(
-        function(data) {
+      messageAPI.addComment(objectType, data, inReplyTo).then(
+        function(response) {
           $scope.sending = false;
           $scope.whatsupcomment = '';
-          $scope.$emit('message:comment', {id: data._id, parent: $scope.message.id});
+          $scope.shrink();
+          $rootScope.$emit('message:comment', {
+            id: response.data._id,
+            parent: $scope.message
+          });
         },
         function(err) {
           $scope.sending = false;
