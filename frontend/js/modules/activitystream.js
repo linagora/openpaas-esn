@@ -55,7 +55,12 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         if (items.length === 0) {
           return callback(null, []);
         }
-        var messageIds = items.map(function(item) {return item.object._id;});
+        var messageIds = [], itemMessageIds = [];
+        items.forEach(function(item) {
+          var id = item.inReplyTo && item.inReplyTo.length ? item.inReplyTo[0]._id : item.object._id;
+          messageIds.push(id);
+          itemMessageIds.push({id: id, item: item});
+        });
         messageAPI.get({'ids[]': messageIds}).then(function(response) {
           var msgHash = {};
           var errors = [];
@@ -71,8 +76,8 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
             return callback(e);
           }
 
-          items.forEach(function(item) {
-            item.object = msgHash[item.object._id];
+          itemMessageIds.forEach(function(imi) {
+            imi.item.object = msgHash[imi.id];
           });
 
           callback(null, items);

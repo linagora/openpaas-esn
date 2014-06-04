@@ -129,6 +129,19 @@ describe('The esn.activitystream Angular module', function() {
       instance(null, tl);
     });
 
+    it('should call messageAPI.get with parent message ids when there is a inReplyTo field', function(done) {
+      var tl = [
+        {object: { _id: 'ID5' }},
+        {object: { _id: 'ID2' }, inReplyTo: [{_id: 'ID3'}]}
+      ];
+      this.msgAPI.get = function(options) {
+        expect(options).to.deep.equal({'ids[]': ['ID5', 'ID3']});
+        done();
+      };
+      var instance = this.decorator(function() { });
+      instance(null, tl);
+    });
+
     it('should not call messageAPI.get if the array of ids is empty', function() {
       var msgAPIcalled = false;
       this.msgAPI.get = function(options) {
