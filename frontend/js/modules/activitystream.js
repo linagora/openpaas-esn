@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
+angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate', 'angularSpinner'])
   .factory('activitystreamAPI', ['Restangular', function(Restangular) {
     function get(id, options) {
       return Restangular.all('activitystreams/' + id).getList(options);
@@ -242,12 +242,88 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         return activitystreamAggregator;
       }])
 
-  .directive('activityStream', function() {
+.directive('activityStream', ['messageAPI', '$rootScope', '$timeout', function(messageAPI, $rootScope, $timeout) {
     return {
       restrict: 'E',
-      templateUrl: '/views/modules/activitystream/activitystream.html'
+      replace: true,
+      templateUrl: '/views/modules/activitystream/activitystream.html',
+      link: function(scope, element, attrs) {
+        scope.activitystreamUuid = attrs.activitystreamUuid;
+        var currentActivitystreamUuid = scope.activitystreamUuid;
+
+        function onMessagePosted(evt, msgMeta) {
+          if (msgMeta.activitystreamUuid !== scope.activitystreamUuid) {
+            return;
+          }
+          if (scope.restActive) {
+            return;
+          }
+          scope.getStreamUpdates();
+        }
+
+        function getThreadById(id) {
+          var thread = null;
+          scope.threads.every(function(msg) {
+            if (msg._id === id) {
+              thread = msg;
+              return false;
+            }
+            return true;
+          });
+          return thread;
+        }
+
+        function updateMessage(message) {
+          if (scope.restActive) {
+            return;
+          }
+          scope.restActive = true;
+          var parentId = message._id;
+          messageAPI.get(parentId).then(function(response) {
+            var message = response.data;
+            var thread = getThreadById(parentId);
+            if (thread) {
+              thread.responses = message.responses;
+            }
+          }).finally (function() {
+            scope.restActive = false;
+          });
+
+        }
+
+        function onCommentPosted(evt, msgMeta) {
+          var thread = getThreadById(msgMeta.parent._id);
+          if (thread) {
+            updateMessage(thread);
+          }
+        }
+        //initialization code
+
+        // let sub-directives load and register event listeners
+        // before we start fetching the stream
+        $timeout(function() {
+          scope.loadMoreElements();
+        },0);
+
+        var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
+        var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
+
+        scope.$watch('activitystreamUuid', function() {
+          if (scope.activitystreamUuid === currentActivitystreamUuid) {
+            return;
+          }
+          scope.reset();
+          scope.loadMoreElements();
+          currentActivitystreamUuid = scope.activitystreamUuid;
+        });
+
+        scope.$on('$destroy', function() {
+          unregMsgPostedListener();
+          unregCmtPostedListener();
+        });
+      }
     };
-  })
+  }])
 
   .controller('activitystreamController',
   ['$scope', 'activitystreamAggregator', 'usSpinnerService', '$alert', 'activityStreamUpdates',

@@ -976,4 +976,78 @@ describe('The esn.activitystream Angular module', function() {
 
   });
 
+  describe.only('activitystream directive', function() {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(function() {
+      angular.mock.module('esn.activitystream');
+    });
+    beforeEach(inject(['$compile', '$rootScope', '$timeout', '$httpBackend', 'Restangular', function($c, $r, $t, $h, R) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+      this.$scope = this.$rootScope.$new();
+      this.$timeout = $t;
+      this.$httpBackend = $h;
+      R.setFullResponse(true);
+    }]));
+    it('should get the activitystream UUID from the HTML attribute and put it into the scope', function() {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      expect(this.$scope.activitystreamUuid).to.equal('0987654321');
+    });
+    it('should call scope.loadElement() method', function(done) {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      this.$scope.loadMoreElements = done;
+      this.$timeout.flush();
+    });
+    it('should call scope.getStreamUpdates() method when a "message:posted" event is emitted with this activitystream uuid', function(done) {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      this.$scope.loadMoreElements = function() {};
+      this.$scope.getStreamUpdates = done;
+      this.$timeout.flush();
+      this.$rootScope.$emit('message:posted', {activitystreamUuid: '0987654321'});
+    });
+    it('should update the thread comments method when a "message:comment" event is emitted', function() {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      this.$scope.loadMoreElements = function() {};
+      this.$timeout.flush();
+
+      this.$httpBackend.expectGET('/messages/msg2').respond({
+        _id: 'msg2',
+        responses: [
+          {_id: 'cmt2'},
+          {_id: 'cmt4'}
+        ]
+      });
+
+      this.$scope.threads.push(
+        {_id: 'msg1', responses: [{_id: 'cmt1'}] },
+        {_id: 'msg2', responses: [{_id: 'cmt2'}] },
+        {_id: 'msg3', responses: [{_id: 'cmt3'}] }
+      );
+      this.$rootScope.$emit('message:comment', {parent: {_id: 'msg2'}});
+      this.$httpBackend.flush();
+      expect(this.$scope.threads[1].responses).to.have.length(2);
+    });
+    it('should ignore "message:comment" events when the comment parent is not in the threads', function() {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      this.$scope.loadMoreElements = function() {};
+      this.$timeout.flush();
+
+      this.$scope.threads.push(
+        {_id: 'msg1', responses: [{_id: 'cmt1'}] },
+        {_id: 'msg2', responses: [{_id: 'cmt2'}] },
+        {_id: 'msg3', responses: [{_id: 'cmt3'}] }
+      );
+      this.$rootScope.$emit('message:comment', {parent: {_id: 'msg33'}});
+    });
+  });
 });
