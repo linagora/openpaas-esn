@@ -2,7 +2,8 @@
 
 var messageModule = require('../../core/message'),
     postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
-    pubsub = require('../../core/pubsub').local;
+    localpubsub = require('../../core/pubsub').local,
+    globalpubsub = require('../../core/pubsub').global;
 
 function messageSharesToTimelineTarget(shares) {
   return shares.map(function(e) {
@@ -13,7 +14,7 @@ function messageSharesToTimelineTarget(shares) {
   });
 }
 
-function createNewMessage(message, topic, req, res) {
+function createNewMessage(message, req, res) {
   messageModule.save(message, function(err, saved) {
     if (err) {
       return res.send(
@@ -24,7 +25,8 @@ function createNewMessage(message, topic, req, res) {
     if (saved) {
       var targets = messageSharesToTimelineTarget(req.body.targets);
       var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(saved, 'post', req.user, targets);
-      topic.publish(activity);
+      localpubsub.topic('message:activity').publish(activity);
+      globalpubsub.topic('message:activity').publish(activity);
       return res.send(201, { _id: saved._id});
     }
 
@@ -32,7 +34,7 @@ function createNewMessage(message, topic, req, res) {
   });
 }
 
-function commentMessage(message, inReplyTo, topic, req, res) {
+function commentMessage(message, inReplyTo, req, res) {
   if (!inReplyTo._id) {
     return res.send(400, 'Missing inReplyTo _id in body');
   }
@@ -43,9 +45,11 @@ function commentMessage(message, inReplyTo, topic, req, res) {
         500,
         { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message}});
     }
+
     var targets = messageSharesToTimelineTarget(parentMessage.shares);
     var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, targets, inReplyTo, new Date());
-    topic.publish(activity);
+    localpubsub.topic('message:activity').publish(activity);
+    globalpubsub.topic('message:activity').publish(activity);
     return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
   });
 }
@@ -59,13 +63,12 @@ function create(req, res) {
     return res.send(400, 'Missing message in body');
   }
 
-  var message = postToModel(req.body, req.user),
-      topic = pubsub.topic('message:activity');
+  var message = postToModel(req.body, req.user);
 
   if (req.body.inReplyTo) {
-    commentMessage(message, req.body.inReplyTo, topic, req, res);
+    commentMessage(message, req.body.inReplyTo, req, res);
   } else {
-    createNewMessage(message, topic, req, res);
+    createNewMessage(message, req, res);
   }
 }
 
