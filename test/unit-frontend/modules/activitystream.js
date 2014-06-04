@@ -313,6 +313,61 @@ describe('The esn.activitystream Angular module', function() {
         f.filter(tle2);
         expect(f.filter(tle)).to.be.false;
       });
+
+      describe('comments support', function() {
+        it('should respond true for a new comment', function() {
+          var f = this.filter();
+          var cmt = {
+            verb: 'post',
+            object: { _id: 'comment1' },
+            inReplyTo: [{_id: 'message1'}]
+          };
+          expect(f.filter(cmt)).to.be.true;
+        });
+        it('should respond false for a new comment when a comment has already been posted for the same parent message', function() {
+          var f = this.filter();
+          var cmt = {
+            verb: 'post',
+            object: { _id: 'comment1' },
+            inReplyTo: [{_id: 'message1'}]
+          };
+          var cmt2 = {
+            verb: 'post',
+            object: { _id: 'comment2' },
+            inReplyTo: [{_id: 'message1'}]
+          };
+          f.filter(cmt);
+          expect(f.filter(cmt2)).to.be.false;
+        });
+        it('should respond false for a new comment when the parent message has already been posted', function() {
+          var f = this.filter();
+          var cmt = {
+            verb: 'post',
+            object: { _id: 'comment1' },
+            inReplyTo: [{_id: 'message1'}]
+          };
+          var parent = {
+            verb: 'post',
+            object: { _id: 'message1' }
+          };
+          f.filter(parent);
+          expect(f.filter(cmt)).to.be.false;
+        });
+        it('should respond false for a new comment when the parent message has been removed', function() {
+          var f = this.filter();
+          var cmt = {
+            verb: 'post',
+            object: { _id: 'comment1' },
+            inReplyTo: [{_id: 'message1'}]
+          };
+          var parent = {
+            verb: 'remove',
+            object: { _id: 'message1' }
+          };
+          f.filter(parent);
+          expect(f.filter(cmt)).to.be.false;
+        });
+      });
     });
 
   });

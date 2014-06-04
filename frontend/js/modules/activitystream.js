@@ -24,14 +24,16 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
       }
 
       function filter(item) {
-        if (sent[item.object._id] || removed[item.object._id]) {
+        var messageId = item.object._id;
+        var rootMessageId = item.inReplyTo && item.inReplyTo.length ? item.inReplyTo[0]._id : item.object._id;
+        if (sent[rootMessageId] || removed[rootMessageId]) {
           return false;
         }
-        if (item.verb === 'remove') {
-          addToRemovedList(item.object._id);
+        if (item.verb === 'remove' && messageId === rootMessageId) {
+          addToRemovedList(rootMessageId);
           return false;
         }
-        addToSentList(item.object._id);
+        addToSentList(rootMessageId);
         return true;
       }
 
