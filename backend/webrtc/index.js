@@ -1,6 +1,7 @@
 'use strict';
 
 var easyrtc = require('easyrtc');
+var config = require('../core').config('default');
 
 var server = {
   started: false,
@@ -18,7 +19,14 @@ var start = function(webserver, wsserver, callback) {
     return callback(new Error('Webserver and Websocket server are required'));
   }
 
-  var options = {};
+  var options = {
+    logLevel: config.webrtc.level ||  'info',
+    appDefaultName: 'OpenPaasRSE',
+    demosEnable: true
+  };
+
+  var onAuthenticate = require('./auth/token');
+  easyrtc.events.on('authenticate', onAuthenticate);
 
   easyrtc.listen(webserver, wsserver, options, function(err, pub) {
     if (err) {
