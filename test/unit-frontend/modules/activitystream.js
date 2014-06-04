@@ -528,4 +528,368 @@ describe('The esn.activitystream Angular module', function() {
 
   });
 
+  describe('activityStreamUpdates service', function() {
+    beforeEach(function() {
+      angular.mock.module('esn.activitystream');
+      this.restcursor = function() {
+        return {
+          nextItems: function() {},
+          endOfStream: false
+        };
+      };
+      this.asAPI = { get: function() {} };
+      this.messageAPI = { get: function() {} };
+    });
+
+    it('must be a function', function() {
+      var self = this;
+      angular.mock.module(function($provide) {
+        $provide.value('activitystreamAPI', self.asAPI);
+        $provide.value('messageAPI', self.messageAPI);
+        $provide.value('restcursor', self.restcursor);
+      });
+      inject(function(activityStreamUpdates) {
+        expect(activityStreamUpdates).to.be.a.function;
+      });
+    });
+
+    it('must create a restcursor', function(done) {
+      var self = this;
+      this.restcursor = function() {
+        expect(arguments).to.have.length(3);
+        expect(arguments[0]).to.be.a.function;
+        expect(arguments[1]).to.be.an.object;
+        done();
+        return {
+          nextItems: function() {},
+          endOfStream: false
+        };
+      };
+      angular.mock.module(function($provide) {
+        $provide.value('activitystreamAPI', self.asAPI);
+        $provide.value('messageAPI', self.messageAPI);
+        $provide.value('restcursor', self.restcursor);
+      });
+      inject(function(activityStreamUpdates) {
+        activityStreamUpdates('0987654321', {mostRecentActivityId: 'message1'});
+      });
+    });
+
+    it('must call cursor.nextItems', function(done) {
+      var self = this;
+      this.restcursor = function() {
+        return {
+          nextItems: function() {done();},
+          endOfStream: false
+        };
+      };
+      angular.mock.module(function($provide) {
+        $provide.value('activitystreamAPI', self.asAPI);
+        $provide.value('messageAPI', self.messageAPI);
+        $provide.value('restcursor', self.restcursor);
+      });
+      inject(function(activityStreamUpdates) {
+        activityStreamUpdates('0987654321', {mostRecentActivityId: 'message1'});
+      });
+    });
+
+    describe('provided API', function() {
+      it('must use the activitystreamAPI with provided activity stream ID', function(done) {
+        var self = this;
+        this.restcursor = function(api) {
+          api();
+          return {
+            nextItems: function() {},
+            endOfStream: false
+          };
+        };
+        this.asAPI = { get: function() {
+         expect(arguments[0]).to.equal('0987654321');
+          done();
+        }};
+
+        angular.mock.module(function($provide) {
+          $provide.value('activitystreamAPI', self.asAPI);
+          $provide.value('messageAPI', self.messageAPI);
+          $provide.value('restcursor', self.restcursor);
+        });
+        inject(function(activityStreamUpdates) {
+          activityStreamUpdates('0987654321', {mostRecentActivityId: 'message1'});
+        });
+      });
+    });
+
+    describe('on REST call error', function() {
+      it('should forward the error', function(done) {
+        var self = this;
+        this.restcursor = function(api) {
+          return {
+            nextItems: function(callback) {return callback(new Error('down'));},
+            endOfStream: false
+          };
+        };
+        angular.mock.module(function($provide) {
+          $provide.value('activitystreamAPI', self.asAPI);
+          $provide.value('messageAPI', self.messageAPI);
+          $provide.value('restcursor', self.restcursor);
+        });
+        inject(function(activityStreamUpdates, $rootScope) {
+          activityStreamUpdates('0987654321', {mostRecentActivityId: 'message1'}).then(
+            function() {done(new Error('I should not be called'));},
+            function(err) {done();}
+          );
+          $rootScope.$digest();
+        });
+      });
+    });
+
+    describe('on REST call success', function() {
+      it('should update the scope with the provided timeline entries', function(done) {
+        var self = this;
+        var entries = [
+          {_id: 'tl1', object: {_id: 'msg1'}},
+          {_id: 'tl2', object: {_id: 'msg2'}},
+          {_id: 'tl3', object: {_id: 'msg3'}},
+          {_id: 'tl4', object: {_id: 'msg4'}},
+          {_id: 'tl5', object: {_id: 'msg5'}}
+        ];
+        this.restcursor = function(api) {
+          return {
+            nextItems: function(callback) { this.endOfStream = true; return callback(null, entries); },
+            endOfStream: false
+          };
+        };
+
+        var scope = { mostRecentActivityId: 'message1', threads: [] };
+
+        angular.mock.module(function($provide) {
+          $provide.value('activitystreamAPI', self.asAPI);
+          $provide.value('restcursor', self.restcursor);
+        });
+        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
+          Restangular.setFullResponse(true);
+          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3&ids%5B%5D=msg4&ids%5B%5D=msg5')
+          .respond([
+              {_id: 'msg3', content: 'message msg3'},
+              {_id: 'msg1', content: 'message msg1'},
+              {_id: 'msg2', content: 'message msg2'},
+              {_id: 'msg4', content: 'message msg4'},
+              {_id: 'msg5', content: 'message msg5'}
+            ]);
+          activityStreamUpdates('0987654321', scope).then(
+            function() {
+              expect(scope.threads).to.have.length(5);
+              expect(scope.threads[0]._id).to.equal('msg5');
+              expect(scope.threads[1]._id).to.equal('msg4');
+              expect(scope.threads[2]._id).to.equal('msg3');
+              expect(scope.threads[3]._id).to.equal('msg2');
+              expect(scope.threads[4]._id).to.equal('msg1');
+              done();
+            },
+            function(err) {done(new Error('I should not be called'));}
+          ).catch (function(err) {
+            throw err;
+          });
+          $httpBackend.flush();
+        });
+      });
+
+      it('should update the scope, taking care of the elements ordering', function(done) {
+        var self = this;
+        var entries = [
+          {_id: 'tl1', object: {_id: 'msg1'}},
+          {_id: 'tl2', object: {_id: 'msg2'}},
+          {_id: 'tl3', object: {_id: 'msg3'}},
+          {_id: 'tl4', object: {_id: 'msg2'}},
+          {_id: 'tl5', object: {_id: 'msg5'}}
+        ];
+        this.restcursor = function(api) {
+          return {
+            nextItems: function(callback) { this.endOfStream = true; return callback(null, entries); },
+            endOfStream: false
+          };
+        };
+
+        var scope = {mostRecentActivityId: 'message1', threads: [] };
+
+        angular.mock.module(function($provide) {
+          $provide.value('activitystreamAPI', self.asAPI);
+          $provide.value('restcursor', self.restcursor);
+        });
+        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
+          Restangular.setFullResponse(true);
+          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3&ids%5B%5D=msg5')
+          .respond([
+            {_id: 'msg1', contgent: 'message msg1'},
+            {_id: 'msg5', contgent: 'message msg5'},
+            {_id: 'msg3', contgent: 'message msg3'},
+            {_id: 'msg2', contgent: 'message msg2'}
+          ]);
+          activityStreamUpdates('0987654321', scope).then(
+            function() {
+              expect(scope.threads).to.have.length(4);
+              expect(scope.threads[0]._id).to.equal('msg5');
+              expect(scope.threads[1]._id).to.equal('msg2');
+              expect(scope.threads[2]._id).to.equal('msg3');
+              expect(scope.threads[3]._id).to.equal('msg1');
+              done();
+            },
+            function(err) {done(new Error('I should not be called'));}
+          ).catch (function(err) {
+            throw err;
+          });
+          $httpBackend.flush();
+        });
+      });
+
+      it('should update the scope, fetching parent when the timeline got a inReplyTo', function(done) {
+        var self = this;
+        var entries = [
+          {_id: 'tl1', object: {_id: 'msg1'}},
+          {_id: 'tl2', object: {_id: 'msg2'}},
+          {_id: 'tl3', object: {_id: 'cmt1'}, inReplyTo: [{_id: 'msg3'}]},
+          {_id: 'tl4', object: {_id: 'msg2'}},
+          {_id: 'tl5', object: {_id: 'cmt2'}, inReplyTo: [{_id: 'msg3'}]},
+          {_id: 'tl6', object: {_id: 'cmt3'}, inReplyTo: [{_id: 'msg1'}]}
+        ];
+        this.restcursor = function(api) {
+          return {
+            nextItems: function(callback) { this.endOfStream = true; return callback(null, entries); },
+            endOfStream: false
+          };
+        };
+
+        var scope = {mostRecentActivityId: 'message1', threads: [] };
+
+        angular.mock.module(function($provide) {
+          $provide.value('activitystreamAPI', self.asAPI);
+          $provide.value('restcursor', self.restcursor);
+        });
+        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
+          Restangular.setFullResponse(true);
+          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3')
+          .respond([
+            {_id: 'msg1', contgent: 'message msg1'},
+            {_id: 'msg3', contgent: 'message msg3'},
+            {_id: 'msg2', contgent: 'message msg2'}
+          ]);
+          activityStreamUpdates('0987654321', scope).then(
+            function() {
+              expect(scope.threads).to.have.length(3);
+              expect(scope.threads[0]._id).to.equal('msg1');
+              expect(scope.threads[1]._id).to.equal('msg3');
+              expect(scope.threads[2]._id).to.equal('msg2');
+              done();
+            },
+            function(err) {done(new Error('I should not be called'));}
+          ).catch (function(err) {
+            throw err;
+          });
+          $httpBackend.flush();
+        });
+      });
+
+
+      it('should update the scope, recursively fetching timeline entries per batches of 30', function(done) {
+        var self = this;
+        var entries1 = [
+          {_id: 'tl1', object: {_id: 'msg1'}},
+          {_id: 'tl2', object: {_id: 'msg2'}},
+          {_id: 'tl3', object: {_id: 'cmt1'}, inReplyTo: [{_id: 'msg3'}]},
+          {_id: 'tl4', object: {_id: 'msg2'}},
+          {_id: 'tl5', object: {_id: 'cmt2'}, inReplyTo: [{_id: 'msg4'}]},
+          {_id: 'tl6', object: {_id: 'msg2'}},
+          {_id: 'tl7', object: {_id: 'msg2'}},
+          {_id: 'tl8', object: {_id: 'msg2'}},
+          {_id: 'tl9', object: {_id: 'msg2'}},
+          {_id: 'tl10', object: {_id: 'msg18'}},
+          {_id: 'tl11', object: {_id: 'msg2'}},
+          {_id: 'tl12', object: {_id: 'msg2'}},
+          {_id: 'tl13', object: {_id: 'msg14'}},
+          {_id: 'tl14', object: {_id: 'msg2'}},
+          {_id: 'tl15', object: {_id: 'msg2'}},
+          {_id: 'tl16', object: {_id: 'msg2'}},
+          {_id: 'tl17', object: {_id: 'msg1'}},
+          {_id: 'tl18', object: {_id: 'msg2'}},
+          {_id: 'tl19', object: {_id: 'msg2'}},
+          {_id: 'tl20', object: {_id: 'msg2'}},
+          {_id: 'tl21', object: {_id: 'msg2'}},
+          {_id: 'tl22', object: {_id: 'msg2'}},
+          {_id: 'tl23', object: {_id: 'msg2'}},
+          {_id: 'tl24', object: {_id: 'msg2'}},
+          {_id: 'tl25', object: {_id: 'msg3'}},
+          {_id: 'tl26', object: {_id: 'msg2'}},
+          {_id: 'tl27', object: {_id: 'msg2'}},
+          {_id: 'tl28', object: {_id: 'msg2'}},
+          {_id: 'tl29', object: {_id: 'msg2'}},
+          {_id: 'tl30', object: {_id: 'cmt3'}, inReplyTo: [{_id: 'msg1'}]}
+        ];
+
+        var entries2 = [
+          {_id: 'tl31', object: {_id: 'msg14'}},
+          {_id: 'tl32', object: {_id: 'msg2'}},
+          {_id: 'tl33', object: {_id: 'msg2'}},
+          {_id: 'tl34', object: {_id: 'msg18'}}
+        ];
+
+        var entries = [entries1, entries2];
+
+        this.restcursor = function(api) {
+          return {
+            nextItems: function(callback) {
+              if (entries.length === 1) {
+                this.endOfStream = true;
+              }
+              return callback(null, entries.shift());
+            },
+            endOfStream: false
+          };
+        };
+
+        var scope = {mostRecentActivityId: 'message1', threads: [] };
+
+        angular.mock.module(function($provide) {
+          $provide.value('activitystreamAPI', self.asAPI);
+          $provide.value('restcursor', self.restcursor);
+        });
+        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
+          Restangular.setFullResponse(true);
+          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3&ids%5B%5D=msg4&ids%5B%5D=msg18&ids%5B%5D=msg14')
+          .respond([
+            {_id: 'msg1', contgent: 'message msg1'},
+            {_id: 'msg3', contgent: 'message msg3'},
+            {_id: 'msg2', contgent: 'message msg2'},
+            {_id: 'msg4', contgent: 'message msg4'},
+            {_id: 'msg14', contgent: 'message msg14'},
+            {_id: 'msg18', contgent: 'message msg18'}
+          ]);
+          $httpBackend.expectGET('/messages?ids%5B%5D=msg14&ids%5B%5D=msg2&ids%5B%5D=msg18')
+          .respond([
+            {_id: 'msg2', contgent: 'message msg2'},
+            {_id: 'msg14', contgent: 'message msg14'},
+            {_id: 'msg18', contgent: 'message msg18'}
+          ]);
+
+          activityStreamUpdates('0987654321', scope).then(
+            function() {
+              expect(scope.threads).to.have.length(6);
+              expect(scope.threads[0]._id).to.equal('msg18');
+              expect(scope.threads[1]._id).to.equal('msg2');
+              expect(scope.threads[2]._id).to.equal('msg14');
+              expect(scope.threads[3]._id).to.equal('msg1');
+              expect(scope.threads[4]._id).to.equal('msg3');
+              expect(scope.threads[5]._id).to.equal('msg4');
+              done();
+            },
+            function(err) {done(new Error('I should not be called'));}
+          ).catch (function(err) {
+            throw err;
+          });
+          $httpBackend.flush();
+        });
+      });
+    });
+
+  });
+
 });
