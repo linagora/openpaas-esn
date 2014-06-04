@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate', 'angularSpinner'])
+angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'esn.websocket', 'mgcrea.ngStrap', 'ngAnimate', 'angularSpinner'])
   .factory('activitystreamAPI', ['Restangular', function(Restangular) {
     function get(id, options) {
       return Restangular.all('activitystreams/' + id).getList(options);
