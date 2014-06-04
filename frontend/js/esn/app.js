@@ -4,6 +4,7 @@ angular.module('esnApp', [
   'restangular',
   'ngRoute',
   'mgcrea.ngStrap.affix',
+  'ui.notify',
   'esn.member',
   'esn.domain',
   'esn.avatar',

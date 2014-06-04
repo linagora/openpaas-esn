@@ -41,6 +41,7 @@
     "angular-xeditable": "0.1.8",
     "blueimp-canvas-to-blob": "~2.1.0",
     "angular-motion": "~0.3.2",
-    "angular-socket-io": "~0.6.0"
+    "angular-socket-io": "~0.6.0",
+    "angular-pines-notify": "~1.0.0"
   }
 }
