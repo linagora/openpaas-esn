@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-describe('The conferences controller', function() {
+describe.only('The conferences controller', function() {
 
   it('load should call next if id is not set', function(done) {
     mockery.registerMock('../../core/conference', {});
@@ -36,6 +36,39 @@ describe('The conferences controller', function() {
       done();
     };
     controller.load(req, resp, next);
+  });
+
+  it('loadWithAttendees should call next if id is not set', function(done) {
+    mockery.registerMock('../../core/conference', {});
+    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    controller.loadWithAttendees({params: {}}, {}, function() {
+      done();
+    });
+  });
+
+  it('loadWithAttendees should set req.conference when id is set', function(done) {
+    var result = {
+      creator: 234
+    };
+    var conference = {
+      loadWithAttendees: function(id, callback) {
+        return callback(null, result);
+      }
+    };
+    mockery.registerMock('../../core/conference', conference);
+    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var req = {
+      params: {
+        id: 123
+      }
+    };
+    var resp = {};
+    var next = function() {
+      expect(req.conference).to.exist;
+      expect(req.conference).to.deep.equal(result);
+      done();
+    };
+    controller.loadWithAttendees(req, resp, next);
   });
 
   it('get should send back HTTP 200 when conference is in request', function(done) {
@@ -333,5 +366,72 @@ describe('The conferences controller', function() {
       }
     };
     controller.updateAttendee(req, res);
+  });
+
+  it('getAttendees should send back HTTP 400 when conference is not defined in req', function(done) {
+    mockery.registerMock('../../core/conference', {});
+    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var res = {
+      json: function(status) {
+        expect(status).to.equal(400);
+        done();
+      }
+    };
+    controller.getAttendees({user: {}}, res);
+  });
+
+  it('getAttendees should send back HTTP 200 with empty array if conference has undefined attendees', function(done) {
+    mockery.registerMock('../../core/conference', {});
+    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var res = {
+      json: function(status) {
+        expect(status).to.equal(200);
+        done();
+      }
+    };
+    var req = {
+      conference: {}
+    };
+    controller.getAttendees(req, res);
+  });
+
+  it('getAttendees should send back HTTP 200 with empty array if conference has empty attendees', function(done) {
+    mockery.registerMock('../../core/conference', {});
+    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var res = {
+      json: function(status) {
+        expect(status).to.equal(200);
+        done();
+      }
+    };
+    var req = {
+      conference: {
+        attendees: []
+      }
+    };
+    controller.getAttendees(req, res);
+  });
+
+  it('getAttendees should send back HTTP 200 with attendees array', function(done) {
+    mockery.registerMock('../../core/conference', {});
+    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var res = {
+      json: function(status, users) {
+        expect(status).to.equal(200);
+        expect(users).to.exist;
+        expect(users.length).to.equal(2);
+
+        done();
+      }
+    };
+    var req = {
+      conference: {
+        attendees: [
+          {user: {toObject: function() { return {_id: 1};}}},
+          {user: {toObject: function() { return {_id: 2};}}}
+        ]
+      }
+    };
+    controller.getAttendees(req, res);
   });
 });

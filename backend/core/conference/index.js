@@ -60,6 +60,10 @@ module.exports.get = function(id, callback) {
   Conference.findById(id).exec(callback);
 };
 
+module.exports.loadWithAttendees = function(id, callback) {
+  Conference.findById(id).sort('-timestamps.creation').populate('attendees.user', null, 'User').exec(callback);
+};
+
 module.exports.updateAttendeeStatus = function(conference, attendee, status, callback) {
   return callback(new Error());
 };
@@ -77,8 +81,8 @@ module.exports.userIsConferenceCreator = function(conference, user, callback) {
     return callback(new Error('Undefined conference'));
   }
 
-  var id = user._id ||  user;
-  return callback(null, conference.creator === id);
+  var id = user._id || user;
+  return callback(null, conference.creator.equals(id));
 };
 
 module.exports.userIsConferenceAttendee = function(conference, user, callback) {
@@ -93,7 +97,7 @@ module.exports.userIsConferenceAttendee = function(conference, user, callback) {
   var id = user._id ||  user;
 
   var found = conference.attendees.some(function(element) {
-    return element.user === id;
+    return element.user.equals(id);
   });
   return callback(null, found);
 };
@@ -131,7 +135,7 @@ module.exports.join = function(conference, user, callback) {
   }
 
   var id = user._id || user;
-  conference.attendees.push({user: id, timestamps: [{step: 'joined', date: Date.now()}]});
+  conference.attendees.push({user: id, timestamps: [{step: 'join', date: Date.now()}]});
 
   conference.save(function(err, updated) {
     if (err) {
@@ -150,4 +154,3 @@ module.exports.join = function(conference, user, callback) {
 module.exports.leave = function(conference, user, callback) {
   return callback(new Error('Not implemented'));
 };
-

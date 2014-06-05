@@ -170,6 +170,103 @@ The created conference.
       }
     }
 
+## GET /api/conferences/{id}/attendees
+
+Get full information about the conference attendees.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- id: The conference ID
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Response JSON Object**
+
+Array or attendees with user information.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 404 Not found
+- 500 Internal server error
+
+**Request:**
+
+    GET /api/conferences/538e3bd6654d7c3307f990fa/attendees
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+
+    [
+      {
+
+        "__v": 5,
+        "_id": "5375de4bd684db7f6fbd4f97",
+        "currentAvatar": "e5396080-dcde-11e3-b0dd-978201406e85",
+        "firstname": "christophe",
+        "lastname": "hamerling",
+        "avatars": [
+            "e5396080-dcde-11e3-b0dd-978201406e85"
+        ],
+        "schemaVersion": 1,
+        "login": {
+            "success": "2014-06-05T20:28:31.843Z",
+            "failures": [ ]
+        },
+        "domains": [
+            {
+                "domain_id": "5375de4bd684db7f6fbd4f98",
+                "joined_at": "2014-05-16T09:45:47.307Z"
+            }
+        ],
+        "timestamps": {
+            "creation": "2014-05-16T09:45:47.231Z"
+        },
+        "emails": [
+            "chamerling@linagora.com"
+        ]
+
+      },
+      {
+        "__v": 5,
+        "_id": "5375de4bd684db7f6fbd4f97",
+        "currentAvatar": "e5396080-dcde-11e3-b0dd-978201406e85",
+        "firstname": "christophe",
+        "lastname": "hamerling",
+        "avatars": [
+            "e5396080-dcde-11e3-b0dd-978201406e85"
+        ],
+        "schemaVersion": 1,
+        "login": {
+            "success": "2014-06-05T20:28:31.843Z",
+            "failures": [ ]
+        },
+        "domains": [
+            {
+                "domain_id": "5375de4bd684db7f6fbd4f98",
+                "joined_at": "2014-05-16T09:45:47.307Z"
+            }
+        ],
+        "timestamps": {
+            "creation": "2014-05-16T09:45:47.231Z"
+        },
+        "emails": [
+            "chamerling@linagora.com"
+        ]
+      }
+    ]
+
 ## PUT /api/conferences/{id}/attendees
 
 Update the current user status as attendee in the conference.

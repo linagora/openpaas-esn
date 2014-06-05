@@ -3,6 +3,7 @@
 var mockery = require('mockery');
 var chai = require('chai');
 var expect = chai.expect;
+var ObjectId = require('bson').ObjectId;
 
 describe('The conference module', function() {
 
@@ -234,13 +235,14 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
+    var user_id = new ObjectId();
     var conf = {
-      creator: 123,
+      creator: user_id,
       attendees: []
     };
 
     var user = {
-      _id: 123
+      _id: user_id
     };
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
@@ -260,14 +262,14 @@ describe('The conference module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var user = {
-      _id: 123
+      _id: new ObjectId()
     };
 
     var conf = {
-      creator: 111,
+      creator: new ObjectId(),
       attendees: [
         {user: user._id},
-        {user: 222}
+        {user: new ObjectId()}
       ]
     };
 
@@ -318,7 +320,7 @@ describe('The conference module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var user = {
-      _id: 666
+      _id: new ObjectId()
     };
 
     var conf = {
@@ -346,14 +348,14 @@ describe('The conference module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var user = {
-      _id: 666
+      _id: new ObjectId()
     };
 
     var conf = {
       creator: 123,
       attendees: [
-        {user: 222},
-        {user: 111}
+        {user: new ObjectId()},
+        {user: new ObjectId()}
       ]
     };
 
@@ -404,7 +406,7 @@ describe('The conference module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conf = {
-      creator: 123
+      creator: new ObjectId()
     };
 
     var user = {
@@ -428,11 +430,11 @@ describe('The conference module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conf = {
-      creator: 234
+      creator: new ObjectId()
     };
 
     var user = {
-      _id: 123
+      _id: new ObjectId()
     };
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
@@ -451,15 +453,15 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conf = {
-      creator: 234,
-      attendees: [
-        {user: 123}
-      ]
+    var user = {
+      _id: new ObjectId()
     };
 
-    var user = {
-      _id: 123
+    var conf = {
+      creator: new ObjectId(),
+      attendees: [
+        {user: user._id}
+      ]
     };
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
@@ -479,14 +481,14 @@ describe('The conference module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conf = {
-      creator: 234,
+      creator: new ObjectId(),
       attendees: [
-        {user: 123}
+        {user: new ObjectId()}
       ]
     };
 
     var user = {
-      _id: 456
+      _id: new ObjectId()
     };
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
