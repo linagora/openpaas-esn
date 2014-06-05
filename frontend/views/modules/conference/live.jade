@@ -1,0 +1,11 @@
+.row
+  .col-lg-8
+
+    div.conference-video
+      video#video-main.video-mirror(autoplay="autoplay", ng-class="mainclass")
+      video#video-thumb(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+
+  .col-lg-4
+      h4 Members
+      .row(ng-repeat="user in users")
+        conference-attendee(user=user)

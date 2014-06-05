@@ -25,9 +25,11 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
         $log.info('Disconnected from websocket');
       });
 
-      return socketFactory({
+      var socket = socketFactory({
         ioSocket: sio
       });
+      socket.socket = sio;
+      return socket;
     };
   }])
   .factory('livenotification', ['$log', 'session', 'socket', function($log, session, socket) {

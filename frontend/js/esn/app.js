@@ -14,6 +14,8 @@ angular.module('esnApp', [
   'esn.session',
   'esn.activitystream',
   'esn.websocket',
+  'esn.easyrtc',
+  'esn.conference',
   'esn.authentication'
 ]).config(function($routeProvider, RestangularProvider) {
 
@@ -68,6 +70,40 @@ angular.module('esnApp', [
     $routeProvider.when('/profile/avatar', {
       templateUrl: '/views/esn/partials/avatar',
       controller: 'avatarEdit'
+    });
+
+    $routeProvider.when('/conferences', {
+      templateUrl: '/views/esn/partials/conference',
+      controller: 'conferencesController',
+      resolve: {
+        conferences: function(conferenceAPI, $location) {
+          return conferenceAPI.list().then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/');
+            }
+          );
+        }
+      }
+    });
+
+    $routeProvider.when('/conferences/:conference_id', {
+      templateUrl: '/views/modules/conference/live',
+      controller: 'liveConferenceController',
+      resolve: {
+        conference: function(conferenceAPI, $route, $location) {
+          return conferenceAPI.get($route.current.params.conference_id).then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/');
+            }
+          );
+        }
+      }
     });
 
     $routeProvider.otherwise({redirectTo: '/'});
