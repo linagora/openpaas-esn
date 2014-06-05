@@ -64,7 +64,7 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
         }
       },
       onNotification: function(callback) {
-        this.notification.on('notification', function (data) {
+        this.notification.on('notification', function(data) {
           $log.log('New notification', data);
           callback(data);
         });

@@ -12,7 +12,7 @@ var topics = [
 function notify(io, uuids, msg) {
   uuids.forEach(function(uuid) {
     io.of('/activitystreams')
-      .in(uuid)
+      . in (uuid)
       .emit('notification', msg);
   });
 }

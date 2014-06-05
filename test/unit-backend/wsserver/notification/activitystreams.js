@@ -1,7 +1,6 @@
 'use strict';
 
-var expect = require('chai').expect,
-    mockery = require('mockery');
+var expect = require('chai').expect;
 
 describe('The WebSockets Event module', function() {
   var moduleToTest;
@@ -78,10 +77,6 @@ describe('The WebSockets Event module', function() {
         namespaceToTest = namespace;
         return this;
       },
-      in: function(room) {
-        inToTest.push(room);
-        return this;
-      },
       emit: function(event) {
         emitToTest = event;
         return this;
@@ -89,6 +84,10 @@ describe('The WebSockets Event module', function() {
       on: function() {
         return;
       }
+    };
+    io.in = function(room) {
+      inToTest.push(room);
+      return this;
     };
 
     require(moduleToTest).init(io);

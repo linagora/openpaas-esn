@@ -46,7 +46,7 @@ describe('The Core configured module', function() {
     mockery.registerMock('..', coreMock);
 
     var stub = {};
-    mockPubSub(stub);
+    mockPubSub('../pubsub', stub);
 
     isConfigured = require(this.testEnv.basePath + '/backend/core').configured;
     expect(isConfigured()).to.be.true;

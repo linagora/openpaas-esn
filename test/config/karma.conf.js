@@ -21,6 +21,8 @@ module.exports = function(config) {
       'frontend/components/ngInfiniteScroll/build/ng-infinite-scroll.js',
       'frontend/components/ng-tags-input/ng-tags-input.js',
       'frontend/components/angular-xeditable/dist/js/xeditable.js',
+      'frontend/components/angular-socket-io/socket.js',
+      'frontend/components/angular-pines-notify/src/pnotify.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/member/**/*.jade',

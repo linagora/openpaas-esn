@@ -36,7 +36,7 @@ var getRedisConfiguration = function(options) {
 
   pubsub.topic('redis:configurationAvailable').publish(redisConfig);
   return redisConfig;
-}
+};
 
 var createClient = function(options, callback) {
   var redisConfig = getRedisConfiguration(options);

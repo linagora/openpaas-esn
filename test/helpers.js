@@ -54,6 +54,9 @@ function mockModels(mockedModels) {
 function mockPubSub(path, localStub, globalStub) {
   localStub.topics = [];
   localStub.subscribe = {};
+  if (!globalStub) {
+    globalStub = {};
+  }
   globalStub.topics = [];
   globalStub.subscribe = {};
 
