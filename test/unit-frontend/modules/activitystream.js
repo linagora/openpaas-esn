@@ -413,11 +413,21 @@ describe('The esn.activitystream Angular module', function() {
         this.$controller = $controller;
         this.scope = $rootScope.$new();
         this.alert = function(msgObject) {};
+        this.livenotification = {
+          of: function() { return this; },
+          subscribe: function() { return this; },
+          onNotification: function() {}
+        };
+        this.notificationService = {
+          notify: function() {}
+        };
         $controller('activitystreamController', {
           $scope: this.scope,
           activitystreamAggregator: this.aggregatorService,
           usSpinnerService: this.usSpinnerService,
-          alert: this.alert
+          alert: this.alert,
+          livenotification: this.livenotification,
+          notificationService: this.notificationService
         });
       }));
 
@@ -555,7 +565,9 @@ describe('The esn.activitystream Angular module', function() {
             activitystreamAggregator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
             alert: this.alert,
-            activityStreamUpdates: this.activityStreamUpdates
+            activityStreamUpdates: this.activityStreamUpdates,
+            livenotification: this.livenotification,
+            notificationService: this.notificationService
           });
           this.scope.restActive = true;
         });
