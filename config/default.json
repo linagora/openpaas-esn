@@ -9,7 +9,8 @@
     "port": 8080
   },
   "webrtc": {
-    "enabled": true
+    "enabled": true,
+    "level": "debug"
   },
   "db": {
     "reconnectOnConfigurationChange": true
