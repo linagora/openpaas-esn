@@ -7,7 +7,7 @@ div.widget.thread
       small
         | &nbsp;on&nbsp;
         a(href="/#messages/{{message._id}}") {{message.published}}
-    p {{message.content}}
+    p.multilines {{message.content}}
     include ./partials/whatsupBottomLinks
 
     div.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
