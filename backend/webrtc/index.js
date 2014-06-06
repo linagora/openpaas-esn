@@ -22,7 +22,7 @@ var start = function(webserver, wsserver, callback) {
   var options = {
     logLevel: config.webrtc.level ||  'info',
     appDefaultName: 'OpenPaasRSE',
-    demosEnable: true
+    demosEnable: false
   };
 
   var onAuthenticate = require('./auth/token');

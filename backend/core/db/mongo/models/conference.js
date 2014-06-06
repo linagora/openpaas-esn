@@ -2,22 +2,22 @@
 
 var mongoose = require('mongoose');
 
-var AttendeeSchema = new mongoose.Schema({
-  user: {type: mongoose.Schema.ObjectId, ref: 'User'},
-  timestamps: [{
-    date: {type: Date, default: Date.now},
-    step: {type: String}
-  }]
-}, { _id: false });
-
 var ConferenceSchema = new mongoose.Schema({
   name: {type: String},
   status: {type: String},
+  creator: {type: mongoose.Schema.ObjectId, ref: 'User'},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
-  creator: {type: mongoose.Schema.ObjectId, ref: 'User'},
-  attendees: {type: [AttendeeSchema]},
+  history: [{
+    user: {type: mongoose.Schema.ObjectId, ref: 'User'},
+    status: {type: String, required: true},
+    date: {type: Date, default: Date.now}
+  }],
+  attendees: [{
+    user: {type: mongoose.Schema.ObjectId, ref: 'User'},
+    status: {type: String, required: true}
+  }],
   schemaVersion: {type: Number, default: 1}
 });
 

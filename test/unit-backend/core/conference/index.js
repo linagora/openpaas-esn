@@ -122,7 +122,8 @@ describe('The conference module', function() {
     var conf = {
       save: function(callback) {
         return callback(new Error());
-      }
+      },
+      attendees: []
     };
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
@@ -254,12 +255,6 @@ describe('The conference module', function() {
   });
 
   it('userCanJoinConference should send true when user is attendee', function(done) {
-    var mongoose = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var user = {
       _id: new ObjectId()
@@ -272,6 +267,21 @@ describe('The conference module', function() {
         {user: new ObjectId()}
       ]
     };
+
+    var mongoose = {
+      model: function() {
+        return {
+          findOne: function() {
+            return {
+              exec: function(callback) {
+                return callback(null, conf);
+              }
+            };
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.userCanJoinConference(conf, user, function(err, status) {
@@ -312,13 +322,6 @@ describe('The conference module', function() {
   });
 
   it('userIsConferenceAttendee should send true when user is in attendee list', function(done) {
-    var mongoose = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongoose);
-
     var user = {
       _id: new ObjectId()
     };
@@ -331,6 +334,21 @@ describe('The conference module', function() {
       ]
     };
 
+    var mongoose = {
+      model: function() {
+        return {
+          findOne: function() {
+            return {
+              exec: function(callback) {
+                return callback(null, conf);
+              }
+            };
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongoose);
+
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.userIsConferenceAttendee(conf, user, function(err, status) {
       expect(err).to.not.exist;
@@ -340,13 +358,6 @@ describe('The conference module', function() {
   });
 
   it('userIsConferenceAttendee should send false when user is not in attendees list', function(done) {
-    var mongoose = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongoose);
-
     var user = {
       _id: new ObjectId()
     };
@@ -354,10 +365,23 @@ describe('The conference module', function() {
     var conf = {
       creator: 123,
       attendees: [
-        {user: new ObjectId()},
-        {user: new ObjectId()}
       ]
     };
+
+    var mongoose = {
+      model: function() {
+        return {
+          findOne: function() {
+            return {
+              exec: function(callback) {
+                return callback(null, conf);
+              }
+            };
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.userIsConferenceAttendee(conf, user, function(err, status) {
@@ -446,13 +470,6 @@ describe('The conference module', function() {
   });
 
   it('userCanJoinConference should send true when user is in attendees list', function(done) {
-    var mongoose = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongoose);
-
     var user = {
       _id: new ObjectId()
     };
@@ -463,6 +480,21 @@ describe('The conference module', function() {
         {user: user._id}
       ]
     };
+
+    var mongoose = {
+      model: function() {
+        return {
+          findOne: function() {
+            return {
+              exec: function(callback) {
+                return callback(null, conf);
+              }
+            };
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.userCanJoinConference(conf, user, function(err, status) {
@@ -530,12 +562,6 @@ describe('The conference module', function() {
   });
 
   it('join should send back updated conference', function(done) {
-    var mongoose = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var user = {
       _id: 123
@@ -544,11 +570,24 @@ describe('The conference module', function() {
     var conf = {
       creator: 333,
       attendees: [],
+      history: [],
       save: function(callback) {
         var self = this;
         return callback(null, {attendees: self.attendees});
       }
     };
+
+    var mongoose = {
+      model: function() {
+        return {
+          update: function(value, options, upsert, callback) {
+            conf.attendees.push(user);
+            return callback(null, conf);
+          }
+        };
+      }
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.join(conf, user, function(err, updated) {
@@ -560,4 +599,63 @@ describe('The conference module', function() {
     });
   });
 
+  it('addHistory should send back error when user is undefined', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {};
+      }
+    });
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    conference.addHistory({}, null, 'hey', function(err) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('addHistory should send back error when conference is undefined', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {};
+      }
+    });
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    conference.addHistory(null, {}, 'hey', function(err) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('addHistory should send back error when status is undefined', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {};
+      }
+    });
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    conference.addHistory({}, {}, null, function(err) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('addHistory should call conference.save', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {};
+      }
+    });
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+
+    var conf = {
+      attendees: [],
+      history: [],
+      save: function() {
+        done();
+      }
+    };
+
+    conference.addHistory(conf, {user: 123}, 'hey', function(err) {
+      done();
+    });
+  });
 });

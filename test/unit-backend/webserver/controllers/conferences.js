@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-describe.only('The conferences controller', function() {
+describe('The conferences controller', function() {
 
   it('load should call next if id is not set', function(done) {
     mockery.registerMock('../../core/conference', {});
