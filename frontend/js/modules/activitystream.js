@@ -251,7 +251,13 @@ angular.module('esn.activitystream', [
 
         return activitystreamAggregator;
       }])
-
+.directive('activityStreamUpdatesNotifier', function(messageAPI, $rootScope, $timeout) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/activitystream/updates-notifier.html'
+    };
+})
 .directive('activityStream', ['messageAPI', '$rootScope', '$timeout', function(messageAPI, $rootScope, $timeout) {
     return {
       restrict: 'E',
