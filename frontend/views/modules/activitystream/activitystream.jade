@@ -1,6 +1,7 @@
-div(ng-controller="activitystreamController")
+div(ng-controller="activitystreamController" activitystream-notification)
   div
     whatsup-edition
+  activity-stream-updates-notifier
   div
       div#activitystreamerror
       div.text-center.bg-info(ng-show="threads.length===0 && !restActive") #{__('There are no messages on this activity stream yet. Be the first to post !')}

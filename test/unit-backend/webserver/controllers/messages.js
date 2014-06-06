@@ -106,14 +106,16 @@ describe('The messages module', function() {
       messages.createOrReplyToMessage(validReq, res);
     });
 
-    it('should publish into "message:activity" on success', function(done) {
-      var topicUsed = '';
-      var dataPublished = null;
+    it('should publish into local and global "message:activity" on success', function(done) {
+      var localstub = {};
+      var globalstub = {};
 
       var res = {
         send: function() {
-          expect(topicUsed).to.equal('message:activity');
-          expect(dataPublished).to.exist;
+          expect(localstub.topics[0]).to.equal('message:activity');
+          expect(globalstub.topics[0]).to.equal('message:activity');
+          expect(localstub.topics['message:activity'].data).to.exist;
+          expect(globalstub.topics['message:activity'].data).to.exist;
           done();
         }
       };
@@ -125,19 +127,7 @@ describe('The messages module', function() {
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
 
-      var pubsubMocked = {
-        local: {
-          topic: function(topic) {
-            return {
-              publish: function(data) {
-                topicUsed = topic;
-                dataPublished = data;
-              }
-            };
-          }
-        }
-      };
-      mockery.registerMock('../../core/pubsub', pubsubMocked);
+      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -254,14 +244,16 @@ describe('The messages module', function() {
       messages.createOrReplyToMessage(validReq, res);
     });
 
-    it('should publish into "message:activity" on success', function(done) {
-      var topicUsed = '';
-      var dataPublished = null;
+    it('should publish into local and global "message:activity" on success', function(done) {
+      var localstub = {};
+      var globalstub = {};
 
       var res = {
         send: function() {
-          expect(topicUsed).to.equal('message:activity');
-          expect(dataPublished).to.exist;
+          expect(localstub.topics[0]).to.equal('message:activity');
+          expect(globalstub.topics[0]).to.equal('message:activity');
+          expect(localstub.topics['message:activity'].data).to.exist;
+          expect(globalstub.topics['message:activity'].data).to.exist;
           done();
         }
       };
@@ -273,19 +265,7 @@ describe('The messages module', function() {
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
 
-      var pubsubMocked = {
-        local: {
-          topic: function(topic) {
-            return {
-              publish: function(data) {
-                topicUsed = topic;
-                dataPublished = data;
-              }
-            };
-          }
-        }
-      };
-      mockery.registerMock('../../core/pubsub', pubsubMocked);
+      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);

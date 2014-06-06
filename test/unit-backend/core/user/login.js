@@ -34,7 +34,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.success('email', function(err) {
@@ -63,7 +63,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.success('email', function(err) {
@@ -84,7 +84,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.success('email', function(err) {
@@ -119,7 +119,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.failure('email', function(err) {
@@ -148,7 +148,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.failure('email', function(err) {
@@ -169,7 +169,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.failure('email', function(err) {
@@ -268,7 +268,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.canLogin('email', function(err) {
@@ -288,7 +288,7 @@ describe('The user login module', function() {
       });
 
       var pubSubStub = {};
-      mockPubSub(pubSubStub);
+      mockPubSub('../pubsub', pubSubStub);
 
       var login = require('../../../../backend/core/user/login');
       login.canLogin('email', function(err) {

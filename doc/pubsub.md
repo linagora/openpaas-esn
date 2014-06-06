@@ -7,9 +7,9 @@ The ESN comes with two types of publish/subscribe feature:
 
 ## API
 
-    var pubsub = require(_pathToPubsub_).local(|global);  // import
-    pubsub.topic(_channel_).subscribe(callback);          // subscribe to a topic
-    pubsub.topic(_channel_).publish(data);                // publish data into a topic
+    var pubsub = require(_pathToPubsub_).local(|global);
+    pubsub.topic(_channel_).subscribe(callback);
+    pubsub.topic(_channel_).publish(data);
 
 ## Topics
 
@@ -23,11 +23,17 @@ Here is a list of the available topics with their associated data.
 - invitation:finalize:success(invitation). Fired each time an invitation finalization is successful.
 - invitation:process:failure({invitation, error}). Fired each time an invitation process fails.
 - invitation:process:success(invitation). Fired each time an invitation process is successful.
+
 - login:failure(user). Fired each time a user login is not successful.
 - login:success(user). Fired each time a user login is successful.
+
 - mongodb:configurationAvailable. Fired when the mongodb configuration is available.
 - mongodb:connexionAvailable. Fired every time the connection to the mongodb server is established.
+
+- redis:configurationAvailable. Fired when the redis configuration is available.
+
 - domain:invitations:sent({user, domain, emails}). Fired when domain invitations have been sent.
+
 - message:stored(message). Fired when a new message is stored in the datastore layer.
 - message:comment(message). Fired when a new comment is added to a message responses attribut in the datastore layer.
                             Note that the message (which is the comment) contains a new 'inReplyTo' field.
@@ -74,3 +80,35 @@ For example, when a user 123 has sent a message 456 to the user 789:
 - A message is posted by a user on a domain stream: 1 source and 1 target.
 - A message is sent by a user to another user: 1 source and 1 target.
 - A message is sent by a user to two users: 1 source and 2 targets
+
+### Global
+
+- message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message (create, comment, ...).
+
+### Summary
+
+|                 | Local                       |                             | Global  |           | Notes |
+|-----------------|-----------------------------|-----------------------------|---------|-----------|-------|
+|                 | Publish                     | Subscribe                   | Publish | Subscribe |       |
+| Modules         |                             |                             |         |           |       |
+| activitystreams |                             | message:activity            |         |           |       |
+| user/login      | login:success               |                             |         |           |       |
+|                 | login:failure               |                             |         |           |       |
+| invitation      | invitation:init:failure     |                             |         |           |       |
+|                 | invitation:init:success     |                             |         |           |       |
+|                 | invitation:finalize:failure |                             |         |           |       |
+|                 | invitation:finalize:success |                             |         |           |       |
+|                 | invitation:process:failure  |                             |         |           |       |
+|                 | invitation:process:success  |                             |         |           |       |
+| db/redis        |                             | mongodb:connectionAvailable |         |           |       |
+| db/mongo        | mongodb:connectionAvailable |                             |         |           |       |
+| configured      | mongodb:connectionAvailable |                             |         |           |       |
+| templates       |                             | mongodb:connectionAvailable |         |           |       |
+| pubsub/global   |                             | globalpubsub:config         |         |           |       |
+|                 |                             |                             |         |           |       |
+| Controllers     |                             |                             |         |           |       |
+| domains         | domain:invitations:sent     |                             |         |           |       |
+| messages        | message:activity            | message:activity            |         |           |       |
+|                 |                             |                             |         |           |       |
+| Middleware      |                             |                             |         |           |       |
+| setup-sessions  |                             | mongodb:connectionAvailable |         |           |       |
