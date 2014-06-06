@@ -30,11 +30,6 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
       });
     };
   }])
-  .controller('livelogin', ['$scope', '$log', 'session', function($scope, $log, socket) {
-    socket().on('user:login', function(data) {
-      $log.log('A user logged in', data.emails[0]);
-    });
-  }])
   .factory('livenotification', ['$log', 'session', 'socket', function($log, session, socket) {
     /*
      * livenotification.of(namespace).subscribe(room, callback).onNotification(callback);
