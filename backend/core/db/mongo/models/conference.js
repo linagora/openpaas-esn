@@ -12,6 +12,7 @@ var ConferenceSchema = new mongoose.Schema({
   history: [{
     user: {type: mongoose.Schema.ObjectId, ref: 'User'},
     status: {type: String, required: true},
+    context: {type: mongoose.Schema.Types.Mixed},
     date: {type: Date, default: Date.now}
   }],
   attendees: [{
