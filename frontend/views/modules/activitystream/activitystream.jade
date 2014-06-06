@@ -1,8 +1,12 @@
 div(ng-controller="activitystreamController")
-    div#activitystreamerror
-    span.throbber(us-spinner, spinner-key='activityStreamSpinner')
-    div.text-center.bg-info(ng-show="threads.length===0") #{__('There are no messages on this activity stream yet. Be the first to post !')}
-    infinite-list
-        ul.media-list
-          li.media(ng-repeat="thread in threads")
-            whatsup-thread(message='thread')
+  div
+    whatsup-edition
+  div
+      div#activitystreamerror
+      div.text-center.bg-info(ng-show="threads.length===0 && !restActive") #{__('There are no messages on this activity stream yet. Be the first to post !')}
+      infinite-list
+          ul.media-list
+            li.media(ng-repeat="thread in threads")
+              whatsup-thread(message='thread' activitystream-uuid='activitystreamUuid')
+      .throbber-container.text-center
+        span.throbber(us-spinner, spinner-key='activityStreamSpinner')

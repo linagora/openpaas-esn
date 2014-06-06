@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
+angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate', 'angularSpinner'])
   .factory('activitystreamAPI', ['Restangular', function(Restangular) {
     function get(id, options) {
       return Restangular.all('activitystreams/' + id).getList(options);
@@ -8,6 +8,108 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
     return {
       get: get
     };
+  }])
+
+  .factory('activityStreamUpdates', ['restcursor', 'activitystreamAPI', 'messageAPI', '$q', function(restcursor, activitystreamAPI, messageAPI, $q) {
+    function apiWrapper(id) {
+      function api(options) {
+        return activitystreamAPI.get(id, options);
+      }
+      return api;
+    }
+    function getRestcursor(id, limit, after) {
+      var restcursorOptions = {
+        apiArgs: {limit: limit, after: after},
+        updateApiArgs: function(cursor, items, apiArgs) {
+          if (items.length > 0) {
+            apiArgs.after = items[(items.length - 1)]._id;
+          }
+        }
+      };
+      return restcursor(apiWrapper(id), limit, restcursorOptions);
+    }
+
+
+    function getMessageIndex(threads, id) {
+      var messageIndex = null;
+      threads.every(function(thread, index) {
+        if (thread._id === id) {
+          messageIndex = index;
+          return false;
+        }
+        return true;
+      });
+      return messageIndex;
+    }
+
+    function removeThreadById(threads, threadId) {
+      var threadIndex = getMessageIndex(threads, threadId);
+      if (threadIndex !== null) {
+        threads.splice(threadIndex, 1);
+      }
+    }
+
+    function fetchNextTimelineEntries(cursor) {
+      var defer = $q.defer();
+      if (cursor.endOfStream) {
+        defer.resolve();
+      } else {
+        cursor.nextItems(function(err, results) {
+          if (err) {
+            return defer.reject(err);
+          }
+          defer.resolve(results);
+        });
+      }
+      return defer.promise;
+    }
+
+    function applyUpdates(uuid, $scope) {
+      var cursor = getRestcursor(uuid, 30, $scope.mostRecentActivityID);
+
+      function updateThreads(ids, timelines, $scope) {
+        return messageAPI.get({'ids[]': ids}).then(function(response) {
+          var msgHash = {};
+          response.data.forEach(function(message) {
+            msgHash[message._id] = message;
+          });
+          timelines.forEach(function(timelineentry) {
+            $scope.mostRecentActivityID = timelineentry._id;
+            removeThreadById($scope.threads, timelineentry.threadId);
+            $scope.threads.unshift(msgHash[timelineentry.threadId]);
+          });
+          return nextRound();
+        });
+      }
+
+      function onTimelineEntries(items) {
+        if (!items || !items.length) {
+          return $q.when(true);
+        }
+
+        var ids = [], timelines = [];
+
+        items.forEach(function(timelineentry) {
+          var isComment = timelineentry.inReplyTo && timelineentry.inReplyTo.length;
+          var threadId = isComment ? timelineentry.inReplyTo[0]._id : timelineentry.object._id;
+          if (ids.indexOf(threadId) < 0) {
+            ids.push(threadId);
+          }
+          timelineentry.threadId = threadId;
+          timelines.push(timelineentry);
+        });
+
+        return updateThreads(ids, timelines, $scope);
+      }
+
+      function nextRound() {
+        return fetchNextTimelineEntries(cursor).then(onTimelineEntries);
+      }
+
+      return nextRound();
+    }
+
+    return applyUpdates;
   }])
 
   .factory('activitystreamFilter', function() {
@@ -24,14 +126,16 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
       }
 
       function filter(item) {
-        if (sent[item.object._id] || removed[item.object._id]) {
+        var messageId = item.object._id;
+        var rootMessageId = item.inReplyTo && item.inReplyTo.length ? item.inReplyTo[0]._id : item.object._id;
+        if (sent[rootMessageId] || removed[rootMessageId]) {
           return false;
         }
-        if (item.verb === 'remove') {
-          addToRemovedList(item.object._id);
+        if (item.verb === 'remove' && messageId === rootMessageId) {
+          addToRemovedList(rootMessageId);
           return false;
         }
-        addToSentList(item.object._id);
+        addToSentList(rootMessageId);
         return true;
       }
 
@@ -53,7 +157,12 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         if (items.length === 0) {
           return callback(null, []);
         }
-        var messageIds = items.map(function(item) {return item.object._id;});
+        var messageIds = [], itemMessageIds = [];
+        items.forEach(function(item) {
+          var id = item.inReplyTo && item.inReplyTo.length ? item.inReplyTo[0]._id : item.object._id;
+          messageIds.push(id);
+          itemMessageIds.push({id: id, item: item});
+        });
         messageAPI.get({'ids[]': messageIds}).then(function(response) {
           var msgHash = {};
           var errors = [];
@@ -69,8 +178,8 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
             return callback(e);
           }
 
-          items.forEach(function(item) {
-            item.object = msgHash[item.object._id];
+          itemMessageIds.forEach(function(imi) {
+            imi.item.object = msgHash[imi.id];
           });
 
           callback(null, items);
@@ -133,21 +242,94 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         return activitystreamAggregator;
       }])
 
-  .directive('activityStream', function() {
+.directive('activityStream', ['messageAPI', '$rootScope', '$timeout', function(messageAPI, $rootScope, $timeout) {
     return {
       restrict: 'E',
-      templateUrl: '/views/modules/activitystream/activitystream.html'
+      replace: true,
+      templateUrl: '/views/modules/activitystream/activitystream.html',
+      link: function(scope, element, attrs) {
+        scope.activitystreamUuid = attrs.activitystreamUuid;
+        var currentActivitystreamUuid = scope.activitystreamUuid;
+
+        function onMessagePosted(evt, msgMeta) {
+          if (msgMeta.activitystreamUuid !== scope.activitystreamUuid) {
+            return;
+          }
+          if (scope.restActive) {
+            return;
+          }
+          scope.getStreamUpdates();
+        }
+
+        function getThreadById(id) {
+          var thread = null;
+          scope.threads.every(function(msg) {
+            if (msg._id === id) {
+              thread = msg;
+              return false;
+            }
+            return true;
+          });
+          return thread;
+        }
+
+        function updateMessage(message) {
+          if (scope.restActive) {
+            return;
+          }
+          scope.restActive = true;
+          var parentId = message._id;
+          messageAPI.get(parentId).then(function(response) {
+            var message = response.data;
+            var thread = getThreadById(parentId);
+            if (thread) {
+              thread.responses = message.responses;
+            }
+          }).finally (function() {
+            scope.restActive = false;
+          });
+
+        }
+
+        function onCommentPosted(evt, msgMeta) {
+          var thread = getThreadById(msgMeta.parent._id);
+          if (thread) {
+            updateMessage(thread);
+          }
+        }
+        //initialization code
+
+        // let sub-directives load and register event listeners
+        // before we start fetching the stream
+        $timeout(function() {
+          scope.loadMoreElements();
+        },0);
+
+        var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
+        var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
+
+        scope.$watch('activitystreamUuid', function() {
+          if (scope.activitystreamUuid === currentActivitystreamUuid) {
+            return;
+          }
+          scope.reset();
+          scope.loadMoreElements();
+          currentActivitystreamUuid = scope.activitystreamUuid;
+        });
+
+        scope.$on('$destroy', function() {
+          unregMsgPostedListener();
+          unregCmtPostedListener();
+        });
+      }
     };
-  })
+  }])
 
-  .controller('activitystreamController', ['$scope', 'session', 'activitystreamAggregator', 'usSpinnerService', '$alert',
-    function($scope, session, aggregatorService,  usSpinnerService, alert) {
+  .controller('activitystreamController',
+  ['$scope', 'activitystreamAggregator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
+  function($scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates) {
 
-    var spinnerKey = 'activityStreamSpinner';
-    $scope.restActive = false;
-    $scope.threads = [];
-
-    var aggregator = aggregatorService(session.domain.activity_stream.uuid, 25);
+    var spinnerKey = 'activityStreamSpinner', aggregator;
 
     $scope.displayError = function(err) {
       alert({
@@ -161,35 +343,61 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
       });
     };
 
-    var updateMessageList = function() {
+    $scope.reset = function() {
+      $scope.restActive = false;
+      $scope.threads = [];
+      $scope.mostRecentActivityID = null;
+      aggregator = null;
+    };
+
+    $scope.reset();
+
+    $scope.getStreamUpdates = function() {
       if ($scope.restActive) {
         return;
       }
-      else {
-        $scope.restActive = true;
-        usSpinnerService.spin(spinnerKey);
-
-        aggregator.loadMoreElements(function(error, items) {
-          if (error) {
-            $scope.displayError('Error while retrieving messages. ' + error);
-          }
-          else {
-            for (var i = 0; i < items.length; i++) {
-              $scope.threads.push(items[i].object);
-            }
-          }
-          $scope.restActive = false;
-          usSpinnerService.stop(spinnerKey);
-        });
-      }
+      $scope.restActive = true;
+      activityStreamUpdates($scope.activitystreamUuid, $scope).then(function() {
+      }, function(err) {
+      }).finally (function() {
+        // we have to plug here the throbber once the websocket stuff is on
+        $scope.restActive = false;
+      });
     };
 
+    function updateMessageList() {
+      if ($scope.restActive) {
+        return;
+      }
+      $scope.restActive = true;
+      usSpinnerService.spin(spinnerKey);
+
+      aggregator.loadMoreElements(function(error, items) {
+        if (error) {
+          $scope.displayError('Error while retrieving messages. ' + error);
+        }
+        else {
+          for (var i = 0; i < items.length; i++) {
+            if (!$scope.mostRecentActivityID) {
+              $scope.mostRecentActivityID = items[i]._id;
+            }
+            $scope.threads.push(items[i].object);
+          }
+        }
+        $scope.restActive = false;
+        usSpinnerService.stop(spinnerKey);
+      });
+    }
+
     $scope.loadMoreElements = function() {
+      if (!$scope.activitystreamUuid) {
+        return;
+      }
+      if (!aggregator) {
+        aggregator = aggregatorService($scope.activitystreamUuid, 25);
+      }
       if (!aggregator.endOfStream) {
         updateMessageList();
       }
     };
-
-    //initialization code
-    updateMessageList();
   }]);

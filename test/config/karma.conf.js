@@ -24,6 +24,7 @@ module.exports = function(config) {
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/member/**/*.jade',
+      'frontend/views/modules/activitystream/**/*.jade',
       'frontend/views/modules/search/**/*.jade',
       'frontend/views/modules/infinite-list/**/*.jade',
       'frontend/views/modules/message/**/*.jade'

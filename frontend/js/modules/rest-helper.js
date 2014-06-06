@@ -93,7 +93,7 @@ angular.module('esn.rest.helper', [])
         var items = response.data;
         self.offset += items.length;
         options.updateApiArgs(self, items, options.apiArgs);
-        if (items.length < limit) {
+        if (items.length < limit && !options.noEndOfStream) {
           self.endOfStream = true;
         }
         self.running = false;

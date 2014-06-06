@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', 'ngAnimate'])
-  .controller('messageController', ['$scope', 'messageAPI', 'session', '$alert', function($scope, $messageAPI, $session, $alert) {
+angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
+  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
 
     $scope.rows = 1;
 
@@ -21,7 +21,7 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
         return;
       }
 
-      if (!$session.domain || !$session.domain.activity_stream || !$session.domain.activity_stream.uuid) {
+      if (!$scope.activitystreamUuid) {
         $scope.displayError('You can not post to an unknown domain');
         return;
       }
@@ -32,11 +32,11 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       };
       var target = {
         objectType: 'activitystream',
-        id: $session.domain.activity_stream.uuid
+        id: $scope.activitystreamUuid
       };
 
-      $messageAPI.post(objectType, data, [target]).then(
-        function(data) {
+      messageAPI.post(objectType, data, [target]).then(
+        function(response) {
           $scope.whatsupmessage = '';
           $scope.rows = 1;
           $alert({
@@ -47,6 +47,10 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
             container: '#error',
             duration: '3',
             animation: 'am-fade'
+          });
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: $scope.activitystreamUuid,
+            id: response.data._id
           });
         },
         function(err) {
@@ -72,11 +76,10 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       });
     };
   }])
-  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', function($scope, $messageAPI, $alert) {
+  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
     $scope.whatsupcomment = '';
     $scope.sending = false;
     $scope.rows = 1;
-
     $scope.expand = function() {
       $scope.rows = 4;
     };
@@ -113,11 +116,15 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       };
 
       $scope.sending = true;
-      $messageAPI.addComment(objectType, data, inReplyTo).then(
-        function(data) {
+      messageAPI.addComment(objectType, data, inReplyTo).then(
+        function(response) {
           $scope.sending = false;
           $scope.whatsupcomment = '';
-          $scope.$emit('message:comment', {id: data._id, parent: $scope.message.id});
+          $scope.shrink();
+          $rootScope.$emit('message:comment', {
+            id: response.data._id,
+            parent: $scope.message
+          });
         },
         function(err) {
           $scope.sending = false;
@@ -166,7 +173,8 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       restrict: 'E',
       replace: true,
       scope: {
-        message: '='
+        message: '=',
+        activitystreamUUID: '='
       },
       templateUrl: '/views/modules/message/whatsupMessage.html'
     };
@@ -176,7 +184,8 @@ angular.module('esn.message', ['restangular', 'esn.session', 'mgcrea.ngStrap', '
       restrict: 'E',
       replace: true,
       scope: {
-        message: '='
+        message: '=',
+        activitystreamUuid: '='
       },
       templateUrl: '/views/modules/message/whatsupThread.html'
     };
