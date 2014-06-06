@@ -5,6 +5,94 @@
 var expect = chai.expect;
 
 describe('The esn.activitystream Angular module', function() {
+  describe('activitystreamNotification directive', function() {
+    beforeEach(function() {
+      this.livenotification = {
+        of: function(namespace) { this.namespace = namespace; return this; },
+        subscribe: function(uuid) { this.uuid = uuid; return this; },
+        onNotification: function(callback) {
+          callback({
+            actor: {_id: 'user1'},
+            message: 'a new notification'
+          });
+        }
+      };
+      this.asNotificationService = {
+        notify: function() {}
+      };
+      angular.mock.module('esn.activitystream');
+      module('jadeTemplates');
+    });
+    describe('when the user receive a notification', function() {
+      beforeEach(function() {
+        this.session = {
+          user: {
+            _id: 'user2'
+          }
+        };
+
+        var self = this;
+        angular.mock.module(function($provide) {
+          $provide.value('notificationService', self.asNotificationService);
+          $provide.value('livenotification', self.livenotification);
+          $provide.value('session', self.session);
+        });
+      });
+
+      beforeEach(inject(['$compile', '$rootScope', '$timeout', function($c, $r, $t) {
+        this.$compile = $c;
+        this.$rootScope = $r;
+        this.$timeout = $t;
+      }]));
+
+      it('should with namespace /activitystreams, use $scope.activitystreamUuid and updates $scope.updates', function() {
+        var html = '<div data-activitystream-notification></div>';
+        this.$rootScope.activitystreamUuid = 12345;
+        this.$rootScope.updates = [];
+        this.$compile(html)(this.$rootScope);
+        this.$rootScope.$digest();
+        this.$timeout.flush();
+        expect(this.livenotification.namespace).to.equal('/activitystreams');
+        expect(this.livenotification.uuid).to.equal(12345);
+        expect(this.$rootScope.updates[0].message).to.equal('a new notification');
+        expect(this.$rootScope.updates.length).to.equal(1);
+      });
+    });
+
+    describe('when the user send a notification', function() {
+        beforeEach(function() {
+        this.session = {
+          user: {
+            _id: 'user1'
+          }
+        };
+
+        var self = this;
+        angular.mock.module(function($provide) {
+          $provide.value('notificationService', self.asNotificationService);
+          $provide.value('livenotification', self.livenotification);
+          $provide.value('session', self.session);
+        });
+      });
+
+      beforeEach(inject(['$compile', '$rootScope', '$timeout', function($c, $r, $t) {
+        this.$compile = $c;
+        this.$rootScope = $r;
+        this.$timeout = $t;
+      }]));
+
+      it('should not update $scope.updates', function() {
+        var html = '<div data-activitystream-notification></div>';
+        this.$rootScope.activitystreamUuid = 12345;
+        this.$rootScope.updates = [];
+        this.$compile(html)(this.$rootScope);
+        this.$rootScope.$digest();
+        this.$timeout.flush();
+        expect(this.$rootScope.updates.length).to.equal(0);
+      });
+    });
+  });
+
   describe('activitystreamAggregator service', function() {
     beforeEach(function() {
       var filteredcursorInstance = {
@@ -413,21 +501,11 @@ describe('The esn.activitystream Angular module', function() {
         this.$controller = $controller;
         this.scope = $rootScope.$new();
         this.alert = function(msgObject) {};
-        this.livenotification = {
-          of: function() { return this; },
-          subscribe: function() { return this; },
-          onNotification: function() {}
-        };
-        this.notificationService = {
-          notify: function() {}
-        };
         $controller('activitystreamController', {
           $scope: this.scope,
           activitystreamAggregator: this.aggregatorService,
           usSpinnerService: this.usSpinnerService,
-          alert: this.alert,
-          livenotification: this.livenotification,
-          notificationService: this.notificationService
+          alert: this.alert
         });
       }));
 
@@ -565,9 +643,7 @@ describe('The esn.activitystream Angular module', function() {
             activitystreamAggregator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
             alert: this.alert,
-            activityStreamUpdates: this.activityStreamUpdates,
-            livenotification: this.livenotification,
-            notificationService: this.notificationService
+            activityStreamUpdates: this.activityStreamUpdates
           });
           this.scope.restActive = true;
         });
@@ -988,10 +1064,19 @@ describe('The esn.activitystream Angular module', function() {
 
   });
 
-  describe.only('activitystream directive', function() {
+  describe('activitystream directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(function() {
+      var livenotification = {
+        of: function() { return this; },
+        subscribe: function() { return this; },
+        onNotification: function() {}
+      };
+      module('jadeTemplates');
       angular.mock.module('esn.activitystream');
+      angular.mock.module(function($provide) {
+        $provide.value('livenotification', livenotification);
+      });
     });
     beforeEach(inject(['$compile', '$rootScope', '$timeout', '$httpBackend', 'Restangular', function($c, $r, $t, $h, R) {
       this.$compile = $c;

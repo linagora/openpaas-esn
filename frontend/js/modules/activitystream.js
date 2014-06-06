@@ -1,6 +1,16 @@
 'use strict';
 
-angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.helper', 'esn.session', 'esn.websocket', 'mgcrea.ngStrap', 'ngAnimate', 'angularSpinner'])
+angular.module('esn.activitystream', [
+  'restangular',
+  'esn.message',
+  'esn.rest.helper',
+  'esn.session',
+  'esn.websocket',
+  'mgcrea.ngStrap',
+  'ngAnimate',
+  'angularSpinner',
+  'ui.notify'
+  ])
   .factory('activitystreamAPI', ['Restangular', function(Restangular) {
     function get(id, options) {
       return Restangular.all('activitystreams/' + id).getList(options);
@@ -357,6 +367,7 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
         return;
       }
       $scope.restActive = true;
+      $scope.updates = [];
       activityStreamUpdates($scope.activitystreamUuid, $scope).then(function() {
       }, function(err) {
       }).finally (function() {
@@ -398,6 +409,47 @@ angular.module('esn.activitystream', ['restangular', 'esn.message', 'esn.rest.he
       }
       if (!aggregator.endOfStream) {
         updateMessageList();
+      }
+    };
+  }])
+
+  .directive('activitystreamNotification', ['livenotification', 'notificationService', '$timeout', 'session',
+                                            function(livenotification, notificationService, $timeout, session) {
+    return {
+      restrict: 'A',
+      controller: function($scope) {
+        // This is the way pNotify works. We have to declare the stack
+        // variable outside of the instanciation because pNotify stocks the
+        // state of notifications here.
+        var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
+        function handleNotification(msg) {
+          $scope.updates = $scope.updates || [];
+          $scope.updates.push(msg);
+          notificationService.notify({
+            title: 'Activity Stream updated',
+            text: msg.actor.displayName + ' added a message on ' + new Date(msg.published),
+            nonblock: {
+              nonblock: true,
+              nonblock_opacity: 0.2
+            },
+            addclass: 'stack-bottomright',
+            stack: stack_bottomright,
+            type: 'info',
+            delay: 3000,
+            styling: 'fontawesome'
+          });
+        }
+
+        $timeout(function() {
+          livenotification
+            .of('/activitystreams')
+            .subscribe($scope.activitystreamUuid)
+            .onNotification(function(msg) {
+              if (msg.actor && msg.actor._id !== session.user._id) {
+                handleNotification(msg);
+              }
+            });
+          },0);
       }
     };
   }]);
