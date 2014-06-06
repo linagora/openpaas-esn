@@ -96,7 +96,6 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
           $log.debug('Error while joining room ' + conference._id);
         }
       );
-      //easyrtc.webSocket = socket.socket;
       $scope.easyrtc.username = $scope.username;
       $scope.easyrtc.debugPrinter = function(message) {
         $log.debug(message);
