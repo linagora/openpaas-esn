@@ -122,39 +122,6 @@ describe('The esn.websocket Angular module', function() {
       throw new Error('error');
     });
 
-    it('should call callback of subscribe if exist', function(done) {
-      var called = 0;
-      try {
-        onCallback = function(event, callback) {
-          expect(event).to.equal('notification');
-          callback();
-        };
-        this.livenotification
-          .of('namespace')
-          .subscribe(1234, function() {
-            called++;
-          })
-          .onNotification(function() {
-            expect(called).to.equal(1);
-            done();
-          });
-      } catch (e) {
-        throw new Error('error');
-      }
-    });
-
-    it('should call callback of unsubscribe if exist', function(done) {
-      try {
-        this.livenotification
-          .of('namespace')
-          .unsubscribe(1234, function() {
-            done();
-          });
-      } catch (e) {
-        throw new Error('error');
-      }
-    });
-
     it('should emit in \'subscribe\' when subscribing', function(done) {
       emitCallback = function(event, data) {
         expect(event).to.equal('subscribe');
