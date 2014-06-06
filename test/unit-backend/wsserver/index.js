@@ -3,10 +3,11 @@
 var expect = require('chai').expect,
     mockery = require('mockery');
 
-describe.skip('The WebSockets server module', function() {
+describe('The WebSockets server module', function() {
 
   beforeEach(function(done) {
     this.testEnv.initCore(done);
+    mockery.registerMock('./events', function() {});
   });
 
   it('should contains all needed properties.', function() {
