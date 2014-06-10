@@ -4,7 +4,7 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
   .controller('liveConferenceController', ['$scope', '$log', '$location', 'socket', 'session', 'conferenceAPI', 'domainAPI', 'webrtcFactory', 'conference', function($scope, $log, $location, socket, session, conferenceAPI, domainAPI, webrtcFactory, conference) {
 
     $scope.conference = conference;
-    $scope.username = session.user.emails[0];
+    $scope.username = session.user._id;
     $scope.webrtcid = '';
     $scope.users = [];
     $scope.easyrtc = webrtcFactory.get();
@@ -13,13 +13,9 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
 
     $scope.$on('$locationChangeStart', function(event, next, current) {
       $scope.easyrtc.leaveRoom(conference._id, function() {
-        conferenceAPI.leave(conference._id).then(function() {
-          $log.debug('Left the conference');
-        }, function() {
-          $log.debug('Error while leaving the conference');
-        });
+        $log.debug('Left the conference ' + conference._id);
       }, function() {
-        $log.error('Error while leaving room');
+        $log.error('Error while leaving conference');
       });
     });
 
@@ -144,11 +140,7 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
         return;
       }
       var id = conference._id || conference;
-      conferenceAPI.join(id).then(function() {
-        $location.path('/conferences/' + id);
-      }, function(err) {
-        $log.error('Can not join conference : ', err.data);
-      });
+      $location.path('/conferences/' + id);
     };
   }])
   .directive('conferenceDisplay', function() {

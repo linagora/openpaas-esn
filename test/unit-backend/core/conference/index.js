@@ -561,8 +561,9 @@ describe('The conference module', function() {
     });
   });
 
-  it('join should send back updated conference', function(done) {
+  it('join should call update in Conference two times', function(done) {
 
+    var call = 0;
     var user = {
       _id: 123
     };
@@ -581,7 +582,7 @@ describe('The conference module', function() {
       model: function() {
         return {
           update: function(value, options, upsert, callback) {
-            conf.attendees.push(user);
+            call++;
             return callback(null, conf);
           }
         };
@@ -592,9 +593,7 @@ describe('The conference module', function() {
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.join(conf, user, function(err, updated) {
       expect(err).to.not.exist;
-      expect(updated).to.exist;
-      expect(updated.attendees).to.exist;
-      expect(updated.attendees.length).to.equal(1);
+      expect(call).to.equal(2);
       done();
     });
   });
@@ -638,20 +637,21 @@ describe('The conference module', function() {
     });
   });
 
-  it('addHistory should call conference.save', function(done) {
+  it('addHistory should call Conference.update', function(done) {
     this.mongoose = mockery.registerMock('mongoose', {
       model: function() {
-        return {};
+        return {
+          update: function(query, options, upsert, callback) {
+            return callback();
+          }
+        };
       }
     });
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
 
     var conf = {
       attendees: [],
-      history: [],
-      save: function() {
-        done();
-      }
+      history: []
     };
 
     conference.addHistory(conf, {user: 123}, 'hey', function(err) {

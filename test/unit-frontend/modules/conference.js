@@ -114,26 +114,30 @@ describe('The Conference Angular module', function() {
       this.scope.create();
     });
 
-    it('$scope.join should not call conferenceAPI when conference is not set', function(done) {
-      this.conferenceAPI.join = function() {
+    it('$scope.join should not call $location when conference is not set', function(done) {
+      this.$location.path = function() {
         done(new Error());
       };
       this.scope.join();
       done();
     });
 
-    it('$scope.join should call conferenceAPI when conference is object', function(done) {
-      this.conferenceAPI.join = function() {
+    it('$scope.join should call $location when conference is object', function(done) {
+      var id = 123;
+      this.$location.path = function(path) {
+        expect(path).to.equal('/conferences/' + id);
         done();
       };
-      this.scope.join({_id: 123});
+      this.scope.join({_id: id});
     });
 
     it('$scope.join should call conferenceAPI when conference is id', function(done) {
-      this.conferenceAPI.join = function() {
+      var id = 123;
+      this.$location.path = function(path) {
+        expect(path).to.equal('/conferences/' + id);
         done();
       };
-      this.scope.join(123);
+      this.scope.join(id);
     });
 
   });

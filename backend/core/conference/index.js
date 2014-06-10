@@ -29,8 +29,9 @@ function addHistory(conference, user, status, callback) {
   }
 
   var id = user._id || user;
-  conference.history.push({user: id, status: status});
-  return conference.save(callback);
+  var conference_id = conference._id || conference;
+
+  Conference.update({_id: conference_id}, {$push: {history: {user: id, status: status}}}, {upsert: true}, callback);
 }
 module.exports.addHistory = addHistory;
 
@@ -159,18 +160,17 @@ module.exports.join = function(conference, user, callback) {
     }
     var topic = pubsub.topic('conference:join');
     topic.publish({
-      conference_id: updated._id,
+      conference_id: conference_id,
       user_id: id
     });
 
-    addHistory(conference, user, 'join', function(err, history) {
+    addHistory(conference_id, id, 'join', function(err, history) {
       if (err) {
         logger.warn('Error while pushing new history element ' + err.message);
       }
       return callback(null, updated);
     });
   });
-
 };
 
 module.exports.leave = function(conference, user, callback) {
@@ -191,11 +191,11 @@ module.exports.leave = function(conference, user, callback) {
     }
     var topic = pubsub.topic('conference:leave');
     topic.publish({
-      conference_id: updated._id,
+      conference_id: conference_id,
       user_id: id
     });
 
-    addHistory(conference, user, 'leave', function(err, history) {
+    addHistory(conference_id, id, 'leave', function(err, history) {
       if (err) {
         logger.warn('Error while pushing new history element ' + err.message);
       }
