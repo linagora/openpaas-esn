@@ -74,6 +74,15 @@ function mockPubSub(path, localStub, globalStub) {
           },
           subscribe: function(handler) {
             localStub.topics[topic].handler = handler;
+          },
+          forward: function(pubsub, data) {
+            localStub.topics[topic].data.push(data);
+            globalStub.topics.push(topic);
+            globalStub.topics[topic] = {
+              data: [],
+              handler: {}
+            };
+            globalStub.topics[topic].data.push(data);
           }
         };
       }

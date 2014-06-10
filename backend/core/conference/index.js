@@ -2,7 +2,8 @@
 
 var mongoose = require('mongoose');
 var Conference = mongoose.model('Conference');
-var pubsub = require('../pubsub').local;
+var localpubsub = require('../pubsub').local;
+var globalpubsub = require('../pubsub').global;
 var logger = require('../logger');
 
 module.exports.create = function(user, callback) {
@@ -55,20 +56,20 @@ module.exports.invite = function(conference, attendees, callback) {
     });
   });
 
-  var topic = pubsub.topic('conference:invited');
+  var localtopic = localpubsub.topic('conference:invited');
 
   conference.save(function(err, updated) {
     if (err) {
       return callback(err);
     }
 
-    updated.attendees.forEach(function(attendee) {
+    attendees.forEach(function(attendee) {
       var invitation = {
         conference_id: updated._id,
-        user_id: attendee.user,
+        user_id: attendee._id || attendee,
         creator_id: updated.creator
       };
-      topic.publish(invitation);
+      localtopic.forward(globalpubsub, invitation);
     });
     return callback(null, updated);
   });
@@ -158,11 +159,9 @@ module.exports.join = function(conference, user, callback) {
     if (err) {
       return callback(err);
     }
-    var topic = pubsub.topic('conference:join');
-    topic.publish({
-      conference_id: conference_id,
-      user_id: id
-    });
+
+    localpubsub.topic('conference:join')
+               .forward(globalpubsub, { conference_id: conference_id, user_id: id });
 
     addHistory(conference_id, id, 'join', function(err, history) {
       if (err) {
@@ -189,11 +188,9 @@ module.exports.leave = function(conference, user, callback) {
     if (err) {
       return callback(err);
     }
-    var topic = pubsub.topic('conference:leave');
-    topic.publish({
-      conference_id: conference_id,
-      user_id: id
-    });
+
+    localpubsub.topic('conference:leave')
+               .forward(globalpubsub, { conference_id: conference_id, user_id: id });
 
     addHistory(conference_id, id, 'leave', function(err, history) {
       if (err) {
