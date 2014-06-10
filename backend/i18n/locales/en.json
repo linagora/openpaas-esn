@@ -91,5 +91,7 @@
   "Members": "Members",
   "Discussions": "Discussions",
   "Create a new conference": "Create a new conference",
-  "Share": "Share"
+  "Share": "Share",
+  "%s has joined the conference": "%s has joined the conference",
+  "%s has left the conference": "%s has left the conference"
 }

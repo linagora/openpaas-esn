@@ -86,5 +86,7 @@
   "Members": "Membres",
   "Discussions": "Discussions",
   "Create a new conference": "Créer une nouvelle conférence",
-  "Share": "Partager"
+  "Share": "Partager",
+  "%s has joined the conference": "%s a rejoint la conférence",
+  "%s has left the conference": "%s est sorti de la conférence"
 }
