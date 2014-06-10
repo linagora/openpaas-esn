@@ -1,4 +1,5 @@
 'use strict';
+
 var logger = require('../../core').logger;
 
 function Pubsub(client) {
@@ -50,6 +51,14 @@ Pubsub.prototype._createInterface = function(topic) {
         return self._addCache(topic, 'publish', data);
       }
       self.client.emit(topic, data);
+    },
+    forward: function(pubsub, data) {
+      if (pubsub instanceof Pubsub) {
+        self._channels[topic].publish(data);
+        pubsub.topic(topic).publish(data);
+        return;
+      }
+      throw new Error('Invalid pubsub to forward to');
     }
   };
 };
