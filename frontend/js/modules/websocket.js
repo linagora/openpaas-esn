@@ -49,6 +49,7 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
       subscribe: function(uuid) {
         $log.debug(this.namespace + ' : subscribed to room', uuid);
         this.notification.emit('subscribe', uuid);
+        this.room = uuid;
         return this;
       },
       unsubscribe: function(uuid) {
@@ -56,8 +57,15 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
         this.notification.emit('unsubscribe', uuid);
       },
       onNotification: function(callback) {
+        var self = this;
         this.notification.on('notification', function(data) {
-          $log.debug('New notification', data);
+          $log.debug('New notification', data, 'in', self.room || self.namespace);
+          callback(data);
+        });
+      },
+      on: function(event, callback) {
+        this.notification.on(event, function(data) {
+          $log.debug('New message', data, 'on', event);
           callback(data);
         });
       }

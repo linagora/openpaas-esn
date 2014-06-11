@@ -12,7 +12,7 @@ describe('The esn.websocket Angular module', function() {
       onCallback = function() {};
       emitCallback = function() {};
       this.asLog = {
-        log: function() {}
+        debug: function() {}
       };
       this.asSession = {
         token: {
@@ -54,6 +54,7 @@ describe('The esn.websocket Angular module', function() {
       expect(this.livenotification.subscribe).to.be.a.function;
       expect(this.livenotification.unsubscribe).to.be.a.function;
       expect(this.livenotification.onNotification).to.be.a.function;
+      expect(this.livenotification.on).to.be.a.function;
     });
 
     it('should fail if subscribe called before of call', function() {
@@ -77,6 +78,15 @@ describe('The esn.websocket Angular module', function() {
     it('should fail if onNotification called before of call', function() {
       try {
         this.livenotification.onNotification(1234).of('namespace');
+      } catch (e) {
+        return;
+      }
+      throw new Error('error');
+    });
+
+    it('should fail if on called before of call', function() {
+      try {
+        this.livenotification.on(1234).of('namespace');
       } catch (e) {
         return;
       }
@@ -115,6 +125,18 @@ describe('The esn.websocket Angular module', function() {
         this.livenotification
           .of('namespace')
           .onNotification(1234)
+          .subscribe(1234);
+      } catch (e) {
+        return;
+      }
+      throw new Error('error');
+    });
+
+    it('should fail if trying to chain after on', function() {
+      try {
+        this.livenotification
+          .of('namespace')
+          .on(1234)
           .subscribe(1234);
       } catch (e) {
         return;
