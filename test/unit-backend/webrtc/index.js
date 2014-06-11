@@ -6,6 +6,8 @@ var expect = require('chai').expect,
 describe('The webrtc server module', function() {
 
   it('should contains all needed properties.', function() {
+    mockery.registerMock('../core/conference', {});
+
     var server = require(this.testEnv.basePath + '/backend/webrtc');
     expect(server).to.exist;
     expect(server).to.be.an.Object;
@@ -24,6 +26,8 @@ describe('The webrtc server module', function() {
       }
     });
 
+    mockery.registerMock('../core/conference', {});
+
     var server = require(this.testEnv.basePath + '/backend/webrtc');
     server.started = true;
     server.start(null, null, function() {
@@ -37,6 +41,7 @@ describe('The webrtc server module', function() {
         return done(new Error());
       }
     });
+    mockery.registerMock('../core/conference', {});
 
     var server = require(this.testEnv.basePath + '/backend/webrtc');
     server.started = true;
@@ -52,6 +57,7 @@ describe('The webrtc server module', function() {
         return done(new Error());
       }
     });
+    mockery.registerMock('../core/conference', {});
 
     var server = require(this.testEnv.basePath + '/backend/webrtc');
     server.started = true;
@@ -67,6 +73,7 @@ describe('The webrtc server module', function() {
         return callback(new Error());
       }
     });
+    mockery.registerMock('../core/conference', {});
 
     var server = require(this.testEnv.basePath + '/backend/webrtc');
     server.started = true;
@@ -82,6 +89,7 @@ describe('The webrtc server module', function() {
         return callback(null, {});
       }
     });
+    mockery.registerMock('../core/conference', {});
 
     var server = require(this.testEnv.basePath + '/backend/webrtc');
     server.started = true;
@@ -91,4 +99,80 @@ describe('The webrtc server module', function() {
       done();
     });
   });
+
+  it('should call conference.join when someone joins an easyrtc room', function(done) {
+    var events = require('events');
+    var eventEmitter = new events.EventEmitter();
+
+    var pub = {
+      events: {
+        defaultListeners: {
+          roomJoin: function(connectionObj, roomName, roomParameter, callback) {
+            return callback();
+          }
+        }
+      }
+    };
+    pub.events._eventListener = eventEmitter;
+    pub.events.emit = pub.events._eventListener.emit.bind(pub.events._eventListener);
+
+    mockery.registerMock('easyrtc', {
+      listen: function(web, ws, options, callback) {
+        return callback(null, pub);
+      },
+      events: pub.events._eventListener
+    });
+    mockery.registerMock('../core/conference', {
+      join: function() {
+        return done();
+      }
+    });
+
+    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    //server.started = true;
+    server.start({}, {}, function(err) {
+      expect(err).to.not.exist;
+      eventEmitter.emit('roomJoin', {getUsername: function() {}}, 'myroom', {}, function() {
+      });
+    });
+  });
+
+  it('should call conference.leave when someone leaves an easyrtc room', function(done) {
+    var events = require('events');
+    var eventEmitter = new events.EventEmitter();
+
+    var pub = {
+      events: {
+        defaultListeners: {
+          roomLeave: function(connectionObj, roomName, next) {
+            return next();
+          }
+        }
+      }
+    };
+    pub.events._eventListener = eventEmitter;
+    pub.events.emit = pub.events._eventListener.emit.bind(pub.events._eventListener);
+
+    mockery.registerMock('easyrtc', {
+      listen: function(web, ws, options, callback) {
+        return callback(null, pub);
+      },
+      events: pub.events._eventListener
+    });
+    mockery.registerMock('../core/conference', {
+      leave: function() {
+        return done();
+      }
+    });
+
+    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    //server.started = true;
+    server.start({}, {}, function(err) {
+      expect(err).to.not.exist;
+      eventEmitter.emit('roomLeave', {getUsername: function() {}}, 'myroom', {}, function() {
+      });
+    });
+  });
+
+
 });

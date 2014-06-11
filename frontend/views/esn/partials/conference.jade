@@ -1,0 +1,13 @@
+.col-xs-12.widget.nopadding
+  .row
+    .col-xs-12
+
+      h2
+        i.fa.fa-comments-o
+        | #{__('Conferences')}
+
+      div.well
+        button.btn.btn-primary(type='submit', ng-click='create()') #{__('Create a new conference')}
+
+      .row(ng-repeat="conference in conferences")
+        conference-display(conference="conference")

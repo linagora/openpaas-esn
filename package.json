@@ -39,7 +39,7 @@
     "passport-local": "^1.0.0",
     "q": "~1.0.0",
     "recaptcha": "~1.2.0",
-    "socket.io": "~0.9.16",
+    "socket.io": "~0.9.17",
     "superagent": "~0.18.0",
     "toobusy-js": "~0.3.0",
     "trim": "0.0.1",
@@ -88,7 +88,8 @@
     "nodemon": "1.0.19",
     "open": "0.0.5",
     "requirejs": "~2.1.10",
-    "supertest": "^0.12.1"
+    "supertest": "^0.12.1",
+    "bson": "^0.2.8"
   },
   "scripts": {
     "postinstall": "./node_modules/bower/bin/bower install"

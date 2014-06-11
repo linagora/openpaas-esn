@@ -187,6 +187,23 @@ body {
   }
 }
 
+.esn-conference-attendee {
+  .ResizeImage(@defaultImageSizeMedium, auto);
+  .btn {
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .ResizeImage(@defaultImageSizeMedium, auto);
+    .btn {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .thumbnail {
+      margin-bottom: 0;
+    }
+  }
+}
+
 // Helpers
 // -------
 
