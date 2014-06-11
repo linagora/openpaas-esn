@@ -19,6 +19,7 @@ var initialized = false;
 var NAMESPACE = '/conferences';
 
 var NOTIFICATION_EVENT = 'notification';
+var INVITATION_EVENT = 'invitation';
 
 var JOINER_TOPIC = 'conference:join';
 var LEAVER_TOPIC = 'conference:leave';
@@ -35,7 +36,7 @@ function notifyRoom(io, uuid, msg) {
 function notifyCallee(io, callee, msg) {
   io.of(NAMESPACE)
     .sockets[clients[callee]]
-    .emit(NOTIFICATION_EVENT, msg);
+    .emit(INVITATION_EVENT, msg);
 }
 
 function init(io) {
