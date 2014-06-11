@@ -465,7 +465,7 @@ angular.module('esn.activitystream', [
                 handleNotification(msg);
               }
             });
-          },0);
+        },0);
       }
     };
   }]);
