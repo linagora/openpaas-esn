@@ -659,7 +659,7 @@ describe('The conference module', function() {
     });
   });
 
-  it('invite should forward invitation into conference:invited', function(done) {
+  it('invite should forward invitation into conference:invite', function(done) {
     this.mongoose = mockery.registerMock('mongoose', {
       model: function() {
         return {};
@@ -680,12 +680,12 @@ describe('The conference module', function() {
     };
 
     conference.invite(conf, { _id: 123 }, function() {
-      expect(localstub.topics['conference:invited'].data[0]).to.deep.equal({
+      expect(localstub.topics['conference:invite'].data[0]).to.deep.equal({
         conference_id: 12345,
         user_id: 123,
         creator_id: 123456
       });
-      expect(globalstub.topics['conference:invited'].data[0]).to.deep.equal({
+      expect(globalstub.topics['conference:invite'].data[0]).to.deep.equal({
         conference_id: 12345,
         user_id: 123,
         creator_id: 123456

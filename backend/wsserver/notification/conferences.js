@@ -4,16 +4,6 @@ var pubsub = require('../../core/pubsub').global,
     logger = require('../../core/logger'),
     i18n = require('../../i18n');
 
-/*
-- created => la conférence a été créée
-- join => :user a rejoint la conférence
-- leave => :user a quitté la conférence
-- muted => :user a muté son microhpone
-- unmuted => :user a unmuté son microphone
-- refused => :user a refusé de participer à la conférence
-- invited[:attendee] => !user a invité :attendee dans la conférence
-*/
-
 var initialized = false;
 
 var NAMESPACE = '/conferences';
@@ -23,7 +13,7 @@ var INVITATION_EVENT = 'invitation';
 
 var JOINER_TOPIC = 'conference:join';
 var LEAVER_TOPIC = 'conference:leave';
-var CALLEE_TOPIC = 'conference:invited';
+var CALLEE_TOPIC = 'conference:invite';
 
 var clients = [];
 

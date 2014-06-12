@@ -56,7 +56,7 @@ module.exports.invite = function(conference, attendees, callback) {
     });
   });
 
-  var localtopic = localpubsub.topic('conference:invited');
+  var localtopic = localpubsub.topic('conference:invite');
 
   conference.save(function(err, updated) {
     if (err) {
