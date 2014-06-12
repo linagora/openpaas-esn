@@ -185,7 +185,8 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
       replace: true,
       scope: {
         message: '=',
-        activitystreamUuid: '='
+        activitystreamUuid: '=',
+        lastPost: '='
       },
       templateUrl: '/views/modules/message/whatsupThread.html'
     };
