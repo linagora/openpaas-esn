@@ -127,12 +127,16 @@ describe('The Conference Angular module', function() {
       this.scope = $rootScope.$new();
       this.$log = $log;
       this.$location = $location;
+      this.$timeout = function(callback, delay) {
+        callback();
+      };
       this.conferences = [];
 
       $controller('conferencesController', {
         $scope: this.scope,
         $log: this.$log,
         $location: this.$location,
+        $timeout: this.$timeout,
         conferenceAPI: this.conferenceAPI,
         conferences: this.conferences
       });

@@ -134,7 +134,7 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
     );
     $scope.connect();
   }])
-  .controller('conferencesController', ['$scope', '$log', '$location', 'conferenceAPI', 'conferences', function($scope, $log, $location, conferenceAPI, conferences) {
+  .controller('conferencesController', ['$scope', '$log', '$location', '$timeout', 'conferenceAPI', 'conferences', function($scope, $log, $location, $timeout, conferenceAPI, conferences) {
 
     $scope.conferences = conferences;
 
@@ -151,7 +151,9 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
         return;
       }
       var id = conference._id || conference;
-      $location.path('/conferences/' + id);
+      $timeout(function() {
+        $location.path('/conferences/' + id);
+      }, 0);
     };
   }])
   .directive('conferenceDisplay', function() {
