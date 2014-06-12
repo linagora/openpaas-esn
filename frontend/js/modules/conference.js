@@ -212,14 +212,14 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
           // This is the way pNotify works. We have to declare the stack
           // variable outside of the instanciation because pNotify stocks the
           // state of notifications here.
-          var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
+          var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
           function handleNotification(msg) {
             (notificationService.notify({
               title: 'Conference invitation !',
               text: 'Join the conference ?',
-              icon: 'fa fa-phone faa-tada animated',
-              addclass: 'stack-bottomright',
-              stack: stack_bottomright,
+              icon: 'fa fa-phone animated tada',
+              addclass: 'stack-topright',
+              stack: stack_topright,
               hide: false,
               confirm: {
                 confirm: true
