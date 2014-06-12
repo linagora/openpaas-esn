@@ -131,7 +131,7 @@ module.exports = function(grunt) {
         script: 'server.js',
         options: {
           env: {NODE_ENV: 'dev'},
-          ignore: ['.git', 'README.md', 'node_modules/**'],
+          ignore: ['.git', 'README.md', 'node_modules/**', 'test/**', 'doc/**', 'fixtures/**', 'log/**'],
           watchedExtensions: ['js', 'jade'],
           callback: function (nodemon) {
             nodemon.on('log', function (event) {
@@ -142,7 +142,7 @@ module.exports = function(grunt) {
               // Delay before server listens on port
               setTimeout(function() {
                 require('open')('http://localhost:' + config.webserver.port || 8080);
-              }, 1000);
+              }, 2000);
             });
           }
         }
