@@ -1108,6 +1108,16 @@ describe('The esn.activitystream Angular module', function() {
       this.$timeout.flush();
       this.$rootScope.$emit('message:posted', {activitystreamUuid: '0987654321'});
     });
+    it('should update scope.lastPost.messageId when a "message:posted" event is emitted with this activitystream uuid', function() {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      this.$scope.loadMoreElements = function() {};
+      this.$scope.getStreamUpdates = function() {};
+      this.$timeout.flush();
+      this.$rootScope.$emit('message:posted', {activitystreamUuid: '0987654321', id: 'msg42'});
+      expect(this.$scope.lastPost.messageId).to.equal('msg42');
+    });
     it('should update the thread comments method when a "message:comment" event is emitted', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
       this.$compile(html)(this.$scope);
@@ -1132,6 +1142,32 @@ describe('The esn.activitystream Angular module', function() {
       this.$httpBackend.flush();
       expect(this.$scope.threads[1].responses).to.have.length(2);
     });
+
+    it('should update scope.lastPost.comment when a "message:comment" event is emitted', function() {
+      var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      this.$scope.loadMoreElements = function() {};
+      this.$timeout.flush();
+
+      this.$httpBackend.expectGET('/messages/msg2').respond({
+        _id: 'msg2',
+        responses: [
+          {_id: 'cmt2'},
+          {_id: 'cmt4'}
+        ]
+      });
+
+      this.$scope.threads.push(
+        {_id: 'msg1', responses: [{_id: 'cmt1'}] },
+        {_id: 'msg2', responses: [{_id: 'cmt2'}] },
+        {_id: 'msg3', responses: [{_id: 'cmt3'}] }
+      );
+      this.$rootScope.$emit('message:comment', {parent: {_id: 'msg2'}, id: 'cmt1'});
+      this.$httpBackend.flush();
+      expect(this.$scope.lastPost.comment).to.deep.equal({id: 'cmt1', parentId: 'msg2'});
+    });
+
     it('should ignore "message:comment" events when the comment parent is not in the threads', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
       this.$compile(html)(this.$scope);

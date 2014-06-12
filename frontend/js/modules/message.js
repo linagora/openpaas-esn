@@ -39,15 +39,6 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
         function(response) {
           $scope.whatsupmessage = '';
           $scope.rows = 1;
-          $alert({
-            content: 'Message has been published',
-            type: 'success',
-            show: true,
-            position: 'bottom',
-            container: '#error',
-            duration: '3',
-            animation: 'am-fade'
-          });
           $rootScope.$emit('message:posted', {
             activitystreamUuid: $scope.activitystreamUuid,
             id: response.data._id
@@ -185,7 +176,8 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
       replace: true,
       scope: {
         message: '=',
-        activitystreamUuid: '='
+        activitystreamUuid: '=',
+        lastPost: '='
       },
       templateUrl: '/views/modules/message/whatsupThread.html'
     };

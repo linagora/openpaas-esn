@@ -267,6 +267,11 @@ angular.module('esn.activitystream', [
         scope.activitystreamUuid = attrs.activitystreamUuid;
         var currentActivitystreamUuid = scope.activitystreamUuid;
 
+        scope.lastPost = {
+          messageId: null,
+          comment: null
+        };
+
         function onMessagePosted(evt, msgMeta) {
           if (msgMeta.activitystreamUuid !== scope.activitystreamUuid) {
             return;
@@ -275,6 +280,7 @@ angular.module('esn.activitystream', [
             return;
           }
           scope.getStreamUpdates();
+          scope.lastPost.messageId = msgMeta.id;
         }
 
         function getThreadById(id) {
@@ -311,6 +317,10 @@ angular.module('esn.activitystream', [
           var thread = getThreadById(msgMeta.parent._id);
           if (thread) {
             updateMessage(thread);
+            scope.lastPost.comment = {
+              id: msgMeta.id,
+              parentId: msgMeta.parent._id
+            };
           }
         }
         //initialization code
