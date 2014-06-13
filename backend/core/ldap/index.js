@@ -13,7 +13,7 @@ var LDAP = mongoose.model('LDAP');
  * @param {Function} callback - as fn(err, username) where username is defined if found
  */
 var emailExists = function(email, ldap, callback) {
-  if (!email ||   !ldap) {
+  if (!email || !ldap) {
     return callback(new Error('Missing parameters'));
   }
   var ldapauth = new LdapAuth(ldap);
@@ -33,13 +33,13 @@ var findLDAPForUser = function(email, callback) {
       return callback(err);
     }
 
-    if (!ldaps ||  ldaps.length === 0) {
+    if (!ldaps || ldaps.length === 0) {
       return callback(new Error('No configured LDAP'));
     }
 
     async.filter(ldaps, function(ldap, callback) {
       emailExists(email, ldap.configuration, function(err, user) {
-        if (err ||   !user) {
+        if (err || !user) {
           return callback(false);
         }
         return callback(true);
@@ -60,7 +60,7 @@ module.exports.findLDAPForUser = findLDAPForUser;
  * @param {function} callback - as function(err, user) where user is not null when authenticated
  */
 var authenticate = function(email, password, ldap, callback) {
-  if (!email ||   !password ||   !ldap) {
+  if (!email || !password || !ldap) {
     return callback(new Error('Can not authenticate from null values'));
   }
 
@@ -84,7 +84,7 @@ var findLDAPForDomain = function(domain, callback) {
   if (!domain) {
     return callback(new Error('Domain is required'));
   }
-  var id = domain._id ||  domain;
+  var id = domain._id || domain;
   LDAP.find({domain: id}, callback);
 };
 module.exports.findLDAPForDomain = findLDAPForDomain;
@@ -94,7 +94,7 @@ var save = function(ldap, callback) {
     return callback(new Error('LDAP parameter is required'));
   }
 
-  if (!ldap.configuration ||   !ldap.domain) {
+  if (!ldap.configuration || !ldap.domain) {
     return callback(new Error('Bad LDAP parameter'));
   }
   var l = new LDAP(ldap);

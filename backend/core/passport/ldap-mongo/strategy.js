@@ -116,7 +116,7 @@ var handleAuthentication = function(req, options) {
   usermodule.findByEmail(username, function(err, user) {
     var provision = false;
 
-    if (err ||   !user) {
+    if (err || !user) {
       provision = true;
     }
 
@@ -145,7 +145,23 @@ var handleAuthentication = function(req, options) {
         }
 
         if (provision) {
-          usermodule.provisionUser({emails: [username], domains: [{domain_id: ldaps[0].domain}]}, function(err, saved) {
+          var provision_user = {emails: [username], domains: [{domain_id: ldaps[0].domain}]};
+          var ldap = ldaps[0];
+
+          if (ldap.mapping && ldap.mapping.firstname) {
+            provision_user.firstname = ldapuser[ldap.mapping.firstname];
+          }
+          if (ldap.mapping && ldap.mapping.lastname) {
+            provision_user.lastname = ldapuser[ldap.mapping.lastname];
+          }
+          if (ldap.mapping && ldap.mapping.email) {
+            var email = ldapuser[ldap.mapping.email];
+            if (provision_user.emails.indexOf(email) === -1) {
+              provision_user.emails.push(email);
+            }
+          }
+
+          usermodule.provisionUser(provision_user, function(err, saved) {
             if (err) {
               return self.error(new Error('Can not provision user'));
             }

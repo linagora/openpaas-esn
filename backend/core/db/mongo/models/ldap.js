@@ -20,7 +20,11 @@ var LDAPSchema = new Schema({
     //searchBase: 'ou=passport-ldapauth',
     searchBase: {type: String, required: true},
     //searchFilter: '(mail={{username}})'
-    searchFilter: {type: String, required: true}
+    searchFilter: {type: String, required: true},
+    mapping: {
+      firstname: {type: String},
+      lastname: {type: String}
+    }
   },
   schemaVersion: {type: Number, default: 1}
 }, {collection: 'ldap'});

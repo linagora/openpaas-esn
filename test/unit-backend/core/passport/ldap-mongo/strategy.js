@@ -1,6 +1,7 @@
 'use strict';
 
 var mockery = require('mockery');
+var expect = require('chai').expect;
 
 describe('The ldap-mongo passport strategy', function() {
   var Strategy = null;
@@ -67,11 +68,22 @@ describe('The ldap-mongo passport strategy', function() {
 
     it('should provision the user on authenticate if user is not available in storage', function(done) {
 
+      var ldapuser = {
+        firstname: 'foo',
+        lastname: 'bar',
+        mail: 'foo@bar.com',
+        mailAlias: 'foo@baz.com',
+        userPassword: 'baz'
+      };
+
       var usermodule = {
         findByEmail: function(user, callback) {
-          return callback();
+          return callback(null, null);
         },
-        provisionUser: function() {
+        provisionUser: function(user) {
+          expect(user).to.exist;
+          expect(user.emails).to.exist;
+          expect(user.emails.length).to.equal(2);
           done();
         }
       };
@@ -79,17 +91,22 @@ describe('The ldap-mongo passport strategy', function() {
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           var ldap = {
+            domain: '222222',
             url: 'ldap://localhost:1389',
             adminDn: 'uid=admin,ou=passport-ldapauth',
             adminPassword: 'secret',
             searchBase: 'ou=passport-ldapauth',
-            searchFilter: '(mail={{username}})'
+            searchFilter: '(mail={{username}})',
+            mapping: {
+              firstname: 'firstname',
+              lastname: 'lastname',
+              email: 'mailAlias'
+            }
           };
           return callback(null, [ldap]);
         },
         authenticate: function(email, password, ldap, callback) {
-          var user = {};
-          return callback(null, user);
+          return callback(null, ldapuser);
         }
       };
       mockery.registerMock('../../ldap', ldapmock);

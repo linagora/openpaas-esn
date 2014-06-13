@@ -36,6 +36,16 @@ As an example, a LDAP connection settings looks like:
         "adminDn": "uid=admin,ou=sysusers,dc=lng",
         "adminPassword": "supersecret",
         "searchBase": "ou=users,dc=linagora.com,dc=lng",
-        "searchFilter": "(mail={{username}})"
+        "searchFilter": "(mail={{username}})",
+        "mapping": {
+          "firstname": "firstname",
+          "lastname": "lastname",
+          "email": "mailAlias"
+        }
       }
     }
+
+- The 'searchFilter' value is used to define where to find the user login in the LDAP entry.
+In the example above, it means that we want to authenticate using the email attribute in the LDAP entry (username is the passport attribute name).
+- The mapping hash is used to add additional attributes when provisioning the user.
+In the example above, it will retrieve the firstname, lastname and mailAlias from the LDAP entry and add it into the user object which will be registered into the storage.
