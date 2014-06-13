@@ -60,7 +60,7 @@ function start(port, callback) {
   var sio = io.listen(wsserver.server);
   if (sio) {
     sio.configure(function() {
-      //sio.set('authorization', require('./auth/token'));
+      sio.set('authorization', require('./auth/token'));
     });
 
     sio.sockets.on('connection', function(socket) {

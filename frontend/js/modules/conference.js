@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 'esn.easyrtc'])
-  .controller('liveConferenceController', ['$scope', '$log', '$location', 'socket', 'session', 'conferenceAPI', 'domainAPI', 'webrtcFactory', 'conference', function($scope, $log, $location, socket, session, conferenceAPI, domainAPI, webrtcFactory, conference) {
+angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 'esn.easyrtc', 'esn.authentication'])
+  .controller('liveConferenceController', ['$scope', '$log', '$location', 'socket', 'session', 'conferenceAPI', 'domainAPI', 'tokenAPI', 'webrtcFactory', 'conference', function($scope, $log, $location, socket, session, conferenceAPI, domainAPI, tokenAPI, webrtcFactory, conference) {
 
     $scope.conference = conference;
     $scope.username = session.user._id;
@@ -96,20 +96,31 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
       $scope.easyrtc.debugPrinter = function(message) {
         $log.debug(message);
       };
-      $scope.easyrtc.easyApp('OpenPaasRSE', 'video-main', ['video-thumb'], $scope.loginSuccess, $scope.loginFailure);
 
-      $scope.easyrtc.setOnCall(function(easyrtcid, slot) {
-        $log.debug('SetOnCall', easyrtcid);
-        $scope.mainclass = 'conference-video-thumb';
-        $scope.thumbclass = 'conference-video-main';
-        $scope.$apply();
-      });
+      tokenAPI.getNewToken().then(function(response) {
+        var data = response.data || {token: ''};
+        var options = {query: 'token=' + data.token + '&user=' + session.user._id};
+        $scope.easyrtc.setSocketOptions(options);
 
-      $scope.easyrtc.setOnHangup(function(easyrtcid, slot) {
-        $log.debug('setOnHangup', easyrtcid);
-        $scope.mainclass = 'conference-video-main';
-        $scope.thumbclass = 'conference-video-thumb';
-        $scope.$apply();
+        $scope.easyrtc.easyApp('OpenPaasRSE', 'video-main', ['video-thumb'], $scope.loginSuccess, $scope.loginFailure);
+
+        $scope.easyrtc.setOnCall(function(easyrtcid, slot) {
+          $log.debug('SetOnCall', easyrtcid);
+          $scope.mainclass = 'conference-video-thumb';
+          $scope.thumbclass = 'conference-video-main';
+          $scope.$apply();
+        });
+
+        $scope.easyrtc.setOnHangup(function(easyrtcid, slot) {
+          $log.debug('setOnHangup', easyrtcid);
+          $scope.mainclass = 'conference-video-main';
+          $scope.thumbclass = 'conference-video-thumb';
+          $scope.$apply();
+        });
+      }, function(error) {
+        if (error && error.data) {
+          $log.error('Error while getting creating websocket connection', error.data);
+        }
       });
     };
 
