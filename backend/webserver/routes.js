@@ -6,6 +6,11 @@ var link = require('./middleware/link');
 
 exports = module.exports = function(application) {
 
+  var oauth2 = require('../oauth2');
+  application.get('/api/oauth/authorize', authorize.requiresAPILogin, oauth2.authorization, oauth2.dialog);
+  application.post('/api/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);
+  application.post('/api/oauth/token', oauth2.token);
+
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
   application.get('/api/companies', companies.search);
