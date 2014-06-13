@@ -3,7 +3,7 @@
 var oauth2orize = require('oauth2orize'),
     passport = require('passport'),
     mongoose = require('mongoose'),
-    utils = require('../helpers/oauthutils'),
+    randomstring = require('randomstring'),
     logger = require('../core/logger'),
     OAuthAuthorizationCode = mongoose.model('OAuthAuthorizationCode'),
     OAuthAccessToken = mongoose.model('OAuthAccessToken'),
@@ -26,7 +26,7 @@ server.deserializeClient(function(id, done) {
 });
 
 server.grant(oauth2orize.grant.code(function(client, redirectUri, user, ares, done) {
-  var code = utils.uid(16);
+  var code = randomstring.generate(16);
   var userId = user._id || user;
   var clientId = client._id || client;
   var oauthAuthorizationCode = new OAuthAuthorizationCode({
@@ -54,7 +54,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, do
     if (!oauthauthorizationcode) {
       return done(null, false);
     }
-    var uid = utils.uid(40);
+    var uid = randomstring.generate(40);
     var oauthAccessToken = new OAuthAccessToken({
       accessToken: uid,
       clientId: clientId,
@@ -69,10 +69,10 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, do
   });
 }));
 
-exports.authorization = server.authorization(function (clientId, redirectUri, done) {
+exports.authorization = server.authorization(function(clientId, redirectUri, done) {
   logger.debug('OAuth: authorization: clientId', clientId, 'redirectUri', redirectUri);
   OAuthClient.findOne({ clientId: clientId }, function(error, client) {
-    if(error) {
+    if (error) {
       return done(error);
     }
     return done(null, client, redirectUri);

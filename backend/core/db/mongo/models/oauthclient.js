@@ -1,7 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    utils = require('../../../../helpers/oauthutils');
+    randomstring = require('randomstring');
 
 var OAuthClientSchema = new mongoose.Schema({
   name: { type: String, unique: true, required: true },
@@ -16,8 +16,8 @@ OAuthClientSchema.pre('save', function(next) {
   if (!this.isNew) {
     return next();
   }
-  this.clientId = utils.uid(20);
-  this.clientSecret = utils.uid(40);
+  this.clientId = randomstring.generate(20);
+  this.clientSecret = randomstring.generate(40);
   next();
 });
 
