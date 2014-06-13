@@ -11,6 +11,12 @@ exports = module.exports = function(application) {
   application.post('/api/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);
   application.post('/api/oauth/token', oauth2.token);
 
+  var oauthclients = require('./controllers/oauthclients');
+  application.get('/api/oauth/clients', authorize.requiresAPILogin, oauthclients.list);
+  application.post('/api/oauth/clients', authorize.requiresAPILogin, oauthclients.create);
+  application.get('/api/oauth/clients/:id', authorize.requiresAPILogin, oauthclients.get);
+  application.delete('/api/oauth/clients/:id', authorize.requiresAPILogin, oauthclients.remove);
+
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
   application.get('/api/companies', companies.search);
