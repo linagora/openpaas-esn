@@ -16,7 +16,8 @@ angular.module('esnApp', [
   'esn.websocket',
   'esn.easyrtc',
   'esn.conference',
-  'esn.authentication'
+  'esn.authentication',
+  'esn.contact'
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
@@ -60,6 +61,20 @@ angular.module('esnApp', [
     $routeProvider.when('/profile', {
       templateUrl: '/views/esn/partials/profile',
       controller: 'profilecontroller'
+    });
+
+    $routeProvider.when('/contacts', {
+      templateUrl: '/views/esn/partials/contacts',
+      controller: 'contactsController',
+      resolve: {
+        addressbookOwner: function($q, session) {
+          var d = $q.defer();
+          session.ready.then(function(session) {
+            d.resolve(session.user._id);
+          });
+          return d.promise;
+        }
+      }
     });
 
     $routeProvider.when('/domains/:domain_id/members', {

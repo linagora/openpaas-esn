@@ -353,3 +353,39 @@ header.topbar {
   width: 25%;
   height: 25%;
 }
+
+.contact-page {
+  .list {
+    .contact-container, .contacts-container { display: none; }
+  }
+  .addressbook {
+    .contact-container, .addressbooks-container { display: none; }
+  }
+  .contact {
+    .contacts-container, .addressbooks-container { display: none; }
+  }
+  .ellipsis {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .contact-page {
+    .list {
+      .contact-container, .contacts-container { display: block; }
+    }
+    .addressbook {
+      .contact-container, .addressbooks-container { display: block; }
+    }
+    .contact {
+      .contacts-container, .addressbooks-container { display: block; }
+    }
+  }
+}
+
+@media screen and (min-width: 768px) {
+ .contacts, .contact {
+    display: block;
+  }
+}

@@ -1,21 +1,40 @@
 'use strict';
 
 angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', 'ngRoute'])
-.factory('session', [function() {
+.factory('session', ['$q', function($q) {
+
+  var bootstrapDefer = $q.defer();
   var session = {
     user: {},
     domain: {},
-    token: {}
+    token: {},
+    ready: bootstrapDefer.promise
   };
+
+  var sessionIsBootstraped = false;
+  function checkBootstrap() {
+    if (sessionIsBootstraped) {
+      return;
+    }
+    if (session.user._id &&
+        session.domain._id &&
+        session.token.token) {
+      sessionIsBootstraped = true;
+      bootstrapDefer.resolve(session);
+    }
+  }
 
   function setUser(user) {
     angular.copy(user, session.user);
+    checkBootstrap();
   }
   function setDomain(domain) {
     angular.copy(domain, session.domain);
+    checkBootstrap();
   }
   function setWebsocketToken(token) {
     angular.copy(token, session.token);
+    checkBootstrap();
   }
   session.setUser = setUser;
   session.setDomain = setDomain;
