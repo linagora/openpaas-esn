@@ -658,4 +658,115 @@ describe('The conference module', function() {
       done();
     });
   });
+
+  it('invite should forward invitation into conference:invite', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {};
+      }
+    });
+
+    var localstub = {}, globalstub = {};
+    this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+
+    var conf = {
+      attendees: [],
+      history: [],
+      save: function(callback) {
+        callback(null, { _id: 12345, creator: 123456 });
+      }
+    };
+
+    conference.invite(conf, { _id: 123 }, function() {
+      expect(localstub.topics['conference:invite'].data[0]).to.deep.equal({
+        conference_id: 12345,
+        user_id: 123,
+        creator_id: 123456
+      });
+      expect(globalstub.topics['conference:invite'].data[0]).to.deep.equal({
+        conference_id: 12345,
+        user_id: 123,
+        creator_id: 123456
+      });
+      done();
+    });
+  });
+
+  it('join should forward invitation into conference:join', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {
+          update: function(value, options, upsert, callback) {
+            return callback(null, { _id: 12345 });
+          }
+        };
+      }
+    });
+
+    var localstub = {}, globalstub = {};
+    this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+
+    var conf = {
+      _id: 12345,
+      attendees: [],
+      history: [],
+      save: function(callback) {
+        callback(null, { _id: 12345 });
+      }
+    };
+
+    conference.join(conf, { _id: 123 }, function() {
+      expect(localstub.topics['conference:join'].data[0]).to.deep.equal({
+        conference_id: 12345,
+        user_id: 123
+      });
+      expect(globalstub.topics['conference:join'].data[0]).to.deep.equal({
+        conference_id: 12345,
+        user_id: 123
+      });
+      done();
+    });
+  });
+
+  it('leave should forward invitation into conference:leave', function(done) {
+    this.mongoose = mockery.registerMock('mongoose', {
+      model: function() {
+        return {
+          update: function(value, options, upsert, callback) {
+            return callback(null, { _id: 12345 });
+          }
+        };
+      }
+    });
+
+    var localstub = {}, globalstub = {};
+    this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+
+    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+
+    var conf = {
+      _id: 12345,
+      attendees: [],
+      history: [],
+      save: function(callback) {
+        callback(null, { _id: 12345 });
+      }
+    };
+
+    conference.leave(conf, { _id: 123 }, function() {
+      expect(localstub.topics['conference:leave'].data[0]).to.deep.equal({
+        conference_id: 12345,
+        user_id: 123
+      });
+      expect(globalstub.topics['conference:leave'].data[0]).to.deep.equal({
+        conference_id: 12345,
+        user_id: 123
+      });
+      done();
+    });
+  });
 });

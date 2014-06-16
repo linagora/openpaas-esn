@@ -134,7 +134,7 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
     );
     $scope.connect();
   }])
-  .controller('conferencesController', ['$scope', '$log', '$location', 'conferenceAPI', 'conferences', function($scope, $log, $location, conferenceAPI, conferences) {
+  .controller('conferencesController', ['$scope', '$log', '$location', '$timeout', 'conferenceAPI', 'conferences', function($scope, $log, $location, $timeout, conferenceAPI, conferences) {
 
     $scope.conferences = conferences;
 
@@ -151,7 +151,9 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
         return;
       }
       var id = conference._id || conference;
-      $location.path('/conferences/' + id);
+      $timeout(function() {
+        $location.path('/conferences/' + id);
+      }, 0);
     };
   }])
   .directive('conferenceDisplay', function() {
@@ -166,6 +168,82 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
       templateUrl: '/views/modules/conference/attendee.html'
     };
   })
+  .directive('liveConferenceNotification', ['livenotification', 'notificationService', '$timeout', 'session',
+    function(livenotification, notificationService, $timeout, session) {
+      return {
+        restrict: 'A',
+        controller: function($scope) {
+          // This is the way pNotify works. We have to declare the stack
+          // variable outside of the instanciation because pNotify stocks the
+          // state of notifications here.
+          var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
+          function handleNotification(msg) {
+            notificationService.notify({
+              title: 'Conference updated !',
+              text: msg.message,
+              nonblock: {
+                nonblock: true,
+                nonblock_opacity: 0.2
+              },
+              addclass: 'stack-bottomright',
+              stack: stack_bottomright,
+              type: 'info',
+              delay: 3000,
+              styling: 'fontawesome'
+            });
+          }
+
+          $timeout(function() {
+            livenotification
+              .of('/conferences')
+              .subscribe($scope.conference._id)
+              .onNotification(function(msg) {
+                if (msg.user_id !== session.user._id) {
+                  handleNotification(msg);
+                }
+              });
+          }, 0);
+        }
+      };
+    }])
+  .directive('invitationConferenceNotification', ['livenotification', 'notificationService', '$timeout',
+    function(livenotification, notificationService, $timeout) {
+      return {
+        restrict: 'A',
+        controller: function($scope) {
+          // This is the way pNotify works. We have to declare the stack
+          // variable outside of the instanciation because pNotify stocks the
+          // state of notifications here.
+          var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
+          function handleNotification(msg) {
+            (notificationService.notify({
+              title: 'Conference invitation !',
+              text: 'Join the conference ?',
+              icon: 'fa fa-phone animated tada',
+              addclass: 'stack-topright',
+              stack: stack_topright,
+              hide: false,
+              confirm: {
+                confirm: true
+              },
+              styling: 'fontawesome'
+            })).get().on('pnotify.confirm', function() {
+                $scope.join(msg.conference_id);
+              }).on('pnotify.cancel', function() {
+                return;
+              });
+          }
+
+          $timeout(function() {
+            livenotification
+              .of('/conferences')
+              .on('invitation', function(msg) {
+                handleNotification(msg);
+              });
+          }, 0);
+        }
+      };
+    }])
   .factory('conferenceAPI', ['Restangular', function(Restangular) {
 
     function get(id) {
