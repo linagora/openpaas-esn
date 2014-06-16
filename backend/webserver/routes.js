@@ -7,9 +7,9 @@ var link = require('./middleware/link');
 exports = module.exports = function(application) {
 
   var oauth2 = require('../oauth2');
-  application.get('/api/oauth/authorize', authorize.requiresAPILogin, oauth2.authorization, oauth2.dialog);
-  application.post('/api/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);
-  application.post('/api/oauth/token', oauth2.token);
+  application.get('/oauth/authorize', authorize.requiresAPILogin, oauth2.authorization, oauth2.dialog);
+  application.post('/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);
+  application.post('/oauth/token', oauth2.token);
 
   var oauthclients = require('./controllers/oauthclients');
   application.get('/api/oauth/clients', authorize.requiresAPILogin, oauthclients.list);
