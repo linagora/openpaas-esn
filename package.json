@@ -67,7 +67,7 @@
     "grunt-run-grunt": "git+http://chamerling@ci-openpaas.linagora.com/stash/scm/or/grunt-run-grunt.git",
     "grunt-shell": "~0.7.0",
     "grunt-shell-spawn": "sergkr/grunt-shell-spawn",
-    "karma": "~0.10.9",
+    "karma": "~0.12.0",
     "karma-chrome-launcher": "~0.1.2",
     "karma-coffee-preprocessor": "~0.1.2",
     "karma-coverage": "~0.1.4",
