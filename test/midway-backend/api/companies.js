@@ -6,13 +6,12 @@ var expect = require('chai').expect,
 describe('The companies routes', function() {
 
   before(function() {
-    this.mongoose = require('mongoose');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
   });
 
   beforeEach(function(done) {
-    this.mongoose.connect(this.testEnv.mongoUrl);
+    this.mongoose = require('mongoose');
     this.testEnv.initCore(done);
   });
 

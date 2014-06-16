@@ -32,12 +32,16 @@ describe('The invitation controller', function() {
     };
 
     beforeEach(function() {
-      this.testEnv.initCore();
       this.mongoose = require('mongoose');
+      this.testEnv.initCore();
       mockery.registerMock('../../core/invitation', handler);
       webserver = require(this.testEnv.basePath + '/backend/webserver');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
       Invitation = this.mongoose.model('Invitation');
+    });
+
+    afterEach(function(done) {
+      this.mongoose.disconnect(done);
     });
 
     it('should fail on empty payload', function(done) {
@@ -97,6 +101,10 @@ describe('The invitation controller', function() {
       Invitation = this.mongoose.model('Invitation');
     });
 
+    afterEach(function(done) {
+      this.mongoose.disconnect(done);
+    });
+
     it('should fail if UUID is unknown', function(done) {
       var data = { foo: 'bar'};
       request(webserver.application).put('/api/invitations/123456789').send(data).expect(404).end(function(err, res) {
@@ -132,6 +140,10 @@ describe('The invitation controller', function() {
         webserver = require(this.testEnv.basePath + '/backend/webserver');
         done();
       }.bind(this));
+    });
+
+    afterEach(function(done) {
+      this.mongoose.disconnect(done);
     });
 
     it('should return 404 on root resource', function(done) {
@@ -195,7 +207,6 @@ describe('The invitation controller', function() {
       };
 
       fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
-      this.testEnv.writeDBConfigFile();
       var core = this.testEnv.initCore(function() {
         core.pubsub.local.topic('mongodb:connectionAvailable').subscribe(function() {
           self.helpers.mongo.saveDoc('configuration', mailTransport, function(err) {
@@ -221,6 +232,9 @@ describe('The invitation controller', function() {
           self.helpers.mongo.clearCollection('invitations', done);
         }
       ], done);
+    });
+    afterEach(function(done) {
+      this.mongoose.disconnect(done);
     });
 
     it('should return 404 for an unknown invitation', function(done) {

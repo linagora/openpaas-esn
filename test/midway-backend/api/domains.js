@@ -8,7 +8,6 @@ describe('The domains controller', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    this.mongoose.connect(this.testEnv.mongoUrl);
     this.testEnv.initCore(done);
   });
 

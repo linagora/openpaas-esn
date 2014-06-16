@@ -7,7 +7,6 @@ var expect = require('chai').expect,
 describe('The activitystreams routes', function() {
 
   before(function() {
-    this.mongoose = require('mongoose');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
@@ -20,7 +19,7 @@ describe('The activitystreams routes', function() {
   var email = 'foo@bar.com';
 
   beforeEach(function(done) {
-    this.mongoose.connect(this.testEnv.mongoUrl);
+    this.mongoose = require('mongoose');
     var self = this;
     this.testEnv.initCore(function() {
       webserver = require(self.testEnv.basePath + '/backend/webserver');
