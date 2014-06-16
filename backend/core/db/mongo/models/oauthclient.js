@@ -5,8 +5,8 @@ var mongoose = require('mongoose'),
 
 var OAuthClientSchema = new mongoose.Schema({
   name: { type: String, unique: true, required: true },
-  clientId: { type: String, unique: true, required: true },
-  clientSecret: { type: String, required: true },
+  clientId: { type: String, unique: true},
+  clientSecret: { type: String},
   redirectUri: { type: String },
   created: { type: Date, default: Date.now },
   schemaVersion: {type: Number, default: 1}
