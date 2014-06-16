@@ -1,0 +1,10 @@
+.col-xs-12.widget.nopadding
+  .row
+    .col-xs-12
+      h2
+        i.fa.fa-comments-o
+        | #{__('Applications')}
+      div
+        application-add-form
+      .row(ng-repeat="application in applications")
+        application-display(application="application")

@@ -17,7 +17,8 @@ angular.module('esnApp', [
   'esn.easyrtc',
   'esn.conference',
   'esn.authentication',
-  'esn.contact'
+  'esn.contact',
+  'esn.applications',
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
@@ -111,6 +112,24 @@ angular.module('esnApp', [
         conference: function(conferenceAPI, $route, $location) {
           return conferenceAPI.get($route.current.params.conference_id).then(
             function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/');
+            }
+          );
+        }
+      }
+    });
+
+    $routeProvider.when('/applications', {
+      templateUrl: '/views/modules/applications/applications',
+      controller: 'applicationsController',
+      resolve: {
+        applications: function(applicationsAPI, $location) {
+          return applicationsAPI.list().then(
+            function(response) {
+              console.log(response);
               return response.data;
             },
             function(err) {

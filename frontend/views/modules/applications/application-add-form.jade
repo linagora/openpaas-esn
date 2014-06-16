@@ -1,0 +1,12 @@
+.col-md-12.well.form-container
+  form(name='applicationsForm')
+    legend #{__('Register a new application')}
+    .form-group
+      input.form-control(type='text', ng-model='client.name', name='name', placeholder="#{__('Application Name')}", autofocus=true, required)
+    .form-group
+      input.form-control(type='text', ng-model='client.redirectUri', name='name', placeholder="#{__('Redirect Uri')}", required)
+    .form-group
+      textarea.form-control(ng-model='client.description', name='name', placeholder="#{__('Application description')}")
+    .form-group
+      button.btn.btn-warning(type='submit', ng-click='create(client)')
+        | #{__('Register your application')}
