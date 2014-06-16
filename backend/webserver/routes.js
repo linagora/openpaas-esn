@@ -84,6 +84,7 @@ exports = module.exports = function(application) {
   application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authentication.getToken);
   application.get('/api/users/:token', authentication.getUser);
 
+
   var conferenceController = require('./controllers/conferences');
   var conferenceMiddleware = require('./middleware/conference');
   application.get('/api/conferences/:id', authorize.requiresAPILogin, conferenceController.load, conferenceController.get);
@@ -92,5 +93,13 @@ exports = module.exports = function(application) {
   application.get('/api/conferences/:id/attendees', authorize.requiresAPILogin, conferenceController.loadWithAttendees, conferenceMiddleware.canJoin, conferenceController.getAttendees);
   application.put('/api/conferences/:id/attendees', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.canJoin, conferenceController.updateAttendee);
   application.put('/api/conferences/:id/attendees/:user_id', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.isAdmin, conferenceController.addAttendee);
+
+  var contactsController = require('./controllers/contacts');
+  application.get('/api/contacts', authorize.requiresAPILogin, contactsController.getContacts);
+  application.get('/api/contacts/google/oauthurl', authorize.requiresAPILogin, contactsController.getOAuthURL);
+  application.get('/api/contacts/google/callback', authorize.requiresAPILogin, contactsController.fetchContacts);
+
+  var addressbooks = require('./controllers/addressbooks');
+  application.get('/api/addressbooks', authorize.requiresAPILogin, addressbooks.getAddressBooks);
 };
 
