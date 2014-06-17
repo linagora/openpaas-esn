@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 var OAuth2Client = require('googleapis').OAuth2Client;
 var https = require('https');
-var contactHelper = require('../../core/contact/helper');
+var googleContacts = require('../../core/contact/google');
 var contactModule = require('../../core').contact;
 
 function isValidObjectId(id) {
@@ -76,7 +76,7 @@ module.exports.getContacts = getContacts;
 
 
 var singleClient = null;
-function getOAuthClient(baseUrl) {
+function getGoogleOAuthClient(baseUrl) {
   if (!singleClient) {
     var CLIENT_ID = '810414134078-2mvksu56u3grvej4tg67pb64tlmsqf92.apps.googleusercontent.com';
     var CLIENT_SECRET = 'h-9jLjgIsugUlKYhv2ThV11E';
@@ -86,18 +86,18 @@ function getOAuthClient(baseUrl) {
   return singleClient;
 }
 
-function getOAuthURL(req, res) {
-  var oauth2Client = getOAuthClient(req.protocol + '://' + req.get('host'));
+function getGoogleOAuthURL(req, res) {
+  var oauth2Client = getGoogleOAuthClient(req.protocol + '://' + req.get('host'));
   var url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: 'https://www.google.com/m8/feeds'
   });
   res.json({url: url});
 }
-module.exports.getOAuthURL = getOAuthURL;
+module.exports.getGoogleOAuthURL = getGoogleOAuthURL;
 
 
-function fetchContacts(req, response) {
+function fetchGoogleContacts(req, response) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
     return response.send(500, 'User not set');
   }
@@ -107,7 +107,7 @@ function fetchContacts(req, response) {
     return response.redirect('/#/contacts');
   }
 
-  var oauth2Client = getOAuthClient();
+  var oauth2Client = getGoogleOAuthClient(req.protocol + '://' + req.get('host'));
   oauth2Client.getToken(code, function(err, tokens) {
     if (err) {
       return response.json(500, {error: 500, message: 'Could not get authentication token', details: err});
@@ -131,7 +131,7 @@ function fetchContacts(req, response) {
       });
 
       res.on('end', function() {
-        contactHelper.saveGoogleContacts(body, req.user, function(err) {
+        googleContacts.saveGoogleContacts(body, req.user, function(err) {
           if (err) {
             return response.json(500, {error: 500, message: 'Could not save contacts', details: err});
           }
@@ -146,4 +146,4 @@ function fetchContacts(req, response) {
   });
 
 }
-module.exports.fetchContacts = fetchContacts;
+module.exports.fetchGoogleContacts = fetchGoogleContacts;

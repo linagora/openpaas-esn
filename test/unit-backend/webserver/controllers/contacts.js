@@ -5,7 +5,7 @@ var mockery = require('mockery');
 
 describe('The contacts controller module', function() {
 
-  describe('getOAuthURL method', function() {
+  describe('getGoogleOAuthURL method', function() {
     it('should return HTTP 200', function(done) {
       var url = 'http://anurl.pipo';
       var googleApisMock = {
@@ -24,7 +24,7 @@ describe('The contacts controller module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
       mockery.registerMock('googleapis', googleApisMock);
-      mockery.registerMock('../../core/contacts/helper', {});
+      mockery.registerMock('../../core/contacts/google', {});
 
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
       var req = {
@@ -40,11 +40,11 @@ describe('The contacts controller module', function() {
           done();
         }
       };
-      contacts.getOAuthURL(req, res);
+      contacts.getGoogleOAuthURL(req, res);
     });
   });
 
-  describe('fetchContacts method', function() {
+  describe('fetchGoogleContacts method', function() {
 
     it('should return HTTP 500 when user is not set', function(done) {
       var mongooseMock = {
@@ -53,10 +53,11 @@ describe('The contacts controller module', function() {
         }
       };
       mockery.registerMock('mongoose', mongooseMock);
-      mockery.registerMock('../../core/contacts/helper', {});
+      mockery.registerMock('../../core/contacts/google', {});
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
       var req = {
-        params: {}
+        params: {},
+        get: function() {}
       };
       var res = {
         send: function(code) {
@@ -64,7 +65,7 @@ describe('The contacts controller module', function() {
           done();
         }
       };
-      contacts.fetchContacts(req, res);
+      contacts.fetchGoogleContacts(req, res);
     });
 
 
@@ -75,14 +76,15 @@ describe('The contacts controller module', function() {
         }
       };
       mockery.registerMock('mongoose', mongooseMock);
-      mockery.registerMock('../../core/contacts/helper', {});
+      mockery.registerMock('../../core/contacts/google', {});
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
       var req = {
         user: {
           emails: ['pipo1@pipo.com']
         },
         params: {},
-        query: {}
+        query: {},
+        get: function() {}
       };
       var res = {
         redirect: function(url) {
@@ -90,7 +92,7 @@ describe('The contacts controller module', function() {
           done();
         }
       };
-      contacts.fetchContacts(req, res);
+      contacts.fetchGoogleContacts(req, res);
     });
 
 
@@ -111,7 +113,7 @@ describe('The contacts controller module', function() {
         }
       };
       mockery.registerMock('googleapis', googleApisMock);
-      mockery.registerMock('../../core/contacts/helper', {});
+      mockery.registerMock('../../core/contacts/google', {});
 
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
       var req = {
@@ -119,7 +121,8 @@ describe('The contacts controller module', function() {
         user: {
           emails: ['pipo1@pipo.com']
         },
-        query: {code: 1234}
+        query: {code: 1234},
+        get: function() {}
       };
       var res = {
         json: function(code) {
@@ -127,7 +130,7 @@ describe('The contacts controller module', function() {
           done();
         }
       };
-      contacts.fetchContacts(req, res);
+      contacts.fetchGoogleContacts(req, res);
     });
 
 
@@ -157,7 +160,7 @@ describe('The contacts controller module', function() {
         }
       };
       mockery.registerMock('googleapis', googleApisMock);
-      mockery.registerMock('../../core/contacts/helper', {});
+      mockery.registerMock('../../core/contacts/google', {});
       mockery.registerMock('https', httpsMock);
 
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
@@ -166,9 +169,10 @@ describe('The contacts controller module', function() {
         user: {
           emails: ['pipo1@pipo.com']
         },
-        query: {code: 1234}
+        query: {code: 1234},
+        get: function() {}
       };
-      contacts.fetchContacts(req, {});
+      contacts.fetchGoogleContacts(req, {});
     });
 
 

@@ -96,8 +96,8 @@ exports = module.exports = function(application) {
 
   var contactsController = require('./controllers/contacts');
   application.get('/api/contacts', authorize.requiresAPILogin, contactsController.getContacts);
-  application.get('/api/contacts/google/oauthurl', authorize.requiresAPILogin, contactsController.getOAuthURL);
-  application.get('/api/contacts/google/callback', authorize.requiresAPILogin, contactsController.fetchContacts);
+  application.get('/api/contacts/google/oauthurl', authorize.requiresAPILogin, contactsController.getGoogleOAuthURL);
+  application.get('/api/contacts/google/callback', authorize.requiresAPILogin, contactsController.fetchGoogleContacts);
 
   var addressbooks = require('./controllers/addressbooks');
   application.get('/api/addressbooks', authorize.requiresAPILogin, addressbooks.getAddressBooks);

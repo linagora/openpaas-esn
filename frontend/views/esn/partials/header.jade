@@ -8,7 +8,8 @@ header(class="topbar" role="navigation")
           img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
           span.caret
         ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
-            li: a(href='/#profile') #{__('My Account')}
+            li: a(href='/#/profile') #{__('My Account')}
+            li: a(href='/#/contacts') #{__('Contacts')}
             li: a(href='{{"/#/domains/" + domain._id + "/members"}}') #{__('Members')}
             li.divider
             li: a(href='/logout') #{__('Logout')}
