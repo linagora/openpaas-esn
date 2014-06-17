@@ -12,11 +12,19 @@ passport.serializeUser(function(user, done) {
   }
   return done(new Error('Unable to serialize a session without email'));
 });
+
 passport.deserializeUser(function(username, done) {
   User.loadFromEmail(username, function(err, user) {
     done(err, user);
   });
 });
+
+try {
+  passport.use('basic', require('./auth/basic').strategy);
+  passport.use('oauth2-client-password', require('./auth/oauth2-client-password').strategy);
+} catch (err) {
+  console.log('Can not load the client strategies:', err);
+}
 
 if (config.auth && config.auth.strategies) {
   config.auth.strategies.forEach(function(auth) {
