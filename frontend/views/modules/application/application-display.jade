@@ -1,0 +1,23 @@
+div.col-xs-12.nopadding
+  .col-xs-12
+    hr
+  .col-lg-9.col-sm-10.col-xs-12.media
+    a.pull-left(ng-href="/#applications/{{ application._id }}")
+      img.media-object(src='/images/tux.png')
+    div.media-body
+      h4.media-heading
+        a(ng-href="/#applications/{{ application._id }}") {{ application.name }}
+      p
+        strong #{__('Redirect URI')}
+        br
+        span
+          a(ng-href="{{application.redirectUri}}", target='_blank') {{ application.redirectUri }}
+      p
+        strong #{__('Client ID')}
+        br
+        span {{ application.clientId }}
+      p
+        strong #{__('Client Secret')}
+        br
+        span {{ application.clientSecret }}
+
