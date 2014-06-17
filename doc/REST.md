@@ -89,7 +89,30 @@ Example:
 
 ## Authentication
 
-A large part of the API requires you to be authenticated. Authentication API are listed later in this document. Please note however that Hiveety server expect the authentication to be in a cookie header.
+A large part of the API requires you to be authenticated. The platform currently provides two sorts of authentication: Cookie-based and OAuth2-based.
+
+### Cookie-based Authentication
+
+In order to get a cookie, you must login into the application by issuing a POST request to the /api/login endpoint with your account email and password.
+The response will contain a cookie which you will be able to use in next request as long as the session is open.
+
+### OAuth2-based Authentication
+
+Unlike the cookie-based authentication mechanism, you do not have to login into the platform to access protected resources.
+Once you have a token (check the OAuth2 section), you can send request with the token to get authenticated.
+
+For example, you can set the token as request parameter:
+
+    GET http://localhost:8080/api/users/123456789/profile?access_token=0987654321
+    Accept: application/json
+    Host: localhost:8080
+
+Or by putting it in HTTP header:
+
+    GET http://localhost:8080/api/users/123456789/profile
+    Accept: application/json
+    Host: localhost:8080
+    Authorization: Bearer 0987654321
 
 # Detailed API
 

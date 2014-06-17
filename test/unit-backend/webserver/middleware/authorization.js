@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The authorization middleware', function() {
 
@@ -32,6 +33,40 @@ describe('The authorization middleware', function() {
       var res = {};
       var next = function() {
         done();
+      };
+      middleware(req, res, next);
+    });
+
+    it('should call passport if user is not autenticated and bearer strategy is active', function(done) {
+      var mock = {
+        config: function() {
+          return {
+            auth: {
+              strategies: ['bearer']
+            }
+          };
+        }
+      };
+      mockery.registerMock('../../core', mock);
+
+      var passport = {
+        authenticate: function() {
+          return function() {
+            return done();
+          };
+        }
+      };
+      mockery.registerMock('passport', passport);
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresAPILogin;
+      var req = {
+        isAuthenticated: function() {
+          return false;
+        }
+      };
+      var res = {};
+      var next = function() {
+        return done(new Error());
       };
       middleware(req, res, next);
     });
