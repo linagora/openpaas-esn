@@ -80,10 +80,10 @@ exports.authorization = server.authorization(function(clientId, redirectUri, don
 });
 
 exports.dialog = function(req, res) {
-  return res.render('oauth/dialog', {
-    transactionId: req.oauth2.transactionId,
+  res.render('oauth/index', {
+    transactionId: req.oauth2.transactionID,
     user: req.user,
-    oauthclient: req.oauth2.client
+    client: req.oauth2.client
   });
 };
 
