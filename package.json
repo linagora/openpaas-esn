@@ -45,7 +45,11 @@
     "trim": "0.0.1",
     "winston": "~0.7.2",
     "redis": "~0.10.2",
-    "easyrtc": "git+https://github.com/linagora/easyrtc.git"
+    "easyrtc": "git+https://github.com/linagora/easyrtc.git",
+    "oauth2orize": "~1.0.1",
+    "randomstring": "~1.0.3",
+    "passport-http": "~0.2.2",
+    "passport-oauth2-client-password": "~0.1.1"
   },
   "devDependencies": {
     "bower": "~1.3.3",
