@@ -13,7 +13,7 @@ module.exports = {
       if (!client) {
         return done(null, false);
       }
-      if(client.clientSecret !== clientSecret) {
+      if (client.clientSecret !== clientSecret) {
         return done(null, false);
       }
       return done(null, client);

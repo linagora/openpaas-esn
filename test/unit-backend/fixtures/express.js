@@ -17,7 +17,8 @@ exports.express = function() {
     set: function() {},
     get: function() {},
     post: function() {},
-    put: function() {}
+    put: function() {},
+    delete: function() {}
   };
 
   return expressMock;
