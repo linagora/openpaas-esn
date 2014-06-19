@@ -95,9 +95,10 @@ exports = module.exports = function(application) {
   application.put('/api/conferences/:id/attendees/:user_id', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.isAdmin, conferenceController.addAttendee);
 
   var contactsController = require('./controllers/contacts');
+  var googleImportController = require('./controllers/import/google');
   application.get('/api/contacts', authorize.requiresAPILogin, contactsController.getContacts);
-  application.get('/api/contacts/google/oauthurl', authorize.requiresAPILogin, contactsController.getGoogleOAuthURL);
-  application.get('/api/contacts/google/callback', authorize.requiresAPILogin, contactsController.fetchGoogleContacts);
+  application.get('/api/contacts/google/oauthurl', authorize.requiresAPILogin, googleImportController.getGoogleOAuthURL);
+  application.get('/api/contacts/google/callback', authorize.requiresAPILogin, googleImportController.fetchGoogleContacts);
 
   var addressbooks = require('./controllers/addressbooks');
   application.get('/api/addressbooks', authorize.requiresAPILogin, addressbooks.getAddressBooks);
