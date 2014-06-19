@@ -107,3 +107,68 @@ Get a the all contacts of the user.
 **Redirect (if OK):**
 
     Redirect /#/contacts
+
+## POST /api/contacts/{contact_id}/invitations
+
+Invite a contact to join a domain.
+Only the domain manager is able to invite people to join a domain.
+
+**Parameters**
+
+- contact_id: The contact ID
+
+**Request JSON Object:**
+
+- domain_id: The domain to invite the user to
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Status Codes:**
+
+- 202 Accepted. The request has been received and an invitation will be sent to the contact email address.
+- 400 Bad Request. Invalid request body or parameters.
+- 403 Forbidden. The user who created the request is not authorized to invite contacts.
+
+**Request:**
+
+    POST /api/contacts/123456789/invitations
+    Accept: application/json
+    Host: localhost:8080
+    {
+      "domain_id": "92929200888181882993"
+    }
+
+**Response:**
+
+    HTTP/1.1 202 Accepted
+
+## GET /api/contacts/{contact_id}/invitations
+
+Get the contact invitations.
+
+**Parameters**
+
+- contact_id: The contact ID
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Status Codes:**
+
+- 200 OK. With a list of invitations.
+- 400 Bad Request. Invalid request body or parameters.
+- 403 Forbidden. The user who created the request is not authorized to get the contact invitations.
+
+**Request:**
+
+    GET /api/contacts/123456789/invitations
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    []
