@@ -111,5 +111,9 @@
   "Tell us what your application is about": "Tell us what your application is about",
   "Register your application": "Register your application",
   "Client ID": "Client ID",
-  "Client Secret": "Client Secret"
+  "Client Secret": "Client Secret",
+  "Invite": "Invite",
+  "Join": "Join",
+  "Mute": "Mute",
+  "Toggle full screen": "Toggle full screen"
 }

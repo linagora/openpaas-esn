@@ -3,4 +3,4 @@ div.col-xs-12.media.nopadding.esn-conference-attendee
     img.media-object.thumbnail(src='/images/user.png', ng-src='/api/users/{{user._id}}/profile/avatar')
   .media-body
     h6.media-heading {{user.firstname}} {{user.lastname}}
-    button.btn.btn-primary.nopadding(type='submit', ng-disabled='invited', ng-click='invite(user); invited=true') Invite
+    button.btn.btn-primary.nopadding(type='submit', ng-disabled='invited', ng-click='invite(user); invited=true') #{__('Invite')}

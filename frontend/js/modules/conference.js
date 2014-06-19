@@ -7,9 +7,14 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
     $scope.username = session.user._id;
     $scope.webrtcid = '';
     $scope.users = [];
+    $scope.attendees = [];
     $scope.easyrtc = webrtcFactory.get();
-    $scope.mainclass = 'conference-video-main';
-    $scope.thumbclass = 'conference-video-thumb';
+    $scope.thumbclass = 'conference-video-multi';
+    $scope.isFullscreen = false;
+
+    $scope.toggleFullScreen = function() {
+      $scope.isFullscreen = !$scope.isFullscreen;
+    };
 
     $scope.$on('$locationChangeStart', function(event, next, current) {
       $scope.easyrtc.leaveRoom(conference._id, function() {
@@ -18,6 +23,20 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
         $log.error('Error while leaving conference');
       });
     });
+
+    $scope.getName = function(id) {
+      if (!id || id === null) {
+        return '';
+      }
+
+      var filtered = $scope.users.filter(function(entry) {
+        return entry._id === id;
+      });
+      if (filtered && filtered.length === 1) {
+        return filtered[0].firstname || filtered[0].lastname || filtered[0].emails[0] || 'No name';
+      }
+      return 'No name';
+    };
 
     $scope.performCall = function(otherEasyrtcid) {
       $log.debug('Calling ' + otherEasyrtcid);
@@ -93,6 +112,7 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
         }
       );
       $scope.easyrtc.username = $scope.username;
+      $scope.attendees[0] = $scope.username;
       $scope.easyrtc.debugPrinter = function(message) {
         $log.debug(message);
       };
@@ -101,20 +121,17 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
         var data = response.data || {token: ''};
         var options = {query: 'token=' + data.token + '&user=' + session.user._id};
         $scope.easyrtc.setSocketOptions(options);
-
-        $scope.easyrtc.easyApp('OpenPaasRSE', 'video-main', ['video-thumb'], $scope.loginSuccess, $scope.loginFailure);
+        $scope.easyrtc.easyApp('OpenPaasRSE', 'video-thumb0', ['video-thumb1', 'video-thumb2', 'video-thumb3', 'video-thumb4', 'video-thumb5', 'video-thumb6', 'video-thumb7', 'video-thumb8'], $scope.loginSuccess, $scope.loginFailure);
 
         $scope.easyrtc.setOnCall(function(easyrtcid, slot) {
+          $scope.attendees[slot + 1] = $scope.easyrtc.idToName(easyrtcid);
           $log.debug('SetOnCall', easyrtcid);
-          $scope.mainclass = 'conference-video-thumb';
-          $scope.thumbclass = 'conference-video-main';
           $scope.$apply();
         });
 
         $scope.easyrtc.setOnHangup(function(easyrtcid, slot) {
           $log.debug('setOnHangup', easyrtcid);
-          $scope.mainclass = 'conference-video-main';
-          $scope.thumbclass = 'conference-video-thumb';
+          $scope.attendees[slot + 1] = null;
           $scope.$apply();
         });
       }, function(error) {
@@ -166,6 +183,15 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
     return {
       restrict: 'E',
       templateUrl: '/views/modules/conference/attendee.html'
+    };
+  })
+  .directive('conferenceAttendeeControlButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/conference/control-button.html',
+      scope: {
+        attendee: '='
+      }
     };
   })
   .directive('liveConferenceNotification', ['livenotification', 'notificationService', '$timeout', 'session',

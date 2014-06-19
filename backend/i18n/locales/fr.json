@@ -106,5 +106,9 @@
   "Tell us what your application is about": "Dites nous de quoi il s'agit",
   "Register your application": "Enregistrer votre application",
   "Client ID": "Client ID",
-  "Client Secret": "Client Secret"
+  "Client Secret": "Client Secret",
+  "Invite": "Inviter",
+  "Join": "Rejoindre",
+  "Mute": "Muet",
+  "Toggle full screen": "Basculer plein écran"
 }

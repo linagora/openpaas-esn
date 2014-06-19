@@ -5,6 +5,7 @@ angular.module('esnApp', [
   'ngRoute',
   'mgcrea.ngStrap.affix',
   'ui.notify',
+  'FBAngular',
   'esn.member',
   'esn.domain',
   'esn.avatar',

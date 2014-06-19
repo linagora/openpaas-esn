@@ -1,11 +1,60 @@
 .row(live-conference-notification)
-  .col-lg-8
+  .col-lg-9
 
-    div.conference-video
-      video#video-main.video-mirror(autoplay="autoplay", ng-class="mainclass")
-      video#video-thumb(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
-
-  .col-lg-4
-      h4 Members
-      .row(ng-repeat="user in users")
-        conference-attendee(user=user)
+    div.conference-video(id='multiparty-conference', fullscreen='isFullscreen')
+      .row.text-center.well
+        button(type='btn', class='btn btn-default', ng-click="toggleFullScreen()") #{__('Toggle full screen')}
+        &nbsp;
+        a(href='#', class='btn btn-danger') #{__('Quit conference')}
+      .row
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb0.video-mirror(autoplay="autoplay", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[0]")
+            conference-attendee-control-button(attendee="getName(attendees[0])")
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb1(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[1]")
+            conference-attendee-control-button(attendee="getName(attendees[1])")
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb2(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[2]")
+            conference-attendee-control-button(attendee="getName(attendees[2])")
+      .row
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb3(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[3]")
+            conference-attendee-control-button(attendee="getName(attendees[3])")
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb4(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[4]")
+            conference-attendee-control-button(attendee="getName(attendees[4])")
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb5(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[5]")
+            conference-attendee-control-button(attendee="getName(attendees[5])")
+      .row
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb6(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[6]")
+            conference-attendee-control-button(attendee="getName(attendees[6])")
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb7(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[7]")
+            conference-attendee-control-button(attendee="getName(attendees[7])")
+        .col-lg-4.col-md-4.col-xs-4
+          .row
+            video#video-thumb8(autoplay="autoplay", muted="muted", volume="0", ng-class="thumbclass")
+          .row.text-center.well.well-sm(ng-show="attendees[8]")
+            conference-attendee-control-button(attendee="getName(attendees[8])")
+  .col-lg-3.widget
+    h4 #{__('Members')}
+    .row(ng-repeat="user in users")
+      conference-attendee(user=user)
