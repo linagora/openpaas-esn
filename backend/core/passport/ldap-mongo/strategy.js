@@ -145,7 +145,7 @@ var handleAuthentication = function(req, options) {
         }
 
         if (provision) {
-          var provision_user = {emails: [username], domains: [{domain_id: ldaps[0].domain}]};
+          var provision_user = {emails: [username], domains: [{domain_id: ldaps[0].domain_id}]};
           var ldap = ldaps[0];
 
           if (ldap.mapping && ldap.mapping.firstname) {

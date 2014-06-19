@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 
 var LDAPSchema = new Schema({
   name: {type: String, required: true},
-  domain: {type: Schema.ObjectId, ref: 'Domain', required: true},
+  domain_id: {type: Schema.ObjectId, ref: 'Domain', required: true},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },

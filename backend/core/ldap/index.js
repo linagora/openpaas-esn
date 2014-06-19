@@ -85,7 +85,7 @@ var findLDAPForDomain = function(domain, callback) {
     return callback(new Error('Domain is required'));
   }
   var id = domain._id || domain;
-  LDAP.find({domain: id}, callback);
+  LDAP.find({domain_id: id}, callback);
 };
 module.exports.findLDAPForDomain = findLDAPForDomain;
 
@@ -94,7 +94,7 @@ var save = function(ldap, callback) {
     return callback(new Error('LDAP parameter is required'));
   }
 
-  if (!ldap.configuration || !ldap.domain) {
+  if (!ldap.configuration || !ldap.domain_id) {
     return callback(new Error('Bad LDAP parameter'));
   }
   var l = new LDAP(ldap);

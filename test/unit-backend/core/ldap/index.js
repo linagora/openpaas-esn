@@ -299,7 +299,7 @@ describe('The ldap core module', function() {
         model: function() {
           return {
             find: function(query, callback) {
-              expect(query.domain).to.equals(domain._id);
+              expect(query.domain_id).to.equals(domain._id);
               done();
             }
           };
@@ -317,7 +317,7 @@ describe('The ldap core module', function() {
         model: function() {
           return {
             find: function(query, callback) {
-              expect(query.domain).to.equals(domain);
+              expect(query.domain_id).to.equals(domain);
               done();
             }
           };
