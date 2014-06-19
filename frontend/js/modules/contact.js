@@ -71,6 +71,7 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
 
     $scope.refreshContacts = function() {
       $scope.contacts = [];
+      $scope.invited = [];
       if (!$scope.selected_addressbook) {
         return;
       }
@@ -83,6 +84,12 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       contactAPI.getContacts(options).then(
         function(response) {
           $scope.contacts = response.data;
+          var ids = $scope.contacts.map(function(contact) {
+            return contact._id;
+          });
+          contactAPI.getInvitations({'ids[]': ids}).then(function(response) {
+            $scope.invited = response.data;
+          });
         },
         function(err) {
           $scope.displayError(err);
@@ -135,7 +142,7 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
 
       contactAPI.sendInvitation(contact, session.domain._id).then(
         function() {
-          $scope.invited.push(contact._id);
+          $scope.invited.push({data: {contact_id: contact._id}});
         }
       );
     };
@@ -144,7 +151,11 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       if (!contact || !contact._id) {
         return false;
       }
-      return $scope.invited.indexOf(contact._id) !== -1;
+
+      console.log($scope.invited);
+      return $scope.invited.some(function(element) {
+        return element.data && element.data.contact_id && element.data.contact_id === contact._id;
+      });
     };
 
     $scope.init();
@@ -180,14 +191,17 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       getAddressBooks: function(options) {
         return Restangular.all('addressbooks').getList(options);
       },
-      getInvitations: function(contact) {
-        var id = contact._id || contact;
+      getContactInvitations: function(contact) {
+        var id = contact._id || contact;
         return Restangular.one('contacts/' + id + '/invitations').getList();
       },
+      getInvitations: function(options) {
+        return Restangular.all('contacts/invitations').getList(options);
+      } ,
       sendInvitation: function(contact, domain) {
-        var id = contact._id || contact;
+        var id = contact._id || contact;
         var body = {
-          domain: domain._id || domain
+          domain: domain._id || domain
         };
         return Restangular.one('contacts/' + id + '/invitations').customPOST(body);
       }

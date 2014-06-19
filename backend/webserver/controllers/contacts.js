@@ -155,11 +155,11 @@ function sendInvitation(req, res) {
   var domain_id = req.body.domain;
 
   if (!domain_id) {
-    return response.json(400, {error: 400, message: 'Bad request', details: 'Domain is required'});
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Domain is required'});
   }
 
-  if (!contact || !contact.emails || contact.emails.length === 0) {
-    return response.json(400, {error: 400, message: 'Bad request', details: 'Missing contact information'});
+  if (!contact || !contact.emails || contact.emails.length === 0) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing contact information'});
   }
 
   var handler = require('../../core/invitation');
@@ -174,18 +174,19 @@ function sendInvitation(req, res) {
       data: {
         user: user,
         domain: domain,
-        email: email
+        email: email,
+        contact_id: contact._id.toString()
       }
     };
 
-    handler.validate(payload, function (err, result) {
+    handler.validate(payload, function(err, result) {
       if (err || !result) {
         logger.warn('Invitation data is not valid %s : %s', payload, err ? err.message : result);
         return callback();
       }
 
       var invitation = new Invitation(payload);
-      invitation.save(function (err, saved) {
+      invitation.save(function(err, saved) {
         if (err) {
           return callback(err);
         }
@@ -210,17 +211,17 @@ function sendInvitation(req, res) {
       }
     });
   });
-};
+}
 module.exports.sendInvitation = sendInvitation;
 
-function getInvitations(req, res) {
+function getContactInvitations(req, res) {
   var contact = req.contact;
-  if (!contact || !contact.emails || contact.emails.length === 0) {
-    return response.json(400, {error: 400, message: 'Bad request', details: 'Missing contact information'});
+  if (!contact || !contact.emails || contact.emails.length === 0) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing contact information'});
   }
   var query = {
     type: 'addmember',
-    'data.email': contact.emails[0]
+    'data.contact_id': contact._id.toString()
   };
 
   Invitation.find(query, function(err, invitations) {
@@ -232,7 +233,42 @@ function getInvitations(req, res) {
     }
     return res.json(200, invitations);
   });
-};
+}
+module.exports.getContactInvitations = getContactInvitations;
+
+/**
+ * Get invitations for all given contact ids.
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+function getInvitations(req, res) {
+  if (!req.query || !req.query.ids) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing ids in query'});
+  }
+
+  Invitation.find({type: 'addmember', 'data.contact_id': {'$in': req.query.ids}}).exec(function(err, result) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Server Error', details: err.message});
+    }
+
+    var foundIds = result.map(function(invitation) {
+      return invitation.data.contact_id.toString();
+    });
+    req.query.ids.filter(function(id) {
+      return foundIds.indexOf(id) < 0;
+    }).forEach(function(id) {
+      result.push({
+        error: {
+          status: 404,
+          message: 'Not Found',
+          details: 'The contact ' + id + ' does not have any pending invitation'
+        }
+      });
+    });
+    return res.json(200, result);
+  });
+}
 module.exports.getInvitations = getInvitations;
 
 function load(req, res, next) {
@@ -244,7 +280,6 @@ function load(req, res, next) {
       return res.send(404);
     }
     req.contact = contact;
-    console.log(contact);
     return next();
   });
 }
