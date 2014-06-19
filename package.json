@@ -50,7 +50,8 @@
     "randomstring": "~1.0.3",
     "passport-http": "~0.2.2",
     "passport-oauth2-client-password": "~0.1.1",
-    "passport-http-bearer": "~1.0.1"
+    "passport-http-bearer": "~1.0.1",
+    "ldapauth-fork": "~2.2.12"
   },
   "devDependencies": {
     "bower": "~1.3.3",

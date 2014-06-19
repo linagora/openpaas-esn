@@ -26,6 +26,10 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user/login', userLoginMocked);
 
+    var userMocked = {
+    };
+    mockery.registerMock('../../core/user', userMocked);
+
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
     middleware(req, {}, next);
   });
@@ -50,6 +54,13 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user/login', userLoginMocked);
 
+    var userMocked = {
+      findByEmail: function(email, callback) {
+        return callback(null, {});
+      }
+    };
+    mockery.registerMock('../../core/user', userMocked);
+
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
     middleware(req, {}, next);
   });
@@ -72,6 +83,13 @@ describe('The login-rules middleware', function() {
       }
     };
     mockery.registerMock('../../core/user/login', userLoginMocked);
+
+    var userMocked = {
+      findByEmail: function(email, callback) {
+        return callback(null, {});
+      }
+    };
+    mockery.registerMock('../../core/user', userMocked);
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
     middleware(req, {}, next);
   });
@@ -98,7 +116,80 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user/login', userLoginMocked);
 
+    var userMocked = {
+      findByEmail: function(email, callback) {
+        return callback(null, {});
+      }
+    };
+    mockery.registerMock('../../core/user', userMocked);
+
     var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
     middleware(req, res, {});
+  });
+
+  it('should return 500 on error with findByEmail method', function(done) {
+    var req = {
+      body: {
+        username: 'aUsername'
+      }
+    };
+
+    var res = {
+      json: function(code, data) {
+        expect(code).to.equal(500);
+        expect(data.message).to.equal('Server Error');
+        done();
+      }
+    };
+
+    var userLoginMocked = {
+      canLogin: function(username, callback) {
+      }
+    };
+    mockery.registerMock('../../core/user/login', userLoginMocked);
+
+    var userMocked = {
+      findByEmail: function(email, callback) {
+        return callback(new Error());
+      }
+    };
+    mockery.registerMock('../../core/user', userMocked);
+
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    middleware(req, res, {});
+  });
+
+  it('should call next if user is not found', function(done) {
+    var req = {
+      body: {
+        username: 'aUsername'
+      }
+    };
+
+    var res = {
+      json: function(code, data) {
+        expect(code).to.equal(500);
+        expect(data.message).to.equal('Server Error');
+        done();
+      }
+    };
+
+    var userLoginMocked = {
+      canLogin: function(username, callback) {
+      }
+    };
+    mockery.registerMock('../../core/user/login', userLoginMocked);
+
+    var userMocked = {
+      findByEmail: function(email, callback) {
+        return callback();
+      }
+    };
+    mockery.registerMock('../../core/user', userMocked);
+
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    middleware(req, res, function() {
+      done();
+    });
   });
 });
