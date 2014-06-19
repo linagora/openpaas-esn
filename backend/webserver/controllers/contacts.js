@@ -6,6 +6,8 @@ var OAuth2Client = require('googleapis').OAuth2Client;
 var https = require('https');
 var googleContacts = require('../../core/contact/google');
 var contactModule = require('../../core').contact;
+var logger = require('../../core').logger;
+var domainModule = require('../../core/user/domain');
 
 function isValidObjectId(id) {
   try {
@@ -165,25 +167,25 @@ function sendInvitation(req, res) {
 
   res.send(202);
 
-  var send = function(callback) {
+  var send = function(domain, email, callback) {
 
     var payload = {
       type: 'addmember',
       data: {
         user: user,
         domain: domain,
-        email: contact.emails[0]
+        email: email
       }
     };
 
-    handler.validate(payload, function(err, result) {
+    handler.validate(payload, function (err, result) {
       if (err || !result) {
         logger.warn('Invitation data is not valid %s : %s', payload, err ? err.message : result);
         return callback();
       }
 
       var invitation = new Invitation(payload);
-      invitation.save(function(err, saved) {
+      invitation.save(function (err, saved) {
         if (err) {
           return callback(err);
         }
@@ -191,17 +193,23 @@ function sendInvitation(req, res) {
         handler.init(saved, callback);
       });
     });
+  };
 
-    send(contact.emails[0], function(err, result) {
+
+  domainModule.load(domain_id, function(err, domain) {
+    if (err || !domain) {
+      logger.error('Invitation error');
+      return;
+    }
+
+    send(domain, contact.emails[0], function(err, result) {
       if (err) {
         logger.error('Invitation error', err);
       } else {
         logger.info('Invitation sent', result);
       }
     });
-  };
-
-  return res.json(202);
+  });
 };
 module.exports.sendInvitation = sendInvitation;
 
@@ -214,8 +222,6 @@ function getInvitations(req, res) {
     type: 'addmember',
     'data.email': contact.emails[0]
   };
-
-  console.log(query);
 
   Invitation.find(query, function(err, invitations) {
     if (err) {

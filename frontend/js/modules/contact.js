@@ -133,7 +133,7 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
         return;
       }
 
-      domainAPI.inviteUsers(session.domain._id, [contact.emails[0]]).then(
+      contactAPI.sendInvitation(contact, session.domain._id).then(
         function() {
           $scope.invited.push(contact._id);
         }
@@ -179,6 +179,17 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       },
       getAddressBooks: function(options) {
         return Restangular.all('addressbooks').getList(options);
+      },
+      getInvitations: function(contact) {
+        var id = contact._id || contact;
+        return Restangular.one('contacts/' + id + '/invitations').getList();
+      },
+      sendInvitation: function(contact, domain) {
+        var id = contact._id || contact;
+        var body = {
+          domain: domain._id || domain
+        };
+        return Restangular.one('contacts/' + id + '/invitations').customPOST(body);
       }
     };
   }]);
