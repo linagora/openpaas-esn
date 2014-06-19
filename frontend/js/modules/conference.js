@@ -185,12 +185,26 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
       templateUrl: '/views/modules/conference/attendee.html'
     };
   })
-  .directive('conferenceAttendeeControlButton', function() {
+  .directive('conferenceAttendeeVideo', function() {
     return {
       restrict: 'E',
-      templateUrl: '/views/modules/conference/control-button.html',
+      replace: true,
+      templateUrl: '/views/modules/conference/attendee-video.html',
       scope: {
-        attendee: '='
+        attendee: '=',
+        videoId: '@'
+      },
+      controller: function($scope) {
+        $scope.muted = false;
+        $scope.mute = function() {
+          $scope.muted = !$scope.muted;
+        };
+      },
+      link: function(scope, element) {
+        scope.$watch('muted', function() {
+          var video = element.find('video');
+          video[0].muted = scope.muted;
+        });
       }
     };
   })

@@ -330,10 +330,13 @@ header.topbar {
   -moz-transform: scaleX(-1);
   -ms-transform: scaleX(-1);
   -o-transform: scaleX(-1);
-  transform: scaleX(-1);
+ transform: scaleX(-1);
 }
 
 .conference-video {
+  video.thumbhover {
+    -webkit-filter: grayscale(100%) opacity(50%);
+  }
 }
 
 .conference-video-multi {
@@ -380,4 +383,19 @@ header.topbar {
 
 .textarea-fixed {
   resize: none;
+}
+
+.conference-mute-button {
+  position: absolute;
+  left: 25px;
+  top: 10px;
+  z-index: 3;
+}
+
+.conference-attendee-name {
+  position: absolute;
+  left: 30px;
+  bottom: 0px;
+  font-size: 20px;
+  z-index: 3;
 }
