@@ -2,7 +2,8 @@
 
 var pubsub = require('../../core/pubsub').global,
     logger = require('../../core/logger'),
-    i18n = require('../../i18n');
+    i18n = require('../../i18n'),
+    helper = require('../helper/socketio');
 
 var initialized = false;
 
@@ -15,8 +16,6 @@ var JOINER_TOPIC = 'conference:join';
 var LEAVER_TOPIC = 'conference:leave';
 var CALLEE_TOPIC = 'conference:invite';
 
-var clients = [];
-
 function notifyRoom(io, uuid, msg) {
   io.of(NAMESPACE)
     . in (uuid)
@@ -24,9 +23,14 @@ function notifyRoom(io, uuid, msg) {
 }
 
 function notifyCallee(io, callee, msg) {
-  io.of(NAMESPACE)
-    .sockets[clients[callee]]
-    .emit(INVITATION_EVENT, msg);
+  var clientSockets = helper.getUserSocketsFromNamespace(callee, io.of(NAMESPACE).sockets);
+  logger.debug('notifyCallee', callee, ', found', clientSockets.length, 'websockets');
+  if (!clientSockets) {
+    return;
+  }
+  clientSockets.forEach(function(socket) {
+    socket.emit(INVITATION_EVENT, msg);
+  });
 }
 
 function init(io) {
@@ -52,24 +56,16 @@ function init(io) {
 
   io.of(NAMESPACE)
     .on('connection', function(socket) {
-      var client = {
-        user: socket.handshake.query.user,
-        token: socket.handshake.query.token,
-        address: socket.handshake.address.address,
-        port: socket.handshake.address.port
-      };
 
-      logger.info('New connection on /conferences', client);
-
-      clients[client.user] = socket.id;
+      logger.info('User', socket.handshake.query.user, ': new connection on /conferences');
 
       socket.on('subscribe', function(uuid) {
-        logger.info('Joining room', uuid, client);
+        logger.info('User', socket.handshake.query.user, ': joining room /', NAMESPACE, '/', uuid);
         socket.join(uuid);
       });
 
       socket.on('unsubscribe', function(uuid) {
-        logger.info('Leaving room', uuid, client);
+        logger.info('User', socket.handshake.query.user, ': leaving room /', NAMESPACE, '/', uuid);
         socket.leave(uuid);
       });
     });
