@@ -1,5 +1,8 @@
 'use strict';
 
+var passport = require('passport');
+var config = require('../../core').config('default');
+
 //
 // Authorization middleware
 //
@@ -12,7 +15,13 @@ exports.requiresLogin = function(req, res, next) {
 };
 
 exports.requiresAPILogin = function(req, res, next) {
-  if (!req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  if (config.auth && config.auth.strategies && config.auth.strategies.indexOf('bearer') !== -1) {
+    return passport.authenticate('bearer', { session: false })(req, res, next);
+  } else {
     return res.json(401, {
       error: {
         code: 401,
@@ -21,7 +30,6 @@ exports.requiresAPILogin = function(req, res, next) {
       }
     });
   }
-  next();
 };
 
 /**

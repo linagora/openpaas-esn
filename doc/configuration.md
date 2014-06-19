@@ -1,4 +1,22 @@
-# Configuration
+# Local Configuration
+
+Local configuration of the application is available in the ./config/default.json file.
+
+## Authentication
+
+    "auth": {
+      "strategies": ["local", "mongo", "bearer"]
+    }
+
+Array containing the authentication strategies to be loaded by the application. The application will go through all the authentication strategies until a valid one is found for the current HTTP request.
+Possible values are:
+
+- local: Local configuration is defined in ./config/users.json file.
+- mongo: Uses the User collection in mongodb.
+- ldap: Connect to a LDAP server defined in the global configuration parameter (cf below)
+- bearer: OAuth2 authentication mechanism (cf [REST API](REST.md) for more details)
+
+# Global Configuration
 
 The configuration of the ESN is stored in MongoDB under the configuration collection in order to be distributed over nodes.
 

@@ -35,6 +35,6 @@
     }
   },
   "auth": {
-    "strategies": ["local", "mongo"]
+    "strategies": ["local", "mongo", "bearer"]
   }
 }
