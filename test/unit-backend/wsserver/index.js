@@ -145,10 +145,12 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('socket.io', ioMock);
 
       var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
       wsserver.start(function() {
         var socket = {
+          id: 'socket1',
           handshake: {
-            user: 123
+            user: '123'
           },
           on: function() {
           }
@@ -156,8 +158,9 @@ describe('The WebSockets server module', function() {
         eventEmitter.emit('connection', socket);
 
         process.nextTick(function() {
-          expect(wsserver.getSocketForUser(123)).to.exist;
-          expect(wsserver.getSocketForUser(123)).to.deep.equal(socket);
+          var socks = store.getSocketsForUser('123');
+          expect(socks).to.have.length(1);
+          expect(socks[0]).to.deep.equal(socket);
           done();
         });
       });
@@ -190,15 +193,16 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('socket.io', ioMock);
 
       var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
       wsserver.start(function() {
-        var socket = new Socket({user: 123});
+        var socket = new Socket({user: '123'});
+        socket.id = 'socket1';
         eventEmitter.emit('connection', socket);
 
         process.nextTick(function() {
-          expect(wsserver.getSocketForUser(123)).to.exist;
           socket.emit('disconnect');
           process.nextTick(function() {
-            expect(wsserver.getSocketForUser(123)).to.not.exist;
+            expect(store.getSocketsForUser('123')).to.have.length(0);
             done();
           });
         });

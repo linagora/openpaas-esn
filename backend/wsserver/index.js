@@ -3,6 +3,7 @@
 var logger = require('../core/logger');
 var io = require('socket.io');
 var express = require('express');
+var store = require('./socketstore');
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -14,15 +15,6 @@ var wsserver = {
 };
 
 exports = module.exports = wsserver;
-
-var websockets = {};
-function getSocketForUser(user) {
-  if (!user) {
-    return null;
-  }
-  return websockets[user];
-}
-wsserver.getSocketForUser = getSocketForUser;
 
 function start(port, callback) {
   if (arguments.length === 0) {
@@ -65,11 +57,11 @@ function start(port, callback) {
 
     sio.sockets.on('connection', function(socket) {
       var user = socket.handshake.user;
-      websockets[user] = socket;
-
+      store.registerSocket(socket, user);
+      logger.info('Socket is connected for user = ' + user);
       socket.on('disconnect', function() {
-        logger.info('Socket is disconnected for user = ', user);
-        delete websockets[user];
+        logger.info('Socket is disconnected for user = ' + user);
+        store.unregisterSocket(socket);
       });
     });
 
