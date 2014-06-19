@@ -1,14 +1,15 @@
 'use strict';
 
-angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.alert'])
-  .controller('contactsController', ['$scope', 'contactAPI', '$alert', 'usSpinnerService', 'addressbookOwner',
-  function($scope, contactAPI, alert, usSpinnerService, ownerId) {
+angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
+  .controller('contactsController', ['$scope', 'contactAPI', 'domainAPI', 'session', '$alert', 'usSpinnerService', 'addressbookOwner',
+  function($scope, contactAPI, domainAPI, session, alert, usSpinnerService, ownerId) {
     var spinnerKey = 'addressbooksSpinner';
     var contactsSpinnerKey = 'contactsSpinner';
     $scope.addressbooks = [];
     $scope.selected_addressbook = null;
 
     $scope.contacts = [];
+    $scope.invited = [];
     $scope.contact = null;
     $scope.restActive = false;
     $scope.contactsRestActive = false;
@@ -125,6 +126,25 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
         $scope.restActive = false;
         usSpinnerService.stop(spinnerKey);
       });
+    };
+
+    $scope.sendInvitation = function(contact) {
+      if (!contact || !contact.emails || contact.emails.length === 0) {
+        return;
+      }
+
+      domainAPI.inviteUsers(session.domain._id, [contact.emails[0]]).then(
+        function() {
+          $scope.invited.push(contact._id);
+        }
+      );
+    };
+
+    $scope.isInvited = function(contact) {
+      if (!contact || !contact._id) {
+        return false;
+      }
+      return $scope.invited.indexOf(contact._id) !== -1;
     };
 
     $scope.init();

@@ -101,7 +101,9 @@ describe('The esn.contact Angular module', function() {
 
     beforeEach(function() {
       angular.mock.module('esn.contact');
-      angular.mock.inject(function($controller, $rootScope) {
+      angular.mock.inject(function($controller, $rootScope, $q) {
+        this.$rootScope = $rootScope;
+        this.$q = $q;
         this.$controller = $controller;
         this.scope = $rootScope.$new();
         this.addressbookOwner = '539b0ba6b801603217aa2e24';
@@ -126,6 +128,7 @@ describe('The esn.contact Angular module', function() {
             };
           }
         };
+        this.domainAPI = {};
         this.spinner = {
           spin: function() {},
           stop: function() {}
@@ -140,6 +143,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -167,6 +171,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -188,6 +193,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -209,6 +215,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -229,6 +236,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -246,6 +254,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -263,6 +272,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -373,6 +383,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -404,6 +415,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -437,6 +449,7 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -458,6 +471,109 @@ describe('The esn.contact Angular module', function() {
           done();
         };
         this.scope.init();
+      });
+    });
+
+    describe('isInvited() fn', function() {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
+        this.$controller('contactsController', {
+          $scope: this.scope,
+          $alert: this.alert,
+          contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
+          usSpinnerService: this.spinner,
+          addressbookOwner: this.addressbookOwner
+        });
+      }));
+
+      it('should return false if contact is null', function() {
+        expect(this.scope.isInvited()).to.be.false;
+      });
+
+      it('should return false if contact._id is null', function() {
+        expect(this.scope.isInvited({})).to.be.false;
+      });
+
+      it('should return true if contact is already invited', function() {
+        var id = 123;
+        this.scope.invited = [id];
+        expect(this.scope.isInvited({_id: id})).to.be.true;
+      });
+
+      it('should return false if contact is not already invited', function() {
+        this.scope.invited = [123];
+        expect(this.scope.isInvited({_id: 456})).to.be.false;
+      });
+    });
+
+    describe('sendInvitation() fn', function() {
+      beforeEach(angular.mock.inject(function($controller, $rootScope) {
+        this.$controller('contactsController', {
+          $scope: this.scope,
+          $alert: this.alert,
+          contactAPI: this.contactAPI,
+          domainAPI: this.domainAPI,
+          usSpinnerService: this.spinner,
+          addressbookOwner: this.addressbookOwner
+        });
+      }));
+
+      it('should not call domainAPI if contact is null', function(done) {
+        this.domainAPI.inviteUsers = function() {
+          return done(new Error());
+        };
+
+        this.scope.sendInvitation();
+        done();
+      });
+
+      it('should not call domainAPI if contact emails is null', function(done) {
+        this.domainAPI.inviteUsers = function() {
+          return done(new Error());
+        };
+
+        this.scope.sendInvitation({});
+        done();
+      });
+
+      it('should not call domainAPI if contact emails is empty', function(done) {
+        this.domainAPI.inviteUsers = function() {
+          return done(new Error());
+        };
+
+        this.scope.sendInvitation({emails: []});
+        done();
+      });
+
+      it('should call domainAPI if contact emails is set', function(done) {
+        this.domainAPI.inviteUsers = function() {
+          return done();
+        };
+
+        this.scope.sendInvitation({emails: ['foo@bar.com']});
+        done();
+      });
+
+      it('should push the contact ID in the invited array on success', function() {
+        var d = this.$q.defer();
+        d.resolve({});
+        this.domainAPI.inviteUsers = function() {
+          return d.promise;
+        };
+        this.scope.sendInvitation({emails: ['foo@bar.com']});
+        this.$rootScope.$digest();
+        expect(this.scope.invited.length === 1);
+      });
+
+      it('should not push the contact ID in the invited array on error', function() {
+        var d = this.$q.defer();
+        d.reject({});
+        this.domainAPI.inviteUsers = function() {
+          return d.promise;
+        };
+        this.scope.sendInvitation({emails: ['foo@bar.com']});
+        this.$rootScope.$digest();
+        expect(this.scope.invited.length === 0);
       });
     });
   });
