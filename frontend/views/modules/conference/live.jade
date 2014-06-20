@@ -7,9 +7,7 @@
         &nbsp;
         a(href='#', class='btn btn-danger') #{__('Quit conference')}
       .row
-        .col-lg-4.col-md-4.col-xs-4
-          .row
-            video#video-thumb0.video-mirror.conference-video-multi(autoplay="autoplay")
+        conference-user-video(video-id="video-thumb0", attendee="getName(attendees[0])"  easyrtc='easyrtc')
         conference-attendee-video(video-id="video-thumb1", attendee="getName(attendees[1])")
         conference-attendee-video(video-id="video-thumb2", attendee="getName(attendees[2])")
       .row

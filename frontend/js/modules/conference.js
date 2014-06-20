@@ -208,6 +208,30 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
       }
     };
   })
+  .directive('conferenceUserVideo', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/conference/user-video.html',
+      scope: {
+        attendee: '=',
+        videoId: '@',
+        easyrtc: '='
+      },
+      controller: function($scope) {
+        $scope.muted = false;
+        $scope.videoMuted = false;
+        $scope.toggleSound = function() {
+          $scope.easyrtc.enableMicrophone($scope.muted);
+          $scope.muted = !$scope.muted;
+        };
+        $scope.toggleCamera = function() {
+          $scope.easyrtc.enableCamera($scope.videoMuted);
+          $scope.videoMuted = !$scope.videoMuted;
+        };
+      }
+    };
+  })
   .directive('liveConferenceNotification', ['livenotification', 'notificationService', '$timeout', 'session',
     function(livenotification, notificationService, $timeout, session) {
       return {
