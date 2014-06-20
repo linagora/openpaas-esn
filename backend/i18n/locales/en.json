@@ -100,5 +100,16 @@
   "Import Google Contacts": "Import from Google Contacts",
   "Contacts": "Contacts",
   "No addressbooks": "No address book",
-  "Import contacts from": "Import contacts from"
+  "Import contacts from": "Import contacts from",
+  "Register a new application": "Register a new application",
+  "Applications": "Applications",
+  "Application name": "Application Name",
+  "Application description": "Application description",
+  "Application name will help users to find and trust it": "Application name will help users to find and trust it",
+  "Redirect URI": "Redirect URI",
+  "The application's callback URL. Check OAuth documentation for more details": "The application's callback URL. Check OAuth documentation for more details",
+  "Tell us what your application is about": "Tell us what your application is about",
+  "Register your application": "Register your application",
+  "Client ID": "Client ID",
+  "Client Secret": "Client Secret"
 }

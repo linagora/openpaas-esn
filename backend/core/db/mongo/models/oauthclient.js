@@ -8,6 +8,7 @@ var OAuthClientSchema = new mongoose.Schema({
   clientId: { type: String, unique: true},
   clientSecret: { type: String},
   redirectUri: { type: String },
+  description: { type: String},
   created: { type: Date, default: Date.now },
   schemaVersion: {type: Number, default: 1}
 });

@@ -28,9 +28,16 @@ nav(class="navbar navbar-default" role="navigation" data-offset-top="50" bs-affi
       .col-sm-10.col-xs-12.nopadding.esn-navbar-main
         .esn-item.active
           span
-            i.fa.fa-hdd-o
-            span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
+            a(href='/#')
+              i.fa.fa-comments-o
+              span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
         .esn-item
           span
-            i.fa.fa-comments-o
-            a.hidden-xs(href='/#conferences') #{__('Discussions')}
+            a(href='/#conferences')
+              i.fa.fa-video-camera
+              span.hidden-xs #{__('Discussions')}
+        .esn-item
+          span
+            a(href='/#applications')
+              i.fa.fa-upload
+              span.hidden-xs #{__('Applications')}

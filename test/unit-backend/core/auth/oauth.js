@@ -9,7 +9,7 @@ describe('The OAuth Core Module', function() {
     var mongoose = {
       model: function() {
         return {
-          find: function() {
+          findOne: function() {
             return {
               populate: function() {
                 return {
@@ -40,7 +40,7 @@ describe('The OAuth Core Module', function() {
     var mongoose = {
       model: function() {
         return {
-          find: function() {
+          findOne: function() {
             return {
               populate: function() {
                 return {
@@ -70,7 +70,7 @@ describe('The OAuth Core Module', function() {
     var mongoose = {
       model: function() {
         return {
-          find: function() {
+          findOne: function() {
             return {
               populate: function() {
                 return {

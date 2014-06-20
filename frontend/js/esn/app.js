@@ -16,8 +16,9 @@ angular.module('esnApp', [
   'esn.websocket',
   'esn.easyrtc',
   'esn.conference',
-  'esn.authentication',
-  'esn.contact'
+  'esn.contact',
+  'esn.application',
+  'esn.authentication'
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
@@ -115,6 +116,40 @@ angular.module('esnApp', [
             },
             function(err) {
               $location.path('/');
+            }
+          );
+        }
+      }
+    });
+
+    $routeProvider.when('/applications', {
+      templateUrl: '/views/modules/application/applications',
+      controller: 'applicationController',
+      resolve: {
+        applications: function(applicationAPI, $location) {
+          return applicationAPI.list().then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/');
+            }
+          );
+        }
+      }
+    });
+
+    $routeProvider.when('/applications/:application_id', {
+      templateUrl: '/views/modules/application/application-details',
+      controller: 'applicationDetailsController',
+      resolve: {
+        application: function(applicationAPI, $route, $location) {
+          return applicationAPI.get($route.current.params.application_id).then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/applications');
             }
           );
         }
