@@ -6,9 +6,9 @@ div.col-xs-12.nopadding.esn-conference-attendee
       img.media-object(src='/images/user.png', ng-src='/api/users/{{conference.creator._id}}/profile/avatar')
     div.media-body
       h4.media-heading
-        | &nbsp;Created by&nbsp;
+        | &nbsp;#{__('Created by')}&nbsp;
         a(href="#") {{conference.creator.firstname}} {{conference.creator.lastname}}
         small
           | &nbsp;on{{conference.timestamps.creation}}
   .col-lg-3.col-sm-2.col-xs-12
-      button.btn.btn-primary.nopadding(type='submit', ng-click='join(conference)') Join
+      button.btn.btn-primary.nopadding(type='submit', ng-click='join(conference)') #{__('Join')}

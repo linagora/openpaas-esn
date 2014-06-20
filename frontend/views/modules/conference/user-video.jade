@@ -1,0 +1,6 @@
+.col-lg-4.col-md-4.col-xs-4
+  .row.user-video(ng-mouseenter="thumbhover = true", ng-mouseleave="thumbhover = false")
+    video.video-mirror.conference-video-multi(autoplay="autoplay" id="{{videoId}}")
+    i.fa.fa-3x.conference-mute-button(ng-click="toggleSound()", ng-class="{'fa-microphone': !muted, 'fa-microphone-slash': muted}", ng-show="((thumbhover || muted) && attendee)")
+    i.fa.fa-3x.conference-toggle-video-button(ng-click="toggleCamera()", ng-class="{'fa-eye': !videoMuted, 'fa-eye-slash': videoMuted}", ng-show="((thumbhover || videoMuted) && attendee)")
+    p.conference-attendee-name(ng-show="thumbhover") {{attendee}}
