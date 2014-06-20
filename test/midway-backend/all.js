@@ -17,7 +17,7 @@ before(function() {
     fixtures: path.resolve(__dirname + '/fixtures'),
     mongoUrl: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
     writeDBConfigFile: function() {
-      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname}));
+      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://localhost:' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname, connectionOptions: {auto_reconnect: false}}));
     },
     removeDBConfigFile: function() {
       fs.unlinkSync(tmpPath + '/db.json');

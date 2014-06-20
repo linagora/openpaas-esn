@@ -93,5 +93,12 @@
   "Create a new conference": "Create a new conference",
   "Share": "Share",
   "%s has joined the conference": "%s has joined the conference",
-  "%s has left the conference": "%s has left the conference"
+  "%s has left the conference": "%s has left the conference",
+  "Select All": "Select All",
+  "Unselect All": "Unselect All",
+  "Address Books": "Address Books",
+  "Import Google Contacts": "Import from Google Contacts",
+  "Contacts": "Contacts",
+  "No addressbooks": "No address book",
+  "Import contacts from": "Import contacts from"
 }

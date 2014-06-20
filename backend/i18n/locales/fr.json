@@ -88,5 +88,12 @@
   "Create a new conference": "Créer une nouvelle conférence",
   "Share": "Partager",
   "%s has joined the conference": "%s a rejoint la conférence",
-  "%s has left the conference": "%s est sorti de la conférence"
+  "%s has left the conference": "%s est sorti de la conférence",
+  "Select All": "Tout sélectionner",
+  "Unselect All": "Tout déselectionner",
+  "Address Books": "Carnets d'adresses",
+  "Import Google Contacts": "Importer les contacts depuis Google",
+  "Contacts": "Contacts",
+  "No addressbooks": "Pas de carnet d'adresses",
+  "Import contacts from": "Importer les contacts depuis"
 }

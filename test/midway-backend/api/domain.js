@@ -74,7 +74,9 @@ describe('The domain API', function() {
     var User = this.mongoose.model('User');
     var Domain = this.mongoose.model('Domain');
     User.remove(function() {
-      Domain.remove(done);
+      Domain.remove(function(err) {
+        require('mongoose').disconnect(done);
+      });
     });
   });
 
