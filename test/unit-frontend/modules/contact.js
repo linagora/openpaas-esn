@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The esn.contact Angular module', function() {
+describe.only('The esn.contact Angular module', function() {
 
   describe('contactAPI service', function() {
 
@@ -60,6 +60,61 @@ describe('The esn.contact Angular module', function() {
         };
         this.$httpBackend.expectGET('/addressbooks?limit=100&offset=25').respond(200, []);
         this.api.getAddressBooks(options);
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('getContactInvitations method', function() {
+      it('should send a request GET /contacts/:id/invitations from id', function() {
+        var id = 123;
+        this.$httpBackend.expectGET('/contacts/' + id + '/invitations').respond(200, []);
+        this.api.getContactInvitations(id);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a request GET /contacts/:id/invitations from hash', function() {
+        var options = {
+          _id: 123
+        };
+        this.$httpBackend.expectGET('/contacts/' + options._id + '/invitations').respond(200, []);
+        this.api.getContactInvitations(options);
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('getInvitations method', function() {
+      it('should send a request GET /contacts/invitations', function() {
+        this.$httpBackend.expectGET('/contacts/invitations').respond(200, []);
+        this.api.getInvitations();
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('sendInvitation method', function() {
+      it('should send a request POST /contacts/:id/invitations from ID', function() {
+        var contact = 123;
+        var domain = 456;
+        this.$httpBackend.expectPOST('/contacts/' + contact + '/invitations').respond(200, []);
+        this.api.sendInvitation(contact, domain);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a request POST /contacts/:id/invitations from hash', function() {
+        var contact = {_id: 123};
+        var domain = 456;
+        this.$httpBackend.expectPOST('/contacts/' + contact._id + '/invitations').respond(200, []);
+        this.api.sendInvitation(contact, domain);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a request POST /contacts/:id/invitations with domain in body', function() {
+        var contact = {_id: 123};
+        var domain = 456;
+        var body = {
+          domain: domain
+        };
+        this.$httpBackend.expectPOST('/contacts/' + contact._id + '/invitations', body).respond(200, []);
+        this.api.sendInvitation(contact, domain);
         this.$httpBackend.flush();
       });
     });
@@ -128,7 +183,6 @@ describe('The esn.contact Angular module', function() {
             };
           }
         };
-        this.domainAPI = {};
         this.spinner = {
           spin: function() {},
           stop: function() {}
@@ -143,7 +197,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -171,7 +224,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -193,7 +245,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -215,7 +266,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -236,7 +286,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -254,7 +303,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -272,7 +320,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -321,6 +368,11 @@ describe('The esn.contact Angular module', function() {
             var self = this;
 
             this.getContactsFinally = function() {};
+            this.contactAPI.getInvitations = function() {
+              return {
+                then: function() {}
+              };
+            };
             this.getContactsThen = function() {
               return {finally: self.getContactsFinally};
             };
@@ -383,7 +435,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -415,7 +466,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -449,7 +499,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -480,7 +529,6 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
@@ -496,12 +544,12 @@ describe('The esn.contact Angular module', function() {
 
       it('should return true if contact is already invited', function() {
         var id = 123;
-        this.scope.invited = [id];
+        this.scope.invited = [{data: {contact_id: id}}];
         expect(this.scope.isInvited({_id: id})).to.be.true;
       });
 
       it('should return false if contact is not already invited', function() {
-        this.scope.invited = [123];
+        this.scope.invited = [{data: {contact_id: 123}}];
         expect(this.scope.isInvited({_id: 456})).to.be.false;
       });
     });
@@ -512,14 +560,13 @@ describe('The esn.contact Angular module', function() {
           $scope: this.scope,
           $alert: this.alert,
           contactAPI: this.contactAPI,
-          domainAPI: this.domainAPI,
           usSpinnerService: this.spinner,
           addressbookOwner: this.addressbookOwner
         });
       }));
 
-      it('should not call domainAPI if contact is null', function(done) {
-        this.domainAPI.inviteUsers = function() {
+      it('should not call contactAPI if contact is null', function(done) {
+        this.contactAPI.sendInvitation = function() {
           return done(new Error());
         };
 
@@ -527,8 +574,8 @@ describe('The esn.contact Angular module', function() {
         done();
       });
 
-      it('should not call domainAPI if contact emails is null', function(done) {
-        this.domainAPI.inviteUsers = function() {
+      it('should not call contactAPI if contact emails is null', function(done) {
+        this.contactAPI.sendInvitation = function() {
           return done(new Error());
         };
 
@@ -536,8 +583,8 @@ describe('The esn.contact Angular module', function() {
         done();
       });
 
-      it('should not call domainAPI if contact emails is empty', function(done) {
-        this.domainAPI.inviteUsers = function() {
+      it('should not call contactAPI if contact emails is empty', function(done) {
+        this.contactAPI.sendInvitation = function() {
           return done(new Error());
         };
 
@@ -545,8 +592,8 @@ describe('The esn.contact Angular module', function() {
         done();
       });
 
-      it('should call domainAPI if contact emails is set', function(done) {
-        this.domainAPI.inviteUsers = function() {
+      it('should call contactAPI if contact emails is set', function(done) {
+        this.contactAPI.sendInvitation = function() {
           return done();
         };
 
@@ -557,7 +604,7 @@ describe('The esn.contact Angular module', function() {
       it('should push the contact ID in the invited array on success', function() {
         var d = this.$q.defer();
         d.resolve({});
-        this.domainAPI.inviteUsers = function() {
+        this.contactAPI.sendInvitation = function() {
           return d.promise;
         };
         this.scope.sendInvitation({emails: ['foo@bar.com']});
@@ -568,7 +615,7 @@ describe('The esn.contact Angular module', function() {
       it('should not push the contact ID in the invited array on error', function() {
         var d = this.$q.defer();
         d.reject({});
-        this.domainAPI.inviteUsers = function() {
+        this.contactAPI.sendInvitation = function() {
           return d.promise;
         };
         this.scope.sendInvitation({emails: ['foo@bar.com']});

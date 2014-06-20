@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
-  .controller('contactsController', ['$scope', 'contactAPI', 'domainAPI', 'session', '$alert', 'usSpinnerService', 'addressbookOwner',
-  function($scope, contactAPI, domainAPI, session, alert, usSpinnerService, ownerId) {
+  .controller('contactsController', ['$scope', 'contactAPI', 'session', '$alert', 'usSpinnerService', 'addressbookOwner',
+  function($scope, contactAPI, session, alert, usSpinnerService, ownerId) {
     var spinnerKey = 'addressbooksSpinner';
     var contactsSpinnerKey = 'contactsSpinner';
     $scope.addressbooks = [];
@@ -152,7 +152,6 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
         return false;
       }
 
-      console.log($scope.invited);
       return $scope.invited.some(function(element) {
         return element.data && element.data.contact_id && element.data.contact_id === contact._id;
       });
