@@ -216,7 +216,7 @@ module.exports.sendInvitation = sendInvitation;
 
 function getContactInvitations(req, res) {
   var contact = req.contact;
-  if (!contact || !contact.emails || contact.emails.length === 0) {
+  if (!contact) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing contact information'});
   }
   var query = {

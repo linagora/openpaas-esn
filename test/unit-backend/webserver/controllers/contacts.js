@@ -319,4 +319,414 @@ describe.only('the contacts controller', function() {
       });
     });
   });
+
+  describe('sendInvitation method', function() {
+    it('should return HTTP 400 if domain_id is not set', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {};
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        body: {}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.sendInvitation(req, res);
+    });
+
+    it('should return HTTP 400 if req.contact is not set', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {};
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        body: {
+          domain: 123
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.sendInvitation(req, res);
+    });
+
+    it('should return HTTP 400 if req.contact.emails is not set', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {};
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        body: {
+          domain: 123
+        },
+        contact: {}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.sendInvitation(req, res);
+    });
+
+    it('should return HTTP 400 if req.contact.emails is empty', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {};
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        body: {
+          domain: 123
+        },
+        contact: {
+          emails: []
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.sendInvitation(req, res);
+    });
+  });
+
+  describe('getContactInvitations method', function() {
+    it('should return HTTP 400 if contact is not set', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.getContactInvitations(req, res);
+    });
+
+    it('should return HTTP 500 if Invitation.find send back error', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+              return callback(new Error());
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        contact: {
+          _id: 123
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+      contacts.getContactInvitations(req, res);
+    });
+
+    it('should return HTTP 404 if Invitation.find does not send back invitations', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+              return callback();
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        contact: {
+          _id: 123
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+      contacts.getContactInvitations(req, res);
+    });
+
+    it('should return HTTP 200 if Invitation.find does send back invitations', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+              return callback(null, []);
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        contact: {
+          _id: 123
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+      contacts.getContactInvitations(req, res);
+    });
+  });
+
+  describe('getInvitations method', function() {
+    it('should return HTTP 400 if req.query is not set', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.getInvitations(req, res);
+    });
+
+    it('should return HTTP 400 if req.query.ids is not set', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query, callback) {
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        query: {}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      contacts.getInvitations(req, res);
+    });
+
+    it('should return HTTP 500 if Invitation.find send back error', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query) {
+              return {
+                exec: function(callback) {
+                  return callback(new Error());
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        query: {
+          ids: []
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+      contacts.getInvitations(req, res);
+    });
+
+    it('should return HTTP 200', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {
+            find: function(query) {
+              return {
+                exec: function(callback) {
+                  return callback(null, []);
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        query: {
+          ids: []
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+      contacts.getInvitations(req, res);
+    });
+  });
+
+  describe('load method', function() {
+    it('should call next with error when contact.get sends back error', function(done) {
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var core = {
+        contact: {
+          get: function(id, callback) {
+            return callback(new Error());
+          }
+        }
+      };
+      mockery.registerMock('../../core', core);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        params: {
+          id: 123
+        }
+      };
+      var res = {
+      };
+      var next = function(err) {
+        expect(err).to.exist;
+        done();
+      };
+      contacts.load(req, res, next);
+    });
+
+    it('should return HTTP 404 when contact is not found', function(done) {
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var core = {
+        contact: {
+          get: function(id, callback) {
+            return callback();
+          }
+        }
+      };
+      mockery.registerMock('../../core', core);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        params: {
+          id: 123
+        }
+      };
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+      var next = function() {};
+      contacts.load(req, res, next);
+    });
+
+    it('should call next when contact is found', function(done) {
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var contact = {
+        _id: 123
+      };
+      var core = {
+        contact: {
+          get: function(id, callback) {
+            return callback(null, contact);
+          }
+        }
+      };
+      mockery.registerMock('../../core', core);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var req = {
+        params: {
+          id: 123
+        }
+      };
+      var res = {
+      };
+      var next = function() {
+        expect(req.contact).to.exist;
+        expect(req.contact).to.deep.equal(contact);
+        done();
+      };
+      contacts.load(req, res, next);
+    });
+  });
 });
