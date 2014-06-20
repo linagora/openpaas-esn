@@ -2,7 +2,6 @@
 
 var mongoose = require('mongoose');
 var Invitation = mongoose.model('Invitation');
-var OAuth2Client = require('googleapis').OAuth2Client;
 var https = require('https');
 var googleContacts = require('../../core/contact/google');
 var contactModule = require('../../core').contact;
@@ -75,79 +74,6 @@ contactModule.list(query, function(err, response) {
   });
 }
 module.exports.getContacts = getContacts;
-
-var singleClient = null;
-function getGoogleOAuthClient(baseUrl) {
-  if (!singleClient) {
-    var CLIENT_ID = '810414134078-2mvksu56u3grvej4tg67pb64tlmsqf92.apps.googleusercontent.com';
-    var CLIENT_SECRET = 'h-9jLjgIsugUlKYhv2ThV11E';
-    var REDIRECT_URL = baseUrl + '/api/contacts/google/callback';
-    singleClient = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
-  }
-  return singleClient;
-}
-
-function getGoogleOAuthURL(req, res) {
-  var oauth2Client = getGoogleOAuthClient(req.protocol + '://' + req.get('host'));
-  var url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: 'https://www.google.com/m8/feeds'
-  });
-  res.json({url: url});
-}
-module.exports.getGoogleOAuthURL = getGoogleOAuthURL;
-
-
-function fetchGoogleContacts(req, response) {
-  if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return response.send(500, 'User not set');
-  }
-
-  var code = req.query.code;
-  if (!code) {
-    return response.redirect('/#/contacts');
-  }
-
-  var oauth2Client = getGoogleOAuthClient(req.protocol + '://' + req.get('host'));
-  oauth2Client.getToken(code, function(err, tokens) {
-    if (err) {
-      return response.json(500, {error: 500, message: 'Could not get authentication token', details: err});
-    }
-
-    oauth2Client.setCredentials(tokens);
-    var options = {
-      host: 'www.google.com',
-      port: 443,
-      path: '/m8/feeds/contacts/default/full',
-      headers: {
-        'GData-Version': '3.0',
-        'Authorization': 'Bearer ' + oauth2Client.credentials.access_token
-      }
-    };
-
-    https.get(options, function(res) {
-      var body = '';
-      res.on('data', function(data) {
-        body += data;
-      });
-
-      res.on('end', function() {
-        googleContacts.saveGoogleContacts(body, req.user, function(err) {
-          if (err) {
-            return response.json(500, {error: 500, message: 'Could not save contacts', details: err});
-          }
-          response.redirect('/#/contacts');
-        });
-      });
-
-      res.on('error', function(e) {
-        return response.json(500, {error: 500, message: 'Contact fetch error', details: e});
-      });
-    });
-  });
-
-}
-module.exports.fetchGoogleContacts = fetchGoogleContacts;
 
 function sendInvitation(req, res) {
   var contact = req.contact;
