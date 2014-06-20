@@ -2,8 +2,6 @@
 
 var mongoose = require('mongoose');
 var Invitation = mongoose.model('Invitation');
-var https = require('https');
-var googleContacts = require('../../core/contact/google');
 var contactModule = require('../../core').contact;
 var logger = require('../../core').logger;
 var domainModule = require('../../core/user/domain');
