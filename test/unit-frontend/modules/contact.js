@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.only('The esn.contact Angular module', function() {
+describe('The esn.contact Angular module', function() {
 
   describe('contactAPI service', function() {
 

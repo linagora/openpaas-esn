@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-describe.only('the contacts controller', function() {
+describe('the contacts controller', function() {
   describe('getContacts() method', function() {
     it('should return a 412 error if query.owner is not set', function() {
       mockery.registerMock('mongoose', {model: function() {}});
