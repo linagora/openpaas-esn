@@ -2,7 +2,6 @@
 
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var Domain = mongoose.model('Domain');
 
 var defaultLimit = 50;
 var defaultOffset = 0;
@@ -73,7 +72,3 @@ var getUsers = function(domain, query, cb) {
 
 module.exports.getUsers = getUsers;
 
-function load(id, callback) {
-  return Domain.findOne({_id: id}, callback);
-}
-module.exports.load = load;

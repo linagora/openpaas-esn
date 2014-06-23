@@ -467,7 +467,7 @@ describe('the contacts controller', function() {
       contacts.getContactInvitations(req, res);
     });
 
-    it('should return HTTP 404 if Invitation.find does not send back invitations', function(done) {
+    it('should return HTTP 200 if Invitation.find does not send back invitations', function(done) {
       var mongooseMock = {
         model: function() {
           return {
@@ -487,7 +487,7 @@ describe('the contacts controller', function() {
       };
       var res = {
         json: function(code) {
-          expect(code).to.equal(404);
+          expect(code).to.equal(200);
           done();
         }
       };

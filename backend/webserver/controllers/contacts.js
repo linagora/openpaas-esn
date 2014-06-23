@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var Invitation = mongoose.model('Invitation');
 var contactModule = require('../../core').contact;
 var logger = require('../../core').logger;
-var domainModule = require('../../core/user/domain');
+var domainModule = require('../../core/domain');
 
 function isValidObjectId(id) {
   try {
