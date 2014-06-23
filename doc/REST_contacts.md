@@ -171,4 +171,57 @@ Get the contact invitations.
 **Response:**
 
     HTTP/1.1 200 OK
-    []
+    [
+      {
+        "_id": "9898983",
+        "data": {
+            "contact_id": "123456789",
+            "domain": "The domainID",
+            "user": "9888399922"
+        }
+      }
+    ]
+
+## GET /api/contacts/invitations
+
+Get the list of invitations for the given contact ids.
+
+**Query Parameters**
+
+- ids: The list of contact ids to get invitations from.
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Status Codes:**
+
+- 200 OK. With a list of invitations.
+- 400 Bad Request. Invalid request body or parameters.
+
+**Request:**
+
+    GET /api/contacts/invitations?ids[]=9839839839&ids[]=9398848839
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+        {
+          "_id": "9898983",
+          "data": {
+              "contact_id": "9839839839",
+              "domain": "The domainID",
+              "user": "9888399922"
+          }
+        },
+        {
+            "error": {
+                "status": 404,
+                "message": "Not Found",
+                "details": "No invitation for contact 9398848839"
+            }
+        }
+    ]
