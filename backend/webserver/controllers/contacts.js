@@ -153,7 +153,7 @@ function getContactInvitations(req, res) {
       return res.json(500, {error: 500, message: 'Server Error', details: err.message});
     }
     if (!invitations) {
-      return res.json(404);
+      return res.json(200, []);
     }
     return res.json(200, invitations);
   });

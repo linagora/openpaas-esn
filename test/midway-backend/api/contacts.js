@@ -3,9 +3,9 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 
-describe.only('The contacts controller', function() {
+describe('The contacts controller', function() {
 
-  var Contact, User, AddressBook;
+  var Contact, User, AddressBook, Invitation;
   var webserver;
 
   var email = 'foo@bar.com';
@@ -16,6 +16,7 @@ describe.only('The contacts controller', function() {
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/contact');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/addressbook');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
   });
 
   beforeEach(function(done) {
@@ -27,6 +28,7 @@ describe.only('The contacts controller', function() {
       User = self.mongoose.model('User');
       Contact = self.mongoose.model('Contact');
       AddressBook = self.mongoose.model('AddressBook');
+      Invitation = self.mongoose.model('Invitation');
 
       var user = new User({
         username: 'Foo',
@@ -452,5 +454,187 @@ describe.only('The contacts controller', function() {
       });
     });
 
+  });
+
+  describe('POST /api/contacts/:id/invitations', function() {
+
+    it('should send HTTP 404 if contact is not found', function(done) {
+      var foouser = new Contact({emails: ['foouser@toto.com'], addressbooks: [ab._id], owner: this.userId, given_name: 'Foo'});
+      request(webserver.application)
+        .post('/api/login')
+        .send({username: email, password: password, rememberme: false})
+        .expect(200)
+        .end(function(err, res) {
+          var cookies = res.headers['set-cookie'].pop().split(';')[0];
+          var req = request(webserver.application).post('/api/contacts/' + foouser._id + '/invitations');
+          req.cookies = cookies;
+          req.expect(404).end(done);
+        });
+    });
+
+    it('should create an invitation and send back HTTP 202', function(done) {
+      var foouser = new Contact({emails: ['foouser@toto.com'], addressbooks: [ab._id], owner: this.userId, given_name: 'Foo'});
+      foouser.save(function(err, _foouser) {
+
+        var body = {
+          domain: 'domain'
+        };
+
+        request(webserver.application)
+          .post('/api/login')
+          .send({username: email, password: password, rememberme: false})
+          .expect(200)
+          .end(function (err, res) {
+            var cookies = res.headers['set-cookie'].pop().split(';')[0];
+            var req = request(webserver.application).post('/api/contacts/' + _foouser._id + '/invitations');
+            req.cookies = cookies;
+            req.send(body);
+            req.expect(202).end(done);
+          });
+      });
+    });
+  });
+
+  describe('GET /api/contacts/:id/invitations', function() {
+
+    it('should return 404 if contact is not found', function(done) {
+      var foouser = new Contact({emails: ['foouser@toto.com'], addressbooks: [ab._id], owner: this.userId, given_name: 'Foo'});
+      request(webserver.application)
+        .post('/api/login')
+        .send({username: email, password: password, rememberme: false})
+        .expect(200)
+        .end(function(err, res) {
+          var cookies = res.headers['set-cookie'].pop().split(';')[0];
+          var req = request(webserver.application).get('/api/contacts/' + foouser._id + '/invitations');
+          req.cookies = cookies;
+          req.expect(404).end(done);
+        });
+    });
+
+    it('should return 200 with empty array if contact does not have any invitation', function(done) {
+      var foouser = new Contact({emails: ['foouser@toto.com'], addressbooks: [ab._id], owner: this.userId, given_name: 'Foo'});
+      foouser.save(function(err, saved) {
+        request(webserver.application)
+          .post('/api/login')
+          .send({username: email, password: password, rememberme: false})
+          .expect(200)
+          .end(function (err, res) {
+            var cookies = res.headers['set-cookie'].pop().split(';')[0];
+            var req = request(webserver.application).get('/api/contacts/' + foouser._id + '/invitations');
+            req.cookies = cookies;
+            req.expect(200).end(function (err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.an.array;
+              expect(res.body).to.be.an.empty.array;
+              done();
+            });
+          });
+      });
+    });
+
+    it('should return 200 with all the contact invitations', function(done) {
+      var foouser = new Contact({emails: ['foouser@toto.com'], addressbooks: [ab._id], owner: this.userId, given_name: 'Foo'});
+
+      var self = this;
+      foouser.save(function(err, _foosuer) {
+        if (err) {
+          return done(err);
+        }
+
+        var invitation = new Invitation(
+          {
+            type: 'addmember',
+            data: {
+              user: self.testUser,
+              email: email,
+              contact_id: _foosuer._id.toString()
+            }
+          });
+
+        invitation.save(function(err, _invitation) {
+
+          if (err) {
+            return done(err);
+          }
+
+          request(webserver.application)
+            .post('/api/login')
+            .send({username: email, password: password, rememberme: false})
+            .expect(200)
+            .end(function (err, res) {
+              var cookies = res.headers['set-cookie'].pop().split(';')[0];
+              var req = request(webserver.application).get('/api/contacts/' + _foosuer._id + '/invitations');
+              req.cookies = cookies;
+              req.expect(200).end(function (err, res) {
+                expect(err).to.be.null;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(1);
+                done();
+              });
+            });
+        });
+      });
+    });
+  });
+
+  describe('GET /api/contacts/invitations', function() {
+
+    it('should return HTTP 400 if query is not set', function(done) {
+
+      request(webserver.application)
+        .post('/api/login')
+        .send({username: email, password: password, rememberme: false})
+        .expect(200)
+        .end(function (err, res) {
+          var cookies = res.headers['set-cookie'].pop().split(';')[0];
+          var req = request(webserver.application).get('/api/contacts/invitations');
+          req.cookies = cookies;
+          req.expect(400).end(done);
+        });
+    });
+
+    it('should return HTTP 200 with the requested invitations', function(done) {
+
+      var invitations = [];
+      var self = this;
+      var saveContact = function(contact, callback) {
+        contact.save(function(err, _saved) {
+          var invitation = new Invitation({type: 'addmember', data: {user: self.testUser, email: email, contact_id: _saved._id.toString()}});
+          invitation.save(function(err, _invitation) {
+            invitations.push(_invitation);
+            return callback(err, _saved);
+          });
+        });
+      };
+
+      var user1 = new Contact({emails: ['foouser@toto.com'], addressbooks: [ab._id], owner: self.testUser._id, given_name: 'Foo'});
+      var user2 = new Contact({emails: ['baruser@toto.com'], addressbooks: [ab._id], owner: self.testUser._id, given_name: 'Bar'});
+      var user12 = new Contact({emails: ['bazuser@toto.com'], addressbooks: [ab._id], owner: self.testUser._id, given_name: 'Baz'});
+      var users = [user1, user2, user12];
+
+      var async = require('async');
+      async.each(users, saveContact,
+        function(err) {
+          if (err) {
+            return done(err);
+          }
+
+          request(webserver.application)
+            .post('/api/login')
+            .send({username: email, password: password, rememberme: false})
+            .expect(200)
+            .end(function (err, res) {
+              var cookies = res.headers['set-cookie'].pop().split(';')[0];
+              var req = request(webserver.application).get('/api/contacts/invitations').query({'ids[]': [users[0]._id.toString(), users[1]._id.toString()]});
+              req.cookies = cookies;
+              req.expect(200).end(function (err, res) {
+                expect(err).to.be.null;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(2);
+                done();
+              });
+            });
+        });
+      });
   });
 });
