@@ -484,7 +484,7 @@ describe('The contacts controller', function() {
           .post('/api/login')
           .send({username: email, password: password, rememberme: false})
           .expect(200)
-          .end(function (err, res) {
+          .end(function(err, res) {
             var cookies = res.headers['set-cookie'].pop().split(';')[0];
             var req = request(webserver.application).post('/api/contacts/' + _foouser._id + '/invitations');
             req.cookies = cookies;
@@ -518,11 +518,11 @@ describe('The contacts controller', function() {
           .post('/api/login')
           .send({username: email, password: password, rememberme: false})
           .expect(200)
-          .end(function (err, res) {
+          .end(function(err, res) {
             var cookies = res.headers['set-cookie'].pop().split(';')[0];
             var req = request(webserver.application).get('/api/contacts/' + foouser._id + '/invitations');
             req.cookies = cookies;
-            req.expect(200).end(function (err, res) {
+            req.expect(200).end(function(err, res) {
               expect(err).to.be.null;
               expect(res.body).to.be.an.array;
               expect(res.body).to.be.an.empty.array;
@@ -561,11 +561,11 @@ describe('The contacts controller', function() {
             .post('/api/login')
             .send({username: email, password: password, rememberme: false})
             .expect(200)
-            .end(function (err, res) {
+            .end(function(err, res) {
               var cookies = res.headers['set-cookie'].pop().split(';')[0];
               var req = request(webserver.application).get('/api/contacts/' + _foosuer._id + '/invitations');
               req.cookies = cookies;
-              req.expect(200).end(function (err, res) {
+              req.expect(200).end(function(err, res) {
                 expect(err).to.be.null;
                 expect(res.body).to.be.an.array;
                 expect(res.body.length).to.equal(1);
@@ -585,7 +585,7 @@ describe('The contacts controller', function() {
         .post('/api/login')
         .send({username: email, password: password, rememberme: false})
         .expect(200)
-        .end(function (err, res) {
+        .end(function(err, res) {
           var cookies = res.headers['set-cookie'].pop().split(';')[0];
           var req = request(webserver.application).get('/api/contacts/invitations');
           req.cookies = cookies;
@@ -623,11 +623,11 @@ describe('The contacts controller', function() {
             .post('/api/login')
             .send({username: email, password: password, rememberme: false})
             .expect(200)
-            .end(function (err, res) {
+            .end(function(err, res) {
               var cookies = res.headers['set-cookie'].pop().split(';')[0];
               var req = request(webserver.application).get('/api/contacts/invitations').query({'ids[]': [users[0]._id.toString(), users[1]._id.toString()]});
               req.cookies = cookies;
-              req.expect(200).end(function (err, res) {
+              req.expect(200).end(function(err, res) {
                 expect(err).to.be.null;
                 expect(res.body).to.be.an.array;
                 expect(res.body.length).to.equal(2);
