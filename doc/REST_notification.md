@@ -1,25 +1,47 @@
 # /api/notifications
 
-OpenPaas notifications are linked to platform/user resources.
-
-- Users may be able to subscribe to resources and so receive notifications on 'resource state change'.
-- Users may also receive notifications from resources they are involved in: created, mention, assignment, ...
-
 # Attributes
 
-**type**: Notifications contain 'type' which correspond to events that trigger the notification. Based on the 'type', the platform is then able to handle each notification independently:
+**title**: Notification title.
 
-- subscribed: The user explicitely subscribed to a resource.
-- author: The user is the resource creator.
-- ...
+**author**: The user who created the notification.
+
+**action**: Notification action
+
+**subject**: Notification subject
+
+**link:**: An HTTP link to the resource involved in the notification.
+
+**target:** Array of notification recipient.
+
+**level**: The notification level: transient, persistant, information.
 
 **read**: The notification has been read by the recipient.
 
 **created_at**: When the notification has been created (default is Date.now())
 
-**resource**: The resource the notification is about. For example, we may have a new notification when an application is creating a resource.
+**data**: Notification specific data. Each notification handler may be able to get data and provide a way to handle/process this data.
 
-**data**: Resource specific data. Each notification handler may be able to get data and provide a way to handle/process this data.
+# Use case
+
+An external application may be able to publish notifications into the platform in order to notify users about current state.
+
+1. User A launches the external application
+2. User A authenticate the external application using OpenPaaS authentication mechanism
+3. User A creates a resource on the external application. The user wants to notify other users about this new resource.
+4. The application sends a notification to OpenPaaS like:
+
+    {
+      "title": "New form",
+      "action": "created",
+      "object": "form",
+      "link": "http://localhost:3000/form/123456789",
+      "level": "transient",
+      "target": ["userB", "userC", "userD"]
+    }
+
+Which means that current logged in user created a form which is available on http://localhost:3000/form/123456789.
+Users B, C and D will receive the notification (up to the platform to deliver the notification the right way).
 
 ## GET /api/notifications
 
@@ -54,20 +76,26 @@ List all the notifications of the current user.
     HTTP/1.1 200 OK
     [
       {
-        "_id": "9292938883883993929"
-        "read": "false",
-        "type": "subscribed",
-        "resource": {
-          "_id": "983908308303093092",
-          "type": "application"
-        },
-        "data": {
-          "state": "create",
-          "target": {
-            "_id": "9098833993993002",
-            "type": "form"
-          }
-        }
+        "_id": "9292938883883993929",
+        "author": "937887399292838838",
+        "read": "true",
+        "title": "New form",
+        "action": "created",
+        "object": "form",
+        "link": "http://localhost:3000/form/123456789",
+        "level": "transient",
+        "target": ["userB", "userC", "userD"]
+      },
+      {
+        "_id": "9292938883883993930",
+        "author": "937887399292838838",
+        "read": "true",
+        "title": "New result",
+        "action": "filled",
+        "object": "form",
+        "link": "http://localhost:3000/form/123456789",
+        "level": "transient",
+        "target": ["userA"]
       }
     ]
 
@@ -101,110 +129,16 @@ Get a single notification from its ID even if it has been read.
 
     HTTP/1.1 200 OK
     {
-      "_id": "9292938883883993929"
-      "read": "false",
-      "type": "subscribed",
-      "resource": {
-        "_id": "983908308303093092",
-        "type": "application"
-      },
-      "data": {
-        "state": "create",
-        "target": {
-          "_id": "9098833993993002",
-          "type": "form"
-        }
-      }
+      "_id": "9292938883883993929",
+      "author": "937887399292838838",
+      "read": "true",
+      "title": "New result",
+      "action": "filled",
+      "object": "form",
+      "link": "http://localhost:3000/form/123456789",
+      "level": "transient",
+      "target": ["userA"]
     }
-
-## GET /api/resource/{id}/notifications
-
-Get the notifications of the given platform resource (resource is not fixed, it is a resource name).
-
-**Request Headers:**
-
-- Accept: application/json
-
-**Request Attributes:**
-
-- ids[]: Filter the list of notifications to get.
-- read: Include read notifications.
-- Filters to be defined.
-
-**Response Headers:**
-
-- Content-Length: Document size
-
-**Status Codes:**
-
-- 200 OK.
-
-**Request:**
-
-    GET /api/application/9292938883883993929/notifications
-    Accept: application/json
-    Host: localhost:8080
-
-**Response:**
-
-    HTTP/1.1 200 OK
-    [
-      {
-        "_id": "93939988882910003848",
-        "read": "false",
-        ...
-      },
-      {
-        "_id": "93939988882910003849",
-        "read": "false"
-        ...
-      }
-    ]
-
-
-## POST /api/resource/{id}/notifications
-
-Creates a notification on a resource.
-
-**Request Headers:**
-
-- Accept: application/json
-
-**Parameters**:
-
-- id: The resource ID.
-
-**Request JSON Object:**
-
-- data: The notification data.
-
-**Response Headers:**
-
-- Content-Length: Document size
-
-**Status Codes:**
-
-- 201 Created. The notification has been created.
-- 400 Bad Request. Invalid request body or parameters
-
-**Request:**
-
-    POST /api/application/030933884848/notifications
-    Accept: application/json
-    Host: localhost:8080
-    {
-        "data": {
-            "state": "create",
-            "target": {
-                "_id": "9098833993993002",
-                "type": "form"
-            }
-        }
-    }
-
-**Response:**
-
-    HTTP/1.1 201 Created
 
 ## PUT /api/notifications
 
@@ -226,6 +160,7 @@ Mark one or more notifications as read. When used with the last_read_at paramete
 **Status Codes:**
 
 - 205 Reset Content. The notification(s) has been marked as read.
+- 403 Forbidden. Current user is not authorized to set the notification as read (not creator).
 
 **Request:**
 
