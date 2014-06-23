@@ -6,6 +6,7 @@ angular.module('esnApp', [
   'mgcrea.ngStrap.affix',
   'ui.notify',
   'FBAngular',
+  'angularMoment',
   'esn.member',
   'esn.domain',
   'esn.avatar',
