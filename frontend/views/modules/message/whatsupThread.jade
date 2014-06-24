@@ -5,8 +5,9 @@ div.widget.thread(ng-class="{'just-posted': message._id === lastPost.messageId}"
     h4.media-heading
       a(href="#") {{message.author.firstname}} {{message.author.lastname}}
       small
-        | &nbsp;on&nbsp;
-        a(href="/#messages/{{message._id}}") {{message.published}}
+        | &nbsp;-&nbsp;
+        a(href="/#messages/{{message._id}}")
+          span(am-time-ago="message.published")
     p.multilines {{message.content}}
     include ./partials/whatsupBottomLinks
 
