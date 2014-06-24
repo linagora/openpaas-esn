@@ -35,8 +35,7 @@ module.exports.get = function(req, res) {
 module.exports.created = function(req, res) {
   var user_id = req.user._id;
   var options = {
-    author: user_id,
-    parent: {'$exist': false}
+    author: user_id
   };
   notificationModule.find(options, function(err, results) {
     if (err) {
@@ -55,7 +54,11 @@ module.exports.list = function(req, res) {
   };
 
   if (read !== 'all') {
-    options.read = Boolean.valueOf(read);
+    if (read === 'true') {
+      options.read = true;
+    } else if (read === 'false') {
+      options.read = false;
+    }
   }
 
   notificationModule.find(options, function(err, results) {

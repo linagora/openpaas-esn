@@ -4,7 +4,7 @@ var request = require('supertest'),
   expect = require('chai').expect,
   async = require('async');
 
-describe.skip('The notification API', function() {
+describe('The notification API', function() {
 
   var app;
   var testuser;
@@ -82,7 +82,7 @@ describe.skip('The notification API', function() {
           }
         ],
         function(err) {
-          done(err);
+          return done(err);
         });
     });
   });
@@ -194,15 +194,15 @@ describe.skip('The notification API', function() {
 
   it('should return HTTP 200 with the created notifications when sending GET to /api/notifications/created', function(done) {
 
-    var n = new Notification({
-      title: 'My notification',
-      level: 'info',
-      action: 'create',
-      object: 'form',
-      link: 'http://localhost:8888'
-    });
+    function saveNotification(target, author, cb) {
+      var notification = new Notification({
+        title: 'My notification',
+        level: 'info',
+        action: 'create',
+        object: 'form',
+        link: 'http://localhost:8888'
+      });
 
-    function saveNotification(notification, target, author, cb) {
       if (target) {
         notification.target = [target._id];
       }
@@ -215,34 +215,36 @@ describe.skip('The notification API', function() {
 
     async.series([
         function(callback) {
-          saveNotification(n, testuser1, testuser, callback);
+          saveNotification(testuser1, testuser, callback);
         },
         function(callback) {
-          saveNotification(n, testuser1, testuser, callback);
+          saveNotification(testuser1, testuser, callback);
         },
         function(callback) {
-          saveNotification(n, testuser, testuser1, callback);
+          saveNotification(testuser, testuser1, callback);
         }
       ],
       function(err) {
-        done(err);
-    });
+        if (err) {
+          return done(err);
+        }
 
-    request(app)
-      .post('/api/login')
-      .send({username: email, password: password, rememberme: true})
-      .expect(200)
-      .end(function(err, res) {
-        var cookies = res.headers['set-cookie'].pop().split(';')[0];
-        var req = request(app).get('/api/notifications/created');
-        req.cookies = cookies;
-        req.expect(200)
+        request(app)
+          .post('/api/login')
+          .send({username: email, password: password, rememberme: true})
+          .expect(200)
           .end(function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.body).to.exist;
-            expect(res.body).to.be.an.array;
-            expect(res.body.length).to.equal(2);
-            done();
+            var cookies = res.headers['set-cookie'].pop().split(';')[0];
+            var req = request(app).get('/api/notifications/created');
+            req.cookies = cookies;
+            req.expect(200)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(2);
+                done();
+              });
           });
       });
   });
@@ -296,15 +298,16 @@ describe.skip('The notification API', function() {
 
   it('should return HTTP 200 with the unread notifications when sending GET to /api/notifications?read=false', function(done) {
 
-    var n = new Notification({
-      title: 'My notification',
-      level: 'info',
-      action: 'create',
-      object: 'form',
-      link: 'http://localhost:8888'
-    });
+    function saveNotification(target, author, read, cb) {
+      var notification = new Notification({
+        title: 'My notification',
+        level: 'info',
+        action: 'create',
+        object: 'form',
+        link: 'http://localhost:8888',
+        read: read
+      });
 
-    function saveNotification(notification, target, author, cb) {
       if (target) {
         notification.target = [target._id];
       }
@@ -317,37 +320,36 @@ describe.skip('The notification API', function() {
 
     async.series([
         function(callback) {
-          n.read = false;
-          saveNotification(n, testuser1, testuser, callback);
+          saveNotification(testuser, testuser1, false, callback);
         },
         function(callback) {
-          n.read = false;
-          saveNotification(n, testuser1, testuser, callback);
+          saveNotification(testuser, testuser1, false, callback);
         },
         function(callback) {
-          n.read = true;
-          saveNotification(n, testuser1, testuser, callback);
+          saveNotification(testuser, testuser1, true, callback);
         }
       ],
       function(err) {
-        done(err);
-      });
+        if (err) {
+          return done(err);
+        }
 
-    request(app)
-      .post('/api/login')
-      .send({username: email, password: password, rememberme: true})
-      .expect(200)
-      .end(function(err, res) {
-        var cookies = res.headers['set-cookie'].pop().split(';')[0];
-        var req = request(app).get('/api/notifications?read=false');
-        req.cookies = cookies;
-        req.expect(200)
+        request(app)
+          .post('/api/login')
+          .send({username: email, password: password, rememberme: true})
+          .expect(200)
           .end(function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.body).to.exist;
-            expect(res.body).to.be.an.array;
-            expect(res.body.length).to.equal(2);
-            done();
+            var cookies = res.headers['set-cookie'].pop().split(';')[0];
+            var req = request(app).get('/api/notifications?read=false');
+            req.cookies = cookies;
+            req.expect(200)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(2);
+                done();
+              });
           });
       });
   });
@@ -355,7 +357,7 @@ describe.skip('The notification API', function() {
   it('should return HTTP 403 when sending PUT to /api/notifications/:uuid and not right target', function(done) {
 
     var n = new Notification({
-      author: testuser._id,
+      author: testuser1._id,
       title: 'My notification',
       level: 'info',
       action: 'create',
@@ -372,7 +374,7 @@ describe.skip('The notification API', function() {
 
       request(app)
         .post('/api/login')
-        .send({username: email2, password: password, rememberme: true})
+        .send({username: email, password: password, rememberme: true})
         .expect(200)
         .end(function(err, res) {
           var cookies = res.headers['set-cookie'].pop().split(';')[0];
