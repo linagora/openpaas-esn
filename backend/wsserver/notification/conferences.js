@@ -1,7 +1,9 @@
 'use strict';
 
-var pubsub = require('../../core/pubsub').global,
-    logger = require('../../core/logger'),
+var core = require('../../core'),
+    pubsub = core.pubsub.global,
+    logger = core.logger,
+    userModule = core.user,
     i18n = require('../../i18n'),
     helper = require('../helper/socketio');
 
@@ -45,13 +47,21 @@ function init(io) {
   });
 
   pubsub.topic(JOINER_TOPIC).subscribe(function(msg) {
-    msg.message = i18n.__('%s has joined the conference', msg.user_id);
-    notifyRoom(io, msg.conference_id, msg);
+    userModule.get(msg.user_id, function(err, user) {
+      if (!err && user) {
+        msg.message = i18n.__('%s has joined the conference', user.firstname + ' ' + user.lastname);
+        notifyRoom(io, msg.conference_id, msg);
+      }
+    });
   });
 
   pubsub.topic(LEAVER_TOPIC).subscribe(function(msg) {
-    msg.message = i18n.__('%s has left the conference', msg.user_id);
-    notifyRoom(io, msg.conference_id, msg);
+    userModule.get(msg.user_id, function(err, user) {
+      if (!err && user) {
+        msg.message = i18n.__('%s has left the conference', user.firstname + ' ' + user.lastname);
+        notifyRoom(io, msg.conference_id, msg);
+      }
+    });
   });
 
   io.of(NAMESPACE)
