@@ -1,4 +1,4 @@
-.row(live-conference-notification)
+.row
   .col-lg-9
 
     div.conference-video(id='multiparty-conference', fullscreen='isFullscreen')
@@ -22,3 +22,5 @@
     h4 #{__('Members')}
     .row(ng-repeat="user in users")
       conference-attendee(user=user)
+  info-notification
+    live-conference-notification(room='{{conference._id}}')
