@@ -63,3 +63,11 @@ function list(options, callback) {
 }
 
 exports.list = list;
+
+function get(id, callback) {
+  if (!id) {
+    return callback();
+  }
+  Contact.findOne({_id: id}, callback);
+}
+module.exports.get = get;

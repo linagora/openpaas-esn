@@ -1,14 +1,15 @@
 'use strict';
 
-angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.alert'])
-  .controller('contactsController', ['$scope', 'contactAPI', '$alert', 'usSpinnerService', 'addressbookOwner',
-  function($scope, contactAPI, alert, usSpinnerService, ownerId) {
+angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
+  .controller('contactsController', ['$scope', 'contactAPI', 'session', '$alert', 'usSpinnerService', 'addressbookOwner',
+  function($scope, contactAPI, session, alert, usSpinnerService, ownerId) {
     var spinnerKey = 'addressbooksSpinner';
     var contactsSpinnerKey = 'contactsSpinner';
     $scope.addressbooks = [];
     $scope.selected_addressbook = null;
 
     $scope.contacts = [];
+    $scope.invited = [];
     $scope.contact = null;
     $scope.restActive = false;
     $scope.contactsRestActive = false;
@@ -70,6 +71,7 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
 
     $scope.refreshContacts = function() {
       $scope.contacts = [];
+      $scope.invited = [];
       if (!$scope.selected_addressbook) {
         return;
       }
@@ -82,6 +84,12 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       contactAPI.getContacts(options).then(
         function(response) {
           $scope.contacts = response.data;
+          var ids = $scope.contacts.map(function(contact) {
+            return contact._id;
+          });
+          contactAPI.getInvitations({'ids[]': ids}).then(function(response) {
+            $scope.invited = response.data;
+          });
         },
         function(err) {
           $scope.displayError(err);
@@ -127,6 +135,28 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       });
     };
 
+    $scope.sendInvitation = function(contact) {
+      if (!contact || !contact.emails || contact.emails.length === 0) {
+        return;
+      }
+
+      contactAPI.sendInvitation(contact, session.domain._id).then(
+        function() {
+          $scope.invited.push({data: {contact_id: contact._id}});
+        }
+      );
+    };
+
+    $scope.isInvited = function(contact) {
+      if (!contact || !contact._id) {
+        return false;
+      }
+
+      return $scope.invited.some(function(element) {
+        return element.data && element.data.contact_id && element.data.contact_id === contact._id;
+      });
+    };
+
     $scope.init();
   }])
   .controller('googleContactImporterController', ['$scope', 'contactAPI', '$window', '$alert', function($scope, contactAPI, $window, alert) {
@@ -159,6 +189,20 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       },
       getAddressBooks: function(options) {
         return Restangular.all('addressbooks').getList(options);
+      },
+      getContactInvitations: function(contact) {
+        var id = contact._id || contact;
+        return Restangular.one('contacts/' + id + '/invitations').getList();
+      },
+      getInvitations: function(options) {
+        return Restangular.all('contacts/invitations').getList(options);
+      } ,
+      sendInvitation: function(contact, domain) {
+        var id = contact._id || contact;
+        var body = {
+          domain: domain._id || domain
+        };
+        return Restangular.one('contacts/' + id + '/invitations').customPOST(body);
       }
     };
   }]);

@@ -55,5 +55,5 @@
                 .col-xs-12
                   hr
                   div
-                    button.btn.btn-primary
-                      | #{__('Invite')}
+                    button.btn.btn-primary(type='submit', ng-click='sendInvitation(contact)', ng-disabled='isInvited(contact)')
+                      | {{isInvited(contact) ? 'Invited' : 'Invite!'}}

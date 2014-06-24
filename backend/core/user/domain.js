@@ -71,3 +71,4 @@ var getUsers = function(domain, query, cb) {
 };
 
 module.exports.getUsers = getUsers;
+
