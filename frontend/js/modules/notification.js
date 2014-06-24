@@ -49,6 +49,13 @@ angular.module('esn.notification', ['ui.notify'])
       return {
         restrict: 'E',
         controller: function() {
+
+          this.unsubscribeNotification = function(scope, room) {
+            $timeout(function() {
+              livenotification.of(scope.namespace).unsubscribe(room);
+            });
+          };
+
           this.addNotification = function(scope) {
             var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
 
@@ -118,12 +125,13 @@ angular.module('esn.notification', ['ui.notify'])
     };
   }])
 
-  .directive('conferenceNotification', ['$timeout', '$location', function($timeout, $location) {
+  .directive('conferenceNotification', ['$timeout', '$rootScope', '$location', function($timeout, $rootScope, $location) {
     return {
       require: '^confirmNotification',
       scope: {},
       restrict: 'E',
       controller: function($scope) {
+
         $scope.namespace = '/conferences';
         $scope.title = function(msg) {
           return 'Conference invitation !';
@@ -147,6 +155,9 @@ angular.module('esn.notification', ['ui.notify'])
       },
       link: function(scope, element, attrs, confirmNotification) {
         confirmNotification.addNotification(scope);
+        $rootScope.$on('conference:left', function(event, args) {
+           confirmNotification.unsubscribeNotification(scope, args.conference_id);
+        });
       }
     };
   }])
