@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 'esn.easyrtc', 'esn.authentication'])
-  .controller('liveConferenceController', ['$scope', '$log', '$location', 'socket', 'session', 'conferenceAPI', 'domainAPI', 'tokenAPI', 'webrtcFactory', 'conference', function($scope, $log, $location, socket, session, conferenceAPI, domainAPI, tokenAPI, webrtcFactory, conference) {
+  .controller('liveConferenceController', ['$scope', '$rootScope', '$log', '$location', 'socket', 'session', 'conferenceAPI', 'domainAPI', 'tokenAPI', 'webrtcFactory', 'conference', function($scope, $rootScope, $log, $location, socket, session, conferenceAPI, domainAPI, tokenAPI, webrtcFactory, conference) {
 
     $scope.conference = conference;
     $scope.username = session.user._id;
@@ -9,6 +9,7 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
     $scope.users = [];
     $scope.attendees = [];
     $scope.easyrtc = webrtcFactory.get();
+
     $scope.thumbclass = 'conference-video-multi';
     $scope.isFullscreen = false;
 
@@ -19,6 +20,8 @@ angular.module('esn.conference', ['esn.websocket', 'esn.session', 'esn.domain', 
     $scope.$on('$locationChangeStart', function(event, next, current) {
       $scope.easyrtc.leaveRoom(conference._id, function() {
         $log.debug('Left the conference ' + conference._id);
+        $rootScope.$emit('conference:left', {conference_id: conference._id});
+        $scope.easyrtc.getLocalStream().stop();
       }, function() {
         $log.error('Error while leaving conference');
       });
