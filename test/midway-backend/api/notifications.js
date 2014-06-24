@@ -4,7 +4,7 @@ var request = require('supertest'),
   expect = require('chai').expect,
   async = require('async');
 
-describe.only('The notification API', function() {
+describe.skip('The notification API', function() {
 
   var app;
   var testuser;
@@ -164,7 +164,7 @@ describe.only('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      targets: [testuser._id]
+      target: [testuser._id]
     });
 
     n.save(function(err, _n) {
@@ -256,7 +256,7 @@ describe.only('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      targets: [testuser._id]
+      target: [testuser._id]
     });
 
     n.save(function(err, _n) {
@@ -361,7 +361,7 @@ describe.only('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      targets: [testuser1._id]
+      target: [testuser1._id]
     });
 
     n.save(function(err, _n) {
