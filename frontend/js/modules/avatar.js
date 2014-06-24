@@ -174,7 +174,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate'])
         var image = selectionService.getImage();
         var canvas = document.createElement('canvas');
 
-        var width = scope.width || 512;
+        var width = scope.width || 380;
         var height = image.height * (width / image.width);
         var ratio = image.width / width;
         var minsize = 128 / ratio;
