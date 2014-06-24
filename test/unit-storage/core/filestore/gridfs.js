@@ -58,7 +58,7 @@ describe('The filestore gridfs module', function() {
         expect(err).to.not.exist;
         expect(data).to.exist;
         expect(data.md5).to.equal(hash);
-        expect(data.filename).to.equal(id);
+        expect(data.metadata.id).to.equal(id);
         expect(data.contentType).to.equal(type);
         done();
       });

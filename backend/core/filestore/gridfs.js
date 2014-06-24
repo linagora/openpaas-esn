@@ -36,9 +36,8 @@ module.exports.store = function(id, contentType, metadata, stream, callback) {
   };
 
   metadata = metadata || {};
-
+  metadata.id = id;
   var opts = {
-    filename: id,
     mode: 'w',
     content_type: contentType
   };
@@ -46,18 +45,28 @@ module.exports.store = function(id, contentType, metadata, stream, callback) {
   opts.chunk_size = chunk_size;
   opts.metadata = metadata;
 
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-  var writeStream = gfs.createWriteStream(opts);
+  this.getMeta(id, function(err, meta) {
+    if (meta) {
+      console.log('found meta, assigniong opts._id to ', meta._id);
+      opts._id = meta._id;
+    }
+    var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
+    var writeStream = gfs.createWriteStream(opts);
 
-  writeStream.on('close', function(file) {
-    return callback(null, file);
+    writeStream.on('close', function(file) {
+      console.log('filestore store close', file);
+      return callback(null, file);
+    });
+
+    writeStream.on('error', function(err) {
+      return callback(err);
+    });
+
+    stream.pipe(writeStream);
   });
 
-  writeStream.on('error', function(err) {
-    return callback(err);
-  });
 
-  stream.pipe(writeStream);
+
 };
 
 module.exports.getMeta = function(id, callback) {
@@ -67,7 +76,7 @@ module.exports.getMeta = function(id, callback) {
 
   var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
   var self = this;
-  gfs.files.findOne({filename: id}, function(err, meta) {
+  gfs.files.findOne({'metadata.id': id}, function(err, meta) {
     if (err) {
       return callback(err);
     }
@@ -95,7 +104,7 @@ module.exports.get = function(id, callback) {
 
     var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
     var readstream = gfs.createReadStream({
-      filename: id
+      _id: meta._id
     });
     return callback(err, self.getAsFileStoreMeta(meta), readstream);
   });
@@ -105,6 +114,13 @@ module.exports.delete = function(id, callback) {
   if (!id) {
     return callback(new Error('ID is mandatory'));
   }
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-  gfs.remove({filename: id}, callback);
+  this.getMeta(id, function(err, meta) {
+    if (!err && !meta) {
+      return callback();
+    } else if (err) {
+      return callback(err);
+    }
+    var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
+    gfs.remove({_id: meta._id}, callback);
+  });
 };

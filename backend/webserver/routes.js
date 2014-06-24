@@ -113,5 +113,10 @@ exports = module.exports = function(application) {
   application.get('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanReadNotification, notifications.get);
   application.post('/api/notifications', authorize.requiresAPILogin, notifications.create);
   application.put('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanWriteNotification, notifications.setAsRead);
+
+  var filestore = require('./controllers/filestore');
+  application.get('/api/filestore/:id', filestore.get);
+  application.put('/api/filestore/:id', filestore.store);
+  application.delete('/api/filestore/:id', filestore.del);
 };
 
