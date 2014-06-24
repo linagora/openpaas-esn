@@ -43,9 +43,94 @@ An external application may be able to publish notifications into the platform i
 Which means that current logged in user created a form which is available on http://localhost:3000/form/123456789.
 Users B, C and D will receive the notification (up to the platform to deliver the notification the right way).
 
+## POST /api/notifications
+
+Publish a new notification. If the target contains multiple elements, the platform will create as many notification as there are elements in the array plus the initial one.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Request Body:**
+
+A notification as JSON. The target is an array of notification recipient.
+
+**Response Headers:**
+
+- Content-Length: Document size
+
+**Status Codes:**
+
+- 201 Created. The body contains the array of created notifications.
+
+**Request:**
+
+    POST /api/notifications
+    Accept: application/json
+    Host: localhost:8080
+    
+    {
+      title: 'My notification',
+      action: 'create',
+      object: 'form',
+      link: 'http://localhost:8888',
+      author: 53a946c41f6d7a5d729e0477,
+      target: [ 53a946c41f6d7a5d729e0478, 53a946c41f6d7a5d729e0479 ],
+      read: false,
+      timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
+      level: 'info'
+    }
+
+**Response:**
+
+    HTTP/1.1 201 Created
+    [
+      {
+        title: 'My notification',
+        action: 'create',
+        object: 'form',
+        link: 'http://localhost:8888',
+        author: 53a946c41f6d7a5d729e0477,
+        _id: 53a946c41f6d7a5d729e047f,
+        __v: 0,
+        target: [ 53a946c41f6d7a5d729e0478, 53a946c41f6d7a5d729e0479 ],
+        read: false,
+        timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
+        level: 'info'
+      },
+      {
+        parent: 53a946c41f6d7a5d729e047f,
+        title: 'My notification',
+        author: 53a946c41f6d7a5d729e0477,
+        action: 'create',
+        object: 'form',
+        link: 'http://localhost:8888',
+        _id: 53a946c41f6d7a5d729e0480,
+        __v: 0,
+        target: [ 53a946c41f6d7a5d729e0478 ],
+        read: false,
+        timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
+        level: 'info'
+      },
+      {
+        parent: 53a946c41f6d7a5d729e047f,
+        title: 'My notification',
+        author: 53a946c41f6d7a5d729e0477,
+        action: 'create',
+        object: 'form',
+        link: 'http://localhost:8888',
+        _id: 53a946c41f6d7a5d729e0481,
+        __v: 0,
+        target: [ 53a946c41f6d7a5d729e0479 ],
+        read: false,
+        timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
+        level: 'info'
+      }
+    ]
+
 ## GET /api/notifications
 
-List all the notifications of the current user.
+List all the notifications where the target is the current user.
 
 **Request Headers:**
 
@@ -53,9 +138,7 @@ List all the notifications of the current user.
 
 **Request Attributes:**
 
-- ids[]: Filter the list of notifications to get.
-- read: Include read notifications.
-- Filters to be defined.
+- read=(true, false, all): Include notifications which have been read or not or all.
 
 **Response Headers:**
 
@@ -67,7 +150,7 @@ List all the notifications of the current user.
 
 **Request:**
 
-    GET /api/notifications?read=true
+    GET /api/notifications?read=all
     Accept: application/json
     Host: localhost:8080
 
@@ -89,7 +172,7 @@ List all the notifications of the current user.
       {
         "_id": "9292938883883993930",
         "author": "937887399292838838",
-        "read": "true",
+        "read": "false",
         "title": "New result",
         "action": "filled",
         "object": "form",
