@@ -102,5 +102,13 @@ exports = module.exports = function(application) {
 
   var addressbooks = require('./controllers/addressbooks');
   application.get('/api/addressbooks', authorize.requiresAPILogin, addressbooks.getAddressBooks);
+
+  var notifications = require('./controllers/notifications');
+  var notificationMiddleware = require('./middleware/notification');
+  application.get('/api/notifications', authorize.requiresAPILogin, notifications.list);
+  application.get('/api/notifications/created', authorize.requiresAPILogin, notifications.created);
+  application.get('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanReadNotification, notifications.get);
+  application.post('/api/notifications', authorize.requiresAPILogin, notifications.create);
+  application.put('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanWriteNotification, notifications.setAsRead);
 };
 
