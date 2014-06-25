@@ -115,5 +115,8 @@
   "Invite": "Invite",
   "Join": "Join",
   "Mute": "Mute",
-  "Toggle full screen": "Toggle full screen"
+  "Toggle full screen": "Toggle full screen",
+  "Quit conference": "Quitter la conférence",
+  "Contact": "Contact",
+  "Add": "Add"
 }
