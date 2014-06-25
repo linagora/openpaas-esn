@@ -174,4 +174,35 @@ angular.module('esn.notification', ['ui.notify'])
         infoNotification.addNotification(scope);
       }
     };
+  }])
+
+  .directive('notificationApiNotification', ['session', function(session) {
+
+    return {
+      require: '^infoNotification',
+      scope: {
+      },
+      restrict: 'E',
+      controller: function($scope) {
+        $scope.namespace = '/notifications';
+        $scope.title = function(msg) {
+          return msg.title || 'New notification';
+        };
+        $scope.text = function(msg) {
+          if (msg.link) {
+            return 'Check it out on <a target="_blank" href=\"' + msg.link + '\">link</a>';
+          } else {
+            return msg.author + ' ' + msg.action + ' a ' + msg.object;
+          }
+        };
+        $scope.conditionToDisplay = function(msg) {
+          return msg.target.some(function(item) {
+            return item === session.user._id;
+          });
+        };
+      },
+      link: function(scope, element, attrs, infoNotification) {
+        infoNotification.addNotification(scope);
+      }
+    };
   }]);
