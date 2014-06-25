@@ -118,5 +118,10 @@ exports = module.exports = function(application) {
   application.get('/api/filestore/:id', filestore.get);
   application.put('/api/filestore/:id', filestore.store);
   application.delete('/api/filestore/:id', filestore.del);
+
+  var obm = require('./controllers/services/obm');
+  application.get('/api/services/obm/events', obm.getEvents);
+  application.put('/api/services/obm/events/:id', obm.updateEvent);
+
 };
 

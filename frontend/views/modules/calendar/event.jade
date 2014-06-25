@@ -1,0 +1,14 @@
+div.col-xs-12.nopadding.esn-conference-attendee
+  .col-xs-12
+    hr
+  .col-lg-9.col-sm-10.col-xs-12
+    div.media-body
+      h4
+        i.fa.fa-calendar
+        | {{event.event.title}}
+        small
+          span &nbsp; {{event.event.date | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}
+      span #{__('Created by')} {{event.event.owner}}
+  .col-lg-3.col-sm-2.col-xs-12
+    button.btn.btn-primary.nopadding(ng-show="!event.accepted", type='submit', ng-click='accept(event.extId)') #{__('Accept')}
+    button.btn.btn-warning.nopadding(ng-show="event.accepted", type='submit', ng-click='reject(event.extId)') #{__('Reject')}
