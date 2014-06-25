@@ -1,14 +1,15 @@
 div.col-xs-12.nopadding.esn-conference-attendee
   .col-xs-12
     hr
-  .col-lg-9.col-sm-10.col-xs-12
+  .col-md-9.col-xs-12
     a.pull-left(href='#')
       img.media-object(src='/images/user.png', ng-src='/api/users/{{conference.creator._id}}/profile/avatar')
-    div.media-body
+    .media-body
       h4.media-heading
-        | &nbsp;#{__('Created by')}&nbsp;
+        | &nbsp; #{__('Created by')} &nbsp;
         a(href="#") {{conference.creator.firstname}} {{conference.creator.lastname}}
+          | &nbsp;
         small
-          | &nbsp;on{{conference.timestamps.creation}}
-  .col-lg-3.col-sm-2.col-xs-12
-      button.btn.btn-primary.nopadding(type='submit', ng-click='join(conference)') #{__('Join')}
+          span(am-time-ago="conference.timestamps.creation")
+  .col-md-3.col-xs-12
+    button.btn.btn-primary(type='submit', ng-click='join(conference)') #{__('Join')}
