@@ -23,6 +23,11 @@ describe('The WebSockets Event module', function() {
     };
     mockery.registerMock('./notification/conferences', conferencesMock);
 
+    var notificationsMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/notifications', notificationsMock);
+
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
 
@@ -44,6 +49,12 @@ describe('The WebSockets Event module', function() {
       }
     };
     mockery.registerMock('./notification/conferences', conferencesMock);
+
+    var notificationsMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/notifications', notificationsMock);
+
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
