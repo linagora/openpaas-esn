@@ -1,12 +1,12 @@
-.col-xs-12.col-md-12
-  .well
+.col-xs-12
+  .well.text-center
     span.btn.btn-info.btn-file #{__('Select a file')}...
       input(type="file", id="profile_image", load-button, max-size="10")
   #error
   .row.text-center
-    .col-xs-10.col-md-8
+    .col-md-offset-0.col-md-8.col-sm-offset-1.col-sm-10.col-xs-12
       img-loaded(width="380")
-    .col-xs-10.col-md-4(ng-hide="!preview")
+    .col-md-offset-0.col-md-4.col-sm-offset-1.col-sm-10.col-xs-12(ng-hide="!preview")
       .thumbnail
         canvas(width="128", height="128", id="preview", img-preview)
         .caption
