@@ -1,43 +1,44 @@
-header(class="topbar" role="navigation")
-  .container
-    a(href="#/")
-      img.logo(src="/images/logo.png")
-    div.pull-right.avatar
-      div.dropdown
-        button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
-          img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
-          span.caret
-        ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
-            li: a(href='/#/profile') #{__('My Account')}
-            li: a(href='/#/contacts') #{__('Contacts')}
-            li: a(href='{{"/#/domains/" + domain._id + "/members"}}') #{__('Members')}
-            li.divider
-            li: a(href='/logout') #{__('Logout')}
+div(ng-controller='selectActiveItem')
+  header(class="topbar" role="navigation")
+    .container
+      a(href="#/", ng-click='selectItem(1)')
+        img.logo(src="/images/logo.png")
+      div.pull-right.avatar
+        div.dropdown
+          button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
+            img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
+            span.caret
+          ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
+              li: a(href='/#/profile', ng-click='selectItem(1)') #{__('My Account')}
+              li: a(href='/#/contacts', ng-click='selectItem(1)') #{__('Contacts')}
+              li: a(href='{{"/#/domains/" + domain._id + "/members"}}', ng-click='selectItem(1)') #{__('Members')}
+              li.divider
+              li: a(href='/logout') #{__('Logout')}
 
-    div.pull-right.help
-      span.horiz-space
-        i.fa.fa-question
+      div.pull-right.help
+        span.horiz-space
+          i.fa.fa-question
 
-    form.navbar-form.navbar-right.hidden-xs(role="search")
-      .form-group
-        input.input-sm(type="text" class="form-control" placeholder="Search...")
-nav(class="navbar navbar-default" role="navigation" data-offset-top="50" bs-affix)
-  .container
-    .row
-      .col-sm-2.hidden-xs.nopadding.esn-navbar-side.text-center LINAGORA
-      .col-sm-10.col-xs-12.nopadding.esn-navbar-main
-        .esn-item.active
-          span
-            a(href='/#')
-              i.fa.fa-comments-o
-              span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
-        .esn-item
-          span
-            a(href='/#conferences')
-              i.fa.fa-video-camera
-              span.hidden-xs #{__('Discussions')}
-        .esn-item
-          span
-            a(href='/#applications')
-              i.fa.fa-upload
-              span.hidden-xs #{__('Applications')}
+      form.navbar-form.navbar-right.hidden-xs(role="search")
+        .form-group
+          input.input-sm(type="text" class="form-control" placeholder="Search...")
+  nav(class="navbar navbar-default" role="navigation" data-offset-top="50" bs-affix)
+    .container
+      .row
+        .col-sm-2.hidden-xs.nopadding.esn-navbar-side.text-center LINAGORA
+        .col-sm-10.col-xs-12.nopadding.esn-navbar-main
+          .esn-item(ng-class='{active: selected === 1}')
+            span
+              a(href='/#', ng-click='selectItem(1)')
+                i.fa.fa-comments-o
+                span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
+          .esn-item(ng-class='{active: selected === 2}')
+            span
+              a(href='/#conferences', ng-click='selectItem(2)')
+                i.fa.fa-video-camera
+                span.hidden-xs #{__('Discussions')}
+          .esn-item(ng-class='{active: selected === 3}')
+            span
+              a(href='/#applications', ng-click='selectItem(3)')
+                i.fa.fa-upload
+                span.hidden-xs #{__('Applications')}
