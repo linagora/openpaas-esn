@@ -30,8 +30,8 @@ var MemberOfDomainSchema = new mongoose.Schema({
 
 var UserSchema = new mongoose.Schema({
   emails: {type: [String], required: true, unique: true, validate: validateEmails},
-  firstname: {type: String, lowercase: true, trim: true},
-  lastname: {type: String, lowercase: true, trim: true},
+  firstname: {type: String, trim: true},
+  lastname: {type: String, trim: true},
   password: {type: String},
   job_title: {type: String, trim: true},
   service: {type: String, trim: true},
