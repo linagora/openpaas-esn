@@ -2,12 +2,12 @@
 
 var mongoose = require('mongoose');
 var Notification = mongoose.model('Notification');
-var pubsub = require('../pubsub').local;
+var pubsub = require('../pubsub').global;
 var async = require('async');
 
 module.exports.save = function(notification, callback) {
 
-  var topic = pubsub.topic('notification:stored');
+  var topic = pubsub.topic('notification:api');
 
   function saveOne(notification, parent, callback) {
     var n = new Notification(notification);
