@@ -2,6 +2,7 @@
 
 var logger = require('../core/logger'),
     activitystreams = require('./notification/activitystreams'),
+    notifications = require('./notification/notifications'),
     conferences = require('./notification/conferences');
 
 module.exports = function(io) {
@@ -10,4 +11,5 @@ module.exports = function(io) {
   });
   activitystreams.init(io);
   conferences.init(io);
+  notifications.init(io);
 };
