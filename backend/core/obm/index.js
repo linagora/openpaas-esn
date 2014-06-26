@@ -2,8 +2,10 @@
 
 var request = require('request');
 var parseString = require('xml2js').parseString;
+var addrs = require('email-addresses');
 var esnconfig = require('../esn-config');
 var CONFIG_ID = 'obm';
+var ORIGIN = 'origin';
 
 var routes = {
   login: '/login/doLogin'
@@ -22,8 +24,6 @@ function getSessionId(user, callback) {
   }
 
   var login = user.emails[0];
-  var password = 'password';
-  var origin = 'origin';
 
   getConfig(function(err, config) {
     if (err) {
@@ -34,7 +34,12 @@ function getSessionId(user, callback) {
       return callback(new Error('OBM config has not been found'));
     }
 
-    var url = config.url || 'https://locahost:8888/obm-sync/services';
+    var url = config.url || 'https://localhost:8888/obm-sync/services';
+    var origin = config.origin || ORIGIN;
+    var address = addrs.parseOneAddress(login);
+    var uid = address.local;
+    var domain = address.domain;
+
     url += routes.login;
     request(
       {
@@ -42,8 +47,11 @@ function getSessionId(user, callback) {
         uri: url,
         form: {
           login: login,
-          password: password,
           origin: origin
+        },
+        headers: {
+          'obm_uid': uid,
+          'obm_domain': domain
         },
         strictSSL: false
       },
@@ -70,8 +78,9 @@ function getSessionId(user, callback) {
 }
 module.exports.getSessionId = getSessionId;
 
-function post(path, form, callback) {
+function post(user, path, form, callback) {
   path = path || '/';
+  var login = user.emails[0];
 
   getConfig(function(err, config) {
     if (err) {
@@ -82,14 +91,23 @@ function post(path, form, callback) {
       return callback(new Error('OBM config has not been found'));
     }
 
-    var url = config.url || 'https://locahost:8888/obm-sync/services';
+    var url = config.url || 'https://localhost:8888/obm-sync/services';
     url += path;
+
+    var address = addrs.parseOneAddress(login);
+    var uid = address.local;
+    var domain = address.domain;
+
     request(
       {
         method: 'POST',
         uri: url,
         strictSSL: false,
-        form: form
+        form: form,
+        headers: {
+          'obm_uid': uid,
+          'obm_domain': domain
+        }
       },
       function(error, response, body) {
         if (error) {

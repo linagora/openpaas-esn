@@ -26,7 +26,7 @@ function getEvents(user, callback) {
       calendar: user.emails[0]
     };
 
-    commons.post(routes.events, form, function(err, events) {
+    commons.post(user, routes.events, form, function(err, events) {
       if (err) {
         return callback(err);
       }
@@ -87,7 +87,7 @@ function setEventState(user, event, state, callback) {
       state: state,
       sequence: sequence
     };
-    commons.post(routes.state, form, callback);
+    commons.post(user, routes.state, form, callback);
   });
 }
 module.exports.setEventState = setEventState;
