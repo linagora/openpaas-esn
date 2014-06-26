@@ -34,7 +34,7 @@ angular.module('esnApp', [
       controller: 'inviteMembers',
       resolve: {
         domain: function(domainAPI, $route, $location) {
-          return domainAPI.isManager($route.current.params.id).then(
+          return domainAPI.get($route.current.params.id).then(
             function(response) {
               return response.data;
             },
