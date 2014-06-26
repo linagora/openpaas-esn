@@ -9,12 +9,10 @@ describe('The contacts controller module', function() {
     it('should return HTTP 200', function(done) {
       var url = 'http://anurl.pipo';
       var googleApisMock = {
-        OAuth2Client: function() {
-          return {
-            generateAuthUrl: function(options) {
-              return url;
-            }
-          };
+        OAuth2Client: {
+          generateAuthUrl: function(options) {
+            return url;
+          }
         }
       };
       var mongooseMock = {
@@ -24,7 +22,11 @@ describe('The contacts controller module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
       mockery.registerMock('googleapis', googleApisMock);
-      mockery.registerMock('../../../core/contacts/google', {});
+      mockery.registerMock('../../../core/contact/google', {
+        getGoogleOAuthClient: function(url, callback) {
+          return callback(null, googleApisMock.OAuth2Client);
+        }
+      });
 
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
       var req = {
@@ -57,7 +59,8 @@ describe('The contacts controller module', function() {
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
       var req = {
         params: {},
-        get: function() {}
+        get: function() {
+        }
       };
       var res = {
         send: function(code) {
@@ -84,7 +87,8 @@ describe('The contacts controller module', function() {
         },
         params: {},
         query: {},
-        get: function() {}
+        get: function() {
+        }
       };
       var res = {
         redirect: function(url) {
@@ -104,16 +108,21 @@ describe('The contacts controller module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
       var googleApisMock = {
-        OAuth2Client: function() {
-          return {
-            getToken: function(code, callback) {
-              return callback('Error', null);
-            }
-          };
+        OAuth2Client: {
+          getToken: function(code, callback) {
+            return callback(new Error(), null);
+          }
         }
       };
       mockery.registerMock('googleapis', googleApisMock);
-      mockery.registerMock('../../../core/contacts/google', {});
+      mockery.registerMock('../../../core/contact/google', {
+        getGoogleOAuthClient: function(url, callback) {
+          return callback(null, googleApisMock.OAuth2Client);
+        },
+        fetchAndSaveGoogleContacts: function(url, user, code, callback) {
+          return callback(new Error());
+        }
+      });
 
       var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
       var req = {
@@ -122,7 +131,8 @@ describe('The contacts controller module', function() {
           emails: ['pipo1@pipo.com']
         },
         query: {code: 1234},
-        get: function() {}
+        get: function() {
+        }
       };
       var res = {
         json: function(code) {
@@ -132,50 +142,5 @@ describe('The contacts controller module', function() {
       };
       contacts.fetchGoogleContacts(req, res);
     });
-
-
-    it('should make an https request to the contact API once token is got', function(done) {
-      var mongooseMock = {
-        model: function() {
-          return {};
-        }
-      };
-      mockery.registerMock('mongoose', mongooseMock);
-      var googleApisMock = {
-        OAuth2Client: function() {
-          return {
-            getToken: function(code, callback) {
-              return callback(null, 'credentials');
-            },
-            setCredentials: function() {},
-            credentials: {
-              acces_token: 'token'
-            }
-          };
-        }
-      };
-      var httpsMock = {
-        get: function(options, callback) {
-          done();
-        }
-      };
-      mockery.registerMock('googleapis', googleApisMock);
-      mockery.registerMock('../../../core/contacts/google', {});
-      mockery.registerMock('https', httpsMock);
-
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
-      var req = {
-        params: {},
-        user: {
-          emails: ['pipo1@pipo.com']
-        },
-        query: {code: 1234},
-        get: function() {}
-      };
-      contacts.fetchGoogleContacts(req, {});
-    });
-
-
   });
-
 });

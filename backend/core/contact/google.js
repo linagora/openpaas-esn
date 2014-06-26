@@ -7,7 +7,21 @@ var OAuth2Client = require('googleapis').OAuth2Client;
 var Contact = mongoose.model('Contact');
 var AddressBook = mongoose.model('AddressBook');
 var https = require('https');
+var esnConf = require('../esn-config');
 
+var getGoogleConfiguration = function(done) {
+  esnConf('oauth').get(function(err, data) {
+    if (err) {
+      return done(err);
+    }
+
+    if (!data || !data.google) {
+      return done(new Error('Can not get google oauth configuration'));
+    }
+    return done(null, data.google);
+  });
+};
+module.exports.getGoogleConfiguration = getGoogleConfiguration;
 
 var getOrCreateGoogleAddressBook = function(user, callback) {
   var AddressBookName = 'Google Contacts';
@@ -82,54 +96,61 @@ function saveGoogleContacts(contactsXml, user, callback) {
 }
 module.exports.saveGoogleContacts = saveGoogleContacts;
 
-
-function getGoogleOAuthClient(baseUrl) {
-  var CLIENT_ID = '810414134078-2mvksu56u3grvej4tg67pb64tlmsqf92.apps.googleusercontent.com';
-  var CLIENT_SECRET = 'h-9jLjgIsugUlKYhv2ThV11E';
-  var REDIRECT_URL = baseUrl + '/api/contacts/google/callback';
-  return new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+function getGoogleOAuthClient(baseUrl, callback) {
+  getGoogleConfiguration(function(err, configuration) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, new OAuth2Client(configuration.client_id, configuration.client_secret, baseUrl + '/api/contacts/google/callback'));
+  });
 }
-
 module.exports.getGoogleOAuthClient = getGoogleOAuthClient;
 
 module.exports.fetchAndSaveGoogleContacts = function(baseUrl, user, code, callback) {
-  var oauth2Client = getGoogleOAuthClient(baseUrl);
-  oauth2Client.getToken(code, function(err, tokens) {
+
+  getGoogleOAuthClient(baseUrl, function(err, oauth2Client) {
     if (err) {
-      err.step = 'get authentication token';
+      err.step = 'get oauth client';
       return callback(err);
     }
 
-    oauth2Client.setCredentials(tokens);
-    var options = {
-      host: 'www.google.com',
-      port: 443,
-      path: '/m8/feeds/contacts/default/full',
-      headers: {
-        'GData-Version': '3.0',
-        'Authorization': 'Bearer ' + oauth2Client.credentials.access_token
-      }
-    };
-
-    https.get(options, function(res) {
-      var body = '';
-      res.on('data', function(data) {
-        body += data;
-      });
-
-      res.on('end', function() {
-        saveGoogleContacts(body, user, function(err) {
-          if (err) {
-            err.step = 'save contacts';
-            return callback(err);
-          }
-          return callback();
-        });
-      });
-
-      res.on('error', function(err) {
-        err.step = 'fetch contacts on Google server';
+    oauth2Client.getToken(code, function(err, tokens) {
+      if (err) {
+        err.step = 'get authentication token';
         return callback(err);
+      }
+
+      oauth2Client.setCredentials(tokens);
+      var options = {
+        host: 'www.google.com',
+        port: 443,
+        path: '/m8/feeds/contacts/default/full',
+        headers: {
+          'GData-Version': '3.0',
+          'Authorization': 'Bearer ' + oauth2Client.credentials.access_token
+        }
+      };
+
+      https.get(options, function(res) {
+        var body = '';
+        res.on('data', function(data) {
+          body += data;
+        });
+
+        res.on('end', function() {
+          saveGoogleContacts(body, user, function(err) {
+            if (err) {
+              err.step = 'save contacts';
+              return callback(err);
+            }
+            return callback();
+          });
+        });
+
+        res.on('error', function(err) {
+          err.step = 'fetch contacts on Google server';
+          return callback(err);
+        });
       });
     });
   });
