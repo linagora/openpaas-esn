@@ -148,16 +148,20 @@ var handleAuthentication = function(req, options) {
           var provision_user = {emails: [username], domains: [{domain_id: ldaps[0].domain_id}]};
           var ldap = ldaps[0];
 
-          if (ldap.mapping && ldap.mapping.firstname) {
-            provision_user.firstname = ldapuser[ldap.mapping.firstname];
-          }
-          if (ldap.mapping && ldap.mapping.lastname) {
-            provision_user.lastname = ldapuser[ldap.mapping.lastname];
-          }
-          if (ldap.mapping && ldap.mapping.email) {
-            var email = ldapuser[ldap.mapping.email];
-            if (provision_user.emails.indexOf(email) === -1) {
-              provision_user.emails.push(email);
+          if (ldap.configuration && ldap.configuration.mapping) {
+            var mapping = ldap.configuration.mapping;
+
+            if (mapping && mapping.firstname) {
+              provision_user.firstname = ldapuser[mapping.firstname];
+            }
+            if (mapping && mapping.lastname) {
+              provision_user.lastname = ldapuser[mapping.lastname];
+            }
+            if (mapping && mapping.email) {
+              var email = ldapuser[mapping.email];
+              if (provision_user.emails.indexOf(email) === -1) {
+                provision_user.emails.push(email);
+              }
             }
           }
 

@@ -92,15 +92,17 @@ describe('The ldap-mongo passport strategy', function() {
         findLDAPForUser: function(username, callback) {
           var ldap = {
             domain: '222222',
-            url: 'ldap://localhost:1389',
-            adminDn: 'uid=admin,ou=passport-ldapauth',
-            adminPassword: 'secret',
-            searchBase: 'ou=passport-ldapauth',
-            searchFilter: '(mail={{username}})',
-            mapping: {
-              firstname: 'firstname',
-              lastname: 'lastname',
-              email: 'mailAlias'
+            configuration: {
+              url: 'ldap://localhost:1389',
+              adminDn: 'uid=admin,ou=passport-ldapauth',
+              adminPassword: 'secret',
+              searchBase: 'ou=passport-ldapauth',
+              searchFilter: '(mail={{username}})',
+              mapping: {
+                firstname: 'firstname',
+                lastname: 'lastname',
+                email: 'mailAlias'
+              }
             }
           };
           return callback(null, [ldap]);
@@ -139,11 +141,13 @@ describe('The ldap-mongo passport strategy', function() {
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           var ldap = {
-            url: 'ldap://localhost:1389',
-            adminDn: 'uid=admin,ou=passport-ldapauth',
-            adminPassword: 'secret',
-            searchBase: 'ou=passport-ldapauth',
-            searchFilter: '(mail={{username}})'
+            configuration: {
+              url: 'ldap://localhost:1389',
+              adminDn: 'uid=admin,ou=passport-ldapauth',
+              adminPassword: 'secret',
+              searchBase: 'ou=passport-ldapauth',
+              searchFilter: '(mail={{username}})'
+            }
           };
           return callback(null, [ldap]);
         },
