@@ -35,7 +35,7 @@ function getEvents(user, callback) {
 
       if (events['calendar-changes']) {
         var updated = events['calendar-changes'].updated;
-        if (updated.length === 1) {
+        if (updated.length === 1 && updated[0].event) {
           updated[0].event.forEach(function(e) {
             var event = e['$']; // jshint ignore:line
             event.timeupdate = e.timeupdate[0];
