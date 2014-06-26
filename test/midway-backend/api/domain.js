@@ -87,19 +87,6 @@ describe('The domain API', function() {
       .end(done);
   });
 
-  it('should not be able to send a domain invitation without being the domain administrator', function(done) {
-    request(app)
-      .post('/api/login')
-      .send({username: baruser.emails[0], password: password, rememberme: false})
-      .expect(200)
-      .end(function(err, res) {
-        var cookies = res.headers['set-cookie'].pop().split(';')[0];
-        var req = request(app).post('/api/domains/' + domain._id + '/invitations');
-        req.cookies = cookies;
-        req.expect(403).end(done);
-      });
-  });
-
   it('should be able to send a domain invitation when logged user is the domain manager', function(done) {
     request(app)
       .post('/api/login')
