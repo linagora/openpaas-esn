@@ -1,13 +1,19 @@
 'use strict';
+
 var googleContacts = require('../../../core/contact/google');
 
 function getGoogleOAuthURL(req, res) {
-  var oauth2Client = googleContacts.getGoogleOAuthClient(req.protocol + '://' + req.get('host'));
-  var url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: 'https://www.google.com/m8/feeds'
+
+  googleContacts.getGoogleOAuthClient(req.protocol + '://' + req.get('host'), function(err, oauth2Client) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Server error', details: 'Could not get oauth client'});
+    }
+    var url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: 'https://www.google.com/m8/feeds'
+    });
+    return res.json({url: url});
   });
-  res.json({url: url});
 }
 module.exports.getGoogleOAuthURL = getGoogleOAuthURL;
 

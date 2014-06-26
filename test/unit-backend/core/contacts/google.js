@@ -191,4 +191,59 @@ describe('The contact helper module', function() {
 
   });
 
+  describe('fetchAndSaveGoogleContacts fn', function() {
+
+    it('should make an https request to the contact API once token is got', function(done) {
+      var mongooseMock = {
+        model: function() {
+          return {};
+        }
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+      var googleApisMock = {
+        OAuth2Client: function() {
+          return {
+            getToken: function(code, callback) {
+              return callback(null, 'credentials');
+            },
+            setCredentials: function() {
+            },
+            credentials: {
+              acces_token: 'token'
+            }
+          };
+        }
+      };
+      var httpsMock = {
+        get: function(options, callback) {
+          done();
+        }
+      };
+      mockery.registerMock('googleapis', googleApisMock);
+      mockery.registerMock('https', httpsMock);
+
+      var esnConf = function(key) {
+        return {
+          get: function(callback) {
+            return callback(null, {google: {}});
+          }
+        };
+      };
+      mockery.registerMock('../esn-config', esnConf);
+
+      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
+
+      var req = {
+        params: {},
+        user: {
+          emails: ['pipo1@pipo.com']
+        },
+        query: {code: 1234},
+        get: function() {
+        }
+      };
+      contacts.fetchGoogleContacts(req, {});
+    });
+  });
+
 });
