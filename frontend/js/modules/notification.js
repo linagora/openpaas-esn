@@ -100,10 +100,11 @@ angular.module('esn.notification', ['ui.notify'])
     return {
       require: '^infoNotification',
       scope: {
-        room: '@'
+        room: '@',
+        updates: '='
       },
       restrict: 'E',
-      controller: function($scope, $rootScope) {
+      controller: function($scope) {
         $scope.namespace = '/activitystreams';
         $scope.title = function(msg) {
           return 'Activity Stream updated';
@@ -115,8 +116,8 @@ angular.module('esn.notification', ['ui.notify'])
           return msg.actor && msg.actor._id !== session.user._id;
         };
         $scope.callbackOnNotification = function(msg) {
-          $rootScope.updates = $rootScope.updates || [];
-          $rootScope.updates.push(msg);
+          $scope.updates = $scope.updates || [];
+          $scope.updates.push(msg);
         };
       },
       link: function(scope, element, attrs, infoNotification) {
