@@ -9,7 +9,7 @@
   "Fill the username and password fields only if your MongoDB connection requires it": "Fill the username and password fields only if your MongoDB connection requires it",
   "Finalize Sign Up": "Inscription",
   "Home": "Home",
-  "My Account": "My Account",
+  "My Account": "Mon Compte",
   "Login": "Login",
   "Logout": "Logout",
   "Please sign in": "Please sign in",
@@ -30,7 +30,7 @@
   "You are invited to join Hiveety": "Vous êtes invité à rejoindre Hiveety",
   "You need a running MongoDB database server": "You need a running MongoDB database server",
   "Hello": "Hello",
-  "Language": "Language",
+  "Language": "Langage",
   "Welcome to Hiveet": "Bienvenue sur Hiveet",
   "Communicate, exchange, share documents, agendas and contacts with your team.": "Communiquez, échangez, partagez vos documents, vos agendas et vos contacts avec votre équipe",
   "No account yet ?": "Nouveau sur Hiveet ?",
@@ -110,5 +110,8 @@
   "Invite": "Inviter",
   "Join": "Rejoindre",
   "Mute": "Muet",
-  "Toggle full screen": "Basculer plein écran"
+  "Toggle full screen": "Basculer plein écran",
+  "Quit conference": "Quit conference",
+  "Contact": "Contacter",
+  "Add": "Ajouter"
 }
