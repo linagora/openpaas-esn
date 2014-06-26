@@ -1,0 +1,11 @@
+.col-xs-12.widget.nopadding
+  .row
+    .col-xs-12
+
+      h3
+        i.fa.fa-calendar-o
+        | #{__('Events')}
+
+      .row
+        .row(ng-repeat="event in events")
+          event-display(event="event")

@@ -21,7 +21,8 @@ angular.module('esnApp', [
   'esn.conference',
   'esn.contact',
   'esn.application',
-  'esn.authentication'
+  'esn.authentication',
+  'esn.calendar'
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
@@ -153,6 +154,24 @@ angular.module('esnApp', [
             },
             function(err) {
               $location.path('/applications');
+            }
+          );
+        }
+      }
+    });
+
+    $routeProvider.when('/calendar', {
+      templateUrl: '/views/esn/partials/calendar',
+      controller: 'calendarController',
+      resolve: {
+        events: function(calendarAPI, $location) {
+          return calendarAPI.getEvents().then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              console.log(err);
+              $location.path('/');
             }
           );
         }

@@ -18,7 +18,6 @@ div(ng-controller='selectActiveItem')
       div.pull-right.help
         span.horiz-space
           i.fa.fa-question
-
       form.navbar-form.navbar-right.hidden-xs(role="search")
         .form-group
           input.input-sm(type="text" class="form-control" placeholder="Search...")
@@ -42,3 +41,8 @@ div(ng-controller='selectActiveItem')
               a(href='/#applications', ng-click='selectItem(3)')
                 i.fa.fa-upload
                 span.hidden-xs #{__('Applications')}
+          .esn-item
+            span
+              a(href='/#calendar', ng-click='selectItem(4)')
+                i.fa.fa-calendar
+                span.hidden-xs #{__('Calendar')}
