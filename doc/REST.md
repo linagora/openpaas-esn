@@ -1,6 +1,6 @@
 # REST API Overview
 
-This describes the implemented REST API of the official Hiveety API v1. The Hiveety REST API is implemented using the HTTP protocol, and the JSON data format.
+This describes the implemented REST API of the official OpenPaas API v1. The OpenPaas REST API is implemented using the HTTP protocol, and the JSON data format.
 
 ## Conventions
 
@@ -16,7 +16,7 @@ In this present document, the following conventions are applied:
 
 ## Prefix
 
-The Hiveety REST API is always prefixed by **/api**.
+The OpenPaas REST API is always prefixed by **/api**.
 
 ## Verbs
 

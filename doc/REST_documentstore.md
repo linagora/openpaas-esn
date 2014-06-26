@@ -77,7 +77,7 @@ Save the connection parameters on the server side.
     {
         "hostname": "localhost",
         "port": 45678,
-        "dbname": "hiveet",
+        "dbname": "openpaas",
         "username": "admin",
         "password": "supersecret"
     }

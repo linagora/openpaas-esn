@@ -4,8 +4,8 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
 .controller('signup', function($scope, $location, invitationAPI) {
     $scope.settings = { firstname: '', lastname: '', email: ''};
     $scope.signupButton = {
-      label: 'Sign up in Hiveet',
-      notRunning: 'Sign up in Hiveet',
+      label: 'Sign up in OpenPaas',
+      notRunning: 'Sign up in OpenPaas',
       running: 'Please Wait...'
     };
     $scope.signupTask = {

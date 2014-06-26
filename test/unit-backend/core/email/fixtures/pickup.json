@@ -1,5 +1,5 @@
 {
-  "from": "root@hiveety.org",
+  "from": "root@openpaas.org",
   "transport": {
     "type": "Pickup",
     "config": {

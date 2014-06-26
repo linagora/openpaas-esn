@@ -1,4 +1,4 @@
-Hiveety
+OpenPaas
 =======
 
 This is a social network for enterprises & organizations.
