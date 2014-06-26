@@ -5,7 +5,7 @@ var i18n = require('../../../i18n');
 var conf = require('../../../../backend/core/esn-config')('mail');
 
 var properties = {
-  subject: 'You are invited to join Hiveety',
+  subject: 'You are invited to join OpenPaas',
   template: 'add-member'
 };
 
@@ -22,7 +22,7 @@ module.exports = function(invitation, done) {
     if (err) {
       return done(err);
     }
-    var from = data && data.mail && data.mail.noreply ? data.mail.noreply : 'no-reply@hiveety.org';
+    var from = data && data.mail && data.mail.noreply ? data.mail.noreply : 'no-reply@openpaas.org';
     var to = invitation.data.email;
     var subject = i18n.__(properties.subject);
     email.sendHTML(from, to, subject, properties.template, invitation.data, done);

@@ -53,7 +53,7 @@ describe('The invitation controller', function() {
     });
 
     it('should fail on missing type', function(done) {
-      request(webserver.application).post('/api/invitations').send({name: 'hiveety'}).expect(400).end(function(err, res) {
+      request(webserver.application).post('/api/invitations').send({name: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
