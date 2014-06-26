@@ -44,7 +44,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail on missing hostname', function(done) {
-      request(webserver.application).put('/api/document-store/connection').send({ port: 27017, dbname: 'hiveety'}).expect(400).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection').send({ port: 27017, dbname: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -52,7 +52,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail on missing port', function(done) {
-      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', dbname: 'hiveety'}).expect(400).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', dbname: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -76,7 +76,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail on empty hostname', function(done) {
-      request(webserver.application).put('/api/document-store/connection').send({ hostname: '', port: 27017, dbname: 'heevity'}).expect(400).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: '', port: 27017, dbname: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -84,7 +84,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail on NaN port', function(done) {
-      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: '27017', dbname: 'heevity'}).expect(400).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: '27017', dbname: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -92,7 +92,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail on port = 0', function(done) {
-      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 0, dbname: 'heevity'}).expect(400).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: 0, dbname: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -100,7 +100,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail on port < 0', function(done) {
-      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: -10000, dbname: 'heevity'}).expect(400).end(function(err, res) {
+      request(webserver.application).put('/api/document-store/connection').send({ hostname: 'localhost', port: -10000, dbname: 'openpaas'}).expect(400).end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         done();
@@ -149,8 +149,8 @@ describe('The document store routes resource', function() {
     });
 
     it('should store configuration to file', function(done) {
-      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
-      var mongoConnectionString = 'mongodb://localhost:27017/hiveety-test-ok';
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok'};
+      var mongoConnectionString = 'mongodb://localhost:27017/openpaas-test-ok';
       this.testEnv.initCore();
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -166,7 +166,7 @@ describe('The document store routes resource', function() {
     });
 
     it('should store configuration default options to file', function(done) {
-      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok'};
       this.testEnv.initCore();
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -185,8 +185,8 @@ describe('The document store routes resource', function() {
 
 
     it('should store configuration to file with username and password', function(done) {
-      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok', username: 'toto', password: 'chain'};
-      var mongoConnectionString = 'mongodb://toto:chain@localhost:27017/hiveety-test-ok';
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok', username: 'toto', password: 'chain'};
+      var mongoConnectionString = 'mongodb://toto:chain@localhost:27017/openpaas-test-ok';
 
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function(err, res) {
         expect(err).to.be.null;
@@ -220,7 +220,7 @@ describe('The document store routes resource', function() {
       var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
       webserver.start(port);
 
-      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok'};
 
       request(webserver.application).put('/api/document-store/connection')
       .send(mongo)
@@ -248,7 +248,7 @@ describe('The document store routes resource', function() {
 
       mongoModule.init = done;
 
-      var mongo = { hostname: 'localhost', port: 27017, dbname: 'hiveety-test-ok'};
+      var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok'};
 
       request(webserver.application).put('/api/document-store/connection').send(mongo).expect(201).end(function() {});
     });

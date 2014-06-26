@@ -1,6 +1,6 @@
 {
   "mail": {
-    "noreply": "noreply@hiveety.io"
+    "noreply": "noreply@openpaas.io"
   },
   "transport": {
     "module": "nodemailer-browser",

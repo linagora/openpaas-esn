@@ -13,7 +13,7 @@ var logger = require('../../core/logger');
 var transport;
 
 var opts = {
-  from: 'no-reply@hiveety.org'
+  from: 'no-reply@openpaas.org'
 };
 
 /**
