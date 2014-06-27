@@ -44,6 +44,43 @@ angular.module('esn.notification', ['ui.notify'])
       };
     }])
 
+  .directive('topRightNotification', ['livenotification', 'notificationService', '$timeout',
+    function(livenotification, notificationService, $timeout) {
+      return {
+        restrict: 'E',
+        controller: function() {
+          this.addNotification = function(scope) {
+            var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
+
+            function handleNotification(msg) {
+              notificationService.notify({
+                title: scope.title(msg),
+                text: scope.text(msg),
+                addclass: 'stack_topright',
+                stack: stack_topright,
+                hide: false,
+                styling: 'fontawesome'
+              });
+              if (scope.callbackOnNotification) {
+                scope.callbackOnNotification(msg);
+              }
+            }
+
+            $timeout(function() {
+              livenotification
+                .of(scope.namespace)
+                .onNotification(function(msg) {
+                  scope.conditionToDisplay = scope.conditionToDisplay || undefined;
+                  if (scope.conditionToDisplay === undefined || scope.conditionToDisplay(msg)) {
+                    return handleNotification(msg);
+                  }
+                });
+            }, 0);
+          };
+        }
+      };
+    }])
+
   .directive('confirmNotification', ['livenotification', 'notificationService', '$timeout',
     function(livenotification, notificationService, $timeout) {
       return {
@@ -157,7 +194,7 @@ angular.module('esn.notification', ['ui.notify'])
       link: function(scope, element, attrs, confirmNotification) {
         confirmNotification.addNotification(scope);
         $rootScope.$on('conference:left', function(event, args) {
-           confirmNotification.unsubscribeNotification(scope, args.conference_id);
+          confirmNotification.unsubscribeNotification(scope, args.conference_id);
         });
       }
     };
@@ -191,7 +228,7 @@ angular.module('esn.notification', ['ui.notify'])
   .directive('notificationApiNotification', ['session', function(session) {
 
     return {
-      require: '^infoNotification',
+      require: '^topRightNotification',
       scope: {
       },
       restrict: 'E',
