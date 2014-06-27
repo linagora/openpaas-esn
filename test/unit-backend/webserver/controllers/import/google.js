@@ -34,7 +34,12 @@ describe('The contacts controller module', function() {
         get: function() {
           return 'anurl.pipo';
         },
-        protocol: 'http'
+        protocol: 'http',
+        openpaas: {
+          getBaseURL: function() {
+            return 'http://localhost';
+          }
+        }
       };
       var res = {
         json: function(result) {
@@ -131,7 +136,11 @@ describe('The contacts controller module', function() {
           emails: ['pipo1@pipo.com']
         },
         query: {code: 1234},
-        get: function() {
+        get: function() {},
+        openpaas: {
+          getBaseURL: function() {
+            return 'http://localhost';
+          }
         }
       };
       var res = {

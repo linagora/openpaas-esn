@@ -3,8 +3,7 @@
 var googleContacts = require('../../../core/contact/google');
 
 function getGoogleOAuthURL(req, res) {
-
-  googleContacts.getGoogleOAuthClient(req.protocol + '://' + req.get('host'), function(err, oauth2Client) {
+  googleContacts.getGoogleOAuthClient(req.openpaas.getBaseURL(), function(err, oauth2Client) {
     if (err) {
       return res.json(500, {error: 500, message: 'Server error', details: 'Could not get oauth client'});
     }
@@ -28,7 +27,7 @@ function fetchGoogleContacts(req, response) {
     return response.redirect('/#/contacts');
   }
 
-  googleContacts.fetchAndSaveGoogleContacts(req.protocol + '://' + req.get('host'), req.user, code, function(err) {
+  googleContacts.fetchAndSaveGoogleContacts(req.openpaas.getBaseURL(), req.user, code, function(err) {
     if (err) {
       return response.json(500, {error: 500, message: 'Could not ' + err.step, details: err});
     }

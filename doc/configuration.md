@@ -72,3 +72,20 @@ Defines the Redis configuration using the standard Redis options defined in the 
       "host": "localhost",
       "port": 6379
     }
+
+## Web
+
+Defines the general Web settings for the ESN deployment.
+
+    {
+      "_id": "web",
+      "proxy": {
+        "trust": true
+      },
+      "base_url": "http://localhost"
+    }
+
+- proxy: Activate or not the expressjs 'trust proxy' flag (application.enable('trust proxy')).
+- base_url: Defines the baseURL of the application. This parameter is optional and is used to define the public URL of the application.
+
+***base_url* may be used when the ESN is deployed behind a proxy/load balancer. This setting helps to build several URLs in the application.
