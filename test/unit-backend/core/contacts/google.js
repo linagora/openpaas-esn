@@ -240,6 +240,11 @@ describe('The contact helper module', function() {
         },
         query: {code: 1234},
         get: function() {
+        },
+        openpaas: {
+          getBaseURL: function() {
+            return 'http://localhost';
+          }
         }
       };
       contacts.fetchGoogleContacts(req, {});
