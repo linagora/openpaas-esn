@@ -63,6 +63,8 @@ application.use(function(req, res, next) {
   res.locals.user = req.user;
   next();
 });
+application.use(require('./middleware/setup-settings')());
 
 application.use(flash());
+require('./pubsub')(application);
 require('./routes')(application);

@@ -5,8 +5,7 @@ var Invitation = mongoose.model('Invitation');
 var handler = require('../../core/invitation');
 
 var getInvitationURL = function(req, invitation) {
-  var baseURL = req.protocol + '://' + req.get('host');
-  return baseURL + '/invitation/' + invitation.uuid;
+  return req.openpaas.getBaseURL() + '/invitation/' + invitation.uuid;
 };
 module.exports.getInvitationURL = getInvitationURL;
 
