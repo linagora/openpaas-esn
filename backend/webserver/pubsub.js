@@ -12,7 +12,7 @@ module.exports = function(application) {
     var esnConf = require('../core/esn-config');
     esnConf('web').get(function(err, config) {
       if (err) {
-        logger.warning('Can not set express configuration : ' + err);
+        logger.warn('Can not set express configuration : ' + err);
         return;
       }
 
