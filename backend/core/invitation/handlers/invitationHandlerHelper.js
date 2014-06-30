@@ -32,8 +32,8 @@ module.exports.initHelper = function(invitation, data) {
         if (domain) {
           return callback(new Error('Domain/company: ' + data.domain + '/' + data.company + ' already exist.' + err));
         }
+        return callback();
       });
-      callback();
     },
 
     testDomainExists: function(callback) {
@@ -52,11 +52,14 @@ module.exports.initHelper = function(invitation, data) {
       userModule.findByEmail(invitation.data.email, function(err, user) {
         if (err) {
           return callback(new Error('Unable to lookup user ' + invitation.data.emails + ': ' + err));
-        } else if (user && user.emails) {
+        }
+
+        if (user && user.emails) {
           return callback(new Error('User already exists'));
         }
+
+        return callback();
       });
-      callback();
     },
 
     createUser: function(callback) {
@@ -105,9 +108,7 @@ module.exports.initHelper = function(invitation, data) {
         if (err) {
           return callback(new Error('User cannot join domain' + err.message));
         }
-        else {
-          callback(null, domain, user);
-        }
+        return callback(null, domain, user);
       });
     },
 
@@ -115,13 +116,18 @@ module.exports.initHelper = function(invitation, data) {
       var Invitation = mongoose.model('Invitation');
       Invitation.loadFromUUID(invitation.uuid, function(err, loaded) {
         if (err) {
-          logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
+          logger.warn('Invitation can not be loaded %s', invitation.uuid);
+          return callback(err);
+        }
+        if (!loaded) {
+          logger.warn('Can not finalized undefined invitation %s', invitation.uuid);
+          return callback(new Error('Can not finalized undefined invitation ' + invitation.uuid));
         }
         loaded.finalize(function(err, updated) {
           if (err) {
             logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
           }
-          callback(null, domain, user);
+          return callback(null, domain, user);
         });
       });
     },
@@ -134,7 +140,7 @@ module.exports.initHelper = function(invitation, data) {
           domain: domain._id
         }
       };
-      callback(null, result);
+      return callback(null, result);
     }
   };
 
