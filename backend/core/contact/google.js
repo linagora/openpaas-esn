@@ -101,6 +101,9 @@ function getGoogleOAuthClient(baseUrl, callback) {
     if (err) {
       return callback(err);
     }
+    if (!configuration) {
+      return callback(new Error('Can not get google configuration'));
+    }
     return callback(null, new OAuth2Client(configuration.client_id, configuration.client_secret, configuration.redirect_uri || baseUrl + '/api/contacts/google/callback'));
   });
 }
