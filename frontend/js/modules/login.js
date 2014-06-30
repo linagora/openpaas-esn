@@ -30,7 +30,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
     $scope.loginButton = {
       label: 'Sign In',
       notRunning: 'Sign In',
-      running: 'Please Wait...'
+      running: 'Please wait...'
     };
     $scope.loginTask = {
       running: false
