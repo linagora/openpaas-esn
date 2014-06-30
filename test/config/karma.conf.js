@@ -23,6 +23,8 @@ module.exports = function(config) {
       'frontend/components/angular-xeditable/dist/js/xeditable.js',
       'frontend/components/angular-socket-io/socket.js',
       'frontend/components/angular-pines-notify/src/pnotify.js',
+      'frontend/components/moment/moment.js',
+      'frontend/components/angular-moment/angular-moment.js',
       'node_modules/easyrtc/api/easyrtc.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.notification', ['ui.notify'])
+angular.module('esn.notification', ['ui.notify', 'angularMoment'])
   .directive('infoNotification', ['livenotification', 'notificationService', '$timeout',
     function(livenotification, notificationService, $timeout) {
       return {
@@ -133,7 +133,7 @@ angular.module('esn.notification', ['ui.notify'])
       };
     }])
 
-  .directive('activitystreamNotification', ['session', function(session) {
+  .directive('activitystreamNotification', ['session', 'moment', function(session, moment) {
     return {
       require: '^infoNotification',
       scope: {
@@ -147,7 +147,8 @@ angular.module('esn.notification', ['ui.notify'])
           return 'Activity Stream updated';
         };
         $scope.text = function(msg) {
-          return msg.actor.displayName + ' added a message on ' + new Date(msg.published);
+          var m = moment(new Date(msg.published).getTime());
+          return msg.actor.displayName + ' added a message ' + m.fromNow();
         };
         $scope.conditionToDisplay = function(msg) {
           return msg.actor && msg.actor._id !== session.user._id;
