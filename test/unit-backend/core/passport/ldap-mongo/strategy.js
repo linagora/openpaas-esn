@@ -176,7 +176,7 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
 
-    it('should call passport#error when user is not found in any LDAP', function(done) {
+    it('should call passport#fail when user is not found in any LDAP', function(done) {
       var usermodule = {
         findByEmail: function(user, callback) {
           return callback();
@@ -196,7 +196,7 @@ describe('The ldap-mongo passport strategy', function() {
 
       Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
-      s.error = function() {
+      s.fail = function() {
         done();
       };
 
@@ -211,7 +211,7 @@ describe('The ldap-mongo passport strategy', function() {
       s.authenticate(req, options);
     });
 
-    it('should call passport#error when LDAP search send back an error', function(done) {
+    it('should call passport#fail when LDAP search send back an error', function(done) {
       var usermodule = {
         findByEmail: function(user, callback) {
           return callback();
@@ -227,7 +227,7 @@ describe('The ldap-mongo passport strategy', function() {
 
       Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
-      s.error = function() {
+      s.fail = function() {
         done();
       };
 
@@ -251,7 +251,7 @@ describe('The ldap-mongo passport strategy', function() {
       mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
-          return callback();
+          return callback(null, [{configuration: {}}]);
         },
         authenticate: function(email, password, ldap, callback) {
           return callback(new Error());
