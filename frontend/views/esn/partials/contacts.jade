@@ -51,7 +51,8 @@
                       i.fa.fa-angle-double-left
                     | {{selectedContactDisplayName(contact)}}
                   div.ellipsis(title="{{contact.emails[0]}}")
-                    a(href='mailto:{{contact.emails[0]}}') {{contact.emails[0]}}
+                    li(data-ng-repeat="email in contact.emails")
+                      a(href='mailto:{{email}}') {{email}}
                 .col-xs-12
                   hr
                   div
