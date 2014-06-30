@@ -489,6 +489,9 @@ describe('The domains controller', function() {
         },
         get: function() {
           return '';
+        },
+        openpaas: {
+          getBaseURL: function() {return '';}
         }
       };
 
@@ -530,6 +533,9 @@ describe('The domains controller', function() {
         },
         get: function() {
           return '';
+        },
+        openpaas: {
+          getBaseURL: function() {return '';}
         }
       };
 
@@ -572,6 +578,9 @@ describe('The domains controller', function() {
         },
         get: function() {
           return '';
+        },
+        openpaas: {
+          getBaseURL: function() {return '';}
         }
       };
 
