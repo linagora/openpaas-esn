@@ -40,11 +40,23 @@ var createOrUpdateConctact = function(entry, user , addressbook, cb) {
     owner: user._id,
     addressbooks: addressbook._id
   };
+
   var contactJson = {
-    emails: [entry['gd:email'][0].$.address],
     owner: user._id,
     addressbooks: [addressbook._id]
   };
+
+  if (entry['gd:email'] && entry['gd:email'].length > 0) {
+    contactJson.emails = entry['gd:email'].map(function(mail) {
+      if (mail && mail.$ && mail.$.address) {
+        return mail.$.address;
+      } else {
+        return '';
+      }
+    }).filter(function(mail) {
+      return mail && mail !== '';
+    });
+  }
 
   if (entry['gd:name']) {
     if (entry['gd:name'][0]['gd:givenName'] &&
