@@ -60,6 +60,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
     // var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     $scope.pattern = '^(([^<>()[\\\]\\\\\.,;:\\\s@\\\"]+(\\\.[^<>()[\\\]\\\\\.,;:\s@\\\"]+)*)|(\\\".+\\\"))@((\\\[[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\])|(([a-zA-Z\-0-9]+\\\.)+[a-zA-Z]{2,}))$'; // jshint ignore:line
     $scope.step = 0;
+    $scope.running = 0;
     $scope.domain = domain.name;
     $scope.emails = [];
 
@@ -68,12 +69,15 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
         return element.email;
       });
 
+      $scope.running = 1;
       domainAPI.inviteUsers(domain._id, emails).then(
         function(data) {
           $scope.error = undefined;
+          $scope.running = 0;
           $scope.step = 1;
         },
         function(err) {
+          $scope.running = 0;
           $scope.error = err;
         }
       );

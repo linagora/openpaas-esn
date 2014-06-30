@@ -1,4 +1,4 @@
-.col-xs-12
+.col-xs-12.widget
   h3 #{__('Invite people to join OpenPaas')}
 
   div(ng-show='error')
@@ -8,11 +8,18 @@
     form(name='form')
       fieldset
         .form-group
-          tags-input(ng-model='emails', display-property='{{displayProperty}}', placeholder='{{placeholder}}', allowed-tags-pattern='{{pattern}}', min-tags='1', add-on-enter='true', add-on-space='true', add-on-comma='true')
+          tags-input(ng-disabled='running', ng-model='emails', display-property='{{displayProperty}}', placeholder='{{placeholder}}', allowed-tags-pattern='{{pattern}}', min-tags='1', add-on-enter='true', add-on-space='true', add-on-comma='true')
         .form-group
-          button.btn.btn-primary.pull-right(type='submit', ng-click='invite()')
-            | #{__('Send invitations')}
+          button.btn.btn-primary.pull-right(type='submit', ng-click='invite()', ng-disabled='running')
+            i.fa.fa-sign-in(ng-hide="running") &nbsp;
+              | #{__('Send invitations')}
+            span(ng-hide="!running")
+              i.fa.fa-spinner.fa-spin &nbsp;
+              | #{__('Please wait...')}
 
-  div(ng-show='step===1')
+
+  div.form-container(ng-show='step===1')
     .alert.alert-success.animated
-      p #{__('Invitations have been sent. You will be notified when new users join the platform')}.
+      | #{__('Invitations have been sent. You will be notified when new users join the platform')}.
+    .text-right
+      button.btn.btn-primary(ng-click='step=0') #{__('Send new invitations')}
