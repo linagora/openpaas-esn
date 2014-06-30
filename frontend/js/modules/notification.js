@@ -247,7 +247,7 @@ angular.module('esn.notification', ['ui.notify'])
         $scope.conditionToDisplay = function(msg) {
           return msg.target.some(function(item) {
             return item === session.user._id;
-          });
+          }) && msg.parent;
         };
       },
       link: function(scope, element, attrs, infoNotification) {
