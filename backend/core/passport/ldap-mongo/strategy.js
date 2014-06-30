@@ -122,11 +122,11 @@ var handleAuthentication = function(req, options) {
 
     ldap.findLDAPForUser(username, function(err, ldaps) {
       if (err) {
-        return self.error(err);
+        return self.fail('LDAP is not configured for this user :' + err);
       }
 
       if (!ldaps || ldaps.length === 0) {
-        return self.error(new Error('User is not available in LDAP : ' + username));
+        return self.fail('Can not find any LDAP for this user');
       }
 
       // authenticate user on the first LDAP for now
