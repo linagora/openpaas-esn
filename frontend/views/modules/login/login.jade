@@ -5,7 +5,7 @@
         strong #{__('Error')} :&nbsp;
         | {{error.error.details}}
     .alert.alert-info(ng-show='loginIn')
-      p #{__('Please Wait')}...
+      p #{__('Please wait...')}
     fieldset(ng-disabled='loginIn')
       .row
         .col-md-12.col-sm-12.form-group
@@ -15,7 +15,7 @@
         .col-md-4.col-sm-12.form-group
           button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
             i.fa.fa-sign-in(ng-hide='loginTask.running') &nbsp;
-            i.fa.fa-spinner(ng-hide='!loginTask.running') &nbsp;
+            i.fa.fa-spinner.fa-spin(ng-hide='!loginTask.running') &nbsp;
             | #{__('{{loginButton.label}}')}
       .row
         .col-md-6.col-sm-12.form-group

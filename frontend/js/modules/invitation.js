@@ -6,7 +6,7 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
     $scope.signupButton = {
       label: 'Sign up in OpenPaas',
       notRunning: 'Sign up in OpenPaas',
-      running: 'Please Wait...'
+      running: 'Please wait...'
     };
     $scope.signupTask = {
       running: false
