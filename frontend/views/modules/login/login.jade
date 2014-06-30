@@ -3,7 +3,7 @@
     .alert.alert-danger(ng-hide='!showError()')
       p
         strong #{__('Error')} :&nbsp;
-        | {{error.error.details}}
+        | {{error.error.details || 'Bad username or password'}}
     .alert.alert-info(ng-show='loginIn')
       p #{__('Please Wait')}...
     fieldset(ng-disabled='loginIn')
