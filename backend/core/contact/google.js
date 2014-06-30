@@ -101,7 +101,7 @@ function getGoogleOAuthClient(baseUrl, callback) {
     if (err) {
       return callback(err);
     }
-    return callback(null, new OAuth2Client(configuration.client_id, configuration.client_secret, baseUrl + '/api/contacts/google/callback'));
+    return callback(null, new OAuth2Client(configuration.client_id, configuration.client_secret, configuration.redirect_uri || baseUrl + '/api/contacts/google/callback'));
   });
 }
 module.exports.getGoogleOAuthClient = getGoogleOAuthClient;
