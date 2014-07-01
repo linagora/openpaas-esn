@@ -14,7 +14,7 @@
             span #{__('Import contacts from')} : &nbsp;
             i.fa.fa-google.fa-lg.fa-border(ng-click='googleImport()')
       .row(ng-class='{list: currentFocus() === "list", addressbook: currentFocus() === "addressbook", contact: currentFocus() === "contact"}' ng-hide='restActive || !addressbooks.length')
-          .col-xs-12.col-md-3.addressbooks-container
+          .col-xs-12.col-md-2.addressbooks-container
             .vertiz-space
               strong #{__('Address Books')}
 
