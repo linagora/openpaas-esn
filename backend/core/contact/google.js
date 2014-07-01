@@ -47,8 +47,11 @@ var createOrUpdateConctact = function(entry, user , addressbook, cb) {
   };
 
   if (entry['gd:name']) {
-    if (entry['gd:name'][0]['gd:givenName']) {
-      contactJson.given_name = entry['gd:name'][0]['gd:givenName'][0];
+    if (entry['gd:name'][0]['gd:givenName'] &&
+      entry['gd:name'][0]['gd:givenName'].length > 0 &&
+      entry['gd:name'][0]['gd:familyName'] &&
+      entry['gd:name'][0]['gd:familyName'].length > 0) {
+      contactJson.given_name = entry['gd:name'][0]['gd:givenName'][0] + ' ' + entry['gd:name'][0]['gd:familyName'][0];
     }
     else if (entry['gd:name'][0]['gd:fullName']) {
       contactJson.given_name = entry['gd:name'][0]['gd:fullName'][0];
