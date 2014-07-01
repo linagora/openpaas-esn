@@ -1,6 +1,9 @@
 .col-sm-offset-3.col-sm-5.col-xs-12.widget.form-container
   form(name='applicationsForm', action='/oauth/authorize/decision', method='post')
-    legend #{__('A new application is requesting an authorization')}
+    legend
+      .text-center
+        img.logo(src="/images/logo.png")
+        p #{__('A new application is requesting an authorization')}
     .col-sm-6.col-xs-12
       p
         strong Application Name
