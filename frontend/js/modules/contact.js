@@ -43,7 +43,7 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
 
     $scope.isChecked = function(id) {
       if ($scope.selected_addressbook === id) {
-        return 'glyphicon glyphicon-ok';
+        return 'fa fa-check';
       }
       return false;
     };
@@ -135,13 +135,16 @@ angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.
       });
     };
 
+    $scope.running = 0;
     $scope.sendInvitation = function(contact) {
       if (!contact || !contact.emails || contact.emails.length === 0) {
         return;
       }
 
+      $scope.running = 1;
       contactAPI.sendInvitation(contact, session.domain._id).then(
         function() {
+          $scope.running = 0;
           $scope.invited.push({data: {contact_id: contact._id}});
         }
       );
