@@ -11,22 +11,20 @@
           | #{__('No addressbooks')}
           hr
           .vertiz-space(ng-controller='googleContactImporterController')
-            span #{__('Import contacts from')} :
-            button.btn(ng-click='googleImport()')
-              i.fa.fa-google
+            span #{__('Import contacts from')} : &nbsp;
+            i.fa.fa-google.fa-lg.fa-border(ng-click='googleImport()')
       .row(ng-class='{list: currentFocus() === "list", addressbook: currentFocus() === "addressbook", contact: currentFocus() === "contact"}' ng-hide='restActive || !addressbooks.length')
-          .col-xs-12.col-md-2.addressbooks-container
+          .col-xs-12.col-md-3.addressbooks-container
             .vertiz-space
               strong #{__('Address Books')}
 
             ul(class="nav nav-list")
               li(data-ng-repeat="addressbook in addressbooks", ng-click="loadAddressBook(addressbook)")
-                span(ng-class="isChecked(addressbook._id)") {{addressbook.name}}
+                span(ng-class="isChecked(addressbook._id)") &nbsp; {{addressbook.name}}
             hr
             .vertiz-space(ng-controller='googleContactImporterController')
-              span Import contacts from :
-              button.btn(ng-click='googleImport()')
-                i.fa.fa-google
+              span #{__('Import contacts from')} : &nbsp;
+              i.fa.fa-google.fa-lg.fa-border(ng-click='googleImport()')
               #contactserror
 
           .col-xs-12.col-md-4.contacts-container
@@ -56,5 +54,10 @@
                 .col-xs-12
                   hr
                   div
-                    button.btn.btn-primary(type='submit', ng-click='sendInvitation(contact)', ng-disabled='isInvited(contact)')
-                      | {{isInvited(contact) ? 'Invited' : 'Invite!'}}
+                    button.btn.btn-primary(type='submit', ng-click='sendInvitation(contact)', ng-disabled='running || isInvited(contact)')
+                      i.fa.fa-sign-in(ng-hide="running") &nbsp;
+                        | {{isInvited(contact) ? 'Invited' : 'Invite!'}}
+                      span(ng-hide="!running")
+                        i.fa.fa-spinner.fa-spin &nbsp;
+                        | #{__('Please wait...')}
+                    .vertiz-space
