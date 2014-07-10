@@ -4,26 +4,34 @@ var mongoose = require('mongoose');
 var Notification = mongoose.model('Notification');
 var pubsub = require('../pubsub').global;
 var async = require('async');
+var topic = pubsub.topic('notification:api');
+
+var saveOne = function(notification, parent, callback) {
+  if (!notification) {
+    return callback(new Error('Notification can not be null'));
+  }
+
+  var n = new Notification(notification);
+  if (parent) {
+    n.parent = parent._id || parent;
+  }
+  n.save(function(err, saved) {
+    if (err) {
+      return callback(err);
+    }
+    topic.publish(saved);
+    return callback(null, saved);
+  });
+};
+module.exports.saveOne = saveOne;
 
 module.exports.save = function(notification, callback) {
 
-  var topic = pubsub.topic('notification:api');
-
-  function saveOne(notification, parent, callback) {
-    var n = new Notification(notification);
-    if (parent) {
-      n.parent = parent._id || parent;
-    }
-    n.save(function(err, saved) {
-      if (err) {
-        return callback(err);
-      }
-      topic.publish(saved);
-      return callback(null, saved);
-    });
+  if (!notification) {
+    return callback(new Error('Notification can not be null'));
   }
 
-  saveOne(notification, null, function(err, parent) {
+  this.saveOne(notification, null, function(err, parent) {
     if (err) {
       return callback(err);
     }
@@ -55,8 +63,6 @@ module.exports.save = function(notification, callback) {
     }, function(err) {
       if (err) {
         console.log('Fail to save notification');
-      } else {
-        console.log('Notifications saved');
       }
       return callback(err, result);
     });
@@ -64,7 +70,10 @@ module.exports.save = function(notification, callback) {
 };
 
 module.exports.get = function(id, callback) {
-  Notification.findById(id).exec(callback);
+  if (!id) {
+    return callback(new Error('Notification ID is not defined'));
+  }
+  return Notification.findById(id).exec(callback);
 };
 
 module.exports.find = function(options, callback) {
