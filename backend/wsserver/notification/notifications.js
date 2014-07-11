@@ -12,10 +12,10 @@ var NOTIFICATION_EVENT = 'notification';
 
 function notify(io, user, notification) {
   var clientSockets = helper.getUserSocketsFromNamespace(user, io.of(NAMESPACE).sockets);
-  logger.debug('notify for notification', user, ', found', clientSockets.length, 'websockets');
   if (!clientSockets) {
     return;
   }
+  logger.debug('notify for notification', user, ', found', clientSockets.length, 'websockets');
   clientSockets.forEach(function(socket) {
     socket.emit(NOTIFICATION_EVENT, notification);
   });
