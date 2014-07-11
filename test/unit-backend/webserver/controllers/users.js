@@ -9,6 +9,33 @@ describe('The User controller', function() {
     this.testEnv.initCore(done);
   });
 
+  describe('The logout fn', function() {
+    it('should call req.logout()', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        logout: done
+      };
+      var res = {
+        redirect: function(path) {
+        }
+      };
+      users.logout(req, res);
+    });
+    it('should redirect to "/"', function(done) {
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        logout: function() {}
+      };
+      var res = {
+        redirect: function(path) {
+          expect(path).to.equal('/');
+          done();
+        }
+      };
+      users.logout(req, res);
+    });
+  });
+
   describe('The logmein fn', function() {
     it('should redirect to / if user is set in request', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
