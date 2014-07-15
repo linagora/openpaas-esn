@@ -20,7 +20,7 @@ exports = module.exports = function(application) {
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
   application.get('/api/companies', companies.search);
-  application.get('/api/domains/:uuid/members', domains.getMembers);
+  application.get('/api/domains/:uuid/members', authorize.requiresAPILogin, domains.load, authorize.requiresDomainMember, domains.getMembers);
   application.get('/api/domains/:uuid', authorize.requiresAPILogin, domains.load, authorize.requiresDomainMember, domains.getDomain);
   application.post('/api/domains', domains.createDomain);
   application.post('/api/domains/:uuid/invitations', authorize.requiresAPILogin, domains.load, authorize.requiresDomainMember, domains.sendInvitations);

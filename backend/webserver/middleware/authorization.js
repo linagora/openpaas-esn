@@ -55,7 +55,7 @@ exports.requiresDomainMember = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
 
-  if (req.domain.administrator.equals(req.user._id)) {
+  if (req.domain.administrator && req.domain.administrator.equals(req.user._id)) {
     return next();
   }
 

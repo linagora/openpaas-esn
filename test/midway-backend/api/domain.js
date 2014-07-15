@@ -205,41 +205,52 @@ describe('The domain API', function() {
   });
 
   it('GET /api/domains/:uuid/members should return 404 when domain is not found', function(done) {
-    request(app).get('/api/domains/5331f287589a2ef541867680/members').expect(404).end(function(err, res) {
-      expect(err).to.be.null;
-      done();
+    this.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
+      if (err) { return done(err); }
+      var req = requestAsMember(request(app).get('/api/domains/5331f287589a2ef541867680/members'));
+      req.expect(404).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
     });
   });
 
   it('GET /api/domains/:uuid/members should return all the members of the domain and contain the list size in the header', function(done) {
-    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
-    d.save(function(err, domain) {
+    var self = this;
+    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
+    d.save(function(err, saved) {
       if (err) {
         return done(err);
       }
-      var u = new User({domains: [{domain_id: domain._id}], emails: ['test01@linagora.com']});
+      var u = new User({domains: [{domain_id: saved._id}], emails: ['test01@linagora.com']});
 
       u.save(function(err, user) {
         if (err) {
           return done(err);
         }
-        request(app).get('/api/domains/' + domain._id + '/members').expect(200).end(function(err, res) {
-          expect(err).to.be.null;
-          expect(res.body).to.be.not.null;
-          expect(res.headers['x-esn-items-count']).to.exist;
-          expect(res.headers['x-esn-items-count']).to.equal('1');
-          done();
+        self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
+          if (err) { return done(err); }
+          var req = requestAsMember(request(app).get('/api/domains/' + saved._id + '/members'));
+          req.expect(200).end(function(err, res) {
+            console.log(err);
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('1');
+            done();
+          });
         });
       });
     });
   });
 
   it('GET /api/domains/:uuid/members should return all the members matching the search terms', function(done) {
+    var self = this;
     var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
     var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
     var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
     var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
     function saveUser(user, domain, cb) {
       if (domain) {
@@ -274,26 +285,31 @@ describe('The domain API', function() {
           if (err) {
             return done(err);
           }
-          request(app).get('/api/domains/' + domain._id + '/members').query({search: 'foo bar'}).expect(200).end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res.body).to.be.not.null;
-            expect(res.body.length).to.equal(2);
-            expect(res.body[0]._id).to.equal('' + bazuser._id);
-            expect(res.body[1]._id).to.equal('' + foouser._id);
-            expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('2');
-            done();
+          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
+            if (err) { return done(err); }
+            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
+            req.query({search: 'foo bar'}).expect(200).end(function(err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.not.null;
+              expect(res.body.length).to.equal(2);
+              expect(res.body[0]._id).to.equal('' + bazuser._id);
+              expect(res.body[1]._id).to.equal('' + foouser._id);
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('2');
+              done();
+            });
           });
         });
     });
   });
 
   it('GET /api/domains/:uuid/members should return the first 2 members', function(done) {
+    var self = this;
     var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
     var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
     var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
     var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
     function saveUser(user, domain, cb) {
       if (domain) {
@@ -328,26 +344,32 @@ describe('The domain API', function() {
           if (err) {
             return done(err);
           }
-          request(app).get('/api/domains/' + domain._id + '/members').query({limit: 2}).expect(200).end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res.body).to.be.not.null;
-            expect(res.body.length).to.equal(2);
-            expect(res.body[0]._id).to.equal('' + foouser._id);
-            expect(res.body[1]._id).to.equal('' + baruser._id);
-            expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('4');
-            done();
+          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
+            if (err) { return done(err); }
+
+            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
+            req.query({limit: 2}).expect(200).end(function(err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.not.null;
+              expect(res.body.length).to.equal(2);
+              expect(res.body[0]._id).to.equal('' + foouser._id);
+              expect(res.body[1]._id).to.equal('' + baruser._id);
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('4');
+              done();
+            });
           });
         });
     });
   });
 
   it('GET /api/domains/:uuid/members should return the last 2 members', function(done) {
+    var self = this;
     var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
     var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
     var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
     var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
     function saveUser(user, domain, cb) {
       if (domain) {
@@ -382,26 +404,32 @@ describe('The domain API', function() {
           if (err) {
             return done(err);
           }
-          request(app).get('/api/domains/' + domain._id + '/members').query({offset: 2}).expect(200).end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res.body).to.be.not.null;
-            expect(res.body.length).to.equal(2);
-            expect(res.body[0]._id).to.equal('' + bazuser._id);
-            expect(res.body[1]._id).to.equal('' + quxuser._id);
-            expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('4');
-            done();
+          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
+            if (err) { return done(err); }
+
+            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
+            req.query({offset: 2}).expect(200).end(function(err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.not.null;
+              expect(res.body.length).to.equal(2);
+              expect(res.body[0]._id).to.equal('' + bazuser._id);
+              expect(res.body[1]._id).to.equal('' + quxuser._id);
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('4');
+              done();
+            });
           });
         });
     });
   });
 
   it('GET /api/domains/:uuid/members should return the third member', function(done) {
+    var self = this;
     var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
     var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
     var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
     var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
     function saveUser(user, domain, cb) {
       if (domain) {
@@ -436,14 +464,19 @@ describe('The domain API', function() {
           if (err) {
             return done(err);
           }
-          request(app).get('/api/domains/' + domain._id + '/members').query({limit: 1, offset: 2}).expect(200).end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res.body).to.be.not.null;
-            expect(res.body.length).to.equal(1);
-            expect(res.body[0]._id).to.equal('' + bazuser._id);
-            expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('4');
-            done();
+          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
+            if (err) { return done(err); }
+
+            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
+            req.query({limit: 1, offset: 2}).expect(200).end(function(err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.not.null;
+              expect(res.body.length).to.equal(1);
+              expect(res.body[0]._id).to.equal('' + bazuser._id);
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('4');
+              done();
+            });
           });
         });
     });
@@ -497,4 +530,3 @@ describe('The domain API', function() {
   });
 
 });
-
