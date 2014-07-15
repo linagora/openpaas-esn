@@ -130,6 +130,39 @@ describe('The Contact model', function() {
     });
   });
 
+  it('should allow recording contacts having the same email addresses', function(done) {
+    var abid = this.mongoose.Types.ObjectId();
+    var ownerid = this.mongoose.Types.ObjectId();
+    var emails = ['email1@linagora.com', 'email2@linagora.com'];
+
+    function fetchBackContacts() {
+      Contact.find({emails: 'email1@linagora.com'}, function(err, contacts) {
+        if (err) {
+          return done(err);
+        }
+        expect(contacts).to.have.length(2);
+        var names = contacts.map(function(c) { return c.given_name; });
+        expect(names.indexOf('contact1')).to.be.at.least(0);
+        expect(names.indexOf('contact2')).to.be.at.least(0);
+        done();
+      });
+    }
+
+    var c1 = new Contact({emails: emails, owner: ownerid, addressbooks: [abid], given_name: 'contact1'});
+    var c2 = new Contact({emails: emails, owner: ownerid, addressbooks: [abid], given_name: 'contact2'});
+    c1.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+      c2.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+        fetchBackContacts();
+      });
+    });
+  });
+
   afterEach(function(done) {
     emails = [];
     userEmails = [];
