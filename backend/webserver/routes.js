@@ -113,5 +113,13 @@ exports = module.exports = function(application) {
   application.get('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanReadNotification, notifications.get);
   application.post('/api/notifications', authorize.requiresAPILogin, notifications.create);
   application.put('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanWriteNotification, notifications.setAsRead);
+
+  var communities = require('./controllers/communities');
+  application.get('/api/communities', authorize.requiresAPILogin, communities.list);
+  application.get('/api/communities/:id', authorize.requiresAPILogin, communities.load, communities.get);
+  application.get('/api/communities/:id/image', authorize.requiresAPILogin, communities.load, communities.getImage);
+  application.post('/api/communities', authorize.requiresAPILogin, communities.create);
+  application.post('/api/communities/:id/image', authorize.requiresAPILogin, communities.load, communities.uploadImage);
+  application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
 };
 

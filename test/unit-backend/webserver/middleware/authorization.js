@@ -20,7 +20,8 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var next = function() {};
+      var next = function() {
+      };
       middleware(req, res, next);
     });
 
@@ -87,7 +88,8 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var next = function() {};
+      var next = function() {
+      };
       middleware(req, res, next);
     });
 
@@ -104,7 +106,8 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var next = function() {};
+      var next = function() {
+      };
       middleware(req, res, next);
     });
 
@@ -122,7 +125,8 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var next = function() {};
+      var next = function() {
+      };
       middleware(req, res, next);
     });
 
@@ -142,7 +146,8 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var next = function() {};
+      var next = function() {
+      };
       middleware(req, res, next);
     });
   });
@@ -169,7 +174,8 @@ describe('The authorization middleware', function() {
         done();
       }
     };
-    var next = function() {};
+    var next = function() {
+    };
     middleware(req, res, next);
   });
 
@@ -210,7 +216,6 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, next);
     });
@@ -226,7 +231,6 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, next);
     });
@@ -334,6 +338,62 @@ describe('The authorization middleware', function() {
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, done);
+    });
+  });
+
+  describe('The requiresCommunityCreator fn', function() {
+    it('should send back 400 if user is not defined in request', function (done) {
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var req = {
+        community: {}
+      };
+      var res = {
+        json: function (code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 400 if community is not defined in request', function (done) {
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var req = {
+        user: {}
+      };
+      var res = {
+        json: function (code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 403 if user is not the community creator', function (done) {
+      var user_id = new ObjectId();
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var req = {
+        user: {_id: user_id},
+        community: {creator: new ObjectId()}
+      };
+      var res = {
+        json: function (code) {
+          expect(code).to.equal(403);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should call next if user is the community creator', function (done) {
+      var user_id = new ObjectId();
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var req = {
+        user: {_id: user_id},
+        community: {creator: user_id}
+      };
+      middleware(req, {}, done);
     });
   });
 });

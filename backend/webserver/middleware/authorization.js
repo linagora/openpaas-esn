@@ -72,3 +72,14 @@ exports.requiresDomainMember = function(req, res, next) {
   }
   next();
 };
+
+exports.requiresCommunityCreator = function(req, res, next) {
+  if (!req.user || !req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or community'});
+  }
+
+  if (!req.community.creator.equals(req.user._id)) {
+    return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the community creator'});
+  }
+  next();
+};
