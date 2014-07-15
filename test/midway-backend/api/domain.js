@@ -6,7 +6,7 @@ var request = require('supertest'),
 
 describe('The domain API', function() {
   var app;
-  var foouser, baruser;
+  var foouser, baruser, bazuser;
   var domain;
   var password = 'secret';
 
@@ -28,6 +28,13 @@ describe('The domain API', function() {
         username: 'Bar',
         password: password,
         emails: ['bar@bar.com']
+      });
+
+      bazuser = new User({
+        username: 'Baz',
+        password: password,
+        emails: ['baz@bar.com'],
+        domains: []
       });
 
       domain = new Domain({
@@ -62,6 +69,10 @@ describe('The domain API', function() {
         },
         function(callback) {
           saveDomain(domain, foouser, callback);
+        },
+        function(callback) {
+          bazuser.domains.push({domain_id: domain._id});
+          saveUser(bazuser, callback);
         }
       ],
       function(err) {
@@ -98,6 +109,34 @@ describe('The domain API', function() {
         req.cookies = cookies;
         req.send(['foo@bar.com']);
         req.expect(202).end(done);
+      });
+  });
+
+  it('should be able to send a domain invitation when user belongs to the domain', function(done) {
+    request(app)
+      .post('/api/login')
+      .send({username: bazuser.emails[0], password: password, rememberme: false})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).post('/api/domains/' + domain._id + '/invitations');
+        req.cookies = cookies;
+        req.send(['inviteme@open-paas.org']);
+        req.expect(202).end(done);
+      });
+  });
+
+  it('should not be able to send a domain invitation when user does not belongs to the domain', function(done) {
+    request(app)
+      .post('/api/login')
+      .send({username: baruser.emails[0], password: password, rememberme: false})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).post('/api/domains/' + domain._id + '/invitations');
+        req.cookies = cookies;
+        req.send(['inviteme@open-paas.org']);
+        req.expect(403).end(done);
       });
   });
 

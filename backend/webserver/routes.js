@@ -23,7 +23,7 @@ exports = module.exports = function(application) {
   application.get('/api/domains/:uuid/members', domains.getMembers);
   application.get('/api/domains/:uuid', authorize.requiresAPILogin, domains.load, domains.getDomain);
   application.post('/api/domains', domains.createDomain);
-  application.post('/api/domains/:uuid/invitations', authorize.requiresAPILogin, domains.load, domains.sendInvitations);
+  application.post('/api/domains/:uuid/invitations', authorize.requiresAPILogin, domains.load, authorize.requiresDomainMember, domains.sendInvitations);
   application.get('/api/domains/:uuid/manager', authorize.requiresAPILogin, domains.load, authorize.requiresDomainManager, domains.getDomain);
 
   var activitystreams = require('./controllers/activitystreams');
