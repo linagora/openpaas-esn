@@ -140,7 +140,40 @@ describe('The domain API', function() {
       });
   });
 
-  it('should be able to get a domain information when logged in', function(done) {
+  it('should be able to get a domain information when current user is domain member', function(done) {
+    request(app)
+      .post('/api/login')
+      .send({username: bazuser.emails[0], password: password, rememberme: false})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).get('/api/domains/' + domain._id);
+        req.cookies = cookies;
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body.administrator).to.equal('' + domain.administrator);
+          expect(res.body.name).to.equal(domain.name);
+          expect(res.body.company_name).to.equal(domain.company_name);
+          done();
+        });
+      });
+  });
+
+  it('should not be able to get a domain information when current user is not domain member', function(done) {
+    request(app)
+      .post('/api/login')
+      .send({username: baruser.emails[0], password: password, rememberme: false})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).get('/api/domains/' + domain._id);
+        req.cookies = cookies;
+        req.expect(403).end(done);
+      });
+  });
+
+  it('should be able to get a domain information when current user is domain manager', function(done) {
     request(app)
       .post('/api/login')
       .send({username: foouser.emails[0], password: password, rememberme: false})
@@ -157,6 +190,15 @@ describe('The domain API', function() {
           expect(res.body.company_name).to.equal(domain.company_name);
           done();
         });
+      });
+  });
+
+  it('should not be able to get a domain information when not logged in', function(done) {
+    request(app)
+      .get('/api/domains/' + domain._id)
+      .expect(401).end(function(err, res) {
+        expect(err).to.not.exist;
+        done();
       });
   });
 });
