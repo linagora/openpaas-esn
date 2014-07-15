@@ -121,5 +121,9 @@ exports = module.exports = function(application) {
   application.post('/api/communities', authorize.requiresAPILogin, communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);
   application.post('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
   application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
+
+  var feedback = require('./controllers/feedback');
+  var feedbackMiddleware = require('./middleware/feedback');
+  application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);
 };
 
