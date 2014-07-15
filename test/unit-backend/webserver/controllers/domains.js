@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-describe.only('The domains controller', function() {
+describe('The domains controller', function() {
 
   describe('The getDomain fn', function() {
 
