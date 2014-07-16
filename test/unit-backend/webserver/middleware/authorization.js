@@ -342,13 +342,13 @@ describe('The authorization middleware', function() {
   });
 
   describe('The requiresCommunityCreator fn', function() {
-    it('should send back 400 if user is not defined in request', function (done) {
+    it('should send back 400 if user is not defined in request', function(done) {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
         community: {}
       };
       var res = {
-        json: function (code) {
+        json: function(code) {
           expect(code).to.equal(400);
           done();
         }
@@ -356,13 +356,13 @@ describe('The authorization middleware', function() {
       middleware(req, res);
     });
 
-    it('should send back 400 if community is not defined in request', function (done) {
+    it('should send back 400 if community is not defined in request', function(done) {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
         user: {}
       };
       var res = {
-        json: function (code) {
+        json: function(code) {
           expect(code).to.equal(400);
           done();
         }
@@ -370,7 +370,7 @@ describe('The authorization middleware', function() {
       middleware(req, res);
     });
 
-    it('should send back 403 if user is not the community creator', function (done) {
+    it('should send back 403 if user is not the community creator', function(done) {
       var user_id = new ObjectId();
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
@@ -378,7 +378,7 @@ describe('The authorization middleware', function() {
         community: {creator: new ObjectId()}
       };
       var res = {
-        json: function (code) {
+        json: function(code) {
           expect(code).to.equal(403);
           done();
         }
@@ -386,7 +386,7 @@ describe('The authorization middleware', function() {
       middleware(req, res);
     });
 
-    it('should call next if user is the community creator', function (done) {
+    it('should call next if user is the community creator', function(done) {
       var user_id = new ObjectId();
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
@@ -394,6 +394,36 @@ describe('The authorization middleware', function() {
         community: {creator: user_id}
       };
       middleware(req, {}, done);
+    });
+  });
+
+  describe('The requiresCommunityMember fn', function() {
+    it('should send 400 when request does not contain community', function(done) {
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityMember;
+      var req = {
+        domain: {_id: 123}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send 400 when request does not contain domain', function(done) {
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityMember;
+      var req = {
+        community: {_id: 123}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
     });
   });
 });

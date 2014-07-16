@@ -24,6 +24,26 @@ describe('The communities controller', function() {
       communities.create(req, res);
     });
 
+    it('should send back 400 if request does not contains domain', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var req = {
+        body: {
+          title: 'YOLO'
+        },
+        user: {_id: 123}
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.create(req, res);
+    });
+
     it('should send back 500 if community module sends back error on save', function(done) {
       var mock = {
         save: function(community, callback) {
@@ -34,9 +54,11 @@ describe('The communities controller', function() {
 
       var req = {
         body: {
-          title: 'Node.js'
+          title: 'Node.js',
+          domain_id: '123'
         },
-        user: {_id: 123}
+        user: {_id: 123},
+        domain: {}
       };
 
       var res = {
@@ -61,11 +83,13 @@ describe('The communities controller', function() {
 
       var req = {
         body: {
-          title: 'Node.js'
+          title: 'Node.js',
+          domain_id: 123
         },
         user: {
           _id: 123
-        }
+        },
+        domain: {}
       };
 
       var res = {
@@ -121,13 +145,34 @@ describe('The communities controller', function() {
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.list({}, res);
     });
+
+    it('should call the community module with domain in query when defined in the request', function(done) {
+      var req = {
+        domain: {_id: 123}
+      };
+
+      var mock = {
+        query: function(q, callback) {
+          expect(q.domain_id).to.exist;
+          expect(q.domain_id).to.equal(req.domain._id);
+          done();
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var res = {
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.list(req, res);
+    });
   });
 
   describe('The load fn', function() {
     it('should call next with error if community module sends back error on load', function(done) {
 
       var mock = {
-        load: function(id, callback) {
+        loadWithDomain: function(id, callback) {
           return callback(new Error());
         }
       };
@@ -148,7 +193,7 @@ describe('The communities controller', function() {
 
     it('should send back 404 if community can not be found', function(done) {
       var mock = {
-        load: function(id, callback) {
+        loadWithDomain: function(id, callback) {
           return callback();
         }
       };
@@ -174,7 +219,7 @@ describe('The communities controller', function() {
     it('should set req.community when community can be found', function(done) {
       var community = {_id: 123};
       var mock = {
-        load: function(id, callback) {
+        loadWithDomain: function(id, callback) {
           return callback(null, community);
         }
       };
@@ -189,6 +234,30 @@ describe('The communities controller', function() {
         expect(err).to.not.exist;
         expect(req.community).to.exist;
         expect(req.community).to.deep.equal(community);
+        done();
+      });
+    });
+
+    it('should set req.domain when community can be found', function(done) {
+      var domain = {_id: 456};
+      var community = {_id: 123, domain_id: domain};
+
+      var mock = {
+        loadWithDomain: function(id, callback) {
+          return callback(null, community);
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+      var req = {
+        params: {
+          id: 123
+        }
+      };
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.load(req, {}, function(err) {
+        expect(err).to.not.exist;
+        expect(req.domain).to.exist;
+        expect(req.domain).to.deep.equal(domain);
         done();
       });
     });
@@ -286,7 +355,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The uploadImage fn', function() {
+  describe('The uploadAvatar fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
       var req = {
@@ -299,11 +368,11 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.uploadImage(req, res);
+      communities.uploadAvatar(req, res);
     });
   });
 
-  describe('The getImage fn', function() {
+  describe('The getAvatar fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
       var req = {
@@ -316,7 +385,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.getImage(req, res);
+      communities.getAvatar(req, res);
     });
 
     it('should return 404 if community.image is not defined in request', function(done) {
@@ -333,7 +402,29 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.getImage(req, res);
+      communities.getAvatar(req, res);
+    });
+  });
+
+  describe('The loadDomainForCreate fn', function() {
+    it('should send back 400 is domain_id is not defined in body', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        body: {
+          domain: 123
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.loadDomainForCreate(req, res);
     });
   });
 });

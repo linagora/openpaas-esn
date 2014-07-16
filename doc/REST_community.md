@@ -45,7 +45,16 @@ Create an ESN community in a domain. The creator of the community is the user wh
       "title": "Node.js",
       "description": "All about node.js",
       "creator": "0987654321",
-      "domain_id": "83878920289838830309"
+      "domain_id": "83878920289838830309",
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      }
     }
 
 # POST /api/communities/{community_id}/avatar
@@ -152,13 +161,31 @@ Get the communities list for a given domain. The list is ordered by community ti
       "_id": "987654321",
       "title": "Mean",
       "description": "The Awesome MEAN stack",
-      "domain_id": "8292903883939282"
+      "domain_id": "8292903883939282",
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      }
     },
     {
       "_id": "123456789",
       "title": "Node.js",
       "description": "All about node.js",
-      "domain_id": "8292903883939282"
+      "domain_id": "8292903883939282",
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      }
     }
      
 ## GET /api/communities/{community_id}
@@ -200,7 +227,16 @@ Get a community.
       "_id": "123456789",
       "title": "Node.js",
       "description": "All about node.js",
-      "domain_id": "9328938983983"
+      "domain_id": "9328938983983",
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      }
     }
 
 ## DELETE /api/communities/{community_id}

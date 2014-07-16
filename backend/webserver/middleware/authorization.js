@@ -50,7 +50,7 @@ exports.requiresDomainManager = function(req, res, next) {
   next();
 };
 
-exports.requiresDomainMember = function(req, res, next) {
+var requiresDomainMember = function(req, res, next) {
   if (!req.user || !req.domain) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
@@ -72,6 +72,7 @@ exports.requiresDomainMember = function(req, res, next) {
   }
   next();
 };
+module.exports.requiresDomainMember = requiresDomainMember;
 
 exports.requiresCommunityCreator = function(req, res, next) {
   if (!req.user || !req.community) {
@@ -82,4 +83,14 @@ exports.requiresCommunityCreator = function(req, res, next) {
     return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the community creator'});
   }
   next();
+};
+
+/**
+ * Current user is member of the domain the community is inside is enough
+ */
+exports.requiresCommunityMember = function(req, res, next) {
+  if (!req.community || !req.domain) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community or domain'});
+  }
+  return requiresDomainMember(req, res, next);
 };

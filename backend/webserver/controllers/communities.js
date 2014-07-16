@@ -2,6 +2,16 @@
 
 var communityModule = require('../../core/community');
 
+module.exports.loadDomainForCreate = function(req, res, next) {
+  var domain = req.body.domain_id;
+  if (!domain) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Domain id is mandatory'}});
+  }
+  req.params.uuid = domain;
+  var domainController = require('./domains');
+  return domainController.load(req, res, next);
+};
+
 module.exports.create = function(req, res) {
 
   var community = {
@@ -12,6 +22,12 @@ module.exports.create = function(req, res) {
   if (!community.title) {
     return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community title is mandatory'}});
   }
+
+  if (!req.body.domain_id) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community domain is mandatory'}});
+  }
+
+  community.domain_id = req.body.domain_id;
 
   if (req.body.description) {
     community.description = req.body.description;
@@ -26,7 +42,11 @@ module.exports.create = function(req, res) {
 };
 
 module.exports.list = function(req, res) {
-  communityModule.query({}, function(err, response) {
+  var query = {};
+  if (req.domain) {
+    query.domain_id = req.domain._id || req.domain;
+  }
+  communityModule.query(query, function(err, response) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community list failed', details: err}});
     }
@@ -35,7 +55,7 @@ module.exports.list = function(req, res) {
 };
 
 module.exports.load = function(req, res, next) {
-  communityModule.load(req.params.id, function(err, community) {
+  communityModule.loadWithDomain(req.params.id, function(err, community) {
     if (err) {
       return next(err);
     }
@@ -43,6 +63,7 @@ module.exports.load = function(req, res, next) {
       return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
     }
     req.community = community;
+    req.domain = community.domain_id;
     return next();
   });
 };
@@ -67,7 +88,7 @@ module.exports.delete = function(req, res) {
   });
 };
 
-module.exports.uploadImage = function(req, res) {
+module.exports.uploadAvatar = function(req, res) {
   if (!req.community) {
     return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
   }
@@ -75,7 +96,7 @@ module.exports.uploadImage = function(req, res) {
   return res.json(500, {error: 500, message: 'Server error', details: 'Not implemented'});
 };
 
-module.exports.getImage = function(req, res) {
+module.exports.getAvatar = function(req, res) {
   if (!req.community) {
     return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
   }

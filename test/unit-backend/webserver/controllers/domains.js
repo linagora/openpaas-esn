@@ -39,6 +39,117 @@ describe('The domains controller', function() {
     });
   });
 
+  describe('The loadFromDomainIdParameter middleware', function() {
+    it('should send back 400 when param is undefined', function(done) {
+      mockery.registerMock('mongoose', {model: function() {}});
+
+      var req = {
+        param: function() {
+          return null;
+        }
+      };
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.loadFromDomainIdParameter(req, res);
+    });
+
+    it('should call next(err) if domain can not be loaded', function(done) {
+      var mock = {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback(new Error());
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mock);
+
+      var req = {
+        param: function() {
+          return '123';
+        }
+      };
+      var res = {};
+      var next = function(err) {
+        expect(err).to.exist;
+        done();
+      };
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.loadFromDomainIdParameter(req, res, next);
+    });
+
+    it('should send 404 if domain is not found', function(done) {
+
+      var mock = {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback();
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mock);
+
+      var req = {
+        param: function() {
+          return '123';
+        }
+      };
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+      var next = function() {};
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.loadFromDomainIdParameter(req, res, next);
+    });
+
+    it('should inject the domain into the request', function(done) {
+
+      var domain = {_id: 123};
+      var mock = {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback(null, domain);
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mock);
+      var req = {
+        param: function() {
+          return '123';
+        }
+      };
+
+      var res = {
+      };
+
+      var next = function() {
+        expect(req.domain).to.exist;
+        expect(req.domain).to.deep.equal(domain);
+        done();
+      };
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      controller.loadFromDomainIdParameter(req, res, next);
+    });
+
+  });
+
   describe('The load domain middleware', function() {
 
     it('should call next(err) if domain can not be loaded', function(done) {

@@ -5,11 +5,12 @@ var uuid = require('node-uuid');
 var Schema = mongoose.Schema;
 
 var CommunitySchema = new Schema({
-  title: {type: String, required: true, trim: true, unique: true},
+  title: {type: String, required: true, trim: true},
   description: {type: String, trim: true},
   status: String,
   image: String,
   creator: {type: Schema.ObjectId, ref: 'User'},
+  domain_id: {type: Schema.ObjectId, ref: 'Domain'},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
@@ -37,6 +38,11 @@ CommunitySchema.statics = {
       return cb(new Error('Activity stream id can not be null'));
     }
     this.findOne({'activity_stream.uuid': id}).exec(cb);
+  },
+
+  testTitleDomain: function(title, domain, cb) {
+    var query = {title: title, domain_id: domain._id || domain};
+    this.findOne(query, cb);
   }
 };
 
