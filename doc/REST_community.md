@@ -1,8 +1,10 @@
 # /api/communities
 
+Note: Communities titles are unique per domain.
+
 ## POST /api/communities
 
-Create an ESN community.
+Create an ESN community in a domain. The creator of the community is the user which issue the request.
 
 **Request Headers:**
 
@@ -12,6 +14,7 @@ Create an ESN community.
 
 - title: The community title
 - description: The community description
+- domain_id: The id of the domain the community is linked to.
 
 **Response Headers:**
 
@@ -20,7 +23,8 @@ Create an ESN community.
 **Status Codes:**
 
 - 201 Created. The community has been created.
-- 400 Bad Request. Invalid request body or parameters
+- 400 Bad Request. Invalid request body or parameters.
+- 409 Conflict. A community already exists with this title in the domain.
 
 **Request:**
 
@@ -29,20 +33,28 @@ Create an ESN community.
     Host: localhost:8080
     {
       "title": "Node.js",
-      "description": "All about node.js"
+      "description": "All about node.js",
+      "domain_id": "83878920289838830309
     }
 
 **Response:**
 
     HTTP/1.1 201 Created
+    {
+      "_id": "123456789"
+      "title": "Node.js",
+      "description": "All about node.js",
+      "creator": "0987654321",
+      "domain_id": "83878920289838830309"
+    }
 
-# POST /api/communities/{community_id}/image
+# POST /api/communities/{community_id}/avatar
 
-Post a new image for the given community.
+Post a new avatar for the given community.
 
 **Request query strings parameters**
 
-- mimetype: the MIME type of the image. Valid values are 'image/png', 'image/gif' and 'image/jpeg'
+- mimetype: the MIME type of the avatar. Valid values are 'image/png', 'image/gif' and 'image/jpeg'
 - size: the size, in bytes, of the POSTed image. This size will be compared with the number of bytes recorded in the file storage service, thus ensuring that there were no data loss.
 
 **Request Body:**
@@ -56,7 +68,7 @@ This endpoint expects the request body to be the raw image data
 
 **Request:**
 
-    POST /api/communities/123456789/image?mimetype=image%2Fpng&size=12345
+    POST /api/communities/123456789/avatar?mimetype=image%2Fpng&size=12345
     Accept: application/json
     Host: localhost:8080
 
@@ -67,9 +79,9 @@ This endpoint expects the request body to be the raw image data
         _id: '9f888058-e9e6-4915-814b-935d5b88389d'
     }
     
-# GET /api/communities/{community_id}/image
+# GET /api/communities/{community_id}/avatar
 
-Get the community image.
+Get the community avatar.
 
 **Request Headers:**
 
@@ -92,7 +104,7 @@ Get the community image.
 
 **Request:**
 
-    GET /api/communities/123456789/image
+    GET /api/communities/123456789/avatar
     Accept: application/json
     Host: localhost:8080
 
@@ -103,11 +115,15 @@ Get the community image.
 
 ## GET /api/communities
 
-Get the communities list. The list is ordered by title.
+Get the communities list for a given domain. The list is ordered by community title.
 
 **Request Headers:**
 
 - Accept: application/json
+
+**Query Parameters:**
+
+- domain_id: The id of the domain to fetch communities from.
 
 **Response Headers**
 
@@ -115,16 +131,17 @@ Get the communities list. The list is ordered by title.
 
 **Response JSON Object:**
 
-- An array of communities
+- An array of communities for the given domain.
 
 **Status Codes:**
 
 - 200 OK
+- 400 Bad Request
 - 401 Unauthorized. The user is not authenticated on the platform.
 
 **Request:**
 
-    GET /api/communities
+    GET /api/communities?domain_id=8292903883939282
     Accept: application/json
     Host: localhost:8080
 
@@ -134,12 +151,14 @@ Get the communities list. The list is ordered by title.
     {
       "_id": "987654321",
       "title": "Mean",
-      "description": "The Awesome MEAN stack"
+      "description": "The Awesome MEAN stack",
+      "domain_id": "8292903883939282"
     },
     {
       "_id": "123456789",
       "title": "Node.js",
-      "description": "All about node.js"
+      "description": "All about node.js",
+      "domain_id": "8292903883939282"
     }
      
 ## GET /api/communities/{community_id}
@@ -166,6 +185,7 @@ Get a community.
 
 - 200 OK
 - 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden. The user does not have read rights for the community: User may not belong to the domain the community is part of.
 
 **Request:**
 
@@ -179,7 +199,8 @@ Get a community.
     {
       "_id": "123456789",
       "title": "Node.js",
-      "description": "All about node.js"
+      "description": "All about node.js",
+      "domain_id": "9328938983983"
     }
 
 ## DELETE /api/communities/{community_id}
@@ -198,7 +219,7 @@ Delete a community.
 
 - 204 No content
 - 401 Unauthorized. The user is not authenticated on the platform.
-- 403 Forbidden. The user can not delete the community.
+- 403 Forbidden. The user can not delete the community: Only the community creator can delete the community.
 
 **Request:**
 
