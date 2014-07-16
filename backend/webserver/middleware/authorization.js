@@ -49,3 +49,26 @@ exports.requiresDomainManager = function(req, res, next) {
   }
   next();
 };
+
+exports.requiresDomainMember = function(req, res, next) {
+  if (!req.user || !req.domain) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
+  }
+
+  if (req.domain.administrator && req.domain.administrator.equals(req.user._id)) {
+    return next();
+  }
+
+  if (!req.user.domains || req.user.domains.length === 0) {
+    return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
+  }
+
+  var belongs = req.user.domains.some(function(domain) {
+    return domain.domain_id.equals(req.domain._id);
+  });
+
+  if (!belongs) {
+    return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
+  }
+  next();
+};

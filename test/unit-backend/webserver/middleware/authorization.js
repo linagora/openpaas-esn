@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var ObjectId = require('bson').ObjectId;
 
 describe('The authorization middleware', function() {
 
@@ -195,5 +196,144 @@ describe('The authorization middleware', function() {
       done();
     };
     middleware(req, res, next);
+  });
+
+  describe('The requiresDomainManager fn', function() {
+    it('should send back 400 is there are no user in request', function(done) {
+      var req = {
+        domain: {}
+      };
+      var next = function() {};
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, next);
+    });
+
+    it('should send back 400 is there are no domain in request', function(done) {
+      var req = {
+        user: {}
+      };
+      var next = function() {};
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, next);
+    });
+
+    it('should call next if user is the domain manager', function(done) {
+      var user_id = new ObjectId();
+      var req = {
+        domain: {
+          administrator: user_id
+        },
+        user: {
+          _id: user_id
+        }
+      };
+      var res = {
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, done);
+    });
+
+    it('should send back 403 if current user domain list is null', function(done) {
+      var user_id = new ObjectId();
+      var req = {
+        domain: {
+          administrator: new ObjectId()
+        },
+        user: {
+          _id: user_id
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(403);
+          done();
+        }
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, function() {});
+    });
+
+    it('should send back 403 if current user domain list is empty', function(done) {
+      var user_id = new ObjectId();
+      var req = {
+        domain: {
+          administrator: new ObjectId()
+        },
+        user: {
+          _id: user_id,
+          domains: []
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(403);
+          done();
+        }
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, function() {});
+    });
+
+    it('should send back 403 if current user does not belongs to the domain', function(done) {
+      var user_id = new ObjectId();
+      var req = {
+        domain: {
+          administrator: new ObjectId()
+        },
+        user: {
+          _id: user_id,
+          domains: [{domain_id: new ObjectId()}, {domain_id: new ObjectId()}]
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(403);
+          done();
+        }
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, function() {});
+    });
+
+    it('should call next if current user belongs to the domain', function(done) {
+      var user_id = new ObjectId();
+      var domain_id = new ObjectId();
+      var req = {
+        domain: {
+          _id: domain_id,
+          administrator: new ObjectId()
+        },
+        user: {
+          _id: user_id,
+          domains: [{domain_id: new ObjectId()}, {domain_id: domain_id}]
+        }
+      };
+      var res = {
+        json: function(code) {
+          done(new Error());
+        }
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      middleware(req, res, done);
+    });
   });
 });
