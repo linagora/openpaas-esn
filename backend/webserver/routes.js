@@ -119,7 +119,7 @@ exports = module.exports = function(application) {
   application.get('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityMember, communities.get);
   application.get('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityMember, communities.getAvatar);
   application.post('/api/communities', authorize.requiresAPILogin, communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);
-  application.post('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityMember, communities.uploadAvatar);
+  application.post('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
   application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
 };
 

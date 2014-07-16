@@ -370,6 +370,210 @@ describe('The communities controller', function() {
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
+
+    it('should return 400 if request does not have mimetype', function(done) {
+      mockery.registerMock('../../core/image', {});
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        community: {},
+        query: {
+          size: 1
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 400 if request does not have size', function(done) {
+      mockery.registerMock('../../core/image', {});
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        community: {},
+        query: {
+          mimetype: 'image/png'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 400 if request does not have a valid mimetype', function(done) {
+      mockery.registerMock('../../core/image', {});
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        community: {},
+        query: {
+          size: 1,
+          mimetype: 'badimagetype'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 400 if request does not have a valid size', function(done) {
+      mockery.registerMock('../../core/image', {});
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        community: {},
+        query: {
+          size: 'a',
+          mimetype: 'image/png'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 500 if image module sends back error', function(done) {
+      var mock = {
+        recordAvatar: function(id, mime, options, req, callback) {
+          return callback(new Error());
+        }
+      };
+      mockery.registerMock('../../core/image', mock);
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        community: {},
+        query: {
+          size: 1,
+          mimetype: 'image/png'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 412 if image module sends back wrong size', function(done) {
+      var mock = {
+        recordAvatar: function(id, mime, options, req, callback) {
+          return callback(null, 2);
+        }
+      };
+      mockery.registerMock('../../core/image', mock);
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        community: {},
+        query: {
+          size: 1,
+          mimetype: 'image/png'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(412);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 500 if avatar update fails on community module', function(done) {
+      var mock = {
+        recordAvatar: function(id, mime, options, req, callback) {
+          return callback(null, 1);
+        }
+      };
+      var community = {
+        updateAvatar: function(community, uuid, callback) {
+          return callback(new Error());
+        }
+      };
+      mockery.registerMock('../../core/image', mock);
+      mockery.registerMock('../../core/community', community);
+
+      var req = {
+        community: {},
+        query: {
+          size: 1,
+          mimetype: 'image/png'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
+
+    it('should return 200 if avatar update succeeds on community module', function(done) {
+      var mock = {
+        recordAvatar: function(id, mime, options, req, callback) {
+          return callback(null, 1);
+        }
+      };
+      var community = {
+        updateAvatar: function(community, uuid, callback) {
+          return callback();
+        }
+      };
+      mockery.registerMock('../../core/image', mock);
+      mockery.registerMock('../../core/community', community);
+
+      var req = {
+        community: {},
+        query: {
+          size: 1,
+          mimetype: 'image/png'
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, res);
+    });
   });
 
   describe('The getAvatar fn', function() {
@@ -388,16 +592,118 @@ describe('The communities controller', function() {
       communities.getAvatar(req, res);
     });
 
-    it('should return 404 if community.image is not defined in request', function(done) {
+    it('should redirect if community.image is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
       var req = {
         community: {
         }
       };
       var res = {
-        send: function(code) {
-          expect(code).to.equal(404);
+        redirect: function() {
           done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getAvatar(req, res);
+    });
+
+    it('should return 500 if image module fails', function(done) {
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/image', {
+        getAvatar: function(id, callback) {
+          return callback(new Error());
+        }
+      });
+      var req = {
+        community: {
+          avatar: 123
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getAvatar(req, res);
+    });
+
+    it('should return 304 if image has not changed', function(done) {
+      var image = {
+        stream: 'test',
+        pipe: function() {
+          throw new Error();
+        }
+      };
+      var meta = {
+        meta: 'data',
+        uploadDate: new Date('Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)')
+      };
+
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/image', {
+        getAvatar: function(id, callback) {
+          return callback(null, meta, image);
+        }
+      });
+      var req = {
+        community: {
+          avatar: 123
+        },
+        headers: {
+          'if-modified-since': 'Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)'
+        }
+      };
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(304);
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getAvatar(req, res);
+    });
+
+    it('should return 200, add to the cache, and the stream of the avatar file if all is ok', function(done) {
+      var image = {
+        stream: 'test',
+        pipe: function(res) {
+          expect(res.header['Last-Modified']).to.exist;
+          expect(res.code).to.equal(200);
+          done();
+        }
+      };
+
+      var imageModuleMock = {
+        getAvatar: function(defaultAvatar, callback) {
+          return callback(null,
+            {
+              meta: 'data',
+              uploadDate: new Date('Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)')
+            }, image);
+        }
+      };
+      mockery.registerMock('../../core/image', imageModuleMock);
+      mockery.registerMock('../../core/community', {});
+
+      var req = {
+        headers: {
+          'if-modified-since': 'Thu Apr 17 2013 11:13:15 GMT+0200 (CEST)'
+        },
+        community: {
+          avatar: 123
+        }
+      };
+      var res = {
+        status: function(code) {
+          this.code = code;
+        },
+        header: function(header, value) {
+          this.header[header] = value;
         }
       };
 

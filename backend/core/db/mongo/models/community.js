@@ -8,7 +8,7 @@ var CommunitySchema = new Schema({
   title: {type: String, required: true, trim: true},
   description: {type: String, trim: true},
   status: String,
-  image: String,
+  avatar: String,
   creator: {type: Schema.ObjectId, ref: 'User'},
   domain_id: {type: Schema.ObjectId, ref: 'Domain'},
   timestamps: {

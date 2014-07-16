@@ -4,6 +4,19 @@ var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var logger = require('../logger');
 
+module.exports.updateAvatar = function(community, avatar, callback) {
+  if (!community) {
+    return callback(new Error('Community is required'));
+  }
+  if (!avatar) {
+    return callback(new Error('Avatar ID is required'));
+  }
+
+  community.avatar = avatar;
+  var communityModel = community instanceof Community ? community : new Community(community);
+  communityModel.save(callback);
+};
+
 module.exports.save = function(community, callback) {
   if (!community) {
     return callback(new Error('Can not save null community'));

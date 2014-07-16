@@ -200,4 +200,30 @@ describe('The communities module', function() {
       });
     });
   });
+
+  describe('The updateAvatar fn', function() {
+    it('should send back error when community is undefined', function(done) {
+      var mongoose = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.updateAvatar(null, 1, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back error when avatar id is undefined', function(done) {
+      var mongoose = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.updateAvatar({}, null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+  });
 });
