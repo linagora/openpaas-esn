@@ -5,7 +5,8 @@ var communityModule = require('../../core/community');
 module.exports.create = function(req, res) {
 
   var community = {
-    title: req.body.title
+    title: req.body.title,
+    creator: req.user._id
   };
 
   if (!community.title) {

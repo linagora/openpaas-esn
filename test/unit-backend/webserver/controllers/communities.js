@@ -9,7 +9,8 @@ describe('The communities controller', function() {
     it('should send back 400 if community title is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
       var req = {
-        body: {}
+        body: {},
+        user: {_id: 123}
       };
 
       var res = {
@@ -34,7 +35,8 @@ describe('The communities controller', function() {
       var req = {
         body: {
           title: 'Node.js'
-        }
+        },
+        user: {_id: 123}
       };
 
       var res = {
@@ -60,6 +62,9 @@ describe('The communities controller', function() {
       var req = {
         body: {
           title: 'Node.js'
+        },
+        user: {
+          _id: 123
         }
       };
 
