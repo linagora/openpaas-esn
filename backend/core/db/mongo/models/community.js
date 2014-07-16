@@ -5,7 +5,7 @@ var uuid = require('node-uuid');
 var Schema = mongoose.Schema;
 
 var CommunitySchema = new Schema({
-  title: {type: String, required: true, trim: true},
+  title: {type: String, required: true, trim: true, unique: true},
   description: {type: String, trim: true},
   status: String,
   image: String,
