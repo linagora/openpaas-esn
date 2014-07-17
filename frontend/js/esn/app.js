@@ -20,6 +20,7 @@ angular.module('esnApp', [
   'esn.easyrtc',
   'esn.conference',
   'esn.contact',
+  'esn.community',
   'esn.application',
   'esn.authentication'
 ]).config(function($routeProvider, RestangularProvider) {
@@ -153,6 +154,31 @@ angular.module('esnApp', [
             },
             function(err) {
               $location.path('/applications');
+            }
+          );
+        }
+      }
+    });
+
+    $routeProvider.when('/communities', {
+      templateUrl: '/views/esn/partials/communities'
+    });
+
+    $routeProvider.when('/communities/create', {
+      templateUrl: '/views/modules/community/community-create',
+      controller: 'communityCreateController'
+    });
+
+    $routeProvider.when('/communities/:community_id', {
+      templateUrl: '/views/modules/community/community',
+      resolve: {
+        community: function(communityAPI, $route, $location) {
+          return communityAPI.get($route.current.params.community_id).then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/communities');
             }
           );
         }

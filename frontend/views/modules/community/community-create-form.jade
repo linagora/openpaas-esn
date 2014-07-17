@@ -1,0 +1,16 @@
+.col-md-12.well.form-container
+  form(name='communityForm')
+    legend #{__('Create a new community')}
+    .form-group
+      label #{__('Community Title')}
+      input.form-control(type='text', ng-model='community.title', name='title', placeholder="#{__('Title')}", autofocus=true, required)
+      span.help-block #{__('Community title. Have to be unique in the current domain')}.
+    .form-group
+      label #{__('Community Description')}
+      input.form-control(type='text', ng-model='community.description', name='description', placeholder="#{__('Description')}")
+      span.help-block #{__("A Human readable description which will help users to know what this community is about")}.
+    .form-group
+      button.btn.btn-warning(type='submit', ng-click='create(community)', ng-disabled='sending')
+        | #{__('Create')}
+    .form-group
+      #communityerror
