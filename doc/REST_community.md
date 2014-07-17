@@ -14,7 +14,7 @@ Create an ESN community in a domain. The creator of the community is the user wh
 
 - title: The community title
 - description: The community description
-- domain_id: The id of the domain the community is linked to.
+- domain_ids: The ids of the domain the communities is linked to.
 
 **Response Headers:**
 
@@ -34,7 +34,7 @@ Create an ESN community in a domain. The creator of the community is the user wh
     {
       "title": "Node.js",
       "description": "All about node.js",
-      "domain_id": "83878920289838830309
+      "domain_ids": ["83878920289838830309"]
     }
 
 **Response:**
@@ -45,7 +45,7 @@ Create an ESN community in a domain. The creator of the community is the user wh
       "title": "Node.js",
       "description": "All about node.js",
       "creator": "0987654321",
-      "domain_id": "83878920289838830309",
+      "domain_ids": ["83878920289838830309"],
       "timestamps": {
         "creation": "2014-05-16T09:47:11.703Z"
       },
@@ -161,7 +161,7 @@ Get the communities list for a given domain. The list is ordered by community ti
       "_id": "987654321",
       "title": "Mean",
       "description": "The Awesome MEAN stack",
-      "domain_id": "8292903883939282",
+      "domain_ids": ["8292903883939282"],
       "timestamps": {
         "creation": "2014-05-16T09:47:11.703Z"
       },
@@ -176,7 +176,7 @@ Get the communities list for a given domain. The list is ordered by community ti
       "_id": "123456789",
       "title": "Node.js",
       "description": "All about node.js",
-      "domain_id": "8292903883939282",
+      "domain_ids": ["8292903883939282"],
       "timestamps": {
         "creation": "2014-05-16T09:47:11.703Z"
       },
@@ -227,7 +227,7 @@ Get a community.
       "_id": "123456789",
       "title": "Node.js",
       "description": "All about node.js",
-      "domain_id": "9328938983983",
+      "domain_ids": ["9328938983983"],
       "timestamps": {
         "creation": "2014-05-16T09:47:11.703Z"
       },

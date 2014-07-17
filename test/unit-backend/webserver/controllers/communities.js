@@ -55,7 +55,7 @@ describe('The communities controller', function() {
       var req = {
         body: {
           title: 'Node.js',
-          domain_id: '123'
+          domain_ids: ['123']
         },
         user: {_id: 123},
         domain: {}
@@ -84,7 +84,7 @@ describe('The communities controller', function() {
       var req = {
         body: {
           title: 'Node.js',
-          domain_id: 123
+          domain_ids: [123]
         },
         user: {
           _id: 123
@@ -153,8 +153,9 @@ describe('The communities controller', function() {
 
       var mock = {
         query: function(q, callback) {
-          expect(q.domain_id).to.exist;
-          expect(q.domain_id).to.equal(req.domain._id);
+          expect(q.domain_ids).to.exist;
+          expect(q.domain_ids.length).to.equal(1);
+          expect(q.domain_ids[0]).to.equal(req.domain._id);
           done();
         }
       };
@@ -172,7 +173,7 @@ describe('The communities controller', function() {
     it('should call next with error if community module sends back error on load', function(done) {
 
       var mock = {
-        loadWithDomain: function(id, callback) {
+        loadWithDomains: function(id, callback) {
           return callback(new Error());
         }
       };
@@ -193,7 +194,7 @@ describe('The communities controller', function() {
 
     it('should send back 404 if community can not be found', function(done) {
       var mock = {
-        loadWithDomain: function(id, callback) {
+        loadWithDomains: function(id, callback) {
           return callback();
         }
       };
@@ -219,7 +220,7 @@ describe('The communities controller', function() {
     it('should set req.community when community can be found', function(done) {
       var community = {_id: 123};
       var mock = {
-        loadWithDomain: function(id, callback) {
+        loadWithDomains: function(id, callback) {
           return callback(null, community);
         }
       };
@@ -240,10 +241,10 @@ describe('The communities controller', function() {
 
     it('should set req.domain when community can be found', function(done) {
       var domain = {_id: 456};
-      var community = {_id: 123, domain_id: domain};
+      var community = {_id: 123, domain_ids: [domain]};
 
       var mock = {
-        loadWithDomain: function(id, callback) {
+        loadWithDomains: function(id, callback) {
           return callback(null, community);
         }
       };
@@ -256,8 +257,8 @@ describe('The communities controller', function() {
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.load(req, {}, function(err) {
         expect(err).to.not.exist;
-        expect(req.domain).to.exist;
-        expect(req.domain).to.deep.equal(domain);
+        expect(req.domains).to.exist;
+        expect(req.domains.length).to.equal(1);
         done();
       });
     });

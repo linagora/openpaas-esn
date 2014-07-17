@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
 
-describe('The communities API', function() {
+describe.only('The communities API', function() {
 
   var user;
   var email = 'user@open-paas.org';
@@ -125,13 +125,13 @@ describe('The communities API', function() {
           saveDomain(domain2, callback);
         },
         function(callback) {
-          saveCommunity({title: 'Node.js', domain_id: domain._id}, callback);
+          saveCommunity({title: 'Node.js', domain_ids: [domain._id]}, callback);
         },
         function(callback) {
-          saveCommunity({title: 'Mean', domain_id: domain._id}, callback);
+          saveCommunity({title: 'Mean', domain_ids: [domain._id]}, callback);
         },
         function(callback) {
-          saveCommunity({title: 'Angular', domain_id: domain2._id}, callback);
+          saveCommunity({title: 'Angular', domain_ids: [domain2._id]}, callback);
         },
         function() {
           self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
@@ -185,7 +185,7 @@ describe('The communities API', function() {
           saveDomain(domain, callback);
         },
         function() {
-          community.domain_id = domain._id;
+          community.domain_ids = [domain._id];
           self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
@@ -223,7 +223,7 @@ describe('The communities API', function() {
           saveDomain(domain, callback);
         },
         function() {
-          community.domain_id = domain._id;
+          community.domain_ids = [domain._id];
 
           self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
@@ -356,7 +356,7 @@ describe('The communities API', function() {
         },
         function(callback) {
           community.creator = foouser._id;
-          community.domain_id = domain._id;
+          community.domain_ids = [domain._id];
           saveCommunity(community, callback);
         },
         function() {
@@ -401,7 +401,7 @@ describe('The communities API', function() {
         },
         function(callback) {
           community.creator = foouser._id;
-          community.domain_id = domain._id;
+          community.domain_ids = [domain._id];
           saveCommunity(community, callback);
         },
         function() {

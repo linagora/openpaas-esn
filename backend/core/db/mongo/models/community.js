@@ -10,7 +10,7 @@ var CommunitySchema = new Schema({
   status: String,
   avatar: String,
   creator: {type: Schema.ObjectId, ref: 'User'},
-  domain_id: {type: Schema.ObjectId, ref: 'Domain'},
+  domain_ids: [{type: Schema.ObjectId, ref: 'Domain'}],
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
@@ -40,8 +40,8 @@ CommunitySchema.statics = {
     this.findOne({'activity_stream.uuid': id}).exec(cb);
   },
 
-  testTitleDomain: function(title, domain, cb) {
-    var query = {title: title, domain_id: domain._id || domain};
+  testTitleDomain: function(title, domains, cb) {
+    var query = {title: title, domain_ids: domains};
     this.findOne(query, cb);
   }
 };

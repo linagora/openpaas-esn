@@ -119,7 +119,7 @@ describe('The communities module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.loadWithDomain(null, function(err) {
+      community.loadWithDomains(null, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -145,7 +145,7 @@ describe('The communities module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.loadWithDomain(123, function(err) {
+      community.loadWithDomains(123, function(err) {
         expect(err).to.not.exist;
       });
     });

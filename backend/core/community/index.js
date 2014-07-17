@@ -26,11 +26,11 @@ module.exports.save = function(community, callback) {
     return callback(new Error('Can not save community with null title'));
   }
 
-  if (!community.domain_id) {
-    return callback(new Error('Can not save community with null domain'));
+  if (!community.domain_ids || community.domain_ids.length === 0) {
+    return callback(new Error('Can not save community without at least a domain'));
   }
 
-  Community.testTitleDomain(community.title, community.domain_id, function(err, result) {
+  Community.testTitleDomain(community.title, community.domain_ids, function(err, result) {
     if (err) {
       return callback(new Error('Unable to lookup title/domain: ' + community.title + '/' + community.domain_id + ' : ' + err));
     }
@@ -59,12 +59,12 @@ module.exports.load = function(community, callback) {
   return Community.findOne({_id: id}, callback);
 };
 
-module.exports.loadWithDomain = function(community, callback) {
+module.exports.loadWithDomains = function(community, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
   }
   var id = community._id || community;
-  return Community.findOne({_id: id}).populate('domain_id', null, 'Domain').exec(callback);
+  return Community.findOne({_id: id}).populate('domain_ids', null, 'Domain').exec(callback);
 };
 
 module.exports.query = function(query, callback) {

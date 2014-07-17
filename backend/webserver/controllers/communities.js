@@ -6,11 +6,14 @@ var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 
 module.exports.loadDomainForCreate = function(req, res, next) {
-  var domain = req.body.domain_id;
-  if (!domain) {
+  var domains = req.body.domain_ids;
+  if (!domains) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Domain ids is mandatory'}});
+  }
+  if (domains.length === 0) {
     return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Domain id is mandatory'}});
   }
-  req.params.uuid = domain;
+  req.params.uuid = domains[0];
   var domainController = require('./domains');
   return domainController.load(req, res, next);
 };
@@ -26,11 +29,15 @@ module.exports.create = function(req, res) {
     return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community title is mandatory'}});
   }
 
-  if (!req.body.domain_id) {
+  if (!req.body.domain_ids) {
     return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community domain is mandatory'}});
   }
 
-  community.domain_id = req.body.domain_id;
+  if (req.body.domain_ids.length === 0) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'At least a domain is required'}});
+  }
+
+  community.domain_ids = req.body.domain_ids;
 
   if (req.body.description) {
     community.description = req.body.description;
@@ -47,7 +54,7 @@ module.exports.create = function(req, res) {
 module.exports.list = function(req, res) {
   var query = {};
   if (req.domain) {
-    query.domain_id = req.domain._id || req.domain;
+    query.domain_ids = [req.domain._id];
   }
   communityModule.query(query, function(err, response) {
     if (err) {
@@ -58,7 +65,7 @@ module.exports.list = function(req, res) {
 };
 
 module.exports.load = function(req, res, next) {
-  communityModule.loadWithDomain(req.params.id, function(err, community) {
+  communityModule.loadWithDomains(req.params.id, function(err, community) {
     if (err) {
       return next(err);
     }
@@ -66,7 +73,8 @@ module.exports.load = function(req, res, next) {
       return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
     }
     req.community = community;
-    req.domain = community.domain_id;
+    req.domain = community.domain_ids[0];
+    req.domains = community.domain_ids;
     return next();
   });
 };
