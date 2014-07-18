@@ -3,8 +3,8 @@
 angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.alert'])
   .factory('communityAPI', ['Restangular', function(Restangular) {
 
-    function list() {
-      return Restangular.all('communities').getList();
+    function list(domain) {
+      return Restangular.all('communities').getList({domain_id: domain});
     }
 
     function get(id) {

@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.only('The Community Angular module', function() {
+describe('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
   describe('communityAPI service', function() {
@@ -17,8 +17,8 @@ describe.only('The Community Angular module', function() {
         Restangular.setFullResponse(true);
       }));
 
-      it('should send a GET to /communities', function() {
-        this.$httpBackend.expectGET('/communities').respond(200, []);
+      it('should send a GET to /communities?domain_id=:id', function() {
+        this.$httpBackend.expectGET('/communities?domain_id=' + this.domainId).respond(200, []);
         this.communityAPI.list(this.domainId);
         this.$httpBackend.flush();
       });
