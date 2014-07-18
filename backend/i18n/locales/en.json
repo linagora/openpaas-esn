@@ -120,5 +120,10 @@
   "Add": "Add",
   "Invitation": "Invitation",
   "Invite people to join OpenPaas": "Invite people to join OpenPaas",
-  "Send new invitations": "Send new invitations"
+  "Send new invitations": "Send new invitations",
+  "Error while getting communities": "Error while getting communities",
+  "Open community": "Open community",
+  "Communities": "Communities",
+  "Community": "Community",
+  "Create a new community": "Create a new community"
 }

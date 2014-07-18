@@ -5,6 +5,9 @@
         i.fa.fa-users
         | #{__('Communities')}
       div.well
-        a.btn.btn-info(href="#/communities/create") Create a new community
-      .row
-        p List of communities
+        a.btn.btn-info(href="#/communities/create") #{__('Create a new community')}
+      .row.alert.alert-danger(ng-show="error", role="alert")
+        p #{__('Error while getting communities')}
+      .row(ng-repeat="community in communities")
+        community-display(community="community")
+      .vertiz-space

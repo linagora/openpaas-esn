@@ -79,6 +79,26 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
       );
     };
   }])
+  .controller('communitiesController', ['$scope', '$location', '$log', 'session', 'communityAPI', function($scope, $location, $log, session, communityAPI) {
+    $scope.communities = [];
+    $scope.error = false;
+    communityAPI.list(session.domain._id).then(
+      function(response) {
+        $scope.communities = response.data;
+      },
+      function(err) {
+        $log.error('Error while getting communities', err);
+        $scope.error = true;
+      }
+    );
+  }])
+  .directive('communityDisplay', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/community/community-display.html'
+    };
+  })
   .directive('communityCreateForm', function() {
     return {
       restrict: 'E',
