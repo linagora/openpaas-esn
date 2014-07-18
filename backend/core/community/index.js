@@ -3,6 +3,8 @@
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var logger = require('../logger');
+var domainModule = require('../domain');
+var async = require('async');
 
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
@@ -77,4 +79,36 @@ module.exports.delete = function(community, callback) {
     return callback(new Error('Community is required'));
   }
   return callback(new Error('Not implemented'));
+};
+
+module.exports.userIsCommunityMember = function(user, community, callback) {
+  if (!user || !user._id) {
+    return callback(new Error('User object is required'));
+  }
+
+  if (!community || !community._id) {
+    return callback(new Error('Community object is required'));
+  }
+
+  if (!community.domain_ids ||community.domain_ids.length === 0) {
+    return callback(new Error('Community does not belong to any domain'));
+  }
+
+  var userInDomain = function(domain_id, callback) {
+    domainModule.load(domain_id, function(err, domain) {
+      if (err) {
+        return callback(false);
+      }
+      domainModule.userIsDomainMember(user, domain, function(err, isMember) {
+        if (err) {
+          return callback(false);
+        }
+        return callback(isMember);
+      });
+    });
+  };
+
+  async.some(community.domain_ids, userInDomain, function(result) {
+    return callback(null, result);
+  });
 };

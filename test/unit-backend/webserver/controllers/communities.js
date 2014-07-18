@@ -173,7 +173,7 @@ describe('The communities controller', function() {
     it('should call next with error if community module sends back error on load', function(done) {
 
       var mock = {
-        loadWithDomains: function(id, callback) {
+        load: function(id, callback) {
           return callback(new Error());
         }
       };
@@ -194,7 +194,7 @@ describe('The communities controller', function() {
 
     it('should send back 404 if community can not be found', function(done) {
       var mock = {
-        loadWithDomains: function(id, callback) {
+        load: function(id, callback) {
           return callback();
         }
       };
@@ -220,7 +220,7 @@ describe('The communities controller', function() {
     it('should set req.community when community can be found', function(done) {
       var community = {_id: 123};
       var mock = {
-        loadWithDomains: function(id, callback) {
+        load: function(id, callback) {
           return callback(null, community);
         }
       };
@@ -235,30 +235,6 @@ describe('The communities controller', function() {
         expect(err).to.not.exist;
         expect(req.community).to.exist;
         expect(req.community).to.deep.equal(community);
-        done();
-      });
-    });
-
-    it('should set req.domain when community can be found', function(done) {
-      var domain = {_id: 456};
-      var community = {_id: 123, domain_ids: [domain]};
-
-      var mock = {
-        loadWithDomains: function(id, callback) {
-          return callback(null, community);
-        }
-      };
-      mockery.registerMock('../../core/community', mock);
-      var req = {
-        params: {
-          id: 123
-        }
-      };
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.load(req, {}, function(err) {
-        expect(err).to.not.exist;
-        expect(req.domains).to.exist;
-        expect(req.domains.length).to.equal(1);
         done();
       });
     });

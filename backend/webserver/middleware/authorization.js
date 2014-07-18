@@ -2,6 +2,7 @@
 
 var passport = require('passport');
 var config = require('../../core').config('default');
+var communityModule = require('../../core/community');
 
 //
 // Authorization middleware
@@ -86,11 +87,25 @@ exports.requiresCommunityCreator = function(req, res, next) {
 };
 
 /**
- * Current user is member of the domain the community is inside is enough
+ * Current user is member of a domain inside the community is enough
  */
 exports.requiresCommunityMember = function(req, res, next) {
-  if (!req.community || !req.domain) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community or domain'});
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
   }
-  return requiresDomainMember(req, res, next);
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  communityModule.userIsCommunityMember(req.user, req.community, function(err, isMember) {
+    if (err) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Can not defined the community membership'});
+    }
+
+    if (!isMember) {
+      return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not community member'});
+    }
+    return next();
+  });
 };

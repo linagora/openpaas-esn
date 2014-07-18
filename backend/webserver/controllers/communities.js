@@ -65,7 +65,7 @@ module.exports.list = function(req, res) {
 };
 
 module.exports.load = function(req, res, next) {
-  communityModule.loadWithDomains(req.params.id, function(err, community) {
+  communityModule.load(req.params.id, function(err, community) {
     if (err) {
       return next(err);
     }
@@ -73,8 +73,6 @@ module.exports.load = function(req, res, next) {
       return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
     }
     req.community = community;
-    req.domain = community.domain_ids[0];
-    req.domains = community.domain_ids;
     return next();
   });
 };

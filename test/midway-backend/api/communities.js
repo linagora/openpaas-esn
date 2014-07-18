@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
 
-describe.only('The communities API', function() {
+describe('The communities API', function() {
 
   var user;
   var email = 'user@open-paas.org';
