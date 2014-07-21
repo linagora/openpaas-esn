@@ -9,13 +9,11 @@ var defaultOffset = 0;
 /**
  * Get all users in a domain.
  *
- * @param {Domain or ObjectId} domain
- * @param {Hash} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering.
- *  Search can be a single string, an array of strings, or a space separated string list which will be splitted.
- *  In the case of array or space separated string, a AND search will be performed with the input terms.
- * @param {Function} cb - as fn(err, [User])
+ * @param {Domain, ObjectId} domain
+ * @param {object} query - Hash with 'limit' and 'offset' for pagination.
+ * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
-var getUsers = function(domain, query, cb) {
+function getUsersList(domain, query, cb) {
   if (!domain) {
     return cb(new Error('Domain is mandatory'));
   }
@@ -23,31 +21,10 @@ var getUsers = function(domain, query, cb) {
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
   var userQuery = User.find().where('domains').elemMatch({domain_id: domainId});
-  if (query.search) {
-
-    var terms = (query.search instanceof Array) ? query.search : query.search.split(' ');
-
-    if (terms.length > 1) {
-      var firstname = [];
-      var lastname = [];
-      var emails = [];
-
-      for (var i = 0; i < terms.length; i++) {
-        var term = terms[i];
-        firstname.push({firstname: new RegExp(term, 'i')});
-        lastname.push({lastname: new RegExp(term, 'i')});
-        emails.push({emails: new RegExp(term, 'i')});
-      }
-      userQuery.or([{$and: firstname}, {$and: lastname}, {$and: emails}]);
-    } else {
-      userQuery.or([{firstname: new RegExp(terms[0], 'i')}, {lastname: new RegExp(terms[0], 'i')}, {emails: new RegExp(terms[0], 'i')}]);
-    }
-  }
-
   var totalCountQuery = require('extend')(true, {}, userQuery);
   totalCountQuery.count();
 
-  userQuery.skip(query.offset).limit(query.limit).sort({'firstname' : 'asc'});
+  userQuery.skip(query.offset).limit(query.limit).sort({'firstname': 'asc'});
 
   return totalCountQuery.exec(function(err, count) {
     if (!err) {
@@ -68,7 +45,78 @@ var getUsers = function(domain, query, cb) {
       return cb(new Error('Cannot count users of domain'));
     }
   });
-};
+}
 
-module.exports.getUsers = getUsers;
+module.exports.getUsersList = getUsersList;
 
+/**
+ * Get users in a domain by using a filter.
+ *
+ * @param {Domain, ObjectId} domain
+ * @param {object} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering.
+ *  Search can be a single string, an array of strings which will be joined, or a space separated string list.
+ *  In the case of array or space separated string, a AND search will be performed with the input terms.
+ * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
+ */
+function getUsersSearch(domain, query, cb) {
+  if (!domain) {
+    return cb(new Error('Domain is mandatory'));
+  }
+  if (!query.search) {
+    return cb(new Error('query.search is mandatory, use getUsersList to list users'));
+  }
+  var domainId = domain._id || domain;
+  query = query || {limit: defaultLimit, offset: defaultOffset};
+
+  var elasticsearch = require('../elasticsearch');
+  elasticsearch.client(function(err, elascticsearchClient) {
+    if (err) {
+      return cb(err);
+    }
+
+    var terms = (query.search instanceof Array) ? query.search.join(' ') : query.search;
+
+    var elasticsearchQuery = {
+      sort: [
+        {'firstname.sort': 'asc'}
+      ],
+      query: {
+        filtered: {
+          filter: {
+            term: {
+              'domains.domain_id': domainId
+            }
+          },
+          query: {
+            multi_match: {
+              query: terms,
+              type: 'cross_fields',
+              fields: ['firstname', 'lastname', 'emails'],
+              operator: 'and'
+            }
+          }
+        }
+      }
+    };
+
+    elascticsearchClient.search({
+      index: elasticsearch.getIndexName(),
+      type: elasticsearch.getTypeName(),
+      from: query.offset,
+      size: query.limit,
+      body: elasticsearchQuery
+    }, function(err, response) {
+      if (err) {
+        return cb(err);
+      }
+
+      var result = {
+        total_count: response.hits.total,
+        list: response.hits.hits.map(function(hit) { return hit._source; })
+      };
+      return cb(null, result);
+    });
+  });
+}
+
+module.exports.getUsersSearch = getUsersSearch;

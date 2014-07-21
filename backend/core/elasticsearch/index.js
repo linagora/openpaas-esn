@@ -77,3 +77,13 @@ function client(callback) {
   });
 }
 module.exports.client = client;
+
+function getIndexName() {
+  return 'users.idx';
+}
+module.exports.getIndexName = getIndexName;
+
+function getTypeName() {
+  return 'users';
+}
+module.exports.getTypeName = getTypeName;

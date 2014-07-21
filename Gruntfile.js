@@ -279,8 +279,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
 
-  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo_replSet', 'shell:elasticsearch']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo_replSet:kill', 'shell:elasticsearch:kill']);
 
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
@@ -332,13 +332,13 @@ module.exports = function(grunt) {
     var done = this.async();
 
     require('child_process').exec(
-        servers.mongodb.mongo_shell + ' --eval \'JSON.stringify(rs.initiate())\' --port 23456',
+        servers.mongodb.mongo_shell + ' --eval \'JSON.stringify(rs.initiate())\' --port ' + servers.mongodb.port,
       function (error, stdout, stderr) {
         grunt.log.write(stdout);
         grunt.log.error(stderr);
         setTimeout(function () {
           done(true);
-        }, 1000);
+        }, 2000);
       });
   });
 
@@ -360,7 +360,7 @@ module.exports = function(grunt) {
             'type': 'mongodb',
             'mongodb': {
               'servers': [ { host: 'localhost', port : servers.mongodb.port  } ],
-              'db': servers.mongodb.db,
+              'db': servers.mongodb.dbname,
               'collection': collection
             },
             'index': {
@@ -387,7 +387,7 @@ module.exports = function(grunt) {
 
     async.parallel(functionsArray, function (err, results) {
       if (err) {
-        throw err;
+        done(err);
       }
       grunt.log.write('Elasticsearch rivers are successfully setup');
       done(true);
@@ -395,12 +395,97 @@ module.exports = function(grunt) {
 
   });
 
+  grunt.registerTask('elasticsearchIndexUsersSettings', 'setup elasticsearch mongodb river', function() {
+    var done = this.async();
+
+    var request = require('superagent');
+    var elasticsearchURL = 'localhost:' + servers.elasticsearch.port;
+
+    request
+      .put(elasticsearchURL + '/' + 'users.idx')
+      .set('Content-Type', 'application/json')
+      .send({
+        settings: {
+          analysis: {
+            filter: {
+              nGram_filter: {
+                type: 'nGram',
+                min_gram: 2,
+                max_gram: 20,
+                token_chars: [
+                  'letter',
+                  'digit',
+                  'punctuation',
+                  'symbol'
+                ]
+              }
+            },
+            analyzer: {
+              nGram_analyzer: {
+                type: 'custom',
+                tokenizer: 'whitespace',
+                filter: [
+                  'lowercase',
+                  'asciifolding',
+                  'nGram_filter'
+                ]
+              },
+              whitespace_analyzer: {
+                type: 'custom',
+                tokenizer: 'whitespace',
+                filter: [
+                  'lowercase',
+                  'asciifolding'
+                ]
+              }
+            }
+          }
+        },
+        mappings: {
+          users: {
+            properties: {
+              firstname: {
+                type: 'string',
+                index_analyzer: 'nGram_analyzer',
+                search_analyzer: 'whitespace_analyzer',
+                fields: {
+                  sort: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                  }
+                }
+              },
+              lastname: {
+                type: 'string',
+                index_analyzer: 'nGram_analyzer',
+                search_analyzer: 'whitespace_analyzer'
+              },
+              emails: {
+                type: 'string',
+                index_analyzer: 'nGram_analyzer',
+                search_analyzer: 'whitespace_analyzer'
+              }
+            }
+          }
+        }
+      })
+      .end(function(res){
+        if (res.status === 200) {
+          grunt.log.write('Elasticsearch settings are successfully added');
+          done(true);
+        }
+        else {
+          done(new Error('Error HTTP status : ' + res.status + ', expected status code 201 Created !'));
+        }
+      });
+  });
+
   grunt.registerTask('dev', ['nodemon:dev']);
-  grunt.registerTask('test-midway-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-midway-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
-  grunt.registerTask('test-unit-storage', ['setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-unit-storage', ['setup-environment', 'spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
-  grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'spawn-servers', 'continueOn', 'run_grunt:all', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers', 'run_grunt:all', 'kill-servers', 'clean-environment']);
   grunt.registerTask('linters', ['jshint', 'gjslint']);
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {

@@ -21,19 +21,16 @@ describe('The domain API', function() {
       Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
 
       foouser = new User({
-        username: 'Foo',
         password: password,
         emails: ['foo@bar.com']
       });
 
       baruser = new User({
-        username: 'Bar',
         password: password,
         emails: ['bar@bar.com']
       });
 
       bazuser = new User({
-        username: 'Baz',
         password: password,
         emails: ['baz@bar.com'],
         domains: []
@@ -78,7 +75,15 @@ describe('The domain API', function() {
         }
       ],
       function(err) {
-        done(err);
+        if (err) {
+          done(err);
+        }
+        self.helpers.mongo.saveDoc('configuration', {
+          _id: 'elasticsearch',
+          host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
+        }, function(err) {
+          done(err);
+        });
       });
     });
   });
@@ -232,7 +237,6 @@ describe('The domain API', function() {
           if (err) { return done(err); }
           var req = requestAsMember(request(app).get('/api/domains/' + saved._id + '/members'));
           req.expect(200).end(function(err, res) {
-            console.log(err);
             expect(err).to.be.null;
             expect(res.body).to.be.not.null;
             expect(res.headers['x-esn-items-count']).to.exist;
@@ -246,239 +250,94 @@ describe('The domain API', function() {
 
   it('GET /api/domains/:uuid/members should return all the members matching the search terms', function(done) {
     var self = this;
-    var foouser = new User({ firstname: 'foobarbaz', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
-    function saveUser(user, domain, cb) {
-      if (domain) {
-        user.domains.push({domain_id: domain._id});
-      }
-      user.save(function(err, saved) {
-        return cb(err, saved);
-      });
-    }
-
-    domain.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-
-      var async = require('async');
-      async.series([
-          function(callback) {
-            saveUser(foouser, saved, callback);
-          },
-          function(callback) {
-            saveUser(baruser, saved, callback);
-          },
-          function(callback) {
-            saveUser(bazuser, saved, callback);
-          },
-          function(callback) {
-            saveUser(quxuser, saved, callback);
-          }
-        ],
-        function(err) {
-          if (err) {
-            return done(err);
-          }
-          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
-            if (err) { return done(err); }
-            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
-            req.query({search: 'foo bar'}).expect(200).end(function(err, res) {
-              expect(err).to.be.null;
-              expect(res.body).to.be.not.null;
-              expect(res.body.length).to.equal(2);
-              expect(res.body[0]._id).to.equal('' + bazuser._id);
-              expect(res.body[1]._id).to.equal('' + foouser._id);
-              expect(res.headers['x-esn-items-count']).to.exist;
-              expect(res.headers['x-esn-items-count']).to.equal('2');
-              done();
-            });
+    self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+      if (err) { return done(err); }
+      self.helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, requestAsMember) {
+        if (err) { return done(err); }
+        setTimeout(function() {
+          var req = requestAsMember(request(app).get('/api/domains/' + models.domain._id + '/members'));
+          req.query({search: 'lng'}).expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.body.length).to.equal(3);
+            expect(res.body[0]._id).to.equal(models.users[0]._id.toString());
+            expect(res.body[1]._id).to.equal(models.users[1]._id.toString());
+            expect(res.body[2]._id).to.equal(models.users[2]._id.toString());
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('3');
+            done();
           });
-        });
+        }, 2000);
+      });
     });
   });
 
   it('GET /api/domains/:uuid/members should return the first 2 members', function(done) {
     var self = this;
-    var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
-    function saveUser(user, domain, cb) {
-      if (domain) {
-        user.domains.push({domain_id: domain._id});
-      }
-      user.save(function(err, saved) {
-        return cb(err, saved);
-      });
-    }
+    self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+      if (err) { return done(err); }
+      self.helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, requestAsMember) {
+        if (err) { return done(err); }
 
-    domain.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-
-      var async = require('async');
-      async.series([
-          function(callback) {
-            saveUser(foouser, saved, callback);
-          },
-          function(callback) {
-            saveUser(baruser, saved, callback);
-          },
-          function(callback) {
-            saveUser(bazuser, saved, callback);
-          },
-          function(callback) {
-            saveUser(quxuser, saved, callback);
-          }
-        ],
-        function(err) {
-          if (err) {
-            return done(err);
-          }
-          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
-            if (err) { return done(err); }
-
-            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
-            req.query({limit: 2}).expect(200).end(function(err, res) {
-              expect(err).to.be.null;
-              expect(res.body).to.be.not.null;
-              expect(res.body.length).to.equal(2);
-              expect(res.body[0]._id).to.equal('' + foouser._id);
-              expect(res.body[1]._id).to.equal('' + baruser._id);
-              expect(res.headers['x-esn-items-count']).to.exist;
-              expect(res.headers['x-esn-items-count']).to.equal('4');
-              done();
-            });
-          });
+        var req = requestAsMember(request(app).get('/api/domains/' + models.domain._id + '/members'));
+        req.query({limit: 2}).expect(200).end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.be.not.null;
+          expect(res.body.length).to.equal(2);
+          expect(res.body[0]._id).to.equal(models.users[0]._id.toString());
+          expect(res.body[1]._id).to.equal(models.users[1]._id.toString());
+          expect(res.headers['x-esn-items-count']).to.exist;
+          expect(res.headers['x-esn-items-count']).to.equal('4');
+          done();
         });
+      });
     });
   });
 
   it('GET /api/domains/:uuid/members should return the last 2 members', function(done) {
     var self = this;
-    var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
-    function saveUser(user, domain, cb) {
-      if (domain) {
-        user.domains.push({domain_id: domain._id});
-      }
-      user.save(function(err, saved) {
-        return cb(err, saved);
-      });
-    }
+    self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+      if (err) { return done(err); }
+      self.helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, requestAsMember) {
+        if (err) { return done(err); }
 
-    domain.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-
-      var async = require('async');
-      async.series([
-          function(callback) {
-            saveUser(foouser, saved, callback);
-          },
-          function(callback) {
-            saveUser(baruser, saved, callback);
-          },
-          function(callback) {
-            saveUser(bazuser, saved, callback);
-          },
-          function(callback) {
-            saveUser(quxuser, saved, callback);
-          }
-        ],
-        function(err) {
-          if (err) {
-            return done(err);
-          }
-          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
-            if (err) { return done(err); }
-
-            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
-            req.query({offset: 2}).expect(200).end(function(err, res) {
-              expect(err).to.be.null;
-              expect(res.body).to.be.not.null;
-              expect(res.body.length).to.equal(2);
-              expect(res.body[0]._id).to.equal('' + bazuser._id);
-              expect(res.body[1]._id).to.equal('' + quxuser._id);
-              expect(res.headers['x-esn-items-count']).to.exist;
-              expect(res.headers['x-esn-items-count']).to.equal('4');
-              done();
-            });
-          });
+        var req = requestAsMember(request(app).get('/api/domains/' + models.domain._id + '/members'));
+        req.query({offset: 2}).expect(200).end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.be.not.null;
+          expect(res.body.length).to.equal(2);
+          expect(res.body[0]._id).to.equal(models.users[2]._id.toString());
+          expect(res.body[1]._id).to.equal(models.users[3]._id.toString());
+          expect(res.headers['x-esn-items-count']).to.exist;
+          expect(res.headers['x-esn-items-count']).to.equal('4');
+          done();
         });
+      });
     });
   });
 
   it('GET /api/domains/:uuid/members should return the third member', function(done) {
     var self = this;
-    var foouser = new User({ firstname: 'a', password: 'secret', emails: ['me@bar.com'], login: { failures: [new Date()]}});
-    var baruser = new User({ firstname: 'b', lastname: 'oofoo', password: 'secret', emails: ['barbar@bar.com'], login: { failures: [new Date()]}});
-    var bazuser = new User({ firstname: 'c', password: 'secret', emails: ['oooofooo@bar.com'], login: { failures: [new Date()]}});
-    var quxuser = new User({ firstname: 'd', password: 'secret', emails: ['qux@bar.com'], login: { failures: [new Date()]}});
-    var domain = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany', administrator: bazuser._id});
 
-    function saveUser(user, domain, cb) {
-      if (domain) {
-        user.domains.push({domain_id: domain._id});
-      }
-      user.save(function(err, saved) {
-        return cb(err, saved);
-      });
-    }
+    self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+      if (err) { return done(err); }
+      self.helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, requestAsMember) {
+        if (err) { return done(err); }
 
-    domain.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-
-      var async = require('async');
-      async.series([
-          function(callback) {
-            saveUser(foouser, saved, callback);
-          },
-          function(callback) {
-            saveUser(baruser, saved, callback);
-          },
-          function(callback) {
-            saveUser(bazuser, saved, callback);
-          },
-          function(callback) {
-            saveUser(quxuser, saved, callback);
-          }
-        ],
-        function(err) {
-          if (err) {
-            return done(err);
-          }
-          self.helpers.api.loginAsUser(app, bazuser.emails[0], password, function(err, requestAsMember) {
-            if (err) { return done(err); }
-
-            var req = requestAsMember(request(app).get('/api/domains/' + domain._id + '/members'));
-            req.query({limit: 1, offset: 2}).expect(200).end(function(err, res) {
-              expect(err).to.be.null;
-              expect(res.body).to.be.not.null;
-              expect(res.body.length).to.equal(1);
-              expect(res.body[0]._id).to.equal('' + bazuser._id);
-              expect(res.headers['x-esn-items-count']).to.exist;
-              expect(res.headers['x-esn-items-count']).to.equal('4');
-              done();
-            });
-          });
+        var req = requestAsMember(request(app).get('/api/domains/' + models.domain._id + '/members'));
+        req.query({limit: 1, offset: 2}).expect(200).end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.be.not.null;
+          expect(res.body.length).to.equal(1);
+          expect(res.body[0]._id).to.equal(models.users[2]._id.toString());
+          expect(res.headers['x-esn-items-count']).to.exist;
+          expect(res.headers['x-esn-items-count']).to.equal('4');
+          done();
         });
+      });
     });
   });
 

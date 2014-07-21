@@ -72,14 +72,26 @@ function getMembers(req, res) {
       return res.json(404, { error: { status: 404, message: 'Not Found', details: 'Domain ' + uuid + ' has not been found'}});
     }
 
-    userDomain.getUsers(domain, query, function(err, result) {
-      if (err) {
-        return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while getting members: ' + err.message}});
-      }
+    if (query.search) {
+      userDomain.getUsersSearch(domain, query, function(err, result) {
+        if (err) {
+          return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
+        }
 
-      res.header('X-ESN-Items-Count', result.total_count);
-      return res.json(200, result.list);
-    });
+        res.header('X-ESN-Items-Count', result.total_count);
+        return res.json(200, result.list);
+      });
+    }
+    else {
+      userDomain.getUsersList(domain, query, function(err, result) {
+        if (err) {
+          return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
+        }
+
+        res.header('X-ESN-Items-Count', result.total_count);
+        return res.json(200, result.list);
+      });
+    }
   });
 }
 module.exports.getMembers = getMembers;
