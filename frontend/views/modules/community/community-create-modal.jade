@@ -46,7 +46,7 @@
                 span.btn.btn-info.btn-file #{__('Select an image')}...
                   input(type="file", id="community_image", load-local-image-button, max-size="10")
               .col-md-6.col-xs-6.col-lg-6
-                local-image-preview(width="150", file="image")
+                local-image-preview(width="150", height="150", file="image")
           .form-group(ng-show="step === 1")
             label #{__('Description')}
             textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')

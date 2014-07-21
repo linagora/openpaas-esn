@@ -45,13 +45,13 @@ angular.module('esn.image', [])
           var height = attributes.height || img.height / img.width * attributes.width;
           canvas.attr({ width: width, height: height });
           canvas[0].getContext('2d').drawImage(img, 0, 0, width, height);
-          imageCacheService.setImage(img);
         }
 
         function onLoadFile(event) {
           var img = new Image();
           img.onload = onLoadImage;
           img.src = event.target.result;
+          imageCacheService.setImage(img);
         }
 
         scope.$watch(attributes.file, function(newValue, oldValue) {

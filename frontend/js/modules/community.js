@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal'])
-  .factory('communityAPI', ['Restangular', function(Restangular) {
+  .factory('communityAPI', ['Restangular', '$http', function(Restangular, $http) {
 
     function list(domain) {
       return Restangular.all('communities').getList({domain_id: domain});
@@ -19,11 +19,23 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
       return Restangular.all('communities').post(body);
     }
 
+    function uploadAvatar(id, blob, mime) {
+      return $http({
+        method: 'POST',
+        url: '/api/communities/' + id + '/avatar',
+        headers: {'Content-Type': mime},
+        data: blob,
+        params: {mimetype: mime, size: blob.size},
+        withCredentials: true
+      });
+    }
+
     return {
       list: list,
       get: get,
       del: del,
-      create: create
+      create: create,
+      uploadAvatar: uploadAvatar
     };
   }])
   .controller('communityCreateController', ['$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', 'imageCacheService', function($scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, imageCacheService) {
@@ -90,14 +102,29 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
           if (imageCacheService.getImage()) {
             $scope.create.step = 'upload';
             $scope.percent = 20;
-            $timeout(function() {
-              $scope.percent = 100;
-              $scope.create.step = 'redirect';
-              if (createModal) {
-                createModal.hide();
-              }
-              $location.path('/communities/' + data.data._id);
-            }, 2000);
+
+            var img = imageCacheService.getImage();
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context.drawImage(img, 0, 0);
+
+            var mime = 'image/png';
+            canvas.toBlob(function(blob) {
+              communityAPI.uploadAvatar(data.data._id, blob, mime).then(function() {
+                $scope.percent = 100;
+                $scope.create.step = 'redirect';
+
+                if (createModal) {
+                  createModal.hide();
+                }
+                $location.path('/communities/' + data.data._id);
+
+              }, function(error) {
+                console.log('Error', error);
+              });
+            }, mime);
 
           } else {
             $scope.percent = 100;
