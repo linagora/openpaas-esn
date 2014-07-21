@@ -188,4 +188,78 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
   });
+
+  describe('communitiesController controller', function() {
+    beforeEach(inject(function($rootScope, $controller, $q) {
+      this.communityAPI = {
+        list: function() {
+          return {
+            then: function() {
+              return {
+                finally: function() {}
+              };
+            }
+          };
+        }
+      };
+      this.session = {domain: {_id: 123}};
+      this.scope = $rootScope.$new();
+      this.$q = $q;
+      this.log = {
+        error: function() {
+        }
+      };
+
+      $controller('communitiesController', {
+        $scope: this.scope,
+        $log: this.log,
+        session: this.session,
+        communityAPI: this.communityAPI
+      });
+    }));
+
+    it('getAll fn should call communityAPI#list', function(done) {
+      this.communityAPI.list = function() {
+        return done();
+      };
+      this.scope.getAll();
+    });
+
+    it('getAll fn should set the $scope.communities with communityAPI#list result', function(done) {
+      var result = [{_id: 123}, {_id: 234}];
+      var communityDefer = this.$q.defer();
+      this.communityAPI.list = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: result});
+      this.scope.getAll();
+      this.scope.$digest();
+      expect(this.scope.communities).to.deep.equal(result);
+      done();
+    });
+
+    it('getAll fn should set $scope.error to true when communityAPI#list fails', function(done) {
+      var communityDefer = this.$q.defer();
+      this.communityAPI.list = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({err: 'failed'});
+      this.scope.getAll();
+      this.scope.$digest();
+      expect(this.scope.error).to.be.true;
+      done();
+    });
+
+    it('getAll fn should set $scope.selected to all', function(done) {
+      var communityDefer = this.$q.defer();
+      this.communityAPI.list = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({err: 'failed'});
+      this.scope.getAll();
+      this.scope.$digest();
+      expect(this.scope.selected).to.equal('all');
+      done();
+    });
+  });
 });

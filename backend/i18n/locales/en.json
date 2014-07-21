@@ -125,5 +125,11 @@
   "Open community": "Open community",
   "Communities": "Communities",
   "Community": "Community",
-  "Create a new community": "Create a new community"
+  "Create a new community": "Create a new community",
+  "Loading communities": "Loading communities",
+  "Error while loading communities": "Error while loading communities",
+  "No such communities": "No such communities",
+  "All": "All",
+  "Moderator": "Moderator",
+  "Member": "Member"
 }

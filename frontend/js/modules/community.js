@@ -79,18 +79,45 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
       );
     };
   }])
-  .controller('communitiesController', ['$scope', '$location', '$log', 'session', 'communityAPI', function($scope, $location, $log, session, communityAPI) {
+  .controller('communitiesController', ['$scope', '$log', 'session', 'communityAPI', function($scope, $log, session, communityAPI) {
     $scope.communities = [];
     $scope.error = false;
-    communityAPI.list(session.domain._id).then(
-      function(response) {
-        $scope.communities = response.data;
-      },
-      function(err) {
-        $log.error('Error while getting communities', err);
-        $scope.error = true;
-      }
-    );
+    $scope.loading = false;
+    $scope.selected = '';
+
+    $scope.getAll = function() {
+      $scope.selected = 'all';
+      $scope.loading = true;
+      communityAPI.list(session.domain._id).then(
+        function(response) {
+          $scope.communities = response.data;
+        },
+        function(err) {
+          $log.error('Error while getting communities', err);
+          $scope.error = true;
+        }
+      ).finally (
+        function() {
+          $scope.loading = false;
+        }
+      );
+    };
+
+    $scope.getMembership = function() {
+      $scope.selected = 'membership';
+      $scope.loading = false;
+      $scope.error = false;
+      $scope.communities = [];
+    };
+
+    $scope.getModerator = function() {
+      $scope.selected = 'moderator';
+      $scope.loading = false;
+      $scope.error = false;
+      $scope.communities = [];
+    };
+
+    $scope.getAll();
   }])
   .directive('communityDisplay', function() {
     return {
