@@ -105,6 +105,25 @@ function load(req, res, next) {
 }
 module.exports.load = load;
 
+function loadFromDomainIdParameter(req, res, next) {
+  var id = req.param('domain_id');
+  if (!id) {
+    return res.send(400);
+  }
+
+  Domain.loadFromID(id, function(err, domain) {
+    if (err) {
+      return next(err);
+    }
+    if (!domain) {
+      return res.send(404);
+    }
+    req.domain = domain;
+    return next();
+  });
+}
+module.exports.loadFromDomainIdParameter = loadFromDomainIdParameter;
+
 /**
  * Send invitations to a list of emails.
  *

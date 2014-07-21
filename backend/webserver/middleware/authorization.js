@@ -2,6 +2,7 @@
 
 var passport = require('passport');
 var config = require('../../core').config('default');
+var communityModule = require('../../core/community');
 
 //
 // Authorization middleware
@@ -50,7 +51,7 @@ exports.requiresDomainManager = function(req, res, next) {
   next();
 };
 
-exports.requiresDomainMember = function(req, res, next) {
+var requiresDomainMember = function(req, res, next) {
   if (!req.user || !req.domain) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
@@ -71,4 +72,44 @@ exports.requiresDomainMember = function(req, res, next) {
     return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
   }
   next();
+};
+module.exports.requiresDomainMember = requiresDomainMember;
+
+exports.requiresCommunityCreator = function(req, res, next) {
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  if (!req.community.creator.equals(req.user._id)) {
+    return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the community creator'});
+  }
+  next();
+};
+
+/**
+ * Current user is member of a domain inside the community is enough
+ */
+exports.requiresCommunityMember = function(req, res, next) {
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  communityModule.userIsCommunityMember(req.user, req.community, function(err, isMember) {
+    if (err) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
+    }
+
+    if (!isMember) {
+      return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not community member'});
+    }
+    return next();
+  });
 };
