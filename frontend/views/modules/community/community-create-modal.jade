@@ -5,7 +5,18 @@
         button.close(type="button", ng-click="$hide()") &times;
         h4.modal-title #{__('Create a new community')}
       .modal-body
-        form(name='communityForm')
+
+        .row.alert.alert-info(ng-show="sending", role="alert")
+          p
+            i.fa.fa-cog.fa-spin
+            span(ng-show="create.step === 'post'") #{__('Creating the community...')}
+            span(ng-show="create.step === 'upload'") #{__('Uploading avatar...')}
+            span(ng-show="create.step === 'redirect'") #{__('Redirecting to community page...')}
+          .progress
+            .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{percent}}", aria-valuemin="0", aria-valuemax="100", style="width: {{percent}}%")
+              span.sr-only {{percent}} % #{__('Complete')}
+
+        form(name='communityForm', ng-hide="sending")
           .form-group
             #communityerror
           .form-group(ng-show="step === 0")

@@ -1,7 +1,25 @@
 'use strict';
 
 angular.module('esn.image', [])
-  .directive('localImagePreview', ['$window', function($window) {
+  .factory('imageCacheService', function() {
+    var cache = {};
+    cache.image = null;
+
+    cache.setImage = function(image) {
+      this.image = image;
+    };
+
+    cache.getImage = function() {
+      return this.image;
+    };
+
+    cache.clear = function() {
+      cache.image = null;
+    };
+
+    return cache;
+  })
+  .directive('localImagePreview', ['$window', 'imageCacheService', function($window, imageCacheService) {
     var helper = {
       support: !!($window.FileReader && $window.CanvasRenderingContext2D),
       isFile: function(item) {
@@ -27,6 +45,7 @@ angular.module('esn.image', [])
           var height = attributes.height || img.height / img.width * attributes.width;
           canvas.attr({ width: width, height: height });
           canvas[0].getContext('2d').drawImage(img, 0, 0, width, height);
+          imageCacheService.setImage(img);
         }
 
         function onLoadFile(event) {
@@ -65,6 +84,8 @@ angular.module('esn.image', [])
       restrict: 'A',
       replace: true,
       link: function(scope, element, attrs) {
+        console.load(attrs);
+        console.log('DIRSCOPE', scope);
         element.bind('change', function(evt) {
           evt.stopPropagation();
           evt.preventDefault();

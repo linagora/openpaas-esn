@@ -26,14 +26,18 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
       create: create
     };
   }])
-  .controller('communityCreateController', ['$scope', '$location', '$log', '$modal', '$alert', 'session', 'communityAPI', function($scope, $location, $log, $modal, $alert, session, communityAPI) {
+  .controller('communityCreateController', ['$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', 'imageCacheService', function($scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, imageCacheService) {
+    imageCacheService.clear();
     $scope.step = 0;
     $scope.sending = false;
     $scope.community = {
       domain_ids: [session.domain._id]
     };
     $scope.alert = undefined;
-    $scope.image = '';
+    $scope.percent = 0;
+    $scope.create = {
+      step: 'none'
+    };
 
     var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
     $scope.showCreateModal = function() {
@@ -55,7 +59,9 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
     };
 
     $scope.create = function(community) {
+      $scope.create.step = 'post';
       $scope.sending = true;
+      $scope.percent = 1;
 
       if ($scope.alert) {
         $scope.alert.hide();
@@ -76,16 +82,35 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
         return $scope.displayError('Domain is missing, try reloading the page');
       }
 
+      $scope.percent = 5;
+
       communityAPI.create(community).then(
         function(data) {
-          $scope.sending = false;
-          if (createModal) {
-            createModal.hide();
+
+          if (imageCacheService.getImage()) {
+            $scope.create.step = 'upload';
+            $scope.percent = 20;
+            $timeout(function() {
+              $scope.percent = 100;
+              $scope.create.step = 'redirect';
+              if (createModal) {
+                createModal.hide();
+              }
+              $location.path('/communities/' + data.data._id);
+            }, 2000);
+
+          } else {
+            $scope.percent = 100;
+            $scope.create.step = 'redirect';
+            if (createModal) {
+              createModal.hide();
+            }
+            $location.path('/communities/' + data.data._id);
           }
-          $location.path('/communities/' + data.data._id);
         },
         function(err) {
           $scope.sending = false;
+          $scope.create.step = '';
           $log.error('Error ', err);
           return $scope.displayError('Error while creating the community');
         }
