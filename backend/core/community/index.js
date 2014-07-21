@@ -82,7 +82,7 @@ module.exports.delete = function(community, callback) {
 };
 
 module.exports.userIsCommunityMember = function(user, community, callback) {
-  if (!user || !user._id) {
+  if (!user ||   !user._id) {
     return callback(new Error('User object is required'));
   }
 
@@ -90,7 +90,7 @@ module.exports.userIsCommunityMember = function(user, community, callback) {
     return callback(new Error('Community object is required'));
   }
 
-  if (!community.domain_ids ||community.domain_ids.length === 0) {
+  if (!community.domain_ids || community.domain_ids.length === 0) {
     return callback(new Error('Community does not belong to any domain'));
   }
 

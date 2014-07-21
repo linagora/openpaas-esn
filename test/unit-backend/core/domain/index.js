@@ -43,7 +43,7 @@ describe('The domain module', function() {
 
   describe('The userIsDomainAdministrator fn', function() {
     it('should send back error when user is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainAdministrator(null, {_id: 123}, function(err) {
@@ -53,7 +53,7 @@ describe('The domain module', function() {
     });
 
     it('should send back error when user._id is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainAdministrator({}, {_id: 123}, function(err) {
@@ -63,7 +63,7 @@ describe('The domain module', function() {
     });
 
     it('should send back error when domain is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainAdministrator({_id: 123}, null, function(err) {
@@ -73,7 +73,7 @@ describe('The domain module', function() {
     });
 
     it('should send back error when domain._id is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainAdministrator({_id: 123}, {}, function(err) {
@@ -83,7 +83,7 @@ describe('The domain module', function() {
     });
 
     it('should send back false when domain.administrator is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainAdministrator({_id: 123}, {_id: 234}, function(err, result) {
@@ -94,7 +94,7 @@ describe('The domain module', function() {
     });
 
     it('should send back false when domain.administrator is not equal to user._id', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
@@ -106,7 +106,7 @@ describe('The domain module', function() {
     });
 
     it('should send back false true domain.administrator is equal to user._id', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
@@ -121,7 +121,7 @@ describe('The domain module', function() {
 
   describe('userIsDomainMember fn', function() {
     it('should send back error when user is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainMember(null, {_id: 123}, function(err) {
@@ -131,7 +131,7 @@ describe('The domain module', function() {
     });
 
     it('should send back error when user._id is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainMember({}, {_id: 123}, function(err) {
@@ -141,7 +141,7 @@ describe('The domain module', function() {
     });
 
     it('should send back error when domain is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainMember({_id: 123}, null, function(err) {
@@ -151,7 +151,7 @@ describe('The domain module', function() {
     });
 
     it('should send back error when domain._id is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
       domain.userIsDomainMember({_id: 123}, {}, function(err) {
@@ -161,7 +161,7 @@ describe('The domain module', function() {
     });
 
     it('should send back true when user is domain administrator', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
@@ -174,7 +174,7 @@ describe('The domain module', function() {
     });
 
     it('should send back false when user.domains is undefined', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
@@ -186,7 +186,7 @@ describe('The domain module', function() {
     });
 
     it('should send back false when user.domains is empty', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
@@ -198,7 +198,7 @@ describe('The domain module', function() {
     });
 
     it('should send back true when user.domains contains the domain', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
@@ -212,7 +212,7 @@ describe('The domain module', function() {
     });
 
     it('should send back false when user.domains does not contain the domain', function(done) {
-      mockery.registerMock('mongoose', {model: function(){}});
+      mockery.registerMock('mongoose', {model: function() {}});
 
       var ObjectId = require('bson').ObjectId;
       var domain = require(this.testEnv.basePath + '/backend/core/domain');
@@ -224,5 +224,5 @@ describe('The domain module', function() {
         done();
       });
     });
-  })
+  });
 });

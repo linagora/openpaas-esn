@@ -12,7 +12,7 @@ function load(id, callback) {
 module.exports.load = load;
 
 function userIsDomainAdministrator(user, domain, callback) {
-  if (!user || !user._id) {
+  if (!user ||   !user._id) {
     return callback(new Error('User object is required'));
   }
 
@@ -29,7 +29,7 @@ function userIsDomainAdministrator(user, domain, callback) {
 module.exports.userIsDomainAdministrator = userIsDomainAdministrator;
 
 function userIsDomainMember(user, domain, callback) {
-  if (!user || !user._id) {
+  if (!user ||   !user._id) {
     return callback(new Error('User object is required'));
   }
 

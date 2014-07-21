@@ -76,8 +76,12 @@ var requiresDomainMember = function(req, res, next) {
 module.exports.requiresDomainMember = requiresDomainMember;
 
 exports.requiresCommunityCreator = function(req, res, next) {
-  if (!req.user || !req.community) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or community'});
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
   if (!req.community.creator.equals(req.user._id)) {
@@ -100,7 +104,7 @@ exports.requiresCommunityMember = function(req, res, next) {
 
   communityModule.userIsCommunityMember(req.user, req.community, function(err, isMember) {
     if (err) {
-      return res.json(400, {error: 400, message: 'Bad request', details: 'Can not defined the community membership'});
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }
 
     if (!isMember) {
