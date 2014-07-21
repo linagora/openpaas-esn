@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal'])
+angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal'])
   .factory('communityAPI', ['Restangular', function(Restangular) {
 
     function list(domain) {
@@ -32,8 +32,8 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
     $scope.community = {
       domain_ids: [session.domain._id]
     };
-
     $scope.alert = undefined;
+    $scope.image = '';
 
     var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
     $scope.showCreateModal = function() {
