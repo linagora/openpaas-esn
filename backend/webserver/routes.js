@@ -91,7 +91,9 @@ exports = module.exports = function(application) {
 
 
   var conferenceController = require('./controllers/conferences');
+  var liveConferenceController = require('./controllers/live-conference');
   var conferenceMiddleware = require('./middleware/conference');
+  application.get('/conferences/:id', authorize.requiresAPILogin, liveConferenceController.open);
   application.get('/api/conferences/:id', authorize.requiresAPILogin, conferenceController.load, conferenceController.get);
   application.get('/api/conferences', authorize.requiresAPILogin, conferenceController.list);
   application.post('/api/conferences', authorize.requiresAPILogin, conferenceController.create);

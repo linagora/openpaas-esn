@@ -1,5 +1,6 @@
 {
   "webserver": {
+    "host": "10.75.9.28",
     "enabled": true,
     "port": 8080,
     "ssl_port": 8443,

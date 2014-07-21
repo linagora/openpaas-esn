@@ -1,6 +1,5 @@
 .row
-  .col-lg-9
-
+  .col-xs-9
     div.conference-video(id='multiparty-conference', fullscreen='isFullscreen')
       .row.text-center.well
         button(type='btn', class='btn btn-default', ng-click="toggleFullScreen()") #{__('Toggle full screen')}
@@ -18,7 +17,7 @@
         conference-attendee-video(video-id="video-thumb6", attendee="getName(attendees[6])")
         conference-attendee-video(video-id="video-thumb7", attendee="getName(attendees[7])")
         conference-attendee-video(video-id="video-thumb8", attendee="getName(attendees[8])")
-  .col-lg-3.widget
+  .col-xs-3.widget
     h4 #{__('Members')}
     .row(ng-repeat="user in users")
       conference-attendee(user=user)

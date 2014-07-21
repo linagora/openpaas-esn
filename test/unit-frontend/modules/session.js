@@ -86,127 +86,163 @@ describe('The esn.session Angular module', function() {
 
   });
 
+  describe('sessionFactory service', function() {
+    var service, $q, $rootScope, userdefer, domaindefer, tokendefer, userAPI, domainAPI, session, tokenAPI;
 
-  describe('sessionInitController', function() {
-    beforeEach(inject(function($rootScope, $q, $controller, $route) {
-      var userdefer = $q.defer();
-      var domaindefer = $q.defer();
-      var tokendefer = $q.defer();
-      this.userdefer = userdefer;
-      this.domaindefer = domaindefer;
-      this.tokendefer = tokendefer;
-      this.$scope = $rootScope.$new();
-      this.$rootScope = $rootScope;
-      this.$q = $q;
+    beforeEach(function() {
 
-      this.userAPI = {
+      userAPI = {
         currentUser: function() {
+          userdefer = $q.defer();
           return userdefer.promise;
         }
       };
 
-      this.domainAPI = {
+      domainAPI = {
         get: function() {
+          domaindefer = $q.defer();
           return domaindefer.promise;
         }
       };
 
-      this.session = {
+      session = {
         setUser: function() {},
         setDomain: function() {}
       };
 
-      this.tokenAPI = {
+      tokenAPI = {
         getNewToken: function() {
+          tokendefer = $q.defer();
           return tokendefer.promise;
         }
       };
 
-      $controller('sessionInitController', {
-        $scope: this.$scope,
-        $q: this.$q,
-        userAPI: this.userAPI,
-        domainAPI: this.domainAPI,
-        tokenAPI: this.tokenAPI,
-        session: this.session
+      module(function($provide) {
+        $provide.value('userAPI', userAPI);
+        $provide.value('domainAPI', domainAPI);
+        $provide.value('tokenAPI', tokenAPI);
+        $provide.value('session', session);
       });
 
-    }));
-
-    it('should populate a session.template property', function() {
-      expect(this.$scope.session.template).to.equal('/views/esn/partials/loading.html');
+      inject(function($injector, _$q_, _$rootScope_) {
+        service = $injector.get('sessionFactory');
+        $q = _$q_;
+        $rootScope = _$rootScope_;
+      });
     });
 
-    it('should render the error template if there is an error in the user request', function() {
-      this.userdefer.reject({data: {error: 'error', message: 'message'}});
-      this.$scope.$digest();
-      expect(this.$scope.session.template).to.equal('/views/esn/partials/loading-error.html');
-      expect(this.$scope.session.error).to.deep.equal({error: 'error', message: 'message'});
+    it('should callback(error.data) if there is an error with error.data in the user request', function(done) {
+      service.fetchUser(function(error) {
+        if (error) {
+          expect(error).to.deep.equal({error: 'error', message: 'message'});
+          done();
+        } else {
+          done(new Error());
+        }
+      });
+      userdefer.reject({data: {error: 'error', message: 'message'}});
+      $rootScope.$digest();
     });
 
-    it('should render the error template if the user does not belong to a domain', function() {
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo'}});
-      this.$scope.$digest();
-      expect(this.$scope.session.template).to.equal('/views/esn/partials/loading-error.html');
-      expect(this.$scope.session.error).to.deep.equal({error: 400, message: 'Invalid user', details: 'User does not belong to a domain', displayLogout: true});
+    it('should render the error template if the user does not belong to a domain', function(done) {
+      service.fetchUser(function(error) {
+        if (error) {
+          expect(error).to.deep.equal({error: 400, message: 'Invalid user', details: 'User does not belong to a domain', displayLogout: true});
+          done();
+        } else {
+          done(new Error());
+        }
+      });
+      userdefer.resolve({data: {_id: 'user1', name: 'foo'}});
+      $rootScope.$digest();
     });
 
     it('should call domainAPI.get() with the first domain id in user.domains', function(done) {
-      this.domainAPI.get = function(id) {
+      domainAPI.get = function(id) {
         expect(id).to.equal('I1');
         done();
       };
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      this.$scope.$digest();
+      service.fetchUser(function() {});
+      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      $rootScope.$digest();
     });
 
 
-    it('should render the error template if there is an error in the domain request', function() {
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      this.$scope.$digest();
-      this.domaindefer.reject({data: {error: 'error', message: 'message'}});
-      this.$scope.$digest();
-      expect(this.$scope.session.template).to.equal('/views/esn/partials/loading-error.html');
-      expect(this.$scope.session.error).to.deep.equal({error: 'error', message: 'message'});
+    it('should render the error template if there is an error in the domain request', function(done) {
+      service.fetchUser(function(error) {
+        if (error) {
+          expect(error).to.deep.equal({error: 'error', message: 'message'});
+          done();
+        } else {
+          done(new Error());
+        }
+      });
+
+      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      $rootScope.$digest();
+      domaindefer.reject({data: {error: 'error', message: 'message'}});
+      $rootScope.$digest();
     });
 
-    it('should render the application template if domain & user request succeded', function() {
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      this.$scope.$digest();
-      this.domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
-      this.$scope.$digest();
-      expect(this.$scope.session.template).to.equal('/views/esn/partials/application.html');
+    it('should render the application template if domain & user request succeded', function(done) {
+      service.fetchUser(function(error) {
+        if (error) {
+          done(new Error());
+        } else {
+          done();
+        }
+      });
+
+      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      $rootScope.$digest();
+      domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
+      $rootScope.$digest();
     });
 
     it('should call session.setUser when user is retrieved', function(done) {
-      this.session.setUser = function(user) {
+      session.setUser = function(user) {
         expect(user).to.deep.equal({_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]});
         done();
       };
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      this.$scope.$digest();
+      service.fetchUser(function(error) {
+        if (error) {
+          done(new Error());
+        } else {
+          done();
+        }
+      });
+      service.fetchUser(function() {});
+
+      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      $rootScope.$digest();
     });
 
     it('should call session.setDomain when domain is retrieved', function(done) {
-      this.session.setDomain = function(domain) {
+      session.setDomain = function(domain) {
         expect(domain).to.deep.equal({_id: 'D1', name: 'domain1'});
         done();
       };
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      this.$scope.$digest();
-      this.domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
-      this.$scope.$digest();
+      service.fetchUser(function() {});
+
+      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      $rootScope.$digest();
+      domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
+      $rootScope.$digest();
     });
 
     it('should call session.setWebsocketToken when token is retrieved', function(done) {
-      this.session.setWebsocketToken = function(token) {
+      session.setWebsocketToken = function(token) {
         expect(token).to.deep.equal({_id: 1});
         done();
       };
-      this.userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      this.$scope.$digest();
-      this.tokendefer.resolve({data: {_id: 1}});
-      this.$scope.$digest();
+      service.fetchUser(function() {});
+
+      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
+      $rootScope.$digest();
+      domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
+      $rootScope.$digest();
+      tokendefer.resolve({data: {_id: 1}});
+      $rootScope.$digest();
     });
 
   });
