@@ -4,8 +4,8 @@
       h2
         i.fa.fa-users
         | #{__('Communities')}
-      div.well
-        a.btn.btn-info(href="#/communities/create") #{__('Create a new community')}
+      div.well(ng-controller="communityCreateController")
+        button.btn.btn-info(type="button", ng-click="showCreateModal()") #{__('Create a new community')}
       .row
         ul.nav.nav-pills
           li(ng-class="{active: selected === 'all', disabled: loading}")

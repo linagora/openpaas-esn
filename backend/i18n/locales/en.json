@@ -131,5 +131,15 @@
   "No such communities": "No such communities",
   "All": "All",
   "Moderator": "Moderator",
-  "Member": "Member"
+  "Member": "Member",
+  "Open": "Open",
+  "Private": "Private",
+  "Confidential": "Confidential",
+  "Next": "Next",
+  "Create": "Create",
+  "Community title. Have to be unique in the current domain": "Community title. Have to be unique in the current domain",
+  "Choose the best policy dependending on the community usage": "Choose the best policy dependending on the community usage",
+  "A Human readable description which will help users to know what this community is about": "A Human readable description which will help users to know what this community is about"
+
+
 }

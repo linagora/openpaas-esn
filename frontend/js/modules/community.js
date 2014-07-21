@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.alert'])
+angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal'])
   .factory('communityAPI', ['Restangular', function(Restangular) {
 
     function list(domain) {
@@ -26,13 +26,19 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
       create: create
     };
   }])
-  .controller('communityCreateController', ['$scope', '$location', '$log', '$alert', 'session', 'communityAPI', function($scope, $location, $log, $alert, session, communityAPI) {
+  .controller('communityCreateController', ['$scope', '$location', '$log', '$modal', '$alert', 'session', 'communityAPI', function($scope, $location, $log, $modal, $alert, session, communityAPI) {
+    $scope.step = 0;
     $scope.sending = false;
     $scope.community = {
       domain_ids: [session.domain._id]
     };
 
     $scope.alert = undefined;
+
+    var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
+    $scope.showCreateModal = function() {
+      createModal.$promise.then(createModal.show);
+    };
 
     $scope.displayError = function(err) {
       $scope.alert = $alert({
@@ -69,6 +75,9 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
       communityAPI.create(community).then(
         function(data) {
           $scope.sending = false;
+          if (createModal) {
+            createModal.hide();
+          }
           $location.path('/communities/' + data.data._id);
         },
         function(err) {
@@ -124,12 +133,5 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/community/community-display.html'
-    };
-  })
-  .directive('communityCreateForm', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/community/community-create-form.html'
     };
   });

@@ -106,6 +106,7 @@ describe('The Community Angular module', function() {
         error: function() {
         }
       };
+      this.modal = function() {};
       this.alert = function() {};
       this.session = {domain: {_id: 123}};
       this.scope = $rootScope.$new();
@@ -115,6 +116,7 @@ describe('The Community Angular module', function() {
         $scope: this.scope,
         $location: this.location,
         $log: this.log,
+        $modal: this.modal,
         $alert: this.alert,
         session: this.session,
         communityAPI: this.communityAPI

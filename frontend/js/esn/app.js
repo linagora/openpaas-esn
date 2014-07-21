@@ -165,11 +165,6 @@ angular.module('esnApp', [
       controller: 'communitiesController'
     });
 
-    $routeProvider.when('/communities/create', {
-      templateUrl: '/views/modules/community/community-create',
-      controller: 'communityCreateController'
-    });
-
     $routeProvider.when('/communities/:community_id', {
       templateUrl: '/views/modules/community/community',
       resolve: {
