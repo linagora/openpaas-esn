@@ -40,6 +40,10 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
       createModal.$promise.then(createModal.show);
     };
 
+    $scope.validateTitle = function() {
+      return ($scope.community.title && $scope.community.title.length > 0);
+    };
+
     $scope.displayError = function(err) {
       $scope.alert = $alert({
         content: err,
@@ -83,7 +87,7 @@ angular.module('esn.community', ['esn.session', 'restangular', 'mgcrea.ngStrap.a
         function(err) {
           $scope.sending = false;
           $log.error('Error ', err);
-          return $scope.displayError(err.data || err);
+          return $scope.displayError('Error while creating the community');
         }
       );
     };

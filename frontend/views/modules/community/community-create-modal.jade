@@ -10,11 +10,11 @@
             #communityerror
           .form-group(ng-show="step === 0")
             label #{__('Title')}&nbsp;*
-            input.form-control(type='text', ng-model='community.title', name='title', placeholder="#{__('Title')}", autofocus=true, required)
+            input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', placeholder="#{__('Title')}", autofocus=true, required)
             span.help-block #{__('Community title. Have to be unique in the current domain')}.
           .form-group(ng-show="step === 0")
             fieldset(disabled)
-              label #{__('Visiblity')}&nbsp;*
+              label #{__('Visiblity')}&nbsp;
               .radio
                 label
                   input(type="radio", name="rigths", ng-model="community.rights", value="open", checked)
@@ -29,10 +29,14 @@
                   | #{__('Confidential')}
               span.help-block #{__("Choose the best policy dependending on the community usage")}.
           .form-group(ng-show="step === 1")
+            label #{__('Avatar')}
+            input(type="file", ng-model="community.avatar", name="avatar")
+          .form-group(ng-show="step === 1")
             label #{__('Description')}
-            textarea.form-control(rows="3", ng-model='community.description', name='description')
+            textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
             span.help-block #{__("A Human readable description which will help users to know what this community is about")}.
       .modal-footer
-        button.btn.btn-primary(type="button", ng-disabled="sending", ng-show="step === 0", ng-click="step = 1") #{__('Next')}
+        button.btn.btn-primary.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="step = 0") #{__('Previous')}
+        button.btn.btn-primary(type="button", ng-disabled="!validateTitle()", ng-show="step === 0", ng-click="step = 1") #{__('Next')}
         button.btn.btn-primary(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="create(community)") #{__('Create')}
         button.btn.btn-default(type="button", ng-disabled="sending", ng-click="$hide()") #{__('Cancel')}
