@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal'])
-  .factory('communityAPI', ['Restangular', '$http', function(Restangular, $http) {
+angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
+  .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain) {
       return Restangular.all('communities').getList({domain_id: domain});
@@ -20,7 +20,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
     }
 
     function uploadAvatar(id, blob, mime) {
-      return $http({
+      return $upload.http({
         method: 'POST',
         url: '/api/communities/' + id + '/avatar',
         headers: {'Content-Type': mime},
@@ -38,17 +38,19 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
       uploadAvatar: uploadAvatar
     };
   }])
-  .controller('communityCreateController', ['$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', 'imageCacheService', function($scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, imageCacheService) {
+  .controller('communityCreateController', ['$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', 'imageCacheService', '$upload', function($scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, imageCacheService, $upload) {
     imageCacheService.clear();
     $scope.step = 0;
     $scope.sending = false;
     $scope.community = {
-      domain_ids: [session.domain._id]
+      domain_ids: [session.domain._id],
+      image: ''
     };
     $scope.alert = undefined;
     $scope.percent = 0;
     $scope.create = {
-      step: 'none'
+      step: 'none',
+      created: false
     };
 
     var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
@@ -99,7 +101,9 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
       communityAPI.create(community).then(
         function(data) {
 
-          if (imageCacheService.getImage()) {
+          $scope.create.created = true;
+
+          if (community.image && imageCacheService.getImage()) {
             $scope.create.step = 'upload';
             $scope.percent = 20;
 
@@ -112,18 +116,32 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
 
             var mime = 'image/png';
             canvas.toBlob(function(blob) {
-              communityAPI.uploadAvatar(data.data._id, blob, mime).then(function() {
-                $scope.percent = 100;
-                $scope.create.step = 'redirect';
 
-                if (createModal) {
-                  createModal.hide();
-                }
-                $location.path('/communities/' + data.data._id);
+              communityAPI.uploadAvatar(data.data._id, blob, mime)
+                .progress(function(evt) {
+                  var value = parseInt(80.0 * evt.loaded / evt.total);
+                  $scope.percent = 20 + value;
 
-              }, function(error) {
-                console.log('Error', error);
-              });
+                }).success(function() {
+                  $scope.percent = 100;
+                  $scope.create.step = 'redirect';
+
+                  if (createModal) {
+                    createModal.hide();
+                  }
+                  $location.path('/communities/' + data.data._id);
+
+                }).error(function(error) {
+                  $scope.percent = 100;
+                  $scope.create.step = 'uploadfailed';
+                  $scope.create.error = error;
+
+                  if (createModal) {
+                    createModal.hide();
+                  }
+                  $location.path('/communities/' + data.data._id);
+
+                });
             }, mime);
 
           } else {
@@ -137,7 +155,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
         },
         function(err) {
           $scope.sending = false;
-          $scope.create.step = '';
+          $scope.create.error = err;
+          $scope.create.step = 'none';
           $log.error('Error ', err);
           return $scope.displayError('Error while creating the community');
         }

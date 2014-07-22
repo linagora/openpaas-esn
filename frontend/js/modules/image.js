@@ -79,20 +79,17 @@ angular.module('esn.image', [])
       }
     };
   }])
-  .directive('loadLocalImageButton', function() {
+  .directive('fileInput', ['$parse', function($parse) {
     return {
       restrict: 'A',
-      replace: true,
       link: function(scope, element, attrs) {
-        console.load(attrs);
-        console.log('DIRSCOPE', scope);
         element.bind('change', function(evt) {
           evt.stopPropagation();
           evt.preventDefault();
           var file = evt.dataTransfer !== undefined ? evt.dataTransfer.files[0] : evt.target.files[0];
-          scope.image = file;
+          $parse(attrs.fileInput).assign(scope, file);
           scope.$apply();
         });
       }
     };
-  });
+  }]);
