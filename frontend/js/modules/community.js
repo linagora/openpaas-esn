@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain) {
@@ -38,8 +38,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
       uploadAvatar: uploadAvatar
     };
   }])
-  .controller('communityCreateController', ['$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', 'imageCacheService', '$upload', function($scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, imageCacheService, $upload) {
-    imageCacheService.clear();
+  .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', '$upload', 'selectionService', function($rootScope, $scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, $upload, selectionService) {
+    selectionService.clear();
     $scope.step = 0;
     $scope.sending = false;
     $scope.community = {
@@ -52,6 +52,12 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
       step: 'none',
       created: false
     };
+    $scope.imageselected = false;
+
+    $rootScope.$on('crop:loaded', function() {
+      $scope.imageselected = true;
+      $scope.$apply();
+    });
 
     var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
     $scope.showCreateModal = function() {
@@ -98,21 +104,40 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
 
       $scope.percent = 5;
 
+      function done(id) {
+        $timeout(function() {
+          if (createModal) {
+            createModal.hide();
+          }
+          selectionService.clear();
+          $location.path('/communities/' + id);
+        }, 1000);
+      }
+
       communityAPI.create(community).then(
         function(data) {
 
           $scope.create.created = true;
 
-          if (community.image && imageCacheService.getImage()) {
+          if (selectionService.getImage()) {
             $scope.create.step = 'upload';
             $scope.percent = 20;
 
-            var img = imageCacheService.getImage();
+            var image = selectionService.getImage();
+            var ratio = selectionService.selection.ratio || 1;
+            var selection = selectionService.selection.cords;
             var canvas = document.createElement('canvas');
             var context = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context.drawImage(img, 0, 0);
+
+            if (selection.w === 0 || selection.h === 0) {
+              canvas.width = 128;
+              canvas.height = 128;
+              context.drawImage(image, 0, 0, 128, 128);
+            } else {
+              canvas.width = selection.w * ratio;
+              canvas.height = selection.h * ratio;
+              context.drawImage(image, selection.x * ratio, selection.y * ratio, selection.w * ratio, selection.h * ratio, 0, 0, canvas.width, canvas.height);
+            }
 
             var mime = 'image/png';
             canvas.toBlob(function(blob) {
@@ -125,32 +150,20 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'restangular', 'mgc
                 }).success(function() {
                   $scope.percent = 100;
                   $scope.create.step = 'redirect';
-
-                  if (createModal) {
-                    createModal.hide();
-                  }
-                  $location.path('/communities/' + data.data._id);
+                  return done(data.data._id);
 
                 }).error(function(error) {
                   $scope.percent = 100;
                   $scope.create.step = 'uploadfailed';
                   $scope.create.error = error;
-
-                  if (createModal) {
-                    createModal.hide();
-                  }
-                  $location.path('/communities/' + data.data._id);
-
+                  return done(data.data._id);
                 });
             }, mime);
 
           } else {
             $scope.percent = 100;
             $scope.create.step = 'redirect';
-            if (createModal) {
-              createModal.hide();
-            }
-            $location.path('/communities/' + data.data._id);
+            return done(data.data._id);
           }
         },
         function(err) {

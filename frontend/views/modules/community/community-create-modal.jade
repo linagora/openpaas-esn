@@ -52,11 +52,15 @@
           .form-group(ng-show="step === 1")
             label #{__('Avatar')}
             .row
-              .col-md-6.col-xs-6.col-lg-6
-                span.btn.btn-info.btn-file #{__('Select an image')}...
-                  input(type="file", file-input="community.image")
-              .col-md-6.col-xs-6.col-lg-6
-                local-image-preview(width="150", height="150", file="community.image")
+              .col-xs-3.col-md-3.col-lg-3
+                .row
+                  label
+                    span.btn.btn-info.btn-file #{__('Select an image')}...
+                      input(type="file", load-button)
+                .row(ng-show='imageselected')
+                  canvas(width="128", height="128", id="preview", img-preview)
+              .col-xs-9.col-md-9.col-lg-9(ng-show='imageselected')
+                img-loaded(width="380")
           .form-group(ng-show="step === 1")
             label #{__('Description')}
             textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
