@@ -87,11 +87,6 @@ angular.module('esnApp', [
       controller: 'memberscontroller'
     });
 
-    $routeProvider.when('/profile/avatar', {
-      templateUrl: '/views/esn/partials/avatar',
-      controller: 'avatarEdit'
-    });
-
     $routeProvider.when('/conferences', {
       templateUrl: '/views/esn/partials/conference',
       controller: 'conferencesController',

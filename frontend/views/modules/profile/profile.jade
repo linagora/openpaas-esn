@@ -3,8 +3,8 @@ div.row(ng-controller='profileEditionController')
     div
       a.thumbnail
         img(width="150", heigth="150", src='/api/user/profile/avatar')
-    div
-      a.btn.btn-default.btn-block(href="/#/profile/avatar") #{__('Edit your photo')}
+    div(ng-controller='avatarEdit')
+      button.btn.btn-default.btn-block(type="button", ng-click="showAvatarEditModal()") #{__('Edit your photo')}
   div.col-md-6
     div.row
       div.col-md-10.col-xs-8
