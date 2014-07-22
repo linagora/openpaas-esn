@@ -4,10 +4,12 @@ div.col-xs-12.nopadding.esn-member
   .col-lg-2.col-sm-3.col-xs-4
     a(href='#/communities/{{community._id}}')
       img.thumbnail(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
+    .text-center
+      span.label.label-info #{__('Open')}
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading {{community.title}}
-      small &nbsp; #{__('Open community')}
-    p {{community.description}}
+    blockquote(ng-show='community.description')
+      p {{community.description}}
   .col-lg-3.col-sm-4.col-xs-12
     a.btn.btn-primary(href='#/communities/{{community._id}}')
       | #{__('Join')}

@@ -3,8 +3,9 @@
     .modal-content
       .modal-header
         button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
-        h4.modal-title(ng-hide="sending") #{__('Create a new community')}
-        h4.modal-title(ng-show="sending") #{__('Creating the community')}...
+        h4.modal-title(ng-hide="step !== 0") #{__('Create a new community')}
+        h4.modal-title(ng-show="step === 1 && !sending") About to create the '{{community.title}}' community
+        h4.modal-title(ng-show="sending") Creating the '{{community.title}}' community...
       .modal-body
 
         .row.alert.alert-info(ng-show="sending", role="alert")
@@ -23,33 +24,37 @@
           .form-group
             #communityerror
           .form-group(ng-show="step === 0")
-            label #{__('Title')}&nbsp;*
-            input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', placeholder="#{__('Title')}", autofocus=true, required)
-            span.help-block #{__('Community title. Have to be unique in the current domain')}.
+            label #{__('The community title')}&nbsp;*
+            input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', autofocus=true, required)
+            span.help-block #{__('The community title have to be unique in the current domain')}.
           .form-group(ng-show="step === 0")
-            fieldset(disabled)
+            fieldset
               label #{__('Visiblity')}&nbsp;
               .radio
                 label
-                  input(type="radio", name="rigths", ng-model="community.rights", value="open", checked)
-                  | #{__('Open')}
+                  input(type="radio", name="rigths", ng-model="community.rights", value="open", checked, selected)
+                  span.label.label-info #{__('Open')}
                   span.help-block #{__('Publish content from and for everyone. Each user can freely read, join and participate to the community')}.
               .radio
                 label
                   input(type="radio", name="rigths", ng-model="community.rights", value="restricted")
-                  | #{__('Restricted')}
+                  span.label.label-info #{__('Restricted')}
                   span.help-block #{__('Content is freely accessible to all users, but only members can participate')}.
               .radio
                 label
                   input(type="radio", name="rigths", ng-model="community.rights", value="private")
-                  | #{__('Private')}
+                  span.label.label-info #{__('private')}
                   span.help-block #{__('Only members can read and publish contents in this community. Each user can request membership')}.
               .radio
                 label
                   input(type="radio", name="rigths", ng-model="community.rights", value="confidential")
-                  | #{__('Confidential')}
+                  span.label.label-info #{__('Confidential')}
                   span.help-block #{__('Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation')}.
           .form-group(ng-show="step === 1")
+            .row.alert.alert-warning(role="alert")
+              p #{__('You are about to create the')}
+                strong &nbsp;'{{community.title}}'&nbsp;
+                | #{__('community')}. #{__('You can customize it with an avatar and a description now or do it later on the community page')}.
             label #{__('Avatar')}
             .row
               .col-xs-3.col-md-3.col-lg-3
@@ -64,9 +69,13 @@
           .form-group(ng-show="step === 1")
             label #{__('Description')}
             textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
-            span.help-block #{__("A Human readable description which will help users to know what this community is about")}.
+            span.help-block #{__("A human readable description which will help users to know what this community is about")}.
       .modal-footer.widget
-        button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="step = 0") #{__('Previous')}
-        button.btn.btn-default(type="button", ng-disabled="!validateTitle()", ng-show="step === 0", ng-click="step = 1") #{__('Next')}
+        button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="step = 0")
+          i.fa.fa-chevron-left
+          | #{__('Previous')}
+        button.btn.btn-info(type="button", ng-disabled="!validateTitle()", ng-show="step === 0", ng-click="step = 1")
+          | #{__('Next')} &nbsp;
+          i.fa.fa-chevron-right
         button.btn.btn-primary(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="create(community)") #{__('Create')}
         button.btn.btn-default(type="button", ng-disabled="sending", ng-click="$hide()") #{__('Cancel')}
