@@ -22,7 +22,8 @@ module.exports.create = function(req, res) {
 
   var community = {
     title: req.body.title,
-    creator: req.user._id
+    creator: req.user._id,
+    type: 'open'
   };
 
   if (!community.title) {
@@ -38,6 +39,10 @@ module.exports.create = function(req, res) {
   }
 
   community.domain_ids = req.body.domain_ids;
+
+  if (req.body.type) {
+    community.type = req.body.type;
+  }
 
   if (req.body.description) {
     community.description = req.body.description;

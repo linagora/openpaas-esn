@@ -5,7 +5,7 @@ div.col-xs-12.nopadding.esn-member
     a(href='#/communities/{{community._id}}')
       img.thumbnail(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
     .text-center
-      span.label.label-info #{__('Open')}
+      span.label.label-info {{community.type}}
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading {{community.title}}
     blockquote(ng-show='community.description')

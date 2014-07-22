@@ -44,7 +44,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
     $scope.sending = false;
     $scope.community = {
       domain_ids: [session.domain._id],
-      image: ''
+      image: '',
+      type: 'open'
     };
     $scope.alert = undefined;
     $scope.percent = 0;
@@ -83,6 +84,9 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       $scope.sending = true;
       $scope.percent = 1;
 
+
+      console.log('Community', community);
+
       if ($scope.alert) {
         $scope.alert.hide();
       }
@@ -100,6 +104,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       if (!community.domain_ids || community.domain_ids.length === 0) {
         $log.error('Missing community domain');
         return $scope.displayError('Domain is missing, try reloading the page');
+      }
+
+      if (!community.type) {
+        community.type = 'open';
       }
 
       $scope.percent = 5;
