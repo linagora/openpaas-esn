@@ -6,8 +6,9 @@ div(ng-controller='selectActiveItem')
       div.pull-right.avatar
         div.dropdown
           button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
-            img.img-circle(src='/api/user/profile/avatar' width="24px" height="24px")
-            span.caret
+            div(ng-controller='avatarController')
+              img.img-circle(ng-src='{{avatarURL}}' width="24px" height="24px")
+              span.caret
           ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
               li: a(href='/#/profile', ng-click='selectItem(1)') #{__('My Account')}
               li: a(href='/#/contacts', ng-click='selectItem(1)') #{__('Contacts')}

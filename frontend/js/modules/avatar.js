@@ -5,7 +5,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
-    var createModal = $modal({scope: $scope, template: '/views/modules/profile/avatar-edit-modal.html', show: false});
+    var createModal = $modal({scope: $scope, template: '/views/modules/profile/avatar-edit-modal.html', show: false, backdrop: 'static', keyboard: false});
     $scope.showAvatarEditModal = function() {
       $scope.initUploadContext();
       createModal.$promise.then(createModal.show);
@@ -37,11 +37,15 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       avatarAPI.uploadAvatar(blob, mime)
         .progress(function(evt) {
           var value = parseInt(100.0 * evt.loaded / evt.total);
+
+          console.log('PROGRESS', value);
+
           $scope.progress = value;
         })
         .success(function() {
           $scope.progress = 100;
           $scope.step = 'redirect';
+          $rootScope.$broadcast('avatar:updated');
           return done();
         })
         .error(function(error) {

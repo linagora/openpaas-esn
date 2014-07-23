@@ -114,4 +114,18 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
     userAPI.currentUser().then(function(response) {
       $scope.user = response.data;
     });
+  }])
+  .controller('avatarController', ['$rootScope', '$scope', '$timeout', function($rootScope, $scope, $timeout) {
+
+    $scope.getURL = function() {
+      return '/api/user/profile/avatar?cb=' + Date.now();
+    };
+
+    $scope.avatarURL = $scope.getURL();
+    $rootScope.$on('avatar:updated', function() {
+      $timeout(function() {
+        $scope.avatarURL = $scope.getURL();
+        $scope.$apply();
+      });
+    });
   }]);

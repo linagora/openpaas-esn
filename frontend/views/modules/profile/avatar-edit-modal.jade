@@ -2,7 +2,7 @@
   .modal-dialog
     .modal-content
       .modal-header
-        button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
+        button.close(type="button", ng-click="$hide()") &times;
         h4.modal-title(ng-hide="uploading") #{__('Edit your avatar')}
         h4.modal-title(ng-show="uploading") #{__('Updating your avatar')}...
       .modal-body
@@ -28,6 +28,6 @@
           .col-xs-9.col-md-9.col-lg-9(ng-show='preview')
             img-loaded(width="380")
                 
-      .modal-footer.widget
-        button.btn.btn-primary(type="button", ng-disabled="uploading", ng-click="upload()") #{__('Update')}
+      .modal-footer.widget(ng-hide='uploading')
+        button.btn.btn-primary(type="button", ng-disabled="uploading || !preview", ng-click="upload()") #{__('Update')}
         button.btn.btn-default(type="button", ng-disabled="uploading", ng-click="$hide()") #{__('Cancel')}
