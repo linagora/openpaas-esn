@@ -4,8 +4,8 @@
       .modal-header
         button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
         h4.modal-title(ng-hide="step !== 0") #{__('Create a new community')}
-        h4.modal-title(ng-show="step === 1 && !sending") About to create the '{{community.title}}' community
-        h4.modal-title(ng-show="sending") Creating the '{{community.title}}' community...
+        h4.modal-title(ng-show="step === 1 && !sending") #{__('About to create the')} '{{community.title}}' #{__('community')}
+        h4.modal-title(ng-show="sending") #{__('Creating the')} '{{community.title}}' #{__('community')}...
       .modal-body
 
         .row.alert.alert-info(ng-show="sending", role="alert")
@@ -33,27 +33,29 @@
               .radio
                 label
                   input(type="radio", ng-model="community.type", value="open", ng-checked="true")
-                  span.label.label-info #{__('Open')}
+                  span.label.label-default #{__('Open')}
                   span.help-block #{__('Publish content from and for everyone. Each user can freely read, join and participate to the community')}.
               .radio
                 label
                   input(type="radio", ng-model="community.type", value="restricted")
-                  span.label.label-info #{__('Restricted')}
+                  span.label.label-default #{__('Restricted')}
                   span.help-block #{__('Content is freely accessible to all users, but only members can participate')}.
               .radio
                 label
                   input(type="radio", ng-model="community.type", value="private")
-                  span.label.label-info #{__('private')}
+                  span.label.label-default #{__('Private')}
                   span.help-block #{__('Only members can read and publish contents in this community. Each user can request membership')}.
               .radio
                 label
                   input(type="radio", ng-model="community.type", value="confidential")
-                  span.label.label-info #{__('Confidential')}
+                  span.label.label-default #{__('Confidential')}
                   span.help-block #{__('Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation')}.
           .form-group(ng-show="step === 1")
             .row.alert.alert-warning(role="alert")
-              p #{__('You are about to create the')}
+              p #{__('You are about to create')}
                 strong &nbsp;'{{community.title}}'&nbsp;
+                | #{__('as a')}
+                strong &nbsp;'{{community.type}}'&nbsp;
                 | #{__('community')}. #{__('You can customize it with an avatar and a description now or do it later on the community page')}.
             label #{__('Avatar')}
             .row
