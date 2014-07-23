@@ -157,5 +157,12 @@
   "Publish content from and for everyone. Each user can freely read, join and participate to the community": "Publish content from and for everyone. Each user can freely read, join and participate to the community",
   "Content is freely accessible to all users, but only members can participate": "Content is freely accessible to all users, but only members can participate",
   "Only members can read and publish contents in this community. Each user can request membership": "Only members can read and publish contents in this community. Each user can request membership",
-  "Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation": "Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation"
+  "Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation": "Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation",
+  "Feedback": "Feedback",
+  "Give a feedback": "Give a feedback",
+  "We love feedback": "We love feedback",
+  "Close": "Close",
+  "Send": "Send",
+  "Your feedback has been sent": "Your feedback has been sent",
+  "There was an error while sending your feedback. Please try again.": "There was an error while sending your feedback. Please try again."
 }
