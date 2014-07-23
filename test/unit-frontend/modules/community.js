@@ -99,7 +99,10 @@ describe('The Community Angular module', function() {
   });
 
   describe('communityCreateController controller', function() {
-    beforeEach(inject(function($rootScope, $controller, $q) {
+
+    var create;
+
+    beforeEach(inject(['$document', '$rootScope', '$controller', '$q', '$compile', 'selectionService', function($document, $rootScope, $controller, $q, $compile, selectionService) {
       this.communityAPI = {};
       this.location = {};
       this.log = {
@@ -111,17 +114,32 @@ describe('The Community Angular module', function() {
       this.session = {domain: {_id: 123}};
       this.scope = $rootScope.$new();
       this.$q = $q;
+      this.$upload = {};
+      this.selectionService = selectionService;
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+      this.$timeout = function(cb) {return cb();};
+
+      create = document.createElement;
 
       $controller('communityCreateController', {
+        $rootScope: this.$rootScope,
         $scope: this.scope,
         $location: this.location,
+        $timeout: this.$timeout,
         $log: this.log,
         $modal: this.modal,
         $alert: this.alert,
         session: this.session,
-        communityAPI: this.communityAPI
+        communityAPI: this.communityAPI,
+        $upload: this.$upload,
+        selectionService: this.selectionService
       });
-    }));
+    }]));
+
+    afterEach(function() {
+      document.createElement = create;
+    });
 
     it('should call the communityAPI#create function when $scope.create is called', function(done) {
       this.communityAPI.create = function() {
@@ -186,6 +204,220 @@ describe('The Community Angular module', function() {
         return communityDefer.promise;
       };
       communityDefer.reject({error: 500});
+      this.scope.create({title: 'Node.js', domain_ids: ['123']});
+      this.scope.$digest();
+    });
+
+    it('should not validate undefined title', function(done) {
+      this.scope.community = {};
+      expect(this.scope.validateTitle()).to.be.false;
+      done();
+    });
+
+    it('should not validate empty title', function(done) {
+      this.scope.community = {title: ''};
+      expect(this.scope.validateTitle()).to.be.false;
+      done();
+    });
+
+    it('should validate non empty title', function(done) {
+      this.scope.community = {title: 'node.js'};
+      expect(this.scope.validateTitle()).to.be.true;
+      done();
+    });
+
+    it('should transform the image to blob', function(done) {
+      var img = {img: 'test'};
+      this.selectionService.setImage(img);
+      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
+
+      var element = this.$compile('<canvas>')(this.scope);
+      var document = element[0].ownerDocument;
+
+      document.createElement = function() {
+        return {
+          getContext: function() {
+            return {
+              drawImage: function() {return;}
+            };
+          },
+          toBlob: function() {
+            return done();
+          }
+        };
+      };
+
+      var communityDefer = this.$q.defer();
+      this.communityAPI.create = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+      this.scope.create({title: 'Node.js', domain_ids: ['123']});
+      this.scope.$digest();
+    });
+
+    it('should upload the blob when community is created', function(done) {
+      var img = {img: 'test'};
+      this.selectionService.setImage(img);
+      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
+
+      var element = this.$compile('<canvas>')(this.scope);
+      var document = element[0].ownerDocument;
+
+      document.createElement = function() {
+        return {
+          getContext: function() {
+            return {
+              drawImage: function() {return;}
+            };
+          },
+          toBlob: function(callback) {
+            var blob = 'ImageBlob';
+            return callback(blob);
+          }
+        };
+      };
+
+      var communityDefer = this.$q.defer();
+      this.communityAPI.create = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+      this.communityAPI.uploadAvatar = function() {
+        return done();
+      };
+      this.scope.create({title: 'Node.js', domain_ids: ['123']});
+      this.scope.$digest();
+    });
+
+    it('should redirect to community when the avatar is uploaded', function(done) {
+      var img = {img: 'test'};
+      this.selectionService.setImage(img);
+      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
+
+      var element = this.$compile('<canvas>')(this.scope);
+      var document = element[0].ownerDocument;
+
+      document.createElement = function() {
+        return {
+          getContext: function() {
+            return {
+              drawImage: function() {return;}
+            };
+          },
+          toBlob: function(callback) {
+            var blob = 'ImageBlob';
+            return callback(blob);
+          }
+        };
+      };
+
+      var communityDefer = this.$q.defer();
+      var uploadDefer = this.$q.defer();
+      var promise = uploadDefer.promise;
+      var config = {};
+      promise.success = function(fn) {
+        promise.then(function(response) {
+          fn(response.data, response.status, response.headers, config);
+        });
+        return promise;
+      };
+
+      promise.error = function(fn) {
+        promise.then(null, function(response) {
+          fn(response.data, response.status, response.headers, config);
+        });
+        return promise;
+      };
+
+      promise.progress = function(fn) {
+        promise.then(null, null, function(update) {
+          fn(update);
+        });
+        return promise;
+      };
+
+      this.communityAPI.create = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+
+      this.communityAPI.uploadAvatar = function() {
+        return promise;
+      };
+
+      uploadDefer.resolve({data: {_id: 456}});
+
+      this.location.path = function() {
+        return done();
+      };
+
+      this.scope.create({title: 'Node.js', domain_ids: ['123']});
+      this.scope.$digest();
+    });
+
+    it('should redirect to community when the avatar upload fails', function(done) {
+      var img = {img: 'test'};
+      this.selectionService.setImage(img);
+      this.selectionService.broadcastSelection({cords: {x: 2, y: 2, w: 3, h: 3}});
+
+      var element = this.$compile('<canvas>')(this.scope);
+      var document = element[0].ownerDocument;
+
+      document.createElement = function() {
+        return {
+          getContext: function() {
+            return {
+              drawImage: function() {return;}
+            };
+          },
+          toBlob: function(callback) {
+            var blob = 'ImageBlob';
+            return callback(blob);
+          }
+        };
+      };
+
+      var communityDefer = this.$q.defer();
+      var uploadDefer = this.$q.defer();
+      var promise = uploadDefer.promise;
+      var config = {};
+      promise.success = function(fn) {
+        promise.then(function(response) {
+          fn(response.data, response.status, response.headers, config);
+        });
+        return promise;
+      };
+
+      promise.error = function(fn) {
+        promise.then(null, function(response) {
+          fn(response.data, response.status, response.headers, config);
+        });
+        return promise;
+      };
+
+      promise.progress = function(fn) {
+        promise.then(null, null, function(update) {
+          fn(update);
+        });
+        return promise;
+      };
+
+      this.communityAPI.create = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+
+      this.communityAPI.uploadAvatar = function() {
+        return promise;
+      };
+
+      uploadDefer.reject({data: {_id: 456}});
+
+      this.location.path = function() {
+        return done();
+      };
+
       this.scope.create({title: 'Node.js', domain_ids: ['123']});
       this.scope.$digest();
     });

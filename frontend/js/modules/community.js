@@ -66,7 +66,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
     };
 
     $scope.validateTitle = function() {
-      return ($scope.community.title && $scope.community.title.length > 0);
+      if (!$scope.community.title || $scope.community.title.length === 0) {
+        return false;
+      }
+      return true;
     };
 
     $scope.displayError = function(err) {
@@ -83,9 +86,6 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       $scope.create.step = 'post';
       $scope.sending = true;
       $scope.percent = 1;
-
-
-      console.log('Community', community);
 
       if ($scope.alert) {
         $scope.alert.hide();
