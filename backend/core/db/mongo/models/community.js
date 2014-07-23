@@ -7,6 +7,7 @@ var Schema = mongoose.Schema;
 var CommunitySchema = new Schema({
   title: {type: String, required: true, trim: true},
   description: {type: String, trim: true},
+  type: {type: String, trim: true, required: true, default: 'open'},
   status: String,
   avatar: String,
   creator: {type: Schema.ObjectId, ref: 'User'},

@@ -40,6 +40,11 @@ div(ng-controller='selectActiveItem')
                 span.hidden-xs #{__('Discussions')}
           .esn-item(ng-class='{active: selected === 3}')
             span
-              a(href='/#applications', ng-click='selectItem(3)')
+              a(href='/#communities', ng-click='selectItem(3)')
+                i.fa.fa-users
+                span.hidden-xs #{__('Communities')}
+          .esn-item(ng-class='{active: selected === 4}')
+            span
+              a(href='/#applications', ng-click='selectItem(4)')
                 i.fa.fa-upload
                 span.hidden-xs #{__('Applications')}

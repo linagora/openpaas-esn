@@ -25,6 +25,8 @@ module.exports = function(config) {
       'frontend/components/angular-pines-notify/src/pnotify.js',
       'frontend/components/moment/moment.js',
       'frontend/components/angular-moment/angular-moment.js',
+      'frontend/components/angular-file-upload/dist/angular-file-upload-shim.min.js',
+      'frontend/components/angular-file-upload/dist/angular-file-upload.min.js',
       'node_modules/easyrtc/api/easyrtc.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',

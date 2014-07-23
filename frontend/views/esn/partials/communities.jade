@@ -1,0 +1,28 @@
+.col-xs-12.widget.nopadding
+  .row
+    .col-xs-12
+      h2
+        i.fa.fa-users
+        | #{__('Communities')}
+      div.well.text-center(ng-controller="communityCreateController")
+        button.btn.btn-primary(type="button", ng-click="showCreateModal()") #{__('Create a new community')}
+      .row
+        ul.nav.nav-pills
+          li(ng-class="{active: selected === 'all', disabled: loading}")
+            a(ng-click="getAll()") #{__('All')}
+          li(ng-class="{active: selected === 'membership', disabled: loading}")
+            a(ng-click="getMembership()") #{__('Member')}
+          li(ng-class="{active: selected === 'moderator', disabled: loading}")
+            a(ng-click="getModerator()") #{__('Moderator')}
+      .vertiz-space
+      .row(ng-hide="loading", ng-repeat="community in communities")
+        community-display(community="community")
+      .row.alert.alert-info(ng-show="loading", role="alert")
+        p
+          i.fa.fa-cog.fa-spin
+          | #{__('Loading communities')}...
+      .row.alert.alert-danger(ng-show="error && !loading", role="alert")
+        p #{__('Error while loading communities')}!
+      .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0", role="alert")
+        p #{__('No such communities')}!
+      .vertiz-space

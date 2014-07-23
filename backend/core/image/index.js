@@ -35,6 +35,7 @@ function getSize(readable, callback) {
 
 function checkImageSquare(readable, callback) {
   getSize(readable, function(err, size, gmInstance) {
+
     if (err) {
       return callback(err);
     }

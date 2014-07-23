@@ -125,6 +125,12 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate'])
     $rootScope.$broadcast('crop:selected', x);
   };
 
+  sharedService.clear = function() {
+    sharedService.image = null;
+    sharedService.selection = {};
+    sharedService.error = null;
+  };
+
   return sharedService;
 
 }).directive('imgPreview', function(selectionService) {
