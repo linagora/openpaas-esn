@@ -1,0 +1,8 @@
+.aside
+  .aside-dialog
+    .aside-content
+      .aside-header
+        h4 #{__('Members')}
+      .aside-body
+        .row(ng-repeat="user in users")
+          conference-attendee(user=user)

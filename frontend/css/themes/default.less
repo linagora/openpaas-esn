@@ -223,8 +223,30 @@ body {
 }
 
 .user-video {
-  .fa-microphone-slash, .fa-eye-slash,  {
+
+  .fa-microphone-slash, .fa-eye-slash, .conference-toggle-invite-button:hover {
     color: @yellow;
+  }
+
+  .conference-toggle-invite-button, .conference-mute-button, .conference-toggle-video-button {
+    color: white;
+    z-index: 3;
+  }
+
+  .conference-toggle-terminate-call-button {
+    color: red;
+    z-index: 3;
+    .rotate(135deg);
+  }
+
+  .conference-user-video-bottom-bar {
+    background-color: #1b1b1b;
+    z-index: 3;
+    padding: 0.5em;
+
+    ul {
+      margin:auto;
+    }
   }
 }
 
@@ -254,6 +276,12 @@ body {
     width: @width;
     height: @height;
   }
+}
+
+.rotate(@degrees) {
+  transform:rotate(@degrees);
+  -ms-transform:rotate(@degrees); /* IE 9 */
+  -webkit-transform:rotate(@degrees); /* Opera, Chrome, and Safari */
 }
 
 .vertical-centered {
