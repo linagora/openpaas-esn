@@ -3,10 +3,10 @@
 angular.module('liveConferenceApp', [
   'restangular',
   'ngRoute',
-  'mgcrea.ngStrap.affix',
+  'mgcrea.ngStrap',
   'ui.notify',
-  'FBAngular',
   'angularMoment',
+  'ngAnimate',
   'esn.core',
   'esn.domain',
   'esn.session',

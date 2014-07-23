@@ -1,15 +1,5 @@
-.col-xs-12
-  .row.user-video(ng-mouseenter="thumbhover = true", ng-mouseleave="thumbhover = false")
+.col-xs-12.nopadding
+  .user-video(ng-mouseenter="thumbhover = true", ng-mouseleave="thumbhover = false")
     video.video-mirror.conference-video-multi(autoplay="autoplay" id="{{videoId}}")
-    div.conference-user-video-bottom-bar.text-center
-      ul.list-inline
-        li
-          i.fa.fa-users.fa-2x.conference-toggle-invite-button
-        li
-          i.fa.fa-2x.conference-toggle-video-button(ng-click="toggleCamera()", ng-class="{'fa-eye': !videoMuted, 'fa-eye-slash': videoMuted}")
-        li
-          i.fa.fa-2x.conference-mute-button(ng-click="toggleSound()", ng-class="{'fa-microphone': !muted, 'fa-microphone-slash': muted}")
-        li
-          a(href='#')
-            i.fa.fa-phone.fa-2x.conference-toggle-terminate-call-button
+
 

@@ -216,19 +216,23 @@ body {
       margin-top: 0px;
       margin-bottom: 0px;
     }
-    .thumbnail {
-      margin-bottom: 0;
-    }
   }
 }
 
-.user-video {
+.conference-user-control-bar {
+  background-color: #1b1b1b;
+  z-index: 3;
+  padding: 0.5em;
 
-  .fa-microphone-slash, .fa-eye-slash, .conference-toggle-invite-button:hover {
-    color: @yellow;
+  ul {
+    margin:auto;
   }
 
-  .conference-toggle-invite-button, .conference-mute-button, .conference-toggle-video-button {
+  .fa-microphone-slash, .fa-eye-slash, .conference-toggle-invite-button:hover {
+    color: @yellow !important;
+  }
+
+  .conference-toggle-invite-button, .conference-mute-button, .conference-toggle-video-button, .conference-toggle-fullscreen-button {
     color: white;
     z-index: 3;
   }
@@ -237,16 +241,6 @@ body {
     color: red;
     z-index: 3;
     .rotate(135deg);
-  }
-
-  .conference-user-video-bottom-bar {
-    background-color: #1b1b1b;
-    z-index: 3;
-    padding: 0.5em;
-
-    ul {
-      margin:auto;
-    }
   }
 }
 

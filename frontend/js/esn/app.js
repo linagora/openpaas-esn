@@ -5,7 +5,6 @@ angular.module('esnApp', [
   'ngRoute',
   'mgcrea.ngStrap.affix',
   'ui.notify',
-  'FBAngular',
   'angularMoment',
   'truncate',
   'esn.core',

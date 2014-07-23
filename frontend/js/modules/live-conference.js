@@ -21,11 +21,6 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       $scope.easyrtc = webrtcFactory.get();
 
       $scope.thumbclass = 'conference-video-multi';
-      $scope.isFullscreen = false;
-
-      $scope.toggleFullScreen = function() {
-        $scope.isFullscreen = !$scope.isFullscreen;
-      };
 
       $scope.$on('$locationChangeStart', function(event, next, current) {
         $scope.easyrtc.leaveRoom(conference._id, function() {
@@ -203,20 +198,43 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       replace: true,
       templateUrl: '/views/live-conference/partials/user-video.html',
       scope: {
-        attendee: '=',
-        videoId: '@',
+        videoId: '@'
+      }
+    };
+  })
+
+  .directive('conferenceUserControlBar', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/live-conference/partials/user-control-bar.html',
+      scope: {
+        users: '=',
         easyrtc: '='
       },
-      controller: function($scope) {
+      controller: function($scope, $window, $aside) {
         $scope.muted = false;
         $scope.videoMuted = false;
+
         $scope.toggleSound = function() {
           $scope.easyrtc.enableMicrophone($scope.muted);
           $scope.muted = !$scope.muted;
         };
+
         $scope.toggleCamera = function() {
           $scope.easyrtc.enableCamera($scope.videoMuted);
           $scope.videoMuted = !$scope.videoMuted;
+        };
+
+        $scope.toggleInviteRightBar = function() {
+          $aside({
+            scope: $scope,
+            template: '/views/live-conference/partials/invite-members-aside.html'
+          });
+        };
+
+        $scope.leaveConference = function() {
+          $window.close();
         };
       }
     };
