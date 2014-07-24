@@ -1,5 +1,10 @@
 # Code Convention
 
+In backend and fronted a module name is singular. For example, the module which manage
+
+* users must be called `user`
+* communities must be called `community`
+
 ## Backend
 
 ### Core
@@ -69,6 +74,9 @@ In factory, use english terms (prefix) to describe what the function does:
 * DELETE request : remove
 
 A factory must manage **one** resource.
+
+* module name is: esn.*moduleName*
+* factory name is : *moduleName*API
 
 Skeleton:
 
