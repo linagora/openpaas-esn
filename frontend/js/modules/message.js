@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate'])
+angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
   .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
 
     $scope.rows = 1;
