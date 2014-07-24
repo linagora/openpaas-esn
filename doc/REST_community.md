@@ -266,3 +266,180 @@ Delete a community.
 **Response:**
 
     HTTP/1.1 204 No content
+
+## GET /api/communities/{community_id}/members
+
+List all users who are members of the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+Array of community members.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 403 Forbidden - The user does not have enough rights to get the community members. 
+- 404 Not found - Community or user not found. The error message will contain details.
+- 500 Internal server error - Something went bad on the server side.
+
+**Request:**
+
+    GET /api/communities/538e3bd6654d7c3307f990fa/members
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        "_id": "02029904094900300",
+        "firstname": "John",
+        "lastname": "Doe",
+        "avatar": "9330-0393-7373-7280"
+      },
+      {
+        "_id": "02029904094900301",
+        "firstname": "Bruce",
+        "lastname": "Willis",
+        "avatar": "9330-0393-7373-7281"
+      }
+    ]
+
+## GET /api/communities/{community_id}/members/{user_id}
+
+Check if a user is a member of the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+- user_id: The user_id to check community membership
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK - Current user is a community member and user is a member.
+- 400 Bad request
+- 403 Forbidden - The user does not have enough rights to get the community members. 
+- 404 Not found - Current user is a community member and user is not a member
+- 500 Internal server error - Something went bad on the server side.
+
+**Request:**
+
+    GET /api/communities/538e3bd6654d7c3307f990fa/members/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+      "_id": "538e3bd6654d7c3307f990fb",
+      "firstname": "John",
+      "lastname": "Doe",
+      "avatar": "9330-0393-7373-7280"
+    }
+
+## PUT /api/communities/{community_id}/members
+
+Add the current user to a community ie join the community.
+Note that it does not have any effect if the user is already in the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+No response.
+
+**Status Codes:**
+
+- 204 No content - User is now a member of the community.
+- 400 Bad request
+- 403 Forbidden - The user can not join the community. 
+- 404 Not found - Community or user not found. The error message will contain details.
+- 500 Internal server error - Something went bad on the server side.
+
+**Request:**
+
+    PUT /api/communities/538e3bd6654d7c3307f990fa/members
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No Content
+
+
+## DELETE /api/communities/{community_id}/members
+
+Delete the current user from a community ie leave the community.
+
+Notes:
+ 
+- The community creator can not leave the community.
+- It does not have any effect if the user is not in the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+No response.
+
+**Status Codes:**
+
+- 204 No content - User is no more a community member.
+- 400 Bad request
+- 403 Forbidden - The user can not leave the community. 
+- 404 Not found - Community or user not found. The error message will contain details.
+- 500 Internal server error - Something went bad on the server side.
+
+**Request:**
+
+    DELETE /api/communities/538e3bd6654d7c3307f990fa/members
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No Content
+
