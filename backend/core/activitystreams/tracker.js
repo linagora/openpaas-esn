@@ -128,35 +128,42 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
       return callback(null, 0);
     }
 
-    var query = {
+    var options = {
       target: {
         objectType: 'activitystream',
         _id: activityStreamUuid
       },
-      after: lastTimelineEntryRead
+      after: lastTimelineEntryRead,
+      stream: true
     };
 
     var activityStream = require('./');
-    activityStream.query(query, function(err, results) {
+    activityStream.query(options, function(err, stream) {
 
       var hash = {};
-      results.map(function(element) {
-        if (element.verb === 'post') {
-          hash[element._id] = true;
+      stream.on('data', function(doc) {
+        if (doc.verb === 'post') {
+          hash[doc._id] = true;
         }
-        else if (element.verb === 'remove') {
-          hash[element._id] = false;
+        else if (doc.verb === 'remove') {
+          hash[doc._id] = false;
         }
       });
 
-      var count = 0;
-      for (var key in hash) {
-        if (hash.hasOwnProperty(key) && hash[key]) {
-          count++;
-        }
-      }
+      stream.on('error', function(err) {
+        return callback(err);
+      });
 
-      callback(err, count);
+      stream.on('close', function() {
+        var count = 0;
+        for (var key in hash) {
+          if (hash.hasOwnProperty(key) && hash[key]) {
+            count++;
+          }
+        }
+
+        return callback(null, count);
+      });
     });
   });
 }
