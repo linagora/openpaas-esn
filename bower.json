@@ -47,6 +47,7 @@
     "angular-moment": "~0.7.1",
     "angular-file-upload": "danialfarid/angular-file-upload#~1.6.1",
     "bootstrap-additions": "~0.2.3",
-    "angular-truncate": "sparkalow/angular-truncate"
+    "angular-truncate": "sparkalow/angular-truncate",
+    "angular-perfect-scrollbar": "8aaed88f7407668b14b225acd23f337395f17828"
   }
 }
