@@ -30,12 +30,32 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       });
     }
 
+    function getMembers(id) {
+      return Restangular.one('communities', id).all('members').getList();
+    }
+
+    function getMember(id, member) {
+      return Restangular.one('communities', id).one('members', member).get();
+    }
+
+    function join(id, member) {
+      return Restangular.one('communities', id).one('members', member).put();
+    }
+
+    function leave(id, member) {
+      return Restangular.one('communities', id).one('members', member).remove();
+    }
+
     return {
       list: list,
       get: get,
       del: del,
       create: create,
-      uploadAvatar: uploadAvatar
+      uploadAvatar: uploadAvatar,
+      getMembers: getMembers,
+      getMember: getMember,
+      join: join,
+      leave: leave
     };
   }])
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', '$upload', 'selectionService', function($rootScope, $scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, $upload, selectionService) {

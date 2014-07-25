@@ -96,6 +96,93 @@ describe('The Community Angular module', function() {
         expect(promise.then).to.be.a.function;
       });
     });
+
+    describe('getMembers() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a GET request to /communities/:id/members', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/members').respond(200, []);
+        this.communityAPI.getMembers(this.communityId);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.getMembers(123);
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
+    describe('getMember() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        this.userId = '456';
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a GET request to /communities/:id/members/:user', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/members/' + this.userId).respond(200, {});
+        this.communityAPI.getMember(this.communityId, this.userId);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.getMember(123, 456);
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
+    describe('join() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        this.userId = '456';
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a PUT request to /communities/:id/members/:user', function() {
+        this.$httpBackend.expectPUT('/communities/' + this.communityId + '/members/' + this.userId).respond(204);
+        this.communityAPI.join(this.communityId, this.userId);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.join(123, 456);
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
+    describe('leave() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        this.userId = '456';
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a DELETE request to /communities/:id/members/:user', function() {
+        this.$httpBackend.expectDELETE('/communities/' + this.communityId + '/members/' + this.userId).respond(204);
+        this.communityAPI.leave(this.communityId, this.userId);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.leave(123, 456);
+        expect(promise.then).to.be.a.function;
+      });
+    });
   });
 
   describe('communityCreateController controller', function() {

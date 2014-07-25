@@ -47,5 +47,25 @@ describe('The User Angular module', function() {
         expect(promise.then).to.be.a.function;
       });
     });
+
+    describe('getCommunities() method', function() {
+
+      beforeEach(angular.mock.inject(function(userAPI, $httpBackend, Restangular) {
+        this.$httpBackend = $httpBackend;
+        this.userAPI = userAPI;
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a GET request to /user/communities', function() {
+        this.$httpBackend.expectGET('/user/communities').respond(200, []);
+        this.userAPI.getCommunities();
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.userAPI.getCommunities();
+        expect(promise.then).to.be.a.function;
+      });
+    });
   });
 });

@@ -11,8 +11,13 @@ angular.module('esn.user', ['restangular'])
       return Restangular.one('user', uuid).get();
     }
 
+    function getCommunities() {
+      return Restangular.one('user').all('communities').getList();
+    }
+
     return {
       currentUser: currentUser,
-      user: user
+      user: user,
+      getCommunities: getCommunities
     };
   }]);
