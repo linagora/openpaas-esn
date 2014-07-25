@@ -23,7 +23,8 @@ module.exports.create = function(req, res) {
   var community = {
     title: req.body.title,
     creator: req.user._id,
-    type: 'open'
+    type: 'open',
+    members: [{user: req.user._id}]
   };
 
   if (!community.title) {
