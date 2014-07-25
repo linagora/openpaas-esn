@@ -158,4 +158,24 @@ describe('The Profile Angular module', function() {
     });
   });
 
+  describe('avatarController', function() {
+    beforeEach(inject(['$rootScope', '$controller', function($rootScope, $controller) {
+      this.$scope = $rootScope.$new();
+      this.$rootScope = $rootScope;
+      this.$timeout = function(cb) {return cb();};
+
+      $controller('avatarController', {
+        $rootScope: this.$rootScope,
+        $scope: this.$scope,
+        $timeout: this.$timeout
+      });
+    }]));
+
+    it('should update the avatarURL on avatar:updated event', function(done) {
+      this.$scope.getURL = function() {
+        return done();
+      };
+      this.$rootScope.$broadcast('avatar:updated');
+    });
+  });
 });

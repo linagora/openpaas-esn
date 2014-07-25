@@ -1,29 +1,56 @@
 'use strict';
 
-angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate'])
+angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
 
-  .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert) {
+  .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
+
+    selectionService.clear();
+    var createModal = $modal({scope: $scope, template: '/views/modules/profile/avatar-edit-modal.html', show: false, backdrop: 'static', keyboard: false});
+    $scope.showAvatarEditModal = function() {
+      $scope.initUploadContext();
+      createModal.$promise.then(createModal.show);
+    };
 
     $scope.initUploadContext = function() {
       $scope.uploadError = false;
       $scope.progress = 0;
       $scope.status = 'Upload';
       $scope.uploading = false;
+      $scope.step = 'none';
+      $scope.preview = false;
     };
 
     $scope.preview = false;
 
+    function done() {
+      $scope.uploading = false;
+      if (createModal) {
+        createModal.hide();
+      }
+      selectionService.clear();
+    }
+
     $scope.send = function(blob, mime) {
       $scope.uploading = true;
-      avatarAPI.uploadAvatar(blob, mime).then(function() {
-        $scope.progress = 100;
-        $scope.uploading = false;
-        $scope.status = 'Upload';
-      }, function() {
-        $scope.uploadError = true;
-        $scope.uploading = false;
-        $scope.status = 'Upload';
-      });
+      $scope.step = 'uploading';
+
+      avatarAPI.uploadAvatar(blob, mime)
+        .progress(function(evt) {
+          var value = parseInt(100.0 * evt.loaded / evt.total);
+          $scope.progress = value;
+        })
+        .success(function() {
+          $scope.progress = 100;
+          $scope.step = 'redirect';
+          $rootScope.$broadcast('avatar:updated');
+          return done();
+        })
+        .error(function(error) {
+          $scope.progress = 100;
+          $scope.step = 'uploadfailed';
+          $scope.error = error;
+          return done();
+        });
     };
 
     $scope.upload = function() {
@@ -78,10 +105,10 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate'])
 
     $scope.initUploadContext();
 
-  }).factory('avatarAPI', function($http) {
+  }).factory('avatarAPI', function($upload) {
 
     function uploadAvatar(blob, mime) {
-      return $http({
+      return $upload.http({
         method: 'POST',
         url: '/api/user/profile/avatar',
         headers: {'Content-Type': mime},
@@ -184,10 +211,6 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate'])
         var height = image.height * (width / image.width);
         var ratio = image.width / width;
         var minsize = 128 / ratio;
-
-        /*si image.w == 1024 -> ratio = 2. minsize = 256
-        si image.w == 2048 -> ratio = 4. minsize = 512
-*/
 
         canvas.width = width;
         canvas.height = height;

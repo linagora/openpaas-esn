@@ -1,10 +1,10 @@
 div.row(ng-controller='profileEditionController')
   div.col-md-4
-    div
+    div(ng-controller='avatarController')
       a.thumbnail
-        img(width="150", heigth="150", src='/api/user/profile/avatar')
-    div
-      a.btn.btn-default.btn-block(href="/#/profile/avatar") #{__('Edit your photo')}
+        img(width="150", heigth="150", ng-src='{{avatarURL}}')
+    div.widget(ng-controller='avatarEdit')
+      button.btn.btn-primary.btn-block(type="button", ng-click="showAvatarEditModal()") #{__('Edit your photo')}
   div.col-md-6
     div.row
       div.col-md-10.col-xs-8
