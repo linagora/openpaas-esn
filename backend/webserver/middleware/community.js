@@ -70,3 +70,18 @@ module.exports.isCreator = function(req, res, next) {
 
   return next();
 };
+
+module.exports.checkUserIdParameterIsCurrentUser = function(req, res, next) {
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  if (!req.param('user_id')) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
+  }
+
+  if (!req.user._id.equals(req.param('user_id'))) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Parameters do not match'});
+  }
+  return next();
+};

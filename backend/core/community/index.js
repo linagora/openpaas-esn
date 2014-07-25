@@ -129,7 +129,7 @@ module.exports.join = function(community, user, callback) {
   var id = community._id || community;
   var user_id = user._id || user;
 
-  Community.update({_id: id, 'members.user': {$ne: user_id}}, {$push: {members: {user: user_id, status: 'joined'}}},  function(err, updated) {
+  Community.update({_id: id, 'members.user': {$ne: user_id}}, {$push: {members: {user: user_id, status: 'joined'}}}, function(err, updated) {
     if (err) {
       return callback(err);
     }
@@ -158,9 +158,15 @@ module.exports.getMembers = function(community, callback) {
       if (err) {
         return callback(err);
       }
+
+      if (!result) {
+        return callback(null, []);
+      }
+
       return callback(null, result.members || []);
     });
+  } else {
+    return callback(null, community.members);
   }
-  return callback(null, community.members);
 };
 

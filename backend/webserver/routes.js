@@ -125,8 +125,8 @@ exports = module.exports = function(application) {
 
   application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
   application.get('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.members);
-  application.put('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.canJoin, communities.join);
-  application.delete('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
+  application.put('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.canJoin, communities.join);
+  application.delete('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
   application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.member);
 
   var feedback = require('./controllers/feedback');

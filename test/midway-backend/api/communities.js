@@ -493,7 +493,7 @@ describe('The communities API', function() {
           community.creator = foouser._id;
           community.domain_ids = [domain._id];
           community.type = 'open';
-          community.members.push({user: foouser._id})
+          community.members.push({user: foouser._id});
           saveCommunity(community, callback);
         },
         function() {
@@ -520,7 +520,7 @@ describe('The communities API', function() {
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
 
-      this.helpers.api.loginAsUser(webserver.application, email, password, function (err, loggedInAsUser) {
+      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -534,16 +534,61 @@ describe('The communities API', function() {
     });
 
     it('should return the members list', function(done) {
-      console.log('TODO');
-      return done();
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        members: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(2);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
     });
   });
 
-  describe('PUT /api/communities/:id/members', function() {
+  describe('PUT /api/communities/:id/members/:user_id', function() {
 
     it('should return 401 is user is not authenticated', function(done) {
-      var community = {_id: 123};
-      request(webserver.application).put('/api/communities/' + community._id + '/members').expect(401).end(function(err, res) {
+      request(webserver.application).put('/api/communities/123/members/456').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -553,11 +598,11 @@ describe('The communities API', function() {
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
 
-      this.helpers.api.loginAsUser(webserver.application, email, password, function (err, loggedInAsUser) {
+      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + id + '/members'));
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + id + '/members/123'));
         req.expect(404);
         req.end(function(err, res) {
           expect(err).to.not.exist;
@@ -591,7 +636,7 @@ describe('The communities API', function() {
         function(callback) {
           community.creator = foouser._id;
           community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id})
+          community.members.push({user: foouser._id});
           saveCommunity(community, callback);
         },
         function() {
@@ -599,9 +644,59 @@ describe('The communities API', function() {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members'));
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return 400 if current user is not equal to :user_id param', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        type: 'open',
+        members: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.members.push({user: foouser._id});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var ObjectId = require('bson').ObjectId;
+            var id = new ObjectId();
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + id));
+            req.expect(400);
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -639,7 +734,7 @@ describe('The communities API', function() {
         function(callback) {
           community.creator = foouser._id;
           community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id})
+          community.members.push({user: foouser._id});
           saveCommunity(community, callback);
         },
         function() {
@@ -647,13 +742,17 @@ describe('The communities API', function() {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members'));
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
             req.expect(204);
-            req.end(function(err, res) {
-
-              // TODO : CHECK MONGO
+            req.end(function(err) {
               expect(err).to.not.exist;
-              done();
+              Community.find({_id: community._id, 'members.user': user._id}, function(err, document) {
+                if (err) {
+                  return done(err);
+                }
+                expect(document).to.exist;
+                done();
+              });
             });
           });
         }
@@ -689,8 +788,8 @@ describe('The communities API', function() {
         function(callback) {
           community.creator = foouser._id;
           community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id})
-          community.members.push({user: user._id})
+          community.members.push({user: foouser._id});
+          community.members.push({user: user._id});
           saveCommunity(community, callback);
         },
         function() {
@@ -698,13 +797,17 @@ describe('The communities API', function() {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members'));
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
             req.expect(204);
             req.end(function(err, res) {
 
-              // TODO : CHECK MONGO
-              expect(err).to.not.exist;
-              done();
+              Community.find({_id: community._id}, function(err, document) {
+                if (err) {
+                  return done(err);
+                }
+                expect(document[0].members.length).to.equal(2);
+                done();
+              });
             });
           });
         }
@@ -716,11 +819,11 @@ describe('The communities API', function() {
     });
   });
 
-  describe('DELETE /api/communities/:id/members', function() {
+  describe('DELETE /api/communities/:id/members/:user_id', function() {
 
     it('should return 401 is user is not authenticated', function(done) {
       var community = {_id: 123};
-      request(webserver.application).delete('/api/communities/' + community._id + '/members').expect(401).end(function(err, res) {
+      request(webserver.application). delete('/api/communities/' + community._id + '/members/123').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
@@ -733,7 +836,7 @@ describe('The communities API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(webserver.application).delete('/api/communities/' + id + '/members'));
+        var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + id + '/members/123'));
         req.expect(404);
         req.end(function(err) {
           expect(err).to.be.null;
@@ -767,8 +870,8 @@ describe('The communities API', function() {
         function(callback) {
           community.creator = user._id;
           community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id})
-          community.members.push({user: user._id})
+          community.members.push({user: foouser._id});
+          community.members.push({user: user._id});
           saveCommunity(community, callback);
         },
         function() {
@@ -776,11 +879,9 @@ describe('The communities API', function() {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(webserver.application).delete('/api/communities/' + community._id + '/members'));
+            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/members/' + user._id));
             req.expect(403);
             req.end(function(err, res) {
-
-              // TODO : CHECK MONGO
               expect(err).to.not.exist;
               done();
             });
@@ -827,13 +928,18 @@ describe('The communities API', function() {
             if (err) {
               return done(err);
             }
-            var req = loggedInAsUser(request(webserver.application).delete('/api/communities/' + community._id + '/members'));
+            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/members/' + user._id));
             req.expect(204);
             req.end(function(err, res) {
-
-              // TODO : CHECK MONGO
               expect(err).to.not.exist;
-              done();
+              Community.find({_id: community._id}, function(err, document) {
+                if (err) {
+                  return done(err);
+                }
+                expect(document[0].members.length).to.equal(1);
+                expect(document[0].members[0].user + '').to.equal('' + foouser._id);
+                done();
+              });
             });
           });
         }

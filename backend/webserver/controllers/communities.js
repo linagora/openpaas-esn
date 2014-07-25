@@ -245,7 +245,6 @@ module.exports.join = function(req, res) {
 
   communityModule.join(community, user, function(err) {
     if (err) {
-      console.log('err', err);
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
     return res.send(204);
