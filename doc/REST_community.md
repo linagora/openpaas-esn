@@ -360,9 +360,9 @@ Check if a user is a member of the community.
       "avatar": "9330-0393-7373-7280"
     }
 
-## PUT /api/communities/{community_id}/members
+## PUT /api/communities/{community_id}/members/{user_id}
 
-Add the current user to a community ie join the community.
+Add the user to a community ie join the community.
 Note that it does not have any effect if the user is already in the community.
 
 **Request Headers:**
@@ -372,6 +372,7 @@ Note that it does not have any effect if the user is already in the community.
 **Parameters:**
 
 - community_id: The community id
+- user_id: The user id
 
 **Response Headers:**
 
@@ -391,7 +392,7 @@ No response.
 
 **Request:**
 
-    PUT /api/communities/538e3bd6654d7c3307f990fa/members
+    PUT /api/communities/538e3bd6654d7c3307f990fa/members/538e3bd6654d7c3307f990fb
     Accept: application/json
     Host: localhost:8080
 
@@ -400,9 +401,9 @@ No response.
     HTTP/1.1 204 No Content
 
 
-## DELETE /api/communities/{community_id}/members
+## DELETE /api/communities/{community_id}/members/{user_id}
 
-Delete the current user from a community ie leave the community.
+Delete the user from a community ie leave the community.
 
 Notes:
  
@@ -416,6 +417,7 @@ Notes:
 **Parameters:**
 
 - community_id: The community id
+- user_id: The user id
 
 **Response Headers:**
 
@@ -435,7 +437,7 @@ No response.
 
 **Request:**
 
-    DELETE /api/communities/538e3bd6654d7c3307f990fa/members
+    DELETE /api/communities/538e3bd6654d7c3307f990fa/members/538e3bd6654d7c3307f990fb
     Accept: application/json
     Host: localhost:8080
 
