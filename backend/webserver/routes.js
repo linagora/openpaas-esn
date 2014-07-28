@@ -124,10 +124,10 @@ exports = module.exports = function(application) {
   application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
 
   application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
-  application.get('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.members);
+  application.get('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.getMembers);
   application.put('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.canJoin, communities.join);
   application.delete('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
-  application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.member);
+  application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.getMember);
 
   var feedback = require('./controllers/feedback');
   var feedbackMiddleware = require('./middleware/feedback');

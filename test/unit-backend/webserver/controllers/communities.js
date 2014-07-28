@@ -776,7 +776,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The members fn', function() {
+  describe('The getMembers fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
 
@@ -791,7 +791,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.members(req, res);
+      communities.getMembers(req, res);
     });
 
     it('should send back 500 is community.getMembers returns error', function(done) {
@@ -813,7 +813,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.members(req, res);
+      communities.getMembers(req, res);
     });
 
     it('should send back 200 is community.getMembers returns result', function(done) {
@@ -835,11 +835,11 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.members(req, res);
+      communities.getMembers(req, res);
     });
   });
 
-  describe('The member fn', function() {
+  describe('The getMember fn', function() {
     it('should send back 400 is req.params.user_id is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
 
@@ -857,7 +857,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.member(req, res);
+      communities.getMember(req, res);
     });
 
     it('should send back 400 is req.community is undefined', function(done) {
@@ -877,7 +877,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.member(req, res);
+      communities.getMember(req, res);
     });
 
     it('should send back 500 is communityModule.isMember returns error', function(done) {
@@ -904,7 +904,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.member(req, res);
+      communities.getMember(req, res);
     });
 
     it('should send back 200 is communityModule.isMember returns result', function(done) {
@@ -931,7 +931,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.member(req, res);
+      communities.getMember(req, res);
     });
 
     it('should send back 404 is communityModule.isMember returns nothing', function(done) {
@@ -958,7 +958,7 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.member(req, res);
+      communities.getMember(req, res);
     });
   });
 

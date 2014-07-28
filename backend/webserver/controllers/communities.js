@@ -192,7 +192,7 @@ module.exports.getMine = function(req, res) {
   });
 };
 
-module.exports.members = function(req, res) {
+module.exports.getMembers = function(req, res) {
   var community = req.community;
 
   if (!community) {
@@ -207,7 +207,7 @@ module.exports.members = function(req, res) {
   });
 };
 
-module.exports.member = function(req, res) {
+module.exports.getMember = function(req, res) {
   var community = req.community;
   var user = req.params.user_id;
 
