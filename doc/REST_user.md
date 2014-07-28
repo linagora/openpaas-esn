@@ -174,3 +174,68 @@ Get the avatar for the currently logged in user.
     HTTP/1.1 200 Ok
     Last-Modified: Wed, 18 Dec 2013 14:51:51 GMT
 
+## GET /api/user/communities
+
+List all of the communities across all of the domains to which the authenticated user belongs.
+Check [./REST_community.md](Community API) for more details on communities.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+An array of community objects the current user belongs to.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 500 Internal server error - Something went bad on the server side.
+
+**Request:**
+
+    GET /api/user/communities
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        "_id": "987654321",
+        "title": "Mean",
+        "description": "The Awesome MEAN stack",
+        "domain_ids": ["8292903883939282"],
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.703Z"
+        },
+        activity_stream: {
+          uuid: "9330-0393-7373-7280",
+          "timestamps": {
+            "creation": "2014-05-16T09:47:11.704Z"
+          }
+        }
+      },
+      {
+        "_id": "123456789",
+        "title": "Node.js",
+        "description": "All about node.js",
+        "domain_ids": ["8292903883939282"],
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.703Z"
+        },
+        activity_stream: {
+          uuid: "9330-0393-7373-7280",
+          "timestamps": {
+            "creation": "2014-05-16T09:47:11.704Z"
+          }
+        }
+      }    
+    ]
+

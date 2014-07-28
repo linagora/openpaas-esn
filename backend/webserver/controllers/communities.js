@@ -176,3 +176,97 @@ module.exports.getAvatar = function(req, res) {
     }
   });
 };
+
+module.exports.getMine = function(req, res) {
+  var user = req.user;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+  }
+
+  communityModule.query({'members.user': user._id}, function(err, communities) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    return res.json(200, communities);
+  });
+};
+
+module.exports.getMembers = function(req, res) {
+  var community = req.community;
+
+  if (!community) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+  }
+
+  communityModule.getMembers(community, function(err, members) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    return res.json(200, members || []);
+  });
+};
+
+module.exports.getMember = function(req, res) {
+  var community = req.community;
+  var user = req.params.user_id;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User id is missing'}});
+  }
+
+  if (!community) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+  }
+
+  communityModule.isMember(community, user, function(err, result) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+
+    if (result) {
+      return res.json(200);
+    }
+    return res.send(404);
+  });
+};
+
+module.exports.join = function(req, res) {
+  var community = req.community;
+  var user = req.user;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+  }
+
+  if (!community) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+  }
+
+  communityModule.join(community, user, function(err) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    return res.send(204);
+  });
+};
+
+module.exports.leave = function(req, res) {
+  var community = req.community;
+  var user = req.user;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+  }
+
+  if (!community) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+  }
+
+  communityModule.leave(community, user, function(err) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    return res.send(204);
+  });
+};

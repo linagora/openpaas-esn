@@ -24,6 +24,7 @@ Create an ESN community in a domain. The creator of the community is the user wh
 
 - 201 Created. The community has been created.
 - 400 Bad Request. Invalid request body or parameters.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 409 Conflict. A community already exists with this title in the domain.
 
 **Request:**
@@ -72,6 +73,7 @@ This endpoint expects the request body to be the raw image data
 
 - 200 OK. With the recorded image ID
 - 400 Bad request. The current request is missing mandatory parameters
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 412 Precondition failed. The number of bytes recoreded by the file storage service differs from the number of bytes given by the user agent
 - 500 Internal server error: there was a problem, either storing the file, manipulating the image, or updating the user properties.
 
@@ -266,3 +268,186 @@ Delete a community.
 **Response:**
 
     HTTP/1.1 204 No content
+
+## GET /api/communities/{community_id}/members
+
+List all users who are members of the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+Array of community members.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden - The user does not have enough rights to get the community members. 
+- 404 Not found - Community or user not found. The error message will contain details.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    GET /api/communities/538e3bd6654d7c3307f990fa/members
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        "_id": "02029904094900300",
+        "firstname": "John",
+        "lastname": "Doe",
+        "avatar": "9330-0393-7373-7280"
+      },
+      {
+        "_id": "02029904094900301",
+        "firstname": "Bruce",
+        "lastname": "Willis",
+        "avatar": "9330-0393-7373-7281"
+      }
+    ]
+
+## GET /api/communities/{community_id}/members/{user_id}
+
+Check if a user is a member of the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+- user_id: The user_id to check community membership
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK - Current user is a community member and user is a member.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden - The user does not have enough rights to get the community members. 
+- 404 Not found - Current user is a community member and user is not a member
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    GET /api/communities/538e3bd6654d7c3307f990fa/members/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+      "_id": "538e3bd6654d7c3307f990fb",
+      "firstname": "John",
+      "lastname": "Doe",
+      "avatar": "9330-0393-7373-7280"
+    }
+
+## PUT /api/communities/{community_id}/members/{user_id}
+
+Add the user to a community ie join the community.
+Note that it does not have any effect if the user is already in the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+- user_id: The user id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+No response.
+
+**Status Codes:**
+
+- 204 No content - User is now a member of the community.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden - The user can not join the community. 
+- 404 Not found - Community or user not found. The error message will contain details.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    PUT /api/communities/538e3bd6654d7c3307f990fa/members/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No Content
+
+
+## DELETE /api/communities/{community_id}/members/{user_id}
+
+Delete the user from a community i.e. leave the community.
+
+Notes:
+ 
+- The community creator can not leave the community.
+- It does not have any effect if the user is not in the community.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+- user_id: The user id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+No response.
+
+**Status Codes:**
+
+- 204 No content - User is no longer a community member.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden - The user can not leave the community. 
+- 404 Not found - Community or user not found. The error message will contain details.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    DELETE /api/communities/538e3bd6654d7c3307f990fa/members/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No Content
+

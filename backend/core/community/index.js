@@ -82,7 +82,7 @@ module.exports.delete = function(community, callback) {
 };
 
 module.exports.userIsCommunityMember = function(user, community, callback) {
-  if (!user ||   !user._id) {
+  if (!user || !user._id) {
     return callback(new Error('User object is required'));
   }
 
@@ -112,3 +112,58 @@ module.exports.userIsCommunityMember = function(user, community, callback) {
     return callback(null, result);
   });
 };
+
+module.exports.leave = function(community, user, callback) {
+  var id = community._id || community;
+  var user_id = user._id || user;
+
+  Community.update({_id: id, 'members.user': user_id}, {$pull: {members: {user: user_id}}}, function(err, updated) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, updated);
+  });
+};
+
+module.exports.join = function(community, user, callback) {
+  var id = community._id || community;
+  var user_id = user._id || user;
+
+  Community.update({_id: id, 'members.user': {$ne: user_id}}, {$push: {members: {user: user_id, status: 'joined'}}}, function(err, updated) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, updated);
+  });
+};
+
+module.exports.isMember = function(community, user, callback) {
+  var id = community._id || community;
+  var user_id = user._id || user;
+
+  Community.findOne({_id: id, 'members.user': user_id}, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, !!result);
+  });
+};
+
+module.exports.getMembers = function(community, callback) {
+  if (community._id) {
+    Community.findById(community._id, function(err, result) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!result) {
+        return callback(null, []);
+      }
+
+      return callback(null, result.members || []);
+    });
+  } else {
+    return callback(null, community.members);
+  }
+};
+

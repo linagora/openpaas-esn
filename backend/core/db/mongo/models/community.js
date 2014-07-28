@@ -15,6 +15,13 @@ var CommunitySchema = new Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
+  members: [{
+    user: {type: mongoose.Schema.ObjectId, ref: 'User'},
+    status: {type: String},
+    timestamps: {
+      creation: {type: Date, default: Date.now}
+    }
+  }],
   activity_stream: {
     uuid: {type: String},
     timestamps: {

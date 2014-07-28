@@ -710,4 +710,425 @@ describe('The communities controller', function() {
       communities.loadDomainForCreate(req, res);
     });
   });
+
+  describe('The getMine fn', function() {
+    it('should send back 400 is req.user is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMine(req, res);
+    });
+
+    it('should send back 500 is community module sends back error', function(done) {
+      mockery.registerMock('../../core/community', {
+        query: function(q, callback) {
+          return callback(new Error());
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        user: {_id: 123}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMine(req, res);
+    });
+
+    it('should send back 200 with the communities', function(done) {
+      var result = [{_id: 1}, {_id: 2}];
+      mockery.registerMock('../../core/community', {
+        query: function(q, callback) {
+          return callback(null, result);
+        }
+      });
+
+      var res = {
+        json: function(code, json) {
+          expect(code).to.equal(200, json);
+          expect(json).to.deep.equal(result);
+          done();
+        }
+      };
+
+      var req = {
+        user: {_id: 123}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMine(req, res);
+    });
+  });
+
+  describe('The getMembers fn', function() {
+    it('should send back 400 is req.community is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembers(req, res);
+    });
+
+    it('should send back 500 is community.getMembers returns error', function(done) {
+      mockery.registerMock('../../core/community', {
+        getMembers: function(com, callback) {
+          return callback(new Error());
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        community: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembers(req, res);
+    });
+
+    it('should send back 200 is community.getMembers returns result', function(done) {
+      mockery.registerMock('../../core/community', {
+        getMembers: function(com, callback) {
+          return callback(null, []);
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+
+      var req = {
+        community: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembers(req, res);
+    });
+  });
+
+  describe('The getMember fn', function() {
+    it('should send back 400 is req.params.user_id is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        community: {},
+        params: {
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMember(req, res);
+    });
+
+    it('should send back 400 is req.community is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        params: {
+          user_id: 1
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMember(req, res);
+    });
+
+    it('should send back 500 is communityModule.isMember returns error', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(comm, user, callback) {
+          return callback(new Error());
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        community: {
+          _id: 2
+        },
+        params: {
+          user_id: 1
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMember(req, res);
+    });
+
+    it('should send back 200 is communityModule.isMember returns result', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(comm, user, callback) {
+          return callback(null, []);
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        }
+      };
+
+      var req = {
+        community: {
+          _id: 2
+        },
+        params: {
+          user_id: 1
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMember(req, res);
+    });
+
+    it('should send back 404 is communityModule.isMember returns nothing', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(comm, user, callback) {
+          return callback();
+        }
+      });
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+
+      var req = {
+        community: {
+          _id: 2
+        },
+        params: {
+          user_id: 1
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMember(req, res);
+    });
+  });
+
+
+  describe('The join fn', function() {
+    it('should send back 400 is req.community is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        user: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.join(req, res);
+    });
+
+    it('should send back 400 is req.user is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        community: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.join(req, res);
+    });
+
+    it('should send back 500 is community module fails', function(done) {
+      mockery.registerMock('../../core/community', {
+        join: function(community, user, cb) {
+          return cb(new Error());
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        community: {},
+        user: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.join(req, res);
+    });
+
+    it('should send back 204 is community module succeed', function(done) {
+      mockery.registerMock('../../core/community', {
+        join: function(community, user, cb) {
+          return cb();
+        }
+      });
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(204);
+          done();
+        }
+      };
+
+      var req = {
+        community: {},
+        user: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.join(req, res);
+    });
+  });
+
+  describe('The leave fn', function() {
+    it('should send back 400 is req.community is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        user: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.leave(req, res);
+    });
+
+    it('should send back 400 is req.user is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        community: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.leave(req, res);
+    });
+
+    it('should send back 500 is community module fails', function(done) {
+      mockery.registerMock('../../core/community', {
+        leave: function(community, user, cb) {
+          return cb(new Error());
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        community: {},
+        user: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.leave(req, res);
+    });
+
+    it('should send back 204 is community module succeed', function(done) {
+      mockery.registerMock('../../core/community', {
+        leave: function(community, user, cb) {
+          return cb();
+        }
+      });
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(204);
+          done();
+        }
+      };
+
+      var req = {
+        community: {},
+        user: {}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.leave(req, res);
+    });
+  });
+
 });
