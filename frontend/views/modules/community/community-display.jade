@@ -8,7 +8,7 @@ div.col-xs-12.nopadding.esn-member
     h4.media-heading
       a(href='#/communities/{{community._id}}') {{community.title}}
     span.label.label-primary {{community.members.length}} #{__('members')}
-    blockquote(ng-show='community.description')
+    blockquote.community-description(ng-show='community.description')
       p {{community.description}}
   .col-lg-3.col-sm-4.col-xs-12
     a.btn.btn-primary(href='#/communities/{{community._id}}')
