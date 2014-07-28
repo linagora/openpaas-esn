@@ -145,10 +145,7 @@ module.exports.isMember = function(community, user, callback) {
     if (err) {
       return callback(err);
     }
-    if (result) {
-      return callback(null, true);
-    }
-    return callback(null, false);
+    return callback(null, !!result);
   });
 };
 
