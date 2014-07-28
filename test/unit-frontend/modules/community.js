@@ -14,12 +14,20 @@ describe('The Community Angular module', function() {
         this.communityAPI = communityAPI;
         this.$httpBackend = $httpBackend;
         this.domainId = '123456789';
+        this.userId = '123';
         Restangular.setFullResponse(true);
       }));
 
       it('should send a GET to /communities?domain_id=:id', function() {
         this.$httpBackend.expectGET('/communities?domain_id=' + this.domainId).respond(200, []);
         this.communityAPI.list(this.domainId);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a GET to /communities?creator=:user_id&domain_id=:id', function() {
+        var options = {creator: this.userId};
+        this.$httpBackend.expectGET('/communities?creator=' + this.userId + '&domain_id=' + this.domainId).respond(200, []);
+        this.communityAPI.list(this.domainId, options);
         this.$httpBackend.flush();
       });
 
@@ -523,7 +531,19 @@ describe('The Community Angular module', function() {
           };
         }
       };
-      this.session = {domain: {_id: 123}};
+      this.userAPI = {
+        getCommunities: function() {
+          return {
+            then: function() {
+              return {
+                finally: function() {
+                }
+              };
+            }
+          };
+        }
+      };
+      this.session = {domain: {_id: 123}, user: {_id: 456}};
       this.scope = $rootScope.$new();
       this.$q = $q;
       this.log = {
@@ -535,7 +555,8 @@ describe('The Community Angular module', function() {
         $scope: this.scope,
         $log: this.log,
         session: this.session,
-        communityAPI: this.communityAPI
+        communityAPI: this.communityAPI,
+        userAPI: this.userAPI
       });
     }));
 
@@ -580,6 +601,94 @@ describe('The Community Angular module', function() {
       this.scope.getAll();
       this.scope.$digest();
       expect(this.scope.selected).to.equal('all');
+      done();
+    });
+
+    it('getModerator fn should call communityAPI#list fn', function(done) {
+      this.communityAPI.list = function() {
+        return done();
+      };
+      this.scope.getModerator();
+    });
+
+    it('getModerator fn should set the $scope.communities with communityAPI#list result', function(done) {
+      var result = [{_id: 123}, {_id: 234}];
+      var communityDefer = this.$q.defer();
+      this.communityAPI.list = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: result});
+      this.scope.getModerator();
+      this.scope.$digest();
+      expect(this.scope.communities).to.deep.equal(result);
+      done();
+    });
+
+    it('getModerator fn should set $scope.error to true when communityAPI#list fails', function(done) {
+      var communityDefer = this.$q.defer();
+      this.communityAPI.list = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({err: 'failed'});
+      this.scope.getModerator();
+      this.scope.$digest();
+      expect(this.scope.error).to.be.true;
+      done();
+    });
+
+    it('getModerator fn should set $scope.selected to moderator', function(done) {
+      var communityDefer = this.$q.defer();
+      this.communityAPI.list = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({err: 'failed'});
+      this.scope.getModerator();
+      this.scope.$digest();
+      expect(this.scope.selected).to.equal('moderator');
+      done();
+    });
+
+    it('getMembership fn should call userAPI#getCommunities fn', function(done) {
+      this.userAPI.getCommunities = function() {
+        return done();
+      };
+      this.scope.getMembership();
+    });
+
+    it('getMembership fn should set the $scope.communities with userAPI#getCommunities result', function(done) {
+      var result = [{_id: 123}, {_id: 234}];
+      var communityDefer = this.$q.defer();
+      this.userAPI.getCommunities = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: result});
+      this.scope.getMembership();
+      this.scope.$digest();
+      expect(this.scope.communities).to.deep.equal(result);
+      done();
+    });
+
+    it('getMembership fn should set $scope.error to true when userAPI#getCommunities fails', function(done) {
+      var communityDefer = this.$q.defer();
+      this.userAPI.getCommunities = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({err: 'failed'});
+      this.scope.getMembership();
+      this.scope.$digest();
+      expect(this.scope.error).to.be.true;
+      done();
+    });
+
+    it('getMembership fn should set $scope.selected to membership', function(done) {
+      var communityDefer = this.$q.defer();
+      this.userAPI.getCommunities = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({err: 'failed'});
+      this.scope.getMembership();
+      this.scope.$digest();
+      expect(this.scope.selected).to.equal('membership');
       done();
     });
   });

@@ -62,6 +62,11 @@ module.exports.list = function(req, res) {
   if (req.domain) {
     query.domain_ids = [req.domain._id];
   }
+
+  if (req.param('creator')) {
+    query.creator = req.param('creator');
+  }
+
   communityModule.query(query, function(err, response) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community list failed', details: err}});
