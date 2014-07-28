@@ -15,8 +15,7 @@
           li(ng-class="{active: selected === 'moderator', disabled: loading}")
             a(ng-click="getModerator()") #{__('Moderator')}
       .vertiz-space
-      .row(ng-hide="loading", ng-repeat="community in communities")
-        hr
+      .row(ng-hide="loading", ng-repeat="community in communities | orderBy:'title'")
         community-display(community="community")
       .row.alert.alert-info(ng-show="loading", role="alert")
         p
