@@ -114,7 +114,19 @@ Or by putting it in HTTP header:
     Host: localhost:8080
     Authorization: Bearer 0987654321
 
-# Detailed API
+## API middleware
+
+The API implementation intensively use the notion of 'middleware'.
+In the current context, a middleware can be described as a piece of software which intercepts requests and/or responses to do some additional processing.
+In the API described below, middleware are used to check authentication, authorization, existence so API responses may be not described in documentation.
+
+For example, most of the API calls will return:
+
+- HTTP 401 Unauthorized - Trying to access a resource without being authenticated
+- HTTP 403 Forbidden - Trying to access a resource without being authorized to
+- HTTP 404 Not found - The requested resource can not be found
+
+## Detailed API
 
 For a better readability, REST API is split into several files :
 

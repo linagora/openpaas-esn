@@ -179,9 +179,6 @@ Get the avatar for the currently logged in user.
 List all of the communities across all of the domains to which the authenticated user belongs.
 Check [./REST_community.md](Community API) for more details on communities.
 
-Add the current user to a community ie join the community.
-Note that it does not have any effect if the user is already in the community.
-
 **Request Headers:**
 
 - Accept: application/json

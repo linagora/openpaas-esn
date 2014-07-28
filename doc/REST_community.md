@@ -24,6 +24,7 @@ Create an ESN community in a domain. The creator of the community is the user wh
 
 - 201 Created. The community has been created.
 - 400 Bad Request. Invalid request body or parameters.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 409 Conflict. A community already exists with this title in the domain.
 
 **Request:**
@@ -72,6 +73,7 @@ This endpoint expects the request body to be the raw image data
 
 - 200 OK. With the recorded image ID
 - 400 Bad request. The current request is missing mandatory parameters
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 412 Precondition failed. The number of bytes recoreded by the file storage service differs from the number of bytes given by the user agent
 - 500 Internal server error: there was a problem, either storing the file, manipulating the image, or updating the user properties.
 
@@ -291,9 +293,10 @@ Array of community members.
 
 - 200 OK
 - 400 Bad request
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 403 Forbidden - The user does not have enough rights to get the community members. 
 - 404 Not found - Community or user not found. The error message will contain details.
-- 500 Internal server error - Something went bad on the server side.
+- 500 Internal server error - Something went wrong on the server side.
 
 **Request:**
 
@@ -339,10 +342,11 @@ Check if a user is a member of the community.
 **Status Codes:**
 
 - 200 OK - Current user is a community member and user is a member.
-- 400 Bad request
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 403 Forbidden - The user does not have enough rights to get the community members. 
 - 404 Not found - Current user is a community member and user is not a member
-- 500 Internal server error - Something went bad on the server side.
+- 500 Internal server error - Something went wrong on the server side.
 
 **Request:**
 
@@ -385,10 +389,11 @@ No response.
 **Status Codes:**
 
 - 204 No content - User is now a member of the community.
-- 400 Bad request
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 403 Forbidden - The user can not join the community. 
 - 404 Not found - Community or user not found. The error message will contain details.
-- 500 Internal server error - Something went bad on the server side.
+- 500 Internal server error - Something went wrong on the server side.
 
 **Request:**
 
@@ -403,7 +408,7 @@ No response.
 
 ## DELETE /api/communities/{community_id}/members/{user_id}
 
-Delete the user from a community ie leave the community.
+Delete the user from a community i.e. leave the community.
 
 Notes:
  
@@ -429,11 +434,12 @@ No response.
 
 **Status Codes:**
 
-- 204 No content - User is no more a community member.
-- 400 Bad request
+- 204 No content - User is no longer a community member.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 403 Forbidden - The user can not leave the community. 
 - 404 Not found - Community or user not found. The error message will contain details.
-- 500 Internal server error - Something went bad on the server side.
+- 500 Internal server error - Something went wrong on the server side.
 
 **Request:**
 
