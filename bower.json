@@ -47,6 +47,7 @@
     "angular-fullscreen": "*",
     "angular-moment": "~0.7.1",
     "angular-file-upload": "danialfarid/angular-file-upload#~1.6.1",
-    "bootstrap-additions": "~0.2.3"
+    "bootstrap-additions": "~0.2.3",
+    "angular-truncate": "sparkalow/angular-truncate"
   }
 }
