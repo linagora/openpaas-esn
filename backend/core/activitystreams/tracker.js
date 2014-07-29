@@ -68,17 +68,17 @@ function updateLastTimelineEntryRead(userId, activityStreamUuid, lastTimelineEnt
       return callback(err);
     }
 
-    if (!doc) {
+    if (doc) {
+      changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryUsedId, doc, function(err, saved) {
+        return callback(err, saved);
+      });
+    }
+    else {
       createTimelineEntriesTracker(userId, function(err, saved) {
         if (err) { return callback(err); }
         changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryUsedId, saved, function(err, saved) {
           return callback(err, saved);
         });
-      });
-    }
-    else {
-      changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryUsedId, doc, function(err, saved) {
-        return callback(err, saved);
       });
     }
 
@@ -99,15 +99,11 @@ function getLastTimelineEntryRead(userId, activityStreamUuid, callback) {
 
   TimelineEntriesTracker.findById(userId, function(err, doc) {
     if (err) {
-      logger.warn('Error while finding by ID a TimelineEntriesTracker : ', +err.message);
+      logger.warn('Error while finding by ID a TimelineEntriesTracker : ', + err.message);
       return callback(err);
     }
 
-    if (!doc) {
-      return callback(null, null);
-    }
-
-    return callback(null, doc.timelines[activityStreamUuid]);
+    return callback(null, doc && doc.timelines[activityStreamUuid]);
   });
 }
 
@@ -144,8 +140,7 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
       stream.on('data', function(doc) {
         if (doc.verb === 'post') {
           hash[doc._id] = true;
-        }
-        else if (doc.verb === 'remove') {
+        } else if (doc.verb === 'remove') {
           hash[doc._id] = false;
         }
       });
