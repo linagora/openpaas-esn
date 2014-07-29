@@ -230,4 +230,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       replace: true,
       templateUrl: '/views/modules/community/community-display.html'
     };
-  });
+  })
+  .controller('communityController', ['$scope', 'community', function($scope, community) {
+    $scope.community = community;
+  }]);
