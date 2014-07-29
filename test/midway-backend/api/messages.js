@@ -57,7 +57,7 @@ describe('The messages API', function() {
       function saveCommunity(community, domain, user, cb) {
         community.domain_ids.push(domain._id);
         community.members.push({
-          user: user._id,
+          user: user._id
         });
         community.save(function(err, saved) {
           community._id = saved._id;
