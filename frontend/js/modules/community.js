@@ -222,6 +222,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
+          $scope.communities = [];
         }
       ).finally (
         function() {
@@ -241,6 +242,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
+          $scope.communities = [];
         }
       ).finally (
         function() {
@@ -264,6 +266,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
+          $scope.communities = [];
         }
       ).finally (
         function() {
