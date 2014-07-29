@@ -248,6 +248,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
     return {
       restrict: 'E',
       replace: true,
+      scope: {
+        truncate: '=',
+        community: '='
+      },
       templateUrl: '/views/modules/community/community-display.html'
     };
   })
