@@ -1,10 +1,12 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
-    function list(domain) {
-      return Restangular.all('communities').getList({domain_id: domain});
+    function list(domain, options) {
+      var query = options || {};
+      query.domain_id = domain;
+      return Restangular.all('communities').getList(query);
     }
 
     function get(id) {
@@ -204,7 +206,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       );
     };
   }])
-  .controller('communitiesController', ['$scope', '$log', 'session', 'communityAPI', function($scope, $log, session, communityAPI) {
+  .controller('communitiesController', ['$scope', '$log', 'session', 'communityAPI', 'userAPI', function($scope, $log, session, communityAPI, userAPI) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;
@@ -220,6 +222,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
         function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
+          $scope.communities = [];
         }
       ).finally (
         function() {
@@ -230,16 +233,46 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
 
     $scope.getMembership = function() {
       $scope.selected = 'membership';
-      $scope.loading = false;
-      $scope.error = false;
-      $scope.communities = [];
+      $scope.loading = true;
+
+      userAPI.getCommunities().then(
+        function(response) {
+          $scope.communities = response.data;
+        },
+        function(err) {
+          $log.error('Error while getting communities', err);
+          $scope.error = true;
+          $scope.communities = [];
+        }
+      ).finally (
+        function() {
+          $scope.loading = false;
+        }
+      );
     };
 
     $scope.getModerator = function() {
       $scope.selected = 'moderator';
-      $scope.loading = false;
-      $scope.error = false;
-      $scope.communities = [];
+
+      $scope.loading = true;
+      var options = {
+        creator: session.user._id
+      };
+
+      communityAPI.list(session.domain._id, options).then(
+        function(response) {
+          $scope.communities = response.data;
+        },
+        function(err) {
+          $log.error('Error while getting communities', err);
+          $scope.error = true;
+          $scope.communities = [];
+        }
+      ).finally (
+        function() {
+          $scope.loading = false;
+        }
+      );
     };
 
     $scope.getAll();
