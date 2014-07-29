@@ -249,12 +249,25 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
       restrict: 'E',
       replace: true,
       scope: {
-        truncate: '=',
-        community: '='
+        community: '=',
+        truncate: '='
       },
-      templateUrl: '/views/modules/community/community-display.html'
+      templateUrl: '/views/modules/community/community-display.html',
+      controller: function($scope, session) {
+
+        $scope.canJoin = function() {
+          return !$scope.community.members.some(function(member){
+            return member.user === session.user._id;
+          });
+        };
+
+        $scope.canLeave = function() {
+          return !$scope.canJoin() && session.user._id !== $scope.community.creator;
+        };
+      }
     };
   })
   .controller('communityController', ['$scope', 'community', function($scope, community) {
     $scope.community = community;
-  }]);
+  }]
+);
