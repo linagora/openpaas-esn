@@ -1,5 +1,3 @@
 .col-xs-12.nopadding
   .user-video(ng-mouseenter="thumbhover = true", ng-mouseleave="thumbhover = false")
-    video.video-mirror.conference-main-video-multi(autoplay="autoplay" id="{{videoId}}")
-
-
+    canvas.video-mirror.conference-main-video-multi(id="mainVideoCanvas")

@@ -1,27 +1,4 @@
 .col-xs-12
-  div.conference-video#multiparty-conference
-    .row
-      conference-user-video(video-id="video-thumb0", attendee="getName(attendees[0])",  easyrtc='easyrtc')
-    .row
-      conference-user-control-bar(users="users", easyrtc='easyrtc')
-    .row.row-attendees-bar
-      perfect-scrollbar.conference-attendees-bar(wheel-propagation="true", wheel-speed="50", suppress-scroll-y="true", user-both-wheel-axes="true")
-        ul.content
-          li
-            conference-attendee-video(video-id="video-thumb1", attendee="getName(attendees[1])", ng-hide="!attendees[1]")
-          li
-            conference-attendee-video(video-id="video-thumb2", attendee="getName(attendees[2])", ng-hide="!attendees[2]")
-          li
-            conference-attendee-video(video-id="video-thumb3", attendee="getName(attendees[3])", ng-hide="!attendees[3]")
-          li
-            conference-attendee-video(video-id="video-thumb4", attendee="getName(attendees[4])", ng-hide="!attendees[4]")
-          li
-            conference-attendee-video(video-id="video-thumb5", attendee="getName(attendees[5])", ng-hide="!attendees[5]")
-          li
-            conference-attendee-video(video-id="video-thumb6", attendee="getName(attendees[6])", ng-hide="!attendees[6]")
-          li
-            conference-attendee-video(video-id="video-thumb7", attendee="getName(attendees[7])", ng-hide="!attendees[7]")
-          li
-            conference-attendee-video(video-id="video-thumb8", attendee="getName(attendees[8])", ng-hide="!attendees[8]")
+  conference-video(easyrtc='easyrtc')
   info-notification
     live-conference-notification(room='{{conference._id}}')

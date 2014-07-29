@@ -3,59 +3,54 @@
 angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.domain', 'esn.easyrtc', 'esn.authentication'])
   .controller('liveConferenceController', [
     '$scope',
-    '$rootScope',
     '$log',
+    '$timeout',
     'session',
     'conferenceAPI',
     'domainAPI',
-    'tokenAPI',
-    'webrtcFactory',
+    'easyRTCService',
+    'conferenceHelpers',
     'conference',
-    function($scope, $rootScope, $log, session, conferenceAPI, domainAPI, tokenAPI, webrtcFactory, conference) {
+    function($scope, $log, $timeout, session, conferenceAPI, domainAPI, easyRTCService, conferenceHelpers, conference) {
 
       $scope.conference = conference;
-      $scope.username = session.user._id;
-      $scope.webrtcid = '';
       $scope.users = [];
       $scope.attendees = [];
-      $scope.easyrtc = webrtcFactory.get();
+      $scope.mainVideoId = 'video-thumb0';
+      $scope.attendeeVideoIds = [
+        'video-thumb0',
+        'video-thumb1',
+        'video-thumb2',
+        'video-thumb3',
+        'video-thumb4',
+        'video-thumb5',
+        'video-thumb6',
+        'video-thumb7',
+        'video-thumb8'
+      ];
 
       $scope.thumbclass = 'conference-video-multi';
 
-      $scope.$on('$locationChangeStart', function(event, next, current) {
-        $scope.easyrtc.leaveRoom(conference._id, function() {
-          $log.debug('Left the conference ' + conference._id);
-          $rootScope.$emit('conference:left', {conference_id: conference._id});
-          $scope.easyrtc.getLocalStream().stop();
-        }, function() {
-          $log.error('Error while leaving conference');
-        });
-      });
+      $scope.$on('$locationChangeStart', easyRTCService.leaveRoom(conference));
 
-      $scope.getName = function(id) {
-        if (!id || id === null) {
-          return '';
-        }
+      $scope.getName = function(userId) {
+        conferenceHelpers.getNameByUserId(userId, $scope.users);
+      };
 
-        var filtered = $scope.users.filter(function(entry) {
-          return entry._id === id;
-        });
-        if (filtered && filtered.length === 1) {
-          return filtered[0].firstname || filtered[0].lastname || filtered[0].emails[0] || 'No name';
-        }
-        return 'No name';
+      $scope.getMainVideoAttendeeIndex = function(mainVideoId) {
+        return conferenceHelpers.getMainVideoAttendeeIndexFrom(mainVideoId);
+      };
+
+      $scope.streamToMainCanvas = function(index) {
+        $scope.mainVideoId = $scope.attendeeVideoIds[index];
+      };
+
+      $scope.isMainVideo = function(videoId) {
+        return conferenceHelpers.isMainVideo($scope.mainVideoId, videoId);
       };
 
       $scope.performCall = function(otherEasyrtcid) {
-        $log.debug('Calling ' + otherEasyrtcid);
-        $scope.easyrtc.hangupAll();
-        var successCB = function() {
-          $log.debug('Successfully connected to ' + otherEasyrtcid);
-        };
-        var failureCB = function() {
-          $log.error('Error while connecting to ' + otherEasyrtcid);
-        };
-        $scope.easyrtc.call(otherEasyrtcid, successCB, failureCB);
+        easyRTCService.performCall(otherEasyrtcid);
       };
 
       $scope.invite = function(user) {
@@ -70,85 +65,6 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         );
       };
 
-      $scope.loginSuccess = function(easyrtcid) {
-        $scope.webrtcid = easyrtcid;
-        $scope.$apply();
-      };
-
-      $scope.loginFailure = function(errorCode, message) {
-        $log.error('Error while connecting to the webrtc signaling service ' + errorCode + ' : ' + message);
-      };
-
-      $scope.entryListener = function(entry, roomName) {
-        if (entry) {
-          $log.debug('Entering room ' + roomName);
-        } else {
-          $log.debug('Leaving room ' + roomName);
-        }
-      };
-
-      $scope.roomOccupantListener = function(roomName, data, isPrimary) {
-        $scope.easyrtc.setRoomOccupantListener(null); // so we're only called once.
-        $log.debug('New user(s) in room ' + roomName);
-        $log.debug('Room data ', data);
-
-        var successCB = function() {
-          $log.info('Successfully connected to user');
-        };
-        var failureCB = function() {
-          $log.error('Error while connecting to user');
-        };
-
-        for (var easyrtcid in data) {
-          $log.debug('Calling: ' + $scope.easyrtc.idToName(easyrtcid));
-          $scope.easyrtc.call(easyrtcid, successCB, failureCB);
-        }
-      };
-
-      $scope.connect = function() {
-        $scope.easyrtc.setRoomOccupantListener($scope.roomOccupantListener);
-        $scope.easyrtc.setRoomEntryListener($scope.entryListener);
-        $scope.easyrtc.setDisconnectListener(function() {
-          $log.info('Lost connection to signaling server');
-        });
-        $scope.easyrtc.joinRoom(conference._id, null,
-          function() {
-            $log.debug('Joined room ' + conference._id);
-          },
-          function() {
-            $log.debug('Error while joining room ' + conference._id);
-          }
-        );
-        $scope.easyrtc.username = $scope.username;
-        $scope.attendees[0] = $scope.username;
-        $scope.easyrtc.debugPrinter = function(message) {
-          $log.debug(message);
-        };
-
-        tokenAPI.getNewToken().then(function(response) {
-          var data = response.data || {token: ''};
-          var options = {query: 'token=' + data.token + '&user=' + session.user._id};
-          $scope.easyrtc.setSocketOptions(options);
-          $scope.easyrtc.easyApp('OpenPaasRSE', 'video-thumb0', ['video-thumb1', 'video-thumb2', 'video-thumb3', 'video-thumb4', 'video-thumb5', 'video-thumb6', 'video-thumb7', 'video-thumb8'], $scope.loginSuccess, $scope.loginFailure);
-
-          $scope.easyrtc.setOnCall(function(easyrtcid, slot) {
-            $scope.attendees[slot + 1] = $scope.easyrtc.idToName(easyrtcid);
-            $log.debug('SetOnCall', easyrtcid);
-            $scope.$apply();
-          });
-
-          $scope.easyrtc.setOnHangup(function(easyrtcid, slot) {
-            $log.debug('setOnHangup', easyrtcid);
-            $scope.attendees[slot + 1] = null;
-            $scope.$apply();
-          });
-        }, function(error) {
-          if (error && error.data) {
-            $log.error('Error while getting creating websocket connection', error.data);
-          }
-        });
-      };
-
       domainAPI.getMembers(session.domain._id).then(
         function(response) {
           $scope.users = response.data;
@@ -157,9 +73,234 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
           $log.error('Can not get members ' + error);
         }
       );
-      $scope.connect();
+
+      $timeout(function() {
+        easyRTCService.connect($scope.conference, $scope.mainVideoId, $scope.attendees);
+      }, 1000);
     }
   ])
+
+  .factory('easyRTCService', ['$rootScope', '$log', 'webrtcFactory', 'tokenAPI', 'session', function($rootScope, $log, webrtcFactory, tokenAPI, session) {
+    var easyrtc = webrtcFactory.get();
+
+    function leaveRoom(conference) {
+      easyrtc.leaveRoom(conference._id, function() {
+        $log.debug('Left the conference ' + conference._id);
+        $rootScope.$emit('conference:left', {conference_id: conference._id});
+        easyrtc.getLocalStream().stop();
+      }, function() {
+        $log.error('Error while leaving conference');
+      });
+    }
+
+    function performCall(otherEasyrtcid) {
+      $log.debug('Calling ' + otherEasyrtcid);
+      easyrtc.hangupAll();
+
+      function onSuccess() {
+        $log.debug('Successfully connected to ' + otherEasyrtcid);
+      }
+
+      function onFailure() {
+        $log.error('Error while connecting to ' + otherEasyrtcid);
+      }
+
+      easyrtc.call(otherEasyrtcid, onSuccess, onFailure);
+    }
+
+    function connect(conference, mainVideoId, attendees) {
+
+      function entryListener(entry, roomName) {
+        if (entry) {
+          $log.debug('Entering room ' + roomName);
+        } else {
+          $log.debug('Leaving room ' + roomName);
+        }
+      }
+
+      function roomOccupantListener(roomName, data, isPrimary) {
+        easyrtc.setRoomOccupantListener(null); // so we're only called once.
+        $log.debug('New user(s) in room ' + roomName);
+        $log.debug('Room data ', data);
+
+        function onSuccess() {
+          $log.info('Successfully connected to user');
+        }
+
+        function onFailure() {
+          $log.error('Error while connecting to user');
+        }
+
+        for (var easyrtcid in data) {
+          $log.debug('Calling: ' + easyrtc.idToName(easyrtcid));
+          easyrtc.call(easyrtcid, onSuccess, onFailure);
+        }
+      }
+
+      easyrtc.setRoomOccupantListener(roomOccupantListener);
+      easyrtc.setRoomEntryListener(entryListener);
+
+      easyrtc.setDisconnectListener(function() {
+        $log.info('Lost connection to signaling server');
+      });
+
+      easyrtc.joinRoom(conference._id, null,
+        function() {
+          $log.debug('Joined room ' + conference._id);
+        },
+        function() {
+          $log.debug('Error while joining room ' + conference._id);
+        }
+      );
+
+      easyrtc.username = session.user._id;
+      attendees[0] = session.user._id;
+
+      easyrtc.debugPrinter = function(message) {
+        $log.debug(message);
+      };
+
+      tokenAPI.getNewToken().then(function(response) {
+        var data = response.data || {token: ''};
+        var options = {query: 'token=' + data.token + '&user=' + session.user._id};
+
+        easyrtc.setSocketOptions(options);
+
+        function onLoginSuccess(easyrtcid) {
+          $log.debug('Successfully logged: ' + easyrtcid);
+          $rootScope.$apply();
+        }
+
+        function onLoginFailure(errorCode, message) {
+          $log.error('Error while connecting to the webrtc signaling service ' + errorCode + ' : ' + message);
+        }
+
+        easyrtc.easyApp(
+          'OpenPaasRSE',
+          mainVideoId,
+          [
+            'video-thumb1',
+            'video-thumb2',
+            'video-thumb3',
+            'video-thumb4',
+            'video-thumb5',
+            'video-thumb6',
+            'video-thumb7',
+            'video-thumb8'
+          ],
+          onLoginSuccess,
+          onLoginFailure);
+
+        easyrtc.setOnCall(function(easyrtcid, slot) {
+          attendees[slot + 1] = easyrtc.idToName(easyrtcid);
+          $log.debug('SetOnCall', easyrtcid);
+          $rootScope.$apply();
+        });
+
+        easyrtc.setOnHangup(function(easyrtcid, slot) {
+          $log.debug('setOnHangup', easyrtcid);
+          attendees[slot + 1] = null;
+          $rootScope.$apply();
+        });
+
+      }, function(error) {
+        if (error && error.data) {
+          $log.error('Error while getting creating websocket connection', error.data);
+        }
+      });
+    }
+
+    function enableMicrophone(muted) {
+      easyrtc.enableMicrophone(muted);
+    }
+
+    function enableCamera(videoMuted) {
+      easyrtc.enableCamera(videoMuted);
+    }
+
+    return {
+      leaveRoom: leaveRoom,
+      performCall: performCall,
+      connect: connect,
+      enableMicrophone: enableMicrophone,
+      enableCamera: enableCamera
+    };
+  }])
+
+  .factory('conferenceHelpers', function() {
+    function getNameByUserId(userId, users) {
+      if (!userId || userId === null) {
+        return '';
+      }
+
+      var filtered = users.filter(function(entry) {
+        return entry._id === userId;
+      });
+
+      if (filtered && filtered.length === 1) {
+        return filtered[0].firstname || filtered[0].lastname || filtered[0].emails[0] || 'No name';
+      }
+
+      return 'No name';
+    }
+
+    function getMainVideoAttendeeIndexFrom(videoId) {
+      return parseInt(videoId.substr(11));
+    }
+
+    function isMainVideo(mainVideoId, videoId) {
+      return mainVideoId === videoId;
+    }
+
+    return {
+      getNameByUserId: getNameByUserId,
+      getMainVideoAttendeeIndexFrom: getMainVideoAttendeeIndexFrom,
+      isMainVideo: isMainVideo
+    };
+  })
+
+  .factory('drawVideo', function($rootScope, $window) {
+    var requestAnimationFrame =
+      $window.requestAnimationFrame ||
+      $window.mozRequestAnimationFrame ||
+      $window.msRequestAnimationFrame ||
+      $window.webkitRequestAnimationFrame;
+
+    function draw(context, video, width, height) {
+      context.drawImage(video, 0, 0, width, height);
+    }
+
+    return function(context, video, width, height) {
+      (function tick() {
+        requestAnimationFrame(function() {
+          draw(context, video, width, height);
+          $rootScope.$apply(tick);
+        });
+      })();
+    };
+  })
+
+  .directive('conferenceVideo', ['$timeout', 'drawVideo', function($timeout, drawVideo) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/live-conference/partials/conference-video.html',
+      link: function(scope, element) {
+        scope.$watch('mainVideoId', function(newVideoId) {
+          $timeout(function() {
+            var canvas = element.find('canvas#mainVideoCanvas');
+            var mainVideo = element.find('video#' + newVideoId);
+            var context = canvas[0].getContext('2d');
+            mainVideo.on('loadedmetadata', function() {
+              canvas[0].width = mainVideo[0].videoWidth;
+              canvas[0].height = mainVideo[0].videoHeight;
+              drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
+            });
+          }, 1000);
+        });
+      }
+    };
+  }])
 
   .directive('conferenceAttendee', function() {
     return {
@@ -212,17 +353,17 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         users: '=',
         easyrtc: '='
       },
-      controller: function($scope, $window, $aside) {
+      controller: function($scope, $window, $aside, easyRTCService) {
         $scope.muted = false;
         $scope.videoMuted = false;
 
         $scope.toggleSound = function() {
-          $scope.easyrtc.enableMicrophone($scope.muted);
+          easyRTCService.enableMicrophone($scope.muted);
           $scope.muted = !$scope.muted;
         };
 
         $scope.toggleCamera = function() {
-          $scope.easyrtc.enableCamera($scope.videoMuted);
+          easyRTCService.enableCamera($scope.videoMuted);
           $scope.videoMuted = !$scope.videoMuted;
         };
 
