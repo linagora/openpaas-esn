@@ -261,8 +261,12 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
           });
         };
 
+        $scope.isCreator = function() {
+          return session.user._id === $scope.community.creator;
+        };
+
         $scope.canLeave = function() {
-          return !$scope.canJoin() && session.user._id !== $scope.community.creator;
+          return !$scope.canJoin() && !$scope.isCreator();
         };
       }
     };

@@ -7,7 +7,12 @@ div.col-xs-12.nopadding.esn-member
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading
       a(href='#/communities/{{community._id}}') {{community.title}}
-    span.label.label-primary {{community.members.length}} #{__('members')}
+    ul.list-inline
+      li.pull-left
+        span.label.label-primary {{community.members.length}} #{__('members')}
+      li.pull-left(ng-show="isCreator()")
+        span.label.label-warning #{__('Creator')}
+      .clearfix
     blockquote.hidden-xs.community-description(ng-show='community.description')
       p(ng-show='truncate && truncate === true') {{community.description | characters:256 :false }}
       p(ng-hide='truncate && truncate === true') {{community.description}}
