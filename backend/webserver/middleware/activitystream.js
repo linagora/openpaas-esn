@@ -16,7 +16,6 @@ module.exports.findStreamResource = function(req, res, next) {
     }
 
     if (!domain) {
-
       Community.getFromActivityStreamID(uuid, function(err, community) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while searching the stream resource : ' + err.message}});
@@ -25,15 +24,21 @@ module.exports.findStreamResource = function(req, res, next) {
         if (!community) {
           return res.json(404, {error: {code: 404, message: 'Not Found', details: 'Can not find a valid resource for the stream : ' + uuid}});
         }
+
+        req.activity_stream = {
+          objectType: 'activitystream',
+          _id: uuid
+        };
+        next();
       });
-
     }
-
-    req.activity_stream = {
-      objectType: 'activitystream',
-      _id: uuid
-    };
-    next();
+    else {
+      req.activity_stream = {
+        objectType: 'activitystream',
+        _id: uuid
+      };
+      next();
+    }
   });
 
 };
