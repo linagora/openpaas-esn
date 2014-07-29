@@ -2,9 +2,9 @@
 
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
+var Community = mongoose.model('Community');
 
 module.exports.findStreamResource = function(req, res, next) {
-
   var uuid = req.params.uuid;
   if (!uuid) {
     return res.json(400, {error: {code: 400, message: 'Bad parameter', details: 'Stream UUID is required'}});
@@ -16,7 +16,17 @@ module.exports.findStreamResource = function(req, res, next) {
     }
 
     if (!domain) {
-      return res.json(404, {error: {code: 404, message: 'Not Found', details: 'Can not find a valid resource for the stream : ' + uuid}});
+
+      Community.getFromActivityStreamID(uuid, function(err, community) {
+        if (err) {
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while searching the stream resource : ' + err.message}});
+        }
+
+        if (!community) {
+          return res.json(404, {error: {code: 404, message: 'Not Found', details: 'Can not find a valid resource for the stream : ' + uuid}});
+        }
+      });
+
     }
 
     req.activity_stream = {
@@ -25,6 +35,7 @@ module.exports.findStreamResource = function(req, res, next) {
     };
     next();
   });
+
 };
 
 module.exports.filterValidTargets = function(req, res, next) {
@@ -42,6 +53,11 @@ module.exports.filterValidTargets = function(req, res, next) {
   async.filter(targets,
     function(item, callback) {
       Domain.getFromActivityStreamID(item.id, function(err, domain) {
+        if (!err && !domain) {
+          return Community.getFromActivityStreamID(item.id, function(err, community) {
+            return callback(!err && community);
+          });
+        }
         return callback(!err && domain);
       });
     },
