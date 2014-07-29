@@ -34,6 +34,7 @@ module.exports = {
     'cmd': process.env.CMD_ELASTICSEARCH || 'elasticsearch',
     'port': process.env.PORT_ELASTICSEARCH || 23459,
     'communication_port': process.env.COMMUNICATION_PORT_ELASTICSEARCH || 23460,
+    'wait_index': process.env.ELASTICSEARCH_WAIT_INDEX || 4000,
     'cluster_name': 'elasticsearch',
     'data_path': 'tmp/elasticsearch/data',
     'work_path': 'tmp/elasticsearch/work',

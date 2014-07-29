@@ -97,6 +97,7 @@ describe('The user domain module', function() {
     it('should return the users which belong to a domain and which contain the search term', function(done) {
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
       var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var self = this;
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         if (err) {
@@ -112,7 +113,7 @@ describe('The user domain module', function() {
             expect(users.list[2]._id).to.deep.equals(models.users[2]._id.toString());
             done();
           });
-        }, 1000);
+        }, self.testEnv.serversConfig.elasticsearch.wait_index);
       });
     });
 
@@ -167,7 +168,7 @@ describe('The user domain module', function() {
             philippe = models.users[1];
             setTimeout(function() {
               self.mongoose.disconnect(done);
-            }, 2000);
+            }, self.testEnv.serversConfig.elasticsearch.wait_index);
           });
         });
       });
@@ -416,7 +417,7 @@ describe('The user domain module', function() {
             user = models.users[0];
             setTimeout(function() {
               self.mongoose.disconnect(done);
-            }, 2000);
+            }, self.testEnv.serversConfig.elasticsearch.wait_index);
           });
         });
       });

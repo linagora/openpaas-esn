@@ -268,7 +268,7 @@ describe('The domain API', function() {
             expect(res.headers['x-esn-items-count']).to.equal('3');
             done();
           });
-        }, 2000);
+        }, self.testEnv.serversConfig.elasticsearch.wait_index);
       });
     });
   });
