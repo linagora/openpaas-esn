@@ -156,13 +156,15 @@ angular.module('esnApp', [
       }
     });
 
+
     $routeProvider.when('/communities', {
       templateUrl: '/views/esn/partials/communities',
       controller: 'communitiesController'
     });
 
     $routeProvider.when('/communities/:community_id', {
-      templateUrl: '/views/modules/community/community',
+      templateUrl: '/views/esn/partials/community',
+      controller: 'communityController',
       resolve: {
         community: function(communityAPI, $route, $location) {
           return communityAPI.get($route.current.params.community_id).then(
