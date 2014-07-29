@@ -6,6 +6,33 @@ var User = mongoose.model('User');
 var defaultLimit = 50;
 var defaultOffset = 0;
 
+function getUserDomains(user, callback) {
+  if (!user) {
+    return callback(new Error('User is mandatory'));
+  }
+
+  var id = user._id || user;
+  return User.findById(id).populate('domains.domain_id', null, 'Domain').exec(function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (!result) {
+      return callback();
+    }
+
+    if (result.domains && result.domains.length > 0) {
+      var domains = [];
+      result.domains.forEach(function(domain) {
+        domains.push(domain.domain_id);
+      });
+      return callback(null, domains);
+    }
+    return callback();
+  });
+}
+module.exports.getUserDomains = getUserDomains;
+
 /**
  * Get all users in a domain.
  *

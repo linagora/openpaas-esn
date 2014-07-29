@@ -3,6 +3,55 @@
 var mongoose = require('mongoose');
 var TimelineEntry = mongoose.model('TimelineEntry');
 var helpers = require('./helpers');
+var domain = require('../user/domain');
+var community = require('../community');
+
+function getUserStreams(user, callback) {
+  if (!user) {
+    return callback(new Error('User is required'));
+  }
+
+  var result = [];
+
+  var id = user._id || user;
+  domain.getUserDomains(id, function(err, domains) {
+    if (!err && domains && domains.length > 0) {
+      domains.forEach(function(d) {
+        var stream = {
+          uuid: d.activity_stream.uuid,
+          target: {
+            objectType: 'domain',
+            displayName: d.name,
+            _id: d._id,
+            id: 'urn:linagora.com:domain:' + d._id,
+            image: ''
+          }
+        };
+        result.push(stream);
+      });
+    }
+
+    community.getUserCommunities(id, function(err, communities) {
+      if (!err && communities && communities.length) {
+        communities.forEach(function(c) {
+          var stream = {
+            uuid: c.activity_stream.uuid,
+            target: {
+              objectType: 'community',
+              displayName: c.title,
+              _id: c._id,
+              id: 'urn:linagora.com:community:' + c._id,
+              image: c.avatar || ''
+            }
+          };
+          result.push(stream);
+        });
+      }
+      return callback(null, result);
+    });
+  });
+}
+module.exports.getUserStreams = getUserStreams;
 
 /**
  * Query the timeline

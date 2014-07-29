@@ -253,7 +253,7 @@ Get all the activity streams of the current user.
 
 **Response JSON Object**
 
-An array of activity streams objects which can be read by the current.
+An array of activity streams objects which can be read by the current user.
 
 **Status Codes:**
 
