@@ -249,6 +249,7 @@ describe('The communities API', function() {
                 expect(result[0].title).to.equal(community.title);
                 expect(result[0].description).to.equal(community.description);
                 expect(result[0].creator + '').to.equal(user._id + '');
+                expect(result[0].members[0].user + '').to.equal(user._id + '');
                 done();
               });
             });
