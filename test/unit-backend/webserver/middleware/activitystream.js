@@ -216,9 +216,10 @@ describe('The activitystream middleware', function() {
 
     it('should send back an error if Domain.getFromActivityStreamID send back an error', function(done) {
       var mock = {
-        model: function() {
+        model: function(modelName) {
           return {
             getFromActivityStreamID: function(uuid, cb) {
+              expect(modelName).to.equal('Domain');
               return cb(new Error());
             }
           };
@@ -242,12 +243,17 @@ describe('The activitystream middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should send back an error if Domain.getFromActivityStreamID does not return domain', function(done) {
+    it('should send back an error if Domain.getFromActivityStreamID does not return domain and Communtity.getFromActivityStreamID send back error', function(done) {
       var mock = {
-        model: function() {
+        model: function(modelName) {
           return {
             getFromActivityStreamID: function(uuid, cb) {
-              return cb(null, null);
+              if (modelName === 'Domain') {
+                return cb(null, null);
+              }
+
+              expect(modelName).to.equal('Community');
+              return cb(new Error());
             }
           };
         }
@@ -262,7 +268,7 @@ describe('The activitystream middleware', function() {
       };
       var res = {
         json: function(code) {
-          expect(code).to.equal(404);
+          expect(code).to.equal(500);
           done();
         }
       };
@@ -270,7 +276,7 @@ describe('The activitystream middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should call next when stream resource is found', function(done) {
+    it('should call next when stream resource is found (Domain)', function(done) {
       var mock = {
         model: function() {
           return {
@@ -298,5 +304,68 @@ describe('The activitystream middleware', function() {
       };
       middleware(req, res, next);
     });
+
+    it('should call next when stream resource is found (Community)', function(done) {
+      var mock = {
+        model: function(modelName) {
+          return {
+            getFromActivityStreamID: function(uuid, cb) {
+              if (modelName === 'Domain') {
+                return cb(null, null);
+              }
+
+              expect(modelName).to.equal('Community');
+              return cb(null, {_id: 123});
+            }
+          };
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
+      var req = {
+        params: {
+          uuid: 1
+        }
+      };
+      var res = {
+        json: function(code) {
+          done(new Error('Should not be called'));
+        }
+      };
+      var next = function() {
+        done();
+      };
+      middleware(req, res, next);
+    });
+
+    it('should send back an error if neither a Domain nor a Community is found', function(done) {
+      var mock = {
+        model: function(modelName) {
+          return {
+            getFromActivityStreamID: function(uuid, cb) {
+              return cb(null, null);
+            }
+          };
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
+      var req = {
+        params: {
+          uuid: 1
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+      var next = function() {};
+      middleware(req, res, next);
+    });
+
   });
 });
