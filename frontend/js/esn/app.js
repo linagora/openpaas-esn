@@ -7,6 +7,7 @@ angular.module('esnApp', [
   'ui.notify',
   'FBAngular',
   'angularMoment',
+  'truncate',
   'esn.core',
   'esn.member',
   'esn.domain',
