@@ -1,10 +1,14 @@
 # /api/activitystreams
 
-# GET /api/activitystreams/{uuid}
+## GET /api/activitystreams/{uuid}
 
 Get the timeline of an activity stream from its uuid.
 
-**Parameters:**
+**Request Headers:**
+
+- Accept: application/json
+
+**Request URL Parameters:**
 
 - uuid: The identifier of the activity stream.
 
@@ -13,10 +17,6 @@ Get the timeline of an activity stream from its uuid.
 - before (string): Determines the last activity ID of the stream. (optional, this is the default)
 - after (string): Determines the previous activity ID of the stream.
 - limit (int): The maximum number of activities to include in the stream. (optional)
-
-**Request Headers:**
-
-- Accept: application/json
 
 **Response Headers:**
 
@@ -92,3 +92,49 @@ Array of activities.
         ]
       }
     ]
+
+## GET /api/activitystreams/{uuid}/unreadcount
+
+Get the number of unreads timeline entries of an activity stream from its uuid for the current user.
+
+The last timeline entry read is updated each time `GET /api/activitystreams/{uuid}` is send.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Request URL Parameters:**
+
+- uuid: The identifier of the activity stream.
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Response JSON Object:**
+
+- _id: the activity stream uuid
+- unread_count: number of unread timeline entries
+
+**Status Codes:**
+
+- 200 Ok.
+- 400 Bad Request. Invalid request body or parameters
+- 401 Unauthorized. The current request does not contains any valid data to be used for authentication.
+- 404 Not Found. The activity stream has not been found.
+- 500 Internal server error.
+
+**Request:**
+
+    GET /api/activitystreams/7389992882/unreadcount
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 Ok
+    {
+      "_id": "7389992882",
+      "unread_count": "4"
+    }
