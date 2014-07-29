@@ -17,7 +17,7 @@
       .vertiz-space
       .row(ng-hide="loading", ng-repeat="community in communities | orderBy:'title'")
         hr
-        community-display(community="community", truncate="true")
+        community-display(community="community")
       .row.alert.alert-info(ng-show="loading", role="alert")
         p
           i.fa.fa-cog.fa-spin

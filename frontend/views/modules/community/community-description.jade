@@ -10,9 +10,13 @@ div.col-xs-12.nopadding.esn-member
     ul.list-inline
       li.pull-left
         span.label.label-primary {{community.members.length}} #{__('members')}
+      li.pull-left(ng-show="isCreator()")
+        span.label.label-warning #{__('Creator')}
       .clearfix
     blockquote.hidden-xs.community-description(ng-show='community.description')
-      p {{community.description | characters:256 :false }}
+      p(ng-hide='truncate && truncate === true') {{community.description}}
   .col-lg-3.col-sm-4.col-xs-12
-    a.btn.btn-primary(href="#/communities/{{community._id}}")
-      | #{__('More...')}
+    a.btn.btn-primary(href="#/communities/{{community._id}}", ng-show="canJoin()")
+      | #{__('Join')}
+    a.btn.btn-primary(href='#/communities/{{community._id}}', ng-show="canLeave()")
+      | #{__('Leave')}
