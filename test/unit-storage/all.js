@@ -165,6 +165,69 @@ before(function() {
           }
           return done(null, requestWithSessionCookie(cookies));
         });
+    },
+    /**
+     * Add multiple TimelineEntries to the database.
+     * All TimelineEntries added are identical.
+     * This call added "count" TimelineEntries to the database.
+     *
+     * @param {string} activityStreamUuid the target ActivityStream for each TimelineEntry
+     * @param {number} count the number of TimelineEntry that must be created
+     * @param {string} verb the verb field for each TimelineEntry
+     * @param {function} callback fn like callback(err, models)
+     */
+    applyMultipleTimelineEntries: function(activityStreamUuid, count, verb, callback) {
+      require(self.testEnv.basePath + '/backend/core').db.mongo;
+
+      var async = require('async'),
+        TimelineEntry = require('mongoose').model('TimelineEntry');
+
+      function createTimelineEntry(domain, callback) {
+        var e = new TimelineEntry({
+          verb: verb,     // "post" or "remove"
+          language: 'en',
+          actor: {
+            objectType: 'user',
+            _id: self.mongoose.Types.ObjectId(),
+            image: '123456789',
+            displayName: 'foo bar baz'
+          },
+          object: {
+            objectType: 'message',
+            _id: self.mongoose.Types.ObjectId()
+          },
+          target: [
+            {
+              objectType: 'activitystream',
+              _id: activityStreamUuid
+            }
+          ]
+        });
+        e.save(function(err, saved) {
+          if (err) { return callback(err); }
+          return callback(null, e);
+        });
+      }
+
+      function createTimelineEntryJob(callback) {
+        createTimelineEntry(activityStreamUuid, callback);
+      }
+
+      var arrayJobs = [];
+      for (var i = 0; i < count; i++) {
+        arrayJobs.push(createTimelineEntryJob);
+      }
+
+      var models = {};
+      models.activityStreamUuid = activityStreamUuid;
+
+      async.parallel(arrayJobs, function(err, timelineEntries) {
+        if (err) {
+          return callback(err);
+        }
+        models.timelineEntries = timelineEntries;
+        return callback(null, models);
+      });
     }
   };
 
