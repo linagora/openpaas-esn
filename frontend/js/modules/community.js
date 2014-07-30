@@ -280,13 +280,12 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
     $scope.join = function() {
       communityAPI.join(community._id, session.user._id).then(
         function() {
-          $log.info('Welcome to community');
           communityAPI.get($scope.community._id).then(
             function(response) {
               $scope.community = response.data;
             },
             function(err) {
-              //TOTO
+              $log.error('Error while loading community', err);
             }
           );
         },
@@ -304,7 +303,6 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.avatar', 'rest
     $scope.leave = function() {
       communityAPI.leave(community._id, session.user._id).then(
         function() {
-          $log.info('Bye bye to community');
           $location.path('/communities');
         },
         function(err) {
