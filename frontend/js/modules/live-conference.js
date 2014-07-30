@@ -351,7 +351,8 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       templateUrl: '/views/live-conference/partials/user-control-bar.html',
       scope: {
         users: '=',
-        easyrtc: '='
+        easyrtc: '=',
+        inviteCall: '='
       },
       controller: function($scope, $window, $aside, easyRTCService) {
         $scope.muted = false;

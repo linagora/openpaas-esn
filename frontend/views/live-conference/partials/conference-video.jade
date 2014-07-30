@@ -2,7 +2,7 @@ div.conference-video#multiparty-conference
   .row
     conference-user-video(video-id="{{mainVideoId}}")
   .row
-    conference-user-control-bar(users="users", easyrtc='easyrtc')
+    conference-user-control-bar(users="users", easyrtc='easyrtc', invite-call='invite')
   .row.row-attendees-bar
     perfect-scrollbar.conference-attendees-bar(wheel-propagation="true", wheel-speed="50", suppress-scroll-y="true", user-both-wheel-axes="true")
       ul.content

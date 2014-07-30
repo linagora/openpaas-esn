@@ -164,7 +164,7 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
     };
   }])
 
-  .directive('conferenceNotification', ['$timeout', '$rootScope', '$location', function($timeout, $rootScope, $location) {
+  .directive('conferenceNotification', ['$timeout', '$rootScope', '$window', function($timeout, $rootScope, $window) {
     return {
       require: '^confirmNotification',
       scope: {},
@@ -185,7 +185,7 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
             return;
           }
           $timeout(function() {
-            $location.path('/conferences/' + msg.conference_id);
+            $window.open('/conferences/' + msg.conference_id);
           }, 0);
         };
         $scope.onCancel = function() {
