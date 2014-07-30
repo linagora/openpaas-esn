@@ -179,4 +179,114 @@ describe('The activitystreams controller module', function() {
     activitystreams.get(req, res);
   });
 
+  it('getMine should return 400 when req.user is undefined', function(done) {
+    var mongooseMock = {
+      model: function() {}
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var req = {
+      params: {
+        uuid: '12345'
+      }
+    };
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    activitystreams.getMine(req, res);
+  });
+
+  it('getMine should return 500 when activitystreams module sends back error', function(done) {
+    var mongooseMock = {
+      model: function() {}
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+
+    mockery.registerMock('../../core/activitystreams', {
+      getUserStreams: function(user, cb) {
+        return cb(new Error());
+      }
+    });
+
+    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var req = {
+      user: {
+        _id: '12345'
+      }
+    };
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(500);
+        done();
+      }
+    };
+    activitystreams.getMine(req, res);
+  });
+
+  it('getMine should return 200 when activitystreams module sends back streams', function(done) {
+    var mongooseMock = {
+      model: function() {}
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+
+    mockery.registerMock('../../core/activitystreams', {
+      getUserStreams: function(user, cb) {
+        return cb(null, [{_id: 123}]);
+      }
+    });
+
+    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var req = {
+      user: {
+        _id: '12345'
+      }
+    };
+
+    var res = {
+      json: function(code, result) {
+        expect(code).to.equal(200);
+        expect(result).to.exist;
+        expect(result.length).to.equal(1);
+        done();
+      }
+    };
+    activitystreams.getMine(req, res);
+  });
+
+  it('getMine should return 200 when activitystreams module sends back nothing', function(done) {
+    var mongooseMock = {
+      model: function() {}
+    };
+    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+
+    mockery.registerMock('../../core/activitystreams', {
+      getUserStreams: function(user, cb) {
+        return cb();
+      }
+    });
+
+    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var req = {
+      user: {
+        _id: '12345'
+      }
+    };
+
+    var res = {
+      json: function(code, result) {
+        expect(code).to.equal(200);
+        expect(result).to.exist;
+        expect(result.length).to.equal(0);
+        done();
+      }
+    };
+    activitystreams.getMine(req, res);
+  });
+
 });

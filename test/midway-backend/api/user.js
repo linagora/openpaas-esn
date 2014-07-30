@@ -69,9 +69,142 @@ describe('User API', function() {
     this.mongoose.disconnect(done);
   });
 
+  describe('GET /api/user/activitystreams', function() {
+
+    it('should return 401 if user is not authenticated', function(done) {
+      request(webserver.application).get('/api/user/activitystreams').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should return 200 with an empty array if there are no streams', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams'));
+        req.expect(200);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body).to.be.an.array;
+          expect(res.body.length).to.equal(0);
+          return done();
+        });
+      });
+    });
+
+    it('should return 200 with an array of domain streams', function(done) {
+
+      var self = this;
+      var uuid = '123-456-789';
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany',
+        activity_stream: {
+          uuid: uuid
+        }
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          foouser.domains = [{domain_id: domain._id}];
+          saveUser(foouser, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, foouser.emails[0], foouser.password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(1);
+              expect(res.body[0].uuid).to.equal(uuid);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return 200 with an array of domain and community streams', function(done) {
+
+      var self = this;
+      var uuid = '123-456-789';
+      var uuid2 = '123-456-999';
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany',
+        activity_stream: {
+          uuid: uuid
+        }
+      };
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        activity_stream: {
+          uuid: uuid2
+        },
+        members: []
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          foouser.domains = [{domain_id: domain._id}];
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, foouser.emails[0], foouser.password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(2);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+  });
+
   describe('GET /api/user/communities', function() {
 
-    it('should return 401 is user is not authenticated', function(done) {
+    it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).get('/api/user/communities').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
