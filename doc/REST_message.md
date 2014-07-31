@@ -174,3 +174,45 @@ Post a new comment in reply to a message, by the currently logged in user.
         _id: '7f281054-e7a6-1547-012f-935d5b88389d',
         parentId: '7f281054-e7a6-1547-012f-935d5b883833'
     }
+    
+## POST /api/messages/email
+
+Publish a message in rfc822 MIME form form.
+
+**Request Headers:**
+
+- Content-Type: message/rfc822
+
+**Query Parameters:**
+
+- id: ID of the target
+- objectType: Type of the target
+
+**Request text:**
+
+An email as EML.
+
+**Status Codes:**
+
+- 201 Created. With the id of the new message.
+- 400 Bad request. The current request is missing mandatory parameters
+- 500 Internal server error.
+
+**Request:**
+
+    POST /api/messages/email?id=7aea8933-0a55-4e34-81ae-ec9812b8f891&objectType=activitystream
+    Content-Type: message/rfc822
+    Host: localhost:8080
+
+    From: 'Sender Name' <sender@example.com>
+    To: 'Receiver Name' <receiver@example.com>
+    Subject: Hello world!
+    
+    How are you today?
+
+**Response:**
+
+    HTTP/1.1 201 Created
+    {
+        _id: '7f281054935d5b88389d'
+    }
