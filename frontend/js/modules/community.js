@@ -291,8 +291,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       templateUrl: '/views/modules/community/community-description.html'
     };
   })
-  .controller('communityController', ['$scope', 'session', 'community', function($scope, session, community) {
+  .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'community', function($scope, $location, $log, session, communityAPI, community) {
     $scope.community = community;
+    $scope.error = false;
+    $scope.loading = false;
 
     $scope.canJoin = function() {
       return !$scope.community.members.some(function(member) {
@@ -306,6 +308,45 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
     $scope.canLeave = function() {
       return !$scope.canJoin() && !$scope.isCreator();
+    };
+
+    $scope.join = function() {
+      communityAPI.join(community._id, session.user._id).then(
+        function() {
+          communityAPI.get($scope.community._id).then(
+            function(response) {
+              $scope.community = response.data;
+            },
+            function(err) {
+              $log.error('Error while loading community', err);
+            }
+          );
+        },
+        function(err) {
+          $log.error('Error while joining community', err);
+          $scope.error = true;
+        }
+      ).finally (
+        function() {
+          $scope.loading = false;
+        }
+      );
+    };
+
+    $scope.leave = function() {
+      communityAPI.leave(community._id, session.user._id).then(
+        function() {
+          $location.path('/communities');
+        },
+        function(err) {
+          $log.error('Error while leaving community', err);
+          $scope.error = true;
+        }
+      ).finally (
+        function() {
+          $scope.loading = false;
+        }
+      );
     };
   }]
 );

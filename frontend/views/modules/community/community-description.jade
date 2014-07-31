@@ -16,7 +16,7 @@ div.col-xs-12.nopadding.esn-member
     blockquote.hidden-xs.community-description(ng-show='community.description')
       p(ng-hide='truncate && truncate === true') {{community.description}}
   .col-lg-3.col-sm-4.col-xs-12
-    a.btn.btn-primary(href="#/communities/{{community._id}}", ng-show="canJoin()")
+    a.btn.btn-primary(href="#/communities/{{community._id}}", ng-show="canJoin()", ng-click='join()')
       | #{__('Join')}
-    a.btn.btn-primary(href='#/communities/{{community._id}}', ng-show="canLeave()")
+    a.btn.btn-primary(href='#/communities/{{community._id}}', ng-show="canLeave()", ng-click='leave()')
       | #{__('Leave')}

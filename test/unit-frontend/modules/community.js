@@ -695,14 +695,21 @@ describe('The Community Angular module', function() {
 
   describe('communityController controller', function() {
 
-    beforeEach(inject(['$rootScope', '$controller', function($rootScope, $controller) {
+    beforeEach(inject(['$rootScope', '$controller', '$q', function($rootScope, $controller, $q) {
       this.scope = $rootScope.$new();
+      this.location = {};
+      this.log = {error: function() {}};
       this.community = {_id: 123};
+      this.communityAPI = {};
       this.session = {domain: {_id: 123}, user: {_id: 123}};
+      this.$q = $q;
 
       $controller('communityController', {
         $scope: this.scope,
+        $location: this.location,
+        $log: this.log,
         session: this.session,
+        communityAPI: this.communityAPI,
         community: this.community
       });
     }]));
@@ -805,6 +812,59 @@ describe('The Community Angular module', function() {
 
       expect(this.scope.isCreator()).to.be.false;
       done();
+    });
+
+    it('join must call communityAPI#join', function(done) {
+      this.communityAPI.join = function() {
+        done();
+      };
+      this.scope.join();
+    });
+
+    it('join must reload the community when community#join is ok', function(done) {
+      this.scope.community = {
+        _id: 123,
+        members: [
+          {
+            user: 456
+          },
+          {
+            user: 833
+          }
+        ]
+      };
+
+      var communityDefer = this.$q.defer();
+      this.communityAPI.join = function() {
+        return communityDefer.promise;
+      };
+      this.communityAPI.get = function() {
+        return done();
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+      this.scope.join();
+      this.scope.$digest();
+    });
+
+    it('leave must call communityAPI#leave', function(done) {
+      this.communityAPI.leave = function() {
+        done();
+      };
+      this.scope.leave();
+    });
+
+    it('leave must redirect user to communities list', function(done) {
+      this.location.path = function(path) {
+        expect(path).to.equal('/communities');
+        return done();
+      };
+      var communityDefer = this.$q.defer();
+      this.communityAPI.leave = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+      this.scope.leave();
+      this.scope.$digest();
     });
   });
 });
