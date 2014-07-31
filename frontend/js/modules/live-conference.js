@@ -286,17 +286,32 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       replace: true,
       templateUrl: '/views/live-conference/partials/conference-video.html',
       link: function(scope, element) {
+        var canvas = {};
+        var context = {};
+        var mainVideo = {};
+
+        $timeout(function() {
+          canvas = element.find('canvas#mainVideoCanvas');
+          context = canvas[0].getContext('2d');
+          mainVideo = element.find('video#video-thumb0');
+          mainVideo.on('loadedmetadata', function() {
+            canvas[0].width = mainVideo[0].videoWidth;
+            canvas[0].height = mainVideo[0].videoHeight;
+            drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
+          });
+        }, 1000);
+
         scope.$watch('mainVideoId', function(newVideoId) {
-          $timeout(function() {
-            var canvas = element.find('canvas#mainVideoCanvas');
-            var mainVideo = element.find('video#' + newVideoId);
-            var context = canvas[0].getContext('2d');
-            mainVideo.on('loadedmetadata', function() {
-              canvas[0].width = mainVideo[0].videoWidth;
-              canvas[0].height = mainVideo[0].videoHeight;
-              drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
-            });
-          }, 1000);
+          // Reject the first watch of the mainVideoId
+          // when clicking on a new video, loadedmetadata event is not
+          // fired.
+          if(!mainVideo[0]) {
+            return;
+          }
+          mainVideo = element.find('video#' + newVideoId);
+          canvas[0].width = mainVideo[0].videoWidth;
+          canvas[0].height = mainVideo[0].videoHeight;
+          drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
         });
       }
     };
