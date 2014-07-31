@@ -16,6 +16,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       $scope.conference = conference;
       $scope.users = [];
       $scope.attendees = [];
+      $scope.idToAttendeeNameMap = {};
       $scope.mainVideoId = 'video-thumb0';
       $scope.attendeeVideoIds = [
         'video-thumb0',
@@ -32,10 +33,6 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       $scope.thumbclass = 'conference-video-multi';
 
       $scope.$on('$locationChangeStart', easyRTCService.leaveRoom(conference));
-
-      $scope.getName = function(userId) {
-        conferenceHelpers.getNameByUserId(userId, $scope.users);
-      };
 
       $scope.getMainVideoAttendeeIndex = function(mainVideoId) {
         return conferenceHelpers.getMainVideoAttendeeIndexFrom(mainVideoId);
@@ -68,6 +65,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       domainAPI.getMembers(session.domain._id).then(
         function(response) {
           $scope.users = response.data;
+          $scope.idToAttendeeNameMap = conferenceHelpers.mapUserIdToName($scope.users);
         },
         function(error) {
           $log.error('Can not get members ' + error);
@@ -228,20 +226,13 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
   }])
 
   .factory('conferenceHelpers', function() {
-    function getNameByUserId(userId, users) {
-      if (!userId || userId === null) {
-        return '';
-      }
-
-      var filtered = users.filter(function(entry) {
-        return entry._id === userId;
+    function mapUserIdToName(users) {
+      var map = {};
+      users.forEach(function(user) {
+        var name = user.firstname || user.lastname || user.emails[0] || 'No name';
+        map[user._id] = name;
       });
-
-      if (filtered && filtered.length === 1) {
-        return filtered[0].firstname || filtered[0].lastname || filtered[0].emails[0] || 'No name';
-      }
-
-      return 'No name';
+      return map;
     }
 
     function getMainVideoAttendeeIndexFrom(videoId) {
@@ -253,7 +244,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     }
 
     return {
-      getNameByUserId: getNameByUserId,
+      mapUserIdToName: mapUserIdToName,
       getMainVideoAttendeeIndexFrom: getMainVideoAttendeeIndexFrom,
       isMainVideo: isMainVideo
     };
@@ -305,7 +296,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
           // Reject the first watch of the mainVideoId
           // when clicking on a new video, loadedmetadata event is not
           // fired.
-          if(!mainVideo[0]) {
+          if (!mainVideo[0]) {
             return;
           }
           mainVideo = element.find('video#' + newVideoId);
