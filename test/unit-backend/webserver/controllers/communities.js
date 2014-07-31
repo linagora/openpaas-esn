@@ -150,10 +150,6 @@ describe('The communities controller', function() {
         }
       };
 
-      var req = {
-        param: function() {}
-      };
-
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.list(req, res);
     });
