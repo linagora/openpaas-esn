@@ -1,9 +1,10 @@
 'use strict';
 
 var messageModule = require('../../core/message'),
-    postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
-    localpubsub = require('../../core/pubsub').local,
-    globalpubsub = require('../../core/pubsub').global;
+  emailModule = require('../../core/message/email'),
+  postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
+  localpubsub = require('../../core/pubsub').local,
+  globalpubsub = require('../../core/pubsub').global;
 
 function messageSharesToTimelineTarget(shares) {
   return shares.map(function(e) {
@@ -126,8 +127,38 @@ function getOne(req, res) {
   });
 }
 
+function createMessageFromEmail(req, res) {
+
+  var objectType = req.query.objectType ||  req.query.objectType;
+  if (!objectType) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'objectType is mandatory'}});
+  }
+
+  var id = req.query.id;
+  if (!id) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'ID is mandatory'}});
+  }
+
+  var shares = [{objectType: objectType, id: id}];
+  emailModule.saveEmail(req, req.user, shares, function(err, email) {
+    if (err) {
+      return res.json(500, { error: { status: 500, message: 'Server error', details: err.message}});
+    }
+
+    if (email) {
+      var targets = messageSharesToTimelineTarget(email.shares);
+      var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(email, 'email', req.user, targets);
+      localpubsub.topic('message:activity').publish(activity);
+      globalpubsub.topic('message:activity').publish(activity);
+      return res.json(201, { _id: email._id});
+    }
+    return res.json(404, { error: { status: 404, message: 'Not found', details: 'Can not find created message'}});
+  });
+}
+
 module.exports = {
   createOrReplyToMessage: create,
   getMessages: get,
-  getMessage: getOne
+  getMessage: getOne,
+  createMessageFromEmail: createMessageFromEmail
 };

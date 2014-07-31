@@ -47,6 +47,7 @@ exports = module.exports = function(application) {
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
   application.post('/api/messages', authorize.requiresAPILogin, asMiddleware.filterValidTargets, messages.createOrReplyToMessage);
   application.get('/api/messages/:uuid', authorize.requiresAPILogin, messages.getMessage);
+  application.post('/api/messages/email', authorize.requiresAPILogin, messages.createMessageFromEmail);
 
   var views = require('./controllers/views');
   application.get('/views/*', views.views);
