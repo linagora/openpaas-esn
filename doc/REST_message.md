@@ -177,7 +177,7 @@ Post a new comment in reply to a message, by the currently logged in user.
     
 ## POST /api/messages/email
 
-Publish a message in rfc822 MIME form form.
+Publish a message in rfc822 MIME form.
 
 **Request Headers:**
 
@@ -190,7 +190,7 @@ Publish a message in rfc822 MIME form form.
 
 **Request text:**
 
-An email as EML.
+An email in rfc822 MIME format.
 
 **Status Codes:**
 
