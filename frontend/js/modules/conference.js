@@ -27,7 +27,7 @@ angular.module('esn.conference', ['restangular'])
   .directive('conferenceDisplay', function() {
     return {
       restrict: 'E',
-      templateUrl: '/views/esn/partials/conference/conferenceDisplay.html'
+      templateUrl: '/views/esn/partials/conferences/conference-display.html'
     };
   })
 
