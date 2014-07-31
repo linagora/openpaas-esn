@@ -122,8 +122,12 @@ describe('The communities controller', function() {
         }
       };
 
+      var req = {
+        param: function() {}
+      };
+
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.list({}, res);
+      communities.list(req, res);
     });
 
     it('should send back 200 if community module sends back query result', function(done) {
@@ -134,6 +138,10 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/community', mock);
 
+      var req = {
+        param: function() {}
+      };
+
       var res = {
         json: function(code, result) {
           expect(code).to.equal(200);
@@ -143,12 +151,13 @@ describe('The communities controller', function() {
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.list({}, res);
+      communities.list(req, res);
     });
 
     it('should call the community module with domain in query when defined in the request', function(done) {
       var req = {
-        domain: {_id: 123}
+        domain: {_id: 123},
+        param: function() {}
       };
 
       var mock = {
