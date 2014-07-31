@@ -284,6 +284,28 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       templateUrl: '/views/modules/community/community-display.html'
     };
   })
-  .controller('communityController', ['$scope', 'community', function($scope, community) {
+  .directive('communityDescription', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/community/community-description.html'
+    };
+  })
+  .controller('communityController', ['$scope', 'session', 'community', function($scope, session, community) {
     $scope.community = community;
-  }]);
+
+    $scope.canJoin = function() {
+      return !$scope.community.members.some(function(member) {
+        return member.user === session.user._id;
+      });
+    };
+
+    $scope.isCreator = function() {
+      return session.user._id === $scope.community.creator;
+    };
+
+    $scope.canLeave = function() {
+      return !$scope.canJoin() && !$scope.isCreator();
+    };
+  }]
+);

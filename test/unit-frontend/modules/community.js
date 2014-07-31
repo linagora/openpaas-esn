@@ -692,4 +692,119 @@ describe('The Community Angular module', function() {
       done();
     });
   });
+
+  describe('communityController controller', function() {
+
+    beforeEach(inject(['$rootScope', '$controller', function($rootScope, $controller) {
+      this.scope = $rootScope.$new();
+      this.community = {_id: 123};
+      this.session = {domain: {_id: 123}, user: {_id: 123}};
+
+      $controller('communityController', {
+        $scope: this.scope,
+        session: this.session,
+        community: this.community
+      });
+    }]));
+
+    it('canJoin fn should return true when current user is not already a member', function(done) {
+      this.scope.community = {
+        members: [
+          {
+            user: 456
+          },
+          {
+            user: 833
+          }
+        ]
+      };
+
+      expect(this.scope.canJoin()).to.be.true;
+      done();
+    });
+
+    it('canJoin fn should return false when current user is already a member', function(done) {
+      this.scope.community = {
+        members: [
+          {
+            user: 456
+          },
+          {
+            user: 123
+          }
+        ]
+      };
+
+      expect(this.scope.canJoin()).to.be.false;
+      done();
+    });
+
+    it('canLeave fn should return true when current user is not creator and is in members', function(done) {
+      this.scope.community = {
+        creator: 93939,
+        members: [
+          {
+            user: 123
+          },
+          {
+            user: 833
+          }
+        ]
+      };
+
+      expect(this.scope.canLeave()).to.be.true;
+      done();
+    });
+
+    it('canLeave fn should return false when current user is creator', function(done) {
+      this.scope.community = {
+        creator: 123,
+        members: [
+          {
+            user: 456
+          },
+          {
+            user: 123
+          }
+        ]
+      };
+
+      expect(this.scope.canLeave()).to.be.false;
+      done();
+    });
+
+    it('isCreator fn should return true when current user is creator', function(done) {
+      this.scope.community = {
+        creator: 123,
+        members: [
+          {
+            user: 456
+          },
+          {
+            user: 123
+          }
+        ]
+      };
+
+      expect(this.scope.isCreator()).to.be.true;
+      done();
+    });
+
+    it('isCreator fn should return false when current user is not creator', function(done) {
+      this.scope.community = {
+        creator: 234,
+        members: [
+          {
+            user: 456
+          },
+          {
+            user: 123
+          }
+        ]
+      };
+
+      expect(this.scope.isCreator()).to.be.false;
+      done();
+    });
+  });
 });
