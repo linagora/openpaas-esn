@@ -239,3 +239,57 @@ An array of community objects the current user belongs to.
       }    
     ]
 
+## GET /api/user/activitystreams
+
+Get all the activity streams of the current user.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+An array of activity streams objects which can be read by the current user.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 401 Unauthorized
+- 500 Internal server error
+
+**Request:**
+
+    GET /api/user/activitystreams
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        "uuid": "7aea8933-0a55-4e34-81ae-ec9812b8f891",
+        "target": {
+          "objectType": "domain",
+          "displayName": "rse",
+          "_id": "5375de4bd684db7f6fbd4f98",
+          "id": "urn:linagora.com:domain:5375de4bd684db7f6fbd4f98",
+          "image": ""
+        }
+      },
+      {
+        "uuid": "99363b89-b2d7-4eb7-872e-60c9909c5fb5",
+        "target": {
+          "objectType": "community",
+          "displayName": "node.js",
+          "_id": "53d76548974d22d21c9f249f",
+          "id": "urn:linagora.com:community:53d76548974d22d21c9f249f",
+          "image": "576875a0-1700-11e4-8141-013370dbdb36"
+        }
+      }
+    ]

@@ -69,10 +69,11 @@ module.exports.loadWithDomains = function(community, callback) {
   return Community.findOne({_id: id}).populate('domain_ids', null, 'Domain').exec(callback);
 };
 
-module.exports.query = function(query, callback) {
-  query = query || {};
-  return Community.find(query, callback);
-};
+function query(q, callback) {
+  q = q || {};
+  return Community.find(q, callback);
+}
+module.exports.query = query;
 
 module.exports.delete = function(community, callback) {
   if (!community) {
@@ -167,3 +168,10 @@ module.exports.getMembers = function(community, callback) {
   }
 };
 
+module.exports.getUserCommunities = function(user, callback) {
+  if (!user) {
+    return callback(new Error('User is required'));
+  }
+  var id = user._id ||  user;
+  return query({'members.user': id}, callback);
+};

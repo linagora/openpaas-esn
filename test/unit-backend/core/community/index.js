@@ -646,4 +646,18 @@ describe('The communities module', function() {
     });
   });
 
+  describe('The getUserCommunities fn', function() {
+    it('should send back error when user is null', function(done) {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getUserCommunities(null, function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+  });
 });
