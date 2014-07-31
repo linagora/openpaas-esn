@@ -5,6 +5,7 @@ var TimelineEntry = mongoose.model('TimelineEntry');
 var helpers = require('./helpers');
 var domain = require('../user/domain');
 var community = require('../community');
+var logger = require('../logger');
 
 function getUserStreams(user, callback) {
   if (!user) {
@@ -15,6 +16,11 @@ function getUserStreams(user, callback) {
 
   var id = user._id || user;
   domain.getUserDomains(id, function(err, domains) {
+
+    if (err) {
+      logger.warn('Problem while getting user domains : ' + err.message);
+    }
+
     if (!err && domains && domains.length > 0) {
       domains.forEach(function(d) {
         var stream = {
@@ -32,6 +38,11 @@ function getUserStreams(user, callback) {
     }
 
     community.getUserCommunities(id, function(err, communities) {
+
+      if (err) {
+        logger.warn('Problem while getting user communities : ' + err.message);
+      }
+
       if (!err && communities && communities.length) {
         communities.forEach(function(c) {
           var stream = {
