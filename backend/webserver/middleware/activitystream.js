@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 var Community = mongoose.model('Community');
+var activitystreams = require('../../core/activitystreams');
 
 module.exports.findStreamResource = function(req, res, next) {
   var uuid = req.params.uuid;
@@ -74,4 +75,35 @@ module.exports.filterValidTargets = function(req, res, next) {
       next();
     }
   );
+};
+
+module.exports.isValidStream = function(req, res, next) {
+  var objectType = req.query.objectType ||  req.query.objectType;
+  if (!objectType) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'objectType is mandatory'}});
+  }
+
+  var id = req.query.id;
+  if (!id) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'ID is mandatory'}});
+  }
+
+  activitystreams.getUserStreams(req.user, function(err, streams) {
+    if (err) {
+      return res.json(500, { error: { status: 500, message: 'Bad request', details: err.message}});
+    }
+
+    if (!streams) {
+      return res.json(400, { error: { status: 400, message: 'Bad request', details: 'User does not have any linked activitystream'}});
+    }
+
+    var belongs = streams.some(function(stream) {
+      return stream.uuid === id;
+    });
+
+    if (belongs) {
+      return next();
+    }
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'User does not have access to the ativitystream ' + id}});
+  });
 };
