@@ -36,15 +36,19 @@ describe('The activitystreams core module', function() {
   });
 
   describe('the query fn', function() {
-    var Domain, TimelineEntry;
+    var Domain, TimelineEntry, User, Community;
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
       this.testEnv.writeDBConfigFile();
       Domain = this.mongoose.model('Domain');
       TimelineEntry = this.mongoose.model('TimelineEntry');
+      User = this.mongoose.model('User');
+      Community = this.mongoose.model('Community');
 
       this.mongoose.connect(this.testEnv.mongoUrl, done);
     });
