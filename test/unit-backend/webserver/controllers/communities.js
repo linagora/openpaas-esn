@@ -115,15 +115,15 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/community', mock);
 
+      var req = {
+        param: function() {}
+      };
+
       var res = {
         json: function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
-
-      var req = {
-        param: function() {}
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');

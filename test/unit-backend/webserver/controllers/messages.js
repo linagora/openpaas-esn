@@ -40,6 +40,7 @@ describe('The messages module', function() {
 
       var messageModuleMocked = {};
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage({}, res);
@@ -61,6 +62,7 @@ describe('The messages module', function() {
 
       var messageModuleMocked = {};
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(req, res);
@@ -81,6 +83,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -101,6 +104,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -126,6 +130,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
@@ -147,6 +152,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -190,6 +196,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -211,6 +218,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -239,6 +247,7 @@ describe('The messages module', function() {
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/activitystreams/helpers', ashelpermock);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -264,6 +273,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
@@ -298,6 +308,7 @@ describe('The messages module', function() {
 
       var messageModuleMocked = {};
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages({}, res);
@@ -319,6 +330,7 @@ describe('The messages module', function() {
 
       var messageModuleMocked = {};
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(req, res);
@@ -339,6 +351,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(validReq, res);
@@ -377,6 +390,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(validReq, res);
@@ -415,6 +429,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(validReq, res);
@@ -424,6 +439,7 @@ describe('The messages module', function() {
   describe('The getMessage fn', function() {
     it('should return send back HTTP 400 if req.param.uuid is undefined', function(done) {
       mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/email', {});
 
       var req = {
         param: function() {
@@ -450,6 +466,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', mock);
+      mockery.registerMock('../../core/message/email', {});
 
       var req = {
         param: function() {
@@ -475,6 +492,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', mock);
+      mockery.registerMock('../../core/message/email', {});
 
       var req = {
         param: function() {
@@ -500,6 +518,7 @@ describe('The messages module', function() {
         }
       };
       mockery.registerMock('../../core/message', mock);
+      mockery.registerMock('../../core/message/email', {});
 
       var req = {
         param: function() {
@@ -518,5 +537,134 @@ describe('The messages module', function() {
       messages.getMessage(req, res);
     });
 
+  });
+
+  describe('createMessageFromEmail fn', function() {
+    it('should return 400 if query.objectType is not set', function(done) {
+      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/email', {});
+
+      var req = {
+        query: {
+          id: '1'
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createMessageFromEmail(req, res);
+    });
+
+    it('should return 400 if query.id is not set', function(done) {
+      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/email', {});
+
+      var req = {
+        query: {
+          objectType: 'activitystream'
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createMessageFromEmail(req, res);
+    });
+
+    it('should return 500 if email module fails', function(done) {
+      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/email', {
+        saveEmail: function(request, user, shares, callback) {
+          return callback(new Error());
+        }
+      });
+
+      var req = {
+        query: {
+          objectType: 'activitystream',
+          id: 123
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createMessageFromEmail(req, res);
+    });
+
+    it('should return 201 if email module saves the message', function(done) {
+      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/email', {
+        saveEmail: function(request, user, shares, callback) {
+          return callback(null, {_id: 234, shares: []});
+        }
+      });
+
+      var req = {
+        query: {
+          objectType: 'activitystream',
+          id: 123
+        }
+      };
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(201);
+          done();
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createMessageFromEmail(req, res);
+    });
+
+    it('should publish message:activity in local and global pubsub on email save success', function(done) {
+      var localstub = {};
+      var globalstub = {};
+
+      var res = {
+        json: function() {
+          expect(localstub.topics[0]).to.equal('message:activity');
+          expect(globalstub.topics[0]).to.equal('message:activity');
+          expect(localstub.topics['message:activity'].data).to.exist;
+          expect(globalstub.topics['message:activity'].data).to.exist;
+          done();
+        }
+      };
+
+      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/email', {
+        saveEmail: function(request, user, shares, callback) {
+          return callback(null, {_id: 234, shares: []});
+        }
+      });
+      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
+
+      var req = {
+        query: {
+          objectType: 'activitystream',
+          id: 123
+        }
+      };
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createMessageFromEmail(req, res);
+    });
   });
 });

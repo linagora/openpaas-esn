@@ -1,0 +1,27 @@
+Return-Path: <from@open-paas.org>
+Received: from mail.open-pass.org (smtp.open-paas.dc1 [173.16.18.53])
+	 by mail (Cyrus v2.2.13-Debian-2.2.13-19+squeeze3) with LMTPA;
+	 Tue, 29 Jul 2014 21:35:36 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from [192.168.1.16] (XXX.abo.wanadoo.fr [11.11.11.11])
+	(using TLSv1 with cipher AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by mail.open-pass.org (Postfix) with ESMTPSA id C7E826EC
+	for <to@open-paas.org>; Tue, 29 Jul 2014 21:26:53 +0200 (CEST)
+Content-Type: multipart/alternative; boundary=Apple-Mail-4D738582-5982-44A1-A7F8-1E1932EFDD69
+Content-Transfer-Encoding: 7bit
+Subject: Chuck!
+From: Chuck Norris <from@open-paas.org>
+Message-Id: <39EA10BE-9611-4647-A849-301B016D3E64@linagora.com>
+Date: Tue, 29 Jul 2014 21:35:46 +0200
+To: Bruce Willis <to@open-paas.org>
+Mime-Version: 1.0 (1.0)
+X-Mailer: iPhone Mail (11B554a)
+
+
+--Apple-Mail-4D738582-5982-44A1-A7F8-1E1932EFDD69
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+Google, c'est le seul endroit où tu peux taper Chuck Norris...

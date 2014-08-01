@@ -17,7 +17,8 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      mockery.registerMock('../../core/activitystreams', {});
+        var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
         }
@@ -43,6 +44,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
@@ -70,6 +72,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
@@ -97,6 +100,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
@@ -138,6 +142,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
@@ -172,6 +177,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
       var req = {
         body: {
@@ -199,6 +205,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
         params: {
@@ -226,6 +233,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
@@ -259,6 +267,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
@@ -287,6 +296,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
@@ -321,6 +331,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
@@ -350,6 +361,7 @@ describe('The activitystream middleware', function() {
         }
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
@@ -366,6 +378,180 @@ describe('The activitystream middleware', function() {
       var next = function() {};
       middleware(req, res, next);
     });
+  });
 
+  describe('The isValidStream fn', function() {
+    it('should send back 400 if req.query.objectType is not set', function(done) {
+      var mock = {
+        model: function() {
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var req = {
+        query: {
+          id: 1
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      var next = function() {};
+      middleware(req, res, next);
+    });
+
+    it('should send back 400 if req.query.id is not set', function(done) {
+      var mock = {
+        model: function() {
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var req = {
+        query: {
+          objectType: 1
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      var next = function() {};
+      middleware(req, res, next);
+    });
+
+    it('should send back 500 if as#getUserStreams fails', function(done) {
+      var mock = {
+        model: function() {
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {
+        getUserStreams: function(user, callback) {
+          return callback(new Error());
+        }
+      });
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var req = {
+        query: {
+          objectType: 1,
+          id: 2
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+      var next = function() {};
+      middleware(req, res, next);
+    });
+
+    it('should send back 400 if as#getUserStreams does not send back any stream', function(done) {
+      var mock = {
+        model: function() {
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {
+        getUserStreams: function(user, callback) {
+          return callback();
+        }
+      });
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var req = {
+        query: {
+          objectType: 1,
+          id: 2
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      var next = function() {};
+      middleware(req, res, next);
+    });
+
+    it('should call next if stream is found', function(done) {
+      var id = 123;
+      var streams = [
+        {uuid: 983983},
+        {uuid: id}
+      ];
+      var mock = {
+        model: function() {
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {
+        getUserStreams: function(user, callback) {
+          return callback(null, streams);
+        }
+      });
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var req = {
+        query: {
+          objectType: 1,
+          id: id
+        }
+      };
+      var res = {
+        json: function() {
+          done(new Error());
+        }
+      };
+      middleware(req, res, done);
+    });
+
+    it('should send back 400 if stream is not found', function(done) {
+      var id = 123;
+      var streams = [
+        {uuid: 983983},
+        {uuid: 345}
+      ];
+      var mock = {
+        model: function() {
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {
+        getUserStreams: function(user, callback) {
+          return callback(null, streams);
+        }
+      });
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var req = {
+        query: {
+          objectType: 1,
+          id: id
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res, function() {
+        return done(new Error());
+      });
+    });
   });
 });
