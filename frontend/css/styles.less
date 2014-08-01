@@ -224,7 +224,7 @@ header.topbar {
       font-size: 1.5em;
       font-weight: bold;
       padding-bottom: 1px;
-      @media (min-width: 768px) {
+      @media (min-width: @screen-sm-min) {
         font-size: 0.8em;
       }
     }
@@ -377,7 +377,7 @@ header.topbar {
   }
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: @screen-sm-min) {
   .contacts, .contact {
     display: block;
   }
@@ -434,3 +434,13 @@ header.topbar {
   margin: auto auto 10px auto; // top right bottom left
   padding: 1em;
 }
+
+@media screen and (max-width: @screen-sm-min) {
+  .profile-small-input {
+    width: 80px;
+  }
+  .profile-medium-input {
+    width: 160px;
+  }
+}
+
