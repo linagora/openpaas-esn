@@ -102,13 +102,13 @@ Post a new message by the currently logged in user.
 
     {
         "object": {
-            "objectType": "whatsupmessage",
-            "content": "whatsup message content"
+            "objectType": "whatsup",
+            "description": "whatsup message content"
         },
         "targets": [
             {
                 "objectType": "activitystream",
-                "id": "urn:linagora:esn:activitystream:<activitystream uuid>"
+                "id": "<activitystream uuid>"
             }
         ]
     }
