@@ -3,8 +3,10 @@
 var authorize = require('./middleware/authorization');
 var cookielifetime = require('./middleware/cookie-lifetime');
 var link = require('./middleware/link');
+var cors = require('cors');
 
 exports = module.exports = function(application) {
+  application.all('/api/*', cors());
 
   var oauth2 = require('../oauth2');
   application.get('/oauth/authorize', authorize.requiresAPILogin, oauth2.authorization, oauth2.dialog);
