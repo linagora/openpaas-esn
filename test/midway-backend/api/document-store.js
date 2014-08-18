@@ -218,7 +218,8 @@ describe('The document store routes resource', function() {
 
       var webserver = require(this.testEnv.basePath + '/backend/webserver');
       var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-      webserver.start(port);
+      webserver.port = port;
+      webserver.start();
 
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok'};
 
@@ -244,7 +245,8 @@ describe('The document store routes resource', function() {
 
       var webserver = require(this.testEnv.basePath + '/backend/webserver');
       var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-      webserver.start(port);
+      webserver.port = port;
+      webserver.start();
 
       mongoModule.init = done;
 
@@ -275,7 +277,8 @@ describe('The document store routes resource', function() {
         this.timeout(30000);
         var webserver = require(this.testEnv.basePath + '/backend/webserver');
         var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-        webserver.start(port);
+        webserver.port = port;
+        webserver.start();
 
         var findport = require('find-port');
         findport(27020, 27050, function(ports) {

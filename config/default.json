@@ -2,6 +2,9 @@
   "webserver": {
     "enabled": true,
     "port": 8080,
+    "ssl_port": 8443,
+    "ssl_key": "config/ssl.key",
+    "ssl_cert": "config/ssl.crt",
     "virtualhosts": []
   },
   "wsserver": {

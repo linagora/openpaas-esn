@@ -1,5 +1,8 @@
 'use strict';
 
+var http = require('http');
+var https = require('https');
+
 exports.express = function() {
   function expressMock() {
     return expressMock.constructorResponse;
@@ -22,4 +25,43 @@ exports.express = function() {
   };
 
   return expressMock;
+};
+
+exports.http = function() {
+  var mockHttp = {
+    serverInstance: {
+      listen: function() {},
+      close: function() {},
+      maxHeadersCount: 0,
+      setTimeout: function() {},
+      timeout: 120000
+    },
+
+    Agent: http.Agent,
+    Server: http.Server,
+    ClientResponse: http.ClientResponse,
+    IncomingMessage: http.IncomingMessage,
+    createServer: function(app) {
+      return mockHttp.serverInstance;
+    }
+  };
+
+  return mockHttp;
+};
+
+exports.https = function() {
+  var mockHttps = {
+    serverInstance: {
+      listen: function() {},
+      close: function() {}
+    },
+
+    Agent: https.Agent,
+    Server: https.Server,
+    createServer: function(options, app) {
+      return mockHttps.serverInstance;
+    }
+  };
+
+  return mockHttps;
 };

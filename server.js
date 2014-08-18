@@ -6,8 +6,14 @@ function startWebServer(callback) {
   }
   
   var webserver = require('./backend/webserver');
- 
-  webserver.start(config.webserver.port, config.webserver.virtualhosts, function(err) {
+
+  webserver.virtualhosts = config.webserver.virtualhosts;
+  webserver.port = config.webserver.port;
+  webserver.ssl_port = config.webserver.ssl_port;
+  webserver.ssl_key = config.webserver.ssl_key;
+  webserver.ssl_cert = config.webserver.ssl_cert;
+
+  webserver.start(function(err) {
     if ( err ) {
       logger.error('Web server failed to start', err);
       if ( err.syscall === 'listen' && err.code === 'EADDRINUSE' ) {
