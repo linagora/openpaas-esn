@@ -38,6 +38,14 @@ describe('The WebSockets server module', function() {
       return expressMock;
     };
 
+    var getHttpMock = function() {
+      var httpMock = require(fixturesPath + '/express').http();
+      httpMock.serverInstance.listen = function(serverPort) {
+        return serverInstance;
+      };
+      return httpMock;
+    };
+
     before(function() {
       serverInstance = {
         me: true,
@@ -94,15 +102,18 @@ describe('The WebSockets server module', function() {
         };
 
         var expressMock = getExpressMock();
+        var httpMock = getHttpMock();
 
         mockery.registerMock('./middleware/setup-sessions', function() {});
         mockery.registerMock('socket.io', ioMock);
+        mockery.registerMock('http', httpMock);
         mockery.registerMock('express', expressMock);
 
         var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
         var webserver = require(this.testEnv.basePath + '/backend/webserver');
 
-        webserver.start(port, function() {
+        webserver.port = port;
+        webserver.start(function() {
           wsserver.start(function() {});
         });
       });

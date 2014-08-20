@@ -2,6 +2,7 @@
   "webserver": {
     "enabled": true,
     "port": 8081,
+    "ssl_port": 8444,
     "virtualhosts": []
   },
   "wsserver": {
