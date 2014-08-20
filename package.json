@@ -13,6 +13,7 @@
     "connect-flash": "0.1.1",
     "connect-mongo": "git+http://ci-openpaas.linagora.com/stash/scm/or/connect-mongo.git",
     "cookie-parser": "~1.1.0",
+    "cors": "~2.4.1",
     "dotty": "0.0.2",
     "elasticsearch": "~2.1.4",
     "email-addresses": "~1.1.1",
