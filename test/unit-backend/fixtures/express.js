@@ -12,6 +12,7 @@ exports.express = function() {
   expressMock.cookieParser = function() {};
   expressMock.session = function() {};
   expressMock.constructorResponse = {
+    all: function() {},
     listen: function() {},
     use: function() {},
     set: function() {},
