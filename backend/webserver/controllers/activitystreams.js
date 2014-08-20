@@ -1,6 +1,7 @@
 'use strict';
 
 var activitystreams = require('../../core/activitystreams');
+var tracker = require('../../core/activitystreams/tracker');
 var mongoose = require('mongoose');
 
 var isLimitvalid = function(limit) {
@@ -67,7 +68,39 @@ function get(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Internal error', details: 'Can not get Activity Stream for resource ' + activity_stream}});
     }
-    return res.json(result);
+
+    res.json(result);
+
+    /*
+     * Check if the tracker can be update :
+     *  * req.user is mandatory
+     *  * req.query.before/after must not be set because the tracker must be update only when a user GET all the timelines entries
+     *  * if result[0] is defined then there is at least 1 timeline entry in the activity stream
+     */
+    if (req.user && !req.query.before && !req.query.after && result[0]) {
+      tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[0]._id, function(err) {});
+    }
   });
 }
 module.exports.get = get;
+
+function getUnreadCount(req, res) {
+  var activity_stream = req.activity_stream;
+
+  if (!activity_stream) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
+  }
+
+  tracker.getUnreadTimelineEntriesCount(req.user._id, req.activity_stream._id, function(err, count) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Internal error',
+        details: 'Fail to get the number of unread timeline entries for this activity stream ( ' +
+          req.activity_stream._id + '): ' + err.message}});
+    }
+    return res.json(200, {
+      _id: req.activity_stream._id,
+      unread_count: count
+    });
+  });
+}
+module.exports.getUnreadCount = getUnreadCount;

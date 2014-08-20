@@ -31,6 +31,7 @@ exports = module.exports = function(application) {
   var activitystreams = require('./controllers/activitystreams');
   var asMiddleware = require('./middleware/activitystream');
   application.get('/api/activitystreams/:uuid', authorize.requiresAPILogin, asMiddleware.findStreamResource, activitystreams.get);
+  application.get('/api/activitystreams/:uuid/unreadcount', authorize.requiresAPILogin, asMiddleware.findStreamResource, activitystreams.getUnreadCount);
   application.get('/api/user/activitystreams', authorize.requiresAPILogin, activitystreams.getMine);
 
   var users = require('./controllers/users');
