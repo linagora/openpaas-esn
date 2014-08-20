@@ -255,7 +255,13 @@ describe('The domain API', function() {
       if (err) { return done(err); }
       self.helpers.api.loginAsUser(app, models.users[0].emails[0], password, function(err, requestAsMember) {
         if (err) { return done(err); }
-        setTimeout(function() {
+
+        var ids = models.users.map(function(element) {
+          return element._id;
+        });
+        self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+          if (err) { return done(err); }
+
           var req = requestAsMember(request(app).get('/api/domains/' + models.domain._id + '/members'));
           req.query({search: 'lng'}).expect(200).end(function(err, res) {
             expect(err).to.be.null;
@@ -268,7 +274,7 @@ describe('The domain API', function() {
             expect(res.headers['x-esn-items-count']).to.equal('3');
             done();
           });
-        }, self.testEnv.serversConfig.elasticsearch.wait_index);
+        });
       });
     });
   });

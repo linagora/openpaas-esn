@@ -194,6 +194,63 @@ module.exports = function(mixin, testEnv) {
       });
     }
   };
+  mixin.elasticsearch = {
+    /**
+     * Check if documents are present in Elasticsearch by using "search" request
+     *
+     * @param {string} index the index where documents are located
+     * @param {string} type the type of documents
+     * @param {string[]} ids array of string of ids of document to check
+     * @param {function} callback fn like callback(err)
+     */
+    checkDocumentsIndexed: function(index, type, ids, callback) {
+      var request = require('superagent');
+      var elasticsearchURL = 'localhost:' + testEnv.serversConfig.elasticsearch.port;
+
+      async.each(ids, function(id, callback) {
+
+        var nbExecuted = 0;
+        var finish = false;
+        async.doWhilst(function(callback) {
+          setTimeout(function() {
+            request
+              .get(elasticsearchURL + '/' + index + '/' + type + '/_search?q=_id:' + id)
+              .end(function(res) {
+                if (res.status === 200 && res.body.hits.total === 1) {
+                  finish = true;
+                  return callback();
+                }
+                nbExecuted++;
+                if (nbExecuted >= testEnv.serversConfig.elasticsearch.tries_index) {
+                  return callback(new Error(
+                    'Number of tries of check document indexed in Elasticsearch reached the maximum allowed. ' +
+                      'Increase the number of tries or check if the river works'));
+                }
+                return callback();
+              });
+          }, testEnv.serversConfig.elasticsearch.interval_index);
+
+        }, function() {
+          return (!finish) && nbExecuted < testEnv.serversConfig.elasticsearch.tries_index;
+        }, function(err) {
+          callback(err);
+        });
+
+      }, function(err) {
+        callback(err);
+      });
+    },
+    /**
+     * Check if documents in index "users.idx" and with type "users"
+     * are present in Elasticsearch by using "search" request
+     *
+     * @param {string[]} ids array of string of ids of document to check
+     * @param {function} callback fn like callback(err)
+     */
+    checkUsersDocumentsIndexed: function(ids, callback) {
+      mixin.elasticsearch.checkDocumentsIndexed('users.idx', 'users', ids, callback);
+    }
+  };
 
   mixin.mock = {
     models: mockModels,
