@@ -62,9 +62,8 @@ describe('The user domain module', function() {
       var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
-        if (err) {
-          return done(err);
-        }
+        if (err) { return done(err); }
+
         userDomain.getUsersList(models.domain, {limit: 2}, function(err, users) {
           expect(err).to.not.exist;
           expect(users).to.exist;
@@ -79,9 +78,8 @@ describe('The user domain module', function() {
       var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
-        if (err) {
-          return done(err);
-        }
+        if (err) { return done(err); }
+
         userDomain.getUsersList(models.domain, {offset: 2}, function(err, users) {
           expect(err).to.not.exist;
           expect(users).to.exist;
@@ -100,10 +98,14 @@ describe('The user domain module', function() {
       var self = this;
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
-        if (err) {
-          return done(err);
-        }
-        setTimeout(function() {
+        if (err) { return done(err); }
+
+        var ids = models.users.map(function(element) {
+          return element._id;
+        });
+        self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+          if (err) { return done(err); }
+
           userDomain.getUsersSearch(models.domain, {search: 'lng'}, function(err, users) {
             expect(err).to.not.exist;
             expect(users).to.exist;
@@ -113,7 +115,7 @@ describe('The user domain module', function() {
             expect(users.list[2]._id).to.deep.equals(models.users[2]._id.toString());
             done();
           });
-        }, self.testEnv.serversConfig.elasticsearch.wait_index);
+        });
       });
     });
 
@@ -144,31 +146,31 @@ describe('The user domain module', function() {
       var self = this;
       this.mongoose = require('mongoose');
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) {
-          done(err);
-        }
+        if (err) { done(err); }
 
         self.helpers.mongo.saveDoc('configuration', {
           _id: 'elasticsearch',
           host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
         }, function(err) {
-          if (err) {
-            done(err);
-          }
+          if (err) { done(err); }
 
           User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
           Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
-            if (err) {
-              return done(err);
-            }
+            if (err) { return done(err); }
+
             domain = models.domain;
             delphine = models.users[0];
             philippe = models.users[1];
-            setTimeout(function() {
+
+            var ids = models.users.map(function(element) {
+              return element._id;
+            });
+            self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+              if (err) { return done(err); }
               self.mongoose.disconnect(done);
-            }, self.testEnv.serversConfig.elasticsearch.wait_index);
+            });
           });
         });
       });
@@ -177,9 +179,7 @@ describe('The user domain module', function() {
     after(function(done) {
       var self = this;
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) {
-          done(err);
-        }
+        if (err) { done(err); }
         self.mongoose.connection.db.dropDatabase();
         self.mongoose.disconnect(done);
       });
@@ -392,17 +392,13 @@ describe('The user domain module', function() {
       var self = this;
       this.mongoose = require('mongoose');
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
-        if (err) {
-          done(err);
-        }
+        if (err) { done(err); }
 
         self.helpers.mongo.saveDoc('configuration', {
           _id: 'elasticsearch',
           host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
         }, function(err) {
-          if (err) {
-            done(err);
-          }
+          if (err) { done(err); }
 
           User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
           Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
@@ -410,14 +406,15 @@ describe('The user domain module', function() {
           userDomain = require(self.testEnv.basePath + '/backend/core/user/domain');
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases_extra', function(err, models) {
-            if (err) {
-              return done(err);
-            }
+            if (err) { return done(err); }
+
             domain = models.domain;
             user = models.users[0];
-            setTimeout(function() {
+
+            self.helpers.elasticsearch.checkUsersDocumentsIndexed([user._id], function(err) {
+              if (err) { return done(err); }
               self.mongoose.disconnect(done);
-            }, self.testEnv.serversConfig.elasticsearch.wait_index);
+            });
           });
         });
       });
