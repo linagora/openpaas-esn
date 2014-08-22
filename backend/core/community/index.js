@@ -168,10 +168,18 @@ module.exports.getMembers = function(community, callback) {
   }
 };
 
-module.exports.getUserCommunities = function(user, callback) {
+module.exports.getUserCommunities = function(user, domainId, callback) {
+  if (typeof(domainId) === 'function') {
+    callback = domainId;
+    domainId = null;
+  }
+
   if (!user) {
     return callback(new Error('User is required'));
   }
   var id = user._id ||  user;
+  if (domainId) {
+    return query({'members.user': id, 'domain_ids': domainId}, callback);
+  }
   return query({'members.user': id}, callback);
 };
