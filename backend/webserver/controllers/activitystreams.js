@@ -19,16 +19,22 @@ var isValidObjectId = function(id) {
 };
 
 function getMine(req, res) {
-  if (!req.user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User missing'}});
-  }
-
-  activitystreams.getUserStreams(req.user, function(err, streams) {
+  function streamsCallback(err, streams) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server error', details: err.message}});
     }
     return res.json(200, streams || []);
-  });
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User missing'}});
+  }
+
+  if (req.query && req.query.domainid) {
+    activitystreams.getUserStreamsForDomain(req.user, req.query.domainid, streamsCallback);
+  } else {
+    activitystreams.getUserStreams(req.user, streamsCallback);
+  }
 }
 module.exports.getMine = getMine;
 
