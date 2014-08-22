@@ -44,6 +44,21 @@ server.grant(oauth2orize.grant.code(function(client, redirectUri, user, ares, do
   });
 }));
 
+server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
+  var token = randomstring.generate(40);
+  var userId = user._id || user;
+  var clientId = client._id || client;
+  var oauthAccessToken = new OAuthAccessToken({
+    accessToken: token,
+    clientId: clientId,
+    userId: userId
+  });
+  logger.debug('OAuth: grant access token: clientId', clientId, 'userId', userId);
+  oauthAccessToken.save(function(error, result) {
+    return done(error, !error && token);
+  });
+}));
+
 server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, done) {
   var clientId = client._id || client;
   logger.debug('OAuth: exchange: clientId', clientId, 'code', code, 'redirectUri', redirectUri);
