@@ -4,7 +4,7 @@ div.conference-video#multiparty-conference
   .row
     conference-user-control-bar(users="users", easyrtc='easyrtc', invite-call='invite')
   .row.row-attendees-bar
-    perfect-scrollbar.conference-attendees-bar(wheel-propagation="true", wheel-speed="50", suppress-scroll-y="true", user-both-wheel-axes="true")
+    .conference-attendees-bar
       ul.content
         li(ng-repeat="id in attendeeVideoIds", ng-hide="!attendees[$index]")
           conference-attendee-video(ng-click="streamToMainCanvas($index)", video-id="{{id}}", attendee="idToAttendeeNameMap[attendees[$index]]")
