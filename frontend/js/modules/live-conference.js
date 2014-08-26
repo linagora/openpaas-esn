@@ -72,6 +72,8 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         }
       );
 
+      // We must wait for the directive holding the template containing videoIds
+      // to be displayed in the browser before using easyRTC.
       $timeout(function() {
         easyRTCService.connect($scope.conference, $scope.mainVideoId, $scope.attendees);
       }, 1000);
