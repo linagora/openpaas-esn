@@ -1,15 +1,20 @@
 'use strict';
 
 var passport = require('passport');
+var url = require('url');
+
 var config = require('../../core').config('default');
 var userlogin = require('../../core/user/login');
 var logger = require('../../core/logger');
 
 function index(req, res) {
-  if (req.user) {
-    return res.redirect('/');
+  var targetUrl = { pathname: '/', hash: req.user ? '' : '/login' };
+  var continueUrl = req.query['continue'];
+  if (continueUrl && !req.user) {
+    var hashUrl = { pathname: '/login', query: { continue: continueUrl } };
+    targetUrl.hash = url.format(hashUrl);
   }
-  return res.redirect('/#login');
+  return res.redirect(url.format(targetUrl));
 }
 module.exports.index = index;
 

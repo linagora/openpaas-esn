@@ -8,6 +8,14 @@ var communityModule = require('../../core/community');
 // Authorization middleware
 //
 
+exports.loginAndContinue = function(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  return res.redirect('/login?continue=' + encodeURIComponent(req.originalUrl));
+};
+
 exports.requiresLogin = function(req, res, next) {
   if (!req.isAuthenticated()) {
     return res.redirect('/login');

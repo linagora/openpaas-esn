@@ -42,19 +42,30 @@ describe('The Login Angular module', function() {
 
   describe('loginController', function() {
     beforeEach(inject(function($rootScope, $controller) {
+      var self = this;
       this.loginAPI = {};
+      this.searchObject = {};
       this.scope = $rootScope.$new();
       this.request = {
       };
-      $controller('login', {
+      this.locals = {
         $scope: this.scope,
         $location: {
           path: function() {
             return '';
+          },
+          search: function() {
+            return self.searchObject;
+          }
+        },
+        $window: {
+          location: {
+            href: ''
           }
         },
         loginAPI: this.loginAPI
-      });
+      };
+      $controller('login', this.locals);
     }));
 
     describe('login() method', function() {
@@ -81,6 +92,48 @@ describe('The Login Angular module', function() {
         this.scope.login();
       });
 
+      it('should redirect after continue', function(done) {
+        this.scope.form = {$invalid: false};
+        this.searchObject = {
+          continue: '/dummy'
+        };
+
+        var self = this;
+        this.loginAPI.login = function() {
+          return {
+            then: function(next) {
+              next();
+              var href = self.locals.$window.location.href;
+              expect(href).to.equal(self.searchObject.continue);
+              expect(self.scope.loginIn).to.be.true;
+              done();
+            }
+          };
+        };
+
+        this.scope.login();
+      });
+      it('should not be subject to open redirects', function(done) {
+        this.scope.form = {$invalid: false};
+        this.searchObject = {
+          continue: 'http://somewhere/else'
+        };
+
+        var self = this;
+        this.loginAPI.login = function() {
+          return {
+            then: function(next) {
+              next();
+              var href = self.locals.$window.location.href;
+              expect(href).to.equal('/');
+              expect(self.scope.loginIn).to.be.true;
+              done();
+            }
+          };
+        };
+
+        this.scope.login();
+      });
     });
   });
 

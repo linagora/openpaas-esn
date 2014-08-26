@@ -5,6 +5,48 @@ var mockery = require('mockery');
 var ObjectId = require('bson').ObjectId;
 
 describe('The authorization middleware', function() {
+  describe('The loginAndContinue fn', function() {
+    it('does nothing when authenticated', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').loginAndContinue;
+      var redirectTarget = null;
+      var req = {
+        isAuthenticated: function() {
+          return true;
+        }
+      };
+      var res = {
+        redirect: function(target) {
+          redirectTarget = target;
+        }
+      };
+      var next = function() {
+        expect(redirectTarget).to.be.null;
+        done();
+      };
+      middleware(req, res, next);
+    });
+
+    it('redirects when not authenticated', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').loginAndContinue;
+      var req = {
+        originalUrl: 'http://localhost/oauth/authorize',
+        isAuthenticated: function() {
+          return false;
+        }
+      };
+      var res = {
+        redirect: function(target) {
+          expect(target).to.be.equal('/login?continue=' + encodeURIComponent(req.originalUrl));
+          done();
+        }
+      };
+      var next = function() {
+      };
+      middleware(req, res, next);
+    });
+  });
 
   describe('The requiresAPILogin fn', function() {
 
