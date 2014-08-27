@@ -3,7 +3,7 @@
     .modal-content
       .modal-header
         button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
-        h4.modal-title(ng-hide="step !== 0") #{__('Create a new community')}
+        h4.modal-title(ng-hide="step !== 0") #{__('Create a community')}
         h4.modal-title(ng-show="step === 1 && !sending") #{__('About to create the')} '{{community.title}}' #{__('community')}
         h4.modal-title(ng-show="sending") #{__('Creating the')} '{{community.title}}' #{__('community')}...
       .modal-body

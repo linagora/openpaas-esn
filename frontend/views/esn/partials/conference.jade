@@ -5,6 +5,6 @@
         i.fa.fa-comments-o
         | #{__('Conferences')}
       div.well.text-center
-        button.btn.btn-primary(type='submit', ng-click='create()') #{__('Create a new conference')}
+        button.btn.btn-primary(type='submit', ng-click='create()') #{__('Create a conference')}
       .row(ng-repeat="conference in conferences")
         conference-display(conference="conference")
