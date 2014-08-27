@@ -303,29 +303,103 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
 
-    it('should not validate undefined title', function(done) {
-      this.scope.community = {};
-      expect(this.scope.validateTitle()).to.be.false;
-      done();
+    describe('validateTitle method', function() {
+      it('should not validate undefined title', function(done) {
+        this.scope.community = {};
+        expect(this.scope.validateTitle()).to.be.false;
+        done();
+      });
+
+      it('should not validate empty title', function(done) {
+        this.scope.community = {title: ''};
+        expect(this.scope.validateTitle()).to.be.false;
+        done();
+      });
+
+      it('should validate a correct title', function(done) {
+        this.scope.community = {title: 'node.js'};
+        expect(this.scope.validateTitle()).to.be.true;
+        done();
+      });
     });
 
-    it('should not validate empty title', function(done) {
-      this.scope.community = {title: ''};
-      expect(this.scope.validateTitle()).to.be.false;
-      done();
+    describe('validateStep0 method', function() {
+      it('should not call communityAPI if $scope.titleValidationRunning is true', function() {
+        this.communityAPI.list = function() {
+          expect(false).to.be.true;
+        };
+        this.scope.titleValidationRunning = true;
+        this.scope.validateStep0();
+      });
+
+      it('should call communityAPI if $scope.titleValidationRunning is false', function(done) {
+        this.scope.community = {title: 'node.js'};
+        var self = this;
+        this.communityAPI.list = function(domainId, options) {
+          expect(domainId).to.equal(self.session.domain._id);
+          expect(options).to.exist;
+          expect(options.title).to.exist;
+          expect(options.title).to.equal(self.scope.community.title);
+          done();
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+      });
+
+      it('should display an error if communityAPI.list call fails', function(done) {
+        this.scope.community = {title: 'node.js'};
+        this.communityAPI.list = function() {
+          return {
+            then: function(responseCallback, errorCallback) {
+              errorCallback('error');
+            }
+          };
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+      });
+
+      it('should display an error if communityAPI.list return non empty result', function(done) {
+        this.scope.community = {title: 'node.js'};
+        this.communityAPI.list = function() {
+          return {
+            then: function(responseCallback) {
+              var response = {
+                data: [{_id: 'community1'}, {_id: 'community2'}]
+              };
+              responseCallback(response);
+            }
+          };
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+      });
+
+      it('should move to wizard step 1 if communityAPI.list return an empty result', function() {
+        this.scope.community = {title: 'node.js'};
+        this.communityAPI.list = function() {
+          return {
+            then: function(responseCallback) {
+              var response = {
+                data: []
+              };
+              responseCallback(response);
+            }
+          };
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+        expect(this.scope.step).to.equal(1);
+      });
+
     });
 
-    it('should not validate a too short title', function(done) {
-      this.scope.community = {title: 'ab'};
-      expect(this.scope.validateTitle()).to.be.false;
-      done();
-    });
-
-    it('should validate a correct title', function(done) {
-      this.scope.community = {title: 'node.js'};
-      expect(this.scope.validateTitle()).to.be.true;
-      done();
-    });
 
     it('should transform the image to blob', function(done) {
       var img = {img: 'test'};

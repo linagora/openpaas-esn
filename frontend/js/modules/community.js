@@ -88,10 +88,34 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
 
     $scope.validateTitle = function() {
-      if (!$scope.community.title || $scope.community.title.length < 3) {
+      if (!$scope.community.title || $scope.community.title.length === 0) {
         return false;
       }
       return true;
+    };
+
+    $scope.titleValidationRunning = false;
+    $scope.validateStep0 = function() {
+      if ($scope.titleValidationRunning) {
+        return;
+      }
+      $scope.titleValidationRunning = true;
+
+      communityAPI.list(session.domain._id, {title: $scope.community.title}).then(
+        function(response) {
+          if (response.data.length === 0) {
+            $scope.step = 1;
+          }
+          else {
+            $scope.displayError($scope.community.title + ' community already exists. Please choose another title.');
+          }
+          $scope.titleValidationRunning = false;
+        },
+        function(err) {
+          $scope.displayError('An error occured while checking community title. ' + err);
+          $scope.titleValidationRunning = false;
+        }
+      );
     };
 
     $scope.displayError = function(err) {
@@ -361,10 +385,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
           if (communityTitle === lastValue) {
             return;
           }
-
           lastValue = communityTitle;
 
-          if (!communityTitle.length) {
+          if (communityTitle.length < 3) {
+            control.$setValidity('unique', true);
             return;
           }
 
