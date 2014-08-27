@@ -176,6 +176,56 @@ describe('The communities controller', function() {
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.list(req, res);
     });
+
+    it('should call the community module with title in query when defined in the request', function(done) {
+      var fakeTitle = 'fakeTitle';
+      var req = {
+        title: fakeTitle,
+        param: function(paramName) {
+          if (paramName === 'title') {
+            return fakeTitle;
+          }
+          return null;
+        }
+      };
+
+      var mock = {
+        query: function(q, callback) {
+          expect(q.title).to.exist;
+          expect(q.title.toString()).to.equal('/^' + fakeTitle + '$/i');
+          done();
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.list(req, {});
+    });
+
+    it('should call the community module with creator in query when defined in the request', function(done) {
+      var creatorId = '1234';
+      var req = {
+        param: function(paramName) {
+          if (paramName === 'creator') {
+            return creatorId;
+          }
+          return null;
+        }
+      };
+
+      var mock = {
+        query: function(q, callback) {
+
+          expect(q.creator).to.exist;
+          expect(q.creator).to.equal(creatorId);
+          done();
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.list(req, {});
+    });
   });
 
   describe('The load fn', function() {
