@@ -27,8 +27,8 @@
             label #{__('The community title')}&nbsp;*
             input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', autofocus=true, required, ensure-unique-community-title, esn-track-first-blur)
             span.help-block(ng-hide='(communityForm.title.$error.unique && !communityForm.title.$error.ajax) || !validateTitle()') #{__('The community title has to be unique in the current domain.')}
-            span.help-block(ng-show='communityForm.title.$error.unique && !communityForm.title.$error.ajax') #{__('This community title is already used. Please choose another one.')}
-            span.help-block(ng-show='!validateTitle()') #{__('The community title has to be at least 3 charachters long.')}
+            span.help-block(ng-show='communityForm.title.$error.unique && !communityForm.title.$error.ajax') #{__('This community title already exists. Please choose another one.')}
+            span.help-block(ng-show='!validateTitle()') #{__('The community title has to be at least 3 characters long.')}
           .form-group(ng-show="step === 0")
             fieldset
               label #{__('Visiblity')}&nbsp;
