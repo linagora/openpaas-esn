@@ -52,9 +52,9 @@ describe('The live-conference Angular module', function() {
 
     it('$scope.performCall should hangupAll', function(done) {
       webrtcFactory = {
-        get: function () {
+        get: function() {
           return {
-            hangupAll: function () {
+            hangupAll: function() {
               done();
             }
           };
@@ -76,9 +76,9 @@ describe('The live-conference Angular module', function() {
       var user_id = 123;
 
       webrtcFactory = {
-        get: function () {
+        get: function() {
           return {
-            hangupAll: function () {},
+            hangupAll: function() {},
             call: function(id) {
               expect(id).to.equal(user_id);
               done();
@@ -107,7 +107,7 @@ describe('The live-conference Angular module', function() {
       };
 
       webrtcFactory = {
-        get: function () {
+        get: function() {
           return {
             setRoomOccupantListener: function() {},
             setRoomEntryListener: function() {},
@@ -146,7 +146,7 @@ describe('The live-conference Angular module', function() {
       };
 
       webrtcFactory = {
-        get: function () {
+        get: function() {
           return {
             setRoomOccupantListener: function() {},
             setRoomEntryListener: function() {},

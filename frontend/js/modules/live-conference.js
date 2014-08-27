@@ -74,9 +74,9 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
 
       // We must wait for the directive holding the template containing videoIds
       // to be displayed in the browser before using easyRTC.
-      $timeout(function() {
+      $scope.$on('videoIds:ready', function() {
         easyRTCService.connect($scope.conference, $scope.mainVideoId, $scope.attendees);
-      }, 1000);
+      });
     }
   ])
 
@@ -309,6 +309,20 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       }
     };
   }])
+
+  .directive('firePostRepeatEvent', function() {
+    return {
+      restrict: 'A',
+      scope: {
+        event: '@'
+      },
+      link: function(scope) {
+        if (scope.$parent.$last) {
+          scope.$emit(scope.event);
+        }
+      }
+    };
+  })
 
   .directive('conferenceAttendee', function() {
     return {
