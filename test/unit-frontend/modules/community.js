@@ -315,7 +315,13 @@ describe('The Community Angular module', function() {
       done();
     });
 
-    it('should validate non empty title', function(done) {
+    it('should not validate a too short title', function(done) {
+      this.scope.community = {title: 'ab'};
+      expect(this.scope.validateTitle()).to.be.false;
+      done();
+    });
+
+    it('should validate a correct title', function(done) {
       this.scope.community = {title: 'node.js'};
       expect(this.scope.validateTitle()).to.be.true;
       done();
@@ -867,4 +873,67 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
   });
+
+  describe('ensureUniqueCommunityTitle directive', function() {
+    var html = '<form name="form"><input type="text" name="communityTitle" ng-model="title" ensure-unique-community-title></form>';
+    beforeEach(inject(['$compile', '$rootScope', '$httpBackend', 'Restangular', function($c, $r, $h, Restangular) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+      this.$httpBackend = $h;
+      this.title = 'fakeTitle';
+      this.emptyResponse = [];
+      this.response = [{_id: '1234'}];
+      Restangular.setFullResponse(true);
+    }]));
+
+    afterEach(function() {
+      this.$httpBackend.verifyNoOutstandingExpectation();
+    });
+
+    it('should set an ajax error when REST request is going on', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      var scope = element.scope();
+      input.val(this.title);
+      input.trigger('change');
+      expect(scope.form.communityTitle.$error.ajax).to.be.true;
+    });
+
+    it('should call the companyAPI get() method', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      input.val(this.title);
+      input.trigger('change');
+      this.$httpBackend.flush();
+    });
+
+    it('should remove the ajax error and set a unique=true error when the community already exists', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.response);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      var scope = element.scope();
+      input.val(this.title);
+      input.trigger('change');
+      this.$httpBackend.flush();
+      scope.$digest();
+      expect(scope.form.communityTitle.$error.ajax).to.be.false;
+      expect(scope.form.communityTitle.$error.unique).to.be.true;
+    });
+
+    it('should remove the ajax error and set a unique=false error when the community does not exist', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      var scope = element.scope();
+      input.val(this.title);
+      input.trigger('change');
+      this.$httpBackend.flush();
+      scope.$digest();
+      expect(scope.form.communityTitle.$error.ajax).to.be.false;
+      expect(scope.form.communityTitle.$error.unique).to.be.false;
+    });
+  });
+
 });
