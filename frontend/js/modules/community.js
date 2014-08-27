@@ -88,7 +88,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
 
     $scope.validateTitle = function() {
-      if (!$scope.community.title || $scope.community.title.length === 0) {
+      if (!$scope.community.title || $scope.community.title.length < 3) {
         return false;
       }
       return true;
@@ -348,5 +348,53 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         }
       );
     };
-  }]
-);
+  }])
+  .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', function(communityAPI, session) {
+    return {
+      restrict: 'A',
+      scope: true,
+      require: 'ngModel',
+      link: function(scope, elem , attrs, control) {
+        var lastValue = null;
+        control.$viewChangeListeners.push(function() {
+          var communityTitle = control.$viewValue;
+          if (communityTitle === lastValue) {
+            return;
+          }
+
+          lastValue = communityTitle;
+
+          if (!communityTitle.length) {
+            return;
+          }
+
+          control.$setValidity('ajax', false);
+          (function(title) {
+            communityAPI.list(session.domain._id, {title: title}).then(
+              function(response) {
+                if (lastValue !== title) {
+                  return;
+                }
+
+                if (response.data.length !== 0) {
+                  control.$setValidity('ajax', true);
+                  control.$setValidity('unique', false);
+                }
+                else {
+                  control.$setValidity('ajax', true);
+                  control.$setValidity('unique', true);
+                }
+              },
+              function() {
+                if (lastValue !== title) {
+                  return;
+                }
+                control.$setValidity('ajax', true);
+                control.$setValidity('unique', true);
+              }
+            );
+          })(lastValue);
+        });
+      }
+    };
+  }]);

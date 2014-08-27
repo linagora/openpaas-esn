@@ -23,10 +23,12 @@
         form(name='communityForm', ng-hide="sending")
           .form-group
             #communityerror
-          .form-group(ng-show="step === 0")
+          .form-group(ng-show="step === 0", ng-class='{"has-error": communityForm.title.$error.unique || !validateTitle()}')
             label #{__('The community title')}&nbsp;*
-            input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', autofocus=true, required)
-            span.help-block #{__('The community title have to be unique in the current domain')}.
+            input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', autofocus=true, required, ensure-unique-community-title, esn-track-first-blur)
+            span.help-block(ng-hide='(communityForm.title.$error.unique && !communityForm.title.$error.ajax) || !validateTitle()') #{__('The community title has to be unique in the current domain.')}
+            span.help-block(ng-show='communityForm.title.$error.unique && !communityForm.title.$error.ajax') #{__('This community title is already used. Please choose another one.')}
+            span.help-block(ng-show='!validateTitle()') #{__('The community title has to be at least 3 charachters long.')}
           .form-group(ng-show="step === 0")
             fieldset
               label #{__('Visiblity')}&nbsp;
@@ -71,12 +73,12 @@
           .form-group(ng-show="step === 1")
             label #{__('Description')}
             textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
-            span.help-block #{__("A human readable description which will help users to know what this community is about")}.
+            span.help-block #{__("A human readable description which will help users know what this community is about")}.
       .modal-footer.widget(ng-hide="sending")
         button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="step = 0")
           i.fa.fa-chevron-left
           | #{__('Previous')}
-        button.btn.btn-info(type="button", ng-disabled="!validateTitle()", ng-show="step === 0", ng-click="step = 1")
+        button.btn.btn-info(type="button", ng-disabled="!validateTitle() || communityForm.title.$error.unique", ng-show="step === 0", ng-click="step = 1")
           | #{__('Next')} &nbsp;
           i.fa.fa-chevron-right
         button.btn.btn-primary(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="create(community)") #{__('Create')}
