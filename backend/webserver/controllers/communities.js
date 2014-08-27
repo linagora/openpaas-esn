@@ -67,6 +67,10 @@ module.exports.list = function(req, res) {
     query.creator = req.param('creator');
   }
 
+  if (req.param('title')) {
+    query.title = new RegExp('^' + req.param('title') + '$', 'i');
+  }
+
   communityModule.query(query, function(err, response) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community list failed', details: err}});
