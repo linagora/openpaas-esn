@@ -1,0 +1,4 @@
+div
+  video.conference-attendee-video-multi(id="{{videoId}}", autoplay="autoplay", ng-class="{thumbhover: thumbhover}", ng-mouseenter="thumbhover = true && attendee", ng-mouseleave="thumbhover = false && attendee")
+  i.fa.fa-3x.conference-mute-button(ng-click="mute()", ng-class="{'fa-microphone': !muted, 'fa-microphone-slash': muted}", ng-show="((thumbhover || muted) && attendee)", ng-mouseenter="thumbhover = true && attendee", ng-mouseleave="thumbhover = true && attendee")
+  p.hidden-xs.text-center.conference-attendee-name {{attendee}}

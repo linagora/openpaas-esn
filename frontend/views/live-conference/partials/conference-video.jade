@@ -1,0 +1,10 @@
+div.conference-video#multiparty-conference
+  .row
+    conference-user-video(video-id="{{mainVideoId}}")
+  .row
+    conference-user-control-bar(users="users", easyrtc='easyrtc', invite-call='invite')
+  .row.row-attendees-bar
+    .conference-attendees-bar
+      ul.content
+        li(ng-repeat="id in attendeeVideoIds", ng-hide="!attendees[$index]", fire-post-repeat-event, event="videoIds:ready")
+          conference-attendee-video(ng-click="streamToMainCanvas($index)", video-id="{{id}}", attendee="idToAttendeeNameMap[attendees[$index]]")

@@ -5,7 +5,6 @@ angular.module('esnApp', [
   'ngRoute',
   'mgcrea.ngStrap.affix',
   'ui.notify',
-  'FBAngular',
   'angularMoment',
   'truncate',
   'esn.core',
@@ -18,7 +17,6 @@ angular.module('esnApp', [
   'esn.session',
   'esn.activitystream',
   'esn.websocket',
-  'esn.easyrtc',
   'esn.conference',
   'esn.contact',
   'esn.community',
@@ -95,23 +93,6 @@ angular.module('esnApp', [
       resolve: {
         conferences: function(conferenceAPI, $location) {
           return conferenceAPI.list().then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/');
-            }
-          );
-        }
-      }
-    });
-
-    $routeProvider.when('/conferences/:conference_id', {
-      templateUrl: '/views/modules/conference/live',
-      controller: 'liveConferenceController',
-      resolve: {
-        conference: function(conferenceAPI, $route, $location) {
-          return conferenceAPI.get($route.current.params.conference_id).then(
             function(response) {
               return response.data;
             },
