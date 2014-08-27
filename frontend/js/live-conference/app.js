@@ -7,7 +7,6 @@ angular.module('liveConferenceApp', [
   'ui.notify',
   'angularMoment',
   'ngAnimate',
-  'perfect_scrollbar',
   'esn.core',
   'esn.domain',
   'esn.session',
