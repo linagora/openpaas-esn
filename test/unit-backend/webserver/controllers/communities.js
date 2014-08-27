@@ -180,7 +180,6 @@ describe('The communities controller', function() {
     it('should call the community module with title in query when defined in the request', function(done) {
       var fakeTitle = 'fakeTitle';
       var req = {
-        title: fakeTitle,
         param: function(paramName) {
           if (paramName === 'title') {
             return fakeTitle;
@@ -193,6 +192,30 @@ describe('The communities controller', function() {
         query: function(q, callback) {
           expect(q.title).to.exist;
           expect(q.title.toString()).to.equal('/^' + fakeTitle + '$/i');
+          done();
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.list(req, {});
+    });
+
+    it('should call the community module with title in query and escape regexp characters in the query', function(done) {
+      var req = {
+        param: function(paramName) {
+          if (paramName === 'title') {
+            return 'fake$Title^';
+          }
+          return null;
+        }
+      };
+
+      var mock = {
+        query: function(q, callback) {
+          expect(q.title).to.exist;
+          expect(q.title.toString().indexOf('\\$') > -1).to.be.true;
+          expect(q.title.toString().indexOf('\\^') > -1).to.be.true;
           done();
         }
       };
