@@ -12,9 +12,9 @@ function getUserStreams(user, callback) {
     return callback(new Error('User is required'));
   }
 
+  var id = user._id || user;
   var result = [];
 
-  var id = user._id || user;
   domain.getUserDomains(id, function(err, domains) {
 
     if (err) {
@@ -63,6 +63,40 @@ function getUserStreams(user, callback) {
   });
 }
 module.exports.getUserStreams = getUserStreams;
+
+function getUserStreamsForDomain(user, domainId, callback) {
+  if (!user) {
+    return callback(new Error('User is required'));
+  }
+  if (!domainId) {
+    return callback(new Error('Domain ID is required'));
+  }
+
+  var id = user._id || user;
+  domainId = domainId._id || domainId;
+  community.getUserCommunities(id, domainId, function(err, communities) {
+
+    if (err) {
+      logger.warn('Problem while getting user communities : ' + err.message);
+      return callback(err);
+    }
+
+    var result = communities.map(function(c) {
+      return {
+        uuid: c.activity_stream.uuid,
+        target: {
+          objectType: 'community',
+          displayName: c.title,
+          _id: c._id,
+          id: 'urn:linagora.com:community:' + c._id,
+          image: c.avatar || ''
+        }
+      };
+    });
+    return callback(null, result);
+  });
+}
+module.exports.getUserStreamsForDomain = getUserStreamsForDomain;
 
 /**
  * Query the timeline
