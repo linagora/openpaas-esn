@@ -1,10 +1,10 @@
 div.nopadding.esn-member
 
-  .col-lg-2.col-xs-3.nopadding
+  .col-md-2.col-xs-3.nopadding
     a(href='#/communities/{{community._id}}')
       img.thumbnail.nopadding(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
 
-  .col-lg-7.col-sm-6.col-xs-9
+  .col-md-10.col-xs-9
     h4.media-heading
       a(href='#/communities/{{community._id}}')
         strong {{community.title}} &nbsp;
@@ -13,15 +13,8 @@ div.nopadding.esn-member
       li.pull-left
         i.fa.fa-users
         span {{community.members.length}} #{__('members')}
-      li.pull-left.hidden-sm.hidden-md.hidden-lg
-        a.btn.btn-primary(href="#/communities/{{community._id}}")
-          i.fa.fa-plus
+      li.pull-right
+        a.btn.btn-primary.nomargin(href="#/communities/{{community._id}}")
           span #{__('Join')}
       .clearfix
-    blockquote.hidden-xs.community-description(ng-show='community.description')
-      p {{community.description | characters:256 :false }}
-
-  .col-sm-3.hidden-xs
-    a.btn.btn-primary(href="#/communities/{{community._id}}")
-      i.fa.fa-plus
-      span #{__('More')}
+    p.hidden-xs.community-description(ng-show='community.description') {{community.description | characters:256 :false }}
