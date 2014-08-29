@@ -118,6 +118,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       );
     };
 
+    $scope.backToStep0 = function() {
+      $scope.step = 0;
+    };
+
     $scope.displayError = function(err) {
       $scope.alert = $alert({
         content: err,

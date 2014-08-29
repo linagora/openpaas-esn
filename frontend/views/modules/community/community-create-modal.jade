@@ -74,7 +74,7 @@
             textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
             span.help-block #{__("A human readable description which will help users know what this community is about")}.
       .modal-footer.widget(ng-hide="sending")
-        button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="step = 0")
+        button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="backToStep0()")
           i.fa.fa-chevron-left
           | #{__('Previous')}
         button.btn.btn-info(type="button", ng-disabled="!validateTitle() || communityForm.title.$error.unique", ng-show="step === 0", ng-click="validateStep0()")
