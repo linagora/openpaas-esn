@@ -73,9 +73,12 @@
             .row
               .col-xs-6.col-xs-offset-3.col-sm-3.col-sm-offset-0.community-img-preview-container
                 div(ng-show='!imageselected')
-                  img(width="128", height="128", src='/images/tux.png')
+                  img(width="128", height="128", src='/images/user.png')
                 div(ng-show='imageselected')
-                  canvas(width="128", height="128", id="preview", img-preview)
+                  .img-preview
+                    a(data-ng-click='removeSelectedImage()', href='')
+                      i.fa.fa-times.fa-5.fa-border
+                    canvas(width="128", height="128", id="preview", img-preview)
               .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='imageselected && !imagevalidated')
                 .hidden-md.hidden-sm.hidden-lg
                   img-loaded(width="190")

@@ -132,6 +132,11 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       $scope.imagevalidated = true;
     };
 
+    $scope.removeSelectedImage = function() {
+      selectionService.clear();
+      $scope.imageselected = false;
+    };
+
     $scope.displayError = function(err) {
       $scope.alert = $alert({
         content: err,
