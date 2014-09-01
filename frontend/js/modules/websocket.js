@@ -32,42 +32,96 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
       return socket;
     };
   }])
-  .factory('livenotification', ['$log', 'session', 'socket', function($log, session, socket) {
-    /*
-     * livenotification.of(namespace).subscribe(room, callback).onNotification(callback);
-     * livenotification.of(namespace).unsubscribe(room, callback);
-     */
-    return {
-      of: function(namespace) {
-        var notification = socket(namespace, {
-          query: 'token=' + session.token.token + '&user=' + session.user._id
-        });
-        this.notification = notification;
-        this.namespace = namespace;
-        return this;
-      },
-      subscribe: function(uuid) {
-        $log.debug(this.namespace + ' : subscribed to room', uuid);
-        this.notification.emit('subscribe', uuid);
-        this.room = uuid;
-        return this;
-      },
-      unsubscribe: function(uuid) {
-        $log.debug(this.namespace + ' : unsubscribed to room', uuid);
-        this.notification.emit('unsubscribe', uuid);
-      },
-      onNotification: function(callback) {
-        var self = this;
-        this.notification.on('notification', function(data) {
-          $log.debug('New notification', data, 'in', self.room || self.namespace);
-          callback(data);
-        });
-      },
-      on: function(event, callback) {
-        this.notification.on(event, function(data) {
-          $log.debug('New message', data, 'on', event);
-          callback(data);
+  .factory('socketIORoom', ['$log', function($log) {
+
+    return function(namespace, room, client) {
+      var subscriptions = {};
+      var nbEventSubscribed = 0;
+
+      function isCallbackRegistered(event, callback) {
+        if (!subscriptions[event] || !subscriptions[event].callbacks) {
+          return false;
+        }
+        return subscriptions[event].callbacks.some(function(element) {
+          return element === callback;
         });
       }
+
+      return {
+        on: function(event, callback) {
+          if (! room) {
+            client.on(event, callback);
+            $log.debug(namespace + ' : subscribed');
+            return this;
+          }
+
+          if (nbEventSubscribed === 0) {
+            client.emit('subscribe', room);
+            $log.debug(namespace + ' : subscribed to room', room);
+          }
+
+          function filterEvent(eventWrap) {
+            if (eventWrap.room && eventWrap.room === room) {
+              subscriptions[event].callbacks.forEach(function(element) {
+                $log.debug('New', event, 'of namespace', namespace, 'in room', room, 'with data', eventWrap.data);
+                element(eventWrap.data);
+              });
+            }
+          }
+
+          if (subscriptions[event] && !isCallbackRegistered(event, callback)) {
+            subscriptions[event].callbacks.push(callback);
+          } else {
+            subscriptions[event] = {
+              filterEvent: filterEvent,
+              callbacks: [callback]
+            };
+            client.on(event, filterEvent);
+            nbEventSubscribed++;
+          }
+          return this;
+        },
+        removeListener: function(event, callback) {
+          if (! room) {
+            client.removeListener(event, callback);
+            $log.debug(namespace + ' : unsubscribed');
+            return this;
+          }
+          if (! subscriptions[event]) {
+            return this;
+          }
+          subscriptions[event].callbacks = subscriptions[event].callbacks.filter(function(element) {
+            return element !== callback;
+          });
+          if (subscriptions[event].callbacks.length === 0) {
+            client.removeListener(event, subscriptions[event].filterEvent);
+            delete subscriptions[event];
+            nbEventSubscribed--;
+          }
+          if (nbEventSubscribed === 0) {
+            client.emit('unsubscribe', room);
+            $log.debug(namespace + ' : unsubscribed to room', room);
+          }
+        }
+      };
     };
-  }]);
+  }])
+  .factory('livenotification', ['$log', 'socket', 'socketIORoom', function($log, socket, socketIORoom) {
+    var socketCache = {};
+
+    /*
+     * With room:
+     * livenotification(namespace, room).on(event, callback);
+     * livenotification(namespace, room).removeListener(event, callback);
+     *
+     * Without room:
+     * livenotification(namespace).on(event, callback);
+     * livenotification(namespace).removeListener(event, callback);
+     */
+    return function(namespace, room) {
+      if (! socketCache[namespace + '/' + room]) {
+        socketCache[namespace + '/' + room] = socketIORoom(namespace, room, socket(namespace));
+      }
+      return socketCache[namespace + '/' + room];
+    };
+}]);
