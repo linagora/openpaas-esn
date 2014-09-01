@@ -21,7 +21,7 @@ var CALLEE_TOPIC = 'conference:invite';
 function notifyRoom(io, uuid, msg) {
   io.of(NAMESPACE)
     . in (uuid)
-    .emit(NOTIFICATION_EVENT, msg);
+    .emit(NOTIFICATION_EVENT, {room: uuid, data: msg});
 }
 
 function notifyCallee(io, callee, msg) {
@@ -42,8 +42,7 @@ function init(io) {
   }
 
   pubsub.topic(CALLEE_TOPIC).subscribe(function(msg) {
-    var callee = msg.user_id;
-    notifyCallee(io, callee, msg);
+    notifyCallee(io, msg.user_id, msg);
   });
 
   pubsub.topic(JOINER_TOPIC).subscribe(function(msg) {
