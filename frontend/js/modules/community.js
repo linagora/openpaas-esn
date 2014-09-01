@@ -62,20 +62,23 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
   }])
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', '$upload', 'selectionService', function($rootScope, $scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, $upload, selectionService) {
     selectionService.clear();
-    $scope.step = 0;
-    $scope.sending = false;
-    $scope.community = {
-      domain_ids: [session.domain._id],
-      image: '',
-      type: 'open'
+
+    var initScope = function() {
+      $scope.step = 0;
+      $scope.sending = false;
+      $scope.community = {
+        domain_ids: [session.domain._id],
+        image: '',
+        type: 'open'
+      };
+      $scope.alert = undefined;
+      $scope.percent = 0;
+      $scope.createStatus = {
+        step: 'none',
+        created: false
+      };
+      $scope.imageselected = false;
     };
-    $scope.alert = undefined;
-    $scope.percent = 0;
-    $scope.create = {
-      step: 'none',
-      created: false
-    };
-    $scope.imageselected = false;
 
     $rootScope.$on('crop:loaded', function() {
       $scope.imageselected = true;
@@ -84,6 +87,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
     var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
     $scope.showCreateModal = function() {
+      initScope();
       createModal.$promise.then(createModal.show);
     };
 
@@ -133,7 +137,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
 
     $scope.create = function(community) {
-      $scope.create.step = 'post';
+      $scope.createStatus.step = 'post';
       $scope.sending = true;
       $scope.percent = 1;
 
@@ -175,10 +179,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       communityAPI.create(community).then(
         function(data) {
 
-          $scope.create.created = true;
+          $scope.createStatus.created = true;
 
           if (selectionService.getImage()) {
-            $scope.create.step = 'upload';
+            $scope.createStatus.step = 'upload';
             $scope.percent = 20;
 
             var image = selectionService.getImage();
@@ -220,14 +224,14 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
           } else {
             $scope.percent = 100;
-            $scope.create.step = 'redirect';
+            $scope.createStatus.step = 'redirect';
             return done(data.data._id);
           }
         },
         function(err) {
           $scope.sending = false;
-          $scope.create.error = err;
-          $scope.create.step = 'none';
+          $scope.createStatus.error = err;
+          $scope.createStatus.step = 'none';
           $log.error('Error ', err);
           return $scope.displayError('Error while creating the community');
         }
