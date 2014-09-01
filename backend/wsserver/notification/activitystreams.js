@@ -5,15 +5,19 @@ var pubsub = require('../../core/pubsub').global,
 
 var initialized = false;
 
+var NAMESPACE = '/activitystreams';
+
+var NOTIFICATION_EVENT = 'notification';
+
 var topics = [
   'message:activity'
 ];
 
 function notify(io, uuids, msg) {
   uuids.forEach(function(uuid) {
-    io.of('/activitystreams')
+    io.of(NAMESPACE)
       . in (uuid)
-      .emit('notification', msg);
+      .emit(NOTIFICATION_EVENT, {room: uuid, data: msg});
   });
 }
 
@@ -34,7 +38,7 @@ function init(io) {
     });
   });
 
-  io.of('/activitystreams')
+  io.of(NAMESPACE)
     .on('connection', function(socket) {
       var client = {
         user: socket.handshake.query.user,
@@ -43,16 +47,16 @@ function init(io) {
         port: socket.handshake.address.port
       };
 
-      logger.info('New connection on /activitystreams', client);
+      logger.info('New connection on ' + NAMESPACE, client);
       socket.on('subscribe', function(uuid) {
-          logger.info('Joining room', uuid, client);
-          socket.join(uuid);
-        });
+        logger.info('Joining room', uuid, client);
+        socket.join(uuid);
+      });
 
       socket.on('unsubscribe', function(uuid) {
-          logger.info('Leaving room', uuid, client);
-          socket.leave(uuid);
-        });
+        logger.info('Leaving room', uuid, client);
+        socket.leave(uuid);
+      });
     });
 
   initialized = true;
