@@ -159,6 +159,109 @@ describe('The communities API', function() {
         }
       );
     });
+
+    it('should return list and filter communities according to their title (case insensitive)', function(done) {
+      var self = this;
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany',
+        administrator: user._id
+      };
+
+      var title = 'test1';
+      var titleWithUpperCase = 'TesT1';
+
+      async.series([
+          function(callback) {
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            saveCommunity({title: title, domain_ids: [domain._id]}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: titleWithUpperCase, domain_ids: [domain._id]}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'test2', domain_ids: [domain._id]}, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + domain._id + '&title=' + title));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(2);
+
+                var valid = res.body.filter(function(community) {
+                  return community.title === titleWithUpperCase || community.title === title;
+                });
+                expect(valid.length).to.equal(2);
+                done();
+              });
+            });
+          }],
+        function(err) {
+          done(err);
+        }
+      );
+    });
+
+    it('should return list and filter communities according to their creator', function(done) {
+      var self = this;
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany',
+        administrator: user._id
+      };
+
+      var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+      var title = 'C1';
+
+      async.series([
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            saveCommunity({title: title, domain_ids: [domain._id], creator: user._id}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'C2', domain_ids: [domain._id], creator: user2._id}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'C3', domain_ids: [domain._id]}, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + domain._id + '&creator=' + user._id));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(1);
+                var community = res.body[0];
+                expect(community.title).to.equal(title);
+                expect(community.creator).to.equal(user._id.toString());
+                done();
+              });
+            });
+          }],
+        function(err) {
+          done(err);
+        }
+      );
+    });
   });
 
   describe('POST /api/communities', function() {

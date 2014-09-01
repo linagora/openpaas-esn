@@ -135,6 +135,8 @@ Get the communities list for a given domain. The list is ordered by community ti
 **Query Parameters:**
 
 - domain_id: The id of the domain to fetch communities from.
+- creator: The id of the user who created the search communities.
+- title: The title of a searched community. The title filter is case insensitive.
 
 **Response Headers**
 
@@ -149,6 +151,7 @@ Get the communities list for a given domain. The list is ordered by community ti
 - 200 OK
 - 400 Bad Request
 - 401 Unauthorized. The user is not authenticated on the platform.
+- 500 Internal server error: there was a problem whilst listing communities.
 
 **Request:**
 

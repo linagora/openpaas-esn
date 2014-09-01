@@ -4,6 +4,7 @@ var communityModule = require('../../core/community');
 var imageModule = require('../../core/image');
 var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
+var escapeStringRegexp = require('escape-string-regexp');
 
 module.exports.loadDomainForCreate = function(req, res, next) {
   var domains = req.body.domain_ids;
@@ -65,6 +66,11 @@ module.exports.list = function(req, res) {
 
   if (req.param('creator')) {
     query.creator = req.param('creator');
+  }
+
+  if (req.param('title')) {
+    var escapedString = escapeStringRegexp(req.param('title'));
+    query.title = new RegExp('^' + escapedString + '$', 'i');
   }
 
   communityModule.query(query, function(err, response) {

@@ -303,23 +303,103 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
 
-    it('should not validate undefined title', function(done) {
-      this.scope.community = {};
-      expect(this.scope.validateTitle()).to.be.false;
-      done();
+    describe('validateTitle method', function() {
+      it('should not validate undefined title', function(done) {
+        this.scope.community = {};
+        expect(this.scope.validateTitle()).to.be.false;
+        done();
+      });
+
+      it('should not validate empty title', function(done) {
+        this.scope.community = {title: ''};
+        expect(this.scope.validateTitle()).to.be.false;
+        done();
+      });
+
+      it('should validate a correct title', function(done) {
+        this.scope.community = {title: 'node.js'};
+        expect(this.scope.validateTitle()).to.be.true;
+        done();
+      });
     });
 
-    it('should not validate empty title', function(done) {
-      this.scope.community = {title: ''};
-      expect(this.scope.validateTitle()).to.be.false;
-      done();
+    describe('validateStep0 method', function() {
+      it('should not call communityAPI if $scope.titleValidationRunning is true', function() {
+        this.communityAPI.list = function() {
+          expect(false).to.be.true;
+        };
+        this.scope.titleValidationRunning = true;
+        this.scope.validateStep0();
+      });
+
+      it('should call communityAPI if $scope.titleValidationRunning is false', function(done) {
+        this.scope.community = {title: 'node.js'};
+        var self = this;
+        this.communityAPI.list = function(domainId, options) {
+          expect(domainId).to.equal(self.session.domain._id);
+          expect(options).to.exist;
+          expect(options.title).to.exist;
+          expect(options.title).to.equal(self.scope.community.title);
+          done();
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+      });
+
+      it('should display an error if communityAPI.list call fails', function(done) {
+        this.scope.community = {title: 'node.js'};
+        this.communityAPI.list = function() {
+          return {
+            then: function(responseCallback, errorCallback) {
+              errorCallback('error');
+            }
+          };
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+      });
+
+      it('should display an error if communityAPI.list return non empty result', function(done) {
+        this.scope.community = {title: 'node.js'};
+        this.communityAPI.list = function() {
+          return {
+            then: function(responseCallback) {
+              var response = {
+                data: [{_id: 'community1'}, {_id: 'community2'}]
+              };
+              responseCallback(response);
+            }
+          };
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+      });
+
+      it('should move to wizard step 1 if communityAPI.list return an empty result', function() {
+        this.scope.community = {title: 'node.js'};
+        this.communityAPI.list = function() {
+          return {
+            then: function(responseCallback) {
+              var response = {
+                data: []
+              };
+              responseCallback(response);
+            }
+          };
+        };
+        this.scope.titleValidationRunning = false;
+        this.scope.validateStep0();
+        expect(this.scope.step).to.equal(1);
+      });
+
     });
 
-    it('should validate non empty title', function(done) {
-      this.scope.community = {title: 'node.js'};
-      expect(this.scope.validateTitle()).to.be.true;
-      done();
-    });
 
     it('should transform the image to blob', function(done) {
       var img = {img: 'test'};
@@ -867,4 +947,67 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
   });
+
+  describe('ensureUniqueCommunityTitle directive', function() {
+    var html = '<form name="form"><input type="text" name="communityTitle" ng-model="title" ensure-unique-community-title></form>';
+    beforeEach(inject(['$compile', '$rootScope', '$httpBackend', 'Restangular', function($c, $r, $h, Restangular) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+      this.$httpBackend = $h;
+      this.title = 'fakeTitle';
+      this.emptyResponse = [];
+      this.response = [{_id: '1234'}];
+      Restangular.setFullResponse(true);
+    }]));
+
+    afterEach(function() {
+      this.$httpBackend.verifyNoOutstandingExpectation();
+    });
+
+    it('should set an ajax error when REST request is going on', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      var scope = element.scope();
+      input.val(this.title);
+      input.trigger('change');
+      expect(scope.form.communityTitle.$error.ajax).to.be.true;
+    });
+
+    it('should call the companyAPI get() method', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      input.val(this.title);
+      input.trigger('change');
+      this.$httpBackend.flush();
+    });
+
+    it('should remove the ajax error and set a unique=true error when the community already exists', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.response);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      var scope = element.scope();
+      input.val(this.title);
+      input.trigger('change');
+      this.$httpBackend.flush();
+      scope.$digest();
+      expect(scope.form.communityTitle.$error.ajax).to.be.false;
+      expect(scope.form.communityTitle.$error.unique).to.be.true;
+    });
+
+    it('should remove the ajax error and set a unique=false error when the community does not exist', function() {
+      this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
+      var element = this.$compile(html)(this.$rootScope);
+      var input = element.find('input');
+      var scope = element.scope();
+      input.val(this.title);
+      input.trigger('change');
+      this.$httpBackend.flush();
+      scope.$digest();
+      expect(scope.form.communityTitle.$error.ajax).to.be.false;
+      expect(scope.form.communityTitle.$error.unique).to.be.false;
+    });
+  });
+
 });

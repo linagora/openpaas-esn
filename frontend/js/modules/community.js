@@ -94,6 +94,34 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       return true;
     };
 
+    $scope.titleValidationRunning = false;
+    $scope.validateStep0 = function() {
+      if ($scope.titleValidationRunning) {
+        return;
+      }
+      $scope.titleValidationRunning = true;
+
+      communityAPI.list(session.domain._id, {title: $scope.community.title}).then(
+        function(response) {
+          if (response.data.length === 0) {
+            $scope.step = 1;
+          }
+          else {
+            $scope.displayError($scope.community.title + ' community already exists. Please choose another title.');
+          }
+          $scope.titleValidationRunning = false;
+        },
+        function(err) {
+          $scope.displayError('An error occured while checking community title. ' + err);
+          $scope.titleValidationRunning = false;
+        }
+      );
+    };
+
+    $scope.backToStep0 = function() {
+      $scope.step = 0;
+    };
+
     $scope.displayError = function(err) {
       $scope.alert = $alert({
         content: err,
@@ -348,5 +376,53 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         }
       );
     };
-  }]
-);
+  }])
+  .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', function(communityAPI, session) {
+    return {
+      restrict: 'A',
+      scope: true,
+      require: 'ngModel',
+      link: function(scope, elem , attrs, control) {
+        var lastValue = null;
+        control.$viewChangeListeners.push(function() {
+          var communityTitle = control.$viewValue;
+          if (communityTitle === lastValue) {
+            return;
+          }
+          lastValue = communityTitle;
+
+          if (communityTitle.length < 3) {
+            control.$setValidity('unique', true);
+            return;
+          }
+
+          control.$setValidity('ajax', false);
+          (function(title) {
+            communityAPI.list(session.domain._id, {title: title}).then(
+              function(response) {
+                if (lastValue !== title) {
+                  return;
+                }
+
+                if (response.data.length !== 0) {
+                  control.$setValidity('ajax', true);
+                  control.$setValidity('unique', false);
+                }
+                else {
+                  control.$setValidity('ajax', true);
+                  control.$setValidity('unique', true);
+                }
+              },
+              function() {
+                if (lastValue !== title) {
+                  return;
+                }
+                control.$setValidity('ajax', true);
+                control.$setValidity('unique', true);
+              }
+            );
+          })(lastValue);
+        });
+      }
+    };
+  }]);
