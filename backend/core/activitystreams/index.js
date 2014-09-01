@@ -3,7 +3,6 @@
 var mongoose = require('mongoose');
 var TimelineEntry = mongoose.model('TimelineEntry');
 var helpers = require('./helpers');
-var domain = require('../user/domain');
 var community = require('../community');
 var logger = require('../logger');
 
@@ -15,51 +14,28 @@ function getUserStreams(user, callback) {
   var id = user._id || user;
   var result = [];
 
-  domain.getUserDomains(id, function(err, domains) {
+  community.getUserCommunities(id, function(err, communities) {
 
     if (err) {
-      logger.warn('Problem while getting user domains : ' + err.message);
+      logger.warn('Problem while getting user communities : ' + err.message);
     }
 
-    if (!err && domains && domains.length > 0) {
-      domains.forEach(function(d) {
+    if (!err && communities && communities.length) {
+      communities.forEach(function(c) {
         var stream = {
-          uuid: d.activity_stream.uuid,
+          uuid: c.activity_stream.uuid,
           target: {
-            objectType: 'domain',
-            displayName: d.name,
-            _id: d._id,
-            id: 'urn:linagora.com:domain:' + d._id,
-            image: ''
+            objectType: 'community',
+            displayName: c.title,
+            _id: c._id,
+            id: 'urn:linagora.com:community:' + c._id,
+            image: c.avatar || ''
           }
         };
         result.push(stream);
       });
     }
-
-    community.getUserCommunities(id, function(err, communities) {
-
-      if (err) {
-        logger.warn('Problem while getting user communities : ' + err.message);
-      }
-
-      if (!err && communities && communities.length) {
-        communities.forEach(function(c) {
-          var stream = {
-            uuid: c.activity_stream.uuid,
-            target: {
-              objectType: 'community',
-              displayName: c.title,
-              _id: c._id,
-              id: 'urn:linagora.com:community:' + c._id,
-              image: c.avatar || ''
-            }
-          };
-          result.push(stream);
-        });
-      }
-      return callback(null, result);
-    });
+    return callback(null, result);
   });
 }
 module.exports.getUserStreams = getUserStreams;

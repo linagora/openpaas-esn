@@ -221,37 +221,7 @@ describe('The activitystream middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should send back an error if Domain.getFromActivityStreamID send back an error', function(done) {
-      var mock = {
-        model: function(modelName) {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              expect(modelName).to.equal('Domain');
-              return cb(new Error());
-            }
-          };
-        }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
-      mockery.registerMock('../../core/activitystreams', {});
-
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
-      var req = {
-        params: {
-          uuid: 1
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      };
-      var next = function() {};
-      middleware(req, res, next);
-    });
-
-    it('should send back an error if Domain.getFromActivityStreamID does not return domain and Communtity.getFromActivityStreamID send back error', function(done) {
+    it('should send back an error if Communtity.getFromActivityStreamID send back error', function(done) {
       var mock = {
         model: function(modelName) {
           return {
@@ -282,36 +252,6 @@ describe('The activitystream middleware', function() {
         }
       };
       var next = function() {};
-      middleware(req, res, next);
-    });
-
-    it('should call next when stream resource is found (Domain)', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(null, {_id: 123});
-            }
-          };
-        }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
-      mockery.registerMock('../../core/activitystreams', {});
-
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
-      var req = {
-        params: {
-          uuid: 1
-        }
-      };
-      var res = {
-        json: function() {
-          done(new Error('Should not be called'));
-        }
-      };
-      var next = function() {
-        done();
-      };
       middleware(req, res, next);
     });
 
@@ -350,7 +290,7 @@ describe('The activitystream middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should send back an error if neither a Domain nor a Community is found', function(done) {
+    it('should send back an error if Community is not found', function(done) {
       var mock = {
         model: function(modelName) {
           return {

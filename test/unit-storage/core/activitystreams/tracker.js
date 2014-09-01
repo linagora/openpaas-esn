@@ -63,30 +63,15 @@ describe('the TimelineEntriesTracker module', function() {
     this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
       if (err) { return done(err); }
 
-      self.helpers.api.applyMultipleTimelineEntries(models.domain.activity_stream.uuid, 3, 'post', function(err, models2) {
-        if (err) { return done(err); }
+      self.helpers.api.createCommunity('Node', models.users[0], models.domain, function(err, community) {
+        if (err) {
+          return done(err);
+        }
 
-        tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
-          expect(err).to.not.exist;
-          expect(count).to.exist;
-          expect(count).to.deep.equal(0);
-          done();
-        });
-      });
-    });
-  });
-
-  it('should return 0 unread TimelineEntry when update to the last TimelineEntry', function(done) {
-    var self = this;
-
-    this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
-      if (err) { return done(err); }
-
-      self.helpers.api.applyMultipleTimelineEntries(models.domain.activity_stream.uuid, 3, 'post', function(err, models2) {
-        if (err) { return done(err); }
-
-        tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
-          if (err) { return done(err); }
+        self.helpers.api.applyMultipleTimelineEntries(community.activity_stream.uuid, 3, 'post', function(err, models2) {
+          if (err) {
+            return done(err);
+          }
 
           tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
             expect(err).to.not.exist;
@@ -99,31 +84,76 @@ describe('the TimelineEntriesTracker module', function() {
     });
   });
 
+  it('should return 0 unread TimelineEntry when update to the last TimelineEntry', function(done) {
+    var self = this;
+
+    this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
+      if (err) { return done(err); }
+
+      self.helpers.api.createCommunity('Node', models.users[0], models.domain, function(err, community) {
+        if (err) {
+          return done(err);
+        }
+
+        self.helpers.api.applyMultipleTimelineEntries(community.activity_stream.uuid, 3, 'post', function(err, models2) {
+          if (err) {
+            return done(err);
+          }
+
+          tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+            if (err) {
+              return done(err);
+            }
+
+            tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
+              expect(err).to.not.exist;
+              expect(count).to.exist;
+              expect(count).to.deep.equal(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
   it('should return 4 unread TimelineEntry when add 3 TimelineEntries, update last and add 4 TimelineEntries', function(done) {
     var self = this;
 
     this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
       if (err) { return done(err); }
 
-      self.helpers.api.applyMultipleTimelineEntries(models.domain.activity_stream.uuid, 3, 'post', function(err, models2) {
-        if (err) { return done(err); }
+      self.helpers.api.createCommunity('Node', models.users[0], models.domain, function(err, community) {
+        if (err) {
+          return done(err);
+        }
 
-        tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
-          if (err) { return done(err); }
+        self.helpers.api.applyMultipleTimelineEntries(community.activity_stream.uuid, 3, 'post', function(err, models2) {
+          if (err) {
+            return done(err);
+          }
 
-          tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
-            expect(err).to.not.exist;
-            expect(count).to.exist;
-            expect(count).to.deep.equal(0);
+          tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+            if (err) {
+              return done(err);
+            }
 
-            self.helpers.api.applyMultipleTimelineEntries(models.domain.activity_stream.uuid, 4, 'post', function(err, models3) {
-              if (err) { return done(err); }
+            tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
+              expect(err).to.not.exist;
+              expect(count).to.exist;
+              expect(count).to.deep.equal(0);
 
-              tracker.getUnreadTimelineEntriesCount(userId, models3.activityStreamUuid, function(err, count) {
-                expect(err).to.not.exist;
-                expect(count).to.exist;
-                expect(count).to.deep.equal(4);
-                done();
+              self.helpers.api.applyMultipleTimelineEntries(community.activity_stream.uuid, 4, 'post', function(err, models3) {
+                if (err) {
+                  return done(err);
+                }
+
+                tracker.getUnreadTimelineEntriesCount(userId, models3.activityStreamUuid, function(err, count) {
+                  expect(err).to.not.exist;
+                  expect(count).to.exist;
+                  expect(count).to.deep.equal(4);
+                  done();
+                });
               });
             });
           });
@@ -138,23 +168,37 @@ describe('the TimelineEntriesTracker module', function() {
     this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
       if (err) { return done(err); }
 
-      self.helpers.api.applyMultipleTimelineEntries(models.domain.activity_stream.uuid, 5, 'post', function(err, models2) {
-        if (err) { return done(err); }
+      self.helpers.api.createCommunity('Node', models.users[0], models.domain, function(err, community) {
+        if (err) {
+          return done(err);
+        }
 
-        tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
-          if (err) { return done(err); }
+        self.helpers.api.applyMultipleTimelineEntries(community.activity_stream.uuid, 5, 'post', function(err, models2) {
+          if (err) {
+            return done(err);
+          }
 
-          var TimelineEntry = require(self.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
-          TimelineEntry.update({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
-            if (err) { return done(err); }
-            TimelineEntry.update({_id: models2.timelineEntries[2]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
-              if (err) { return done(err); }
+          tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
+            if (err) {
+              return done(err);
+            }
 
-              tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
-                expect(err).to.not.exist;
-                expect(count).to.exist;
-                expect(count).to.deep.equal(2);
-                done();
+            var TimelineEntry = require(self.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
+            TimelineEntry.update({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
+              if (err) {
+                return done(err);
+              }
+              TimelineEntry.update({_id: models2.timelineEntries[2]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
+                if (err) {
+                  return done(err);
+                }
+
+                tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
+                  expect(err).to.not.exist;
+                  expect(count).to.exist;
+                  expect(count).to.deep.equal(2);
+                  done();
+                });
               });
             });
           });
