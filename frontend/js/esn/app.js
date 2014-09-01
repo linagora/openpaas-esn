@@ -143,8 +143,7 @@ angular.module('esnApp', [
 
 
     $routeProvider.when('/communities', {
-      templateUrl: '/views/esn/partials/communities',
-      controller: 'communitiesController'
+      templateUrl: '/views/esn/partials/communities'
     });
 
     $routeProvider.when('/communities/:community_id', {
