@@ -63,14 +63,14 @@
             span.btn.btn-info.btn-file #{__('Select an image')}
               input(type="file", load-button)
             &nbsp;
-            button.btn.btn-info.btn-file #{__('Validate picture')}
+            button.btn.btn-info.btn-file(data-ng-disabled='!imageselected || imagevalidated', data-ng-click='validateImage()') #{__('Validate picture')}
             .row
               .col-xs-3
                 div(ng-show='!imageselected')
                   img(width="128", height="128", src='/images/tux.png')
                 div(ng-show='imageselected')
                   canvas(width="128", height="128", id="preview", img-preview)
-              .col-xs-12.col-sm-3(ng-show='imageselected')
+              .col-xs-12.col-sm-3(ng-show='imageselected && !imagevalidated')
                 .hidden-md.hidden-sm.hidden-lg
                   img-loaded(width="190")
                 .hidden-xs

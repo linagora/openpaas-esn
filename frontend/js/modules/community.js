@@ -78,10 +78,12 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         created: false
       };
       $scope.imageselected = false;
+      $scope.imagevalidated = false;
     };
 
     $rootScope.$on('crop:loaded', function() {
       $scope.imageselected = true;
+      $scope.imagevalidated = false;
       $scope.$apply();
     });
 
@@ -124,6 +126,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
     $scope.backToStep0 = function() {
       $scope.step = 0;
+    }
+    
+    $scope.validateImage = function() {
+      $scope.imagevalidated = true;
     };
 
     $scope.displayError = function(err) {
