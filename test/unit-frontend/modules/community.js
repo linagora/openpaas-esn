@@ -631,10 +631,12 @@ describe('The Community Angular module', function() {
         error: function() {
         }
       };
+      this.location = {};
 
       $controller('communitiesController', {
         $scope: this.scope,
         $log: this.log,
+        $location: this.location,
         session: this.session,
         communityAPI: this.communityAPI,
         userAPI: this.userAPI
@@ -771,6 +773,128 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
       expect(this.scope.selected).to.equal('membership');
       done();
+    });
+
+    it('canJoin fn should return false if community is undefined', function(done) {
+      expect(this.scope.canJoin()).to.be.false;
+      done();
+    });
+
+    it('canJoin fn should return false if user is already in members list', function(done) {
+      var community = {
+        type: 'open',
+        members: [
+          {user: 123},
+          {user: 456}
+        ]
+      };
+      expect(this.scope.canJoin(community)).to.be.false;
+      done();
+    });
+
+    it('canJoin fn should return false if community is not open', function(done) {
+      var community = {
+        type: 'notopen',
+        members: [
+          {user: 'anotheruser'}
+        ]
+      };
+      expect(this.scope.canJoin(community)).to.be.false;
+      done();
+    });
+
+    it('canJoin fn should return true if community is open', function(done) {
+      var community = {
+        type: 'open',
+        members: [
+          {user: 'anotheruser'}
+        ]
+      };
+      expect(this.scope.canJoin(community)).to.be.true;
+      done();
+    });
+
+    it('join fn should not call the API when $scope.canJoin returns false', function(done) {
+      this.scope.canJoin = function() {
+        return false;
+      };
+
+      this.communityAPI.join = function() {
+        done(new Error());
+      };
+
+      var community = {
+        _id: 123
+      };
+
+      this.scope.join(community);
+      done();
+    });
+
+    it('join fn should call the API when $scope.canJoin returns true', function(done) {
+      this.scope.canJoin = function() {
+        return true;
+      };
+
+      this.communityAPI.join = function() {
+        done();
+      };
+
+      var community = {
+        _id: 123
+      };
+
+      this.scope.join(community);
+      done(new Error());
+    });
+
+    it('join fn should redirect to the community page when API call is successful', function(done) {
+      var community = {
+        _id: 123
+      };
+
+      this.scope.canJoin = function() {
+        return true;
+      };
+
+      this.location.path = function(path) {
+        expect(path).to.equal('/communities/' + community._id);
+        done();
+      };
+
+      var communityDefer = this.$q.defer();
+      this.communityAPI.join = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
+      this.scope.join(community);
+      this.scope.$digest();
+    });
+
+    it('join fn should not redirect to the community page when API call fails', function(done) {
+      var community = {
+        _id: 123
+      };
+
+      this.scope.canJoin = function() {
+        return true;
+      };
+
+      this.location.path = function() {
+        return done(new Error());
+      };
+
+      this.log.error = function() {
+        return done();
+      };
+
+      var communityDefer = this.$q.defer();
+      this.communityAPI.join = function() {
+        return communityDefer.promise;
+      };
+      communityDefer.reject({data: {_id: 123, title: 'Node.js'}});
+      this.scope.join(community);
+      this.scope.$digest();
     });
   });
 

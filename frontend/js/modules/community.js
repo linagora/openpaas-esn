@@ -238,7 +238,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       );
     };
   }])
-  .controller('communitiesController', ['$scope', '$log', 'session', 'communityAPI', 'userAPI', function($scope, $log, session, communityAPI, userAPI) {
+  .controller('communitiesController', ['$scope', '$log', '$location', 'session', 'communityAPI', 'userAPI', function($scope, $log, $location, session, communityAPI, userAPI) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;
@@ -303,6 +303,39 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       ).finally (
         function() {
           $scope.loading = false;
+        }
+      );
+    };
+
+    $scope.canJoin = function(community) {
+      if (!community) {
+        return false;
+      }
+      if (community.members.some(function(member) {
+        return member.user === session.user._id;
+      })) {
+        return false;
+      }
+      return (community.type === 'open');
+    };
+
+    $scope.join = function(community) {
+      if (!$scope.canJoin(community)) {
+        $log.error('Can not join the community');
+        return;
+      }
+
+      $scope.joining = community._id;
+      communityAPI.join(community._id, session.user._id).then(
+        function() {
+          $location.path('/communities/' + community._id);
+        },
+        function(err) {
+          $log.error('Error while joining community ' + community, err);
+        }
+      ).finally (
+        function() {
+          $scope.joining = 0;
         }
       );
     };
