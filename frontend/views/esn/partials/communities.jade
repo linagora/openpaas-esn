@@ -33,11 +33,11 @@
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
     p #{__('Error while loading communities !')}
   .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'all'", role="alert")
-    p #{__('There is no community yet. Create a new one with the following link : ')}
+    p #{__('There is no communities yet. Create a new one with the following link:')}
       a(ng-controller="communityCreateController", ng-click="showCreateModal()", href="") #{__('Create a community')}
   .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'membership'", role="alert")
     p #{__('You are not member of any community. Please join one first.')}
   .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'moderator'", role="alert")
-    p #{__('You are not moderator of any community yet. Create a new one with the following link : ')}
+    p #{__('You are not moderator of any community yet. Create a new one with the following link:')}
       a(ng-controller="communityCreateController", ng-click="showCreateModal()", href="") #{__('Create a community')}
   .vertiz-space
