@@ -13,17 +13,24 @@ describe('The authenticationtoken API', function() {
   beforeEach(function(done) {
     var self = this;
     this.mongoose = require('mongoose');
-    this.testEnv.initCore(function() {
-      User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      webserver = require(self.testEnv.basePath + '/backend/webserver');
 
-      user = new User({password: password, emails: [email]});
-      user.save(function(err, saved) {
-        if (err) {
-          return done(err);
-        }
-        user._id = saved._id;
-        return done();
+    this.testEnv.initRedisConfiguration(this.mongoose, function(err) {
+      if (err) {
+        return done(err);
+      }
+
+      self.testEnv.initCore(function() {
+        User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+        webserver = require(self.testEnv.basePath + '/backend/webserver');
+
+        user = new User({password: password, emails: [email]});
+        user.save(function (err, saved) {
+          if (err) {
+            return done(err);
+          }
+          user._id = saved._id;
+          return done();
+        });
       });
     });
   });
