@@ -13,7 +13,13 @@ function list(req, res) {
 }
 
 function create(req, res) {
-  var oauthclient = new OAuthClient(req.body);
+  if (!req.user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+  }
+  var oauthClientData = req.body;
+  oauthClientData.creator = req.user;
+
+  var oauthclient = new OAuthClient(oauthClientData);
   oauthclient.save(function(error, client) {
     if (error) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: error.details}});
