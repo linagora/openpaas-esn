@@ -316,6 +316,10 @@ body {
     padding-left: 10px;
     padding-top: 5px;
     margin: 0;
+    @media (min-width: 768px) {
+      position: absolute;
+      bottom: 0px;
+    }
     li {
       display: table-cell;
       position: relative;
@@ -347,16 +351,16 @@ body {
 }
 
 .conference-attendee-video-multi {
-  height: auto;
-  width: 130px;
+  width: auto;
+  max-height: 100px;
   @media (min-width: 768px) {
-    width: 140px;
+    max-height: 105px;
   }
   @media (min-width: 992px) {
-    width: 160px;
+    max-height: 120px;
   }
   @media (min-width: 1200px) {
-    width: 200px;
+    max-height: 150px;
   }
 }
 
