@@ -262,12 +262,11 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     }
 
     return function(context, video, width, height) {
-      (function tick() {
+      $window.setInterval(function() {
         requestAnimationFrame(function() {
           draw(context, video, width, height);
-          $rootScope.$apply(tick);
         });
-      })();
+      }, 40);
     };
   })
 
