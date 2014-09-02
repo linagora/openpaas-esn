@@ -1,18 +1,20 @@
-div.col-xs-12.nopadding.esn-member
-  .col-lg-2.col-sm-3.col-xs-4
+div.nopadding.esn-member
+
+  .col-md-2.col-xs-3.nopadding
     a(href='#/communities/{{community._id}}')
-      img.thumbnail(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
-    .text-center
-      span.label.label-default {{community.type}}
-  .col-lg-7.col-sm-5.col-xs-8
+      img.thumbnail.nopadding(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
+
+  .col-md-10.col-xs-9
     h4.media-heading
-      a(href='#/communities/{{community._id}}') {{community.title}}
+      a(href='#/communities/{{community._id}}')
+        strong {{community.title}} &nbsp;
+        small {{community.type}}
     ul.list-inline
       li.pull-left
-        span.label.label-primary {{community.members.length}} #{__('members')}
+        i.fa.fa-users
+        span {{community.members.length}} #{__('members')}
+      li.pull-right
+        a.btn.btn-primary.nomargin(href="#/communities/{{community._id}}")
+          span #{__('Join')}
       .clearfix
-    blockquote.hidden-xs.community-description(ng-show='community.description')
-      p {{community.description | characters:256 :false }}
-  .col-lg-3.col-sm-4.col-xs-12
-    a.btn.btn-primary(href="#/communities/{{community._id}}")
-      | #{__('More')}...
+    p.hidden-xs.community-description(ng-show='community.description') {{community.description | characters:256 :false }}

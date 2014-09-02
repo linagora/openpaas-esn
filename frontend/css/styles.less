@@ -109,6 +109,10 @@ body {
    margin: 0 !important;
 }
 
+.nomargin {
+  margin: 0 !important;
+}
+
 // Upload file
 // Hide the input type file
 
@@ -241,6 +245,22 @@ header.topbar {
     box-shadow: 0px -1px 0px 0px @esn-highlight;
     filter:progid:DXImageTransform.Microsoft.Shadow(color=@esn-highlight, Direction=90, Strength=0);
     background-color: @esn-highlight-dark;
+  }
+}
+
+.esn-communities-header {
+  font-size: 25px;
+  @media (min-width: @screen-sm-min) {
+    font-size: 30px;
+  }
+  button {
+    font-size: 19px;
+    @media (min-width: @screen-sm-min) {
+      font-size: 13px;
+    }
+    .fa {
+      margin-right: 0px;
+    }
   }
 }
 

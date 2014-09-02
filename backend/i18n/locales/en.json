@@ -89,7 +89,7 @@
   "Useful": "Useful",
   "Members": "Members",
   "Discussions": "Discussions",
-  "Create a new conference": "Create a new conference",
+  "Create a conference": "Create a conference",
   "Share": "Share",
   "%s has joined the conference": "%s has joined the conference",
   "%s has left the conference": "%s has left the conference",
@@ -125,10 +125,12 @@
   "Open community": "Open community",
   "Communities": "Communities",
   "Community": "Community",
-  "Create a new community": "Create a new community",
-  "Loading communities": "Loading communities",
-  "Error while loading communities": "Error while loading communities",
-  "No such communities": "No such communities",
+  "Create a community": "Create a community",
+  "Loading communities...": "Loading communities",
+  "Error while loading communities !": "Error while loading communities",
+  "There is no communities yet. Create a new one with the following link:": "There is no communities yet. Create a new one with the following link:",
+  "You are not member of any community. Please join one first.": "You are not member of any community. Please join one first.",
+  "You are not moderator of any community yet. Create a new one with the following link:": "You are not moderator of any community yet. Create a new one with the following link:",
   "All": "All",
   "Moderator": "Moderator",
   "Member": "Member",
@@ -166,5 +168,6 @@
   "There was an error while sending your feedback. Please try again.": "There was an error while sending your feedback. Please try again.",
   "Creator": "Creator",
   "More": "More",
-  "Conference": "Conference"
+  "Conference": "Conference",
+  "Join": "Join"
 }

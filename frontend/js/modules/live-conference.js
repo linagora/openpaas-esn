@@ -30,8 +30,6 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         'video-thumb8'
       ];
 
-      $scope.thumbclass = 'conference-video-multi';
-
       $scope.$on('$locationChangeStart', easyRTCService.leaveRoom(conference));
 
       $scope.getMainVideoAttendeeIndex = function(mainVideoId) {
