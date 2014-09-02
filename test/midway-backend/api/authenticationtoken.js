@@ -24,7 +24,7 @@ describe('The authenticationtoken API', function() {
         webserver = require(self.testEnv.basePath + '/backend/webserver');
 
         user = new User({password: password, emails: [email]});
-        user.save(function (err, saved) {
+        user.save(function(err, saved) {
           if (err) {
             return done(err);
           }
