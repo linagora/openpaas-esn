@@ -248,7 +248,7 @@ describe('The domain API', function() {
     });
   });
 
-  it('GET /api/domains/:uuid/members should return all the members matching the search terms', function(done) {
+  it.skip('GET /api/domains/:uuid/members should return all the members matching the search terms', function(done) {
     var self = this;
 
     self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
