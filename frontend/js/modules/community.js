@@ -356,6 +356,17 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       templateUrl: '/views/modules/community/community-description.html'
     };
   })
+  .directive('communityButtonJoin', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-button-join.html',
+      scope: {
+        join: '&',
+        show: '&',
+        disabled: '&'
+      }
+    };
+  })
   .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'community', function($scope, $location, $log, session, communityAPI, community) {
     $scope.community = community;
     $scope.error = false;
