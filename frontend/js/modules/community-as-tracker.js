@@ -2,7 +2,9 @@
 
 angular.module('esn.communityAStracker', [
   'restangular',
-  'esn.session'
+  'esn.session',
+  'esn.websocket',
+  'esn.activitystream'
 ])
   .factory('communityAStrackerAPI', ['Restangular', function(Restangular) {
     function getCommunityActivityStreams(uuid) {
@@ -108,13 +110,45 @@ angular.module('esn.communityAStracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$scope', '$log', 'communityAStrackerHelpers', function($scope, $log, communityAStrackerHelpers) {
-    communityAStrackerHelpers.getCommunityActivityStreamsWithUnreadCount(function(err, result) {
-      if (err) {
-        $scope.error = 'Error while get unread message: ' + err;
-        $log.error($scope.error, err);
-        return;
-      }
-      $scope.activityStreams = result;
-    });
-  }]);
+  ['$scope', '$log', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session', 'activitystreamAPI',
+    function($scope, $log, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session, activitystreamAPI) {
+      communityAStrackerHelpers.getCommunityActivityStreamsWithUnreadCount(function(err, result) {
+        if (err) {
+          $scope.error = 'Error while get unread message: ' + err;
+          $log.error($scope.error, err);
+          return;
+        }
+        $scope.activityStreams = result;
+
+        function liveNotificationHandler(data) {
+          var activityStreamUuid = data.target[0]._id;
+
+          if (data.actor._id === session.user._id) {
+            // Update the Timeline Entry Tracker
+            activitystreamAPI.get(activityStreamUuid).then(function(response) {
+            });
+          } else {
+            communityAStrackerAPI.getUnreadCount(activityStreamUuid).then(function(response) {
+              $scope.activityStreams.some(function(activityStream) {
+                if (activityStream.uuid === activityStreamUuid) {
+                  activityStream.unread_count = response.data.unread_count;
+                  return true;
+                }
+              });
+            });
+          }
+        }
+
+        var notifications = [];
+
+        result.forEach(function(element) {
+          notifications.push(livenotification('/activitystreams', element.uuid).on('notification', liveNotificationHandler));
+        });
+
+        $scope.$on('$destroy', function() {
+          notifications.forEach(function(notification) {
+            notification.removeListener('notification', liveNotificationHandler);
+          });
+        });
+      });
+    }]);
