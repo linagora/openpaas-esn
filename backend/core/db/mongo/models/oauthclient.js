@@ -1,7 +1,8 @@
 'use strict';
 
-var mongoose = require('mongoose'),
-    randomstring = require('randomstring');
+var mongoose = require('mongoose');
+var randomstring = require('randomstring');
+var Schema = mongoose.Schema;
 
 var OAuthClientSchema = new mongoose.Schema({
   name: { type: String, unique: true, required: true },
@@ -10,6 +11,7 @@ var OAuthClientSchema = new mongoose.Schema({
   redirectUri: { type: String },
   description: { type: String},
   created: { type: Date, default: Date.now },
+  creator: {type: Schema.ObjectId, ref: 'User'},
   schemaVersion: {type: Number, default: 1}
 });
 
