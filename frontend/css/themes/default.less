@@ -30,10 +30,12 @@
 
 @site-background: @grey;
 @header-background: @black;
-@widget-background: @light-grey;
 @inner-widget-background: #eeeeee;
 @button-standard-background: @yellow;
 @button-standard-boder-color: #ecc925;
+
+@widget-background: @light-grey;
+@widget-my-communities-color: #ebb251;
 
 // Site Rules
 // ----------
@@ -55,6 +57,7 @@ body {
 .widget {
   background: @widget-background;
   border: @defaultBorder;
+  padding-bottom: 10px;
   .ResizeImage(@defaultImageSizeMedium, auto);
   .RoundedShape();
   .ShadowedShape();
@@ -67,6 +70,34 @@ body {
   }
   legend {
     .ResizeImage(@defaultImageSizeBig, auto);
+  }
+  text-align: left;
+  .title {
+    padding: 10px 0px 0px 10px;
+  }
+  hr {
+    border: 1px solid @widget-my-communities-color;
+    margin: 10px;
+  }
+  ul li {
+    .ResizeImage(@defaultImageSizeTiny, auto);
+    img {
+      margin-right: 5px;
+    }
+    a {
+      padding: 0px 10px 0px 10px;
+      color: @defaultFontColor;
+    }
+    a:hover {
+      border-left: 2px solid @widget-my-communities-color;
+      border-radius: 0px;
+    }
+  }
+  .badge {
+    padding: 2px 4px;
+    margin-top: 4px;
+    color: @defaultFontColor;
+    background-color: @yellow;
   }
 }
 
