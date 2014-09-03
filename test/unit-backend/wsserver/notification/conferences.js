@@ -73,7 +73,7 @@ describe('The conferences notification WS module', function() {
             'in': function() {
               return {
                 emit: function(evt, msg) {
-                  expect(msg.message).to.contain('John Doe');
+                  expect(msg.data.message).to.contain('John Doe');
                   done();
                 }
               };
@@ -94,7 +94,7 @@ describe('The conferences notification WS module', function() {
             'in': function() {
               return {
                 emit: function(evt, msg) {
-                  expect(msg.message).to.contain('John Doe');
+                  expect(msg.data.message).to.contain('John Doe');
                   done();
                 }
               };

@@ -68,7 +68,7 @@ describe('The esn.activitystream Angular module', function() {
     }));
 
     it('should be a function', function() {
-      expect(this.agg).to.be.a.function;
+      expect(this.agg).to.be.a('function');
     });
 
     it('should return an object having a endOfStream property', function() {
@@ -120,12 +120,12 @@ describe('The esn.activitystream Angular module', function() {
     }));
 
     it('should be a function', function() {
-      expect(this.decorator).to.be.a.function;
+      expect(this.decorator).to.be.a('function');
     });
 
     it('should return a function', function() {
       var instance = this.decorator(function() {});
-      expect(instance).to.be.a.function;
+      expect(instance).to.be.a('function');
     });
 
     it('should forward any error', function(done) {
@@ -284,7 +284,7 @@ describe('The esn.activitystream Angular module', function() {
     }));
 
     it('should be a function', function() {
-      expect(this.filter).to.be.a.function;
+      expect(this.filter).to.be.a('function');
     });
 
     it('should return an object with filter, addToSentList and addToRemovedList methods', function() {
@@ -653,7 +653,7 @@ describe('The esn.activitystream Angular module', function() {
         $provide.value('restcursor', self.restcursor);
       });
       inject(function(activityStreamUpdates) {
-        expect(activityStreamUpdates).to.be.a.function;
+        expect(activityStreamUpdates).to.be.a('function');
       });
     });
 
@@ -661,7 +661,7 @@ describe('The esn.activitystream Angular module', function() {
       var self = this;
       this.restcursor = function() {
         expect(arguments).to.have.length(3);
-        expect(arguments[0]).to.be.a.function;
+        expect(arguments[0]).to.be.a('function');
         expect(arguments[1]).to.be.an.object;
         done();
         return {
@@ -996,19 +996,139 @@ describe('The esn.activitystream Angular module', function() {
 
   });
 
+  describe('activitystreamNotification directive', function() {
+    var callbackOnWeakInfo;
+    var callbackOnNotification;
+
+    var sessionId = '12345';
+
+    beforeEach(function() {
+      module('jadeTemplates');
+
+      var asMoment = function() {
+        return {
+          fromNow: function() {}
+        };
+      };
+
+      var asSession = {
+        user: {
+          _id: sessionId
+        }
+      };
+
+      var asNotificationFactory = {
+        weakInfo: function(title, text) {
+          callbackOnWeakInfo(title, text);
+        }
+      };
+
+      var asSocket = function() {
+        return {
+          emit: function() {},
+          on: function(event, callback) {
+            callbackOnNotification = callback;
+          },
+          removeListener: function() {}
+        };
+      };
+
+      angular.mock.module('esn.activitystream');
+      angular.mock.module('esn.websocket');
+      angular.mock.module('esn.notification');
+      angular.mock.module(function($provide) {
+        $provide.value('moment', asMoment);
+        $provide.value('session', asSession);
+        $provide.value('notificationFactory', asNotificationFactory);
+        $provide.value('socket', asSocket);
+      });
+    });
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+      this.$scope = this.$rootScope.$new();
+    }]));
+
+    afterEach(function() {
+      callbackOnWeakInfo = null;
+      callbackOnNotification = null;
+    });
+
+    it('should call the method "notificationFactory.weakInfo(title, text)"', function(done) {
+      callbackOnWeakInfo = function(title, text) {
+        expect(title).to.exist;
+        expect(text).to.exist;
+        done();
+      };
+
+      var html = '<activity-stream-notification activitystream-uuid="0987654321"></activity-stream-notification>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      expect(callbackOnNotification).to.be.a('function');
+      var msg = {
+        actor: {
+          _id: '123',
+          displayName: ''
+        },
+        published: ''
+      };
+      callbackOnNotification({room: '0987654321', data: msg});
+    });
+
+    it('should not call the method "notificationFactory.weakInfo(title, text)" ' +
+      'if the actor._id is equal to session.user._id', function(done) {
+      callbackOnWeakInfo = function() {
+        done(new Error('Should not pass here'));
+      };
+
+      var html = '<activity-stream-notification activitystream-uuid="0987654321"></activity-stream-notification>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      expect(callbackOnNotification).to.be.a('function');
+      var msg = {
+        actor: {
+          _id: sessionId,
+          displayName: ''
+        },
+        published: ''
+      };
+      callbackOnNotification({room: '0987654321', data: msg});
+      // Wait to see if the callback is called
+      setTimeout(function() {
+        done();
+      }, 100);
+    });
+
+    it('should not call the method "notificationFactory.weakInfo(title, text)" ' +
+      'if the room and activity stream uuid is different', function(done) {
+      callbackOnWeakInfo = function() {
+        done(new Error('Should not pass here'));
+      };
+
+      var html = '<activity-stream-notification activitystream-uuid="0987654321"></activity-stream-notification>';
+      this.$compile(html)(this.$scope);
+      this.$rootScope.$digest();
+      expect(callbackOnNotification).to.be.a('function');
+      var msg = {
+        actor: {
+          _id: '123',
+          displayName: ''
+        },
+        published: ''
+      };
+      callbackOnNotification({room: '098765', data: msg});
+      // Wait to see if the callback is called
+      setTimeout(function() {
+        done();
+      }, 100);
+    });
+  });
+
   describe('activitystream directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(function() {
-      var livenotification = {
-        of: function() { return this; },
-        subscribe: function() { return this; },
-        onNotification: function() {}
-      };
       module('jadeTemplates');
       angular.mock.module('esn.activitystream');
-      angular.mock.module(function($provide) {
-        $provide.value('livenotification', livenotification);
-      });
     });
     beforeEach(inject(['$compile', '$rootScope', '$timeout', '$httpBackend', 'Restangular', function($c, $r, $t, $h, R) {
       this.$compile = $c;

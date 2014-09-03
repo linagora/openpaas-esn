@@ -14,7 +14,8 @@ angular.module('liveConferenceApp', [
   'esn.easyrtc',
   'esn.conference',
   'esn.authentication',
-  'esn.live-conference'
+  'esn.live-conference',
+  'esn.conference-notification'
 ]).config(function($routeProvider, RestangularProvider) {
 
   $routeProvider.when('/', {

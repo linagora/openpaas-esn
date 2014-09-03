@@ -1,8 +1,3 @@
 div(ng-controller='currentDomainController')
-  activity-stream(activitystream-uuid='{{domain.activity_stream.uuid}}')
-  info-notification
-    activitystream-notification(room='{{domain.activity_stream.uuid}}', updates='updates')
-  top-right-notification
-    notification-api-notification
-  confirm-notification
-    conference-notification
+    activity-stream(activitystream-uuid='{{domain.activity_stream.uuid}}')
+    activity-stream-notification(activitystream-uuid='{{domain.activity_stream.uuid}}')
