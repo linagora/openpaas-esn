@@ -33,7 +33,7 @@ angular.module('esn.conference-notification', ['esn.websocket', 'esn.session', '
               return;
             }
             $timeout(function() {
-              $window.open('/conferences/' + msg.conference_id);
+              $window.open('/conferences/' + msg.conference_id, 'Conference', 'menubar=no,location=no,resizable=yes,scrollbar=no,status=no');
             }, 0);
           }
 

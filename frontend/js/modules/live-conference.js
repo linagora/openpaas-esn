@@ -302,7 +302,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
               return;
             }
             $timeout(function() {
-              $window.open('/conferences/' + msg.conference_id);
+              $window.open('/conferences/' + msg.conference_id, 'Conference', 'menubar=no,location=no,resizable=yes,scrollbar=no,status=no');
             }, 0);
           }
 
