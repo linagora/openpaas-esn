@@ -141,7 +141,6 @@
   "Next": "Next",
   "Create": "Create",
   "A human readable description which will help users know what this community is about": "A human readable description which will help users know what this community is about",
-  "Community title. Have to be unique in the current domain": "Community title. Have to be unique in the current domain",
   "Choose the best policy dependending on the community usage": "Choose the best policy dependending on the community usage",
   "Creating the": "Creating the",
   "Creating the community": "Creating the community",
@@ -172,5 +171,5 @@
   "Conference": "Conference",
   "Join": "Join",
   "My communities": "My communities",
-  "Validate picture": "Validate picture"
+  "Accept picture": "Accept picture"
 }
