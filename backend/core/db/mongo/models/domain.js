@@ -2,7 +2,6 @@
 
 var mongoose = require('mongoose');
 var trim = require('trim');
-var uuid = require('node-uuid');
 var Schema = mongoose.Schema;
 
 var DomainSchema = new Schema({
@@ -12,21 +11,7 @@ var DomainSchema = new Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
-  activity_stream: {
-    uuid: {type: String},
-    timestamps: {
-      creation: {type: Date, default: Date.now}
-    }
-  },
   schemaVersion: {type: Number, default: 1}
-});
-
-DomainSchema.pre('save', function(next) {
-  this.activity_stream = this.activity_stream || {};
-  if (!this.activity_stream.uuid) {
-    this.activity_stream.uuid = uuid.v4();
-  }
-  next();
 });
 
 DomainSchema.statics = {
@@ -68,20 +53,8 @@ DomainSchema.statics = {
       return cb(new Error('ID can not be null'));
     }
     this.findOne({_id: id}, cb);
-  },
-
-  /**
-   * Find a domain with the given activity stream uuid.
-   *
-   * @param {String} id
-   * @param {Function} cb
-   */
-  getFromActivityStreamID: function(id, cb) {
-    if (!id) {
-      return cb(new Error('Activity stream id can not be null'));
-    }
-    this.findOne({'activity_stream.uuid': id}).exec(cb);
   }
+
 };
 
 module.exports = mongoose.model('Domain', DomainSchema);

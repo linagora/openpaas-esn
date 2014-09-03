@@ -135,6 +135,17 @@ before(function() {
         });
       });
     },
+
+    createCommunity: function(title, creator, domain, done) {
+      var Community = require('mongoose').model('Community');
+      var json = {
+        title: title,
+        creator: creator._id || creator,
+        domain_ids: [domain._id || domain]
+      };
+      var community = new Community(json);
+      return community.save(done);
+    },
     /*
      * returns a function that adds authentication bits
      * for "email" user to the request.

@@ -36,7 +36,7 @@ describe('The activitystreams routes', function() {
     });
 
     describe('Activity Stream tests', function() {
-      var Domain, User, TimelineEntry;
+      var Domain, User, TimelineEntry, Community;
       var activitystreamId, savedTimelineEntry;
       var email = 'foo@bar.com';
 
@@ -44,6 +44,7 @@ describe('The activitystreams routes', function() {
         Domain = this.mongoose.model('Domain');
         User = this.mongoose.model('User');
         TimelineEntry = this.mongoose.model('TimelineEntry');
+        Community = this.mongoose.model('Community');
 
         var user = new User({
           username: 'Foo',
@@ -55,35 +56,55 @@ describe('The activitystreams routes', function() {
           company_name: 'Corporate',
           administrator: user
         };
+        var communityJSON = {
+          title: 'Node'
+        };
         var domain = new Domain(domainJSON);
 
         user.save(function(err, u) {
           if (err) {
-            done(err);
+            return done(err);
           }
           else {
             domain.save(function(err, d) {
               if (err) {
-                done(err);
+                return done(err);
               }
-              activitystreamId = d.activity_stream.uuid;
-              var timelinentryJSON = {
-                actor: {
-                  objectType: 'user',
-                  _id: u._id
-                },
-                object: {
-                  _id: u._id
-                },
-                target: [{objectType: 'activitystream', _id: activitystreamId}]
-              };
-              var timelineEntry = new TimelineEntry(timelinentryJSON);
-              timelineEntry.save(function(err, saved) {
+
+              communityJSON.domain_ids = [d._id];
+              communityJSON.creator = u._id;
+              communityJSON.members = [
+                {user: u._id}
+              ];
+
+              var community = new Community(communityJSON);
+
+              community.save(function(err, c) {
                 if (err) {
-                  done(err);
+                  return done(err);
                 }
-                savedTimelineEntry = saved;
-                done();
+
+                activitystreamId = c.activity_stream.uuid;
+                var timelinentryJSON = {
+                  actor: {
+                    objectType: 'user',
+                    _id: u._id
+                  },
+                  object: {
+                    _id: u._id
+                  },
+                  target: [
+                    {objectType: 'activitystream', _id: activitystreamId}
+                  ]
+                };
+                var timelineEntry = new TimelineEntry(timelinentryJSON);
+                timelineEntry.save(function(err, saved) {
+                  if (err) {
+                    done(err);
+                  }
+                  savedTimelineEntry = saved;
+                  done();
+                });
               });
             });
           }
@@ -195,14 +216,24 @@ describe('The activitystreams routes', function() {
     describe('Tracker tests', function() {
       var domain;
       var user;
+      var activitystreamId;
 
       beforeEach(function(done) {
+        var self = this;
+
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           if (err) { done(err); }
 
           domain = models.domain;
           user = models.users[0];
-          done();
+
+          self.helpers.api.createCommunity('Node', user, domain, function(err, saved) {
+            if (err) {
+              return done(err);
+            }
+            activitystreamId = saved.activity_stream.uuid;
+            done();
+          });
         });
       });
 
@@ -218,12 +249,12 @@ describe('The activitystreams routes', function() {
       it('should return 0 unread timeline entries when get the number for the first time', function(done) {
         this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
           var req = loggedInAsUser(request(webserver.application).get(
-              '/api/activitystreams/' + domain.activity_stream.uuid + '/unreadcount'));
+              '/api/activitystreams/' + activitystreamId + '/unreadcount'));
           req.expect(200);
           req.end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
-            expect(res.body._id).to.deep.equal(domain.activity_stream.uuid);
+            expect(res.body._id).to.deep.equal(activitystreamId);
             expect(res.body.unread_count).to.deep.equal(0);
             done();
           });
@@ -236,27 +267,27 @@ describe('The activitystreams routes', function() {
         // Login
         this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
           // Add one Timeline Entry
-          self.helpers.api.applyMultipleTimelineEntries(domain.activity_stream.uuid, 1, 'post', function(err, models) {
+          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err, models) {
             if (err) { done(err); }
 
             // Get the Activity Stream (will update the last unread Timeline Entry)
-            var req = loggedInAsUser(request(webserver.application).get('/api/activitystreams/' + domain.activity_stream.uuid));
+            var req = loggedInAsUser(request(webserver.application).get('/api/activitystreams/' + activitystreamId));
             req.expect(200);
             req.end(function(err, res) {
               if (err) { done(err); }
 
               // Add 3 new Timeline Entries
-              self.helpers.api.applyMultipleTimelineEntries(domain.activity_stream.uuid, 3, 'post', function(err, models) {
+              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
                 if (err) { done(err); }
 
                 // Get the number of unread Timeline Entries
                 req = loggedInAsUser(request(webserver.application).get(
-                    '/api/activitystreams/' + domain.activity_stream.uuid + '/unreadcount'));
+                    '/api/activitystreams/' + activitystreamId + '/unreadcount'));
                 req.expect(200);
                 req.end(function(err, res) {
                   expect(err).to.not.exist;
                   expect(res.body).to.exist;
-                  expect(res.body._id).to.deep.equal(domain.activity_stream.uuid);
+                  expect(res.body._id).to.deep.equal(activitystreamId);
                   expect(res.body.unread_count).to.deep.equal(3);
                   done();
                 });
@@ -272,6 +303,7 @@ describe('The activitystreams routes', function() {
     var user;
     var domain;
     var tracker;
+    var activitystreamId;
 
     beforeEach(function(done) {
       tracker = {
@@ -291,7 +323,14 @@ describe('The activitystreams routes', function() {
 
           domain = models.domain;
           user = models.users[0];
-          done();
+
+          self.helpers.api.createCommunity('Node', user, domain, function(err, saved) {
+            if (err) {
+              return done(err);
+            }
+            activitystreamId = saved.activity_stream.uuid;
+            done();
+          });
         });
       });
     });
@@ -299,7 +338,7 @@ describe('The activitystreams routes', function() {
     it('should return 500 if server error', function(done) {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         var req = loggedInAsUser(request(webserver.application).get(
-            '/api/activitystreams/' + domain.activity_stream.uuid + '/unreadcount'));
+            '/api/activitystreams/' + activitystreamId + '/unreadcount'));
         req.expect(500);
         req.end(function(err, res) {
           expect(err).to.not.exist;

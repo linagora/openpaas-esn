@@ -121,7 +121,7 @@ describe('The messages API', function() {
   it('should not be able to post a whatsup message when message is not well formed', function(done) {
     var target = {
       objectType: 'activitystream',
-      id: domain.activity_stream.uuid
+      id: community.activity_stream.uuid
     };
 
     request(app)
@@ -184,7 +184,7 @@ describe('The messages API', function() {
     };
     var target = {
       objectType: 'activitystream',
-      id: domain.activity_stream.uuid
+      id: community.activity_stream.uuid
     };
     request(app)
       .post('/api/login')
@@ -213,7 +213,7 @@ describe('The messages API', function() {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: domain.activity_stream.uuid
+      id: community.activity_stream.uuid
     };
     request(app)
       .post('/api/login')
@@ -244,7 +244,7 @@ describe('The messages API', function() {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
-      id: domain.activity_stream.uuid
+      id: community.activity_stream.uuid
     };
     var TimelineEntry = this.mongoose.model('TimelineEntry');
 
@@ -278,7 +278,7 @@ describe('The messages API', function() {
                 expect(results[0].target).to.exist;
                 expect(results[0].target.length).to.equal(1);
                 expect(results[0].target[0].objectType).to.equal('activitystream');
-                expect(results[0].target[0]._id).to.equal(domain.activity_stream.uuid);
+                expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
                 expect(results[0].object).to.exist;
                 expect(results[0].object.objectType).to.equal('whatsup');
                 expect(results[0].object._id + '').to.equal(res.body._id);
@@ -295,7 +295,7 @@ describe('The messages API', function() {
   it('should be able to post a comment to a whatsup message', function(done) {
     var target = {
       objectType: 'activitystream',
-      id: domain.activity_stream.uuid
+      id: community.activity_stream.uuid
     };
     var cookies = {};
     request(app)

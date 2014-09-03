@@ -38,44 +38,6 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should send back streams from user domains', function(done) {
-      var domains = [
-        {
-          _id: 111,
-          name: 'domainA',
-          activity_stream: {
-            uuid: 222
-          }
-        },
-        {
-          _id: 333,
-          name: 'domainB',
-          activity_stream: {
-            uuid: 444
-          }
-        }
-      ];
-      mockery.registerMock('mongoose', {model: function() {}});
-      mockery.registerMock('../user/domain', {
-        getUserDomains: function(user, cb) {
-          return cb(null, domains);
-        }
-      });
-      mockery.registerMock('../community', {
-        getUserCommunities: function(user, cb) {
-          return cb();
-        }
-      });
-
-      var module = require(this.testEnv.basePath + '/backend/core/activitystreams/index');
-      module.getUserStreams({_id: 123}, function(err, result) {
-        expect(err).to.not.exist;
-        expect(result).to.exist;
-        expect(result.length).to.equal(2);
-        done();
-      });
-    });
-
     it('should send back streams from user communities', function(done) {
       var communities = [
         {
@@ -114,7 +76,7 @@ describe('The activity streams core module', function() {
       });
     });
 
-    it('should send back streams from domain and communities', function(done) {
+    it('should send back streams from communities', function(done) {
       var communities = [
         {
           _id: 111,
@@ -131,28 +93,7 @@ describe('The activity streams core module', function() {
           }
         }
       ];
-      var domains = [
-        {
-          _id: 111,
-          name: 'domainA',
-          activity_stream: {
-            uuid: 222
-          }
-        },
-        {
-          _id: 333,
-          name: 'domainB',
-          activity_stream: {
-            uuid: 444
-          }
-        }
-      ];
       mockery.registerMock('mongoose', {model: function() {}});
-      mockery.registerMock('../user/domain', {
-        getUserDomains: function(user, cb) {
-          return cb(null, domains);
-        }
-      });
       mockery.registerMock('../community', {
         getUserCommunities: function(user, cb) {
           return cb(null, communities);
@@ -163,7 +104,7 @@ describe('The activity streams core module', function() {
       module.getUserStreams({_id: 123}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
-        expect(result.length).to.equal(4);
+        expect(result.length).to.equal(2);
         done();
       });
     });
