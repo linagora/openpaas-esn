@@ -14,9 +14,7 @@ div.nopadding.esn-member
         i.fa.fa-users
         span {{community.members.length}} #{__('members')}
       li.pull-right
-        a.btn.btn-primary.nomargin(href="#/communities/{{community._id}}")
-          span #{__('Join')}
+        community-button-join(on-click='join(community)', show='canJoin(community)', disabled='joining === community._id')
       .clearfix
     p.hidden-xs.community-description(ng-show='community.description') {{community.description | characters:256 :false }}
   .col-lg-3.col-sm-4.col-xs-12
-    community-button-join(join='join(community)', show='canJoin(community)', disabled='joining === community._id')

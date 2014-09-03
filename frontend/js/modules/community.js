@@ -361,7 +361,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-join.html',
       scope: {
-        join: '&',
+        onClick: '&',
         show: '&',
         disabled: '&'
       }
