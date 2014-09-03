@@ -141,7 +141,7 @@
   "Next": "Next",
   "Create": "Create",
   "A human readable description which will help users know what this community is about": "A human readable description which will help users know what this community is about",
-  "About to create the": "About to create the",
+  "Choose the best policy dependending on the community usage": "Choose the best policy dependending on the community usage",
   "Creating the": "Creating the",
   "Creating the community": "Creating the community",
   "Uploading avatar": "Uploading avatar",
@@ -170,5 +170,6 @@
   "More": "More",
   "Conference": "Conference",
   "Join": "Join",
-  "My communities": "My communities"
+  "My communities": "My communities",
+  "Accept picture": "Accept picture"
 }
