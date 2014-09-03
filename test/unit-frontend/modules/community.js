@@ -208,6 +208,7 @@ describe('The Community Angular module', function() {
       this.alert = function() {};
       this.session = {domain: {_id: 123}};
       this.scope = $rootScope.$new();
+      this.scope.createStatus = {};
       this.$q = $q;
       this.$upload = {};
       this.selectionService = selectionService;
