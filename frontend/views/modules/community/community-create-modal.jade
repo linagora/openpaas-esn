@@ -22,11 +22,12 @@
         form(name='communityForm', ng-hide="sending")
           .form-group
             #communityerror
-          .form-group(ng-show="step === 0", ng-class='{"has-error": communityForm.title.$error.unique || !validateTitle()}')
+          .form-group.has-feedback(ng-show="step === 0", ng-class='{"has-error": communityForm.title.$error.unique || validationError}')
             label #{__('The community title')}&nbsp;*
-            input.form-control(type='text', ng-change="validateTitle()", ng-model='community.title', id="title", name='title', autofocus=true, required, ensure-unique-community-title, esn-track-first-blur)
-            span.help-block(ng-hide='communityForm.title.$error.unique && !communityForm.title.$error.ajax') #{__('The community title has to be unique in the current domain.')}
+            input.form-control(type='text', ng-change='onInputChange()', ng-model='community.title', id="title", name='title', autofocus=true, required, ensure-unique-community-title, esn-track-first-blur)
+            span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='communityForm.title.$error.ajax')
             span.help-block(ng-show='communityForm.title.$error.unique && !communityForm.title.$error.ajax') #{__('This community title already exists. Please choose another one.')}
+            span.help-block(ng-show='validationError') {{ validationError }}
           .form-group(ng-show="step === 0")
             fieldset
               label #{__('Visiblity')}&nbsp;
@@ -92,8 +93,8 @@
         button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="backToStep0()")
           i.fa.fa-chevron-left
           | #{__('Previous')}
-        button.btn.btn-info(type="button", ng-disabled="!validateTitle() || communityForm.title.$error.unique", ng-show="step === 0", ng-click="validateStep0()")
+        button.btn.btn-secondary-dark(type="button", ng-disabled="emptyTitle() || communityForm.title.$error.unique || communityForm.title.$error.ajax || validationError", ng-show="step === 0", ng-click="validateStep0()")
           | #{__('Next')} &nbsp;
           i.fa.fa-chevron-right
-        button.btn.btn-primary(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="create(community)") #{__('Create')}
+        button.btn.btn-secondary-dark(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="create(community)") #{__('Create')}
         button.btn.btn-default(type="button", ng-disabled="sending", ng-click="$hide()") #{__('Cancel')}
