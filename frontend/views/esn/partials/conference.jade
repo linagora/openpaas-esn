@@ -1,10 +1,16 @@
-.col-xs-12.widget.nopadding(invitation-conference-notification)
+.col-xs-12.widget(invitation-conference-notification)
   .row
-    .col-xs-12
-      h2
-        i.fa.fa-comments-o
-        | #{__('Conferences')}
-      div.well.text-center
-        button.btn.btn-primary(type='submit', ng-click='create()') #{__('Create a conference')}
-      .row(ng-repeat="conference in conferences")
-        conference-display(conference="conference")
+    h2.esn-conferences-header
+      ul.list-inline
+        li
+          i.fa.fa-video-camera
+          | #{__('Conferences')}
+        li.pull-right
+          div
+            button.btn.btn-primary(type="button", ng-click="create()")
+              i.fa.fa-plus.hidden-sm.hidden-md.hidden-lg
+              span.hidden-xs #{__('Create a conference')}
+  .vertiz-space
+
+  .row(ng-repeat="conference in conferences")
+    conference-display(conference="conference")
