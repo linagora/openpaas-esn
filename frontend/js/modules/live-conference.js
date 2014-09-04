@@ -262,12 +262,11 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     }
 
     return function(context, video, width, height) {
-      (function tick() {
+      $window.setInterval(function() {
         requestAnimationFrame(function() {
           draw(context, video, width, height);
-          $rootScope.$apply(tick);
         });
-      })();
+      }, 40);
     };
   })
 
@@ -303,7 +302,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
               return;
             }
             $timeout(function() {
-              $window.open('/conferences/' + msg.conference_id);
+              $window.open('/conferences/' + msg.conference_id, 'Conference', 'menubar=no,location=no,resizable=yes,scrollbar=no,status=no');
             }, 0);
           }
 

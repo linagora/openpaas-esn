@@ -7,7 +7,7 @@ angular.module('esn.conference', ['restangular'])
 
     $scope.create = function() {
       conferenceAPI.create().then(function(response) {
-        $window.open('/conferences/' + response.data._id);
+        $window.open('/conferences/' + response.data._id, 'Conference', 'menubar=no,location=no,resizable=yes,scrollbar=no,status=no');
       }, function() {
         $location.path('/');
       });
@@ -19,7 +19,7 @@ angular.module('esn.conference', ['restangular'])
       }
       var id = conference._id || conference;
       $timeout(function() {
-        $window.open('/conferences/' + id);
+        $window.open('/conferences/' + id, 'Conference', 'menubar=no,location=no,resizable=yes,scrollbar=no,status=no');
       }, 0);
     };
   }])
