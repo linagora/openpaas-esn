@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.communityAStracker', [
+angular.module('esn.community-as-tracker', [
   'restangular',
   'esn.session',
   'esn.websocket',
@@ -110,31 +110,31 @@ angular.module('esn.communityAStracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$scope', '$log', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session', 'activitystreamAPI',
-    function($scope, $log, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session, activitystreamAPI) {
+  ['$rootScope', '$scope', '$log', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session', 'activitystreamAPI',
+    function($rootScope, $scope, $log, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session, activitystreamAPI) {
       communityAStrackerHelpers.getCommunityActivityStreamsWithUnreadCount(function(err, result) {
         if (err) {
-          $scope.error = 'Error while get unread message: ' + err;
+          $scope.error = 'Error while getting unread message: ' + err;
           $log.error($scope.error, err);
           return;
         }
         $scope.activityStreams = result;
 
+        function updateUnread(activityStreamUuid, count) {
+          $scope.activityStreams.some(function(activityStream) {
+            if (activityStream.uuid === activityStreamUuid) {
+              activityStream.unread_count = count;
+              return true;
+            }
+          });
+        }
+
         function liveNotificationHandler(data) {
           var activityStreamUuid = data.target[0]._id;
 
-          if (data.actor._id === session.user._id) {
-            // Update the Timeline Entry Tracker
-            activitystreamAPI.get(activityStreamUuid).then(function(response) {
-            });
-          } else {
+          if (data.actor._id !== session.user._id) {
             communityAStrackerAPI.getUnreadCount(activityStreamUuid).then(function(response) {
-              $scope.activityStreams.some(function(activityStream) {
-                if (activityStream.uuid === activityStreamUuid) {
-                  activityStream.unread_count = response.data.unread_count;
-                  return true;
-                }
-              });
+              updateUnread(activityStreamUuid, response.data.unread_count);
             });
           }
         }
@@ -150,5 +150,17 @@ angular.module('esn.communityAStracker', [
             notification.removeListener('notification', liveNotificationHandler);
           });
         });
+
+        $rootScope.$on('activitystream:updated', function(evt, data) {
+          if (data && data.activitystreamUuid) {
+            communityAStrackerAPI.getUnreadCount(data.activitystreamUuid).then(
+              function(response) {
+                updateUnread(data.activitystreamUuid, response.data.unread_count);
+              }
+            );
+          }
+        });
       });
-    }]);
+    }
+  ]
+);

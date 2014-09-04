@@ -1,3 +1,2 @@
 .bg-info.updates-notifier.transparent.text-center(ng-class="{opaque: updates.length}")
-  span {{updates.length}} updates to this activity stream.
-    a(ng-click="getStreamUpdates()" href="javascript:undefined") Update stream.
+  a(ng-click="getStreamUpdates()" href="javascript:undefined") Show {{updates.length}} new messages

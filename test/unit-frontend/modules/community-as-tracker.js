@@ -4,11 +4,11 @@
 
 var expect = chai.expect;
 
-describe('The esn.communityAStracker Angular module', function() {
+describe('The esn.community-as-tracker Angular module', function() {
   var domainId = '12345';
 
   beforeEach(function() {
-    angular.mock.module('esn.communityAStracker');
+    angular.mock.module('esn.community-as-tracker');
     angular.mock.module(function($provide) {
       $provide.value('session', {
         domain: {
@@ -137,7 +137,7 @@ describe('The esn.communityAStracker Angular module', function() {
     beforeEach(angular.mock.inject(function($rootScope, $controller) {
       this.activityStreamUuid1 = '12345678';
       this.activityStreamUuid2 = '123456789';
-
+      this.rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.controller = $controller;
     }));
@@ -181,9 +181,17 @@ describe('The esn.communityAStracker Angular module', function() {
         }
       };
 
+      var livenotification = function() {
+        return {
+          on: function() {}
+        };
+      };
+
       this.controller('communityAStrackerController', {
+        $rootScope: this.rootScope,
         $scope: this.scope,
-        communityAStrackerHelpers: communityAStrackerHelpers
+        communityAStrackerHelpers: communityAStrackerHelpers,
+        livenotification: livenotification
       });
 
       expect(this.scope.activityStreams).to.exist;
