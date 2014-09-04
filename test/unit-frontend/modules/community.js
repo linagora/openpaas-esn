@@ -304,22 +304,22 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
 
-    describe('validateTitle method', function() {
-      it('should not validate undefined title', function(done) {
+    describe('emptyTitle method', function() {
+      it('should return true for undefined title', function(done) {
         this.scope.community = {};
-        expect(this.scope.validateTitle()).to.be.false;
+        expect(this.scope.emptyTitle()).to.be.true;
         done();
       });
 
-      it('should not validate empty title', function(done) {
+      it('should return true for empty title', function(done) {
         this.scope.community = {title: ''};
-        expect(this.scope.validateTitle()).to.be.false;
+        expect(this.scope.emptyTitle()).to.be.true;
         done();
       });
 
-      it('should validate a correct title', function(done) {
+      it('should return false for a non empty title', function(done) {
         this.scope.community = {title: 'node.js'};
-        expect(this.scope.validateTitle()).to.be.true;
+        expect(this.scope.emptyTitle()).to.be.false;
         done();
       });
     });
@@ -347,7 +347,7 @@ describe('The Community Angular module', function() {
         this.scope.validateStep0();
       });
 
-      it('should display an error if communityAPI.list call fails', function(done) {
+      it('should set an error if communityAPI.list call fails', function() {
         this.scope.community = {title: 'node.js'};
         this.communityAPI.list = function() {
           return {
@@ -356,14 +356,12 @@ describe('The Community Angular module', function() {
             }
           };
         };
-        this.scope.displayError = function() {
-          done();
-        };
         this.scope.titleValidationRunning = false;
         this.scope.validateStep0();
+        expect(this.scope.validationError).to.exist;
       });
 
-      it('should display an error if communityAPI.list return non empty result', function(done) {
+      it('should display an error if communityAPI.list return non empty result', function() {
         this.scope.community = {title: 'node.js'};
         this.communityAPI.list = function() {
           return {
@@ -375,11 +373,9 @@ describe('The Community Angular module', function() {
             }
           };
         };
-        this.scope.displayError = function() {
-          done();
-        };
         this.scope.titleValidationRunning = false;
         this.scope.validateStep0();
+        expect(this.scope.validationError).to.exist;
       });
 
       it('should move to wizard step 1 if communityAPI.list return an empty result', function() {
@@ -891,6 +887,19 @@ describe('The Community Angular module', function() {
 
   describe('ensureUniqueCommunityTitle directive', function() {
     var html = '<form name="form"><input type="text" name="communityTitle" ng-model="title" ensure-unique-community-title></form>';
+
+    beforeEach(function() {
+      var timeoutMock = function(callback, delay) {
+        expect(delay).to.exist;
+        expect(delay).to.equal(1000);
+        callback();
+      };
+
+      angular.mock.module(function($provide) {
+        $provide.value('$timeout', timeoutMock);
+      });
+    });
+
     beforeEach(inject(['$compile', '$rootScope', '$httpBackend', 'Restangular', function($c, $r, $h, Restangular) {
       this.$compile = $c;
       this.$rootScope = $r;
@@ -915,7 +924,7 @@ describe('The Community Angular module', function() {
       expect(scope.form.communityTitle.$error.ajax).to.be.true;
     });
 
-    it('should call the companyAPI get() method', function() {
+    it('should call the companyAPI get() method after a one second delay', function() {
       this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
