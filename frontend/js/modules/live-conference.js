@@ -216,12 +216,17 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       easyrtc.enableCamera(videoMuted);
     }
 
+    function enableVideo(videoMuted) {
+      easyrtc.enableVideo(videoMuted);
+    }
+
     return {
       leaveRoom: leaveRoom,
       performCall: performCall,
       connect: connect,
       enableMicrophone: enableMicrophone,
-      enableCamera: enableCamera
+      enableCamera: enableCamera,
+      enableVideo: enableVideo
     };
   }])
 
@@ -434,6 +439,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
 
         $scope.toggleCamera = function() {
           easyRTCService.enableCamera($scope.videoMuted);
+          easyRTCService.enableVideo($scope.videoMuted);
           $scope.videoMuted = !$scope.videoMuted;
         };
 
