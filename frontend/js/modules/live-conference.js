@@ -255,23 +255,29 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     };
   })
 
-  .factory('drawVideo', function($rootScope, $window) {
+  .factory('drawVideo', function($rootScope, $window, $interval) {
     var requestAnimationFrame =
       $window.requestAnimationFrame ||
       $window.mozRequestAnimationFrame ||
       $window.msRequestAnimationFrame ||
       $window.webkitRequestAnimationFrame;
 
+    var promise;
+
     function draw(context, video, width, height) {
       context.drawImage(video, 0, 0, width, height);
     }
 
     return function(context, video, width, height) {
-      $window.setInterval(function() {
+      if (promise) {
+        $interval.cancel(promise);
+      }
+
+      promise = $interval(function() {
         requestAnimationFrame(function() {
           draw(context, video, width, height);
         });
-      }, 40);
+      }, 1000 / 30);
     };
   })
 
