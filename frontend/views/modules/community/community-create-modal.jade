@@ -27,7 +27,8 @@
             input.form-control(type='text', ng-change='onInputChange()', ng-model='community.title', id="title", name='title', autofocus=true, required, ensure-unique-community-title, esn-track-first-blur)
             span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='communityForm.title.$error.ajax')
             span.help-block(ng-show='communityForm.title.$error.unique && !communityForm.title.$error.ajax') #{__('This community title already exists. Please choose another one.')}
-            span.help-block(ng-show='validationError') {{ validationError }}
+            span.help-block(ng-show='validationError.ajax && !validationError.unique') #{__('An error occured while checking for community title validity.')}
+            span.help-block(ng-show='!validationError.ajax && validationError.unique') #{__('This community title already exists. Please choose another one.')}
           .form-group(ng-show="step === 0")
             fieldset
               label #{__('Visiblity')}&nbsp;

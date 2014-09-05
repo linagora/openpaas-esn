@@ -349,6 +349,7 @@ describe('The Community Angular module', function() {
 
       it('should set an error if communityAPI.list call fails', function() {
         this.scope.community = {title: 'node.js'};
+        this.scope.validationError = {};
         this.communityAPI.list = function() {
           return {
             then: function(responseCallback, errorCallback) {
@@ -358,11 +359,13 @@ describe('The Community Angular module', function() {
         };
         this.scope.titleValidationRunning = false;
         this.scope.validateStep0();
-        expect(this.scope.validationError).to.exist;
+        expect(this.scope.validationError.ajax).to.exist;
+        expect(this.scope.validationError.unique).to.not.exist;
       });
 
       it('should display an error if communityAPI.list return non empty result', function() {
         this.scope.community = {title: 'node.js'};
+        this.scope.validationError = {};
         this.communityAPI.list = function() {
           return {
             then: function(responseCallback) {
@@ -375,7 +378,8 @@ describe('The Community Angular module', function() {
         };
         this.scope.titleValidationRunning = false;
         this.scope.validateStep0();
-        expect(this.scope.validationError).to.exist;
+        expect(this.scope.validationError.ajax).to.not.exist;
+        expect(this.scope.validationError.unique).to.exist;
       });
 
       it('should move to wizard step 1 if communityAPI.list return an empty result', function() {

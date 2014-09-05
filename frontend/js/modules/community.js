@@ -66,7 +66,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     var initScope = function() {
       $scope.step = 0;
       $scope.sending = false;
-      $scope.validationError = false;
+      $scope.validationError = {};
       $scope.community = {
         domain_ids: [session.domain._id],
         image: '',
@@ -102,7 +102,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
 
     $scope.onInputChange = function() {
-      $scope.validationError = false;
+      $scope.validationError = {};
     };
 
     $scope.titleValidationRunning = false;
@@ -118,12 +118,12 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
             $scope.step = 1;
           }
           else {
-            $scope.validationError = $scope.community.title + ' community already exists. Please choose another title.';
+            $scope.validationError.unique = true;
           }
           $scope.titleValidationRunning = false;
         },
         function(err) {
-          $scope.validationError = 'An error occured while checking community title.';
+          $scope.validationError.ajax = true;
           $log.error(err);
           $scope.titleValidationRunning = false;
         }
