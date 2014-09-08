@@ -95,10 +95,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
 
     $scope.emptyTitle = function() {
-      if (!$scope.community.title || $scope.community.title.length === 0) {
-        return true;
-      }
-      return false;
+      return !$scope.community.title;
     };
 
     $scope.onInputChange = function() {
