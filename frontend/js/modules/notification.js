@@ -37,26 +37,41 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
      *
      * @param {string} title The notification title
      * @param {string} text The notification text
+     * @param {string} The font-awesome icon name
+     * @param {Array} An array of two elements with the names of the accept and cancel buttons
      * @param {object} data The parameter for `handlerConfirm` and `handlerCancel`
      * @param {function} handlerConfirm fn like handlerConfirm(data)
      * @param {function} handlerCancel fn like handlerCancel(data)
      */
-    function confirm(title, text, data, handlerConfirm, handlerCancel) {
+    function confirm(title, text, icon, buttons, data, handlerConfirm, handlerCancel) {
       if (! handlerCancel) {
         handlerCancel = function() {};
       }
 
       var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
+      icon = icon || 'fa-info';
+      buttons = buttons || ['OK', 'Cancel'];
 
       (notificationService.notify({
         title: title,
         text: text,
-        icon: 'fa fa-phone animated tada',
+        icon: 'fa ' + icon + ' fa-2 faa-ring animated',
         addclass: 'stack-topright',
         stack: stack_topright,
         hide: false,
         confirm: {
-          confirm: true
+          confirm: true,
+          buttons: [
+            {
+              text: buttons[0] || 'OK'
+            },
+            {
+              text: buttons[1] || 'Cancel'
+            }
+          ]
+        },
+        buttons: {
+          sticker: false
         },
         styling: 'fontawesome'
       })).get().on('pnotify.confirm', function() {

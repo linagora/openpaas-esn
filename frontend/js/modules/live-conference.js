@@ -255,75 +255,31 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     };
   })
 
-  .factory('drawVideo', function($rootScope, $window) {
+  .factory('drawVideo', function($rootScope, $window, $interval) {
     var requestAnimationFrame =
       $window.requestAnimationFrame ||
       $window.mozRequestAnimationFrame ||
       $window.msRequestAnimationFrame ||
       $window.webkitRequestAnimationFrame;
 
+    var promise;
+
     function draw(context, video, width, height) {
       context.drawImage(video, 0, 0, width, height);
     }
 
     return function(context, video, width, height) {
-      $window.setInterval(function() {
+      if (promise) {
+        $interval.cancel(promise);
+      }
+
+      promise = $interval(function() {
         requestAnimationFrame(function() {
           draw(context, video, width, height);
         });
-      }, 40);
+      }, 1000 / 30);
     };
   })
-
-  .directive('conferenceNotification', ['session', 'livenotification', 'notificationFactory',
-    function(session, livenotification, notificationFactory) {
-    return {
-      restrict: 'E',
-      link: function(scope, element, attrs) {
-        function liveNotificationHandler(msg) {
-          if (msg.user_id !== session.user._id) {
-            notificationFactory.info('Conference updated !', msg.message);
-          }
-        }
-
-        var socketIORoom = livenotification('/conferences', attrs.conferenceId)
-          .on('notification', liveNotificationHandler);
-
-        scope.$on('$destroy', function() {
-          socketIORoom.removeListener('notification', liveNotificationHandler);
-        });
-      }
-    };
-  }])
-
-  .directive('conferenceInvitationNotification', ['$window', '$timeout', '$log', 'notificationFactory', 'livenotification',
-    function($window, $timeout, $log, notificationFactory, livenotification) {
-      return {
-        restrict: 'E',
-        link: function(scope) {
-
-          function onConfirm(msg) {
-            if (!msg.conference_id) {
-              return;
-            }
-            $timeout(function() {
-              $window.open('/conferences/' + msg.conference_id, 'Conference', 'menubar=no,location=no,resizable=yes,scrollbar=no,status=no');
-            }, 0);
-          }
-
-          function liveNotificationHandler(msg) {
-            $log.debug('New invitation of namespace /conferences with data', msg);
-            notificationFactory.confirm('Conference invitation !', 'Join the conference ?', msg, onConfirm);
-          }
-
-          var sio = livenotification('/conferences').on('invitation', liveNotificationHandler);
-
-          scope.$on('$destroy', function() {
-            sio.removeListener('invitation', liveNotificationHandler);
-          });
-        }
-      };
-    }])
 
   .directive('conferenceVideo', ['$timeout', 'drawVideo', function($timeout, drawVideo) {
     return {
