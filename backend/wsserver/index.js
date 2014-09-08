@@ -38,7 +38,10 @@ function start(port, callback) {
   var webserver = require('../webserver');
   wsserver.port = port;
   var realCallback = callback;
-  if (webserver && webserver.server && webserver.port === wsserver.port) {
+  if (webserver && webserver.sslserver && webserver.ssl_port === wsserver.port) {
+    logger.debug('websocket server will be attached to the SSL Express server');
+    wsserver.server = webserver.sslserver;
+  } else if (webserver && webserver.server && webserver.port === wsserver.port) {
     logger.debug('websocket server will be attached to the Express server');
     wsserver.server = webserver.server;
   } else {
@@ -49,7 +52,7 @@ function start(port, callback) {
     realCallback = function() {};
   }
 
-  var sio = io.listen(wsserver.server);
+  var sio = io.listen(wsserver.server, {'match origin protocol' : true, 'transports' : ['websocket']});
   if (sio) {
     sio.configure(function() {
       sio.set('authorization', require('./auth/token'));
