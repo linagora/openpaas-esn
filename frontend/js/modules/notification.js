@@ -58,6 +58,9 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
         confirm: {
           confirm: true
         },
+        buttons: {
+          sticker: false
+        },
         styling: 'fontawesome'
       })).get().on('pnotify.confirm', function() {
           handlerConfirm(data);
