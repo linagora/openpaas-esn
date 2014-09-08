@@ -270,7 +270,17 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     var promise;
 
     function draw(context, video, width, height) {
-      context.drawImage(video, 0, 0, width, height);
+      // see https://bugzilla.mozilla.org/show_bug.cgi?id=879717
+      // Sometimes Firefox drawImage before it is even available.
+      // Thus we ignore this error.
+      try {
+        context.drawImage(video, 0, 0, width, height);
+      } catch (e) {
+        if (e.name !== 'NS_ERROR_NOT_AVAILABLE') {
+          throw e;
+        }
+      }
+
     }
 
     return function(context, video, width, height) {
