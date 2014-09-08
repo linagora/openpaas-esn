@@ -50,6 +50,7 @@
     "angular-truncate": "sparkalow/angular-truncate",
     "font-awesome-animation": "~0.0.5",
     "angular-linkify": "~0.4.0",
-    "angular-sanitize": "~1.2.20"
+    "angular-sanitize": "~1.2.20",
+    "recaptcha_ajax": "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"
   }
 }
