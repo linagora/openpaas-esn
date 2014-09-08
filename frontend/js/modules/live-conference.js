@@ -296,9 +296,13 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
           context = canvas[0].getContext('2d');
           mainVideo = element.find('video#video-thumb0');
           mainVideo.on('loadedmetadata', function() {
-            canvas[0].width = mainVideo[0].videoWidth;
-            canvas[0].height = mainVideo[0].videoHeight;
-            drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
+            // see https://bugzilla.mozilla.org/show_bug.cgi?id=926753
+            // Firefox needs this timeout.
+            $timeout(function() {
+              canvas[0].width = mainVideo[0].videoWidth;
+              canvas[0].height = mainVideo[0].videoHeight;
+              drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
+            }, 500);
           });
         }, 1000);
 
