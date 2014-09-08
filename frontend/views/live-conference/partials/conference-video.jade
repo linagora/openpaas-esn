@@ -6,5 +6,5 @@ div.conference-video#multiparty-conference
   .row.row-attendees-bar
     .conference-attendees-bar
       ul.content
-        li(ng-repeat="id in attendeeVideoIds", ng-hide="!attendees[$index]", fire-post-repeat-event, event="videoIds:ready")
+        li(ng-repeat="id in attendeeVideoIds", ng-hide="!attendees[$index]")
           conference-attendee-video(ng-click="streamToMainCanvas($index)", video-id="{{id}}", attendee="idToAttendeeNameMap[attendees[$index]]")
