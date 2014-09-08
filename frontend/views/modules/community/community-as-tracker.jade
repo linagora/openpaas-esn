@@ -6,7 +6,7 @@ div(ng-controller="communityAStrackerController")
     div(ng-show='error') {{error}}
     ul.nav.nav-pills.nav-stacked(ng-hide='error')
         li(ng-repeat="activityStream in activityStreams")
-            a.ellipsis(href='{{activityStream.href}}' ng-click='activityStream.unread_count = 0' title='{{activityStream.display_name}}')
+            a.ellipsis(href='{{activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{activityStream.display_name}}')
                 img(src='/images/community.png' ng-src='{{activityStream.img}}')
                 | {{activityStream.display_name}}
                 span.badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}

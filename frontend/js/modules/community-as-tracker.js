@@ -134,6 +134,13 @@ angular.module('esn.community-as-tracker', [
         }
       }
 
+      $scope.getUnreadUpdate = function(activityStreamUuid) {
+        updateUnread(activityStreamUuid, 0);
+        $rootScope.$emit('communityAStracker:updated', {
+          activitystreamUuid: activityStreamUuid
+        });
+      };
+
       $scope.$on('$destroy', function() {
         notifications.forEach(function(notification) {
           notification.removeListener('notification', liveNotificationHandler);

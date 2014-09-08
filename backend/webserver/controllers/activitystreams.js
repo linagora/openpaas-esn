@@ -85,7 +85,12 @@ function get(req, res) {
      *  * if result[0] is defined then there is at least 1 timeline entry in the activity stream
      */
     if (req.user && !req.query.before && result[0]) {
-      tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[0]._id, function(err) {});
+      // When req.query.after, the last timeline entry is the last element in the result array
+      if (req.query.after && result[result.length - 1]) {
+        tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[result.length - 1]._id, function(err) {});
+      } else {
+        tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[0]._id, function(err) {});
+      }
     }
   });
 }

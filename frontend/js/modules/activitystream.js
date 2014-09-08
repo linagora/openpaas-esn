@@ -455,4 +455,10 @@ angular.module('esn.activitystream', [
           updateMessageList();
         }
       };
+
+      $rootScope.$on('communityAStracker:updated', function(evt, data) {
+        if ($scope.activitystreamUuid === data.activitystreamUuid) {
+          $scope.getStreamUpdates();
+        }
+      });
     }]);
