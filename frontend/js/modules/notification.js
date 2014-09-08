@@ -51,7 +51,7 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
       (notificationService.notify({
         title: title,
         text: text,
-        icon: 'fa fa-phone animated tada',
+        icon: 'fa fa-phone fa-2 faa-ring animated',
         addclass: 'stack-topright',
         stack: stack_topright,
         hide: false,
