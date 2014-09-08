@@ -138,7 +138,9 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
 
       var hash = {};
       stream.on('data', function(doc) {
-        if (doc.verb === 'post') {
+        if ((doc.actor._id + '') === (userId + '')) {
+          hash[doc._id] = false;
+        } else if (doc.verb === 'post') {
           hash[doc._id] = true;
         } else if (doc.verb === 'remove') {
           hash[doc._id] = false;
