@@ -1,8 +1,10 @@
 'use strict';
 
-angular.module('esn.communityAStracker', [
+angular.module('esn.community-as-tracker', [
   'restangular',
-  'esn.session'
+  'esn.session',
+  'esn.websocket',
+  'esn.activitystream'
 ])
   .factory('communityAStrackerAPI', ['Restangular', function(Restangular) {
     function getCommunityActivityStreams(uuid) {
@@ -108,13 +110,58 @@ angular.module('esn.communityAStracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$scope', '$log', 'communityAStrackerHelpers', function($scope, $log, communityAStrackerHelpers) {
-    communityAStrackerHelpers.getCommunityActivityStreamsWithUnreadCount(function(err, result) {
-      if (err) {
-        $scope.error = 'Error while get unread message: ' + err;
-        $log.error($scope.error, err);
-        return;
+  ['$rootScope', '$scope', '$log', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session',
+    function($rootScope, $scope, $log, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session) {
+
+      var notifications = [];
+
+      function updateUnread(activityStreamUuid, count) {
+        $scope.activityStreams.some(function(activityStream) {
+          if (activityStream.uuid === activityStreamUuid) {
+            activityStream.unread_count = count;
+            return true;
+          }
+        });
       }
-      $scope.activityStreams = result;
-    });
-  }]);
+
+      function liveNotificationHandler(data) {
+        var activityStreamUuid = data.target[0]._id;
+
+        if (data.actor._id !== session.user._id) {
+          communityAStrackerAPI.getUnreadCount(activityStreamUuid).then(function(response) {
+            updateUnread(activityStreamUuid, response.data.unread_count);
+          });
+        }
+      }
+
+      $scope.$on('$destroy', function() {
+        notifications.forEach(function(notification) {
+          notification.removeListener('notification', liveNotificationHandler);
+        });
+      });
+
+      $rootScope.$on('activitystream:updated', function(evt, data) {
+        if (data && data.activitystreamUuid) {
+          communityAStrackerAPI.getUnreadCount(data.activitystreamUuid).then(
+            function(response) {
+              updateUnread(data.activitystreamUuid, response.data.unread_count);
+            }
+          );
+        }
+      });
+
+      communityAStrackerHelpers.getCommunityActivityStreamsWithUnreadCount(function(err, result) {
+        if (err) {
+          $scope.error = 'Error while getting unread message: ' + err;
+          $log.error($scope.error, err);
+          return;
+        }
+        $scope.activityStreams = result;
+
+        result.forEach(function(element) {
+          notifications.push(livenotification('/activitystreams', element.uuid).on('notification', liveNotificationHandler));
+        });
+      });
+    }
+  ]
+);

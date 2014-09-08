@@ -4,11 +4,11 @@
 
 var expect = chai.expect;
 
-describe('The esn.communityAStracker Angular module', function() {
+describe('The esn.community-as-tracker Angular module', function() {
   var domainId = '12345';
 
   beforeEach(function() {
-    angular.mock.module('esn.communityAStracker');
+    angular.mock.module('esn.community-as-tracker');
     angular.mock.module(function($provide) {
       $provide.value('session', {
         domain: {
@@ -137,7 +137,7 @@ describe('The esn.communityAStracker Angular module', function() {
     beforeEach(angular.mock.inject(function($rootScope, $controller) {
       this.activityStreamUuid1 = '12345678';
       this.activityStreamUuid2 = '123456789';
-
+      this.rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.controller = $controller;
     }));
@@ -181,15 +181,69 @@ describe('The esn.communityAStracker Angular module', function() {
         }
       };
 
+      var livenotification = function() {
+        return {
+          on: function() {}
+        };
+      };
+
       this.controller('communityAStrackerController', {
+        $rootScope: this.rootScope,
         $scope: this.scope,
-        communityAStrackerHelpers: communityAStrackerHelpers
+        communityAStrackerHelpers: communityAStrackerHelpers,
+        livenotification: livenotification
       });
 
       expect(this.scope.activityStreams).to.exist;
       expect(this.scope.activityStreams.length).to.deep.equal(2);
       expect(this.scope.activityStreams[0].uuid).to.deep.equal(this.activityStreamUuid1);
       expect(this.scope.activityStreams[1].uuid).to.deep.equal(this.activityStreamUuid2);
+    });
+
+    it('should retrieve the unread count on $rootScope activitystream:updated event', function(done) {
+      var self = this;
+      var communityAStrackerHelpers = {
+        getCommunityActivityStreamsWithUnreadCount: function(callback) {
+          return callback(null, [
+            {
+              uuid: self.activityStreamUuid1,
+              display_name: 'Community1',
+              href: '#',
+              img: '',
+              unread_count: 2
+            },
+            {
+              uuid: self.activityStreamUuid2,
+              display_name: 'Community2',
+              href: '#',
+              img: '',
+              unread_count: 4
+            }
+          ]);
+        }
+      };
+
+      var communityAStrackerAPI = {
+        getUnreadCount: function() {
+          return done();
+        }
+      };
+
+      var livenotification = function() {
+        return {
+          on: function() {}
+        };
+      };
+
+      this.controller('communityAStrackerController', {
+        $rootScope: this.rootScope,
+        $scope: this.scope,
+        communityAStrackerHelpers: communityAStrackerHelpers,
+        livenotification: livenotification,
+        communityAStrackerAPI: communityAStrackerAPI
+      });
+
+      this.rootScope.$emit('activitystream:updated', {activitystreamUuid: 123});
     });
   });
 });

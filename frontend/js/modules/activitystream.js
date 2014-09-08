@@ -377,8 +377,8 @@ angular.module('esn.activitystream', [
     }])
 
   .controller('activitystreamController',
-  ['$scope', 'activitystreamAggregator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
-    function($scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates) {
+  ['$rootScope', '$scope', 'activitystreamAggregator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
+    function($rootScope, $scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates) {
 
       var spinnerKey = 'activityStreamSpinner', aggregator;
 
@@ -414,6 +414,9 @@ angular.module('esn.activitystream', [
         }).finally (function() {
           // we have to plug here the throbber once the websocket stuff is on
           $scope.restActive = false;
+          $rootScope.$emit('activitystream:updated', {
+            activitystreamUuid: $scope.activitystreamUuid
+          });
         });
       };
 
