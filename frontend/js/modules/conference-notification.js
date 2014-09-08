@@ -39,7 +39,7 @@ angular.module('esn.conference-notification', ['esn.websocket', 'esn.session', '
 
           function liveNotificationHandler(msg) {
             $log.debug('New invitation of namespace /conferences with data', msg);
-            notificationFactory.confirm('Conference invitation', 'You have been invited to a conference. Want to join?', msg, onConfirm);
+            notificationFactory.confirm('Conference invitation', 'You have been invited to a conference. Want to join?', 'fa-phone', ['Join', 'Decline'], msg, onConfirm);
           }
 
           var sio = livenotification('/conferences').on('invitation', liveNotificationHandler);

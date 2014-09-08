@@ -16,8 +16,8 @@ describe('The esn.conference-notification Angular module', function() {
       weakInfo: function(title, text) {
         callbackOnWeakInfo(title, text);
       },
-      confirm: function(title, text, data, handlerConfirm, handlerCancel) {
-        callbackOnConfirm(title, text, data, handlerConfirm, handlerCancel);
+      confirm: function(title, text, icon, buttons, data, handlerConfirm, handlerCancel) {
+        callbackOnConfirm(title, text, icon, buttons, data, handlerConfirm, handlerCancel);
       }
     };
 
@@ -171,7 +171,7 @@ describe('The esn.conference-notification Angular module', function() {
         done();
       };
 
-      callbackOnConfirm = function(title, text, data, handlerConfirm, handlerCancel) {
+      callbackOnConfirm = function(title, text, icon, buttons, data, handlerConfirm, handlerCancel) {
         expect(title).to.exist;
         expect(text).to.exist;
         expect(data).to.deep.equal(msg);
@@ -195,7 +195,7 @@ describe('The esn.conference-notification Angular module', function() {
         done(new Error('Should not pass here'));
       };
 
-      callbackOnConfirm = function(title, text, data, handlerConfirm, handlerCancel) {
+      callbackOnConfirm = function(title, text, icon, buttons, data, handlerConfirm, handlerCancel) {
         expect(title).to.exist;
         expect(text).to.exist;
         expect(data).to.deep.equal(msg);
