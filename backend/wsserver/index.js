@@ -16,13 +16,17 @@ var wsserver = {
 
 exports = module.exports = wsserver;
 
-function start(port, callback) {
+/*
+ * options should be {'match origin protocol' : true, 'transports' : ['websocket']}
+ * for ssl transport.
+ */
+function start(port, options, callback) {
   if (arguments.length === 0) {
     logger.error('Websocket server start method should have at least 1 argument');
     process.exit(1);
   }
 
-  callback = callback || function() {};
+  callback = callback || options || function() {};
 
   function listenCallback(err) {
     wsserver.server.removeListener('listening', listenCallback);
@@ -52,7 +56,7 @@ function start(port, callback) {
     realCallback = function() {};
   }
 
-  var sio = io.listen(wsserver.server, {'match origin protocol' : true, 'transports' : ['websocket']});
+  var sio = io.listen(wsserver.server, options);
   if (sio) {
     sio.configure(function() {
       sio.set('authorization', require('./auth/token'));

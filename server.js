@@ -31,7 +31,7 @@ function startWsServer(callback) {
   
   var server = require('./backend/wsserver');
    
-  server.start(config.wsserver.port, function(err) {
+  server.start(config.wsserver.port, config.wsserver.options, function(err) {
     if ( err ) {
       logger.error('websocket server failed to start', err);
     }
