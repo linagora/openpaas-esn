@@ -296,7 +296,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     };
   })
 
-  .directive('conferenceVideo', ['$timeout', 'drawVideo', function($timeout, drawVideo) {
+  .directive('conferenceVideo', ['$timeout', '$window', 'drawVideo', function($timeout, $window, drawVideo) {
     return {
       restrict: 'E',
       replace: true,
@@ -311,13 +311,20 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
           context = canvas[0].getContext('2d');
           mainVideo = element.find('video#video-thumb0');
           mainVideo.on('loadedmetadata', function() {
-            // see https://bugzilla.mozilla.org/show_bug.cgi?id=926753
-            // Firefox needs this timeout.
-            $timeout(function() {
+            function drawVideoInCancas() {
               canvas[0].width = mainVideo[0].videoWidth;
               canvas[0].height = mainVideo[0].videoHeight;
               drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
-            }, 500);
+            }
+            if($window.mozRequestAnimationFrame) {
+              // see https://bugzilla.mozilla.org/show_bug.cgi?id=926753
+              // Firefox needs this timeout.
+              $timeout(function() {
+                drawVideoInCancas();
+              }, 500);
+            } else {
+              drawVideoInCancas();
+            }
           });
         }, 1000);
 
