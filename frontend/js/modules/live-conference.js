@@ -72,8 +72,13 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
 
       // We must wait for the directive holding the template containing videoIds
       // to be displayed in the browser before using easyRTC.
-      $scope.$on('videoIds:ready', function() {
-        easyRTCService.connect($scope.conference, $scope.mainVideoId, $scope.attendees);
+      var unregister = $scope.$watch(function() {
+        return angular.element('#video-thumb0')[0];
+      }, function(video) {
+        if (video) {
+          easyRTCService.connect($scope.conference, $scope.mainVideoId, $scope.attendees);
+          unregister();
+        }
       });
     }
   ])
@@ -265,7 +270,17 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     var promise;
 
     function draw(context, video, width, height) {
-      context.drawImage(video, 0, 0, width, height);
+      // see https://bugzilla.mozilla.org/show_bug.cgi?id=879717
+      // Sometimes Firefox drawImage before it is even available.
+      // Thus we ignore this error.
+      try {
+        context.drawImage(video, 0, 0, width, height);
+      } catch (e) {
+        if (e.name !== 'NS_ERROR_NOT_AVAILABLE') {
+          throw e;
+        }
+      }
+
     }
 
     return function(context, video, width, height) {
@@ -281,7 +296,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     };
   })
 
-  .directive('conferenceVideo', ['$timeout', 'drawVideo', function($timeout, drawVideo) {
+  .directive('conferenceVideo', ['$timeout', '$window', 'drawVideo', function($timeout, $window, drawVideo) {
     return {
       restrict: 'E',
       replace: true,
@@ -296,9 +311,20 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
           context = canvas[0].getContext('2d');
           mainVideo = element.find('video#video-thumb0');
           mainVideo.on('loadedmetadata', function() {
-            canvas[0].width = mainVideo[0].videoWidth;
-            canvas[0].height = mainVideo[0].videoHeight;
-            drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
+            function drawVideoInCancas() {
+              canvas[0].width = mainVideo[0].videoWidth;
+              canvas[0].height = mainVideo[0].videoHeight;
+              drawVideo(context, mainVideo[0], canvas[0].width, canvas[0].height);
+            }
+            if($window.mozRequestAnimationFrame) {
+              // see https://bugzilla.mozilla.org/show_bug.cgi?id=926753
+              // Firefox needs this timeout.
+              $timeout(function() {
+                drawVideoInCancas();
+              }, 500);
+            } else {
+              drawVideoInCancas();
+            }
           });
         }, 1000);
 
@@ -317,20 +343,6 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       }
     };
   }])
-
-  .directive('firePostRepeatEvent', function() {
-    return {
-      restrict: 'A',
-      scope: {
-        event: '@'
-      },
-      link: function(scope) {
-        if (scope.$parent.$last) {
-          scope.$emit(scope.event);
-        }
-      }
-    };
-  })
 
   .directive('conferenceAttendee', function() {
     return {
