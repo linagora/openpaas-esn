@@ -55,12 +55,22 @@ function changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryUsedId
  *
  * @param {User, ObjectId} userId
  * @param {string} activityStreamUuid
- * @param {TimelineEntry, ObjectId} lastTimelineEntryUsedId
- * @param {function} callback fn like callback(err)
+ * @param {TimelineEntry, ObjectId} lastTimelineEntryReadId
+ * @param {function} callback fn like callback(err, saved) (saved is the document saved)
  */
-function updateLastTimelineEntryRead(userId, activityStreamUuid, lastTimelineEntryUsedId, callback) {
+function updateLastTimelineEntryRead(userId, activityStreamUuid, lastTimelineEntryReadId, callback) {
+  if (!userId) {
+    return callback(new Error('User is required'));
+  }
+  if (!activityStreamUuid) {
+    return callback(new Error('Activity Stream UUID is required'));
+  }
+  if (!lastTimelineEntryReadId) {
+    return callback(new Error('Last Timeline Entry read ID is required'));
+  }
+
   userId = userId._id || userId;
-  lastTimelineEntryUsedId = lastTimelineEntryUsedId._id || lastTimelineEntryUsedId;
+  lastTimelineEntryReadId = lastTimelineEntryReadId._id || lastTimelineEntryReadId;
 
   TimelineEntriesTracker.findById(userId, function(err, doc) {
     if (err) {
@@ -69,14 +79,14 @@ function updateLastTimelineEntryRead(userId, activityStreamUuid, lastTimelineEnt
     }
 
     if (doc) {
-      changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryUsedId, doc, function(err, saved) {
+      changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryReadId, doc, function(err, saved) {
         return callback(err, saved);
       });
     }
     else {
       createTimelineEntriesTracker(userId, function(err, saved) {
         if (err) { return callback(err); }
-        changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryUsedId, saved, function(err, saved) {
+        changeLastTimelineEntryRead(activityStreamUuid, lastTimelineEntryReadId, saved, function(err, saved) {
           return callback(err, saved);
         });
       });
@@ -95,6 +105,13 @@ module.exports.updateLastTimelineEntryRead = updateLastTimelineEntryRead;
  * @param {function} callback fn like callback(err, objectId)
  */
 function getLastTimelineEntryRead(userId, activityStreamUuid, callback) {
+  if (!userId) {
+    return callback(new Error('User is required'));
+  }
+  if (!activityStreamUuid) {
+    return callback(new Error('Activity Stream UUID is required'));
+  }
+
   userId = userId._id || userId;
 
   TimelineEntriesTracker.findById(userId, function(err, doc) {
@@ -117,6 +134,13 @@ module.exports.getLastTimelineEntryRead = getLastTimelineEntryRead;
  * @param {function} callback fn like callback(err, count) (count is a number)
  */
 function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
+  if (!userId) {
+    return callback(new Error('User is required'));
+  }
+  if (!activityStreamUuid) {
+    return callback(new Error('Activity Stream UUID is required'));
+  }
+
   getLastTimelineEntryRead(userId, activityStreamUuid, function(err, lastTimelineEntryRead) {
     if (err) { return callback(err); }
 
