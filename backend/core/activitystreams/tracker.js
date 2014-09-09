@@ -120,10 +120,6 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
   getLastTimelineEntryRead(userId, activityStreamUuid, function(err, lastTimelineEntryRead) {
     if (err) { return callback(err); }
 
-    if (!lastTimelineEntryRead) {
-      return callback(null, 0);
-    }
-
     var options = {
       target: {
         objectType: 'activitystream',
