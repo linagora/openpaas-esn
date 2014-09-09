@@ -296,6 +296,57 @@ describe('The activitystreams routes', function() {
           });
         });
       });
+
+      it('should return 3 unread timeline entries ' +
+        'when there are 4 timeline entries but with 1 own by the user', function(done) {
+        var self = this;
+
+        var TimelineEntry = this.mongoose.model('TimelineEntry');
+
+        // Login
+        this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+          // Add one Timeline Entry (helper is not used because we must set a user id)
+          new TimelineEntry({
+            verb: 'post',
+            language: 'en',
+            actor: {
+              objectType: 'user',
+              _id: user._id,
+              image: '123456789',
+              displayName: 'foo bar baz'
+            },
+            object: {
+              objectType: 'message',
+              _id: self.mongoose.Types.ObjectId()
+            },
+            target: [
+              {
+                objectType: 'activitystream',
+                _id: activitystreamId
+              }
+            ]
+          }).save(function(err, saved) {
+              if (err) { done(err); }
+
+              // Add 3 new Timeline Entries
+              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
+                if (err) { done(err); }
+
+                // Get the number of unread Timeline Entries
+                var req = loggedInAsUser(request(webserver.application).get(
+                    '/api/activitystreams/' + activitystreamId + '/unreadcount'));
+                req.expect(200);
+                req.end(function(err, res) {
+                  expect(err).to.not.exist;
+                  expect(res.body).to.exist;
+                  expect(res.body._id).to.deep.equal(activitystreamId);
+                  expect(res.body.unread_count).to.deep.equal(3);
+                  done();
+                });
+              });
+            });
+        });
+      });
     });
   });
 
