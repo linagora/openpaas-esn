@@ -2,7 +2,7 @@
 
 var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
-var EMailMsg = mongoose.model('EMailMsg');
+var EmailMessage = mongoose.model('EmailMessage');
 var logger = require('../logger');
 
 /**
@@ -29,7 +29,7 @@ function saveEmail(stream, author, shares, callback) {
       return callback(new Error('Can not parse email'));
     }
 
-    var mail = new EMailMsg();
+    var mail = new EmailMessage();
     mail.author = author;
 
     if (mail_object.from && mail_object.from.length > 0) {
@@ -48,7 +48,7 @@ function saveEmail(stream, author, shares, callback) {
       });
     }
     mail.subject = mail_object.subject;
-    mail.content = mail_object.text;
+    mail.body = mail_object.text;
 
     if (shares) {
       mail.shares = shares;

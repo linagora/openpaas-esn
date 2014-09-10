@@ -112,7 +112,7 @@ describe('The email message module', function() {
         to: [{address: 'to1@bar.com'}, {address: 'to2@bar.com'}],
         cc: [{address: 'cc1@bar.com'}, {address: 'cc2@bar.com'}, {address: 'cc3@bar.com'}],
         subject: 'The email subject',
-        text: 'The email content'
+        text: 'The email body'
       };
 
       mockery.registerMock('mongoose', {
@@ -127,7 +127,7 @@ describe('The email message module', function() {
                 expect(this.cc).to.exist;
                 expect(this.cc.length).to.equal(3);
                 expect(this.subject).to.equal(mail.subject);
-                expect(this.content).to.equal(mail.text);
+                expect(this.body).to.equal(mail.text);
                 return done();
               }
             };
