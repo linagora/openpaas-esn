@@ -45,7 +45,7 @@ describe('The WebSockets server module', function() {
 
         var expressMock = function() {
           return {
-            listen: function () {
+            listen: function() {
               return {
                 name: 'a new server',
                 on: function() {}
