@@ -66,4 +66,5 @@ function saveEmail(stream, author, shares, callback) {
   });
   stream.pipe(mailparser);
 }
+
 module.exports.saveEmail = saveEmail;

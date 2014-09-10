@@ -39,7 +39,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {};
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -61,7 +61,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {};
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -82,7 +82,7 @@ describe('The messages module', function() {
           callback(new Error('an error has occured'));
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -103,7 +103,7 @@ describe('The messages module', function() {
           callback(null, {_id: 'a new id'});
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -129,7 +129,7 @@ describe('The messages module', function() {
           callback(null, {_id: 'a new id', message: 123 });
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
@@ -151,7 +151,7 @@ describe('The messages module', function() {
           callback(null, false);
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -195,7 +195,7 @@ describe('The messages module', function() {
           callback(new Error('an error has occured'));
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -217,7 +217,7 @@ describe('The messages module', function() {
           callback(null, {_id: 'an id'}, {_id: 'a parent id', shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -245,7 +245,7 @@ describe('The messages module', function() {
           done();
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/activitystreams/helpers', ashelpermock);
       mockery.registerMock('../../core/message/email', {});
 
@@ -272,7 +272,7 @@ describe('The messages module', function() {
           callback(null, {_id: 'an id'}, {shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
@@ -307,7 +307,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {};
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -329,7 +329,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {};
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -350,7 +350,7 @@ describe('The messages module', function() {
           callback(new Error('an error has occured'));
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -389,7 +389,7 @@ describe('The messages module', function() {
           ]);
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -428,7 +428,7 @@ describe('The messages module', function() {
           ]);
         }
       };
-      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
@@ -438,7 +438,7 @@ describe('The messages module', function() {
 
   describe('The getMessage fn', function() {
     it('should return send back HTTP 400 if req.param.uuid is undefined', function(done) {
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {});
 
       var req = {
@@ -465,7 +465,7 @@ describe('The messages module', function() {
           return callback(new Error());
         }
       };
-      mockery.registerMock('../../core/message', mock);
+      mockery.registerMock('../../core/message/whatsup', mock);
       mockery.registerMock('../../core/message/email', {});
 
       var req = {
@@ -491,7 +491,7 @@ describe('The messages module', function() {
           return callback();
         }
       };
-      mockery.registerMock('../../core/message', mock);
+      mockery.registerMock('../../core/message/whatsup', mock);
       mockery.registerMock('../../core/message/email', {});
 
       var req = {
@@ -517,7 +517,7 @@ describe('The messages module', function() {
           return callback(null, {_id: 123});
         }
       };
-      mockery.registerMock('../../core/message', mock);
+      mockery.registerMock('../../core/message/whatsup', mock);
       mockery.registerMock('../../core/message/email', {});
 
       var req = {
@@ -541,7 +541,7 @@ describe('The messages module', function() {
 
   describe('createMessageFromEmail fn', function() {
     it('should return 400 if query.objectType is not set', function(done) {
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {});
 
       var req = {
@@ -562,7 +562,7 @@ describe('The messages module', function() {
     });
 
     it('should return 400 if query.id is not set', function(done) {
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {});
 
       var req = {
@@ -583,7 +583,7 @@ describe('The messages module', function() {
     });
 
     it('should return 500 if email module fails', function(done) {
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
           return callback(new Error());
@@ -609,7 +609,7 @@ describe('The messages module', function() {
     });
 
     it('should return 201 if email module saves the message', function(done) {
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
           return callback(null, {_id: 234, shares: []});
@@ -648,7 +648,7 @@ describe('The messages module', function() {
         }
       };
 
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
           return callback(null, {_id: 234, shares: []});
