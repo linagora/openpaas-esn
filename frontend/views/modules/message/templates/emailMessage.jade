@@ -1,0 +1,8 @@
+div.esn-email
+  h4.media-heading.esn-email-heading
+    a(href="#") {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
+    small
+      | &nbsp;-&nbsp;
+      a(href="/#messages/{{message._id}}")
+        span(am-time-ago="message.published")
+  p.multilines.esn-email-body {{message.body.text}}

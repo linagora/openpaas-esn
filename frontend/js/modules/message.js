@@ -153,6 +153,20 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
   .controller('whatsupMessageDisplayController', function($scope, message) {
     $scope.message = message;
   })
+  .directive('whatsupMessage', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/templates/whatsupMessage.html'
+    };
+  })
+  .directive('emailMessage', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/templates/emailMessage.html'
+    };
+  })
   .directive('whatsupEdition', function() {
     return {
       restrict: 'E',
@@ -167,15 +181,24 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
       templateUrl: '/views/modules/message/whatsup/whatsupAddComment.html'
     };
   })
-  .directive('whatsupMessage', function() {
+  .directive('messagesDisplay', function() {
     return {
       restrict: 'E',
       replace: true,
       scope: {
-        message: '=',
-        activitystreamUUID: '='
+        message: '='
       },
-      templateUrl: '/views/modules/message/whatsup/whatsupMessage.html'
+      templateUrl: '/views/modules/message/messagesDisplay.html'
+    };
+  })
+  .directive('messageTemplateDisplayer', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/messagesTemplateDisplayer.html'
     };
   })
   .directive('messagesThread', function() {
