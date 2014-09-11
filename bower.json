@@ -49,6 +49,8 @@
     "angular-truncate": "sparkalow/angular-truncate",
     "font-awesome-animation": "~0.0.5",
     "recaptcha_ajax": "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js",
-    "openpaas-logo": "0.6.0"
+    "openpaas-logo": "0.6.0",
+    "angular-sanitize": "~1.2.24",
+    "ngGeolocation": "~0.0.4"
   }
 }

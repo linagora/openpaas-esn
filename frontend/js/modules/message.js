@@ -1,18 +1,39 @@
 'use strict';
 
-angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
-  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
+angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'ngGeolocation', 'esn.maps'])
+  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', '$geolocation', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, $geolocation, geoAPI) {
 
     $scope.rows = 1;
+    $scope.position = {};
 
     $scope.expand = function(event) {
       $scope.rows = 5;
     };
 
     $scope.shrink = function(event) {
+      return;
       if (!$scope.whatsupmessage) {
         $scope.rows = 1;
       }
+    };
+
+    $scope.fillPosition = function() {
+      $scope.position.load = true;
+      $scope.position.show = true;
+      $geolocation.getCurrentPosition().then(function(data) {
+        $scope.position.data = data.coords;
+        $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
+        geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
+          $scope.position.message = data.data.display_name;
+          $scope.position.load = false;
+        }, function(err) {
+          console.log(err);
+          $scope.position.load = false;
+        });
+      }, function(err) {
+        console.log('Error while getting position', err);
+        $scope.position.load = false;
+      });
     };
 
     $scope.sendMessage = function() {
@@ -24,6 +45,10 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       if (!$scope.activitystreamUuid) {
         $scope.displayError('You can not post to an unknown domain');
         return;
+      }
+
+      if ($scope.position.data) {
+        $scope.position = {};
       }
 
       var objectType = 'whatsup';
