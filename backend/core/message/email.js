@@ -47,6 +47,13 @@ function saveEmail(stream, author, shares, callback) {
         return cc.address;
       });
     }
+
+    if (mail_object.bcc) {
+      mail.bcc = mail_object.bcc.map(function(bcc) {
+        return bcc.address;
+      });
+    }
+
     mail.subject = mail_object.subject;
 
     mail.body = {};
@@ -58,6 +65,7 @@ function saveEmail(stream, author, shares, callback) {
     if (shares) {
       mail.shares = shares;
     }
+
     return mail.save(callback);
   });
 

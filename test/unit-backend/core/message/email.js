@@ -111,6 +111,7 @@ describe('The email message module', function() {
         from: [{address: 'from@bar.com'}],
         to: [{address: 'to1@bar.com'}, {address: 'to2@bar.com'}],
         cc: [{address: 'cc1@bar.com'}, {address: 'cc2@bar.com'}, {address: 'cc3@bar.com'}],
+        bcc: [{address: 'bcc1@bar.com'}, {address: 'bcc2@bar.com'}],
         subject: 'The email subject',
         text: 'The text part of email body',
         html: 'The html part of email body'
@@ -127,6 +128,8 @@ describe('The email message module', function() {
                 expect(this.to.length).to.equal(2);
                 expect(this.cc).to.exist;
                 expect(this.cc.length).to.equal(3);
+                expect(this.bcc).to.exist;
+                expect(this.bcc.length).to.equal(2);
                 expect(this.subject).to.equal(mail.subject);
                 expect(this.body.text).to.equal(mail.text);
                 expect(this.body.html).to.equal(mail.html);
