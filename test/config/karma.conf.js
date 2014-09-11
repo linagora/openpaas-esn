@@ -28,6 +28,8 @@ module.exports = function(config) {
       'frontend/components/angular-file-upload/dist/angular-file-upload-shim.min.js',
       'frontend/components/angular-file-upload/dist/angular-file-upload.min.js',
       'frontend/components/angular-truncate/src/truncate.js',
+      'frontend/components/angular-sanitize/angular-sanitize.min.js',
+      'frontend/components/angular-linkify/angular-linkify.js',
       'node_modules/easyrtc/api/easyrtc.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
