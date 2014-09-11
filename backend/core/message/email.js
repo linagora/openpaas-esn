@@ -48,7 +48,12 @@ function saveEmail(stream, author, shares, callback) {
       });
     }
     mail.subject = mail_object.subject;
-    mail.body = mail_object.text;
+
+    mail.body = {};
+
+    mail.body.text = mail_object.text;
+
+    mail.body.html = mail_object.html;
 
     if (shares) {
       mail.shares = shares;

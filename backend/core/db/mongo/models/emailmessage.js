@@ -14,7 +14,10 @@ var EmailMessageSchema = new mongoose.Schema({
   to: {type: [String], required: true},
   cc: {type: [String], required: false},
   subject: {type: String, required: true},
-  body: {type: String, required: true},
+  body: {
+    text: {type: String, required: true},
+    html: {type: String, required: false}
+  },
   attachments: {type: [String], required: false },
   shares: [{
     objectType: {type: String},
