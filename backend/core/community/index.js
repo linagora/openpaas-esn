@@ -5,6 +5,8 @@ var Community = mongoose.model('Community');
 var logger = require('../logger');
 var domainModule = require('../domain');
 var async = require('async');
+var localpubsub = require('../pubsub').local;
+var globalpubsub = require('../pubsub').global;
 
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
@@ -126,14 +128,22 @@ module.exports.leave = function(community, user, callback) {
   });
 };
 
-module.exports.join = function(community, user, callback) {
+module.exports.join = function(community, userAuthor, userTarget, callback) {
   var id = community._id || community;
-  var user_id = user._id || user;
+  var userAuthor_id = userAuthor._id || userAuthor;
+  var userTarget_id = userTarget._id || userTarget;
 
-  Community.update({_id: id, 'members.user': {$ne: user_id}}, {$push: {members: {user: user_id, status: 'joined'}}}, function(err, updated) {
+  Community.update({_id: id, 'members.user': {$ne: userTarget_id}}, {$push: {members: {user: userTarget_id, status: 'joined'}}}, function(err, updated) {
     if (err) {
       return callback(err);
     }
+
+    localpubsub.topic('community:join').forward(globalpubsub, {
+      author: userAuthor_id,
+      target: userTarget_id,
+      community: id
+    });
+
     return callback(null, updated);
   });
 };

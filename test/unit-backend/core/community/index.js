@@ -481,7 +481,7 @@ describe('The communities module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, function(err) {
+      community.join(123, 456, 456, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -500,9 +500,45 @@ describe('The communities module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, function(err, update) {
+      community.join(123, 456, 456, function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
+        return done();
+      });
+    });
+
+    it('should forward message into community:join', function(done) {
+      var result = {_id: 123};
+      var mongoose = {
+        model: function() {
+          return {
+            update: function(a, b, callback) {
+              return callback(null, result);
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+
+      var localstub = {}, globalstub = {};
+      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.join(123, 456, 789, function(err, update) {
+        expect(err).to.not.exist;
+        expect(update).to.deep.equal(result);
+
+        expect(localstub.topics['community:join'].data[0]).to.deep.equal({
+          author: 456,
+          target: 789,
+          community: 123
+        });
+        expect(globalstub.topics['community:join'].data[0]).to.deep.equal({
+          author: 456,
+          target: 789,
+          community: 123
+        });
+
         return done();
       });
     });

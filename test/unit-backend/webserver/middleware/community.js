@@ -42,7 +42,10 @@ describe('The community middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
       var req = {
         community: {type: 'foo'},
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
       var res = {
         json: function(code) {
@@ -58,7 +61,10 @@ describe('The community middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
       var req = {
         community: {type: 'open'},
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
       var res = {
         json: function() {
