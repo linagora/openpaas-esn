@@ -76,17 +76,21 @@ Post a new message by the currently logged in user.
 
 - object: the definition of the object
 
-  object: {
-    objectType: "whatsup",             # Type of the message
-    content: whatsup message content,  # Content of the message
-  }
+```
+    object: {
+      objectType: "whatsup",             # Type of the message
+      content: whatsup message content,  # Content of the message
+    }
+```
 
 - targets: An array of targets
 
+```
   targets: [{
     objectType: "activitystream",                                 # Type of the target
     id: "urn:linagora.com:activitystream:<activitystream uuid>",  # This is an activity stream id
   }]
+```
 
 **Status Codes:**
 
@@ -132,17 +136,21 @@ Post a new comment in reply to a message, by the currently logged in user.
 
 - object: the definition of the object
 
+```
   object: {
     objectType: "whatsup",             # Type of the message
     content: whatsup message content,  # Content of the message
   }
+```
 
 - inReplyTo: the definition of the parent message
 
+```
   inReplyTo: {
     objectType: "whatsup",                                 # Type of the target
     id: "urn:linagora.com:whatsup:<whatsup uuid>",  # This is an activity stream id
   }
+```
 
 **Status Codes:**
 

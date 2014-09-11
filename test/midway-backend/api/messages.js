@@ -8,11 +8,13 @@ var request = require('supertest'),
 describe('The messages API', function() {
   var app;
   var testuser;
+  var restrictedUser;
   var domain;
   var community;
   var restrictedCommunity;
   var password = 'secret';
   var email = 'foo@bar.com';
+  var restrictedEmail = 'restricted@bar.com';
 
   beforeEach(function(done) {
     var self = this;
@@ -27,6 +29,12 @@ describe('The messages API', function() {
         username: 'Foo',
         password: password,
         emails: [email]
+      });
+
+      restrictedUser = new User({
+        username: 'Restricted',
+        password: password,
+        emails: [restrictedEmail]
       });
 
       domain = new Domain({
@@ -74,12 +82,18 @@ describe('The messages API', function() {
           saveUser(testuser, callback);
         },
         function(callback) {
+          saveUser(restrictedUser, callback);
+        },
+        function(callback) {
           saveDomain(domain, testuser, callback);
         },
         function(callback) {
           saveCommunity(community, domain, callback);
         },
         function(callback) {
+          restrictedCommunity.members = [
+            {user: restrictedUser._id, status: 'joined'}
+          ];
           saveCommunity(restrictedCommunity, domain, callback);
         }
       ],
@@ -468,4 +482,73 @@ describe('The messages API', function() {
       });
   });
 
+  it('should not be able to reply to a message posted in a restricted community the current user is not member of', function(done) {
+
+    var Whatsup = this.mongoose.model('Whatsup');
+
+    var self = this;
+    var message = 'Post a message to a restricted community';
+    var target = {
+      objectType: 'activitystream',
+      id: restrictedCommunity.activity_stream.uuid
+    };
+
+    this.helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsRestrictedUser) {
+      if (err) {
+        return done(err);
+      }
+      var response = 'This is the response message';
+
+      var req = loggedInAsRestrictedUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'whatsup'
+        },
+        targets: [target]
+      });
+
+      req.expect(201);
+      req.end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+
+        self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          var req = loggedInAsUser(request(app).post('/api/messages'));
+          var messageId = res.body._id;
+
+          console.log('MESSAGEID', messageId);
+
+          req.send({
+            object: {
+              description: response,
+              objectType: 'whatsup'
+            },
+            inReplyTo: {
+              objectType: 'whatsup',
+              _id: messageId
+            }
+          });
+
+          req.expect(400);
+          req.end(function(err) {
+            expect(err).to.not.exist;
+            process.nextTick(function() {
+              Whatsup.findById(messageId, function(err, message) {
+                if (err) {
+                  return done(err);
+                }
+
+                expect(message).to.exist;
+                expect(message.responses).to.exists;
+                expect(message.responses.length).to.equal(0);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });
