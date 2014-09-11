@@ -41,6 +41,9 @@ Here is a list of the available topics with their associated data.
 - conference:join({conference_id, user_id}). Fired when a user joins a conference.
 - conference:leave({conference_id, user_id}). Fired when a user leaves a conference.
 
+- community:join({author, target, community}). Fired when a user joins a community.
+- community:leave({author, target, community}). Fired when a user leaves a community.
+
 #### message:stored
 
 A message has been persisted in the datastore.
@@ -96,6 +99,8 @@ For example, when a user 123 has sent a message 456 to the user 789:
 | activitystreams |                             | message:activity            |         |           |       |
 | conference      | conference:join             |                             |         |           |       |
 |                 | conference:leave            |                             |         |           |       |
+| community       | community:join              |                             |         |           |       |
+|                 | community:leave             |                             |         |           |       |
 | user/login      | login:success               |                             |         |           |       |
 |                 | login:failure               |                             |         |           |       |
 | invitation      | invitation:init:failure     |                             |         |           |       |
