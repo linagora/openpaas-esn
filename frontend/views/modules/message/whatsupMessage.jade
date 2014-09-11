@@ -8,5 +8,5 @@ div.inner-widget
         | &nbsp;-&nbsp;
         a(href="/#messages/{{message._id}}")
           span(am-time-ago="message.published")
-    p.multilines(ng-bind-html="message.content | linkify:'twitter'")
+    p.multilines(ng-bind-html="message.content | linkify")
     include ./partials/whatsupBottomLinks
