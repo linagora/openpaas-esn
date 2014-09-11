@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var activitystreams = require('../../core/activitystreams');
+var communityPermission = require('../../core/community/permission');
 
 module.exports.findStreamResource = function(req, res, next) {
   var uuid = req.params.uuid;
@@ -42,7 +43,14 @@ module.exports.filterValidTargets = function(req, res, next) {
   async.filter(targets,
     function(item, callback) {
       Community.getFromActivityStreamID(item.id, function(err, community) {
-        return callback(!err && community);
+
+        if (err || !community) {
+          return callback(false);
+        }
+
+        communityPermission.canWrite(community, req.user, function(err, writable) {
+          return callback(!err && writable);
+        });
       });
     },
     function(results) {
