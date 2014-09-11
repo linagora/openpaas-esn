@@ -31,6 +31,10 @@ module.exports.canLeave = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
+  if (!req.params || !req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User_id is missing'}});
+  }
+
   if (req.user._id.equals(req.community.creator)) {
     return res.json(403, {error: 403, message: 'Forbidden', details: 'Creator can not leave community'});
   }

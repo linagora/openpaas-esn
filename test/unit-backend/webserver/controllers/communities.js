@@ -1172,7 +1172,10 @@ describe('The communities controller', function() {
       };
 
       var req = {
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -1190,6 +1193,28 @@ describe('The communities controller', function() {
       };
 
       var req = {
+        community: {},
+        params: {
+          user_id: {}
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.leave(req, res);
+    });
+
+    it('should send back 400 if req.params.user_id is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+        user: {},
         community: {}
       };
 
@@ -1199,7 +1224,7 @@ describe('The communities controller', function() {
 
     it('should send back 500 if community module fails', function(done) {
       mockery.registerMock('../../core/community', {
-        leave: function(community, user, cb) {
+        leave: function(community, user, userTarget, cb) {
           return cb(new Error());
         }
       });
@@ -1213,7 +1238,10 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -1222,7 +1250,7 @@ describe('The communities controller', function() {
 
     it('should send back 204 if community module succeed', function(done) {
       mockery.registerMock('../../core/community', {
-        leave: function(community, user, cb) {
+        leave: function(community, user, userTarget, cb) {
           return cb();
         }
       });
@@ -1236,7 +1264,10 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');

@@ -925,7 +925,7 @@ describe('The communities API', function() {
 
   describe('DELETE /api/communities/:id/members/:user_id', function() {
 
-    it('should return 401 is user is not authenticated', function(done) {
+    it('should return 401 if user is not authenticated', function(done) {
       var community = {_id: 123};
       request(webserver.application). delete('/api/communities/' + community._id + '/members/123').expect(401).end(function(err, res) {
         expect(err).to.be.null;

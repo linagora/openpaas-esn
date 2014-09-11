@@ -116,14 +116,22 @@ module.exports.userIsCommunityMember = function(user, community, callback) {
   });
 };
 
-module.exports.leave = function(community, user, callback) {
+module.exports.leave = function(community, userAuthor, userTarget, callback) {
   var id = community._id || community;
-  var user_id = user._id || user;
+  var userAuthor_id = userAuthor._id || userAuthor;
+  var userTarget_id = userTarget._id || userTarget;
 
-  Community.update({_id: id, 'members.user': user_id}, {$pull: {members: {user: user_id}}}, function(err, updated) {
+  Community.update({_id: id, 'members.user': userTarget_id}, {$pull: {members: {user: userTarget_id}}}, function(err, updated) {
     if (err) {
       return callback(err);
     }
+
+    localpubsub.topic('community:leave').forward(globalpubsub, {
+      author: userAuthor_id,
+      target: userTarget_id,
+      community: id
+    });
+
     return callback(null, updated);
   });
 };
