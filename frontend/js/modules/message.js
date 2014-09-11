@@ -157,14 +157,14 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/message/whatsupEdition.html'
+      templateUrl: '/views/modules/message/whatsup/whatsupEdition.html'
     };
   })
   .directive('whatsupAddComment', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/message/whatsupAddComment.html'
+      templateUrl: '/views/modules/message/whatsup/whatsupAddComment.html'
     };
   })
   .directive('whatsupMessage', function() {
@@ -175,10 +175,10 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
         message: '=',
         activitystreamUUID: '='
       },
-      templateUrl: '/views/modules/message/whatsupMessage.html'
+      templateUrl: '/views/modules/message/whatsup/whatsupMessage.html'
     };
   })
-  .directive('whatsupThread', function() {
+  .directive('messagesThread', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -188,7 +188,7 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
         lastPost: '=',
         writable: '='
       },
-      templateUrl: '/views/modules/message/whatsupThread.html'
+      templateUrl: '/views/modules/message/messagesThread.html'
     };
   })
   .factory('messageAPI', ['Restangular', function(Restangular) {

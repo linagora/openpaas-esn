@@ -8,6 +8,6 @@ div(ng-controller="activitystreamController")
       infinite-list
           ul.media-list
             li.media(ng-repeat="thread in threads")
-              whatsup-thread(message='thread' activitystream-uuid='activitystreamUuid' last-post='lastPost' writable='writable')
+              messages-thread(message='thread' activitystream-uuid='activitystreamUuid' last-post='lastPost' writable='writable')
       .throbber-container.text-center
         span.throbber(us-spinner, spinner-key='activityStreamSpinner')

@@ -41,7 +41,7 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-  describe('whatsupThread directive', function() {
+  describe('messagesThread directive', function() {
 
     beforeEach(module('jadeTemplates'));
 
@@ -51,7 +51,7 @@ describe('The esn.message Angular module', function() {
     }]));
 
     it('should display the message thread', function() {
-      var html = '<whatsup-thread message="testMessage"></whatsup-thread>';
+      var html = '<messages-thread message="testMessage"></messages-thread>';
       var element = this.$compile(html)(this.$rootScope);
 
       this.$rootScope.testMessage = { _id: 123456789,
