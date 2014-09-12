@@ -109,7 +109,7 @@ describe('The email message module', function() {
       var author = 123;
       var mail = {
         headers: {
-          'Received': [ 'from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])' ],
+          'Received': ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
           'From': 'AwesomeGuy <awesomeguy@linagora.com',
           'To': 'anotherone@linagora.com',
           'Subject': 'a subject'

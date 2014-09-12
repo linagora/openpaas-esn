@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 describe('The email helpers module', function() {
   it('should return a well formatted headers', function() {
     var headers = {
-      'Received': [ 'from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])' ],
+      'Received': ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
       'From': 'AwesomeGuy <awesomeguy@linagora.com',
       'To': 'anotherone@linagora.com',
       'Subject': 'a subject'

@@ -9,11 +9,9 @@ var EmailMessageSchema = new mongoose.Schema({
   objectType: {type: String, required: true, default: 'email'},
   author: {type: mongoose.Schema.ObjectId, required: true},
   language: {type: String, required: false},
-  published: {type: Date, default: Date.now},
   headers: [mongoose.Schema.Mixed],
-  subject: {type: String, required: true},
   body: {
-    text: {type: String, required: true},
+    text: {type: String, required: false},
     html: {type: String, required: false}
   },
   attachments: {type: [String], required: false },
