@@ -13,6 +13,7 @@ describe('The esn.message Angular module', function() {
   describe('whatsupMessage directive', function() {
 
     beforeEach(module('jadeTemplates'));
+    beforeEach(module('linkify'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
@@ -44,6 +45,7 @@ describe('The esn.message Angular module', function() {
   describe('whatsupThread directive', function() {
 
     beforeEach(module('jadeTemplates'));
+    beforeEach(module('linkify'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
