@@ -5,10 +5,6 @@ var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var async = require('async');
 
-var getCommunityFromStreamId = function(streamId, callback) {
-  return Community.getFromActivityStreamID(streamId, callback);
-};
-
 /**
  * User can reply to a message if he has at least write access to one of the communities the message has been shared to.
  */
@@ -22,7 +18,7 @@ module.exports.canReply = function(message, user, callback) {
       return found(false);
     }
 
-    getCommunityFromStreamId(share.id, function(err, community) {
+    Community.getFromActivityStreamID(share.id, function(err, community) {
 
       if (err || !community) {
         return found(false);
