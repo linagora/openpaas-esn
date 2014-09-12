@@ -10,10 +10,7 @@ var EmailMessageSchema = new mongoose.Schema({
   author: {type: mongoose.Schema.ObjectId, required: true},
   language: {type: String, required: false},
   published: {type: Date, default: Date.now},
-  from: {type: String, required: true},
-  to: {type: [String], required: true},
-  cc: {type: [String], required: false},
-  bcc: {type: [String], required: false},
+  headers: [mongoose.Schema.Mixed],
   subject: {type: String, required: true},
   body: {
     text: {type: String, required: true},

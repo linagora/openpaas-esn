@@ -108,11 +108,12 @@ describe('The email message module', function() {
 
       var author = 123;
       var mail = {
-        from: [{address: 'from@bar.com'}],
-        to: [{address: 'to1@bar.com'}, {address: 'to2@bar.com'}],
-        cc: [{address: 'cc1@bar.com'}, {address: 'cc2@bar.com'}, {address: 'cc3@bar.com'}],
-        bcc: [{address: 'bcc1@bar.com'}, {address: 'bcc2@bar.com'}],
-        subject: 'The email subject',
+        headers: {
+          'Received': [ 'from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])' ],
+          'From': 'AwesomeGuy <awesomeguy@linagora.com',
+          'To': 'anotherone@linagora.com',
+          'Subject': 'a subject'
+        },
         text: 'The text part of email body',
         html: 'The html part of email body'
       };
@@ -123,14 +124,13 @@ describe('The email message module', function() {
             return {
               save: function() {
                 expect(this.author).to.equal(author);
-                expect(this.from).to.equal(mail.from[0].address);
-                expect(this.to).to.exist;
-                expect(this.to.length).to.equal(2);
-                expect(this.cc).to.exist;
-                expect(this.cc.length).to.equal(3);
-                expect(this.bcc).to.exist;
-                expect(this.bcc.length).to.equal(2);
-                expect(this.subject).to.equal(mail.subject);
+                expect(this.headers).to.deep.equal([
+                  ['Received', 'from locahost (localhost [127.0.0.1])'],
+                  ['Received', 'from linagora (linagora [10.75.9.2])'],
+                  ['From', 'AwesomeGuy <awesomeguy@linagora.com'],
+                  ['To', 'anotherone@linagora.com'],
+                  ['Subject', 'a subject']
+                ]);
                 expect(this.body.text).to.equal(mail.text);
                 expect(this.body.html).to.equal(mail.html);
                 return done();

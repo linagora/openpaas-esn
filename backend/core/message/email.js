@@ -3,6 +3,7 @@
 var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
 var EmailMessage = mongoose.model('EmailMessage');
+var emailHelpers = require('../../helpers/email');
 var logger = require('../logger');
 
 /**
@@ -32,29 +33,7 @@ function saveEmail(stream, author, shares, callback) {
     var mail = new EmailMessage();
     mail.author = author;
 
-    if (mail_object.from && mail_object.from.length > 0) {
-      mail.from = mail_object.from[0].address;
-    }
-
-    if (mail_object.to) {
-      mail.to = mail_object.to.map(function(to) {
-        return to.address;
-      });
-    }
-
-    if (mail_object.cc) {
-      mail.cc = mail_object.cc.map(function(cc) {
-        return cc.address;
-      });
-    }
-
-    if (mail_object.bcc) {
-      mail.bcc = mail_object.bcc.map(function(bcc) {
-        return bcc.address;
-      });
-    }
-
-    mail.subject = mail_object.subject;
+    mail.headers = emailHelpers.formatHeaders(mail_object.headers);
 
     mail.body = {};
 
