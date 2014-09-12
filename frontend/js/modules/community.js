@@ -437,7 +437,6 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     $scope.writable = community.writable;
 
     $scope.$on('community:membership', function(data) {
-      console.log('Membership update, update the community behavior');
       communityAPI.get(community._id).then(function(response) {
         $scope.writable = response.data.writable;
       });
