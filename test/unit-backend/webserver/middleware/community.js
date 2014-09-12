@@ -42,7 +42,10 @@ describe('The community middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
       var req = {
         community: {type: 'foo'},
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
       var res = {
         json: function(code) {
@@ -58,7 +61,10 @@ describe('The community middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
       var req = {
         community: {type: 'open'},
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
       var res = {
         json: function() {
@@ -76,7 +82,10 @@ describe('The community middleware', function() {
       mockery.registerMock('../../core/community', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
       var req = {
-        user: {}
+        user: {},
+        params: {
+          user_id: {}
+        }
       };
       var res = {
         json: function(code) {
@@ -91,6 +100,25 @@ describe('The community middleware', function() {
       mockery.registerMock('../../core/community', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
       var req = {
+        community: {},
+        params: {
+          user_id: {}
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 400 when req.params.user_id is not defined', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
+      var req = {
+        user: {},
         community: {}
       };
       var res = {
@@ -109,7 +137,10 @@ describe('The community middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
       var req = {
         community: {creator: id},
-        user: {_id: id}
+        user: {_id: id},
+        params: {
+          user_id: id
+        }
       };
       var res = {
         json: function(code) {
@@ -126,7 +157,10 @@ describe('The community middleware', function() {
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
       var req = {
         community: {creator: new ObjectId()},
-        user: {_id: new ObjectId()}
+        user: {_id: new ObjectId()},
+        params: {
+          user_id: new ObjectId()
+        }
       };
       var res = {
         json: function() {

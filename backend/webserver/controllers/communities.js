@@ -248,14 +248,19 @@ module.exports.join = function(req, res) {
   var user = req.user;
 
   if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
+
+  if (!req.params || !req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
+  }
+  var targetUser = req.params.user_id;
 
   if (!community) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.join(community, user, function(err) {
+  communityModule.join(community, user, targetUser, function(err) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -268,14 +273,19 @@ module.exports.leave = function(req, res) {
   var user = req.user;
 
   if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
+
+  if (!req.params || !req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
+  }
+  var targetUser = req.params.user_id;
 
   if (!community) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.leave(community, user, function(err) {
+  communityModule.leave(community, user, targetUser, function(err) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
