@@ -28,6 +28,11 @@ describe('The WebSockets Event module', function() {
     };
     mockery.registerMock('./notification/notifications', notificationsMock);
 
+    var communityMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/community', communityMock);
+
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
 
@@ -55,6 +60,10 @@ describe('The WebSockets Event module', function() {
     };
     mockery.registerMock('./notification/notifications', notificationsMock);
 
+    var communityMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/community', communityMock);
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
@@ -83,6 +92,43 @@ describe('The WebSockets Event module', function() {
       }
     };
     mockery.registerMock('./notification/notifications', notificationsMock);
+
+    var communityMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/community', communityMock);
+
+    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+  });
+
+  it('should initialize the community event', function(done) {
+    var io = {
+      sockets: {
+        on: function() {}
+      }
+    };
+
+    var activitystreamsMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/activitystreams', activitystreamsMock);
+
+    var conferencesMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/conferences', conferencesMock);
+
+    var notificationsMock = {
+      init: function() {}
+    };
+    mockery.registerMock('./notification/notifications', notificationsMock);
+
+    var communityMock = {
+      init: function() {
+        done();
+      }
+    };
+    mockery.registerMock('./notification/community', communityMock);
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
