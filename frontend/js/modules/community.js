@@ -249,11 +249,47 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       );
     };
   }])
-  .controller('communitiesController', ['$scope', '$log', '$location', 'session', 'communityAPI', 'userAPI', function($scope, $log, $location, session, communityAPI, userAPI) {
+  .controller('communitiesController', ['$scope', '$log', '$location', 'session', 'communityAPI', 'userAPI',
+  function($scope, $log, $location, session, communityAPI, userAPI) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;
+    $scope.user = session.user;
     $scope.selected = '';
+
+    function refreshCommunity(community) {
+      communityAPI.get(community._id).then(
+        function(response) {
+          var updatedCommunity = response.data;
+          for (var i = 0, len = $scope.communities.length; i < len; i++) {
+            if ($scope.communities[i]._id === community._id) {
+              $scope.communities[i] = updatedCommunity;
+            }
+          }
+        },
+        function(err) {
+          $log.error('Error while loading community', err);
+        }
+      );
+    }
+
+    $scope.joinSuccess = function(community) {
+      $location.path('/communities/' + community._id);
+    };
+
+    $scope.joinFailure = function(community) {
+      $log.error('failed to join community', community);
+      refreshCommunity(community);
+    };
+
+    $scope.leaveSuccess = function(community) {
+      refreshCommunity(community);
+    };
+
+    $scope.leaveFailure = function(community) {
+      $log.error('failed to leave community', community);
+      refreshCommunity(community);
+    };
 
     $scope.getAll = function() {
       $scope.selected = 'all';
@@ -318,39 +354,6 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       );
     };
 
-    $scope.canJoin = function(community) {
-      if (!community) {
-        return false;
-      }
-      if (community.members.some(function(member) {
-        return member.user === session.user._id;
-      })) {
-        return false;
-      }
-      return (community.type === 'open');
-    };
-
-    $scope.join = function(community) {
-      if (!$scope.canJoin(community)) {
-        $log.error('Can not join the community');
-        return;
-      }
-
-      $scope.joining = community._id;
-      communityAPI.join(community._id, session.user._id).then(
-        function() {
-          $location.path('/communities/' + community._id);
-        },
-        function(err) {
-          $log.error('Error while joining community ' + community, err);
-        }
-      ).finally (
-        function() {
-          $scope.joining = 0;
-        }
-      );
-    };
-
     $scope.getAll();
   }])
   .directive('communityDisplay', function() {
@@ -367,73 +370,89 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       templateUrl: '/views/modules/community/community-description.html'
     };
   })
-  .directive('communityButtonJoin', function() {
+  .directive('communityButtonJoin', ['communityMembership', function(communityMembership) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-join.html',
+      replace: true,
+      link: function($scope) {
+        $scope.disabled = false;
+        $scope.join = function() {
+          $scope.disabled = true;
+          communityMembership.join($scope.community, $scope.user)
+          .then($scope.onJoin, $scope.onFail)
+          .finally (function() {
+            $scope.disabled = false;
+          });
+        };
+
+        $scope.canJoin = function() {
+          return $scope.user._id !== $scope.community.creator &&
+                 communityMembership.openMembership($scope.community) &&
+                 !communityMembership.isMember($scope.community, $scope.user);
+        };
+      },
       scope: {
-        onClick: '&',
-        show: '&',
-        disabled: '&'
+        community: '=',
+        user: '=',
+        onJoin: '&',
+        onFail: '&'
       }
     };
-  })
+  }])
+  .directive('communityButtonLeave', ['communityMembership', function(communityMembership) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-button-leave.html',
+      replace: true,
+      link: function($scope) {
+        $scope.disabled = false;
+        $scope.leave = function() {
+          $scope.disabled = true;
+          communityMembership.leave($scope.community, $scope.user)
+          .then($scope.onLeave, $scope.onFail)
+          .finally (function() {
+            $scope.disabled = false;
+          });
+        };
+
+        $scope.canLeave = function() {
+          return $scope.user._id !== $scope.community.creator &&
+                 communityMembership.isMember($scope.community, $scope.user);
+        };
+      },
+      scope: {
+        community: '=',
+        user: '=',
+        onLeave: '&',
+        onFail: '&'
+      }
+    };
+  }])
   .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'community', function($scope, $location, $log, session, communityAPI, community) {
     $scope.community = community;
+    $scope.user = session.user;
     $scope.error = false;
     $scope.loading = false;
 
-    $scope.canJoin = function() {
-      return !$scope.community.members.some(function(member) {
-        return member.user === session.user._id;
+    $scope.onLeave = function() {
+      $location.path('/communities');
+    };
+
+    $scope.reload = function() {
+      communityAPI.get($scope.community._id)
+      .then(function(response) {
+        $scope.community = response.data;
       });
     };
 
-    $scope.isCreator = function() {
-      return session.user._id === $scope.community.creator;
+    $scope.joinFailure = function() {
+      $log.error('unable to join community');
+      $scope.reload();
     };
-
-    $scope.canLeave = function() {
-      return !$scope.canJoin() && !$scope.isCreator();
-    };
-
-    $scope.join = function() {
-      communityAPI.join(community._id, session.user._id).then(
-        function() {
-          communityAPI.get($scope.community._id).then(
-            function(response) {
-              $scope.community = response.data;
-            },
-            function(err) {
-              $log.error('Error while loading community', err);
-            }
-          );
-        },
-        function(err) {
-          $log.error('Error while joining community', err);
-          $scope.error = true;
-        }
-      ).finally (
-        function() {
-          $scope.loading = false;
-        }
-      );
-    };
-
-    $scope.leave = function() {
-      communityAPI.leave(community._id, session.user._id).then(
-        function() {
-          $location.path('/communities');
-        },
-        function(err) {
-          $log.error('Error while leaving community', err);
-          $scope.error = true;
-        }
-      ).finally (
-        function() {
-          $scope.loading = false;
-        }
-      );
+    $scope.leaveFailure = function() {
+      $log.error('unable to leave community');
+      $scope.reload();
     };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', function(communityAPI, session) {
@@ -483,5 +502,47 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
           })(lastValue);
         });
       }
+    };
+  }])
+  .factory('communityMembership', ['communityAPI', '$q', function(communityAPI, $q) {
+    function isMember(community, user) {
+      if (!community || !community.members || !user) {
+        return false;
+      }
+      if (community.members.some(function(member) {
+        return member.user === user._id;
+      })) {
+        return true;
+      }
+      return false;
+    }
+
+    function openMembership(community) {
+      return (community.type === 'open');
+    }
+
+    function join(community, user) {
+      if (isMember(community, user)) {
+        var defer = $q.defer();
+        defer.reject('Can not join the community');
+        return defer.promise;
+      }
+      return communityAPI.join(community._id, user._id);
+    }
+
+    function leave(community, user) {
+      if (!isMember(community, user)) {
+        var defer = $q.defer();
+        defer.reject('Can not leave the community');
+        return defer.promise;
+      }
+      return communityAPI.leave(community._id, user._id);
+    }
+
+    return {
+      openMembership: openMembership,
+      isMember: isMember,
+      join: join,
+      leave: leave
     };
   }]);
