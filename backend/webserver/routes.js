@@ -49,7 +49,7 @@ exports = module.exports = function(application) {
   var messages = require('./controllers/messages');
   var messageMiddleware = require('./middleware/message');
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
-  application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterValidTargets, messages.createOrReplyToMessage);
+  application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterWritableTargets, messages.createOrReplyToMessage);
   application.get('/api/messages/:uuid', authorize.requiresAPILogin, messages.getMessage);
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
 

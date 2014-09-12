@@ -28,7 +28,7 @@ module.exports.findStreamResource = function(req, res, next) {
   });
 };
 
-module.exports.filterValidTargets = function(req, res, next) {
+module.exports.filterWritableTargets = function(req, res, next) {
   var inReplyTo = req.body.inReplyTo;
   if (inReplyTo) {
     return next();

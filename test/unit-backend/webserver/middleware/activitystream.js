@@ -5,7 +5,7 @@ var mockery = require('mockery');
 
 describe('The activitystream middleware', function() {
 
-  describe('The filterValidTargets fn', function() {
+  describe('The filterWritableTargets fn', function() {
     it('should send an error if targets is not set', function(done) {
       var mock = {
         model: function() {
@@ -18,7 +18,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {});
-        var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+        var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
         }
@@ -45,7 +45,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: []
@@ -73,7 +73,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: undefined
@@ -107,7 +107,7 @@ describe('The activitystream middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -155,7 +155,7 @@ describe('The activitystream middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -200,7 +200,7 @@ describe('The activitystream middleware', function() {
           return callback(null, community._id > 10);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -247,7 +247,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterValidTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: undefined,
