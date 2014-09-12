@@ -15,7 +15,7 @@ module.exports.canReplyTo = function(req, res, next) {
         if (result) {
           return next();
         }
-        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You can not reply to this message'}});
+        return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not reply to this message'}});
       });
     });
   } else {

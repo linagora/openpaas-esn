@@ -64,7 +64,7 @@ describe('The messages middleware', function() {
       middleware(req, res);
     });
 
-    it('should send back 400 if messagePermission.canReply returns error', function(done) {
+    it('should send back 403 if messagePermission.canReply returns error', function(done) {
       mockery.registerMock('../../core/message/permission', {
         canReply: function(message, user, callback) {
           return callback(new Error());
@@ -87,14 +87,14 @@ describe('The messages middleware', function() {
       };
       var res = {
         json: function(code) {
-          expect(code).to.equal(400);
+          expect(code).to.equal(403);
           done();
         }
       };
       middleware(req, res);
     });
 
-    it('should send back 400 if messagePermission.canReply returns false', function(done) {
+    it('should send back 403 if messagePermission.canReply returns false', function(done) {
       mockery.registerMock('../../core/message/permission', {
         canReply: function(message, user, callback) {
           return callback(null, false);
@@ -117,7 +117,7 @@ describe('The messages middleware', function() {
       };
       var res = {
         json: function(code) {
-          expect(code).to.equal(400);
+          expect(code).to.equal(403);
           done();
         }
       };

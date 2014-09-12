@@ -518,8 +518,6 @@ describe('The messages API', function() {
           var req = loggedInAsUser(request(app).post('/api/messages'));
           var messageId = res.body._id;
 
-          console.log('MESSAGEID', messageId);
-
           req.send({
             object: {
               description: response,
@@ -531,7 +529,7 @@ describe('The messages API', function() {
             }
           });
 
-          req.expect(400);
+          req.expect(403);
           req.end(function(err) {
             expect(err).to.not.exist;
             process.nextTick(function() {
