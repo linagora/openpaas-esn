@@ -35,7 +35,8 @@ module.exports = function(config) {
       'frontend/views/modules/activitystream/**/*.jade',
       'frontend/views/modules/search/**/*.jade',
       'frontend/views/modules/infinite-list/**/*.jade',
-      'frontend/views/modules/message/**/*.jade'
+      'frontend/views/modules/message/**/*.jade',
+      'frontend/views/modules/community/**/*.jade'
     ],
 
     frameworks: ['mocha'],
