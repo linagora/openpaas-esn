@@ -211,52 +211,18 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       defaults: {
         scrollWheelZoom: false
       }, center: {
-        lat: 52.52,
-        lng: 13.40,
-        zoom: 16
+        lat: 48.8534100,
+        lng: 2.3488000,
+        zoom: 10
       }
     });
 
-    $scope.getMarkers = function(position) {
-      if (!position) {
-        return {};
-      }
+    $scope.showMeMap = false;
 
-      return {
-        me: {
-          focus: true,
-          draggable: false,
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        }
-      }
-    };
-
-    $scope.getCenter = function(position) {
+    $scope.showMap = function(position) {
       if (!position) {
         return;
       }
-
-      return {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        zoom: 16
-      }
-    };
-
-    $scope.show = false;
-    $scope.showMe = false;
-    $scope.$watch("show", function(value) {
-      if (value === true) {
-        leafletData.getMap().then(function(map) {
-          map.invalidateSize(true);
-        }, function(err) {
-          console.log(err)
-        });
-      }
-    });
-
-    $scope.showMap = function(position) {
 
       $scope.markers = {
         me: {
@@ -266,18 +232,14 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
           lng: position.coords.longitude
         }
       };
+
       $scope.center = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
         zoom: 16
       };
 
-      leafletData.getMap().then(function(map) {
-        map.invalidateSize(true);
-        $scope.show = true;
-      }, function(err) {
-        console.log(err)
-      });
+      $scope.showMeMap = true;
     };
   })
   .directive('whatsupEdition', function() {
