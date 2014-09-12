@@ -1,5 +1,10 @@
-angular.module('esn.maps', [])
-  .factory('geoAPI', ['$http', '$q', function($http, $q) {
+angular.module('esn.maps', ['ngGeolocation'])
+  .factory('geoAPI', ['$http', '$geolocation', function($http, $geolocation) {
+
+    function getCurrentPosition() {
+      return $geolocation.getCurrentPosition();
+    }
+
     function reverse(latitude, longitude, config) {
       config = config || {};
       config.method = config.method || 'GET';
@@ -15,7 +20,8 @@ angular.module('esn.maps', [])
     }
 
     return {
-      reverse: reverse
+      reverse: reverse,
+      getCurrentPosition: getCurrentPosition
     };
   }]
 );

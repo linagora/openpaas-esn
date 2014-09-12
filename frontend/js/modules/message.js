@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'ngGeolocation', 'esn.maps'])
+angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'ngGeolocation', 'esn.maps', 'leaflet-directive'])
   .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', '$geolocation', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, $geolocation, geoAPI) {
 
     $scope.rows = 1;
@@ -20,11 +20,12 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
     $scope.fillPosition = function() {
       $scope.position.load = true;
       $scope.position.show = true;
-      $geolocation.getCurrentPosition().then(function(data) {
-        $scope.position.data = data.coords;
+      geoAPI.getCurrentPosition().then(function(data) {
+        $scope.position.coords = data.coords;
         $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
           $scope.position.message = data.data.display_name;
+          $scope.position.display_name = data.data.display_name;
           $scope.position.load = false;
         }, function(err) {
           console.log(err);
@@ -47,14 +48,21 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         return;
       }
 
-      if ($scope.position.data) {
-        $scope.position = {};
-      }
-
       var objectType = 'whatsup';
       var data = {
         description: $scope.whatsupmessage
       };
+
+      if ($scope.position.coords) {
+        data.position = {
+          coords: $scope.position.coords
+        }
+      }
+
+      if ($scope.position.display_name) {
+        data.position.display_name = $scope.position.display_name;
+      }
+
       var target = {
         objectType: 'activitystream',
         id: $scope.activitystreamUuid
@@ -74,6 +82,11 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
             $scope.displayError('You do not have enough rights to write a new message here');
           } else {
             $scope.displayError('Error while sharing your whatsup message');
+          }
+        }
+      ).finally(function() {
+          if ($scope.position.coords) {
+            $scope.position = {};
           }
         }
       );
@@ -190,6 +203,81 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/templates/emailMessage.html'
+    };
+  })
+  .controller('whatsupMapController', function($scope, leafletData) {
+
+    angular.extend($scope, {
+      defaults: {
+        scrollWheelZoom: false
+      }, center: {
+        lat: 52.52,
+        lng: 13.40,
+        zoom: 16
+      }
+    });
+
+    $scope.getMarkers = function(position) {
+      if (!position) {
+        return {};
+      }
+
+      return {
+        me: {
+          focus: true,
+          draggable: false,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+      }
+    };
+
+    $scope.getCenter = function(position) {
+      if (!position) {
+        return;
+      }
+
+      return {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        zoom: 16
+      }
+    };
+
+    $scope.show = false;
+    $scope.showMe = false;
+    $scope.$watch("show", function(value) {
+      if (value === true) {
+        leafletData.getMap().then(function(map) {
+          map.invalidateSize(true);
+        }, function(err) {
+          console.log(err)
+        });
+      }
+    });
+
+    $scope.showMap = function(position) {
+
+      $scope.markers = {
+        me: {
+          focus: true,
+          draggable: false,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+      };
+      $scope.center = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        zoom: 16
+      };
+
+      leafletData.getMap().then(function(map) {
+        map.invalidateSize(true);
+        $scope.show = true;
+      }, function(err) {
+        console.log(err)
+      });
     };
   })
   .directive('whatsupEdition', function() {
