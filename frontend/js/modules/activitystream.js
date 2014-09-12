@@ -354,6 +354,9 @@ angular.module('esn.activitystream', [
           // before we start fetching the stream
           $timeout(function() {
             scope.loadMoreElements();
+            $rootScope.$emit('activitystream:updated', {
+              activitystreamUuid: currentActivitystreamUuid
+            });
           },0);
 
           var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
