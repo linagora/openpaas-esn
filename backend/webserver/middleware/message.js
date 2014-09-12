@@ -6,8 +6,8 @@ var messageModule = require('../../core/message');
 module.exports.canReplyTo = function(req, res, next) {
   var inReplyTo = req.body.inReplyTo;
   if (inReplyTo) {
-    return messageModule.get(inReplyTo._id, function(err, message) {
-      if (err ||   !message) {
+    messageModule.get(inReplyTo._id, function(err, message) {
+      if (err || !message) {
         return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Can not find message to reply to'}});
       }
 
