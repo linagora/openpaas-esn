@@ -423,6 +423,51 @@ angular.module('esn.activitystream', [
         });
       };
 
+      $scope.threads.push({
+          body: {
+            text: 'Ceci est un message automatique.',
+            html: '<strong>Ceci est un message automatique.</strong>'
+          },
+          from: 'Stephen Le Maistre <slemaistre@linagora.com>',
+          to: 'Laurent Dubois <ldubois@linagora.com>',
+          cc: 'mbailly@linagora.com',
+          subject: '[Openpaas] Hey ! It is a new email from OpenPaas',
+          objectType: 'email',
+          published: new Date('2014-09-11T08:16:44.312Z'),
+          author: {
+            __v: 21,
+            _id: '538f3e70e89c3c985e6c0ba2',
+            currentAvatar: '5fe1f2c0-10f6-11e4-b626-01515edcb70d',
+            firstname: 'Stephen',
+            lastname: 'Le Maistre',
+            password: '$2a$05$b1oz8Q33.zLDXPXaFWEqtufUVfWJQfRcSAmnaio4FEa/YGpVmMQ8C',
+            avatars: [
+              '9541fed0-f600-11e3-a40e-9f1bea318feb',
+              '27b86b20-fc44-11e3-830a-47dc9ad0ddb4',
+              '377691e0-fc44-11e3-830a-47dc9ad0ddb4',
+              '7a2ec7f0-fc7b-11e3-b011-c90b46059c7d',
+              '5fe1f2c0-10f6-11e4-b626-01515edcb70d'
+            ],
+            schemaVersion: 1,
+            login: {
+              success: new Date('2014-09-09T13:37:25.490Z'),
+              failures: []
+            },
+            domains: [
+              {
+                domain_id: '538f494eb68ade0d0826f8a2',
+                joined_at: new Date('2014-06-04T15:42:40.480Z')
+              }
+            ],
+            timestamps: {
+              creation: new Date('2014-06-04T15:42:40.387Z')
+            },
+            emails: [
+              'usera@linagora.com'
+            ]
+          }
+        });
+
       function updateMessageList() {
         if ($scope.restActive) {
           return;

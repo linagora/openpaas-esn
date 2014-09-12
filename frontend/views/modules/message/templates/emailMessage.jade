@@ -1,8 +1,28 @@
 div.esn-email
-  h4.media-heading.esn-email-heading
+  h4.media-heading
     a(href="#") {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
     small
       | &nbsp;-&nbsp;
       a(href="/#messages/{{message._id}}")
         span(am-time-ago="message.published")
+  table.table-hover.esn-email-heading
+    tbody
+      tr
+        td #{__('From')}
+        td {{message.from}}
+      tr
+        td #{__('To')}
+        td {{message.to}}
+      tr
+        td #{__('Cc')}
+        td {{message.cc}}
+      tr
+        td #{__('Date')}
+        td
+          span {{message.published | amCalendar}}
+
+  h4
+    strong #{__('Subject')}: {{message.subject}}
+
   p.multilines.esn-email-body {{message.body.text}}
+  p.multilines.esn-email-body {{message.body.html}}
