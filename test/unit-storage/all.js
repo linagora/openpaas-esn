@@ -141,7 +141,8 @@ before(function() {
       var json = {
         title: title,
         creator: creator._id || creator,
-        domain_ids: [domain._id || domain]
+        domain_ids: [domain._id || domain],
+        members: [{user: creator._id}]
       };
       var community = new Community(json);
       return community.save(done);
