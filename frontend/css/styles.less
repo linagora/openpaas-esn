@@ -392,6 +392,10 @@ header.topbar {
   }
 }
 
+.ellipsis {
+    .text-overflow();
+}
+
 @media (min-width: @screen-md-min) {
   .contact-page {
     .list {
@@ -448,12 +452,13 @@ header.topbar {
   }
 
   .img-preview {
+    position: relative;
     a {
       color: black;
       .fa-times {
         position: absolute;
         top: 5px;
-        right: 0px;
+        left: 105px;
       }
     }
   }
