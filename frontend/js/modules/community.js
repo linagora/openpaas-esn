@@ -434,6 +434,14 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     $scope.user = session.user;
     $scope.error = false;
     $scope.loading = false;
+    $scope.writable = community.writable;
+
+    $scope.$on('community:membership', function(data) {
+      console.log('Membership update, update the community behavior');
+      communityAPI.get(community._id).then(function(response) {
+        $scope.writable = response.data.writable;
+      });
+    });
 
     $scope.onLeave = function() {
       $location.path('/communities');
@@ -450,6 +458,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       $log.error('unable to join community');
       $scope.reload();
     };
+
     $scope.leaveFailure = function() {
       $log.error('unable to leave community');
       $scope.reload();

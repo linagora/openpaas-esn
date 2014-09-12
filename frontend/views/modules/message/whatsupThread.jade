@@ -14,4 +14,4 @@ div.widget.thread(ng-class="{'just-posted': message._id === lastPost.messageId}"
     div.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
       whatsup-message(message='response')
     div.media.message-add-comment
-      whatsup-add-comment
+      whatsup-add-comment(ng-show="writable")

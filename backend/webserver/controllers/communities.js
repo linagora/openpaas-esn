@@ -5,6 +5,7 @@ var imageModule = require('../../core/image');
 var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
+var permission = require('../../core/community/permission');
 var async = require('async');
 
 function transform(community, user, callback) {
@@ -130,9 +131,14 @@ module.exports.load = function(req, res, next) {
 
 module.exports.get = function(req, res) {
   if (req.community) {
-    return res.json(200, req.community);
+    permission.canWrite(req.community, req.user, function(err, writable) {
+      var result = req.community.toObject();
+      result.writable = writable;
+      return res.json(200, result);
+    });
+  } else {
+    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
   }
-  return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
 };
 
 module.exports.delete = function(req, res) {

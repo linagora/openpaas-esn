@@ -177,7 +177,8 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
       scope: {
         message: '=',
         activitystreamUuid: '=',
-        lastPost: '='
+        lastPost: '=',
+        writable: '='
       },
       templateUrl: '/views/modules/message/whatsupThread.html'
     };
