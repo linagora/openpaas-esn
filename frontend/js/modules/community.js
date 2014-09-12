@@ -250,7 +250,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
   }])
   .controller('communitiesController', ['$scope', '$log', '$location', 'session', 'communityAPI', 'userAPI',
-                                        function($scope, $log, $location, session, communityAPI, userAPI) {
+  function($scope, $log, $location, session, communityAPI, userAPI) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;
