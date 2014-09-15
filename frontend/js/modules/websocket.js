@@ -177,6 +177,53 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
 
     return ioInterface;
   }])
+  .factory('ioOfflineBuffer', function() {
+    var buffer = [];
+    var subscriptions = [];
+
+    function push(action) { buffer.push(action); }
+    function getBuffer() { return buffer.slice(0); }
+    function flushBuffer() { buffer = []; }
+    function addSubscription(action) { subscriptions.push(action); }
+    function getSubscriptions() { return subscriptions.slice(0); }
+
+    function removeSubscription(action) {
+      var index = findSubscriptionsIndex(action);
+      while (index.length) {
+        subscriptions.splice(index.pop(), 1);
+      }
+    }
+
+    function handleSubscription(action) {
+      return action.isUnsubscribe() ? removeSubscription(action) : addSubscription(action);
+    }
+
+    function findSubscriptionsIndex(action) {
+      var index = [];
+      subscriptions.forEach(function(sub, idx) {
+        if (action.equalsSubscription(sub)) {
+          index.push(idx);
+        }
+      });
+      return index;
+    }
+
+    function findOneSubscription(action) {
+      var subs = findSubscriptionsIndex(action);
+      if (subs.length) {
+        return subscriptions[subs[0]];
+      }
+    }
+
+    return {
+      push: push,
+      handleSubscription: handleSubscription,
+      findSubscription: findOneSubscription,
+      getSubscriptions: getSubscriptions,
+      getBuffer: getBuffer,
+      flushBuffer: flushBuffer
+    };
+  })
   .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {
     return function(namespace) {
       var sio = io.connect(namespace || '', {

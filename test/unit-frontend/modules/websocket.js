@@ -563,7 +563,7 @@ describe('The esn.websocket Angular module', function() {
       });
     });
   });
-  describe.only('ioInterface service', function() {
+  describe('ioInterface service', function() {
     beforeEach(function() {
       var self = this;
       angular.mock.module('esn.websocket');
@@ -658,6 +658,123 @@ describe('The esn.websocket Angular module', function() {
       });
       ioi.of('namespace1').emit('evt', 'callback');
       ioi.emit('evt2', 'callback2');
+    });
+  });
+  describe.only('ioOfflineBuffer service', function() {
+    beforeEach(function() {
+      var self = this;
+      angular.mock.module('esn.websocket');
+      angular.mock.inject(function(ioOfflineBuffer) {
+        self.ioOfflineBuffer = ioOfflineBuffer;
+      });
+    });
+    it('should have push, handleSubscription, findSubscription, getSubscriptions, getBuffer, flushBuffer methods', function() {
+      expect(this.ioOfflineBuffer.push).to.be.a.function;
+      expect(this.ioOfflineBuffer.handleSubscription).to.be.a.function;
+      expect(this.ioOfflineBuffer.findSubscription).to.be.a.function;
+      expect(this.ioOfflineBuffer.getSubscriptions).to.be.a.function;
+      expect(this.ioOfflineBuffer.getBuffer).to.be.a.function;
+      expect(this.ioOfflineBuffer.flushBuffer).to.be.a.function;
+    });
+    describe('push() & getBuffer() methods', function() {
+      it('should allow pushing actions and getting them back', function() {
+        var a1 = {id: 'action1'};
+        var a2 = {id: 'action2'};
+        var a3 = {id: 'action3'};
+        this.ioOfflineBuffer.push(a1);
+        this.ioOfflineBuffer.push(a2);
+        this.ioOfflineBuffer.push(a3);
+        var buffer = this.ioOfflineBuffer.getBuffer();
+        expect(buffer).to.have.length(3);
+        expect(buffer[0]).to.deep.equal({id: 'action1'});
+        expect(buffer[1]).to.deep.equal({id: 'action2'});
+        expect(buffer[2]).to.deep.equal({id: 'action3'});
+      });
+    });
+    describe('getBuffer() method', function() {
+      it('should return a copy of the buffer array', function() {
+        var a1 = {id: 'action1'};
+        var a2 = {id: 'action2'};
+        var a3 = {id: 'action3'};
+        this.ioOfflineBuffer.push(a1);
+        this.ioOfflineBuffer.push(a2);
+        this.ioOfflineBuffer.push(a3);
+        var buffer = this.ioOfflineBuffer.getBuffer();
+        buffer.push({id: 'action4'});
+        var buffer2 = this.ioOfflineBuffer.getBuffer();
+        expect(buffer2).to.have.length(3);
+      });
+    });
+    describe('flushBuffer() method', function() {
+      it('should flush the buffer', function() {
+        var a1 = {id: 'action1'};
+        var a2 = {id: 'action2'};
+        var a3 = {id: 'action3'};
+        this.ioOfflineBuffer.push(a1);
+        this.ioOfflineBuffer.push(a2);
+        this.ioOfflineBuffer.push(a3);
+        this.ioOfflineBuffer.flushBuffer();
+        var buffer = this.ioOfflineBuffer.getBuffer();
+        expect(buffer).to.have.length(0);
+      });
+    });
+    describe('handleSubscription() & getSubscriptions() methods', function() {
+      it('should allow pushing actions and getting them back', function() {
+        var a1 = {id: 'action1', isUnsubscribe: function() {return false;}};
+        var a2 = {id: 'action2', isUnsubscribe: function() {return false;}};
+        var a3 = {id: 'action3', isUnsubscribe: function() {return false;}};
+        this.ioOfflineBuffer.handleSubscription(a1);
+        this.ioOfflineBuffer.handleSubscription(a2);
+        this.ioOfflineBuffer.handleSubscription(a3);
+        var buffer = this.ioOfflineBuffer.getSubscriptions();
+        expect(buffer).to.have.length(3);
+        expect(buffer[0].id).to.equal('action1');
+        expect(buffer[1].id).to.equal('action2');
+        expect(buffer[2].id).to.equal('action3');
+      });
+    });
+    describe('handleSubscription() method', function() {
+      it('should remove the corresponding subscription(s)', function() {
+        var a1 = {id: 'action1', isUnsubscribe: function() {return false;}};
+        var a2 = {id: 'action2', isUnsubscribe: function() {return false;}};
+        var a3 = {id: 'action3', isUnsubscribe: function() {return false;}};
+        this.ioOfflineBuffer.handleSubscription(a1);
+        this.ioOfflineBuffer.handleSubscription(a2);
+        this.ioOfflineBuffer.handleSubscription(a3);
+        var a4 = {
+          isUnsubscribe: function() {return true;},
+          equalsSubscription: function(action) {
+            if (action.id === 'action1' || action.id === 'action3') {
+              return true;
+            }
+            return false;
+          }
+        };
+        this.ioOfflineBuffer.handleSubscription(a4);
+        var buffer = this.ioOfflineBuffer.getSubscriptions();
+        expect(buffer).to.have.length(1);
+        expect(buffer[0].id).to.equal('action2');
+      });
+    });
+    describe('findSubscription() method', function() {
+      it('should return the first corresponding subscription', function() {
+        var a1 = {id: 'action1', isUnsubscribe: function() {return false;}};
+        var a2 = {id: 'action2', isUnsubscribe: function() {return false;}};
+        var a3 = {id: 'action3', isUnsubscribe: function() {return false;}};
+        this.ioOfflineBuffer.handleSubscription(a1);
+        this.ioOfflineBuffer.handleSubscription(a2);
+        this.ioOfflineBuffer.handleSubscription(a3);
+        var a4 = {
+          equalsSubscription: function(action) {
+            if (action.id === 'action2' || action.id === 'action3') {
+              return true;
+            }
+            return false;
+          }
+        };
+        var action = this.ioOfflineBuffer.findSubscription(a4);
+        expect(action.id).to.equal('action2');
+      });
     });
   });
 });
