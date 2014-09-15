@@ -5,7 +5,8 @@
     "ssl_port": 8443,
     "ssl_key": "config/ssl.key",
     "ssl_cert": "config/ssl.crt",
-    "virtualhosts": []
+    "virtualhosts": [],
+    "startupBufferTimeout": 5000
   },
   "wsserver": {
     "enabled": true,

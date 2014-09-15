@@ -3,11 +3,13 @@
 var authorize = require('./middleware/authorization');
 var cookielifetime = require('./middleware/cookie-lifetime');
 var link = require('./middleware/link');
+var config = require('../core').config('default');
 var cors = require('cors');
+var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 
 exports = module.exports = function(application) {
   application.all('/api/*', cors());
-
+  application.use(startupBuffer);
   var oauth2 = require('../oauth2');
   application.get('/oauth/authorize', authorize.loginAndContinue, oauth2.authorization, oauth2.dialog);
   application.post('/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);

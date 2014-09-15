@@ -2,12 +2,13 @@
 
 var core = require('../../core'),
     topic = core.pubsub.local.topic('webserver:mongosessionstoreEnabled'),
-    maxWaitTTL = 10000;
+    maxWaitTTL = 5000;
 
 
-function startupBuffer() {
+function startupBuffer(timeout) {
   var bypass = false;
   var queue = [];
+  timeout = timeout || maxWaitTTL;
 
   function removeBuffer() {
     bypass = true;
@@ -15,7 +16,7 @@ function startupBuffer() {
   }
 
   topic.subscribe(removeBuffer);
-  setTimeout(removeBuffer, maxWaitTTL);
+  setTimeout(removeBuffer, timeout);
 
   return function(req, res, next) {
     if (bypass) { return next(); }
