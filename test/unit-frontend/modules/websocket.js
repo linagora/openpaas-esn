@@ -901,4 +901,79 @@ describe('The esn.websocket Angular module', function() {
       });
     });
   });
+  describe('ioSocketProxy service', function() {
+    beforeEach(function() {
+      var self = this;
+      this.isc = {
+        getSio: function() {},
+        isConnected: function() {}
+      };
+      this.ioaction = function IoAction() {
+        this.applyToSocketIO = IoAction.applyToSocketIO;
+        this.isSubscription = IoAction.isSubscription;
+        this.isUnsubscribe = IoAction.isUnsubscribe;
+        this.emit = function() {};
+      };
+      this.ioaction.applyToSocketIO = function() {};
+      this.ioaction.isSubscription = function() {};
+      this.ioaction.isUnsubscribe = function() { return false; };
+
+      angular.mock.module('esn.websocket');
+      angular.mock.module(function($provide) {
+        $provide.value('ioSocketConnection', self.isc);
+        $provide.value('IoAction', self.ioaction);
+      });
+    });
+    beforeEach(inject(function(ioOfflineBuffer, ioSocketProxy) {
+      this.ioOfflineBuffer = ioOfflineBuffer;
+      this.ioSocketProxy = ioSocketProxy;
+    }));
+
+    it('should return an ioInterface', function() {
+      var test = this.ioSocketProxy();
+      expect(test.emit).to.be.a.function;
+      expect(test.on).to.be.a.function;
+      expect(test.of).to.be.a.function;
+      expect(test.broadcast).to.be.an.object;
+    });
+    describe('when io is connected', function() {
+      it('should call the applyToSocketIO method of IoAction', function(done) {
+        this.isc.isConnected = function() { return true; };
+        this.ioaction.applyToSocketIO = function() { done(); };
+        var test = this.ioSocketProxy();
+        test.emit('test', 'data');
+      });
+      it('should store the action in the buffer if it\'s a subscription', function() {
+        this.isc.isConnected = function() { return true; };
+        this.ioaction.isSubscription = function() { return true; };
+        var test = this.ioSocketProxy();
+        test.emit('test', 'data');
+        expect(this.ioOfflineBuffer.getSubscriptions()).to.have.length(1);
+      });
+      it('should not store the action in the buffer if it\'s not a subscription', function() {
+        this.isc.isConnected = function() { return true; };
+        this.ioaction.isSubscription = function() { return false; };
+        var test = this.ioSocketProxy();
+        test.emit('test', 'data');
+        expect(this.ioOfflineBuffer.getSubscriptions()).to.have.length(0);
+      });
+    });
+    describe('when io is not connected', function() {
+      it('should store the action if it\'s not a subscription', function() {
+        this.isc.isConnected = function() { return false; };
+        var test = this.ioSocketProxy();
+        test.emit('test', 'data');
+        expect(this.ioOfflineBuffer.getSubscriptions()).to.have.length(0);
+        expect(this.ioOfflineBuffer.getBuffer()).to.have.length(1);
+      });
+      it('should not store the action as message if it\'s a subscription', function() {
+        this.isc.isConnected = function() { return false; };
+        this.ioaction.isSubscription = function() { return true; };
+        var test = this.ioSocketProxy();
+        test.emit('test', 'data');
+        expect(this.ioOfflineBuffer.getSubscriptions()).to.have.length(1);
+        expect(this.ioOfflineBuffer.getBuffer()).to.have.length(0);
+      });
+    });
+  });
 });

@@ -291,6 +291,36 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
       }
     };
   }])
+  .factory('ioSocketProxy', ['$log', 'ioSocketConnection', 'ioInterface', 'ioOfflineBuffer',
+  function($log, ioSocketConnection, ioInterface, ioOfflineBuffer) {
+
+    function _handleConnectedAction(action) {
+      var sio = ioSocketConnection.getSio();
+      action.applyToSocketIO(sio, ioOfflineBuffer);
+    }
+
+    function _handleDisconnectedAction(action) {
+      if (action.isSubscription()) { return; }
+      ioOfflineBuffer.push(action);
+    }
+
+    function onSocketAction(action) {
+      if (ioSocketConnection.isConnected()) {
+        $log.info('connected, sending to socketio', action.toString());
+        _handleConnectedAction(action);
+      } else {
+        $log.info('not connected, buffering', action.toString());
+        _handleDisconnectedAction(action);
+      }
+      if (action.isSubscription()) {
+        ioOfflineBuffer.handleSubscription(action);
+      }
+    }
+
+    return function() {
+      return ioInterface(onSocketAction);
+    };
+  }])
   .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {
     return function(namespace) {
       var sio = io.connect(namespace || '', {
