@@ -30,6 +30,8 @@ Here is a list of the available topics with their associated data.
 - mongodb:configurationAvailable. Fired when the mongodb configuration is available.
 - mongodb:connexionAvailable. Fired every time the connection to the mongodb server is established.
 
+- webserver:mongosessionstoreEnabled. Fires when the webserver session store is switched from in-memory (the one on startup) to mongodb.
+
 - redis:configurationAvailable. Fired when the redis configuration is available.
 
 - domain:invitations:sent({user, domain, emails}). Fired when domain invitations have been sent.
