@@ -7,6 +7,7 @@ div.col-xs-12.nopadding.esn-community
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading
       a(href='#/communities/{{community._id}}') {{community.title}}
+      small &nbsp; {{community.type}}
     ul.list-inline
       li.pull-left
         span.label.label-primary {{community.members.length}} #{__('members')}
