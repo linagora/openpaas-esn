@@ -1,8 +1,6 @@
-/* global io */
-
 'use strict';
 
-angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
+angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socketio'])
   .factory('IoAction', ['$timeout', '$log', function($timeout, $log) {
     function getNgCallback(callback) {
       return function() {
@@ -319,6 +317,56 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
 
     return function() {
       return ioInterface(onSocketAction);
+    };
+  }])
+  .factory('ioConnectionManager', ['ioSocketConnection', 'tokenAPI', '$log', 'session', '$timeout', 'ioOfflineBuffer', 'io',
+  function(ioSocketConnection, tokenAPI, $log, session, $timeout, ioOfflineBuffer, io) {
+
+    function _disconnectOld() {
+      var oldSio = ioSocketConnection.getSio();
+      if (oldSio) { oldSio.disconnect(); }
+    }
+
+    function _connect() {
+      tokenAPI.getNewToken().then(function(response) {
+        _disconnectOld();
+        var sio = io().connect('', {
+          query: 'token=' + response.data.token + '&user=' + session.user._id,
+          reconnect: false,
+          'force new connection': true
+        });
+        ioSocketConnection.setSio(sio);
+      }), function(error) {
+        $log.info('fatal: tokenAPI.getNewToken() failed');
+        if (error && error.data) {
+          $log.info('Error while getting auth token', error.data);
+        }
+      };
+    }
+
+    ioSocketConnection.addDisconnectCallback(function() {
+      var reconnect = function() {
+        $log.debug('ioConnectionManager reconnect algorithm starting');
+        if (ioSocketConnection.isConnected()) { return; }
+        _connect();
+        $timeout(reconnect, 1000);
+      };
+      reconnect();
+    });
+
+    ioSocketConnection.addConnectCallback(function() {
+      var sio = ioSocketConnection.getSio();
+      var subscriptions = ioOfflineBuffer.getSubscriptions();
+      var buffer = ioOfflineBuffer.getBuffer();
+      ioOfflineBuffer.flushBuffer();
+      $log.info('connect callback, ' + subscriptions.length + ' subscriptions, ' + buffer.length + ' buffered messages to apply');
+      $log.debug(subscriptions);
+      $log.debug(buffer);
+      subscriptions.concat(buffer).forEach(function(action) { action.applyToSocketIO(sio, ioOfflineBuffer); });
+    });
+
+    return {
+      connect: _connect
     };
   }])
   .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {

@@ -976,4 +976,165 @@ describe('The esn.websocket Angular module', function() {
       });
     });
   });
+  describe('ioConnectionManager service', function() {
+    beforeEach(function() {
+      var self = this;
+      this.isc = {
+        sio: null,
+        callbacks: {},
+        getSio: function() {return this.sio; },
+        setSio: function(sio) { this.sio = sio; },
+        isConnected: function() {},
+        addDisconnectCallback: function(cb) {
+          this.callbacks.disconnect = cb;
+        },
+        addConnectCallback: function(cb) {
+          this.callbacks.connect = cb;
+        }
+      };
+      this.ioaction = function IoAction() {
+        this.applyToSocketIO = IoAction.applyToSocketIO;
+        this.isSubscription = IoAction.isSubscription;
+        this.isUnsubscribe = IoAction.isUnsubscribe;
+        this.emit = function() {};
+      };
+      this.ioaction.applyToSocketIO = function() {};
+      this.ioaction.isSubscription = function() {};
+      this.ioaction.isUnsubscribe = function() { return false; };
+
+      this.tokenAPI = {
+        getNewToken: function() {
+          return {
+            then: function(callback) {
+              self.tokenAPI.callback = callback;
+            }
+          };
+        }
+      };
+
+      this.io = function() {
+        return self.ioMock;
+      };
+      this.ioMock = {
+        connect: function() {},
+        disconnect: function() {}
+      };
+
+      this.sessionMock = {
+        user: {
+          _id: 'user1'
+        }
+      };
+
+      angular.mock.module('esn.websocket');
+      angular.mock.module(function($provide) {
+        $provide.value('ioSocketConnection', self.isc);
+        $provide.value('IoAction', self.ioaction);
+        $provide.value('io', self.io);
+        $provide.value('tokenAPI', self.tokenAPI);
+        $provide.value('session', self.sessionMock);
+      });
+    });
+    beforeEach(inject(function(ioOfflineBuffer, ioSocketProxy, ioConnectionManager) {
+      this.ioOfflineBuffer = ioOfflineBuffer;
+      this.ioSocketProxy = ioSocketProxy;
+      this.icm = ioConnectionManager;
+    }));
+    it('should expose a connect method', function() {
+      expect(this.icm.connect).to.be.a('function');
+    });
+    it('should add a connect callback to ioSocketConnection', function() {
+      expect(this.isc.callbacks.connect).to.be.a('function');
+    });
+    it('should add a disconnect callback to ioSocketConnection', function() {
+      expect(this.isc.callbacks.disconnect).to.be.a('function');
+    });
+    describe('connect method', function() {
+      it('should call tokenAPI.getNewToken()', function() {
+        expect(this.tokenAPI.callback).to.be.not.ok;
+        this.icm.connect();
+        expect(this.tokenAPI.callback).to.be.a('function');
+      });
+    });
+    describe('tokenAPI.getNewToken() callback', function() {
+      it('should call socketIO connect method, with token in arguments', function(done) {
+        this.ioMock.connect = function(ns, options) {
+          expect(options.query).to.contain('token=token1');
+          expect(options.query).to.contain('user=user1');
+          done();
+        };
+        this.icm.connect();
+        this.tokenAPI.callback({data: {token: 'token1'}});
+      });
+      it('should set socketIO connect method response in ioSocketConnection', function(done) {
+        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.icm.connect();
+        this.isc.setSio = function(sio) {
+          expect(sio).to.deep.equal({io: true});
+          done();
+        };
+        this.tokenAPI.callback({data: {token: 'token1'}});
+      });
+    });
+    describe('disconnect callback', function() {
+      it('should try to reconnect', function(done) {
+        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.icm.connect();
+        this.tokenAPI.callback({data: {token: 'token1'}});
+        this.isc.isConnected = function() { return false; };
+        this.tokenAPI.getNewToken = function() {
+          done();
+          return {then: function() {}};
+        };
+        this.isc.callbacks.disconnect();
+      });
+    });
+    describe('connect callback', function() {
+      it('should call ioOfflineBuffer.flushBuffer()', function(done) {
+        this.ioOfflineBuffer.flushBuffer = done;
+        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.icm.connect();
+        this.tokenAPI.callback({data: {token: 'token1'}});
+        this.isc.callbacks.connect();
+      });
+      it('should apply the buffered messages to socketio', function() {
+        var appliedActions = [];
+        this.ioaction.applyToSocketIO = function() {
+          appliedActions.push(this);
+        };
+        var a1 = new this.ioaction();
+        a1.id = 'action1';
+        var a2 = new this.ioaction();
+        a2.id = 'action2';
+        this.ioOfflineBuffer.push(a1);
+        this.ioOfflineBuffer.push(a2);
+        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.icm.connect();
+        this.tokenAPI.callback({data: {token: 'token1'}});
+        this.isc.callbacks.connect();
+        expect(appliedActions).to.have.length(2);
+        expect(appliedActions[0].id).to.equal('action1');
+        expect(appliedActions[1].id).to.equal('action2');
+      });
+      it('should apply the buffered subscriptions to socketio', function() {
+        var appliedActions = [];
+        this.ioaction.applyToSocketIO = function() {
+          appliedActions.push(this);
+        };
+        var a1 = new this.ioaction();
+        a1.id = 'action1';
+        var a2 = new this.ioaction();
+        a2.id = 'action2';
+        this.ioOfflineBuffer.handleSubscription(a1);
+        this.ioOfflineBuffer.handleSubscription(a2);
+        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.icm.connect();
+        this.tokenAPI.callback({data: {token: 'token1'}});
+        this.isc.callbacks.connect();
+        expect(appliedActions).to.have.length(2);
+        expect(appliedActions[0].id).to.equal('action1');
+        expect(appliedActions[1].id).to.equal('action2');
+      });
+    });
+  });
 });
