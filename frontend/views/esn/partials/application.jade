@@ -1,6 +1,6 @@
 include ./header
 .esn-home-container
-  .container
+  .container-fluid
     .row
       .col-lg-2.col-sm-3.hidden-xs
         .widget.leftPane
@@ -9,9 +9,5 @@ include ./header
         .widget.rightPane.hidden-lg
           .title Right Widget
           hr
-      .col-lg-8.col-sm-9.col-xs-12
+      .col-lg-10.col-sm-9.col-xs-12
         .row(ng-view)
-      .col-lg-2.hidden-md.hidden-sm.hidden-xs
-        .widget.rightPane
-            .title Right Widget
-            hr
