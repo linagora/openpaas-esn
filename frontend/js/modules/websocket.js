@@ -224,6 +224,73 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
       flushBuffer: flushBuffer
     };
   })
+  .factory('ioSocketConnection', ['$log', function($log) {
+    var firstConnection = true;
+    var connected = false;
+    var sio = null;
+    var disconnectCallbacks = [];
+    var connectCallbacks = [];
+    var reconnectCallbacks = [];
+
+    function fireCallbacks(callbacks) {
+      callbacks.forEach(function(callback) {
+        try {
+          callback();
+        } catch (e) {
+          $log.info('SocketIO disconnect callback error', e);
+        }
+      });
+    }
+
+    function bindListeners() {
+      sio.socket.on('error', function(reason) {
+        $log.error('Unable to connect to websocket', reason);
+      });
+      sio.on('connect', function() {
+        $log.info('WS Connection established with server', arguments);
+        connected = true;
+        fireCallbacks(connectCallbacks);
+        if (!firstConnection) {
+          fireCallbacks(reconnectCallbacks);
+        } else {
+          firstConnection = false;
+        }
+      });
+
+      sio.on('connecting', function() {
+        $log.info('Trying to connect to websocket');
+      });
+
+      sio.on('disconnect', function() {
+        $log.info('Disconnected from websocket');
+        connected = false;
+        fireCallbacks(disconnectCallbacks);
+      });
+    }
+
+    return {
+      isConnected: function() {
+        return connected;
+      },
+      setSio: function(newSio) {
+        sio = newSio;
+        connected = false;
+        bindListeners();
+      },
+      addDisconnectCallback: function(callback) {
+        disconnectCallbacks.push(callback);
+      },
+      addConnectCallback: function(callback) {
+        connectCallbacks.push(callback);
+      },
+      addReconnectCallback: function(callback) {
+        reconnectCallbacks.push(callback);
+      },
+      getSio: function() {
+        return sio;
+      }
+    };
+  }])
   .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {
     return function(namespace) {
       var sio = io.connect(namespace || '', {

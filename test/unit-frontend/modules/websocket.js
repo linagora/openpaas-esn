@@ -252,7 +252,7 @@ describe('The esn.websocket Angular module', function() {
     });
   });
 
-  describe.only('IoAction service', function() {
+  describe('IoAction service', function() {
     beforeEach(function() {
       var self = this;
       angular.mock.module('esn.websocket');
@@ -660,7 +660,7 @@ describe('The esn.websocket Angular module', function() {
       ioi.emit('evt2', 'callback2');
     });
   });
-  describe.only('ioOfflineBuffer service', function() {
+  describe('ioOfflineBuffer service', function() {
     beforeEach(function() {
       var self = this;
       angular.mock.module('esn.websocket');
@@ -774,6 +774,130 @@ describe('The esn.websocket Angular module', function() {
         };
         var action = this.ioOfflineBuffer.findSubscription(a4);
         expect(action.id).to.equal('action2');
+      });
+    });
+  });
+  describe('ioSocketConnection service', function() {
+    beforeEach(function() {
+      var self = this;
+      angular.mock.module('esn.websocket');
+      angular.mock.inject(function(ioSocketConnection) {
+        self.isc = ioSocketConnection;
+      });
+      var evts = {};
+      this.sioMock = {
+        evts: evts,
+        on: function(evt, cb) {
+          evts[evt] = cb;
+        },
+        socket: {
+          on: function(evt, cb) {
+            evts['socket:' + evt] = cb;
+          }
+        }
+      };
+
+    });
+    it('should expose isConnected, getSio, setSio, addDisconnectCallback, addConnectCallback, addReconnectCallback methods', function() {
+      expect(this.isc.getSio).to.be.a.function;
+      expect(this.isc.setSio).to.be.a.function;
+      expect(this.isc.isConnected).to.be.a.function;
+      expect(this.isc.addDisconnectCallback).to.be.a.function;
+      expect(this.isc.addDisconnectCallback).to.be.a.function;
+      expect(this.isc.addReconnectCallback).to.be.a.function;
+    });
+    describe('setSio() method', function() {
+      it('should bind the connect, connecting, disconnect, error events', function() {
+        this.isc.setSio(this.sioMock);
+        expect(this.sioMock.evts.connect).to.be.a.function;
+        expect(this.sioMock.evts.connecting).to.be.a.function;
+        expect(this.sioMock.evts.disconnect).to.be.a.function;
+        expect(this.sioMock.evts['socket:error']).to.be.a.function;
+      });
+      it('should set connected to false', function() {
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(this.isc.isConnected()).to.be.true;
+        this.isc.setSio(this.sioMock);
+        expect(this.isc.isConnected()).to.be.false;
+      });
+    });
+    describe('getSio() method', function() {
+      it('should return the socketIO instance', function() {
+        this.isc.setSio(this.sioMock);
+        var sio = this.isc.getSio();
+        expect(sio).to.deep.equal(this.sioMock);
+      });
+    });
+    describe('on connect event', function() {
+      it('should set connected to true', function() {
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(this.isc.isConnected()).to.be.true;
+      });
+      it('should run the callbacks registered using addConnectCallback', function() {
+        var run1 = false, run2 = false;
+        this.isc.addConnectCallback(function() { run1 = true; });
+        this.isc.addConnectCallback(function() { run2 = true; });
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(run1).to.be.true;
+        expect(run2).to.be.true;
+      });
+    });
+    describe('on disconnect event', function() {
+      it('should set connected to false', function() {
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(this.isc.isConnected()).to.be.true;
+        this.sioMock.evts.disconnect();
+        expect(this.isc.isConnected()).to.be.false;
+      });
+      it('should run the callbacks registered using addDisconnectCallback', function() {
+        var run1 = false, run2 = false;
+        this.isc.addDisconnectCallback(function() { run1 = true; });
+        this.isc.addDisconnectCallback(function() { run2 = true; });
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(run1).to.be.false;
+        expect(run2).to.be.false;
+        this.sioMock.evts.disconnect();
+        expect(run1).to.be.true;
+        expect(run2).to.be.true;
+      });
+    });
+    describe('on connect->disconnect->connect event', function() {
+      it('should run the callbacks registered using addReconnectCallback', function() {
+        var run1 = false, run2 = false;
+        this.isc.addReconnectCallback(function() { run1 = true; });
+        this.isc.addReconnectCallback(function() { run2 = true; });
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(run1).to.be.false;
+        expect(run2).to.be.false;
+        this.sioMock.evts.disconnect();
+        expect(run1).to.be.false;
+        expect(run2).to.be.false;
+        this.sioMock.evts.connect();
+        expect(run1).to.be.true;
+        expect(run2).to.be.true;
+      });
+      it('should run the callbacks registered using addConnectCallback', function() {
+        var run1 = false, run2 = false;
+        this.isc.addConnectCallback(function() { run1 = true; });
+        this.isc.addConnectCallback(function() { run2 = true; });
+        this.isc.setSio(this.sioMock);
+        this.sioMock.evts.connect();
+        expect(run1).to.be.true;
+        expect(run2).to.be.true;
+        run1 = false;
+        run2 = false;
+        this.sioMock.evts.disconnect();
+        expect(run1).to.be.false;
+        expect(run2).to.be.false;
+        this.sioMock.evts.connect();
+        expect(run1).to.be.true;
+        expect(run2).to.be.true;
       });
     });
   });
