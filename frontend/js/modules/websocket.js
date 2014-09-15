@@ -421,11 +421,6 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
             return this;
           }
 
-          if (nbEventSubscribed === 0) {
-            client.emit('subscribe', room);
-            $log.debug(namespace + ' : subscribed to room', room);
-          }
-
           function filterEvent(eventWrap) {
             if (eventWrap.room && eventWrap.room === room) {
               subscriptions[event].callbacks.forEach(function(element) {
@@ -435,8 +430,10 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
             }
           }
 
-          if (subscriptions[event] && !isCallbackRegistered(event, callback)) {
-            subscriptions[event].callbacks.push(callback);
+          if (subscriptions[event]) {
+            if (!isCallbackRegistered(event, callback)) {
+              subscriptions[event].callbacks.push(callback);
+            }
           } else {
             subscriptions[event] = {
               filterEvent: filterEvent,
@@ -444,6 +441,9 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
             };
             client.on(event, filterEvent);
             nbEventSubscribed++;
+            if (nbEventSubscribed === 1) {
+              this.subscribeToRoom();
+            }
           }
           return this;
         },
