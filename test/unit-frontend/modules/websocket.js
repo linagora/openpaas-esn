@@ -251,4 +251,316 @@ describe('The esn.websocket Angular module', function() {
       expect(this.livenotification().removeListener).to.be.a.function;
     });
   });
+
+  describe.only('IoAction service', function() {
+    beforeEach(function() {
+      var self = this;
+      angular.mock.module('esn.websocket');
+      angular.mock.module(function($provide) {
+        $provide.value('$timeout', function() {});
+      });
+
+      angular.mock.inject(function(IoAction) {
+        self.IoAction = IoAction;
+      });
+
+    });
+
+    it('should be a function', function() {
+      expect(this.IoAction).to.be.a.function;
+    });
+
+    it('should have default settings set to null', function() {
+      var ioa = new this.IoAction();
+      ['message', 'broadcast', 'namespace', 'subscription', 'removeListenerRequest', 'ngMessage', 'ngSubscription'].forEach(function(p) {
+        expect(ioa).to.have.property(p);
+        expect(ioa[p]).to.be.null;
+      });
+    });
+
+    it('should upgrade default settings with options passed in arguments', function() {
+      var opts = {
+        message: 'message',
+        broadcast: 'broadcast',
+        namespace: 'namespace',
+        subscription: 'subscription',
+        removeListenerRequest: 'removeListenerRequest',
+        ngMessage: 'ngMessage',
+        ngSubscription: 'ngSubscription'
+      };
+      var ioa = new this.IoAction(opts);
+      expect(ioa.message).to.equal('message');
+      expect(ioa.broadcast).to.equal('broadcast');
+      expect(ioa.namespace).to.equal('namespace');
+      expect(ioa.subscription).to.equal('subscription');
+      expect(ioa.removeListenerRequest).to.equal('removeListenerRequest');
+      expect(ioa.ngMessage).to.equal('ngMessage');
+      expect(ioa.ngSubscription).to.equal('ngSubscription');
+    });
+
+    describe('isSubscription method()', function() {
+      it('should return true if the action is a subscription', function() {
+        var opts = { subscription: 'subscription' };
+        var ioa = new this.IoAction(opts);
+        expect(ioa.isSubscription()).to.be.true;
+      });
+      it('should return false if the action is not a subscription', function() {
+        var opts = { subscription: false };
+        var ioa = new this.IoAction(opts);
+        expect(ioa.isSubscription()).to.be.false;
+      });
+    });
+
+    describe('isUnsubscribe method()', function() {
+      it('should return true if the action got a removeListenerRequest property', function() {
+        var opts = { removeListenerRequest: 'subscription' };
+        var ioa = new this.IoAction(opts);
+        expect(ioa.isUnsubscribe()).to.be.true;
+      });
+      it('should return false if the action does not have a removeListenerRequest property', function() {
+        var ioa = new this.IoAction();
+        expect(ioa.isUnsubscribe()).to.be.false;
+      });
+    });
+
+    describe('equalsSubscription method()', function() {
+      it('should return false if the two IoActions does not have the same namespaces', function() {
+        var opts1 = { namespace: 'namespace1' };
+        var opts2 = { namespace: 'namespace2' };
+        var ioa1 = new this.IoAction(opts1);
+        var ioa2 = new this.IoAction(opts2);
+        expect(ioa1.equalsSubscription(ioa2)).to.be.false;
+      });
+      it('should return false if one IoAction have a namespace, and not the other', function() {
+        var opts1 = { namespace: 'namespace1' };
+        var opts2 = { };
+        var ioa1 = new this.IoAction(opts1);
+        var ioa2 = new this.IoAction(opts2);
+        expect(ioa1.equalsSubscription(ioa2)).to.be.false;
+      });
+      it('should return false if the two IoAction does not have the same subscriptions data', function() {
+        var opts1 = { namespace: 'namespace1', subscription: [1, 2] };
+        var opts2 = { namespace: 'namespace1', subscription: [1, 3] };
+        var ioa1 = new this.IoAction(opts1);
+        var ioa2 = new this.IoAction(opts2);
+        expect(ioa1.equalsSubscription(ioa2)).to.be.false;
+      });
+      it('should return true if the two IoAction have the same namespaces and the same subscriptions data', function() {
+        var opts1 = { namespace: 'namespace1', subscription: [1, 2] };
+        var opts2 = { namespace: 'namespace1', subscription: [1, 2] };
+        var ioa1 = new this.IoAction(opts1);
+        var ioa2 = new this.IoAction(opts2);
+        expect(ioa1.equalsSubscription(ioa2)).to.be.true;
+      });
+      it('should return true if the two IoAction have no namespaces and the same subscriptions data', function() {
+        var opts1 = { subscription: [1, 2] };
+        var opts2 = { subscription: [1, 2] };
+        var ioa1 = new this.IoAction(opts1);
+        var ioa2 = new this.IoAction(opts2);
+        expect(ioa1.equalsSubscription(ioa2)).to.be.true;
+      });
+    });
+
+    describe('on() method', function() {
+      it('should fill the subscription array with the on method arguments', function() {
+        var ioa = new this.IoAction();
+        ioa.on('one', 'two');
+        expect(ioa.subscription).to.be.an.array;
+        expect(ioa.subscription).to.have.length(2);
+        expect(ioa.subscription).to.deep.equal(['one', 'two']);
+      });
+      describe('with a non function as the second argument', function() {
+        it('should fill the ngSubscription property with the same values as the subscription property', function() {
+          var ioa = new this.IoAction();
+          ioa.on('one', 'two');
+          expect(ioa.ngSubscription).to.deep.equal(['one', 'two']);
+          expect(ioa.ngSubscription).to.deep.equal(ioa.subscription);
+        });
+      });
+      describe('with a function as the second argument', function() {
+        it('should fill the ngSubscription property with another function', function() {
+          var ioa = new this.IoAction();
+          var fn = function() {};
+          ioa.on('one', fn);
+          expect(ioa.ngSubscription).to.have.length(2);
+          expect(ioa.ngSubscription[0]).to.equal('one');
+          var same = (ioa.ngSubscription[1] === fn);
+          expect(same).to.be.false;
+        });
+      });
+    });
+
+    describe('emit() method', function() {
+      it('should fill the message array with the on method arguments', function() {
+        var ioa = new this.IoAction();
+        ioa.emit('one', 'two', 'three');
+        expect(ioa.message).to.be.an.array;
+        expect(ioa.message).to.have.length(3);
+        expect(ioa.message).to.deep.equal(['one', 'two', 'three']);
+      });
+      describe('with a non function as the last argument', function() {
+        it('should fill the ngMessage property with the same values as the message property', function() {
+          var ioa = new this.IoAction();
+          ioa.emit('one', 'two', 'three');
+          expect(ioa.ngMessage).to.deep.equal(['one', 'two', 'three']);
+          expect(ioa.ngMessage).to.deep.equal(ioa.message);
+        });
+      });
+      describe('with a function as the last argument', function() {
+        it('should fill the message property with another function', function() {
+          var ioa = new this.IoAction();
+          var fn = function() {};
+          ioa.emit('one', 'two', 'three', fn);
+          expect(ioa.ngMessage).to.have.length(4);
+          expect(ioa.ngMessage[0]).to.equal('one');
+          expect(ioa.ngMessage[1]).to.equal('two');
+          expect(ioa.ngMessage[2]).to.equal('three');
+          expect(ioa.ngMessage[3]).to.be.a.function;
+          var same = (ioa.ngMessage[1] === fn);
+          expect(same).to.be.false;
+        });
+      });
+    });
+
+    describe('of() method', function() {
+      it('should fill the namespace property', function() {
+        var ioa = new this.IoAction();
+        expect(ioa.namespace).to.be.null;
+        ioa.of('ns1');
+        expect(ioa.namespace).to.equal('ns1');
+      });
+    });
+
+    describe('removeListener() method', function() {
+      it('should set subscription property with method arguments', function() {
+        var ioa = new this.IoAction();
+        ioa.removeListener('one', 'two');
+        expect(ioa.subscription).to.deep.equal(['one', 'two']);
+      });
+      it('should set removeListenerRequest property to true', function() {
+        var ioa = new this.IoAction();
+        expect(ioa.removeListenerRequest).to.not.be.ok;
+        ioa.removeListener('one', 'two');
+        expect(ioa.removeListenerRequest).to.be.true;
+      });
+    });
+
+    describe('applyToSocketIO() method', function() {
+      describe('message style IoAction', function() {
+        it('should propagate namespace and broadcast properties to socketIO', function() {
+          var ns = null, broadcast = false;
+          var sioMock = {
+            of: function(namespace) {
+              ns = namespace;
+              var r = {
+                broadcast: {
+                  emit: function(evt, data) {
+                    broadcast = true;
+                  }
+                }
+              };
+              return r;
+            }
+          };
+
+          var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
+          ioa.emit('one', 'two');
+          ioa.applyToSocketIO(sioMock);
+          expect(ns).to.equal('ns1');
+          expect(broadcast).to.be.true;
+        });
+        it('should call socketIO emit method', function() {
+          var event = null, data = false;
+          var sioMock = {
+            of: function(namespace) {
+              var r = {
+                broadcast: {
+                  emit: function(e, d) {
+                    event = e;
+                    data = d;
+                  }
+                }
+              };
+              return r;
+            }
+          };
+
+          var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
+          ioa.emit('one', 'two');
+          ioa.applyToSocketIO(sioMock);
+          expect(event).to.equal('one');
+          expect(data).to.equal('two');
+        });
+      });
+      describe('subscription style IoAction', function() {
+        it('should propagate namespace and broadcast properties to socketIO', function() {
+          var ns = null, broadcast = false;
+          var sioMock = {
+            of: function(namespace) {
+              ns = namespace;
+              var r = {
+                broadcast: {
+                  on: function(evt, data) {
+                    broadcast = true;
+                  }
+                }
+              };
+              return r;
+            }
+          };
+
+          var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
+          ioa.on('one', 'two');
+          ioa.applyToSocketIO(sioMock);
+          expect(ns).to.equal('ns1');
+          expect(broadcast).to.be.true;
+        });
+        it('should call socketIO on method', function() {
+          var event = null, data = false;
+          var sioMock = {
+            of: function(namespace) {
+              var r = {
+                broadcast: {
+                  on: function(e, d) {
+                    event = e;
+                    data = d;
+                  }
+                }
+              };
+              return r;
+            }
+          };
+
+          var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
+          ioa.on('one', 'two');
+          ioa.applyToSocketIO(sioMock);
+          expect(event).to.equal('one');
+          expect(data).to.equal('two');
+        });
+      });
+      describe('unsubscription style IoAction', function() {
+        it('should call SocketIO removeListener with the ioOfflineBuffer buffered action', function() {
+          var event, data;
+          var sioMock = {
+            removeListener: function(e, d) {
+              event = e;
+              data = d;
+            }
+          };
+          var ioOfflineBufferMock = {
+            findSubscription: function() {
+              return {
+                ngSubscription: ['buffer1', 'buffer2']
+              };
+            }
+          };
+          var ioa = new this.IoAction();
+          ioa.removeListener('one', 'two');
+          ioa.applyToSocketIO(sioMock, ioOfflineBufferMock);
+          expect(event).to.equal('buffer1');
+          expect(data).to.equal('buffer2');
+        });
+      });
+    });
+  });
 });

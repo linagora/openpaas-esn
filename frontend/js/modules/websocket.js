@@ -3,6 +3,129 @@
 'use strict';
 
 angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
+  .factory('IoAction', ['$timeout', '$log', function($timeout, $log) {
+    function getNgCallback(callback) {
+      return function() {
+        var args = arguments;
+        $timeout(function() {
+          callback.apply(this, args);
+        }, 0);
+      };
+    }
+
+    function IoAction(options) {
+      this.message = null;
+      this.broadcast = null;
+      this.namespace = null;
+      this.subscription = null;
+      this.removeListenerRequest = null;
+      this.ngMessage = null;
+      this.ngSubscription = null;
+      options = options || {};
+      [
+        'message',
+        'broadcast',
+        'namespace',
+        'subscription',
+        'removeListenerRequest',
+        'ngMessage',
+        'ngSubscription'
+      ].forEach(function(key) {
+        if (key in options) {
+          this[key] = options[key];
+        }
+      }.bind(this));
+    }
+
+    IoAction.prototype.isSubscription = function() {
+      return this.subscription ? true : false;
+    };
+    IoAction.prototype.isUnsubscribe = function() {
+      return this.removeListenerRequest ? true : false;
+    };
+    IoAction.prototype.equalsSubscription = function(other) {
+      return (!this.namespace && !other.namespace || this.namespace === other.namespace) &&
+             this.subscription[0] === other.subscription[0] &&
+             this.subscription[1] === other.subscription[1];
+    };
+
+    IoAction.prototype.on = function(evt, cb) {
+      this.subscription = [evt, cb];
+      if (angular.isFunction(cb)) {
+        this.ngSubscription = [evt, getNgCallback(cb)];
+      } else {
+        this.ngSubscription = [evt, cb];
+      }
+    };
+
+    IoAction.prototype.emit = function() {
+      this.message = Array.prototype.slice.call(arguments, 0);
+      this.ngMessage = Array.prototype.slice.call(arguments, 0);
+      var cb = this.message[(this.message.length - 1)];
+      if (angular.isFunction(cb)) {
+        this.ngMessage.pop();
+        this.ngMessage.push(getNgCallback(cb));
+      }
+    };
+
+    IoAction.prototype.of = function(namespaceName) {
+      this.namespace = namespaceName;
+    };
+
+    IoAction.prototype.removeListener = function(name, listener) {
+      this.subscription = [name, listener];
+      this.removeListenerRequest = true;
+    };
+
+    IoAction.prototype.applyToSocketIO = function(sio, ioOfflineBuffer) {
+      var s = sio;
+
+      function _handleConnectedSubscription(s, action) {
+        if (action.isUnsubscribe()) {
+          action = ioOfflineBuffer.findSubscription(action);
+          if (action) {
+            s.removeListener.apply(s, action.ngSubscription);
+          }
+        } else {
+          s.on.apply(s, action.ngSubscription);
+        }
+      }
+
+      function _handleConnectedMessage(s, action) {
+        s.emit.apply(s, action.ngMessage);
+      }
+
+      if (this.namespace) {
+        s = s.of(this.namespace);
+      }
+
+      if (this.broadcast) {
+        s = s.broadcast;
+      }
+
+      if (this.isSubscription()) {
+        _handleConnectedSubscription(s, this);
+      } else {
+        _handleConnectedMessage(s, this);
+      }
+    };
+
+    IoAction.prototype.toString = function() {
+      var str = 'IoAction, namespace = ' + this.namespace + ' ';
+      if (this.subscription) {
+        if (this.isUnsubscribe()) {
+          str += 'unsubscribe from ' + this.subscription[0] + ' ';
+        } else {
+          str += 'subscribe to ' + this.subscription[0] + ' ';
+        }
+      } else if (this.message) {
+        str += 'message to ' + this.message[0];
+      }
+      return str;
+    };
+
+    return IoAction;
+  }])
   .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {
     return function(namespace) {
       var sio = io.connect(namespace || '', {
