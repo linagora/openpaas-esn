@@ -126,6 +126,57 @@ angular.module('esn.websocket', ['btford.socket-io', 'esn.session'])
 
     return IoAction;
   }])
+  .factory('ioInterface', ['IoAction', function(IoAction) {
+    function ioInterface(callback) {
+
+      var ioAction = new IoAction();
+
+      function buildCallbackResponse() {
+        var completeAction = ioAction;
+        ioAction = new IoAction();
+        if (completeAction.namespace) {
+          ioAction.of(completeAction.namespace);
+        }
+        return completeAction;
+      }
+
+      function emit() {
+        ioAction.emit.apply(ioAction, arguments);
+        callback(buildCallbackResponse());
+      }
+
+      function of(namespaceName) {
+        ioAction.of(namespaceName);
+        return terminate;
+      }
+
+      function on(evt, cb) {
+        ioAction.on(evt, cb);
+        callback(buildCallbackResponse());
+      }
+
+      function removeListener(evt, listener) {
+        ioAction.removeListener(evt, listener);
+        callback(buildCallbackResponse());
+      }
+
+      var terminate = {
+        emit: emit,
+        of: of,
+        on: on,
+        removeListener: removeListener,
+        broadcast: {
+          emit: function() {
+            ioAction.broadcast = true;
+            return emit(arguments);
+          }
+        }
+      };
+      return terminate;
+    }
+
+    return ioInterface;
+  }])
   .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {
     return function(namespace) {
       var sio = io.connect(namespace || '', {

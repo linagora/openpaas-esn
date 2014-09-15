@@ -563,4 +563,101 @@ describe('The esn.websocket Angular module', function() {
       });
     });
   });
+  describe.only('ioInterface service', function() {
+    beforeEach(function() {
+      var self = this;
+      angular.mock.module('esn.websocket');
+      angular.mock.inject(function(ioInterface) {
+        self.ioInterface = ioInterface;
+      });
+    });
+
+    it('should return a SocketIO like object', function() {
+      var ioi = this.ioInterface();
+      expect(ioi.emit).to.be.a.function;
+      expect(ioi.of).to.be.a.function;
+      expect(ioi.on).to.be.a.function;
+      expect(ioi.removeListener).to.be.a.function;
+      expect(ioi.broadcast).to.be.an.object;
+      expect(ioi.broadcast.emit).to.be.a.function;
+    });
+
+    describe('on() method', function() {
+      it('should fill the IoAction subscription object', function(done) {
+        var ioi = this.ioInterface(function(ioAction) {
+          expect(ioAction.subscription).to.have.length(2);
+          expect(ioAction.subscription[0]).to.equal('evt');
+          expect(ioAction.subscription[1]).to.equal('callback');
+          done();
+        });
+        ioi.on('evt', 'callback');
+      });
+    });
+
+    describe('emit() method', function() {
+      it('should fill the IoAction message object', function(done) {
+        var ioi = this.ioInterface(function(ioAction) {
+          expect(ioAction.message).to.have.length(2);
+          expect(ioAction.message[0]).to.equal('evt');
+          expect(ioAction.message[1]).to.equal('callback');
+          done();
+        });
+        ioi.emit('evt', 'callback');
+      });
+    });
+
+    describe('of() method', function() {
+      it('should send back a SocketIO like object', function() {
+        var ioi = this.ioInterface();
+        var obj = ioi.of('namespace1');
+        expect(obj.emit).to.be.a.function;
+        expect(obj.of).to.be.a.function;
+        expect(obj.on).to.be.a.function;
+        expect(obj.removeListener).to.be.a.function;
+        expect(obj.broadcast).to.be.an.object;
+        expect(obj.broadcast.emit).to.be.a.function;
+      });
+      it('should fill the IoAction namespace object', function(done) {
+        var ioi = this.ioInterface(function(ioAction) {
+          expect(ioAction.namespace).to.equal('namespace1');
+          done();
+        });
+        ioi.of('namespace1').emit('evt', 'callback');
+      });
+    });
+    describe('removeListener() method', function() {
+      it('should fill the subscription and removeListenerRequest properties of IoAction', function(done) {
+        var ioi = this.ioInterface(function(ioAction) {
+          expect(ioAction.subscription).to.have.length(2);
+          expect(ioAction.subscription[0]).to.equal('evt');
+          expect(ioAction.subscription[1]).to.equal('callback');
+          expect(ioAction.removeListenerRequest).to.be.true;
+          done();
+        });
+        ioi.removeListener('evt', 'callback');
+      });
+    });
+    describe('broadcast property', function() {
+      it('should fill the broadcast property of IoAction', function(done) {
+        var ioi = this.ioInterface(function(ioAction) {
+          expect(ioAction.broadcast).to.be.true;
+          done();
+        });
+        ioi.broadcast.emit('evt', 'callback');
+      });
+    });
+    it('should remember the namespace for subsequent requests', function(done) {
+      var counter = 0;
+      var ioi = this.ioInterface(function(ioAction) {
+        if (!counter) {
+          counter++;
+          return;
+        }
+        expect(ioAction.namespace).to.equal('namespace1');
+        done();
+      });
+      ioi.of('namespace1').emit('evt', 'callback');
+      ioi.emit('evt2', 'callback2');
+    });
+  });
 });
