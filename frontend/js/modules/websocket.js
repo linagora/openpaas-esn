@@ -369,33 +369,14 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       connect: _connect
     };
   }])
-  .factory('socket', ['$log', 'socketFactory', 'session', function($log, socketFactory, session) {
+  .factory('socket', ['$log', 'ioSocketProxy', 'ioConnectionManager',
+  function($log, ioSocketProxy, ioConnectionManager) {
     return function(namespace) {
-      var sio = io.connect(namespace || '', {
-        query: 'token=' + session.token.token + '&user=' + session.user._id
-      });
-
-      sio.socket.on('error', function(reason) {
-        $log.error('Unable to connect to websocket', reason);
-      });
-
-      sio.on('connect', function() {
-        $log.info('WS Connection established with server');
-      });
-
-      sio.on('connecting', function() {
-        $log.info('Trying to connect to websocket');
-      });
-
-      sio.on('disconnect', function() {
-        $log.info('Disconnected from websocket');
-      });
-
-      var socket = socketFactory({
-        ioSocket: sio
-      });
-      socket.socket = sio;
-      return socket;
+      var io = ioSocketProxy();
+      if (namespace) {
+        io.of(namespace);
+      }
+      return io;
     };
   }])
   .factory('socketIORoom', ['$log', function($log) {
@@ -468,12 +449,24 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
             client.emit('unsubscribe', room);
             $log.debug(namespace + ' : unsubscribed to room', room);
           }
+        },
+        subscribeToRoom: function() {
+          if (!room || !nbEventSubscribed) { return; }
+          client.emit('subscribe', room);
+          $log.debug(namespace + ' : subscribed to room', room);
         }
       };
     };
   }])
-  .factory('livenotification', ['$log', 'socket', 'socketIORoom', function($log, socket, socketIORoom) {
+  .factory('livenotification', ['$log', 'socket', 'socketIORoom', 'ioSocketConnection',
+  function($log, socket, socketIORoom, ioSocketConnection) {
     var socketCache = {};
+
+    ioSocketConnection.addReconnectCallback(function() {
+      Object.keys(socketCache).forEach(function(socketRoomId) {
+        socketCache[socketRoomId].subscribeToRoom();
+      });
+    });
 
     /*
      * With room:
