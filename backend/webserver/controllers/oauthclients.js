@@ -12,6 +12,15 @@ function list(req, res) {
   });
 }
 
+function created(req, res) {
+  OAuthClient.find({creator: req.user._id}).sort('-created').exec(function(error, oauthclients) {
+    if (error) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: error.details}});
+    }
+    return res.json(200, oauthclients);
+  });
+}
+
 function create(req, res) {
   if (!req.user) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
@@ -55,6 +64,7 @@ function remove(req, res) {
 module.exports = {
   list: list,
   create: create,
+  created: created,
   get: get,
   remove: remove
 };

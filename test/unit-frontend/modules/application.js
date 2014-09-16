@@ -124,6 +124,26 @@ describe('The Application Angular module', function() {
       });
     });
 
+    describe('created() method', function() {
+
+      beforeEach(angular.mock.inject(function(applicationAPI, $httpBackend) {
+        this.applicationAPI = applicationAPI;
+        this.$httpBackend = $httpBackend;
+        this.response = [];
+      }));
+
+      it('should send a request to /user/oauth/clients', function() {
+        this.$httpBackend.expectGET('/user/oauth/clients').respond(this.response);
+        this.applicationAPI.created();
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.applicationAPI.created();
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
     describe('create() method', function() {
 
       beforeEach(angular.mock.inject(function(applicationAPI, $httpBackend) {

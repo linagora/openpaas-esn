@@ -113,7 +113,7 @@ angular.module('esnApp', [
       controller: 'applicationController',
       resolve: {
         applications: function(applicationAPI, $location) {
-          return applicationAPI.list().then(
+          return applicationAPI.created().then(
             function(response) {
               return response.data;
             },
