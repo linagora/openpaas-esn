@@ -13,7 +13,7 @@ function transform(community, user, callback) {
     return {};
   }
 
-  if (Object.prototype.toString.call(community.toObject) === '[object Function]') {
+  if (typeof(community.toObject) === 'function') {
     community = community.toObject();
   }
 
@@ -132,7 +132,10 @@ module.exports.load = function(req, res, next) {
 module.exports.get = function(req, res) {
   if (req.community) {
     permission.canWrite(req.community, req.user, function(err, writable) {
-      var result = req.community.toObject();
+      var result = req.community;
+      if (typeof req.community.toObject === 'function') {
+        result = req.community.toObject();
+      }
       result.writable = writable;
       return res.json(200, result);
     });
