@@ -80,11 +80,17 @@ function get(req, res) {
     /*
      * Check if the tracker can be update :
      *  * req.user is mandatory
-     *  * req.query.before/after must not be set because the tracker must be update only when a user GET all the timelines entries
+     *  * req.query.before must not be set because the tracker must be update only when a user GET all the timelines entries
+     *  or if the req.query.after is defined
      *  * if result[0] is defined then there is at least 1 timeline entry in the activity stream
      */
-    if (req.user && !req.query.before && !req.query.after && result[0]) {
-      tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[0]._id, function(err) {});
+    if (req.user && !req.query.before && result[0]) {
+      // When req.query.after, the last timeline entry is the last element in the result array
+      if (req.query.after && result[result.length - 1]) {
+        tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[result.length - 1]._id, function(err) {});
+      } else {
+        tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[0]._id, function(err) {});
+      }
     }
   });
 }

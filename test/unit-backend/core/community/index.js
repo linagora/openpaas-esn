@@ -530,11 +530,31 @@ describe('The communities module', function() {
           return {
             update: function(a, b, callback) {
               return callback(null, result);
+            },
+            findOne: function(query, callback) {
+              callback(null, {
+                activity_stream: {
+                  uuid: '123'
+                }
+              });
             }
           };
         }
       };
       mockery.registerMock('mongoose', mongoose);
+      mockery.registerMock('../../core/activitystreams/tracker', {
+        updateLastTimelineEntryRead: function(userId, activityStreamUuid, lastTimelineEntry, callback) {
+          return callback(null, {});
+        }
+      });
+      mockery.registerMock('../../core/activitystreams', {
+        query: function(options, callback) {
+          return callback(null, [
+            {_id: '123'}
+          ]);
+        }
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.join(123, 456, 456, function(err, update) {
         expect(err).to.not.exist;

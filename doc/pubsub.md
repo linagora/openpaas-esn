@@ -97,6 +97,7 @@ For example, when a user 123 has sent a message 456 to the user 789:
 |                 | Publish                     | Subscribe                   | Publish | Subscribe |       |
 | Modules         |                             |                             |         |           |       |
 | activitystreams |                             | message:activity            |         |           |       |
+|                 |                             | community:join              |         |           |       |
 | conference      | conference:join             |                             |         |           |       |
 |                 | conference:leave            |                             |         |           |       |
 | community       | community:join              |                             |         |           |       |

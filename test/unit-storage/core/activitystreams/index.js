@@ -41,6 +41,7 @@ describe('The activitystreams core module', function() {
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
+      require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentriestracker');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');

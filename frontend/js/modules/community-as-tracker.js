@@ -110,12 +110,15 @@ angular.module('esn.community-as-tracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$rootScope', '$scope', '$log', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session',
-    function($rootScope, $scope, $log, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session) {
+  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session',
+    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session) {
 
       var notifications = [];
 
       function updateUnread(activityStreamUuid, count) {
+        if (! $scope.activityStreams) {
+          return;
+        }
         $scope.activityStreams.some(function(activityStream) {
           if (activityStream.uuid === activityStreamUuid) {
             activityStream.unread_count = count;
@@ -134,6 +137,13 @@ angular.module('esn.community-as-tracker', [
         }
       }
 
+      $scope.getUnreadUpdate = function(activityStreamUuid) {
+        updateUnread(activityStreamUuid, 0);
+        $rootScope.$emit('activitystream:userUpdateRequest', {
+          activitystreamUuid: activityStreamUuid
+        });
+      };
+
       $scope.$on('$destroy', function() {
         notifications.forEach(function(notification) {
           notification.removeListener('notification', liveNotificationHandler);
@@ -142,11 +152,14 @@ angular.module('esn.community-as-tracker', [
 
       $rootScope.$on('activitystream:updated', function(evt, data) {
         if (data && data.activitystreamUuid) {
-          communityAStrackerAPI.getUnreadCount(data.activitystreamUuid).then(
-            function(response) {
-              updateUnread(data.activitystreamUuid, response.data.unread_count);
-            }
-          );
+          // Usage of $timeout is to wait the tracker update in database
+          $timeout(function() {
+            communityAStrackerAPI.getUnreadCount(data.activitystreamUuid).then(
+              function(response) {
+                updateUnread(data.activitystreamUuid, response.data.unread_count);
+              }
+            );
+          }, 1000);
         }
       });
 

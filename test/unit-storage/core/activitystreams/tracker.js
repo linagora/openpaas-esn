@@ -57,33 +57,6 @@ describe('the TimelineEntriesTracker module', function() {
     });
   });
 
-  it('should return 0 unread TimelineEntry for new Users', function(done) {
-    var self = this;
-
-    this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
-      if (err) { return done(err); }
-
-      self.helpers.api.createCommunity('Node', models.users[0], models.domain, function(err, community) {
-        if (err) {
-          return done(err);
-        }
-
-        self.helpers.api.applyMultipleTimelineEntries(community.activity_stream.uuid, 3, 'post', function(err, models2) {
-          if (err) {
-            return done(err);
-          }
-
-          tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
-            expect(err).to.not.exist;
-            expect(count).to.exist;
-            expect(count).to.deep.equal(0);
-            done();
-          });
-        });
-      });
-    });
-  });
-
   it('should return 0 unread TimelineEntry when update to the last TimelineEntry', function(done) {
     var self = this;
 
