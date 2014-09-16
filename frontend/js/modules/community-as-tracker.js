@@ -139,7 +139,7 @@ angular.module('esn.community-as-tracker', [
 
       $scope.getUnreadUpdate = function(activityStreamUuid) {
         updateUnread(activityStreamUuid, 0);
-        $rootScope.$emit('communityAStracker:updated', {
+        $rootScope.$emit('activitystream:userUpdateRequest', {
           activitystreamUuid: activityStreamUuid
         });
       };
@@ -152,14 +152,14 @@ angular.module('esn.community-as-tracker', [
 
       $rootScope.$on('activitystream:updated', function(evt, data) {
         if (data && data.activitystreamUuid) {
-          // Usage of $timeout is for wait the tracker update in database
+          // Usage of $timeout is to wait the tracker update in database
           $timeout(function() {
             communityAStrackerAPI.getUnreadCount(data.activitystreamUuid).then(
               function(response) {
                 updateUnread(data.activitystreamUuid, response.data.unread_count);
               }
             );
-          }, 100);
+          }, 1000);
         }
       });
 

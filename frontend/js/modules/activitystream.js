@@ -459,7 +459,7 @@ angular.module('esn.activitystream', [
         }
       };
 
-      $rootScope.$on('communityAStracker:updated', function(evt, data) {
+      $rootScope.$on('activitystream:userUpdateRequest', function(evt, data) {
         if ($scope.activitystreamUuid === data.activitystreamUuid) {
           $scope.getStreamUpdates();
         }
