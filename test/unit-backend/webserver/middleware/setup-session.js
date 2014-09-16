@@ -22,7 +22,7 @@ describe('the setup-session middleware', function() {
       logger: { debug: function() {} },
       pubsub: {
         local: {
-          topic: function() { return { subscribe: function() {} }; }
+          topic: function() { return { subscribe: function() {}, publish: function() {} }; }
         }
       }
     };
@@ -96,7 +96,10 @@ describe('the setup-session middleware', function() {
       logger: { debug: function() {} },
       pubsub: {
         local: {
-          topic: function(topic) { return { subscribe: function(handler) { subscriptions[topic] = handler; } }; }
+          topic: function(topic) { return {
+            subscribe: function(handler) { subscriptions[topic] = handler; },
+            publish: function() {}
+          }; }
         }
       }
     };
