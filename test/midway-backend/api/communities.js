@@ -530,6 +530,69 @@ describe('The communities API', function() {
         }
       });
     });
+
+    it('should return the number of members and not the members list', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        members: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+      var baruser = {emails: ['bar@bar.com'], password: 'secret'};
+      var bazuser = {emails: ['baz@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          saveUser(baruser, callback);
+        },
+        function(callback) {
+          saveUser(bazuser, callback);
+        },
+        function(callback) {
+          domain.administrator = foouser._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id});
+          community.members.push({user: baruser._id});
+          community.members.push({user: bazuser._id});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, foouser.emails[0], password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body.exist);
+              expect(res.body.members_count).to.exist;
+              expect(res.body.members_count).to.equal(3);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
   });
 
   describe('GET /api/communities/:id/avatar', function() {
