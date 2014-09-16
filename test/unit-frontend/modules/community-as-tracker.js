@@ -15,7 +15,7 @@ describe('The esn.community-as-tracker Angular module', function() {
           _id: domainId
         }
       });
-      $provide.value('$timeout', function(callback) { callback() });
+      $provide.value('$timeout', function(callback) { callback(); });
     });
   });
 
