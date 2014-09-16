@@ -226,6 +226,23 @@ body {
   }
 }
 
+.esn-community {
+  .ResizeImage(100%, auto);
+  .btn {
+    width: 100%;
+  }
+  @media (min-width: 992px) {
+    .ResizeImage(@defaultImageSizeBig, auto);
+    .btn {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .thumbnail {
+      margin-bottom: 0;
+    }
+  }
+}
+
 @media (min-width: 992px) {
   .esn-pull-right-md {
     float: right;

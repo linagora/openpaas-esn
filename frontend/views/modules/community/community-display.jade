@@ -1,10 +1,11 @@
-div.nopadding.esn-member
+div.nopadding.esn-community
 
-  .col-md-2.col-xs-3.nopadding
+  .col-lg-2.col-sm-3.col-xs-4
+
     a(href='#/communities/{{community._id}}')
       img.thumbnail.nopadding(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
 
-  .col-md-10.col-xs-9
+  .col-lg-10.col-sm-9.col-xs-8
     h4.media-heading
       a(href='#/communities/{{community._id}}')
         strong {{community.title}}
@@ -18,4 +19,3 @@ div.nopadding.esn-member
         community-button-leave(community='community', user='user', on-leave='leaveSuccess(community)', on-fail='leaveFailure(community)')
       .clearfix
     p.hidden-xs.community-description(ng-show='community.description') {{community.description | characters:256 :false }}
-  .col-lg-3.col-sm-4.col-xs-12
