@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The Community Angular module', function() {
+describe.only('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
   describe('communityAPI service', function() {
@@ -981,48 +981,34 @@ describe('The Community Angular module', function() {
       beforeEach(function() {
         this.community = {
           _id: 'community1',
-          members: [
-            {user: 'user1'},
-            {user: 'user2'},
-            {user: 'user3'},
-            {user: 'user4'}
-          ]
+          members_count: 4,
+          member_status: 'none'
         };
       });
 
       it('should return false if the community is undefined', function() {
         expect(this.communityMembership.isMember(undefined, {_id: 'user1'})).to.be.false;
       });
-      it('should return false if the community.members is undefined', function() {
-        expect(this.communityMembership.isMember({_id: 'community1'}, {_id: 'user1'})).to.be.false;
+      it('should return false if the community.member_status is not "member"', function() {
+        expect(this.communityMembership.isMember({_id: 'community1'})).to.be.false;
       });
-      it('should return false if the user is undefined', function() {
-        expect(this.communityMembership.isMember(this.community, undefined)).to.be.false;
+      it('should return true if the community.member_status is "member"', function() {
+        this.community.member_status = 'member';
+        expect(this.communityMembership.isMember(this.community)).to.be.true;
       });
-      it('should return true if the user is in the members array', function() {
-        expect(this.communityMembership.isMember(this.community, {_id: 'user3'})).to.be.true;
-      });
-      it('should return false if the user is not in the members array', function() {
-        expect(this.communityMembership.isMember(this.community, {_id: 'user8'})).to.be.false;
-      });
-
     });
 
     describe('join() method', function() {
       beforeEach(function() {
         this.community = {
           _id: 'community1',
-          members: [
-            {user: 'user1'},
-            {user: 'user2'},
-            {user: 'user3'},
-            {user: 'user4'}
-          ]
+          member_status: 'none'
         };
       });
 
       it('should return a rejected promise if the user is already a member', function() {
         var rejected = false;
+        this.community.member_status = 'member';
         this.communityMembership.join(this.community, {_id: 'user1'}).then(null, function() {
           rejected = true;
         });
@@ -1031,6 +1017,7 @@ describe('The Community Angular module', function() {
       });
 
       it('should call communityAPI.join(:userid, :communityid) if the user is not a member', function(done) {
+        this.community.member_status = '???';
         this.communityAPI.join = function(cid, uid) {
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
@@ -1044,17 +1031,13 @@ describe('The Community Angular module', function() {
       beforeEach(function() {
         this.community = {
           _id: 'community1',
-          members: [
-            {user: 'user1'},
-            {user: 'user2'},
-            {user: 'user3'},
-            {user: 'user4'}
-          ]
+          member_status: 'none'
         };
       });
 
       it('should return a rejected promise if the user is not a member', function() {
         var rejected = false;
+        this.community.member_status = 'notmember';
         this.communityMembership.leave(this.community, {_id: 'user8'}).then(null, function() {
           rejected = true;
         });
@@ -1062,7 +1045,8 @@ describe('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call communityAPI.leave(:userid, :communityid) if the user is not a member', function(done) {
+      it('should call communityAPI.leave(:userid, :communityid) if the user is a member', function(done) {
+        this.community.member_status = 'member';
         this.communityAPI.leave = function(cid, uid) {
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user2');

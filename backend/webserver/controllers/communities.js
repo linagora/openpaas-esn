@@ -5,8 +5,9 @@ var imageModule = require('../../core/image');
 var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
+var async = require('async');
 
-function transform(community) {
+function transform(community, user, callback) {
   if (!community) {
     return {};
   }
@@ -17,7 +18,15 @@ function transform(community) {
 
   community.members_count = community.members ? community.members.length : 0;
   delete community.members;
-  return community;
+
+  communityModule.isMember(community._id, user._id, function(err, membership) {
+    if (membership) {
+      community.member_status = 'member';
+    } else {
+      community.member_status = 'none';
+    }
+    return callback(community);
+  });
 }
 
 module.exports.loadDomainForCreate = function(req, res, next) {
@@ -68,7 +77,9 @@ module.exports.create = function(req, res) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community save error', details: err}});
     }
-    return res.json(201, transform(saved));
+    transform(saved, req.user, function(result) {
+      return res.json(201, result);
+    });
   });
 };
 
@@ -92,7 +103,13 @@ module.exports.list = function(req, res) {
       return res.json(500, { error: { status: 500, message: 'Community list failed', details: err}});
     }
 
-    return res.json(200, response.map(transform));
+    async.map(response, function(community, callback) {
+      transform(community, req.user, function(transformed) {
+        return callback(null, transformed);
+      });
+    }, function(err, results) {
+      return res.json(200, results);
+    });
   });
 };
 
@@ -104,8 +121,10 @@ module.exports.load = function(req, res, next) {
     if (!community) {
       return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
     }
-    req.community = transform(community);
-    return next();
+    transform(community, req.user, function(transformed) {
+      req.community = transformed;
+      return next();
+    });
   });
 };
 

@@ -77,6 +77,9 @@ describe('The communities controller', function() {
       var mock = {
         save: function(community, callback) {
           return callback(null, saved);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/community', mock);
@@ -162,12 +165,16 @@ describe('The communities controller', function() {
       var mock = {
         query: function(q, callback) {
           return callback(null, result);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/community', mock);
 
       var req = {
-        param: function() {}
+        param: function() {},
+        user: {_id: 1}
       };
 
       var res = {
@@ -336,12 +343,18 @@ describe('The communities controller', function() {
       var mock = {
         load: function(id, callback) {
           return callback(null, community);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/community', mock);
       var req = {
         params: {
           id: 123
+        },
+        user: {
+          _id: 1
         }
       };
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -358,12 +371,18 @@ describe('The communities controller', function() {
       var mock = {
         load: function(id, callback) {
           return callback(null, community);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/community', mock);
       var req = {
         params: {
           id: 123
+        },
+        user: {
+          id: 1
         }
       };
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
