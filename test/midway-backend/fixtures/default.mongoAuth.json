@@ -2,7 +2,8 @@
   "webserver": {
     "enabled": true,
     "port": 8081,
-    "virtualhosts": []
+    "virtualhosts": [],
+    "startupBufferTimeout": 500
   },
   "wsserver": {
     "enabled": false,

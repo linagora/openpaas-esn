@@ -1,13 +1,12 @@
 'use strict';
 
-angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', 'ngRoute'])
+angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
 .factory('session', ['$q', function($q) {
 
   var bootstrapDefer = $q.defer();
   var session = {
     user: {},
     domain: {},
-    token: {},
     ready: bootstrapDefer.promise
   };
 
@@ -17,8 +16,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', '
       return;
     }
     if (session.user._id &&
-        session.domain._id &&
-        session.token.token) {
+        session.domain._id) {
       sessionIsBootstraped = true;
       bootstrapDefer.resolve(session);
     }
@@ -34,14 +32,8 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', '
     checkBootstrap();
   }
 
-  function setWebsocketToken(token) {
-    angular.copy(token, session.token);
-    checkBootstrap();
-  }
-
   session.setUser = setUser;
   session.setDomain = setDomain;
-  session.setWebsocketToken = setWebsocketToken;
 
   return session;
 }])
@@ -82,8 +74,8 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', '
     });
   }])
 
-.factory('sessionFactory', ['$log', '$q', 'userAPI', 'domainAPI', 'tokenAPI', 'session',
-    function($log, $q, userAPI, domainAPI, tokenAPI, session) {
+.factory('sessionFactory', ['$log', '$q', 'userAPI', 'domainAPI', 'session',
+    function($log, $q, userAPI, domainAPI, session) {
 
       function onError(error, callback) {
         if (error && error.data) {
@@ -111,7 +103,6 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', '
             if (error) {
               return callback(error);
             }
-            fetchWebsocketToken();
             callback(null);
           });
         }, function(error) {
@@ -126,16 +117,6 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.authentication', '
         }, function(error) {
           onError(error, callback);
         });
-      }
-
-      function fetchWebsocketToken() {
-        tokenAPI.getNewToken().then(function(response) {
-          session.setWebsocketToken(response.data);
-        }), function(error) {
-          if (error && error.data) {
-            $log.error('Error while getting auth token', error.data);
-          }
-        };
       }
 
       return {

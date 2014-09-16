@@ -5,7 +5,8 @@ var expressSession = require('express-session'),
     mongoose = require('mongoose'),
     core = require('../../core'),
     mongo = core.db.mongo,
-    topic = core.pubsub.local.topic('mongodb:connectionAvailable'),
+    mongotopic = core.pubsub.local.topic('mongodb:connectionAvailable'),
+    mongosessiontopic = core.pubsub.local.topic('webserver:mongosessionstoreEnabled'),
     logger = core.logger;
 
 function setupSession(session) {
@@ -18,11 +19,12 @@ function setupSession(session) {
         mongoose_connection: mongoose.connections[0]
       })
     }));
+    mongosessiontopic.publish({});
   };
   if (mongo.isConnected()) {
     setSession();
   }
-  topic.subscribe(setSession);
+  mongotopic.subscribe(setSession);
 }
 
 module.exports = setupSession;

@@ -15,16 +15,14 @@ describe('The esn.session Angular module', function() {
       });
     });
 
-    it('should return an object with 3 properties: user, domain and token', function() {
+    it('should return an object with 2 properties: user, domain', function() {
       expect(this.session.user).to.be.an.object;
       expect(this.session.domain).to.be.an.object;
-      expect(this.session.token).to.be.an.object;
     });
 
-    it('should return an object with 3 methods: setUser, setDomain, setWebsocketToken', function() {
+    it('should return an object with 2 methods: setUser, setDomain', function() {
       expect(this.session).to.respondTo('setUser');
       expect(this.session).to.respondTo('setDomain');
-      expect(this.session).to.respondTo('setWebsocketToken');
     });
 
     describe('setUser method', function() {
@@ -62,25 +60,6 @@ describe('The esn.session Angular module', function() {
         expect(domain).to.deep.equal(domain1);
         this.session.setDomain(domain2);
         expect(domain).to.deep.equal(domain2);
-      });
-    });
-
-    describe('setWebsocketToken method', function() {
-      it('should set the session.token object', function() {
-        var token = this.session.token;
-        var token1 = {
-          _id: '1',
-          name: 'hello'
-        };
-        var token2 = {
-          _id: '2',
-          name2: 'yolo'
-        };
-
-        this.session.setWebsocketToken(token1);
-        expect(token).to.deep.equal(token1);
-        this.session.setWebsocketToken(token2);
-        expect(token).to.deep.equal(token2);
       });
     });
 
@@ -227,21 +206,6 @@ describe('The esn.session Angular module', function() {
       userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
       $rootScope.$digest();
       domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
-      $rootScope.$digest();
-    });
-
-    it('should call session.setWebsocketToken when token is retrieved', function(done) {
-      session.setWebsocketToken = function(token) {
-        expect(token).to.deep.equal({_id: 1});
-        done();
-      };
-      service.fetchUser(function() {});
-
-      userdefer.resolve({data: {_id: 'user1', name: 'foo', domains: [{domain_id: 'I1'}, {domain_id: 'I2'}]}});
-      $rootScope.$digest();
-      domaindefer.resolve({data: {_id: 'D1', name: 'domain1'}});
-      $rootScope.$digest();
-      tokendefer.resolve({data: {_id: 1}});
       $rootScope.$digest();
     });
 
