@@ -8,7 +8,7 @@ div.widget.thread(ng-class="{'just-posted': message._id === lastPost.messageId}"
         | &nbsp;-&nbsp;
         a(href="/#messages/{{message._id}}")
           span(am-time-ago="message.published")
-    p.multilines(ng-bind-html="message.content | linkify")
+    p.multilines(ng-bind-html="message.content | linky:'_blank'")
     include ./partials/whatsupBottomLinks
 
     div.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')

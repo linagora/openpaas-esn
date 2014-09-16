@@ -7,7 +7,6 @@ angular.module('esnApp', [
   'ui.notify',
   'angularMoment',
   'truncate',
-  'linkify',
   'esn.core',
   'esn.member',
   'esn.domain',
