@@ -8,10 +8,13 @@ var request = require('supertest'),
 describe('The messages API', function() {
   var app;
   var testuser;
+  var restrictedUser;
   var domain;
   var community;
+  var restrictedCommunity;
   var password = 'secret';
   var email = 'foo@bar.com';
+  var restrictedEmail = 'restricted@bar.com';
 
   beforeEach(function(done) {
     var self = this;
@@ -28,13 +31,25 @@ describe('The messages API', function() {
         emails: [email]
       });
 
+      restrictedUser = new User({
+        username: 'Restricted',
+        password: password,
+        emails: [restrictedEmail]
+      });
+
       domain = new Domain({
         name: 'MyDomain',
         company_name: 'MyAwesomeCompany'
       });
 
       community = new Community({
-        title: 'myCommunity'
+        title: 'myCommunity',
+        type: 'open'
+      });
+
+      restrictedCommunity = new Community({
+        title: 'myRestrictedCommunity',
+        type: 'restricted'
       });
 
       function saveUser(user, cb) {
@@ -54,11 +69,8 @@ describe('The messages API', function() {
         });
       }
 
-      function saveCommunity(community, domain, user, cb) {
+      function saveCommunity(community, domain, cb) {
         community.domain_ids.push(domain._id);
-        community.members.push({
-          user: user._id
-        });
         community.save(function(err, saved) {
           community._id = saved._id;
           return cb(err, saved);
@@ -70,10 +82,19 @@ describe('The messages API', function() {
           saveUser(testuser, callback);
         },
         function(callback) {
+          saveUser(restrictedUser, callback);
+        },
+        function(callback) {
           saveDomain(domain, testuser, callback);
         },
         function(callback) {
-          saveCommunity(community, domain, testuser, callback);
+          saveCommunity(community, domain, callback);
+        },
+        function(callback) {
+          restrictedCommunity.members = [
+            {user: restrictedUser._id, status: 'joined'}
+          ];
+          saveCommunity(restrictedCommunity, domain, callback);
         }
       ],
         function(err) {
@@ -209,7 +230,7 @@ describe('The messages API', function() {
       });
   });
 
-  it('should be able to post a whatsup message on a valid domain', function(done) {
+  it('should be able to post a whatsup message on an open community', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
@@ -240,7 +261,7 @@ describe('The messages API', function() {
       });
   });
 
-  it('should create a timelineentry when posting a new whatsup message to a domain', function(done) {
+  it('should create a timelineentry when posting a new whatsup message to a community', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
@@ -340,7 +361,7 @@ describe('The messages API', function() {
   });
 
 
-  it('should be able to post a whatsup message on a valid community', function(done) {
+  it('should be able to post a whatsup message on an open community', function(done) {
     var message = 'Hey Oh, let\'s go!';
     var target = {
       objectType: 'activitystream',
@@ -423,4 +444,109 @@ describe('The messages API', function() {
       });
   });
 
+  it('should not be able to post a whatsup message on a restricted community', function(done) {
+    var TimelineEntry = this.mongoose.model('TimelineEntry');
+
+    var message = 'Hey Oh, let\'s go!';
+    var target = {
+      objectType: 'activitystream',
+      id: restrictedCommunity.activity_stream.uuid
+    };
+    request(app)
+      .post('/api/login')
+      .send({username: email, password: password, rememberme: true})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).post('/api/messages');
+        req.cookies = cookies;
+        req.send({
+          object: {
+            description: message,
+            objectType: 'whatsup'
+          },
+          targets: [target]
+        });
+        req.expect(400)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+
+            process.nextTick(function() {
+              TimelineEntry.find({}, function(err, results) {
+                expect(results).to.exist;
+                expect(results.length).to.equal[0];
+                done();
+              });
+            });
+          });
+      });
+  });
+
+  it('should not be able to reply to a message posted in a restricted community the current user is not member of', function(done) {
+
+    var Whatsup = this.mongoose.model('Whatsup');
+
+    var self = this;
+    var message = 'Post a message to a restricted community';
+    var target = {
+      objectType: 'activitystream',
+      id: restrictedCommunity.activity_stream.uuid
+    };
+
+    this.helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsRestrictedUser) {
+      if (err) {
+        return done(err);
+      }
+      var response = 'This is the response message';
+
+      var req = loggedInAsRestrictedUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'whatsup'
+        },
+        targets: [target]
+      });
+
+      req.expect(201);
+      req.end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+
+        self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+          var req = loggedInAsUser(request(app).post('/api/messages'));
+          var messageId = res.body._id;
+
+          req.send({
+            object: {
+              description: response,
+              objectType: 'whatsup'
+            },
+            inReplyTo: {
+              objectType: 'whatsup',
+              _id: messageId
+            }
+          });
+
+          req.expect(403);
+          req.end(function(err) {
+            expect(err).to.not.exist;
+            process.nextTick(function() {
+              Whatsup.findById(messageId, function(err, message) {
+                if (err) {
+                  return done(err);
+                }
+
+                expect(message).to.exist;
+                expect(message.responses).to.exists;
+                expect(message.responses.length).to.equal(0);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });
