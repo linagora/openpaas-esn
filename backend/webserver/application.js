@@ -1,4 +1,5 @@
 'use strict';
+
 var express = require('express');
 var cdm = require('connect-dynamic-middleware');
 var i18n = require('../i18n');
@@ -6,8 +7,8 @@ var lessMiddleware = require('less-middleware');
 var path = require('path');
 var passport = require('passport');
 var flash = require('connect-flash');
-var frontendPath = path.normalize(__dirname + '/../../frontend');
-var cssPath = frontendPath + '/css';
+var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
+var CSS_PATH = FRONTEND_PATH + '/css';
 
 var lessMiddlewareConfig = {
   production: {
@@ -29,18 +30,18 @@ var lessMiddlewareConfig = {
 
 var application = express();
 exports = module.exports = application;
-application.set('views', frontendPath + '/views');
+application.set('views', FRONTEND_PATH + '/views');
 application.set('view engine', 'jade');
 
 application.use(lessMiddleware(
-  frontendPath,
+  FRONTEND_PATH,
   process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production.options : lessMiddlewareConfig.dev.options));
-application.use('/css', express.static(cssPath));
+application.use('/css', express.static(CSS_PATH));
 var morgan = require('morgan');
 application.use(morgan());
-application.use('/components', express.static(frontendPath + '/components'));
-application.use('/images', express.static(frontendPath + '/images'));
-application.use('/js', express.static(frontendPath + '/js'));
+application.use('/components', express.static(FRONTEND_PATH + '/components'));
+application.use('/images', express.static(FRONTEND_PATH + '/images'));
+application.use('/js', express.static(FRONTEND_PATH + '/js'));
 
 var bodyParser = require('body-parser');
 application.use(bodyParser.json());
@@ -66,5 +67,6 @@ application.use(function(req, res, next) {
 application.use(require('./middleware/setup-settings')());
 
 application.use(flash());
+
 require('./pubsub')(application);
 require('./routes')(application);
