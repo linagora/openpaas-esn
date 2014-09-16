@@ -8,6 +8,7 @@ describe('The communities controller', function() {
   describe('The create fn', function() {
     it('should send back 400 if community title is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
       var req = {
         body: {},
         user: {_id: 123}
@@ -26,6 +27,7 @@ describe('The communities controller', function() {
 
     it('should send back 400 if request does not contains domain', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
       var req = {
         body: {
           title: 'YOLO'
@@ -51,6 +53,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         body: {
@@ -83,6 +86,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         body: {
@@ -117,6 +121,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         param: function() {}
@@ -140,6 +145,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         param: function() {}
@@ -171,6 +177,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         param: function() {},
@@ -208,6 +215,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
       };
@@ -235,6 +243,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.list(req, {});
@@ -259,6 +268,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.list(req, {});
@@ -284,6 +294,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.list(req, {});
@@ -299,6 +310,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         params: {
@@ -320,6 +332,7 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -349,6 +362,8 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
         params: {
           id: 123
@@ -377,6 +392,8 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
         params: {
           id: 123
@@ -399,8 +416,14 @@ describe('The communities controller', function() {
 
   describe('The get fn', function() {
     it('should send back HTTP 200 with community if defined in request', function(done) {
-      var community = {_id: 123};
+      var community = {_id: 123, toObject: undefined};
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {
+        canWrite: function(community, user, callback) {
+          return callback(true);
+        }
+      });
+
       var req = {
         community: community
       };
@@ -418,6 +441,8 @@ describe('The communities controller', function() {
 
     it('should send back HTTP 404 if community is not set in request', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
       };
       var res = {
@@ -435,6 +460,8 @@ describe('The communities controller', function() {
   describe('The delete fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
       };
       var res = {
@@ -455,6 +482,8 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
         community: {}
       };
@@ -475,6 +504,8 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
         community: {}
       };
@@ -492,6 +523,8 @@ describe('The communities controller', function() {
   describe('The uploadAvatar fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
       };
       var res = {
@@ -508,6 +541,7 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have mimetype', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -529,6 +563,7 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have size', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -550,6 +585,7 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have a valid mimetype', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -572,6 +608,7 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have a valid size', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -599,6 +636,7 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -626,6 +664,7 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -658,6 +697,7 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', community);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -690,6 +730,7 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', community);
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -713,6 +754,8 @@ describe('The communities controller', function() {
   describe('The getAvatar fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
       };
       var res = {
@@ -728,6 +771,8 @@ describe('The communities controller', function() {
 
     it('should redirect if community.image is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
       var req = {
         community: {
         }
@@ -744,6 +789,7 @@ describe('The communities controller', function() {
 
     it('should return 500 if image module fails', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
         getAvatar: function(id, callback) {
           return callback(new Error());
@@ -778,6 +824,7 @@ describe('The communities controller', function() {
       };
 
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
         getAvatar: function(id, callback) {
           return callback(null, meta, image);
@@ -823,6 +870,7 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', imageModuleMock);
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         headers: {
@@ -849,6 +897,7 @@ describe('The communities controller', function() {
   describe('The loadDomainForCreate fn', function() {
     it('should send back 400 is domain_id is not defined in body', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -871,6 +920,7 @@ describe('The communities controller', function() {
   describe('The getMine fn', function() {
     it('should send back 400 is req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -899,6 +949,7 @@ describe('The communities controller', function() {
           done();
         }
       };
+      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         user: {_id: 123}
@@ -915,6 +966,7 @@ describe('The communities controller', function() {
           return callback(null, result);
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code, json) {
@@ -936,6 +988,7 @@ describe('The communities controller', function() {
   describe('The getMembers fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -957,6 +1010,7 @@ describe('The communities controller', function() {
           return callback(new Error());
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -979,6 +1033,7 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -999,6 +1054,7 @@ describe('The communities controller', function() {
   describe('The getMember fn', function() {
     it('should send back 400 is req.params.user_id is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1019,6 +1075,7 @@ describe('The communities controller', function() {
 
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1043,6 +1100,7 @@ describe('The communities controller', function() {
           return callback(new Error());
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1070,6 +1128,7 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1097,6 +1156,7 @@ describe('The communities controller', function() {
           return callback();
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         send: function(code) {
@@ -1123,6 +1183,7 @@ describe('The communities controller', function() {
   describe('The join fn', function() {
     it('should send back 400 if req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1144,6 +1205,7 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1165,6 +1227,7 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.params.user_id is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1188,6 +1251,7 @@ describe('The communities controller', function() {
           return cb(new Error());
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1214,6 +1278,7 @@ describe('The communities controller', function() {
           return cb();
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         send: function(code) {
@@ -1238,6 +1303,7 @@ describe('The communities controller', function() {
   describe('The leave fn', function() {
     it('should send back 400 if req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1259,6 +1325,7 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1280,6 +1347,7 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.params.user_id is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1303,6 +1371,7 @@ describe('The communities controller', function() {
           return cb(new Error());
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         json: function(code) {
@@ -1329,6 +1398,7 @@ describe('The communities controller', function() {
           return cb();
         }
       });
+      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
         send: function(code) {

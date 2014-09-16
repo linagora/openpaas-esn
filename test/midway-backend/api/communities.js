@@ -438,7 +438,7 @@ describe('The communities API', function() {
       });
     });
 
-    it('should not retrieve the community if user is not a community member', function(done) {
+    it('should get the community information even if the user is not a community member', function(done) {
       var self = this;
       var community = {
         title: 'Node.js',
@@ -469,7 +469,7 @@ describe('The communities API', function() {
               return done(err);
             }
             var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
-            req.expect(403);
+            req.expect(200);
             req.end(function(err, res) {
               expect(err).to.not.exist;
               done();
