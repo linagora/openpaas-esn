@@ -77,6 +77,9 @@ describe('The communities controller', function() {
       var mock = {
         save: function(community, callback) {
           return callback(null, saved);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/community', mock);
@@ -146,6 +149,42 @@ describe('The communities controller', function() {
         json: function(code, result) {
           expect(code).to.equal(200);
           expect(result).to.be.an.array;
+          done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.list(req, res);
+    });
+
+    it('should send back 200 if with communities and members_count', function(done) {
+      var result = [
+        {_id: 1, members: [1, 2]},
+        {_id: 2, members: [1, 2, 3]}
+      ];
+      var mock = {
+        query: function(q, callback) {
+          return callback(null, result);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var req = {
+        param: function() {},
+        user: {_id: 1}
+      };
+
+      var res = {
+        json: function(code, result) {
+          expect(code).to.equal(200);
+          expect(result).to.be.an.array;
+          result.forEach(function(community) {
+            expect(community.members).to.not.exist;
+            expect(community.members_count).to.be.an.integer;
+          });
           done();
         }
       };
@@ -304,12 +343,18 @@ describe('The communities controller', function() {
       var mock = {
         load: function(id, callback) {
           return callback(null, community);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/community', mock);
       var req = {
         params: {
           id: 123
+        },
+        user: {
+          _id: 1
         }
       };
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -317,6 +362,36 @@ describe('The communities controller', function() {
         expect(err).to.not.exist;
         expect(req.community).to.exist;
         expect(req.community).to.deep.equal(community);
+        done();
+      });
+    });
+
+    it('should send back members_count and not members array', function(done) {
+      var community = {_id: 123, members: [1, 2, 3]};
+      var mock = {
+        load: function(id, callback) {
+          return callback(null, community);
+        },
+        isMember: function(community, user, callback) {
+          return callback(null, true);
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+      var req = {
+        params: {
+          id: 123
+        },
+        user: {
+          id: 1
+        }
+      };
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.load(req, {}, function(err) {
+        expect(err).to.not.exist;
+        expect(req.community).to.exist;
+        expect(req.community.members).to.not.exist;
+        expect(req.community.members_count).to.exist;
+        expect(req.community.members_count).to.equal(3);
         done();
       });
     });

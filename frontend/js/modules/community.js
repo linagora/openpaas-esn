@@ -389,7 +389,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         $scope.canJoin = function() {
           return $scope.user._id !== $scope.community.creator &&
                  communityMembership.openMembership($scope.community) &&
-                 !communityMembership.isMember($scope.community, $scope.user);
+                 !communityMembership.isMember($scope.community);
         };
       },
       scope: {
@@ -418,7 +418,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
         $scope.canLeave = function() {
           return $scope.user._id !== $scope.community.creator &&
-                 communityMembership.isMember($scope.community, $scope.user);
+                 communityMembership.isMember($scope.community);
         };
       },
       scope: {
@@ -505,16 +505,11 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
   }])
   .factory('communityMembership', ['communityAPI', '$q', function(communityAPI, $q) {
-    function isMember(community, user) {
-      if (!community || !community.members || !user) {
+    function isMember(community) {
+      if (!community || !community.member_status) {
         return false;
       }
-      if (community.members.some(function(member) {
-        return member.user === user._id;
-      })) {
-        return true;
-      }
-      return false;
+      return community.member_status === 'member';
     }
 
     function openMembership(community) {
@@ -522,7 +517,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     }
 
     function join(community, user) {
-      if (isMember(community, user)) {
+      if (isMember(community)) {
         var defer = $q.defer();
         defer.reject('Can not join the community');
         return defer.promise;
@@ -531,7 +526,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     }
 
     function leave(community, user) {
-      if (!isMember(community, user)) {
+      if (!isMember(community)) {
         var defer = $q.defer();
         defer.reject('Can not leave the community');
         return defer.promise;

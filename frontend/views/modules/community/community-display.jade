@@ -13,7 +13,8 @@ div.nopadding.esn-community
     ul.list-inline
       li.pull-left
         i.fa.fa-users
-        span {{community.members.length}} #{__('members')}
+        span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
+        span(ng-if='community.members_count === 1') 1 #{__('member')}
       li.pull-right
         community-button-join(community='community', user='user', on-join='joinSuccess(community)', on-fail='joinFailure(community)')
         community-button-leave(community='community', user='user', on-leave='leaveSuccess(community)', on-fail='leaveFailure(community)')
