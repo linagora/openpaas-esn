@@ -9,8 +9,9 @@ div.col-xs-12.nopadding.esn-member
       a(href='#/communities/{{community._id}}') {{community.title}}
     ul.list-inline
       li.pull-left
-        span.label.label-primary(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
-        span.label.label-primary(ng-if='community.members_count === 1') 1 #{__('member')}
+        i.fa.fa-users
+        span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
+        span(ng-if='community.members_count === 1') 1 #{__('member')}
       li.pull-left(ng-show="isCreator()")
         span.label.label-warning #{__('Creator')}
       .clearfix
