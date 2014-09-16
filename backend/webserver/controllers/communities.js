@@ -6,6 +6,20 @@ var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
 
+function transform(community) {
+  if (!community) {
+    return {};
+  }
+
+  if (Object.prototype.toString.call(community.toObject) === '[object Function]') {
+    community = community.toObject();
+  }
+
+  community.members_count = community.members ? community.members.length : 0;
+  delete community.members;
+  return community;
+}
+
 module.exports.loadDomainForCreate = function(req, res, next) {
   var domains = req.body.domain_ids;
   if (!domains) {
@@ -54,7 +68,7 @@ module.exports.create = function(req, res) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community save error', details: err}});
     }
-    return res.json(201, saved);
+    return res.json(201, transform(saved));
   });
 };
 
@@ -77,7 +91,8 @@ module.exports.list = function(req, res) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Community list failed', details: err}});
     }
-    return res.json(200, response);
+
+    return res.json(200, response.map(transform));
   });
 };
 
@@ -89,7 +104,7 @@ module.exports.load = function(req, res, next) {
     if (!community) {
       return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
     }
-    req.community = community;
+    req.community = transform(community);
     return next();
   });
 };
