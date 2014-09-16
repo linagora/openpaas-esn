@@ -12,7 +12,14 @@
 
 **link:**: An HTTP link to the resource involved in the notification.
 
-**target:** Array of notification recipient.
+**target:** Array of notification recipient like :
+
+    target: [{
+        objectType: string
+        id: string
+    }, {...} ]
+
+Where `objectType` is `user` or `community`.
 
 **level**: The notification level: transient, persistant, information.
 
@@ -31,13 +38,14 @@ An external application may be able to publish notifications into the platform i
 3. User A creates a resource on the external application. The user wants to notify other users about this new resource.
 4. The application sends a notification to OpenPaaS like:
 
+
     {
       "title": "New form",
       "action": "created",
       "object": "form",
       "link": "http://localhost:3000/form/123456789",
       "level": "transient",
-      "target": ["userB", "userC", "userD"]
+      "target": [{objectType: "user", id: "userB"}, {objectType: "user", id: "userC"}, {objectType: "user", id: "userD"}]
     }
 
 Which means that current logged in user created a form which is available on http://localhost:3000/form/123456789.
@@ -75,7 +83,7 @@ A notification as JSON. The target is an array of notification recipient.
       object: 'form',
       link: 'http://localhost:8888',
       author: 53a946c41f6d7a5d729e0477,
-      target: [ 53a946c41f6d7a5d729e0478, 53a946c41f6d7a5d729e0479 ],
+      target: [ {objectType: 'user', id: 53a946c41f6d7a5d729e0478}, {objectType: 'user', id: 53a946c41f6d7a5d729e0479} ],
       read: false,
       timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
       level: 'info'
@@ -93,7 +101,7 @@ A notification as JSON. The target is an array of notification recipient.
         author: 53a946c41f6d7a5d729e0477,
         _id: 53a946c41f6d7a5d729e047f,
         __v: 0,
-        target: [ 53a946c41f6d7a5d729e0478, 53a946c41f6d7a5d729e0479 ],
+        target: [ {objectType: 'user', id: 53a946c41f6d7a5d729e0478}, {objectType: 'user', id: 53a946c41f6d7a5d729e0479} ],
         read: false,
         timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
         level: 'info'
@@ -107,7 +115,7 @@ A notification as JSON. The target is an array of notification recipient.
         link: 'http://localhost:8888',
         _id: 53a946c41f6d7a5d729e0480,
         __v: 0,
-        target: [ 53a946c41f6d7a5d729e0478 ],
+        target: [ {objectType: 'user', id: 53a946c41f6d7a5d729e0478} ],
         read: false,
         timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
         level: 'info'
@@ -121,7 +129,7 @@ A notification as JSON. The target is an array of notification recipient.
         link: 'http://localhost:8888',
         _id: 53a946c41f6d7a5d729e0481,
         __v: 0,
-        target: [ 53a946c41f6d7a5d729e0479 ],
+        target: [ {objectType: 'user', id: 53a946c41f6d7a5d729e0479} ],
         read: false,
         timestamps: { creation: Tue Jun 24 2014 11:37:08 GMT+0200 (CEST) },
         level: 'info'
@@ -167,7 +175,7 @@ List all the notifications where the target is the current user.
         "object": "form",
         "link": "http://localhost:3000/form/123456789",
         "level": "transient",
-        "target": ["userB", "userC", "userD"]
+        "target": [{objectType: "user", id: "userB"}, {objectType: "user", id: "userC"}, {objectType: "user", id: "userD"}]
       },
       {
         "_id": "9292938883883993930",
@@ -178,7 +186,7 @@ List all the notifications where the target is the current user.
         "object": "form",
         "link": "http://localhost:3000/form/123456789",
         "level": "transient",
-        "target": ["userA"]
+        "target": [{objectType: "user", id: "userA"}]
       }
     ]
 
@@ -220,7 +228,7 @@ Get a single notification from its ID even if it has been read.
       "object": "form",
       "link": "http://localhost:3000/form/123456789",
       "level": "transient",
-      "target": ["userA"]
+      "target": [{objectType: "user", id: "userA"}]
     }
 
 ## PUT /api/notifications
