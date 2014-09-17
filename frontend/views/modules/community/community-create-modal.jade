@@ -94,7 +94,7 @@
         button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="backToStep0()")
           i.fa.fa-chevron-left
           | #{__('Previous')}
-        button.btn.btn-secondary-dark(type="button", ng-disabled="isTitleEmpty() || communityForm.title.$error.unique || communityForm.title.$error.ajax || validationError", ng-show="step === 0", ng-click="validateStep0()")
+        button.btn.btn-secondary-dark(type="button", ng-disabled="isTitleEmpty() || communityForm.title.$error.unique || communityForm.title.$error.ajax || validationError.ajax || validationError.unique", ng-show="step === 0", ng-click="validateStep0()")
           | #{__('Next')} &nbsp;
           i.fa.fa-chevron-right
         button.btn.btn-secondary-dark(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="create(community)") #{__('Create')}
