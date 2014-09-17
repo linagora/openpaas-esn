@@ -31,6 +31,23 @@ body.esn-conference-app {
   bottom: 0;
 }
 
+html.no-websockets body.esn-welcome-app #wrap {
+  display: none;
+}
+
+html body.esn-welcome-app #unsupported {
+  display: none;
+}
+
+html.no-websockets body.esn-welcome-app #unsupported {
+  display: block;
+  margin-top: 5em;
+}
+
+html.no-websockets body.esn-welcome-app #unsupported img {
+  margin-bottom: 5em;
+}
+
 .transparent {
   opacity: 0;
 }
