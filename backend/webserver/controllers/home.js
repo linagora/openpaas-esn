@@ -1,7 +1,8 @@
 'use strict';
 
 var config = require('../../core/esn-config')('recaptcha'),
-    logger = require('../../core/logger');
+    logger = require('../../core/logger'),
+    alterTemplatePath = require('../middleware/templates').alterTemplatePath;
 /**
  * Get /
  * @param {request} req
@@ -18,14 +19,18 @@ function index(req, res) {
           details: 'Internal server error'
         });
       }
-      return res.render('welcome/index', {
-        title: 'Home',
-        recaptchaPublicKey: recaptcha ? recaptcha.publickey : null
+      alterTemplatePath('welcome/index', function(tplPath) {
+        res.render(tplPath, {
+          title: 'Home',
+          recaptchaPublicKey: recaptcha ? recaptcha.publickey : null
+        });
       });
     });
   } else {
-    return res.render('esn/index', {
-      title: 'Home'
+    alterTemplatePath('esn/index', function(tplPath) {
+      return res.render(tplPath, {
+        title: 'Home'
+      });
     });
   }
 }

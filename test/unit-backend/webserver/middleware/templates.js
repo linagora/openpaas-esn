@@ -5,9 +5,10 @@ var mockery = require('mockery');
 
 describe('The templates middleware', function() {
 
-  var middleware, req;
+  var middleware, req, ESN_CUSTOM_TEMPLATES_FOLDER;
 
   beforeEach(function() {
+    ESN_CUSTOM_TEMPLATES_FOLDER = process.env.ESN_CUSTOM_TEMPLATES_FOLDER;
     var pathMock = {
       normalize: function(path) {
         return path;
@@ -21,9 +22,14 @@ describe('The templates middleware', function() {
     };
   });
 
+  afterEach(function() {
+    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = ESN_CUSTOM_TEMPLATES_FOLDER;
+  });
+
   it('should change path to custom/path if ESN_CUSTOM_TEMPLATES_FOLDER is not set', function(done) {
+    delete process.env.ESN_CUSTOM_TEMPLATES_FOLDER;
     var next = function() {
-      expect(req.params[0]).to.equal('custom/path');
+      expect(req.params[0]).to.equal('custom/path.jade');
       done();
     };
 
@@ -33,18 +39,17 @@ describe('The templates middleware', function() {
       }
     };
     mockery.registerMock('fs-extra', fsExtraMock);
-
     middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/templates');
     middleware.alterViewsFolder(req, {}, next);
   });
 
   it('should return unchange req if jade template does not exist', function(done) {
     var next = function() {
-      expect(req.params[0]).to.equal('path');
+      expect(req.params[0]).to.equal('path.jade');
       done();
     };
 
-    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = '/custom';
+    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = '/customtests';
 
     var fsExtraMock = {
       exists: function(path, callback) {
@@ -59,7 +64,7 @@ describe('The templates middleware', function() {
 
   it('should change req.params[0] if jade template exists', function(done) {
     var next = function() {
-      expect(req.params[0]).to.equal('/custom/path');
+      expect(req.params[0]).to.equal('/custom/path.jade');
       done();
     };
 
@@ -85,7 +90,7 @@ describe('The templates middleware', function() {
       done();
     };
 
-    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = '/custom';
+    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = '/customtests';
 
     req = {
       params: [
@@ -113,7 +118,7 @@ describe('The templates middleware', function() {
       done();
     };
 
-    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = '/custom';
+    process.env.ESN_CUSTOM_TEMPLATES_FOLDER = '/customtests';
 
     var fsExtraMock = {
       exists: function(path, callback) {

@@ -25,7 +25,7 @@ describe('The home controller', function() {
 
     var res = {
       render: function(url, data) {
-        expect(url).to.equal('welcome/index');
+        expect(url).to.equal('welcome/index.jade');
         expect(data.recaptchaPublicKey).to.equal('publickey');
         done();
       }
@@ -47,7 +47,7 @@ describe('The home controller', function() {
 
     var res = {
       render: function(url, data) {
-        expect(url).to.equal('welcome/index');
+        expect(url).to.equal('welcome/index.jade');
         expect(data.recaptchaPublicKey).to.be.null;
         done();
       }

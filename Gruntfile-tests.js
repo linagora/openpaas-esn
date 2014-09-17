@@ -12,7 +12,10 @@ module.exports = function(grunt) {
       options: {
         require: ['chai', 'mockery'],
         reporter: 'spec',
-        timeout: 10000
+        timeout: 10000,
+        env: {
+          ESN_CUSTOM_TEMPLATES_FOLDER: 'testscustom'
+        }
       },
       backend: {
         options: {
