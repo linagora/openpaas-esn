@@ -319,3 +319,50 @@ An array of activity streams objects which can be read by the current user.
         }
       }
     ]
+
+## GET /api/user/oauth/clients
+
+List all of the OAuth clients created by the current user.
+Check [./REST_OAuth.md](OAuth API) for more details on OAuth support.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+An array of OAuth clients the current user created.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 500 Internal server error - Something went bad on the server side.
+
+**Request:**
+
+    GET /api/user/oauth/clients
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        "_id":"54189f0c5375449a5d17f3d9",
+        "clientSecret":"OwISwURuiJ1KhBgRIgPdQNbMzyIpA9AEyuHTCRQH",
+        "clientId":"t0m0s3SS1cDLEVBK7pvL",
+        "name":"Twitter Streaming App",
+        "redirectUri":"http://twitter.com/oauth/",
+        "description":"Let's stream tweets",
+        "creator":"5375de9fd684db7f6fbd5010",
+        "__v":0,
+        "schemaVersion":1,
+        "created":"2014-09-16T20:35:24.643Z"
+      }
+    ]

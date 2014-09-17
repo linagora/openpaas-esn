@@ -20,6 +20,7 @@ exports = module.exports = function(application) {
   application.post('/api/oauth/clients', authorize.requiresAPILogin, oauthclients.create);
   application.get('/api/oauth/clients/:id', authorize.requiresAPILogin, oauthclients.get);
   application.delete('/api/oauth/clients/:id', authorize.requiresAPILogin, oauthclients.remove);
+  application.get('/api/user/oauth/clients', authorize.requiresAPILogin, oauthclients.created);
 
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');

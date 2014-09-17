@@ -74,10 +74,15 @@ angular.module('esn.application', ['restangular'])
       return Restangular.one('oauth/clients', id).remove();
     }
 
+    function created() {
+      return Restangular.one('user/oauth/clients').getList();
+    }
+
     return {
       list: list,
       get: get,
       create: create,
+      created: created,
       remove: remove
     };
   }]);

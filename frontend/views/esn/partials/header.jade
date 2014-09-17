@@ -14,6 +14,7 @@ div(ng-controller='selectActiveItem')
               li: a(href='/#/contacts', ng-click='selectItem(1)') #{__('Contacts')}
               li: a(href='{{"/#/domains/" + domain._id + "/members"}}', ng-click='selectItem(1)') #{__('Members')}
               li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}', ng-click='selectItem(1)') #{__('Invitation')}
+              li: a(href='/#/applications', ng-click='selectItem(1)') #{__('Applications')}
               li.divider
               li: a(href='/logout') #{__('Logout')}
 
@@ -46,8 +47,3 @@ div(ng-controller='selectActiveItem')
               a(href='/#communities', ng-click='selectItem(3)')
                 i.fa.fa-users
                 span.hidden-xs #{__('Communities')}
-          .esn-item(ng-class='{active: selected === 4}')
-            span
-              a(href='/#applications', ng-click='selectItem(4)')
-                i.fa.fa-upload
-                span.hidden-xs #{__('Applications')}

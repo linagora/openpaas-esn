@@ -78,6 +78,79 @@ describe('The oauthclients controller', function() {
     });
   });
 
+  describe('created method', function() {
+    it('should return 500 if the oautclient listing fails', function(done) {
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            find: function() {
+              return {
+                sort: function() {
+                  return {
+                    exec: function(callback) {
+                      return callback(new Error());
+                    }
+                  };
+                }
+              };
+            }
+          };
+        }
+      });
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      controller.created({user: {_id: 1}}, res);
+    });
+
+    it('should return 200 if the oautclient listing succeeds', function(done) {
+      var oauthclients = [
+        {
+          _id: '123',
+          name: 'aName'
+        },
+        {
+          _id: '456',
+          name: 'anotherName'
+        }
+      ];
+      var res = {
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data).to.exist;
+          expect(data.length).to.equal(2);
+          expect(data).to.deep.equal(oauthclients);
+          done();
+        }
+      };
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            find: function() {
+              return {
+                sort: function() {
+                  return {
+                    exec: function(callback) {
+                      return callback(null, oauthclients);
+                    }
+                  };
+                }
+              };
+            }
+          };
+        }
+      });
+
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      controller.created({user: {_id: 1}}, res);
+    });
+  });
+
   describe('create method', function() {
     var validReq;
     before(function() {
