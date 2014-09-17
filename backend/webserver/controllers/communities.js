@@ -243,7 +243,13 @@ module.exports.getMine = function(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
-    return res.json(200, communities);
+    async.map(communities, function(community, callback) {
+      transform(community, req.user, function(transformed) {
+        return callback(null, transformed);
+      });
+    }, function(err, results) {
+      return res.json(200, results);
+    });
   });
 };
 
