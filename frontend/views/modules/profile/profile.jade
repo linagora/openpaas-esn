@@ -1,25 +1,37 @@
 div.row(ng-controller='profileEditionController')
-  div.col-md-4.col-xs-12
+
+  div.col-md-3.col-xs-12.profile-image.text-center
     div(ng-controller='avatarController')
-      a.thumbnail
-        img(width="150", heigth="150", ng-src='{{avatarURL}}')
-    div.widget(ng-controller='avatarEdit')
-      button.btn.btn-primary.btn-block(type="button", ng-click="showAvatarEditModal()") #{__('Edit your photo')}
-  div.col-md-8.col-xs-12
-    hr
+      img(ng-src='{{avatarURL}}')
+    div(ng-controller='avatarEdit')
+      button.btn.btn-primary(type="button", ng-click="showAvatarEditModal()" width="150") #{__('Edit your photo')}
+
+  div.col-md-9.col-xs-12.profile-card
+
     div.row
       div.col-md-10.col-xs-10
         span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
         spinner-start-active='1',
         ng-show='running.name')
-        p.lead(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)', e-class='profile-medium-input') {{ fullName || initFullName(user.firstname, user.lastname) }}
+        p.lead(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)', e-class='profile-large-input') {{ fullName || initFullName(user.firstname, user.lastname) }}
       div.col-md-2.col-xs-2
         a(ng-click='nameForm.$show()', ng-hide='nameForm.$visible', ng-disabled='running.name') #{__('Edit')}
 
     div.row
-      div.col-md-5.col-sm-4.col-xs-4
-        label #{__('Job Title')}
-      div.col-md-5.col-sm-4.col-xs-6
+      div.col-md-4.col-sm-4.col-xs-4
+        i.fa.fa-at.hidden-xs
+        i.fa.fa-at.fa-lg.pull-right.visible-xs
+        label.hidden-xs #{__('Email')}
+      div.col-md-6.col-sm-4.col-xs-6
+        a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
+      div.col-md-2.col-sm-2.col-xs-2
+
+    div.row
+      div.col-md-4.col-sm-4.col-xs-4
+        i.fa.fa-quote-right.hidden-xs
+        i.fa.fa-quote-right.fa-lg.pull-right.visible-xs
+        label.hidden-xs #{__('Job Title')}
+      div.col-md-6.col-sm-4.col-xs-6
         span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
         spinner-start-active='1',
         ng-show='running.job')
@@ -29,9 +41,11 @@ div.row(ng-controller='profileEditionController')
         a(ng-click='jobForm.$show()', ng-hide='jobForm.$visible', ng-disabled='running.job') #{__('Edit')}
 
     div.row
-      div.col-md-5.col-sm-4.col-xs-4
-        label #{__('Service')}
-      div.col-md-5.col-sm-4.col-xs-6
+      div.col-md-4.col-sm-4.col-xs-4
+        i.fa.fa-briefcase.hidden-xs
+        i.fa.fa-briefcase.fa-lg.pull-right.visible-xs
+        label.hidden-xs #{__('Service')}
+      div.col-md-6.col-sm-4.col-xs-6
         span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
         spinner-start-active='1',
         ng-show='running.service')
@@ -41,9 +55,11 @@ div.row(ng-controller='profileEditionController')
         a(ng-click='serviceForm.$show()', ng-hide='serviceForm.$visible', ng-disabled='running.service') #{__('Edit')}
 
     div.row
-      div.col-md-5.col-sm-4.col-xs-4
-        label #{__('Building Location')}
-      div.col-md-5.col-sm-4.col-xs-6
+      div.col-md-4.col-sm-4.col-xs-4
+        i.fa.fa-building.hidden-xs
+        i.fa.fa-building.fa-lg.pull-right.visible-xs
+        label.hidden-xs #{__('Building Location')}
+      div.col-md-6.col-sm-4.col-xs-6
         span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
         spinner-start-active='1',
         ng-show='running.building_location')
@@ -53,9 +69,11 @@ div.row(ng-controller='profileEditionController')
         a(ng-click='buildingForm.$show()', ng-hide='buildingForm.$visible', ng-disabled='running.building_location') #{__('Edit')}
 
     div.row
-      div.col-md-5.col-sm-4.col-xs-4
-        label #{__('Office Location')}
-      div.col-md-5.col-sm-4.col-xs-6
+      div.col-md-4.col-sm-4.col-xs-4
+        i.fa.fa-building-o.hidden-xs
+        i.fa.fa-building-o.fa-lg.pull-right.visible-xs
+        label.hidden-xs #{__('Office Location')}
+      div.col-md-6.col-sm-4.col-xs-6
         span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
         spinner-start-active='1',
         ng-show='running.office_location')
@@ -65,9 +83,11 @@ div.row(ng-controller='profileEditionController')
         a(ng-click='officeForm.$show()', ng-hide='officeForm.$visible', ng-disabled='running.office_location') #{__('Edit')}
 
     div.row
-      div.col-md-5.col-sm-4.col-xs-4
-        label #{__('Phone')}
-      div.col-md-5.col-sm-4.col-xs-6
+      div.col-md-4.col-sm-4.col-xs-4
+        i.fa.fa-phone.hidden-xs
+        i.fa.fa-phone.fa-lg.pull-right.visible-xs
+        label.hidden-xs #{__('Phone')}
+      div.col-md-6.col-sm-4.col-xs-6
         span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
         spinner-start-active='1',
         ng-show='running.phone')
