@@ -56,7 +56,8 @@ exports = module.exports = function(application) {
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
 
   var views = require('./controllers/views');
-  application.get('/views/*', views.views);
+  var templates = require('./middleware/templates');
+  application.get('/views/*', templates.alterViewsFolder, views.views);
 
   require('./middleware/setup-routes')(application);
 
@@ -142,4 +143,3 @@ exports = module.exports = function(application) {
   var feedbackMiddleware = require('./middleware/feedback');
   application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);
 };
-
