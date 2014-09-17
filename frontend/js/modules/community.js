@@ -66,6 +66,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     var initScope = function() {
       $scope.step = 0;
       $scope.sending = false;
+      $scope.validationError = {};
       $scope.community = {
         domain_ids: [session.domain._id],
         image: '',
@@ -93,11 +94,12 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       createModal.$promise.then(createModal.show);
     };
 
-    $scope.validateTitle = function() {
-      if (!$scope.community.title || $scope.community.title.length === 0) {
-        return false;
-      }
-      return true;
+    $scope.isTitleEmpty = function() {
+      return !$scope.community.title;
+    };
+
+    $scope.onInputChange = function() {
+      $scope.validationError = {};
     };
 
     $scope.titleValidationRunning = false;
@@ -113,12 +115,13 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
             $scope.step = 1;
           }
           else {
-            $scope.displayError($scope.community.title + ' community already exists. Please choose another title.');
+            $scope.validationError.unique = true;
           }
           $scope.titleValidationRunning = false;
         },
         function(err) {
-          $scope.displayError('An error occured while checking community title. ' + err);
+          $scope.validationError.ajax = true;
+          $log.error(err);
           $scope.titleValidationRunning = false;
         }
       );
@@ -463,25 +466,16 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       $scope.reload();
     };
   }])
-  .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', function(communityAPI, session) {
+  .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
     return {
       restrict: 'A',
       scope: true,
       require: 'ngModel',
       link: function(scope, elem , attrs, control) {
         var lastValue = null;
-        control.$viewChangeListeners.push(function() {
-          var communityTitle = control.$viewValue;
-          if (communityTitle === lastValue) {
-            return;
-          }
-          lastValue = communityTitle;
+        var timer = null;
 
-          if (communityTitle.length < 3) {
-            control.$setValidity('unique', true);
-            return;
-          }
-
+        var checkNameValidity = function() {
           control.$setValidity('ajax', false);
           (function(title) {
             communityAPI.list(session.domain._id, {title: title}).then(
@@ -508,6 +502,27 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
               }
             );
           })(lastValue);
+        };
+
+        control.$viewChangeListeners.push(function() {
+          var communityTitle = control.$viewValue;
+          if (communityTitle === lastValue) {
+            return;
+          }
+          lastValue = communityTitle;
+
+          control.$setValidity('unique', true);
+          if (timer) {
+            $timeout.cancel(timer);
+          }
+
+          if (communityTitle.length === 0) {
+            control.$setValidity('ajax', true);
+            return;
+          }
+
+          control.$setValidity('ajax', false);
+          timer = $timeout(checkNameValidity, 1000);
         });
       }
     };
