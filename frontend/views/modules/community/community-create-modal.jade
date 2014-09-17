@@ -35,19 +35,19 @@
                   input(type="radio", ng-model="community.type", value="open", ng-checked="true")
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="open"}')  #{__('Open')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="open"}') #{__('Publish content from and for everyone. Each user can freely read, join and participate to the community')}.
-              .radio
+              .radio.disabled
                 label
-                  input(type="radio", ng-model="community.type", value="restricted")
+                  input(type="radio", ng-model="community.type", value="restricted" disabled)
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="restricted"}') #{__('Restricted')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="restricted"}') #{__('Content is freely accessible to all users, but only members can participate')}.
-              .radio
+              .radio.disabled
                 label
-                  input(type="radio", ng-model="community.type", value="private")
+                  input(type="radio", ng-model="community.type", value="private" disabled)
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="private"}') #{__('Private')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="private"}') #{__('Only members can read and publish contents in this community. Each user can request membership')}.
-              .radio
+              .radio.disabled
                 label
-                  input(type="radio", ng-model="community.type", value="confidential")
+                  input(type="radio", ng-model="community.type", value="confidential" disabled)
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="confidential"}') #{__('Confidential')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="confidential"}') #{__('Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation')}.
           .form-group(ng-show="step === 1")
