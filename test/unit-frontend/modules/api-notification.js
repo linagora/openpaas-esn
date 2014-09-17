@@ -74,7 +74,7 @@ describe('The esn.api-notification Angular module', function() {
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
       var msg = {
-        target: [sessionId, '1234'],
+        target: [{objectType: 'user', id: sessionId}, {objectType: 'user', id: '1234'}],
         title: '',
         author: '',
         action: '',
@@ -96,7 +96,7 @@ describe('The esn.api-notification Angular module', function() {
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
       var msg = {
-        target: [sessionId, '1234'],
+        target: [{objectType: 'user', id: sessionId}, {objectType: 'user', id: '1234'}],
         author: '',
         action: '',
         object: '',
@@ -118,7 +118,7 @@ describe('The esn.api-notification Angular module', function() {
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
       var msg = {
-        target: [sessionId, '1234'],
+        target: [{objectType: 'user', id: sessionId}, {objectType: 'user', id: '1234'}],
         link: ''
       };
       callbackOnNotification(msg);
@@ -135,7 +135,7 @@ describe('The esn.api-notification Angular module', function() {
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
       var msg = {
-        target: ['9876', '123'],
+        target: [{objectType: 'user', id: '9876'}, {objectType: 'user', id: '123'}],
         link: ''
       };
       callbackOnNotification(msg);

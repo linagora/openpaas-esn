@@ -14,7 +14,10 @@ var NotificationSchema = new mongoose.Schema({
     creation: {type: Date, default: Date.now}
   },
   read: {type: Boolean, default: false},
-  target: [{type: mongoose.Schema.ObjectId, ref: 'User'}],
+  target: [{
+    objectType: {type: String},
+    id: {type: mongoose.Schema.ObjectId}
+  }],
   data: mongoose.Schema.Types.Mixed
 });
 

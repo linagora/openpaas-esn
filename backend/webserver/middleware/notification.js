@@ -10,7 +10,7 @@ var userCanReadNotification = function(req, res, next) {
   }
 
   var isInTarget = req.notification.target.some(function(item) {
-    return item.equals(req.user._id);
+    return item.id.equals(req.user._id);
   });
 
   if (!isInTarget) {

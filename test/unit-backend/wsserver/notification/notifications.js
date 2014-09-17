@@ -10,6 +10,11 @@ describe('The WebSockets notification module', function() {
     moduleToTest = this.testEnv.basePath + '/backend/wsserver/notification/notifications';
   });
 
+  beforeEach(function() {
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+  });
+
   describe('init method', function() {
 
     it('should not be initialized two times in a row', function() {
@@ -141,12 +146,12 @@ describe('The WebSockets notification module', function() {
       var notif = {
         target: [
           {
-            objectType: 'notification',
-            _id: 1
+            objectType: 'user',
+            id: 1
           },
           {
-            objectType: 'notification',
-            _id: 2
+            objectType: 'user',
+            id: 2
           }
         ]
       };
@@ -202,7 +207,20 @@ describe('The WebSockets notification module', function() {
       require(moduleToTest).init(io);
 
       var notif = {
-        target: ['user1', 'user2', 'user3']
+        target: [
+          {
+            objectType: 'user',
+            id: 'user1'
+          },
+          {
+            objectType: 'user',
+            id: 'user2'
+          },
+          {
+            objectType: 'user',
+            id: 'user3'
+          }
+        ]
       };
       globalstub.topics['notification:api'].handler(notif);
 

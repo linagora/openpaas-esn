@@ -26,6 +26,12 @@ var saveOne = function(notification, parent, callback) {
 module.exports.saveOne = saveOne;
 
 module.exports.save = function(notification, callback) {
+  function sendCallback(err, children, parent) {
+    if (parent) {
+      topic.publish(parent);
+    }
+    callback(err, children);
+  }
 
   if (!notification) {
     return callback(new Error('Notification can not be null'));
@@ -33,11 +39,11 @@ module.exports.save = function(notification, callback) {
 
   this.saveOne(notification, null, function(err, parent) {
     if (err) {
-      return callback(err);
+      return sendCallback(err);
     }
 
     if (notification.target.length === 1) {
-      return callback(err, [parent]);
+      return sendCallback(err, [parent], parent);
     }
 
     var result = [parent];

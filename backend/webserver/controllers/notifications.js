@@ -50,7 +50,7 @@ module.exports.list = function(req, res) {
   var read = req.param('read');
 
   var options = {
-    target: {'$in': [user_id]}
+    'target.id': user_id
   };
 
   if (read !== 'all') {

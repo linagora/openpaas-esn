@@ -114,7 +114,7 @@ describe('The notification API', function() {
           action: 'create',
           object: 'form',
           link: 'http://localhost:8888',
-          target: [testuser._id]
+          target: [{objectType: 'user', id: testuser._id}]
         });
         req.expect(201)
           .end(function(err, res) {
@@ -140,7 +140,7 @@ describe('The notification API', function() {
           action: 'create',
           object: 'form',
           link: 'http://localhost:8888',
-          target: [testuser1._id, testuser2._id]
+          target: [{objectType: 'user', id: testuser1._id}, {objectType: 'user', id: testuser2._id}]
         });
         req.expect(201)
           .end(function(err, res) {
@@ -164,7 +164,7 @@ describe('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      target: [testuser._id]
+      target: [{objectType: 'user', id: testuser._id}]
     });
 
     n.save(function(err, _n) {
@@ -204,7 +204,7 @@ describe('The notification API', function() {
       });
 
       if (target) {
-        notification.target = [target._id];
+        notification.target = [{objectType: 'user', id: target._id}];
       }
 
       if (author) {
@@ -258,7 +258,7 @@ describe('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      target: [testuser._id]
+      target: [{objectType: 'user', id: testuser._id}]
     });
 
     n.save(function(err, _n) {
@@ -309,7 +309,7 @@ describe('The notification API', function() {
       });
 
       if (target) {
-        notification.target = [target._id];
+        notification.target = [{objectType: 'user', id: target._id}];
       }
 
       if (author) {
@@ -363,7 +363,7 @@ describe('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      target: [testuser1._id]
+      target: [{objectType: 'user', id: testuser1._id}]
     });
 
     n.save(function(err, _n) {
