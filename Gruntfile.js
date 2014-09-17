@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js'],
       options: {
         jshintrc: '.jshintrc',
-        ignores: ['test/frontend/karma-include/*']
+        ignores: ['test/frontend/karma-include/*', 'frontend/js/modules/modernizr.js']
       }
     },
     shell: {
@@ -320,7 +320,9 @@ module.exports = function(grunt) {
       '-r',
       'frontend/js',
       '-e',
-      'test/frontend/karma-include'
+      'test/frontend/karma-include',
+      '-x',
+      'frontend/js/modules/modernizr.js'
     ]);
 
     child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
