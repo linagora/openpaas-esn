@@ -443,3 +443,31 @@ body {
     background-color: @site-background;
   }
 }
+
+.profile-card {
+  .widget();
+  padding-top: 10px;
+  box-shadow: none;
+  .row {
+    .row();
+    padding: 2px;
+  }
+}
+
+.profile-image {
+  img {
+    height: 175px;
+    width: 175px;
+  };
+  .btn-primary {
+    background: @button-standard-background;
+    border-color: @button-standard-boder-color;
+    color: @defaultFontColor;
+    .RoundedShape();
+    .ShadowedShape();
+    margin: 10px;
+  };
+  padding-top: 10px;
+  padding-bottom: 10px;
+  box-shadow: none;
+}

@@ -9,3 +9,4 @@ tmp/
 .idea
 db.json
 *.css
+*.css.map
