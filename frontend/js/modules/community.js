@@ -94,7 +94,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       createModal.$promise.then(createModal.show);
     };
 
-    $scope.emptyTitle = function() {
+    $scope.isTitleEmpty = function() {
       return !$scope.community.title;
     };
 

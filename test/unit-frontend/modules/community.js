@@ -304,22 +304,22 @@ describe('The Community Angular module', function() {
       this.scope.$digest();
     });
 
-    describe('emptyTitle method', function() {
+    describe('isTitleEmpty method', function() {
       it('should return true for undefined title', function(done) {
         this.scope.community = {};
-        expect(this.scope.emptyTitle()).to.be.true;
+        expect(this.scope.isTitleEmpty()).to.be.true;
         done();
       });
 
       it('should return true for empty title', function(done) {
         this.scope.community = {title: ''};
-        expect(this.scope.emptyTitle()).to.be.true;
+        expect(this.scope.isTitleEmpty()).to.be.true;
         done();
       });
 
       it('should return false for a non empty title', function(done) {
         this.scope.community = {title: 'node.js'};
-        expect(this.scope.emptyTitle()).to.be.false;
+        expect(this.scope.isTitleEmpty()).to.be.false;
         done();
       });
     });
