@@ -1,0 +1,10 @@
+.container
+  include ../../../commons/flash
+  .row
+    .col-xs-12
+      include ./welcome
+    .col-md-6.hidden-sm.text-center
+        img(src="/images/logo-big.png")
+    .col-md-6.col-xs-12
+        div(esn-login-autofill ng-controller='login')
+            include ../modules/login/login

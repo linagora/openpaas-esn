@@ -58,7 +58,9 @@
     "ical.js": "https://github.com/mozilla-comm/ical.js.git#~0.0.2",
     "angular-recursion": "~1.0.3",
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
-    "angular-markdown-directive": "~0.3.0"
+    "angular-markdown-directive": "~0.3.0",
+    "recaptcha_ajax": "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js",
+    "linagora-logo": "git+https://ci.open-paas.org/stash/scm/ll/linagora-logo.git"
   },
   "resolutions": {
     "jquery": "2.1.1",

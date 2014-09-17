@@ -1,5 +1,6 @@
 {
   "webserver": {
+    "host": "192.168.2.2",
     "enabled": true,
     "port": 8080,
     "ip": "0.0.0.0",

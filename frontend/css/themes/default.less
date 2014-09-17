@@ -49,11 +49,6 @@ body {
   background: @site-background;
 }
 
-.btn {
-  padding: @defaultPaddingButton;
-  font-size: @defaultFontSize;
-}
-
 .row {
   margin-left: 0;
   margin-right: 0;
@@ -224,8 +219,12 @@ body {
   .container {
     .ShadowedShape(0 1px 0 @secondary-red);
   }
+  margin-bottom: 10px;
   @media (min-width: 992px) {
     margin-bottom: 100px;
+  }
+  @media (min-width: 768px) {
+    margin-bottom: 20px;
   }
   img.logo {
     padding-top: 2px;
