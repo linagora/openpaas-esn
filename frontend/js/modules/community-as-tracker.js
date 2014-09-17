@@ -4,7 +4,8 @@ angular.module('esn.community-as-tracker', [
   'restangular',
   'esn.session',
   'esn.websocket',
-  'esn.activitystream'
+  'esn.activitystream',
+  'esn.community'
 ])
   .factory('communityAStrackerAPI', ['Restangular', function(Restangular) {
     function getCommunityActivityStreams(uuid) {
@@ -110,10 +111,11 @@ angular.module('esn.community-as-tracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'livenotification', 'session',
-    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, livenotification, session) {
+  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'communityAPI', 'livenotification', 'session',
+    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, communityAPI, livenotification, session) {
 
-      var notifications = [];
+      var notifications = {};
+      $scope.activityStreams = [];
 
       function updateUnread(activityStreamUuid, count) {
         if (! $scope.activityStreams) {
@@ -163,18 +165,70 @@ angular.module('esn.community-as-tracker', [
         }
       });
 
+      function subscribeToStreamNotification(streamId) {
+        var socketIORoom = livenotification('/activitystreams', streamId).on('notification', liveNotificationHandler);
+        notifications[streamId] = socketIORoom;
+      }
+
+      function unsubscribeFromStreamNotification(streamId) {
+        if (notifications[streamId]) {
+          notifications[streamId].removeListener('notification', liveNotificationHandler);
+        }
+      }
+
+      function addItem(stream) {
+        $scope.activityStreams.push(stream);
+      }
+
+      function removeItem(streamId) {
+        $scope.activityStreams = $scope.activityStreams.filter(function(stream) {
+          return stream.uuid !== streamId;
+        });
+      }
+
       communityAStrackerHelpers.getCommunityActivityStreamsWithUnreadCount(function(err, result) {
         if (err) {
           $scope.error = 'Error while getting unread message: ' + err;
           $log.error($scope.error, err);
           return;
         }
-        $scope.activityStreams = result;
 
         result.forEach(function(element) {
-          notifications.push(livenotification('/activitystreams', element.uuid).on('notification', liveNotificationHandler));
+          subscribeToStreamNotification(element.uuid);
+          addItem(element);
         });
       });
+
+      function joinCommunityNotificationHandler(data) {
+        communityAPI.get(data.community).then(function(success) {
+          var uuid = success.data.activity_stream.uuid;
+          subscribeToStreamNotification(uuid);
+
+          var streamInfo = {
+            uuid: uuid,
+            href: '/#/communities/' + success.data._id,
+            img: '/api/communities/' + success.data._id + '/avatar',
+            display_name: success.data.title
+          };
+          addItem(streamInfo);
+
+        }, function(err) {
+          $log.debug('Error while getting community', err.data);
+        });
+      }
+
+      function leaveCommunityNotificationHandler(data) {
+        communityAPI.get(data.community).then(function(success) {
+          var uuid = success.data.activity_stream.uuid;
+          unsubscribeFromStreamNotification(uuid);
+          removeItem(uuid);
+        }, function(err) {
+          $log.debug('Error while getting the community', err.data);
+        });
+      }
+
+      livenotification('/community').on('leave', leaveCommunityNotificationHandler);
+      livenotification('/community').on('join', joinCommunityNotificationHandler);
     }
   ]
 );

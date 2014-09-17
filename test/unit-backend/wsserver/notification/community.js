@@ -37,6 +37,10 @@ describe('The community notification WS module', function() {
           global: this.pubsub
         }
       };
+      this.helper = {
+        getUserSocketsFromNamespace: function() {}
+      };
+      mockery.registerMock('../helper/socketio', this.helper);
       mockery.registerMock('../../core', this.core);
     });
 
@@ -58,22 +62,19 @@ describe('The community notification WS module', function() {
         mod.init(this.io);
       });
       it('should return the message from the pubsub', function(done) {
-        this.io.of = function() {
-          return {
-            to: function() {
-              return {
-                emit: function(evt, msg) {
-                  expect(evt).to.equal('join');
-                  expect(msg.room).to.equal('9876');
-                  expect(msg.data.author).to.equal('1234');
-                  expect(msg.data.target).to.equal('5678');
-                  expect(msg.data.community).to.equal('9876');
-                  done();
-                }
-              };
+        this.helper.getUserSocketsFromNamespace = function() {
+          var socket = {
+            emit: function(event, msg) {
+              expect(event).to.equal('join');
+              expect(msg.author).to.equal('1234');
+              expect(msg.target).to.equal('5678');
+              expect(msg.community).to.equal('9876');
+              done();
             }
           };
+          return [socket];
         };
+
         this.join_callback({
           author: '1234',
           target: '5678',
@@ -87,22 +88,19 @@ describe('The community notification WS module', function() {
         mod.init(this.io);
       });
       it('should return the message from the pubsub', function(done) {
-        this.io.of = function() {
-          return {
-            to: function() {
-              return {
-                emit: function(evt, msg) {
-                  expect(evt).to.equal('leave');
-                  expect(msg.room).to.equal('9876');
-                  expect(msg.data.author).to.equal('1234');
-                  expect(msg.data.target).to.equal('5678');
-                  expect(msg.data.community).to.equal('9876');
-                  done();
-                }
-              };
-            }
+        this.helper.getUserSocketsFromNamespace = function() {
+            var socket = {
+              emit: function(event, msg) {
+                expect(event).to.equal('leave');
+                expect(msg.author).to.equal('1234');
+                expect(msg.target).to.equal('5678');
+                expect(msg.community).to.equal('9876');
+                done();
+              }
+            };
+            return [socket];
           };
-        };
+
         this.leave_callback({
           author: '1234',
           target: '5678',

@@ -2,7 +2,8 @@
 
 var core = require('../../core'),
   pubsub = core.pubsub.global,
-  logger = core.logger;
+  logger = core.logger,
+  helper = require('../helper/socketio');
 
 var initialized = false;
 
@@ -15,9 +16,15 @@ var JOIN_TOPIC = 'community:join';
 var LEAVE_TOPIC = 'community:leave';
 
 function notifyRoom(io, uuid, event, msg) {
-  io.of(NAMESPACE)
-    .to(uuid)
-    .emit(event, {room: uuid, data: msg});
+
+  var clientSockets = helper.getUserSocketsFromNamespace(msg.target, io.of(NAMESPACE).sockets);
+  if (!clientSockets) {
+    return;
+  }
+
+  clientSockets.forEach(function(socket) {
+    socket.emit(event, msg);
+  });
 }
 
 function init(io) {
@@ -27,11 +34,11 @@ function init(io) {
   }
 
   pubsub.topic(JOIN_TOPIC).subscribe(function(msg) {
-    notifyRoom(io, msg.community, JOIN_EVENT, msg);
+    notifyRoom(io, null, JOIN_EVENT, msg);
   });
 
   pubsub.topic(LEAVE_TOPIC).subscribe(function(msg) {
-    notifyRoom(io, msg.community, LEAVE_EVENT, msg);
+    notifyRoom(io, null, LEAVE_EVENT, msg);
   });
 
   io.of(NAMESPACE)

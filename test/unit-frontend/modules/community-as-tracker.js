@@ -156,7 +156,7 @@ describe('The esn.community-as-tracker Angular module', function() {
       });
 
       expect(this.scope.error).to.exist;
-      expect(this.scope.activityStreams).to.not.exist;
+      expect(this.scope.activityStreams).to.be.empty;
     });
 
     it('should initialize $scope.activityStreams', function() {
