@@ -60,7 +60,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       leave: leave
     };
   }])
-  .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$modal', '$alert', 'session', 'communityAPI', '$upload', 'selectionService', function($rootScope, $scope, $location, $timeout, $log, $modal, $alert, session, communityAPI, $upload, selectionService) {
+  .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
+    function($rootScope, $scope, $location, $timeout, $log, $alert, session, communityAPI, $upload, selectionService) {
     selectionService.clear();
 
     var initScope = function() {
@@ -81,6 +82,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       $scope.imageselected = false;
       $scope.imagevalidated = false;
     };
+    initScope();
 
     $rootScope.$on('crop:loaded', function() {
       $scope.imageselected = true;
@@ -88,18 +90,16 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       $scope.$apply();
     });
 
-    var createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
-    $scope.showCreateModal = function() {
-      initScope();
-      createModal.$promise.then(createModal.show);
-    };
-
     $scope.isTitleEmpty = function() {
       return !$scope.community.title;
     };
 
     $scope.onInputChange = function() {
       $scope.validationError = {};
+    };
+
+    $scope.isTitleInvalid = function() {
+      return $scope.communityForm.title.$error.unique || $scope.validationError.unique;
     };
 
     $scope.titleValidationRunning = false;
@@ -182,8 +182,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
       function done(id) {
         $timeout(function() {
-          if (createModal) {
-            createModal.hide();
+          if ($scope.createModal) {
+            $scope.createModal.hide();
           }
           selectionService.clear();
           $location.path('/communities/' + id);
@@ -432,6 +432,18 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
+  .directive('communityButtonCreate', ['$modal', function($modal) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-button-create.html',
+      link: function($scope) {
+        $scope.createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
+        $scope.showCreateModal = function() {
+          $scope.createModal.$promise.then($scope.createModal.show);
+        };
+      }
+    };
+  }])
   .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'community', function($scope, $location, $log, session, communityAPI, community) {
     $scope.community = community;
     $scope.user = session.user;
@@ -469,7 +481,6 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
   .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
     return {
       restrict: 'A',
-      scope: true,
       require: 'ngModel',
       link: function(scope, elem , attrs, control) {
         var lastValue = null;

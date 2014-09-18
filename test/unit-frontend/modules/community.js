@@ -324,6 +324,53 @@ describe('The Community Angular module', function() {
       });
     });
 
+    describe('isTitleInvalid method', function() {
+      it('should return false if there is no error', function(done) {
+        this.scope.validationError = {
+          unique: false
+        };
+        this.scope.communityForm = {
+          title: {
+            $error: {
+              unique: false
+            }
+          }
+        };
+        expect(this.scope.isTitleInvalid()).to.be.false;
+        done();
+      });
+
+      it('should return true is there is an error from sync check', function(done) {
+        this.scope.validationError = {
+          unique: true
+        };
+        this.scope.communityForm = {
+          title: {
+            $error: {
+              unique: false
+            }
+          }
+        };
+        expect(this.scope.isTitleInvalid()).to.be.true;
+        done();
+      });
+
+      it('should return true if there is an error from live check', function(done) {
+        this.scope.validationError = {
+          unique: false
+        };
+        this.scope.communityForm = {
+          title: {
+            $error: {
+              unique: true
+            }
+          }
+        };
+        expect(this.scope.isTitleInvalid()).to.be.true;
+        done();
+      });
+    });
+
     describe('validateStep0 method', function() {
       it('should not call communityAPI if $scope.titleValidationRunning is true', function() {
         this.communityAPI.list = function() {
