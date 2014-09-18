@@ -301,7 +301,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The load fn', function() {
+  describe('load() method', function() {
     it('should call next with error if community module sends back error on load', function(done) {
 
       var mock = {
@@ -381,7 +381,7 @@ describe('The communities controller', function() {
       });
     });
 
-    it('should send back members_count and not members array', function(done) {
+    it('should send back members array', function(done) {
       var community = {_id: 123, members: [1, 2, 3]};
       var mock = {
         load: function(id, callback) {
@@ -406,31 +406,35 @@ describe('The communities controller', function() {
       communities.load(req, {}, function(err) {
         expect(err).to.not.exist;
         expect(req.community).to.exist;
-        expect(req.community.members).to.not.exist;
-        expect(req.community.members_count).to.exist;
-        expect(req.community.members_count).to.equal(3);
+        expect(req.community.members).to.deep.equal([1, 2, 3]);
         done();
       });
     });
   });
 
-  describe('The get fn', function() {
+  describe('get() method', function() {
     it('should send back HTTP 200 with community if defined in request', function(done) {
-      var community = {_id: 123, toObject: undefined};
-      mockery.registerMock('../../core/community', {});
+      var community = {_id: 123, members: [{id: 'user1'}]};
+      var user = {_id: 'user1'};
+      mockery.registerMock('../../core/community', {
+        isMember: function(c, u, callback) {
+          return callback(null, true);
+        }
+      });
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {
-          return callback(true);
+          return callback(null, true);
         }
       });
 
       var req = {
-        community: community
+        community: community,
+        user: user
       };
       var res = {
         json: function(code, result) {
           expect(code).to.equal(200);
-          expect(result).to.deep.equal(community);
+          expect(result).to.deep.equal({ _id: 123, members_count: 1, member_status: 'member', writable: true });
           done();
         }
       };
