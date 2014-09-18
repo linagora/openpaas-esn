@@ -122,22 +122,19 @@ module.exports.load = function(req, res, next) {
     if (!community) {
       return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
     }
-    transform(community, req.user, function(transformed) {
-      req.community = transformed;
-      return next();
-    });
+    req.community = community;
+    return next();
   });
 };
 
 module.exports.get = function(req, res) {
   if (req.community) {
-    permission.canWrite(req.community, req.user, function(err, writable) {
-      var result = req.community;
-      if (typeof req.community.toObject === 'function') {
-        result = req.community.toObject();
-      }
-      result.writable = writable;
-      return res.json(200, result);
+    transform(req.community, req.user, function(transformed) {
+      permission.canWrite(req.community, req.user, function(err, writable) {
+        var result = transformed;
+        result.writable = writable;
+        return res.json(200, result);
+      });
     });
   } else {
     return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});

@@ -15,10 +15,8 @@ module.exports.updateAvatar = function(community, avatar, callback) {
   if (!avatar) {
     return callback(new Error('Avatar ID is required'));
   }
-
   community.avatar = avatar;
-  var communityModel = community instanceof Community ? community : new Community(community);
-  communityModel.save(callback);
+  community.save(callback);
 };
 
 module.exports.save = function(community, callback) {
