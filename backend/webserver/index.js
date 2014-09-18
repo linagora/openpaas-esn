@@ -12,9 +12,11 @@ var webserver = {
   virtualhosts: [],
   server: null,
   port: null,
+  ip: null,
   ssl_port: null,
   ssl_key: null,
   ssl_cert: null,
+  ssl_ip: null,
   started: false
 };
 
@@ -66,21 +68,23 @@ function start(callback) {
     }
   }
 
+  function setupEventListeners(server) {
+    server.on('listening', listenCallback.bind(null, server));
+    server.on('error', listenCallback.bind(null, webserver.server));
+  }
+
   if (webserver.ssl_key && webserver.ssl_cert && webserver.ssl_port) {
     var sslkey = fs.readFileSync(webserver.ssl_key);
     var sslcert = fs.readFileSync(webserver.ssl_cert);
-
-    webserver.sslserver = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port);
-    webserver.sslserver.on('listening', listenCallback.bind(null, webserver.sslserver));
-    webserver.sslserver.on('error', listenCallback.bind(null, webserver.sslserver));
+    webserver.sslserver = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port, webserver.ssl_ip);
+    setupEventListeners(webserver.sslserver);
   } else {
     sslserverListening = true;
   }
 
   if (webserver.port) {
-    webserver.server = http.createServer(webserver.application).listen(webserver.port);
-    webserver.server.on('listening', listenCallback.bind(null, webserver.server));
-    webserver.server.on('error', listenCallback.bind(null, webserver.server));
+    webserver.server = http.createServer(webserver.application).listen(webserver.port, webserver.ip);
+    setupEventListeners(webserver.server);
   } else {
     serverListening = true;
   }
