@@ -4,8 +4,10 @@
       .col-xs-12
         h2
           i.fa.fa-male
-          | Members
+          | #{__("Members")}
         search-form(search-spinner-key="membersSpinner")
+        .row.alert.alert-danger(ng-show="error", role="alert")
+          p #{__('Error while searching members')}.
     .members-infinite-list
       infinite-list
         .row(ng-repeat="member in members")
