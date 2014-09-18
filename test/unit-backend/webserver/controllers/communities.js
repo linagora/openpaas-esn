@@ -964,6 +964,9 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community', {
         query: function(q, callback) {
           return callback(null, result);
+        },
+        isMember: function(c, u , callback) {
+          return callback(null, true);
         }
       });
       mockery.registerMock('../../core/community/permission', {});
@@ -971,7 +974,10 @@ describe('The communities controller', function() {
       var res = {
         json: function(code, json) {
           expect(code).to.equal(200, json);
-          expect(json).to.deep.equal(result);
+          expect(json).to.deep.equal([
+            {_id: 1, members_count: 0, member_status: 'member'},
+            {_id: 2, members_count: 0, member_status: 'member'}
+          ]);
           done();
         }
       };
@@ -983,6 +989,38 @@ describe('The communities controller', function() {
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.getMine(req, res);
     });
+
+    it('should send the transformed community model', function(done) {
+      var result = [{_id: 1, members: [{_id: 'user1'}, {_id: 'user2'}]}, {_id: 2, members: [{_id: 'user2'}]}];
+      mockery.registerMock('../../core/community', {
+        query: function(q, callback) {
+          return callback(null, result);
+        },
+        isMember: function(c, u , callback) {
+          return callback(null, true);
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code, json) {
+          expect(code).to.equal(200, json);
+          expect(json[0].members_count).to.equal(2);
+          expect(json[0].member_status).to.equal('member');
+          expect(json[1].members_count).to.equal(1);
+          expect(json[1].member_status).to.equal('member');
+          done();
+        }
+      };
+
+      var req = {
+        user: {_id: 'user2'}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMine(req, res);
+    });
+
   });
 
   describe('The getMembers fn', function() {
