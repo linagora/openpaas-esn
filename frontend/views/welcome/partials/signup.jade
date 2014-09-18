@@ -1,4 +1,4 @@
-div.col-md-12.panel.widget(ng-show="!error")
+div.col-md-12.panel.esn-panel(ng-show="!error")
   div.form-container
     form(name='form' ng-submit='signup()')
       legend #{__('No account yet ?')} #{__('Register today')}
@@ -24,7 +24,7 @@ div.col-md-12.panel.widget(ng-show="!error")
             i.fa.fa-spinner(ng-hide="!signupTask.running") &nbsp;
             | #{__('{{signupButton.label}}')}
 
-div.col-md-12.panel.widget(ng-show="error")
+div.col-md-12.panel.esn-panel(ng-show="error")
   div.form-container
     h2 #{__('Error')}.
     div.alert.alert-danger

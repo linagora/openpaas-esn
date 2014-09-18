@@ -54,10 +54,9 @@ body {
   margin-right: 0;
 }
 
-.widget {
+.esn-panel {
   background: @widget-background;
   border: @defaultBorder;
-  padding-bottom: 10px;
   .ResizeImage(@defaultImageSizeMedium, auto);
   .RoundedShape();
   .ShadowedShape();
@@ -71,12 +70,16 @@ body {
   legend {
     .ResizeImage(@defaultImageSizeBig, auto);
   }
+}
+
+.widget {
+  padding-bottom: 10px;
   text-align: left;
   .title {
     padding: 10px 0px 0px 10px;
   }
   hr {
-    border: 1px solid @widget-my-communities-color;
+    border: 1px solid;
     margin: 10px;
   }
   ul li {
@@ -90,7 +93,7 @@ body {
       outline: none;
     }
     a:hover {
-      border-left: 2px solid @widget-my-communities-color;
+      border-left: 2px solid;
       border-radius: 0px;
     }
   }
@@ -99,6 +102,14 @@ body {
     margin-top: 4px;
     color: @defaultFontColor;
     background-color: @yellow;
+  }
+  .list-community {
+    hr {
+      border-color: @widget-my-communities-color;
+    }
+    ul li a:hover {
+      border-left-color: @widget-my-communities-color;
+    }
   }
 }
 
