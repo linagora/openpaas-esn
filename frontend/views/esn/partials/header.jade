@@ -11,7 +11,6 @@ div(ng-controller='selectActiveItem')
               span.caret
           ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
               li: a(href='/#/profile', ng-click='selectItem(1)') #{__('My Account')}
-              li: a(href='/#/contacts', ng-click='selectItem(1)') #{__('Contacts')}
               li: a(href='{{"/#/domains/" + domain._id + "/members"}}', ng-click='selectItem(1)') #{__('Members')}
               li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}', ng-click='selectItem(1)') #{__('Invitation')}
               li: a(href='/#/applications', ng-click='selectItem(1)') #{__('Applications')}
