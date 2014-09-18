@@ -1,4 +1,4 @@
-.modal(tabindex="-1", role="dialog")
+.modal(ng-controller="communityCreateController", tabindex="-1", role="dialog")
   .modal-dialog
     .modal-content
       .modal-header
@@ -22,7 +22,7 @@
         form(name='communityForm', ng-hide="sending")
           .form-group
             #communityerror
-          .form-group.has-feedback(ng-show="step === 0", ng-class='{"has-error": communityForm.title.$error.unique || validationError}')
+          .form-group.has-feedback(ng-show="step === 0", ng-class='{"has-error": isTitleInvalid()}')
             label #{__('The community title')}&nbsp;*
             input.form-control(type='text', ng-change='onInputChange()', ng-model='community.title', id="title", name='title', autofocus=true, required, ensure-unique-community-title, esn-track-first-blur)
             span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='communityForm.title.$error.ajax')
