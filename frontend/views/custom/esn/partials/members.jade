@@ -1,0 +1,13 @@
+.col-xs-12.widget.nopadding
+  div(ng-controller="memberscontroller")
+    .row
+      .col-xs-12
+        h2
+          i.fa.fa-male
+          | Members
+        search-form(search-spinner-key="membersSpinner")
+    .members-infinite-list
+      infinite-list
+        .col-md-6.col-xs-12.text-center(ng-repeat="member in members")
+          member-display(member="member")
+        .vertiz-space

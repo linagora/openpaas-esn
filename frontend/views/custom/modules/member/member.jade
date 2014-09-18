@@ -1,0 +1,14 @@
+.col-xs-12.nopadding.esn-member
+  .col-xs-12
+    hr
+  .col-md-4.col-sm-4.col-xs-12
+    img(src='/images/user.png', ng-src='/api/users/{{member._id}}/profile/avatar')
+  .col-md-4.col-sm-4.col-xs-12
+    h4.media-heading {{member.firstname}} {{member.lastname}}
+    span
+      a(href='mailto:{{member.emails[0]}}') {{member.emails[0]}}
+  .col-md-4.col-sm-4.col-xs-12
+    p
+      strong {{member.job_title}}
+    p
+      small {{member.service}}
