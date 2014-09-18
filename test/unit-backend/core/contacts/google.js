@@ -70,14 +70,11 @@ describe('The contact helper module', function() {
       var mongooseMock = {
         model: function(modelName) {
           return {
-            findOneAndUpdate: function(query, update, options, callback) {
+            findOneAndUpdate: function(query, ignore, options, callback) {
               expect(modelName).to.equal('AddressBook');
 
               expect(query.name).to.equal('Google Contacts');
               expect(query.creator).to.equal(user._id);
-
-              expect(update.name).to.equal('Google Contacts');
-              expect(update.creator).to.equal(user._id);
 
               expect(options.upsert).to.be.true;
 
@@ -97,7 +94,6 @@ describe('The contact helper module', function() {
       var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
       helper.saveGoogleContacts('<pipo>PIPO</pipo>', user, function(err) {
         expect(err).to.exist;
-        expect(err).to.equal(errorString);
         done();
       });
     });
