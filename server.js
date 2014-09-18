@@ -9,7 +9,9 @@ function startWebServer(callback) {
 
   webserver.virtualhosts = config.webserver.virtualhosts;
   webserver.port = config.webserver.port;
+  webserver.ip = config.webserver.ip;
   webserver.ssl_port = config.webserver.ssl_port;
+  webserver.ssl_ip = config.webserver.ssl_ip;
   webserver.ssl_key = config.webserver.ssl_key;
   webserver.ssl_cert = config.webserver.ssl_cert;
 

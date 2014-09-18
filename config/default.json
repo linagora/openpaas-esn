@@ -2,9 +2,11 @@
   "webserver": {
     "enabled": true,
     "port": 8080,
+    "ip": "0.0.0.0",
     "ssl_port": 8443,
     "ssl_key": "config/ssl.key",
     "ssl_cert": "config/ssl.crt",
+    "ssl_ip": "0.0.0.0",
     "virtualhosts": [],
     "startupBufferTimeout": 5000
   },
