@@ -14,9 +14,9 @@
       li(ng-class="{active: selected === 'all', disabled: loading}")
         a(ng-click="getAll()", href="") #{__('All')}
       li(ng-class="{active: selected === 'membership', disabled: loading}")
-        a(ng-click="getMembership()", href="") #{__('Member')}
+        a(ng-click="getMembership()", href="") #{__('Member of')}
       li(ng-class="{active: selected === 'moderator', disabled: loading}")
-        a(ng-click="getModerator()", href="") #{__('Moderator')}
+        a(ng-click="getModerator()", href="") #{__('Owned')}
   hr(ng-show="!communities.length")
   .row(ng-hide="loading", ng-repeat="community in communities | orderBy:'title'")
     hr
