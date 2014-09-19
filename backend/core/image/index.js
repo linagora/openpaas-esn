@@ -130,12 +130,34 @@ function setDefaultAvatarSize(size) {
   return true;
 }
 
-function getAvatar(id, callback) {
-  return filestore.get(id, callback);
+function getSmallAvatar(id, callback) {
+  filestore.getMeta(id, function(err, originalmeta) {
+    if (err) {
+      return callback(err);
+    }
+    return filestore.getFileStream(id + '-' + defaultAvatarSize, function(err, stream) {
+      return callback(err, originalmeta, stream);
+    });
+  });
+}
+
+function getAvatar(id, format, callback) {
+  if (format && format === 'original') {
+    return filestore.get(id, callback);
+  }
+
+  return getSmallAvatar(id, function(err, meta, stream) {
+    if (err ||   !stream) {
+      return filestore.get(id, callback);
+    }
+
+    return callback(err, meta, stream);
+  });
 }
 
 module.exports.getSize = getSize;
 module.exports.getAvatar = getAvatar;
+module.exports.getSmallAvatar = getSmallAvatar;
 module.exports.checkImageSquare = checkImageSquare;
 module.exports.recordAvatar = recordAvatar;
 module.exports.setDefaultAvatarSize = setDefaultAvatarSize;

@@ -239,9 +239,18 @@ function getProfileAvatar(req, res) {
     return res.redirect('/images/user.png');
   }
 
-  imageModule.getAvatar(req.user.currentAvatar, function(err, fileStoreMeta, readable) {
+  imageModule.getAvatar(req.user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+      return res.redirect('/images/user.png');
+    }
+
+    if (!readable) {
+      return res.redirect('/images/user.png');
+    }
+
+    if (!fileStoreMeta) {
+      res.status(200);
+      return readable.pipe(res);
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
@@ -253,7 +262,6 @@ function getProfileAvatar(req, res) {
     }
   });
 }
-
 module.exports.getProfileAvatar = getProfileAvatar;
 
 function load(req, res, next) {

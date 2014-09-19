@@ -101,6 +101,32 @@ module.exports.get = function(id, callback) {
   });
 };
 
+module.exports.getFileStream = function(id, callback) {
+  if (!id) {
+    return callback(new Error('ID is mandatory'));
+  }
+
+  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
+
+  gfs.exist({
+    filename: id
+  }, function(err, exists) {
+
+    if (err) {
+      return callback(err);
+    }
+
+    if (!exists) {
+      return callback(new Error('File does not exists'));
+    }
+
+    var readstream = gfs.createReadStream({
+      filename: id
+    });
+    return callback(null, readstream);
+  });
+};
+
 module.exports.delete = function(id, callback) {
   if (!id) {
     return callback(new Error('ID is mandatory'));

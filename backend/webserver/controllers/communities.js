@@ -214,9 +214,13 @@ module.exports.getAvatar = function(req, res) {
     return res.redirect('/images/community.png');
   }
 
-  imageModule.getAvatar(req.community.avatar, function(err, fileStoreMeta, readable) {
+  imageModule.getAvatar(req.community.avatar, req.query.format, function(err, fileStoreMeta, readable) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+      return res.redirect('/images/community.png');
+    }
+
+    if (!readable) {
+      return res.redirect('/images/community.png');
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
