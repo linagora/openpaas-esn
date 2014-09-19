@@ -24,9 +24,8 @@ var getGoogleConfiguration = function(done) {
 module.exports.getGoogleConfiguration = getGoogleConfiguration;
 
 var getOrCreateGoogleAddressBook = function(user, callback) {
-  var AddressBookName = 'Google Contacts';
-  var addressbookJson = {name: AddressBookName, creator: user._id};
-  AddressBook.findOneAndUpdate(addressbookJson, addressbookJson, {upsert: true}, function(err, ab) {
+  var addressbookJson = {name: 'Google Contacts', creator: user._id};
+  AddressBook.findOneAndUpdate(addressbookJson, {ignore: true}, {upsert: true}, function(err, ab) {
     if (err) {
       return callback(err);
     }
@@ -34,7 +33,7 @@ var getOrCreateGoogleAddressBook = function(user, callback) {
   });
 };
 
-var createOrUpdateConctact = function(entry, user , addressbook, cb) {
+var createOrUpdateContact = function(entry, user , addressbook, cb) {
   var contactQuery = {
     emails: entry['gd:email'][0].$.address,
     owner: user._id,
@@ -90,14 +89,26 @@ function saveGoogleContacts(contactsXml, user, callback) {
       return callback(err);
     }
 
+    if (!result ||   !result.feed) {
+      return callback(new Error('Could not get feed from google'));
+    }
+
     getOrCreateGoogleAddressBook(user, function(err, addressbook) {
       if (err) {
         return callback(err);
       }
 
+     if (!addressbook) {
+        return callback(new Error('Can not retrieve address book'));
+      }
+
       var saveContact = function(entry, cb) {
-        createOrUpdateConctact(entry, user, addressbook, cb);
+        createOrUpdateContact(entry, user, addressbook, cb);
       };
+
+      if (!result.feed.entry) {
+        return callback(new Error('Can not find any entry on the google feed'));
+      }
 
       async.each(result.feed.entry, saveContact, function(err) {
         if (err) {
