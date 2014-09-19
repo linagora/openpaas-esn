@@ -2,7 +2,9 @@
 
 var pubsub = require('../../core/pubsub').global,
   logger = require('../../core/logger'),
-  helper = require('../helper/socketio');
+  helper = require('../helper/socketio'),
+  community = require('../../core/community'),
+  async = require('async');
 
 var initialized = false;
 
@@ -28,8 +30,35 @@ function init(io) {
   }
 
   pubsub.topic(TOPIC).subscribe(function(notification) {
-    notification.target.forEach(function(user) {
-      notify(io, user, notification);
+    if (notification.parent) {
+      return;
+    }
+    var users = {};
+
+    async.eachSeries(notification.target, function(target, callback) {
+      if (target.objectType === 'user') {
+        users[target.id] = true;
+        callback();
+      } else if (target.objectType === 'community') {
+        community.getMembers(target.id, function(err, members) {
+          if (err) {
+            return callback(err);
+          }
+          members.forEach(function(member) {
+            users[member.user] = true;
+          });
+          callback();
+        });
+      }
+    }, function(err) {
+      if (err) {
+        return;
+      }
+      for (var user in users) {
+        if (users.hasOwnProperty(user)) {
+          notify(io, user, notification);
+        }
+      }
     });
   });
 

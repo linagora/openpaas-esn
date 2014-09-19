@@ -11,6 +11,7 @@ describe('The notification API', function() {
   var testuser1;
   var testuser2;
   var domain;
+  var community;
   var password = 'secret';
   var email = 'foo@bar.com';
   var email1 = 'test1@bar.com';
@@ -79,6 +80,15 @@ describe('The notification API', function() {
           },
           function(callback) {
             saveDomain(domain, testuser, callback);
+          },
+          function(callback) {
+            self.helpers.api.createCommunity('community1', testuser, domain, function(err, saved) {
+              if (err) {
+                return callback(err);
+              }
+              community = saved;
+              callback(null, community);
+            });
           }
         ],
         function(err) {
@@ -114,7 +124,7 @@ describe('The notification API', function() {
           action: 'create',
           object: 'form',
           link: 'http://localhost:8888',
-          target: [testuser._id]
+          target: [{objectType: 'user', id: testuser._id}]
         });
         req.expect(201)
           .end(function(err, res) {
@@ -140,7 +150,8 @@ describe('The notification API', function() {
           action: 'create',
           object: 'form',
           link: 'http://localhost:8888',
-          target: [testuser1._id, testuser2._id]
+          target: [{objectType: 'user', id: testuser1._id}, {objectType: 'user', id: testuser2._id},
+            {objectType: 'community', id: community._id}]
         });
         req.expect(201)
           .end(function(err, res) {
@@ -148,7 +159,7 @@ describe('The notification API', function() {
             Notification.find(function(err, found) {
               expect(err).to.not.exist;
               expect(found).to.exist;
-              expect(found.length).to.equal(3);
+              expect(found.length).to.equal(4);
               done();
             });
           });
@@ -164,7 +175,7 @@ describe('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      target: [testuser._id]
+      target: [{objectType: 'user', id: testuser._id}]
     });
 
     n.save(function(err, _n) {
@@ -204,7 +215,7 @@ describe('The notification API', function() {
       });
 
       if (target) {
-        notification.target = [target._id];
+        notification.target = [{objectType: 'user', id: target._id}];
       }
 
       if (author) {
@@ -258,7 +269,7 @@ describe('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      target: [testuser._id]
+      target: [{objectType: 'user', id: testuser._id}]
     });
 
     n.save(function(err, _n) {
@@ -309,7 +320,7 @@ describe('The notification API', function() {
       });
 
       if (target) {
-        notification.target = [target._id];
+        notification.target = [{objectType: 'user', id: target._id}];
       }
 
       if (author) {
@@ -363,7 +374,7 @@ describe('The notification API', function() {
       action: 'create',
       object: 'form',
       link: 'http://localhost:8888',
-      target: [testuser1._id]
+      target: [{objectType: 'user', id: testuser1._id}]
     });
 
     n.save(function(err, _n) {

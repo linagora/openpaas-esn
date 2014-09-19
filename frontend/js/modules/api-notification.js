@@ -9,8 +9,8 @@ angular.module('esn.api-notification', ['esn.notification'])
 
           function liveNotificationHandler(msg) {
             function displayNotification() {
-              return msg.target.some(function(item) {
-                return item === session.user._id;
+              return msg.target.some(function(target) {
+                return target.objectType === 'community' || target.id === session.user._id;
               });// && msg.parent;
             }
 

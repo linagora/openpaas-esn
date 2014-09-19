@@ -87,7 +87,7 @@ describe('The notification middleware', function() {
         },
         notification: {
           author: mongoose.Types.ObjectId(),
-          target: [id]
+          target: [{objectType: 'user', id: id}]
         }
       };
 

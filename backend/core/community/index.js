@@ -167,8 +167,12 @@ module.exports.isMember = function(community, user, callback) {
 };
 
 module.exports.getMembers = function(community, callback) {
-  if (community._id) {
-    Community.findById(community._id, function(err, result) {
+  var id = community._id || community;
+
+  if (community.members) {
+    return callback(null, community.members);
+  } else {
+    Community.findById(id, function(err, result) {
       if (err) {
         return callback(err);
       }
@@ -179,8 +183,6 @@ module.exports.getMembers = function(community, callback) {
 
       return callback(null, result.members || []);
     });
-  } else {
-    return callback(null, community.members);
   }
 };
 
