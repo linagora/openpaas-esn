@@ -886,6 +886,7 @@ describe('The Community Angular module', function() {
       this.log = {error: function() {}};
       this.community = {_id: 'community1'};
       this.communityAPI = {};
+      this.communityService = {};
       this.session = {domain: {_id: 'domain1'}, user: {_id: 'user1'}};
       this.$q = $q;
 
@@ -895,6 +896,7 @@ describe('The Community Angular module', function() {
         $log: this.log,
         session: this.session,
         communityAPI: this.communityAPI,
+        communityService: this.communityService,
         community: this.community
       });
     }]));
@@ -932,6 +934,18 @@ describe('The Community Angular module', function() {
           expect(where).to.equal('/communities');
         };
         this.scope.onLeave();
+      });
+    });
+
+    describe('canRead() method', function() {
+      it('should call communityService.canRead() method with the current scope community', function(done) {
+        var comm = this.community;
+        this.communityService.canRead = function(community) {
+          expect(community).to.deep.equal(comm);
+          done();
+        };
+
+        this.scope.canRead();
       });
     });
   });
@@ -1115,7 +1129,7 @@ describe('The Community Angular module', function() {
         this.communityService.leave(this.community, {_id: 'user2'});
       });
     });
-    describe.only('canRead() method', function() {
+    describe('canRead() method', function() {
       beforeEach(function() {
         this.community = {
           _id: 'community1',

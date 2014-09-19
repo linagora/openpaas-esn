@@ -444,7 +444,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'community', function($scope, $location, $log, session, communityAPI, community) {
+  .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
+  function($scope, $location, $log, session, communityAPI, communityService, community) {
     $scope.community = community;
     $scope.user = session.user;
     $scope.error = false;
@@ -476,6 +477,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     $scope.leaveFailure = function() {
       $log.error('unable to leave community');
       $scope.reload();
+    };
+
+    $scope.canRead = function() {
+      return communityService.canRead(community);
     };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
