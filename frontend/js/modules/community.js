@@ -373,7 +373,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       templateUrl: '/views/modules/community/community-description.html'
     };
   })
-  .directive('communityButtonJoin', ['communityMembership', function(communityMembership) {
+  .directive('communityButtonJoin', ['communityService', function(communityService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-join.html',
@@ -382,7 +382,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         $scope.disabled = false;
         $scope.join = function() {
           $scope.disabled = true;
-          communityMembership.join($scope.community, $scope.user)
+          communityService.join($scope.community, $scope.user)
           .then($scope.onJoin, $scope.onFail)
           .finally (function() {
             $scope.disabled = false;
@@ -391,8 +391,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
         $scope.canJoin = function() {
           return $scope.user._id !== $scope.community.creator &&
-                 communityMembership.openMembership($scope.community) &&
-                 !communityMembership.isMember($scope.community);
+                 communityService.openMembership($scope.community) &&
+                 !communityService.isMember($scope.community);
         };
       },
       scope: {
@@ -403,7 +403,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .directive('communityButtonLeave', ['communityMembership', function(communityMembership) {
+  .directive('communityButtonLeave', ['communityService', function(communityService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-leave.html',
@@ -412,7 +412,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         $scope.disabled = false;
         $scope.leave = function() {
           $scope.disabled = true;
-          communityMembership.leave($scope.community, $scope.user)
+          communityService.leave($scope.community, $scope.user)
           .then($scope.onLeave, $scope.onFail)
           .finally (function() {
             $scope.disabled = false;
@@ -421,7 +421,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
 
         $scope.canLeave = function() {
           return $scope.user._id !== $scope.community.creator &&
-                 communityMembership.isMember($scope.community);
+                 communityService.isMember($scope.community);
         };
       },
       scope: {
@@ -538,7 +538,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .factory('communityMembership', ['communityAPI', '$q', function(communityAPI, $q) {
+  .factory('communityService', ['communityAPI', '$q', function(communityAPI, $q) {
     function isMember(community) {
       if (!community || !community.member_status) {
         return false;
