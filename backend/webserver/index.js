@@ -70,7 +70,7 @@ function start(callback) {
 
   function setupEventListeners(server) {
     server.on('listening', listenCallback.bind(null, server));
-    server.on('error', listenCallback.bind(null, webserver.server));
+    server.on('error', listenCallback.bind(null, server));
   }
 
   if (webserver.ssl_key && webserver.ssl_cert && webserver.ssl_port) {
