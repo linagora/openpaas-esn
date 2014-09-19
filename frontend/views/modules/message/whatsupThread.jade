@@ -1,4 +1,4 @@
-div.widget.thread(ng-class="{'just-posted': message._id === lastPost.messageId}")
+div.esn-panel.thread(ng-class="{'just-posted': message._id === lastPost.messageId}")
   a.pull-left(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div.media-body

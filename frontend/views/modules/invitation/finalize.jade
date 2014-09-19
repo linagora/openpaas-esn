@@ -1,5 +1,5 @@
 .container
-  div.col-md-12.widget(id='form', ng-show="!notFound && !error && !complete")
+  div.col-md-12.esn-panel(id='form', ng-show="!notFound && !error && !complete")
     div.form-container
       div.alert.alert-success(ng-show="invited") #{__('You have been invited to join OpenPaas. Please fill up the signup form to complete the process')}
       form(name='form')
@@ -54,19 +54,19 @@
               i.fa.fa-sign-in
               | #{__('{{finalizeButton.label}}')}
 
-  div.col-md-12.widget(id='notfound', ng-show="notFound && !error && !complete")
+  div.col-md-12.esn-panel(id='notfound', ng-show="notFound && !error && !complete")
     div.form-container
       h2 #{__('Not Found')}.
       div.alert.alert-danger
         strong #{__('We are not able to find the invitation you requested, please try again.')}
 
-  div.col-md-12.widget(id='error', ng-show="error")
+  div.col-md-12.esn-panel(id='error', ng-show="error")
     div.form-container
       h2 #{__('Error')}.
       div.alert.alert-danger
         strong #{__('There was an error while signin up to the platform. Please try again.')}
 
-  div.col-md-12.widget(ng-show="!error && complete")
+  div.col-md-12.esn-panel(ng-show="!error && complete")
     div.form-container
       h2 #{__('Sign Up is complete')}!
       p #{__('Please hold on while login in')}...
