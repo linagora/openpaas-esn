@@ -568,10 +568,15 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       return communityAPI.leave(community._id, user._id);
     }
 
+    function canRead(community) {
+      return openMembership(community) || isMember(community);
+    }
+
     return {
       openMembership: openMembership,
       isMember: isMember,
       join: join,
-      leave: leave
+      leave: leave,
+      canRead: canRead
     };
   }]);

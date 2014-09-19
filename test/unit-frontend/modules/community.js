@@ -1115,6 +1115,47 @@ describe('The Community Angular module', function() {
         this.communityService.leave(this.community, {_id: 'user2'});
       });
     });
+    describe.only('canRead() method', function() {
+      beforeEach(function() {
+        this.community = {
+          _id: 'community1',
+          members_count: 4,
+          type: 'open',
+          member_status: 'none'
+        };
+      });
+      describe('when the community is open', function() {
+        it('should return true', function() {
+          expect(this.communityService.canRead(this.community)).to.be.true;
+          this.community.member_status = 'member';
+          expect(this.communityService.canRead(this.community)).to.be.true;
+        });
+      });
+      describe('when the community is not open', function() {
+        describe('and user is not a community member', function() {
+          it('should return false', function() {
+            this.community.member_status = 'none';
+            this.community.type = 'protected';
+            expect(this.communityService.canRead(this.community)).to.be.false;
+            this.community.type = 'private';
+            expect(this.communityService.canRead(this.community)).to.be.false;
+            this.community.type = 'invisible';
+            expect(this.communityService.canRead(this.community)).to.be.false;
+          });
+        });
+        describe('and user is a community member', function() {
+          it('should return true', function() {
+            this.community.member_status = 'member';
+            this.community.type = 'protected';
+            expect(this.communityService.canRead(this.community)).to.be.true;
+            this.community.type = 'private';
+            expect(this.communityService.canRead(this.community)).to.be.true;
+            this.community.type = 'invisible';
+            expect(this.communityService.canRead(this.community)).to.be.true;
+          });
+        });
+      });
+    });
   });
 
   describe('communityButtonJoin directive', function() {
