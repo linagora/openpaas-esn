@@ -59,7 +59,7 @@ describe('The Member Angular module', function() {
   });
 
   describe('memberscontroller', function() {
-    beforeEach(angular.mock.inject(function($controller, $rootScope, $routeParams, Restangular, memberSearchConfiguration) {
+    beforeEach(angular.mock.inject(function($controller, $q, $rootScope, $routeParams, Restangular, memberSearchConfiguration) {
       this.searchConf = memberSearchConfiguration;
 
       this.domainAPI = {};
@@ -76,6 +76,7 @@ describe('The Member Angular module', function() {
       this.$routeParams = {
         domain_id: this.domainId
       };
+      this.$q = $q;
       $controller('memberscontroller', {
         $scope: this.scope,
         domainAPI: this.domainAPI,
@@ -146,18 +147,38 @@ describe('The Member Angular module', function() {
           expect(id).to.equal('memberSpinner');
           done();
         };
+
+        var defer = this.$q.defer();
         this.domainAPI.getMembers = function(domain_id, opts) {
-          return {
-            then: function(callback) {
-              var data = {
-                headers: function() {}
-              };
-              callback(data);
-            }
-          };
+          return defer.promise;
+        };
+        var data = {
+          headers: function() {}
+        };
+        defer.resolve(data);
+        this.scope.loadMoreElements();
+        this.scope.$digest();
+      });
+
+      it('should spin when running and stop when error', function(done) {
+        var isSpinning = false;
+        this.usSpinnerService.spin = function(id) {
+          expect(id).to.equal('memberSpinner');
+          isSpinning = true;
+        };
+        this.usSpinnerService.stop = function(id) {
+          expect(isSpinning).to.be.true;
+          expect(id).to.equal('memberSpinner');
+          done();
         };
 
+        var defer = this.$q.defer();
+        this.domainAPI.getMembers = function(domain_id, opts) {
+          return defer.promise;
+        };
+        defer.reject({});
         this.scope.loadMoreElements();
+        this.scope.$digest();
       });
     });
 

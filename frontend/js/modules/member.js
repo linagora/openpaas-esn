@@ -27,6 +27,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     };
     $scope.members = [];
     $scope.restActive = false;
+    $scope.error = false;
 
     var formatResultsCount = function(count) {
       $scope.search.count = count;
@@ -43,6 +44,7 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
     };
 
     var updateMembersList = function() {
+      $scope.error = false;
       if ($scope.restActive) {
         return;
       }
@@ -55,6 +57,9 @@ angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infini
         $domainAPI.getMembers(domain_id, opts).then(function(data) {
           formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
           $scope.members = $scope.members.concat(data.data);
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
           $scope.search.running = false;
           $scope.restActive = false;
           usSpinnerService.stop('memberSpinner');
