@@ -2,6 +2,8 @@
     community-description(community="community")
 .col-xs-12
     hr
-.col-xs-12
+.col-xs-12(ng-if='canRead()')
     activity-stream(activitystream-uuid='{{community.activity_stream.uuid}}')
     activity-stream-notification(activitystream-uuid='{{community.activity_stream.uuid}}')
+.col-xs-12.esn-panel(ng-if='!canRead()')
+  p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}
