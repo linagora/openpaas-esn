@@ -6,6 +6,7 @@ var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
+var logger = require('../../core').logger;
 var async = require('async');
 
 function transform(community, user, callback) {
@@ -216,10 +217,12 @@ module.exports.getAvatar = function(req, res) {
 
   imageModule.getAvatar(req.community.avatar, req.query.format, function(err, fileStoreMeta, readable) {
     if (err) {
+      logger.warn('Can not get community avatar : %s', err.message);
       return res.redirect('/images/community.png');
     }
 
     if (!readable) {
+      logger.warn('Can not retrieve avatar stream for community %s', req.community._id);
       return res.redirect('/images/community.png');
     }
 
