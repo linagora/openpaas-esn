@@ -55,7 +55,7 @@ module.exports.filterWritableTargets = function(req, res, next) {
     },
     function(results) {
       if (!results || results.length === 0) {
-        return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Invalid message targets'}});
+        return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not create message'}});
       }
       req.body.targets = results;
       next();
