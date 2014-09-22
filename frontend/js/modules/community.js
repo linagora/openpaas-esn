@@ -444,8 +444,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
-  function($scope, $location, $log, session, communityAPI, communityService, community) {
+  .controller('communityController', ['$rootScope', '$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
+  function($rootScope, $scope, $location, $log, session, communityAPI, communityService, community) {
     $scope.community = community;
     $scope.user = session.user;
     $scope.error = false;
@@ -457,6 +457,19 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         $scope.writable = response.data.writable;
       });
     });
+
+    function currentCommunityMembershiphandler(event, msg) {
+      $log.debug('Got a community membership event on community', msg);
+      if (msg && msg.id === $scope.community._id) {
+        communityAPI.get(msg.id).then(function(response) {
+          $scope.writable = response.data.writable;
+          $scope.community = response.data;
+        });
+      }
+    }
+
+    $rootScope.$on('community:join', currentCommunityMembershiphandler);
+    $rootScope.$on('community:leave', currentCommunityMembershiphandler);
 
     $scope.onLeave = function() {
       $location.path('/communities');

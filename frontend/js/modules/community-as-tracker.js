@@ -210,6 +210,9 @@ angular.module('esn.community-as-tracker', [
             img: '/api/communities/' + success.data._id + '/avatar',
             display_name: success.data.title
           };
+          $rootScope.$emit('community:join', {
+            id: success.data._id
+          });
           addItem(streamInfo);
 
         }, function(err) {
@@ -222,6 +225,9 @@ angular.module('esn.community-as-tracker', [
           var uuid = success.data.activity_stream.uuid;
           unsubscribeFromStreamNotification(uuid);
           removeItem(uuid);
+          $rootScope.$emit('community:leave', {
+            id: success.data._id
+          });
         }, function(err) {
           $log.debug('Error while getting the community', err.data);
         });
