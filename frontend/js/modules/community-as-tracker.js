@@ -111,8 +111,8 @@ angular.module('esn.community-as-tracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'communityAPI', 'livenotification', 'session', 'communityMembershipService',
-    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, communityAPI, livenotification, session, communityMembershipService) {
+  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'communityAPI', 'livenotification', 'session',
+    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, communityAPI, livenotification, session) {
 
       var notifications = {};
       $scope.activityStreams = [];
@@ -199,7 +199,7 @@ angular.module('esn.community-as-tracker', [
         });
       });
 
-      function joinCommunityNotificationHandler(data) {
+      function joinCommunityNotificationHandler(event, data) {
         communityAPI.get(data.community).then(function(success) {
           var uuid = success.data.activity_stream.uuid;
           subscribeToStreamNotification(uuid);
@@ -217,7 +217,7 @@ angular.module('esn.community-as-tracker', [
         });
       }
 
-      function leaveCommunityNotificationHandler(data) {
+      function leaveCommunityNotificationHandler(event, data) {
         communityAPI.get(data.community).then(function(success) {
           var uuid = success.data.activity_stream.uuid;
           unsubscribeFromStreamNotification(uuid);
@@ -227,8 +227,13 @@ angular.module('esn.community-as-tracker', [
         });
       }
 
-      communityMembershipService.onCommunitiesJoin(joinCommunityNotificationHandler);
-      communityMembershipService.onCommunitiesLeave(leaveCommunityNotificationHandler);
+      var joinHandler = $rootScope.$on('community:join', joinCommunityNotificationHandler);
+      var leaveHandler = $rootScope.$on('community:leave', leaveCommunityNotificationHandler);
+
+      $scope.$on('$destroy', function() {
+        joinHandler();
+        leaveHandler();
+      });
     }
   ]
 );
