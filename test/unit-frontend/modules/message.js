@@ -103,9 +103,10 @@ describe('The esn.message Angular module', function() {
   });
 
   describe('messageController', function() {
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(inject(function($rootScope, $controller, $q) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
+      this.$q = $q;
       this.scope = $rootScope.$new();
       this.session = {};
       this.alert = function() {
@@ -166,6 +167,22 @@ describe('The esn.message Angular module', function() {
         this.scope.sendMessage();
       });
 
+      it('should display a warning when user is not authorized to post message', function(done) {
+        var defer = this.$q.defer();
+        this.messageAPI.post = function() {
+          return defer.promise;
+        };
+        this.scope.displayError = function(err) {
+          expect(err).to.match(/You do not have enough rights to write a new message here/);
+          done();
+        };
+        defer.reject({data: {status: 403}});
+        this.scope.activitystreamUuid = '0987654321';
+        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.sendMessage();
+        this.scope.$digest();
+      });
+
       describe('POST response', function() {
 
         it('should emit a message:posted event on rootScope', function(done) {
@@ -199,9 +216,10 @@ describe('The esn.message Angular module', function() {
 
   describe('messageCommentController controller', function() {
 
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(inject(function($rootScope, $controller, $q) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
+      this.$q = $q;
       this.scope = $rootScope.$new();
       this.alert = function() {
       };
@@ -399,6 +417,26 @@ describe('The esn.message Angular module', function() {
             done();
           });
           this.scope.addComment();
+        });
+
+        it('should display warning if user does not have rights to comment message', function(done) {
+          var defer = this.$q.defer();
+          this.messageAPI.addComment = function() {
+            return defer.promise;
+          };
+          defer.reject({data: {status: 403}});
+          this.scope.shrink = function() {};
+          this.scope.displayError = function(err) {
+            expect(err).to.match(/You do not have enough rights to write a response here/);
+            done();
+          };
+          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.message = {
+            _id: 123,
+            objectType: 'whatsup'
+          };
+          this.scope.addComment();
+          this.scope.$digest();
         });
       });
 

@@ -45,7 +45,11 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
           });
         },
         function(err) {
-          $scope.displayError('Error while sharing your whatsup message');
+          if (err.data.status === 403) {
+            $scope.displayError('You do not have enough rights to write a new message here');
+          } else {
+            $scope.displayError('Error while sharing your whatsup message');
+          }
         }
       );
     };
@@ -119,7 +123,11 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
         },
         function(err) {
           $scope.sending = false;
-          $scope.displayError('Error while adding comment');
+          if (err.data.status === 403) {
+            $scope.displayError('You do not have enough rights to write a response here');
+          } else {
+            $scope.displayError('Error while adding comment');
+          }
         }
       );
     };

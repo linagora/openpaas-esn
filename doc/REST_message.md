@@ -96,6 +96,7 @@ Post a new message by the currently logged in user.
 
 - 201 Created. With the _id of the new message.
 - 400 Bad request. The current request is missing mandatory parameters
+- 403 Unauthorized. The current user is not authorized to post message to the specified target(s)
 - 500 Internal server error: there was a problem.
 
 **Request:**
@@ -156,6 +157,7 @@ Post a new comment in reply to a message, by the currently logged in user.
 
 - 201 Created. With the _id of the new comment.
 - 400 Bad request. The current request is missing mandatory parameters
+- 403 Unauthorized. The current user is not authorized to reply to the specified message
 - 500 Internal server error: there was a problem.
 
 **Request:**

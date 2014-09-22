@@ -239,6 +239,63 @@ describe('The activitystream middleware', function() {
       middleware(req, res, next);
     });
 
+    it('should send 403 if no valid streams are set', function(done) {
+      var mock = {
+        model: function() {
+          return {
+            getFromActivityStreamID: function(uuid, cb) {
+              return cb(null, {_id: uuid});
+            }
+          };
+        }
+      };
+      this.mongoose = mockery.registerMock('mongoose', mock);
+      mockery.registerMock('../../core/activitystreams', {});
+      mockery.registerMock('../../core/community/permission', {
+        canWrite: function(community, user, callback) {
+          return callback(null, false);
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var req = {
+        user: {},
+        body: {
+          targets: [
+            {
+              objectType: 'activitystream',
+              id: 1
+            },
+            {
+              objectType: 'activitystream',
+              id: 2
+            },
+            {
+              objectType: 'activitystream',
+              id: 3
+            },
+            {
+              objectType: 'activitystream',
+              id: 11
+            },
+            {
+              objectType: 'activitystream',
+              id: 12
+            }
+          ]
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(403);
+          done();
+        }
+      };
+      var next = function() {
+        done(new Error());
+      };
+      middleware(req, res, next);
+    });
+
     it('should be passthrough if inReplyTo is in the body', function(done) {
       var mock = {
         model: function() {
