@@ -211,4 +211,141 @@ describe('The core image module', function() {
     });
 
   });
+
+  describe('The getAvatar fn', function() {
+    it('should call the filestore with original id if format is undefined', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          expect(_id).to.exist;
+          expect(_id).to.not.equal(id);
+          return callback();
+        },
+        getMeta: function(id, callback) {
+          return callback(null, {});
+        },
+        getFileStream: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getAvatar(id, null, done);
+    });
+
+    it('should call the filestore with original id if format is === original', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          expect(_id).to.exist;
+          expect(_id).to.equal(id);
+          return callback();
+        }
+      });
+
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getAvatar(id, 'original', done);
+    });
+
+    it('should call the filestore with resized id if format is !== original', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          expect(_id).to.exist;
+          expect(_id).to.not.equal(id);
+          return callback();
+        },
+        getMeta: function(id, callback) {
+          return callback(null, {});
+        },
+        getFileStream: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getAvatar(id, 'notoriginal', done);
+    });
+
+    it('should call the filestore#get if it can not get the resized image when format !== original', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          expect(_id).to.exist;
+          expect(_id).to.equal(id);
+          return callback();
+        },
+        getMeta: function(id, callback) {
+          return callback(new Error());
+        },
+        getFileStream: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getAvatar(id, 'notoriginal', done);
+    });
+
+    it('should call the filestore#get if it can not get the image metadata when format !== original', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          expect(_id).to.exist;
+          expect(_id).to.equal(id);
+          return callback();
+        },
+        getMeta: function(id, callback) {
+          return callback();
+        },
+        getFileStream: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getAvatar(id, 'notoriginal', done);
+    });
+  });
+
+  describe('The getSmallAvatar fn', function() {
+    it('should send back error when image#getMeta sends back error', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          return done(new Error());
+        },
+        getMeta: function(id, callback) {
+          return callback(new Error());
+        },
+        getFileStream: function(id, callback) {
+          return done(new Error());
+        }
+      });
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getSmallAvatar(id, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should call the filestore with resized id', function(done) {
+      var id = '123';
+      mockery.registerMock('../filestore', {
+        get: function(_id, callback) {
+          expect(_id).to.exist;
+          expect(_id).to.not.equal(id);
+          return callback();
+        },
+        getMeta: function(id, callback) {
+          return callback(null, {});
+        },
+        getFileStream: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+      var module = require(this.testEnv.basePath + '/backend/core/image');
+      module.getSmallAvatar(id, done);
+    });
+  });
 });

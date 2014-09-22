@@ -791,23 +791,55 @@ describe('The communities controller', function() {
       communities.getAvatar(req, res);
     });
 
-    it('should return 500 if image module fails', function(done) {
+    it('should redirect if image module fails', function(done) {
       mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
-        getAvatar: function(id, callback) {
+        getAvatar: function(id, format, callback) {
           return callback(new Error());
         }
       });
       var req = {
         community: {
           avatar: 123
+        },
+        query: {
         }
       };
       var res = {
-        json: function(code) {
-          expect(code).to.equal(500);
-          done();
+        json: function() {
+          return done(new Error());
+        },
+        redirect: function() {
+          return done();
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getAvatar(req, res);
+    });
+
+    it('should redirect if image module can not return image stream', function(done) {
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+      mockery.registerMock('../../core/image', {
+        getAvatar: function(id, format, callback) {
+          return callback();
+        }
+      });
+      var req = {
+        community: {
+          avatar: 123
+        },
+        query: {
+        }
+      };
+      var res = {
+        json: function() {
+          return done(new Error());
+        },
+        redirect: function() {
+          return done();
         }
       };
 
@@ -830,7 +862,7 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
-        getAvatar: function(id, callback) {
+        getAvatar: function(id, format, callback) {
           return callback(null, meta, image);
         }
       });
@@ -840,6 +872,8 @@ describe('The communities controller', function() {
         },
         headers: {
           'if-modified-since': 'Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)'
+        },
+        query: {
         }
       };
       var res = {
@@ -864,7 +898,7 @@ describe('The communities controller', function() {
       };
 
       var imageModuleMock = {
-        getAvatar: function(defaultAvatar, callback) {
+        getAvatar: function(defaultAvatar, format, callback) {
           return callback(null,
             {
               meta: 'data',
@@ -882,6 +916,8 @@ describe('The communities controller', function() {
         },
         community: {
           avatar: 123
+        },
+        query: {
         }
       };
       var res = {

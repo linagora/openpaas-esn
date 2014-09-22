@@ -99,6 +99,10 @@ Get the community avatar.
 - Accept: application/json
 - If-Modified-Since: Date
 
+**Query Parameters:**
+
+- format: The avatar format. If not specified, it returns the avatar in 128x128 px. If format=original, returns the original uploaded file.
+
 **Response Headers:**
 
 - Content-Length: Document size

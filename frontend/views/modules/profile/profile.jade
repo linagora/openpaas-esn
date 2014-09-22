@@ -2,7 +2,7 @@ div.row(ng-controller='profileEditionController')
 
   div.col-md-3.col-xs-12.profile-image.text-center
     div(ng-controller='avatarController')
-      img(ng-src='{{avatarURL}}')
+      img(ng-src='{{avatarURL}}&format=original')
     div(ng-controller='avatarEdit')
       button.btn.btn-primary(type="button", ng-click="showAvatarEditModal()" width="150") #{__('Edit your photo')}
 

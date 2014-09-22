@@ -234,6 +234,8 @@ describe('The User controller', function() {
         body: {value: new Array(1000).join('a')},
         user: {
           emails: ['foo@bar.com']
+        },
+        query: {
         }
       };
       var res = {
@@ -1117,10 +1119,13 @@ describe('The User controller', function() {
       users.getProfileAvatar(req, res);
     });
 
-    it('should return 500 if the image Module return an error', function(done) {
+    it('should redirect to default avatar the image Module return an error', function(done) {
       var imageModuleMock = {
-        getAvatar: function(defaultAvatar, callback) {
+        getAvatar: function(defaultAvatar, format, callback) {
           return callback(new Error('error !'));
+        },
+        getMeta: function(id, callback) {
+          return callback(null, {});
         }
       };
       mockery.registerMock('./image', imageModuleMock);
@@ -1128,18 +1133,84 @@ describe('The User controller', function() {
       var req = {
         user: {
           currentAvatar: 'id'
-        }
+        },
+        query: {}
       };
       var res = {
-        json: function(code, data) {
-          expect(code).to.equal(500);
-          expect(data).to.deep.equal({error: 500, message: 'Internal server error', details: 'error !'});
+        redirect: function(path) {
           done();
         }
       };
 
       users.getProfileAvatar(req, res);
     });
+
+    it('should redirect to default avatar the image Module does not return the stream', function(done) {
+      var imageModuleMock = {
+        getAvatar: function(defaultAvatar, format, callback) {
+          return callback();
+        },
+        getMeta: function(id, callback) {
+          return callback(null, {});
+        }
+      };
+      mockery.registerMock('./image', imageModuleMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        user: {
+          currentAvatar: 'id'
+        },
+        query: {}
+      };
+      var res = {
+        redirect: function() {
+          done();
+        }
+      };
+
+      users.getProfileAvatar(req, res);
+    });
+
+    it('should return 200 and the stream even if meta data can not be found', function(done) {
+      var image = {
+        stream: 'test',
+        pipe: function(res) {
+          expect(res.header['Last-Modified']).to.not.exist;
+          expect(res.code).to.equal(200);
+          done();
+        }
+      };
+
+      var imageModuleMock = {
+        getAvatar: function(defaultAvatar, format, callback) {
+          return callback(null, null, image);
+        }
+      };
+      mockery.registerMock('./image', imageModuleMock);
+
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {
+        headers: {
+        },
+        user: {
+          _id: '_id',
+          currentAvatar: 'id'
+        },
+        query: {
+        }
+      };
+      var res = {
+        status: function(code) {
+          this.code = code;
+        },
+        header: function(header, value) {
+          this.header[header] = value;
+        }
+      };
+
+      users.getProfileAvatar(req, res);
+    });
+
 
     it('should return 200, add to the cache, and the stream of the avatar file if all is ok', function(done) {
       var image = {
@@ -1152,7 +1223,7 @@ describe('The User controller', function() {
       };
 
       var imageModuleMock = {
-        getAvatar: function(defaultAvatar, callback) {
+        getAvatar: function(defaultAvatar, format, callback) {
           return callback(null,
             {
               meta: 'data',
@@ -1170,6 +1241,8 @@ describe('The User controller', function() {
         user: {
           _id: '_id',
           currentAvatar: 'id'
+        },
+        query: {
         }
       };
       var res = {
@@ -1193,7 +1266,7 @@ describe('The User controller', function() {
       };
 
       var imageModuleMock = {
-        getAvatar: function(defaultAvatar, callback) {
+        getAvatar: function(defaultAvatar, format, callback) {
           return callback(null,
             {
               meta: 'data',
@@ -1211,6 +1284,8 @@ describe('The User controller', function() {
         user: {
           _id: '_id',
           currentAvatar: 'id'
+        },
+        query: {
         }
       };
       var res = {

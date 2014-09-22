@@ -6,6 +6,7 @@ var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
+var logger = require('../../core').logger;
 var async = require('async');
 
 function transform(community, user, callback) {
@@ -214,9 +215,15 @@ module.exports.getAvatar = function(req, res) {
     return res.redirect('/images/community.png');
   }
 
-  imageModule.getAvatar(req.community.avatar, function(err, fileStoreMeta, readable) {
+  imageModule.getAvatar(req.community.avatar, req.query.format, function(err, fileStoreMeta, readable) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+      logger.warn('Can not get community avatar : %s', err.message);
+      return res.redirect('/images/community.png');
+    }
+
+    if (!readable) {
+      logger.warn('Can not retrieve avatar stream for community %s', req.community._id);
+      return res.redirect('/images/community.png');
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {

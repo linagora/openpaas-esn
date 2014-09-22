@@ -254,6 +254,65 @@ describe('The filestore gridfs module', function() {
     });
   });
 
+  // getFileStream
+  it('should send back an error when trying to get a file from a null id', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    filestore.getFileStream(null, function(err, meta, stream) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('should send back error if the file does not exist', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    filestore.getFileStream('123', function(err, meta, stream) {
+      expect(err).to.exist;
+      done();
+    });
+  });
+
+  it('should send back the stream when the file exists', function(done) {
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var file = path.resolve(this.testEnv.fixtures + '/README.md');
+    var fs = require('fs');
+    var stream = fs.createReadStream(file);
+    var out = this.testEnv.tmp + '/' + uuid.v4();
+    var outstream = fs.createWriteStream(out);
+
+    var id = uuid.v4();
+    filestore.store(id, 'application/text', {}, stream, function(err, data) {
+      if (err) {
+        return done(err);
+      }
+
+      filestore.getFileStream(id, function(err, stream) {
+        expect(err).to.not.exist;
+        expect(stream).to.exist;
+
+        stream.pipe(outstream);
+        stream.on('error', function(err) {
+          done(err);
+        });
+        stream.on('end', function() {
+
+          hash_file(out, 'md5', function(err, hash1) {
+            if (err) {
+              return done(err);
+            }
+
+            hash_file(file, 'md5', function(err, hash2) {
+              if (err) {
+                return done(err);
+              }
+              expect(hash1).to.equal(hash2);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
   // getAsFileStoreMeta
 
   it('should return {} on undefined input', function(done) {

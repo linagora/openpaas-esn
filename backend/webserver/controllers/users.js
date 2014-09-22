@@ -5,9 +5,7 @@ var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var uuid = require('node-uuid');
-//
-// Users controller
-//
+var logger = require('../../core').logger;
 
 function getEmailsFromPassportProfile(profile) {
   var emails = profile.emails
@@ -239,9 +237,20 @@ function getProfileAvatar(req, res) {
     return res.redirect('/images/user.png');
   }
 
-  imageModule.getAvatar(req.user.currentAvatar, function(err, fileStoreMeta, readable) {
+  imageModule.getAvatar(req.user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
     if (err) {
-      return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+      logger.warn('Can not get user avatar : %s', err.message);
+      return res.redirect('/images/user.png');
+    }
+
+    if (!readable) {
+      logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
+      return res.redirect('/images/user.png');
+    }
+
+    if (!fileStoreMeta) {
+      res.status(200);
+      return readable.pipe(res);
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
@@ -253,7 +262,6 @@ function getProfileAvatar(req, res) {
     }
   });
 }
-
 module.exports.getProfileAvatar = getProfileAvatar;
 
 function load(req, res, next) {
