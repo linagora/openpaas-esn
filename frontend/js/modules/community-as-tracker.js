@@ -111,8 +111,8 @@ angular.module('esn.community-as-tracker', [
     };
   })
   .controller('communityAStrackerController',
-  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'communityAPI', 'livenotification', 'session',
-    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, communityAPI, livenotification, session) {
+  ['$rootScope', '$scope', '$log', '$timeout', 'communityAStrackerHelpers', 'communityAStrackerAPI', 'communityAPI', 'livenotification', 'session', 'communityMembershipService',
+    function($rootScope, $scope, $log, $timeout, communityAStrackerHelpers, communityAStrackerAPI, communityAPI, livenotification, session, communityMembershipService) {
 
       var notifications = {};
       $scope.activityStreams = [];
@@ -210,9 +210,6 @@ angular.module('esn.community-as-tracker', [
             img: '/api/communities/' + success.data._id + '/avatar',
             display_name: success.data.title
           };
-          $rootScope.$emit('community:join', {
-            id: success.data._id
-          });
           addItem(streamInfo);
 
         }, function(err) {
@@ -225,16 +222,13 @@ angular.module('esn.community-as-tracker', [
           var uuid = success.data.activity_stream.uuid;
           unsubscribeFromStreamNotification(uuid);
           removeItem(uuid);
-          $rootScope.$emit('community:leave', {
-            id: success.data._id
-          });
         }, function(err) {
           $log.debug('Error while getting the community', err.data);
         });
       }
 
-      livenotification('/community').on('leave', leaveCommunityNotificationHandler);
-      livenotification('/community').on('join', joinCommunityNotificationHandler);
+      communityMembershipService.onCommunitiesJoin(joinCommunityNotificationHandler);
+      communityMembershipService.onCommunitiesLeave(leaveCommunityNotificationHandler);
     }
   ]
 );

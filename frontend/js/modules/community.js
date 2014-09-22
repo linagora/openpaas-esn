@@ -458,7 +458,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       });
     });
 
-    function currentCommunityMembershiphandler(event, msg) {
+    function currentCommunityMembershipHandler(event, msg) {
       $log.debug('Got a community membership event on community', msg);
       if (msg && msg.id === $scope.community._id) {
         communityAPI.get(msg.id).then(function(response) {
@@ -468,8 +468,13 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     }
 
-    $rootScope.$on('community:join', currentCommunityMembershiphandler);
-    $rootScope.$on('community:leave', currentCommunityMembershiphandler);
+    var unregisterJoinEvent = $rootScope.$on('community:join', currentCommunityMembershipHandler);
+    var unregisterLeaveEvent = $rootScope.$on('community:leave', currentCommunityMembershipHandler);
+
+    $scope.$on('$destroy', function() {
+      unregisterJoinEvent();
+      unregisterLeaveEvent();
+    });
 
     $scope.onLeave = function() {
       $location.path('/communities');
@@ -596,5 +601,30 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       join: join,
       leave: leave,
       canRead: canRead
+    };
+  }])
+  .factory('communityMembershipService', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
+
+    function onCommunitiesJoin(handler) {
+      var join = function(data) {
+        handler(data);
+        $rootScope.$emit('community:join', {id: data.community});
+      };
+
+      return livenotification('/community').on('join', join);
+    }
+
+    function onCommunitiesLeave(handler) {
+      var leave = function(data) {
+        handler(data);
+        $rootScope.$emit('community:join', {id: data.community});
+      };
+
+      livenotification('/community').on('leave', leave);
+    }
+
+    return {
+      onCommunitiesJoin: onCommunitiesJoin,
+      onCommunitiesLeave: onCommunitiesLeave
     };
   }]);
