@@ -2,6 +2,13 @@
 
 var mongoose = require('mongoose');
 
+var MessageAttachmentSchema = new mongoose.Schema({
+  _id: {type: mongoose.Schema.Types.ObjectId, required: true},
+  name: {type: String, required: false},
+  contentType: {type: String, required: true},
+  length: {type: Number, required: true}
+});
+
 var EmailMessageSchema = new mongoose.Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
@@ -14,7 +21,7 @@ var EmailMessageSchema = new mongoose.Schema({
     text: {type: String, required: false},
     html: {type: String, required: false}
   },
-  attachments: {type: [String], required: false },
+  attachments: {type: [MessageAttachmentSchema], required: false },
   shares: [{
     objectType: {type: String},
     id: {type: String}
