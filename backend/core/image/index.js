@@ -147,7 +147,7 @@ function getAvatar(id, format, callback) {
   }
 
   return getSmallAvatar(id, function(err, meta, stream) {
-    if (err ||   !stream) {
+    if (err || !stream) {
       return filestore.get(id, callback);
     }
 
