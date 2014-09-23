@@ -31,6 +31,29 @@ function saveEmail(stream, author, shares, callback) {
     }
 
     var mail = new EmailMessage();
+
+    if (mail_object.to) {
+      mail.parsedHeaders.to = mail_object.to;
+    }
+
+    if (mail_object.from) {
+      mail.parsedHeaders.from = mail_object.from;
+    }
+
+    if (mail_object.cc) {
+      mail.parsedHeaders.cc = mail_object.cc;
+    }
+
+    if (mail_object.bcc) {
+      mail.parsedHeaders.bcc = mail_object.bcc;
+    }
+
+    if (mail_object.date) {
+      mail.parsedHeaders.date = mail_object.date;
+    }
+
+    mail.parsedHeaders.subject = mail_object.subject;
+
     mail.author = author;
 
     mail.headers = emailHelpers.formatHeaders(mail_object.headers);
