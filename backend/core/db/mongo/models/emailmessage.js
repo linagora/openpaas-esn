@@ -2,17 +2,26 @@
 
 var mongoose = require('mongoose');
 
-var EMailMsgSchema = new mongoose.Schema({
+var MessageAttachmentSchema = new mongoose.Schema({
+  _id: {type: mongoose.Schema.Types.ObjectId, required: true},
+  name: {type: String, required: false},
+  contentType: {type: String, required: true},
+  length: {type: Number, required: true}
+});
+
+var EmailMessageSchema = new mongoose.Schema({
+  timestamps: {
+    creation: {type: Date, default: Date.now}
+  },
   objectType: {type: String, required: true, default: 'email'},
   author: {type: mongoose.Schema.ObjectId, required: true},
   language: {type: String, required: false},
-  published: {type: Date, default: Date.now},
-  from: {type: String, required: true},
-  to: {type: [String], required: true},
-  cc: {type: [String], required: false},
-  subject: {type: String, required: true},
-  content: {type: String, required: true},
-  attachments: {type: [String], required: false },
+  headers: [mongoose.Schema.Mixed],
+  body: {
+    text: {type: String, required: false},
+    html: {type: String, required: false}
+  },
+  attachments: {type: [MessageAttachmentSchema], required: false },
   shares: [{
     objectType: {type: String},
     id: {type: String}
@@ -20,4 +29,4 @@ var EMailMsgSchema = new mongoose.Schema({
   responses: [mongoose.Schema.Mixed]
 }, { collection: 'messages' });
 
-module.exports = mongoose.model('EMailMsg', EMailMsgSchema);
+module.exports = mongoose.model('EmailMessage', EmailMessageSchema);

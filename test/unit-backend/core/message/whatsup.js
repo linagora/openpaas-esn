@@ -39,7 +39,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message').save({}, callback);
+      require(this.testEnv.basePath + '/backend/core/message/whatsup').save({}, callback);
     });
 
     it('should publish in topic message:stored if there is no error', function(done) {
@@ -76,7 +76,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message').save({}, callback);
+      require(this.testEnv.basePath + '/backend/core/message/whatsup').save({}, callback);
     });
 
   });
@@ -114,7 +114,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message').addNewComment({}, {}, callback);
+      require(this.testEnv.basePath + '/backend/core/message/whatsup').addNewComment({}, {}, callback);
     });
 
     it('should publish in topic message:comment (adding inReplyTo) if there is no error', function(done) {
@@ -158,7 +158,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message').addNewComment({}, { id: 'replied' }, callback);
+      require(this.testEnv.basePath + '/backend/core/message/whatsup').addNewComment({}, { id: 'replied' }, callback);
     });
 
 
@@ -203,7 +203,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message').addNewComment({content: 'a comment'}, { id: 'replied' }, callback);
+      require(this.testEnv.basePath + '/backend/core/message/whatsup').addNewComment({content: 'a comment'}, { id: 'replied' }, callback);
     });
   });
 });

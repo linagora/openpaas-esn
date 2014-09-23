@@ -1,6 +1,6 @@
 'use strict';
 
-var messageModule = require('../../core/message'),
+var whatsupModule = require('../../core/message/whatsup'),
   emailModule = require('../../core/message/email'),
   postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
   localpubsub = require('../../core/pubsub').local,
@@ -16,7 +16,7 @@ function messageSharesToTimelineTarget(shares) {
 }
 
 function createNewMessage(message, req, res) {
-  messageModule.save(message, function(err, saved) {
+  whatsupModule.save(message, function(err, saved) {
     if (err) {
       return res.send(
         500,
@@ -40,7 +40,7 @@ function commentMessage(message, inReplyTo, req, res) {
     return res.send(400, 'Missing inReplyTo _id in body');
   }
 
-  messageModule.addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
+  whatsupModule.addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
     if (err) {
       return res.send(
         500,
@@ -82,7 +82,7 @@ function get(req, res) {
     return res.send(400, 'Missing ids in query');
   }
 
-  messageModule.findByIds(req.query.ids, function(err, result) {
+  whatsupModule.findByIds(req.query.ids, function(err, result) {
     if (err) {
       return res.send(
         500,
@@ -115,7 +115,7 @@ function getOne(req, res) {
 
   var uuid = req.param('uuid');
 
-  messageModule.get(uuid, function(err, result) {
+  whatsupModule.get(uuid, function(err, result) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
     }

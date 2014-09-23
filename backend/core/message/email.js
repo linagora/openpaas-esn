@@ -2,7 +2,8 @@
 
 var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
-var EMailMsg = mongoose.model('EMailMsg');
+var EmailMessage = mongoose.model('EmailMessage');
+var emailHelpers = require('../../helpers/email');
 var logger = require('../logger');
 
 /**
@@ -29,30 +30,21 @@ function saveEmail(stream, author, shares, callback) {
       return callback(new Error('Can not parse email'));
     }
 
-    var mail = new EMailMsg();
+    var mail = new EmailMessage();
     mail.author = author;
 
-    if (mail_object.from && mail_object.from.length > 0) {
-      mail.from = mail_object.from[0].address;
-    }
+    mail.headers = emailHelpers.formatHeaders(mail_object.headers);
 
-    if (mail_object.to) {
-      mail.to = mail_object.to.map(function(to) {
-        return to.address;
-      });
-    }
+    mail.body = {};
 
-    if (mail_object.cc) {
-      mail.cc = mail_object.cc.map(function(cc) {
-        return cc.address;
-      });
-    }
-    mail.subject = mail_object.subject;
-    mail.content = mail_object.text;
+    mail.body.text = mail_object.text;
+
+    mail.body.html = mail_object.html;
 
     if (shares) {
       mail.shares = shares;
     }
+
     return mail.save(callback);
   });
 
@@ -61,4 +53,5 @@ function saveEmail(stream, author, shares, callback) {
   });
   stream.pipe(mailparser);
 }
+
 module.exports.saveEmail = saveEmail;
