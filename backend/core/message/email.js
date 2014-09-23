@@ -32,6 +32,8 @@ function saveEmail(stream, author, shares, callback) {
 
     var mail = new EmailMessage();
 
+    mail.parsedHeaders = {};
+
     if (mail_object.to) {
       mail.parsedHeaders.to = mail_object.to;
     }
@@ -52,7 +54,9 @@ function saveEmail(stream, author, shares, callback) {
       mail.parsedHeaders.date = mail_object.date;
     }
 
-    mail.parsedHeaders.subject = mail_object.subject;
+    if (mail_object.subject) {
+      mail.parsedHeaders.subject = mail_object.subject;
+    }
 
     mail.author = author;
 
