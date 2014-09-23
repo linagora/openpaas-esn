@@ -603,20 +603,29 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       canRead: canRead
     };
   }])
-  .directive('communitiesEventListener', function() {
+  .directive('communitiesEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
     return {
-      restrict: 'E',
+      restrict: 'A',
       replace: true,
-      template: '<div></div>'
+      link: function($scope) {
+        var join = function(data) {
+          $rootScope.$emit('community:join', data);
+        };
+
+        var leave = function(data) {
+          $rootScope.$emit('community:leave', data);
+        };
+
+        $scope.init = function() {
+          livenotification('/community').on('join', join);
+          livenotification('/community').on('leave', leave);
+        };
+
+        $scope.$on('$destroy', function() {
+          livenotification('/community').removeListener('join', join);
+          livenotification('/community').removeListener('leave', leave);
+        });
+        $scope.init();
+      }
     };
-  })
-  .controller('communitiesListenerController', function($rootScope, livenotification) {
-
-    livenotification('/community').on('join', function(data) {
-      $rootScope.$emit('community:join', data);
-    });
-
-    livenotification('/community').on('leave', function(data) {
-      $rootScope.$emit('community:leave', data);
-    });
-  });
+  }]);

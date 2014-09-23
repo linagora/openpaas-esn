@@ -7,6 +7,55 @@ var expect = chai.expect;
 describe('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
+  describe('The communitiesEventListener directive', function() {
+
+    var called = 0;
+
+    beforeEach(function() {
+      var self = this;
+
+      this.livenotification = function(path) {
+        if (path === '/community') {
+          called++;
+        }
+        return {
+          on: function() {
+          }
+        };
+      };
+
+      angular.mock.module(function($provide) {
+        $provide.value('livenotification', self.livenotification);
+      });
+
+    });
+
+    beforeEach(inject(['$rootScope', '$compile', function($rootScope, $compile) {
+      this.$rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+      this.$compile = $compile;
+    }]));
+
+    afterEach(function() {
+      called = 0;
+    });
+
+    it('should call init', function(done) {
+      this.scope.init = done();
+      this.html = '<div communities-event-listener></div>';
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+    });
+
+    it('should register listeners on /community', function(done) {
+      this.html = '<div communities-event-listener></div>';
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      expect(called).to.equal(2);
+      done();
+    });
+  });
+
   describe('communityAPI service', function() {
 
     describe('list() function', function() {
@@ -976,7 +1025,7 @@ describe('The Community Angular module', function() {
           expect(id).to.equal(self.community._id);
           return done();
         };
-        this.$rootScope.$emit('community:join', {id: 'community1'});
+        this.$rootScope.$emit('community:join', {community: 'community1'});
         this.$rootScope.$digest();
       });
 
@@ -987,7 +1036,7 @@ describe('The Community Angular module', function() {
           return communityDefer.promise;
         };
         communityDefer.resolve({data: result});
-        this.$rootScope.$emit('community:join', {id: 'community1'});
+        this.$rootScope.$emit('community:join', {community: 'community1'});
         this.scope.$digest();
 
         expect(this.scope.community).to.deep.equal(result);
@@ -1010,7 +1059,7 @@ describe('The Community Angular module', function() {
         this.communityAPI.get = function() {
           return done(new Error());
         };
-        this.$rootScope.$emit('community:leave', {id: 456});
+        this.$rootScope.$emit('community:leave', {community: 456});
         this.$rootScope.$digest();
         done();
       });
@@ -1021,7 +1070,7 @@ describe('The Community Angular module', function() {
           expect(id).to.equal(self.community._id);
           return done();
         };
-        this.$rootScope.$emit('community:leave', {id: 'community1'});
+        this.$rootScope.$emit('community:leave', {community: 'community1'});
         this.$rootScope.$digest();
       });
 
@@ -1032,7 +1081,7 @@ describe('The Community Angular module', function() {
           return communityDefer.promise;
         };
         communityDefer.resolve({data: result});
-        this.$rootScope.$emit('community:leave', {id: 'community1'});
+        this.$rootScope.$emit('community:leave', {community: 'community1'});
         this.scope.$digest();
 
         expect(this.scope.community).to.deep.equal(result);
