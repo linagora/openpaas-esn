@@ -616,16 +616,13 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
           $rootScope.$emit('community:leave', data);
         };
 
-        $scope.init = function() {
-          livenotification('/community').on('join', join);
-          livenotification('/community').on('leave', leave);
-        };
+        livenotification('/community').on('join', join);
+        livenotification('/community').on('leave', leave);
 
         $scope.$on('$destroy', function() {
           livenotification('/community').removeListener('join', join);
           livenotification('/community').removeListener('leave', leave);
         });
-        $scope.init();
       }
     };
   }]);

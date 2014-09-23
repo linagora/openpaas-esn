@@ -40,13 +40,6 @@ describe('The Community Angular module', function() {
       called = 0;
     });
 
-    it('should call init', function(done) {
-      this.scope.init = done();
-      this.html = '<div communities-event-listener></div>';
-      this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-    });
-
     it('should register listeners on /community', function(done) {
       this.html = '<div communities-event-listener></div>';
       this.$compile(this.html)(this.scope);
