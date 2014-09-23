@@ -1,0 +1,115 @@
+Return-Path: <schoura@linagora.com>
+Received: from alderaan.linagora.com (smtp.linagora.dc1 [172.16.18.53])
+	 by imap (Cyrus v2.2.13-Debian-2.2.13-19+squeeze3) with LMTPA;
+	 Tue, 23 Sep 2014 13:56:19 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from windows7x86 (unknown [92.103.166.6])
+	by alderaan.linagora.com (Postfix) with ESMTP id 668E0777;
+	Tue, 23 Sep 2014 13:56:19 +0200 (CEST)
+From: "Choura Sleh" <schoura@linagora.com>
+To: <mbailly@linagora.com>,
+	<slemaistre@linagora.com>
+Cc: <mbailly@linagora.com>
+Subject: test
+Date: Tue, 23 Sep 2014 13:56:19 +0200
+Message-ID: <000f01cfd725$63467f40$29d37dc0$@linagora.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0010_01CFD736.26D0D5E0"
+X-Mailer: Microsoft Outlook 14.0
+Thread-Index: Ac/XJVa/yH4KRZVMRlOd1BCtBHvbQQ==
+Content-Language: en-us
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_0010_01CFD736.26D0D5E0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0011_01CFD736.26D0D5E0"
+
+
+------=_NextPart_001_0011_01CFD736.26D0D5E0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+test
+
+
+------=_NextPart_001_0011_01CFD736.26D0D5E0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DFR link=3Dblue =
+vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal><span =
+lang=3DEN-US =
+style=3D'color:red'>test<o:p></o:p></span></p></div></body></html>
+------=_NextPart_001_0011_01CFD736.26D0D5E0--
+
+------=_NextPart_000_0010_01CFD736.26D0D5E0
+Content-Type: image/png;
+	name="default_profile.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="default_profile.png"
+
+iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+jwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVh
+ZHlxyWU8AAAB6klEQVRIS7WVTa/BUBCG39Y3P0CEiJWISCys/HkLSxsSC/GdCBFBbBDfvXnntnKV
+ntNwvUlTnR7zzEznzDE2m42FL8u071+Vb4hhGAgGg4hEIgiFQjgej/YbvXyVi04PhwN6vR7m8zlW
+qxUqlQqKxaIvmBbCyDudDprNJsLhMAKBgGR1Op1QrVaRTqdxPp/t1a+lLJdpmphOpwKIx+OSEW2E
+EFiv17FcLsWmkvIto57NZpINHf8Vn6PRKIbDoaxT6aPuIsiyrKcA3NJCbreb/et9KSGMUFUKZqEr
+FaWE0Imq5rRPJpPPykUnukidblNJCbler8jlcnJ/Jdqz2azne0daSCaTweVysS2Pol0VhCMlhJ2V
+SqVkn7i7jM/coMlkUtuBSghFB5xR7mj57CcLSgvhh99uty8/rq4pHCkh7Jz1eo1ut/vkkGO/1Wpp
+S0V5QugkFothMBjIMHRnwmfa+/0+EomErPfSw6jnHzlp2TUc73TADUmblzjyCSsUCsjn87LePfrv
+EC7c7/dot9sYj8fimNHpNhrFkjEw3gkqlUpSXgcmEAIajQZGo5HAuMCPc7eYBWG8COLFk9PY7XZW
+rVaTD0zAO87dIozHNbMql8tsIFNOt/8CUPTDDbxYLKQq0l264/Nd/QYN/ACLY+4WMTuotgAAAABJ
+RU5ErkJggg==
+
+------=_NextPart_000_0010_01CFD736.26D0D5E0--
+
