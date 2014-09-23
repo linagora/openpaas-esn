@@ -332,16 +332,75 @@ module.exports = function(grunt) {
 
   grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', function() {
     var done = this.async();
+    var async = require('async');
 
-    require('child_process').exec(
-        servers.mongodb.mongo_shell + ' --eval \'JSON.stringify(rs.initiate())\' --port ' + servers.mongodb.port,
-      function (error, stdout, stderr) {
-        grunt.log.write(stdout);
-        grunt.log.error(stderr);
-        setTimeout(function () {
-          done(true);
-        }, 2000);
+    var MongoClient = require('mongodb').MongoClient;
+    var Server = require('mongodb').Server;
+
+    var client = new MongoClient(new Server('localhost', servers.mongodb.port), {native_parser: true});
+
+    client.open(function(err, mongoClient) {
+      if (err) {
+        grunt.log.error('MongoDB - Error when open a mongodb connection : ' + err);
+        done(false);
+      }
+      var db = client.db('admin');
+      db.command({
+        replSetInitiate: {
+          _id: servers.mongodb.replicat_set_name,
+          members: [
+            {_id: 0, host: '127.0.0.1:' + servers.mongodb.port}
+          ]
+        }
+      }, function(err, response) {
+        if (err) {
+          grunt.log.error('MongoDB - Error when executing rs.initiate() : ' + err);
+          done(false);
+        }
+        if (response && response.ok === 1) {
+          grunt.log.writeln('MongoDB - rs.initiate() done');
+
+          var nbExecuted = 0;
+          var finish = false;
+          async.doWhilst(function(callback) {
+            setTimeout(function() {
+
+              db.command({isMaster: 1}, function(err, response) {
+                if (err) {
+                  grunt.log.error('MongoDB - Error when executing db.isMaster() : ' + err);
+                  done(false);
+                }
+                if (response.ismaster) {
+                  finish = true;
+                  return callback();
+                }
+                nbExecuted++;
+                if (nbExecuted >= servers.mongodb.tries_replica_set) {
+                  return callback(new Error(
+                      'Number of tries of check if the replica set is launch and have a master reached the maximum allowed. ' +
+                      'Increase the number of tries or check if the mongodb "rs.initiate()" works'));
+                }
+                return callback();
+              });
+            }, servers.mongodb.interval_replica_set);
+
+          }, function() {
+            return (!finish) && nbExecuted < servers.mongodb.tries_replica_set;
+          }, function(err) {
+            if (err) {
+              return done(false);
+            }
+            grunt.log.write('MongoDB - replica set launched and master is ready');
+            done(true);
+          });
+
+        }
+        else {
+          grunt.log.writeln('MongoDB - rs.initiate() done but there are problems : ' + response);
+          done(false);
+        }
       });
+    });
   });
 
   grunt.registerTask('mongoElasticsearchRivers', 'setup elasticsearch mongodb river', function() {
