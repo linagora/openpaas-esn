@@ -1,0 +1,123 @@
+Return-Path: <gcrosmarie@linagora.com>
+Received: from alderaan.linagora.com (smtp.linagora.dc1 [172.16.18.53])
+	 by imap (Cyrus v2.2.13-Debian-2.2.13-19+squeeze3) with LMTPA;
+	 Tue, 23 Sep 2014 09:32:39 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from [10.31.0.199] (laf31-6-82-241-3-83.fbx.proxad.net [82.241.3.83])
+	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by alderaan.linagora.com (Postfix) with ESMTPSA id 12448725;
+	Tue, 23 Sep 2014 09:32:39 +0200 (CEST)
+Message-ID: <54212214.1000407@linagora.com>
+Date: Tue, 23 Sep 2014 09:32:36 +0200
+From: Graham Crosmarie <gcrosmarie@linagora.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Thunderbird/31.1.1
+MIME-Version: 1.0
+To: Michael Bailly <mbailly@linagora.com>, 
+ Laurent DUBOIS <ldubois@linagora.com>,
+ Christophe HAMERLING <chamerling@linagora.com>, 
+ Stephen LE MAISTRE <slemaistre@linagora.com>,
+ Romain PIGNOLET <rpignolet@linagora.com>, 
+ Philipp KEWISCH <pkewisch@linagora.com>
+Subject: Re: User notification data model proposal 2
+References: <541FE4A0.1010208@linagora.com> <542049D1.1080504@linagora.com>
+In-Reply-To: <542049D1.1080504@linagora.com>
+Content-Type: multipart/alternative;
+ boundary="------------040400080700060003000600"
+
+This is a multi-part message in MIME format.
+--------------040400080700060003000600
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Hello,
+
+Seems complete to me...
+
+Except that the 'actions' fields is an array containing one or more URLs.
+So I think that the 'acknowledged' fieId corresponding to these actions 
+being triggered is not enough, because we can only remember that 1 
+action has been chosen by the user.
+If all actions are mutually exclusive, it's ok.
+But if more than one action can be triggered I think that the 
+'acknowledged' field should be moved as a field of an action.
+
+
+Le 22/09/2014 18:09, Michael Bailly a écrit :
+> Hi,
+>
+> I posted a refine of the proposal on jira : 
+> https://ci.open-paas.org/jira/browse/OR-552?focusedCommentId=11014&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-11014
+>
+> The main things I added are the target, parentId, read & acknowledged 
+> fields.
+>
+> WDYT ?
+>
+
+-- 
+Signature
+Graham CROSMARIE
+R&D Engineer
+Linagora GSO – www.linagora.com <http://www.linagora.com>
+
+--------------040400080700060003000600
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    Hello,<br>
+    <br>
+    Seems complete to me...<br>
+    <br>
+    Except that the 'actions' fields is an array containing one or more
+    URLs.<br>
+    So I think that the 'acknowledged' fieId corresponding to these
+    actions being triggered is not enough, because we can only remember
+    that 1 action has been chosen by the user.<br>
+    If all actions are mutually exclusive, it's ok.<br>
+    But if more than one action can be triggered I think that the
+    'acknowledged' field should be moved as a field of an action.<br>
+    <br>
+    <br>
+    <div class="moz-cite-prefix">Le 22/09/2014 18:09, Michael Bailly a
+      écrit :<br>
+    </div>
+    <blockquote cite="mid:542049D1.1080504@linagora.com" type="cite">Hi,
+      <br>
+      <br>
+      I posted a refine of the proposal on jira :
+<a class="moz-txt-link-freetext" href="https://ci.open-paas.org/jira/browse/OR-552?focusedCommentId=11014&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-11014">https://ci.open-paas.org/jira/browse/OR-552?focusedCommentId=11014&amp;page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-11014</a><br>
+      <br>
+      The main things I added are the target, parentId, read &amp;
+      acknowledged fields.
+      <br>
+      <br>
+      WDYT ?
+      <br>
+      <br>
+    </blockquote>
+    <br>
+    <div class="moz-signature">-- <br>
+      <meta http-equiv="Content-Type" content="text/html;
+        charset=windows-1252">
+      <title>Signature</title>
+      <style type="text/css">
+
+</style>
+      <div id="container">
+        <div id="mainContent"> Graham CROSMARIE<br>
+          R&amp;D Engineer<br>
+          Linagora GSO – <a href="http://www.linagora.com">www.linagora.com</a><br>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+--------------040400080700060003000600--

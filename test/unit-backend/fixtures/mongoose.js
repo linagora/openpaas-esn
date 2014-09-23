@@ -16,5 +16,6 @@ module.exports.mongoose = function() {
     }
   };
   mongoose.Schema.Types = { ObjectId: null };
+  mongoose.Types = { ObjectId: function() {} };
   return mongoose;
 };
