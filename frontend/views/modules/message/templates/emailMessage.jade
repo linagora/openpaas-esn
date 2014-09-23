@@ -5,24 +5,43 @@ div.esn-email
       | &nbsp;-&nbsp;
       a(href="/#messages/{{message._id}}")
         span(am-time-ago="message.published")
-  table.table-hover.esn-email-heading
-    tbody
-      tr
-        td #{__('From')}
-        td(ng-bind-html='message.from | linky')
-      tr
-        td #{__('To')}
-        td(ng-bind-html='message.to | linky')
-      tr
-        td #{__('Cc')}
-        td(ng-bind-html='message.cc | linky')
-      tr
-        td #{__('Date')}
-        td
-          span {{message.published | amCalendar}}
 
-  h4
-    strong #{__('Subject')}: {{message.subject}}
+  div.email-message
+    div.message-title
+      span {{message.parsedHeaders.subject}}
 
-  p.multilines.esn-email-body(data-ng-show='message.body.text') {{message.body.text}}
-  p.multilines.esn-email-body(data-ng-show='message.body.html', ng-bind-html='message.body.html')
+    .row.header
+      a.avatar(href='#', title='{{message.parsedHeaders.from[0].name}} <{{message.parsedHeaders.from[0].address}}>')
+        img(src='/images/user.png')
+
+      .from
+        span {{message.parsedHeaders.from[0].name}}
+        a(href='mailto:{{message.parsedHeaders.from[0].address}}') {{message.parsedHeaders.from[0].address}}
+      .date
+        b {{message.parsedHeaders.date | amCalendar}}
+
+    .row.to
+      ul.emails-list.list-inline
+        li(ng-repeat="to in message.parsedHeaders.to")
+          a.avatar(href='#', title='{{to.name}} <{{to.address}}>')
+            img(src='/images/user.png')
+            span.label.label-primary.emaillabel To
+          div.ellipsis
+            {{to.name}}
+          span.ellipsis
+            a(ng-href='mailto:{{to.address}}') {{to.address}}
+
+    .row.cc
+      ul.emails-list.list-inline
+        li(ng-repeat="cc in message.parsedHeaders.cc")
+          a.avatar(href='#', title='{{cc.name}} <{{cc.address}}>')
+            img(src='/images/user.png')
+            span.label.label-info.emaillabel Cc
+          div.ellipsis
+            {{cc.name}}
+          span
+            a.ellipsis(ng-href='mailto:{{cc.address}}') {{cc.address}}
+
+    .row.body
+      blockquote
+        p.multilines.esn-email-body(data-ng-show='message.body.text' ng-bind-html="message.body.text | linky")

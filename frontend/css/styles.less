@@ -502,13 +502,93 @@ header.topbar {
 
 .esn-email-heading {
   width: 100%;
-  background-color: rgb(228, 228, 228);
-  font-family: "Lucida Sans Typewriter", "Lucida Console", Monaco, "Bitstream Vera Sans Mono", monospace;
-  td {
-    padding: 3px;
-  }
 }
 
 .esn-email-body {
-  font-family: "Lucida Sans Typewriter", "Lucida Console", Monaco, "Bitstream Vera Sans Mono", monospace;
+  font-size: 90%;
+}
+
+ul.emails-list {
+  padding: 0px;
+  list-style: none outside none;
+}
+
+ul.emails-list li {
+  width: 200px;
+  border: 1px solid #E9EBEC;
+  background: none repeat scroll 0% 0% #F7F7F8;
+  float: left;
+  padding: 5px;
+  margin: 0px 0px 5px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+ul.emails-list li a {
+  display: block;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+ul.emails-list li .avatar {
+  float: left;
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+}
+
+ul.emails-list li .emaillabel {
+  position: relative;
+  top: 10px;
+  left: -40px;
+}
+
+ul.emails-list li .avatar img {
+  width: 40px;
+}
+
+.email-message .message-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.email-message .header {
+  margin: 10px 0px 10px;
+  padding: 10px 0px;
+  border-top: 1px solid #E9EBEC;
+  border-bottom: 1px solid #E9EBEC;
+}
+
+.email-message .header .avatar {
+  border-radius: 2px;
+  height: 40px;
+  width: 40px;
+  float: left;
+  margin-right: 10px;
+}
+
+.email-message .header .avatar img {
+  width: 40px;
+}
+
+.email-message .header .from {
+  display: inline-block;
+  width: 50%;
+  font-size: 12px;
+  margin-top: -2px;
+  color: #B2B8BD;
+}
+
+.email-message .header .from span {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #34383C;
+}
+
+.email-message .header .date {
+  display: inline-block;
+  width: 29%;
+  text-align: right;
+  float: right;
 }
