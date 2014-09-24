@@ -4,6 +4,7 @@ var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
 var EmailMessage = mongoose.model('EmailMessage');
 var emailHelpers = require('../../helpers/email');
+var attachmentsModule = require('../attachment');
 var logger = require('../logger');
 var pubsub = require('../../core').pubsub.local,
     topic = pubsub.topic('message:stored');
@@ -24,9 +25,15 @@ function saveEmail(stream, author, shares, callback) {
     return callback(new Error('Author is required'));
   }
 
+  var errors = [];
+
   var mailparser = new MailParser({streamAttachments: true});
   mailparser.on('end', function(mail_object) {
     logger.debug('Parsed email', mail_object);
+
+    if (errors.length > 0) {
+      return callback(new Error('Error while saving attachments.'));
+    }
 
     if (!mail_object) {
       return callback(new Error('Can not parse email'));
@@ -86,6 +93,13 @@ function saveEmail(stream, author, shares, callback) {
 
   mailparser.on('attachment', function(attachment) {
     logger.debug('Got attachment', attachment);
+    attachmentsModule.storeAttachment(attachment.fileName, attachment.contentType, attachment.length,
+      attachment.stream, function(err, attachmentModel) {
+        if (err) {
+          logger.debug('Error while saving attachment.', err);
+          errors.push(err);
+        }
+      });
   });
   stream.pipe(mailparser);
 }
