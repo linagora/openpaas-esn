@@ -540,7 +540,8 @@ ul.emails-list li .avatar {
 ul.emails-list li .emaillabel {
   position: relative;
   top: 10px;
-  left: -40px;
+  left: -39px;
+  opacity: 0.8;
 }
 
 ul.emails-list li .avatar img {
@@ -560,15 +561,27 @@ ul.emails-list li .avatar img {
 }
 
 .email-message .header .avatar {
-  border-radius: 2px;
-  height: 40px;
-  width: 40px;
+  height: 50px;
+  width: 50px;
   float: left;
   margin-right: 10px;
 }
 
+.email-message a {
+  display: block;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.email-message .header .avatar .emaillabel {
+  position: relative;
+  top: -19px;
+  left: 2px;
+  opacity: 0.8;
+}
+
 .email-message .header .avatar img {
-  width: 40px;
+  width: 50px;
 }
 
 .email-message .header .from {

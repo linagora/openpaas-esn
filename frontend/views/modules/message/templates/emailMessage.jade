@@ -13,6 +13,7 @@ div.esn-email
     .row.header
       a.avatar(href='#', title='{{message.parsedHeaders.from[0].name}} <{{message.parsedHeaders.from[0].address}}>')
         img(src='/images/user.png')
+        span.label.label-danger.emaillabel From
 
       .from
         span {{message.parsedHeaders.from[0].name}}
