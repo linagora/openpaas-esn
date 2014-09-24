@@ -178,4 +178,29 @@ describe('The Profile Angular module', function() {
       this.$rootScope.$broadcast('avatar:updated');
     });
   });
+
+  describe('profileMinicard directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should display the user information', function() {
+
+      var html = '<profile-minicard user="user"></profile-minicard>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.user = {
+        name: 'Me',
+        address: 'foo@bar.com'
+      };
+
+      this.$rootScope.$digest();
+      expect(element.html()).to.have.string(this.$rootScope.user.name);
+      expect(element.html()).to.have.string(this.$rootScope.user.address);
+    });
+  });
 });

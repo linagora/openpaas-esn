@@ -11,6 +11,18 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
     };
   })
 
+  .directive('profileMinicard', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        user: '=',
+        label: '@',
+        labelclass: '@'
+      },
+      templateUrl: '/views/modules/profile/minicard.html'
+    };
+  })
+
   .controller('profileEditionController', ['$scope', 'profileAPI', 'editableOptions', function($scope, profileAPI, editableOptions) {
     //theming for yes/no buttons in field modification confirmation
     editableOptions.theme = 'bs3';

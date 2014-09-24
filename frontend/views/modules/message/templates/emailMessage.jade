@@ -1,0 +1,36 @@
+div.esn-email
+  h4.media-heading
+    a(href="#") {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
+    small
+      | &nbsp;-&nbsp;
+      a(href="/#messages/{{message._id}}")
+        span(am-time-ago="message.timestamps.creation")
+
+  div.email-message
+    div.message-title
+      span {{message.parsedHeaders.subject}}
+
+    .row.header
+      a.avatar(href='#', title='{{message.parsedHeaders.from.name}} <{{message.parsedHeaders.from.address}}>')
+        img(src='/images/user.png')
+        span.label.label-danger.emaillabel From
+
+      .from
+        span {{message.parsedHeaders.from.name}}
+        a(href='mailto:{{message.parsedHeaders.from.address}}') {{message.parsedHeaders.from.address}}
+      .date
+        b {{message.parsedHeaders.date | amCalendar}}
+
+    .row.to
+      ul.emails-list
+        li(ng-repeat="to in message.parsedHeaders.to")
+          profile-minicard(user='to', label='To', labelclass='label-primary')
+
+    .row.cc
+      ul.emails-list
+        li(ng-repeat="cc in message.parsedHeaders.cc")
+          profile-minicard(user='cc', label='Cc', labelclass='label-info')
+
+    .row.body
+      blockquote
+        p.multilines.email-message-body(data-ng-show='message.body.text' ng-bind-html="message.body.text | linky")

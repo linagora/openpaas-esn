@@ -9,6 +9,11 @@ var MessageAttachmentSchema = new mongoose.Schema({
   length: {type: Number, required: true}
 });
 
+var Address = new mongoose.Schema({
+  address: {type: String, required: true},
+  name: {type: String}
+}, {_id: false});
+
 var EmailMessageSchema = new mongoose.Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
@@ -17,6 +22,14 @@ var EmailMessageSchema = new mongoose.Schema({
   author: {type: mongoose.Schema.ObjectId, required: true},
   language: {type: String, required: false},
   headers: [mongoose.Schema.Mixed],
+  parsedHeaders: {
+    to: {type: [Address]},
+    from: {type: Address.tree},
+    cc: {type: [Address]},
+    bcc: {type: [Address]},
+    subject: {type: String},
+    date: {type: Date}
+  },
   body: {
     text: {type: String, required: false},
     html: {type: String, required: false}

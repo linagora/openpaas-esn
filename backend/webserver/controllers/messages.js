@@ -1,6 +1,7 @@
 'use strict';
 
 var whatsupModule = require('../../core/message/whatsup'),
+  messageModule = require('../../core/message'),
   emailModule = require('../../core/message/email'),
   postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
   localpubsub = require('../../core/pubsub').local,
@@ -40,7 +41,11 @@ function commentMessage(message, inReplyTo, req, res) {
     return res.send(400, 'Missing inReplyTo _id in body');
   }
 
-  whatsupModule.addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
+  if (!messageModule.type[inReplyTo.objectType]) {
+    return res.send(400, 'Can not comment message on message with type' + inReplyTo.objectType);
+  }
+
+  messageModule.type[inReplyTo.objectType].addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
     if (err) {
       return res.send(
         500,

@@ -10,20 +10,23 @@ describe('The esn.message Angular module', function() {
     angular.mock.module('esn.message');
   });
 
-  describe('whatsupMessage directive', function() {
+  describe('messagesTemplatesDisplayer directive', function() {
 
     beforeEach(module('jadeTemplates'));
+    beforeEach(module('angularMoment'));
+    beforeEach(module('esn.profile'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
       this.$rootScope = $r;
     }]));
 
-    it('should display the message content', function() {
-      var html = '<whatsup-message message="testMessage"></whatsup-message>';
+    it('should display a whatsup message', function() {
+      var html = '<messages-display message="testMessage"></messages-display>';
       var element = this.$compile(html)(this.$rootScope);
 
       this.$rootScope.testMessage = { _id: 123456789,
+        objectType: 'whatsup',
         content: 'This is the message content',
         published: '123',
         author: {
@@ -39,11 +42,89 @@ describe('The esn.message Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.testMessage.author.firstname);
       expect(element.html()).to.have.string(this.$rootScope.testMessage.author.lastname);
     });
+
+    it('should display an email message', function() {
+      var html = '<messages-display message="testMessage"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testMessage = {
+        _id: '54218311d49dc10000439d4b',
+        author: '5375de9fd684db7f6fbd5010',
+        body: {
+          html: '<b>Hello</b>',
+          text: 'hello'
+        },
+        parsedHeaders: {
+          subject: 'Re: User notification data model proposal 2',
+          bcc: [],
+          cc: [
+            {
+              address: 'cc@linagora.com',
+              name: 'First Last',
+              _id: 1
+            }
+          ],
+          from: {
+            address: 'gcrosmarie@linagora.com',
+            name: 'Graham Crosmarie',
+            _id: 2
+          },
+          to: [
+            {
+              address: 'mbailly@linagora.com',
+              name: 'Michael Bailly',
+              _id: 3
+            },
+            {
+              address: 'ldubois@linagora.com',
+              name: 'Laurent DUBOIS',
+              _id: 4
+            },
+            {
+              address: 'chamerling@linagora.com',
+              name: 'Christophe HAMERLING',
+              _id: 5
+            },
+            {
+              address: 'slemaistre@linagora.com',
+              name: 'Stephen LE MAISTRE',
+              _id: 6
+            },
+            {
+              address: 'rpignolet@linagora.com',
+              name: 'Romain PIGNOLET',
+              _id: 7
+            },
+            {
+              address: 'pkewisch@linagora.com',
+              name: 'Philipp KEWISCH',
+              _id: 8
+            }
+          ]
+        },
+        objectType: 'email',
+        timestamps: {
+          creation: new Date(1411482385233)
+        }
+      };
+
+      this.$rootScope.$digest();
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.body.text);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.from.address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[0].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[1].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[2].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[3].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[4].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[5].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.cc[0].address);
+    });
   });
 
-  describe('whatsupThread directive', function() {
+  describe('messagesThread directive', function() {
 
     beforeEach(module('jadeTemplates'));
+    beforeEach(module('angularMoment'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
@@ -51,10 +132,11 @@ describe('The esn.message Angular module', function() {
     }]));
 
     it('should display the message thread', function() {
-      var html = '<whatsup-thread message="testMessage"></whatsup-thread>';
+      var html = '<messages-thread message="testMessage"></messages-thread>';
       var element = this.$compile(html)(this.$rootScope);
 
       this.$rootScope.testMessage = { _id: 123456789,
+        objectType: 'whatsup',
         content: 'This is the message content',
         published: '123',
         author: {
@@ -65,6 +147,7 @@ describe('The esn.message Angular module', function() {
         responses: [
           {
             content: 'The first response',
+            objectType: 'whatsup',
             published: '456',
             author: {
               _id: '123456789',
@@ -74,6 +157,7 @@ describe('The esn.message Angular module', function() {
           },
           {
             content: 'The scond response',
+            objectType: 'whatsup',
             published: '789',
             author: {
               _id: '123456789',

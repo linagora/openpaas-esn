@@ -1,0 +1,11 @@
+div.esn-panel.thread(ng-class="{'just-posted': message._id === lastPost.messageId}")
+  a.pull-left(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  div.media-body
+    message-template-displayer(message='message')
+
+    div.media.message-comment(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
+      messages-display.inner-widget(message='response')
+
+    div.media.message-add-comment
+      whatsup-add-comment(ng-show="writable")

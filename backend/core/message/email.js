@@ -3,8 +3,10 @@
 var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
 var EmailMessage = mongoose.model('EmailMessage');
+var Whatsup = mongoose.model('Whatsup');
 var emailHelpers = require('../../helpers/email');
 var logger = require('../logger');
+var pubsub = require('../pubsub').local;
 
 /**
  *
@@ -31,6 +33,33 @@ function saveEmail(stream, author, shares, callback) {
     }
 
     var mail = new EmailMessage();
+
+    mail.parsedHeaders = {};
+
+    if (mail_object.to) {
+      mail.parsedHeaders.to = mail_object.to;
+    }
+
+    if (mail_object.from && mail_object.from.length > 0) {
+      mail.parsedHeaders.from = mail_object.from[0];
+    }
+
+    if (mail_object.cc) {
+      mail.parsedHeaders.cc = mail_object.cc;
+    }
+
+    if (mail_object.bcc) {
+      mail.parsedHeaders.bcc = mail_object.bcc;
+    }
+
+    if (mail_object.date) {
+      mail.parsedHeaders.date = mail_object.date;
+    }
+
+    if (mail_object.subject) {
+      mail.parsedHeaders.subject = mail_object.subject;
+    }
+
     mail.author = author;
 
     mail.headers = emailHelpers.formatHeaders(mail_object.headers);
@@ -55,3 +84,25 @@ function saveEmail(stream, author, shares, callback) {
 }
 
 module.exports.saveEmail = saveEmail;
+
+module.exports.addNewComment = function(message, inReplyTo, callback) {
+  var whatsupComment = new Whatsup(message),
+    topic = pubsub.topic('message:comment');
+
+  EmailMessage.findById(inReplyTo._id, function(err, whatsupParent) {
+    if (err) {
+      return callback(err);
+    }
+
+    whatsupParent.responses.push(whatsupComment);
+    whatsupParent.save(function(err, newWhatsupParent) {
+      if (err) {
+        return callback(err);
+      }
+
+      message.inReplyTo = inReplyTo;
+      topic.publish(message);
+      callback(null, whatsupComment, newWhatsupParent);
+    });
+  });
+};
