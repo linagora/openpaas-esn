@@ -24,7 +24,7 @@ var EmailMessageSchema = new mongoose.Schema({
   headers: [mongoose.Schema.Mixed],
   parsedHeaders: {
     to: {type: [Address]},
-    from: {type: [Address]},
+    from: {type: Address.tree},
     cc: {type: [Address]},
     bcc: {type: [Address]},
     subject: {type: String},

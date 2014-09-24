@@ -38,8 +38,8 @@ function saveEmail(stream, author, shares, callback) {
       mail.parsedHeaders.to = mail_object.to;
     }
 
-    if (mail_object.from) {
-      mail.parsedHeaders.from = mail_object.from;
+    if (mail_object.from && mail_object.from.length > 0) {
+      mail.parsedHeaders.from = mail_object.from[0];
     }
 
     if (mail_object.cc) {

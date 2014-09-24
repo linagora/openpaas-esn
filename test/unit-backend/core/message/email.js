@@ -117,7 +117,7 @@ describe('The email message module', function() {
         text: 'The text part of email body',
         html: 'The html part of email body',
         to: ['anotherone@linagora.com'],
-        from: 'AwesomeGuy <awesomeguy@linagora.com',
+        from: ['AwesomeGuy <awesomeguy@linagora.com'],
         cc: ['AwesomeGuyCC <awesomeguycc@linagora.com'],
         bcc: ['AwesomeGuyBCC <awesomeguybcc@linagora.com'],
         subject: 'This is a test'
@@ -140,7 +140,7 @@ describe('The email message module', function() {
                 expect(this.body.html).to.equal(mail.html);
                 expect(this.parsedHeaders).to.exist;
                 expect(this.parsedHeaders.to).to.deep.equal(mail.to);
-                expect(this.parsedHeaders.from).to.equal(mail.from);
+                expect(this.parsedHeaders.from).to.equal(mail.from[0]);
                 expect(this.parsedHeaders.cc).to.deep.equal(mail.cc);
                 expect(this.parsedHeaders.bcc).to.deep.equal(mail.bcc);
                 expect(this.parsedHeaders.subject).to.deep.equal(mail.subject);
