@@ -444,8 +444,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .controller('communityController', ['$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
-  function($scope, $location, $log, session, communityAPI, communityService, community) {
+  .controller('communityController', ['$rootScope', '$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
+  function($rootScope, $scope, $location, $log, session, communityAPI, communityService, community) {
     $scope.community = community;
     $scope.user = session.user;
     $scope.error = false;
@@ -456,6 +456,24 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       communityAPI.get(community._id).then(function(response) {
         $scope.writable = response.data.writable;
       });
+    });
+
+    function currentCommunityMembershipHandler(event, msg) {
+      $log.debug('Got a community membership event on community', msg);
+      if (msg && msg.community === $scope.community._id) {
+        communityAPI.get(msg.community).then(function(response) {
+          $scope.writable = response.data.writable;
+          $scope.community = response.data;
+        });
+      }
+    }
+
+    var unregisterJoinEvent = $rootScope.$on('community:join', currentCommunityMembershipHandler);
+    var unregisterLeaveEvent = $rootScope.$on('community:leave', currentCommunityMembershipHandler);
+
+    $scope.$on('$destroy', function() {
+      unregisterJoinEvent();
+      unregisterLeaveEvent();
     });
 
     $scope.onLeave = function() {
@@ -583,5 +601,28 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       join: join,
       leave: leave,
       canRead: canRead
+    };
+  }])
+  .directive('communitiesEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
+    return {
+      restrict: 'A',
+      replace: true,
+      link: function($scope) {
+        var join = function(data) {
+          $rootScope.$emit('community:join', data);
+        };
+
+        var leave = function(data) {
+          $rootScope.$emit('community:leave', data);
+        };
+
+        livenotification('/community').on('join', join);
+        livenotification('/community').on('leave', leave);
+
+        $scope.$on('$destroy', function() {
+          livenotification('/community').removeListener('join', join);
+          livenotification('/community').removeListener('leave', leave);
+        });
+      }
     };
   }]);

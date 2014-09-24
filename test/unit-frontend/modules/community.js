@@ -7,6 +7,48 @@ var expect = chai.expect;
 describe('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
+  describe('The communitiesEventListener directive', function() {
+
+    var called = 0;
+
+    beforeEach(function() {
+      var self = this;
+
+      this.livenotification = function(path) {
+        if (path === '/community') {
+          called++;
+        }
+        return {
+          on: function() {
+          }
+        };
+      };
+
+      angular.mock.module(function($provide) {
+        $provide.value('livenotification', self.livenotification);
+      });
+
+    });
+
+    beforeEach(inject(['$rootScope', '$compile', function($rootScope, $compile) {
+      this.$rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+      this.$compile = $compile;
+    }]));
+
+    afterEach(function() {
+      called = 0;
+    });
+
+    it('should register listeners on /community', function(done) {
+      this.html = '<div communities-event-listener></div>';
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      expect(called).to.equal(2);
+      done();
+    });
+  });
+
   describe('communityAPI service', function() {
 
     describe('list() function', function() {
@@ -881,9 +923,10 @@ describe('The Community Angular module', function() {
   describe('communityController controller', function() {
 
     beforeEach(inject(['$rootScope', '$controller', '$q', function($rootScope, $controller, $q) {
+      this.$rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.location = {};
-      this.log = {error: function() {}};
+      this.log = {error: function() {}, debug: function() {}};
       this.community = {_id: 'community1'};
       this.communityAPI = {};
       this.communityService = {};
@@ -891,6 +934,7 @@ describe('The Community Angular module', function() {
       this.$q = $q;
 
       $controller('communityController', {
+        $rootScope: this.$rootScope,
         $scope: this.scope,
         $location: this.location,
         $log: this.log,
@@ -946,6 +990,96 @@ describe('The Community Angular module', function() {
         };
 
         this.scope.canRead();
+      });
+    });
+
+    describe('$rootScope community:join event', function() {
+      it('should not call the communityAPI if event msg is null', function(done) {
+        this.communityAPI.get = function() {
+          return done(new Error());
+        };
+        this.$rootScope.$emit('community:join');
+        this.$rootScope.$digest();
+        done();
+      });
+
+      it('should not call the communityAPI if event msg.id is not community._id', function(done) {
+        this.communityAPI.get = function() {
+          return done(new Error());
+        };
+        this.$rootScope.$emit('community:join', {id: 456});
+        this.$rootScope.$digest();
+        done();
+      });
+
+      it('should call the communityAPI if event msg.id is equal to community._id', function(done) {
+        var self = this;
+        this.communityAPI.get = function(id) {
+          expect(id).to.equal(self.community._id);
+          return done();
+        };
+        this.$rootScope.$emit('community:join', {community: 'community1'});
+        this.$rootScope.$digest();
+      });
+
+      it('should update $scope if event target is the current community', function(done) {
+        var result = {_id: this.community._id, added: true, writable: true};
+        var communityDefer = this.$q.defer();
+        this.communityAPI.get = function(id) {
+          return communityDefer.promise;
+        };
+        communityDefer.resolve({data: result});
+        this.$rootScope.$emit('community:join', {community: 'community1'});
+        this.scope.$digest();
+
+        expect(this.scope.community).to.deep.equal(result);
+        expect(this.scope.writable).to.equal(true);
+        done();
+      });
+    });
+
+    describe('$rootScope community:leave event', function() {
+      it('should not call the communityAPI if event msg is null', function(done) {
+        this.communityAPI.get = function() {
+          return done(new Error());
+        };
+        this.$rootScope.$emit('community:leave');
+        this.$rootScope.$digest();
+        done();
+      });
+
+      it('should not call the communityAPI if event msg.id is not community._id', function(done) {
+        this.communityAPI.get = function() {
+          return done(new Error());
+        };
+        this.$rootScope.$emit('community:leave', {community: 456});
+        this.$rootScope.$digest();
+        done();
+      });
+
+      it('should call the communityAPI if event msg.id is equal to community._id', function(done) {
+        var self = this;
+        this.communityAPI.get = function(id) {
+          expect(id).to.equal(self.community._id);
+          return done();
+        };
+        this.$rootScope.$emit('community:leave', {community: 'community1'});
+        this.$rootScope.$digest();
+      });
+
+      it('should update $scope if event target is the current community', function(done) {
+        var result = {_id: this.community._id, added: true, writable: true};
+        var communityDefer = this.$q.defer();
+        this.communityAPI.get = function(id) {
+          return communityDefer.promise;
+        };
+        communityDefer.resolve({data: result});
+        this.$rootScope.$emit('community:leave', {community: 'community1'});
+        this.scope.$digest();
+
+        expect(this.scope.community).to.deep.equal(result);
+        expect(this.scope.writable).to.equal(true);
+        done();
       });
     });
   });
