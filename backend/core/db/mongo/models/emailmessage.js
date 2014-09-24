@@ -12,7 +12,7 @@ var MessageAttachmentSchema = new mongoose.Schema({
 var Address = new mongoose.Schema({
   address: {type: String, required: true},
   name: {type: String}
-});
+}, {_id: false});
 
 var EmailMessageSchema = new mongoose.Schema({
   timestamps: {

@@ -4,7 +4,7 @@ div.esn-email
     small
       | &nbsp;-&nbsp;
       a(href="/#messages/{{message._id}}")
-        span(am-time-ago="message.published")
+        span(am-time-ago="message.timestamps.creation")
 
   div.email-message
     div.message-title
