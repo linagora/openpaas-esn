@@ -22,27 +22,15 @@ div.esn-email
         b {{message.parsedHeaders.date | amCalendar}}
 
     .row.to
-      ul.emails-list.list-inline
+      ul.emails-list
         li(ng-repeat="to in message.parsedHeaders.to")
-          a.avatar(href='#', title='{{to.name}} <{{to.address}}>')
-            img(src='/images/user.png')
-            span.label.label-primary.emaillabel To
-          div.ellipsis
-            {{to.name}}
-          span.ellipsis
-            a(ng-href='mailto:{{to.address}}') {{to.address}}
+          profile-minicard(user='to', label='To', labelclass='label-primary')
 
     .row.cc
-      ul.emails-list.list-inline
+      ul.emails-list
         li(ng-repeat="cc in message.parsedHeaders.cc")
-          a.avatar(href='#', title='{{cc.name}} <{{cc.address}}>')
-            img(src='/images/user.png')
-            span.label.label-info.emaillabel Cc
-          div.ellipsis
-            {{cc.name}}
-          span
-            a.ellipsis(ng-href='mailto:{{cc.address}}') {{cc.address}}
+          profile-minicard(user='cc', label='Cc', labelclass='label-info')
 
     .row.body
       blockquote
-        p.multilines.esn-email-body(data-ng-show='message.body.text' ng-bind-html="message.body.text | linky")
+        p.multilines.email-message-body(data-ng-show='message.body.text' ng-bind-html="message.body.text | linky")

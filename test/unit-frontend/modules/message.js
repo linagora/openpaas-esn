@@ -14,6 +14,7 @@ describe('The esn.message Angular module', function() {
 
     beforeEach(module('jadeTemplates'));
     beforeEach(module('angularMoment'));
+    beforeEach(module('esn.profile'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
@@ -63,13 +64,11 @@ describe('The esn.message Angular module', function() {
               _id: 1
             }
           ],
-          from: [
-            {
-              address: 'gcrosmarie@linagora.com',
-              name: 'Graham Crosmarie',
-              _id: 2
-            }
-          ],
+          from: {
+            address: 'gcrosmarie@linagora.com',
+            name: 'Graham Crosmarie',
+            _id: 2
+          },
           to: [
             {
               address: 'mbailly@linagora.com',
@@ -111,7 +110,7 @@ describe('The esn.message Angular module', function() {
 
       this.$rootScope.$digest();
       expect(element.html()).to.have.string(this.$rootScope.testMessage.body.text);
-      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.from[0].address);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.from.address);
       expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[0].address);
       expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[1].address);
       expect(element.html()).to.have.string(this.$rootScope.testMessage.parsedHeaders.to[2].address);

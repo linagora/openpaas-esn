@@ -504,16 +504,19 @@ header.topbar {
   width: 100%;
 }
 
-.esn-email-body {
-  font-size: 90%;
-}
-
 ul.emails-list {
   padding: 0px;
+  margin: 0px;
   list-style: none outside none;
+
+  .list-inline > li {
+    display: block;
+    padding-right: 0px;
+    padding-left: 0px;
+  }
 }
 
-ul.emails-list li {
+.miniprofile {
   width: 200px;
   border: 1px solid #E9EBEC;
   background: none repeat scroll 0% 0% #F7F7F8;
@@ -522,29 +525,30 @@ ul.emails-list li {
   margin: 0px 0px 5px 5px;
   white-space: nowrap;
   overflow: hidden;
+  font-size: 12px;
 }
 
-ul.emails-list li a {
+.miniprofile a {
   display: block;
   font-size: 12px;
   text-decoration: none;
 }
 
-ul.emails-list li .avatar {
+.miniprofile .avatar {
   float: left;
   margin-right: 10px;
   width: 40px;
   height: 40px;
 }
 
-ul.emails-list li .emaillabel {
+.miniprofile .emaillabel {
   position: relative;
   top: 10px;
   left: -39px;
   opacity: 0.8;
 }
 
-ul.emails-list li .avatar img {
+.miniprofile .avatar img {
   width: 40px;
 }
 
@@ -567,7 +571,7 @@ ul.emails-list li .avatar img {
   margin-right: 10px;
 }
 
-.email-message a {
+.email-message .header a {
   display: block;
   font-size: 12px;
   text-decoration: none;
@@ -604,4 +608,8 @@ ul.emails-list li .avatar img {
   width: 29%;
   text-align: right;
   float: right;
+}
+
+.email-message-body {
+  font-size: 80%;
 }
