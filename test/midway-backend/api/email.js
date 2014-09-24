@@ -5,7 +5,7 @@ var request = require('supertest');
 var fs = require('fs-extra');
 var async = require('async');
 
-describe.only('The email API', function() {
+describe('The email API', function() {
 
   var webserver;
   var User;
