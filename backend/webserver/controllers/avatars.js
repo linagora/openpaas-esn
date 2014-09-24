@@ -3,8 +3,9 @@
 var userModule = require('../../core/user');
 var imageModule = require('../../core/image');
 var communityController = require('./communities');
+var logger = require('../../core/logger');
 
-function getAvatarFromEmail(req, res) {
+function getUserAvatarFromEmail(req, res) {
   userModule.findByEmail(req.query.email, function(err, user) {
     if (err || !user) {
       return res.redirect('/images/not_a_user.png');
@@ -17,7 +18,7 @@ function getAvatarFromEmail(req, res) {
       }
 
       if (!readable) {
-        logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
+        logger.warn('Can not retrieve avatar stream for user %s', req.query.email);
         return res.redirect('/images/user.png');
       }
 
@@ -36,7 +37,21 @@ function getAvatarFromEmail(req, res) {
     });
   });
 }
-module.exports.getAvatarFromEmail = getAvatarFromEmail;
+
+function getCommunityAvatar(req, res) {
+  if (!req.query.id) {
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community id is mandatory'}});
+  }
+
+  req.params.id = req.query.id;
+
+  communityController.load(req, res, function(err) {
+    if (err) {
+      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Error while getting avatar'}});
+    }
+    return communityController.getAvatar(req, res);
+  });
+}
 
 module.exports.get = function(req, res) {
   if (!req.query.objectType) {
@@ -44,11 +59,11 @@ module.exports.get = function(req, res) {
   }
 
   if (req.query.objectType === 'user') {
-    return getAvatarFromEmail(req, res);
+    return getUserAvatarFromEmail(req, res);
   }
 
   if (req.query.objectType === 'community') {
-    return communityController.getAvatar(req, res);
+    return getCommunityAvatar(req, res);
   }
 
   return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Unknown objectType parameter'}});
