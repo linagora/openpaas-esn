@@ -140,6 +140,9 @@ exports = module.exports = function(application) {
   application.delete('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
   application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.getMember);
 
+  var avatar = require('./controllers/avatar');
+  application.get('/api/avatars', authorize.requiresAPILogin, avatar.get);
+
   var feedback = require('./controllers/feedback');
   var feedbackMiddleware = require('./middleware/feedback');
   application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);

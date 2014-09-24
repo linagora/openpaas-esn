@@ -276,3 +276,42 @@ function load(req, res, next) {
 }
 module.exports.load = load;
 
+function getAvatarFromEmail(req, res) {
+
+  if (!req.query.email) {
+    return res.redirect('/images/user.png');
+  }
+
+  userModule.findByEmail(req.query.email, function(err, user) {
+    if (err || !user) {
+      return res.redirect('/images/user.png');
+    }
+
+    imageModule.getAvatar(user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
+      if (err) {
+        logger.warn('Can not get user avatar : %s', err.message);
+        return res.redirect('/images/user.png');
+      }
+
+      if (!readable) {
+        logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
+        return res.redirect('/images/user.png');
+      }
+
+      if (!fileStoreMeta) {
+        res.status(200);
+        return readable.pipe(res);
+      }
+
+      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+        return res.send(304);
+      } else {
+        res.header('Last-Modified', fileStoreMeta.uploadDate);
+        res.status(200);
+        return readable.pipe(res);
+      }
+    });
+  });
+}
+module.exports.getAvatarFromEmail = getAvatarFromEmail;
+
