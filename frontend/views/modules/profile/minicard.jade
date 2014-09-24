@@ -1,0 +1,8 @@
+.miniprofile
+  a.avatar(href='#', title='{{user.name}} <{{user.address}}>')
+    img(src='/images/user.png')
+    span.label.emaillabel(ng-class="labelclass") {{label}}
+  div.ellipsis
+    {{user.name}}
+  span.ellipsis
+    a(ng-href='mailto:{{user.address}}') {{user.address}}
