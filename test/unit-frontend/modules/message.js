@@ -32,17 +32,55 @@ describe('The esn.message Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.testAttachment.name);
     });
 
-    it.only('The getClass fn should return the right fontwasome class', function(done) {
+    it('The getClass fn should return the fa-file-text fontwasome class for application', function(done) {
       var html = '<message-attachment attachment="testAttachment"></messages-display>';
-      this.$compile(html)(this.$rootScope);
+      var element = this.$compile(html)(this.$rootScope);
 
       this.$rootScope.testAttachment = {
         id: 456, name: 'openpaas.pdf', contentType: 'application/pdf', length: 10240
       };
 
       this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-text');
+      done();
+    });
 
-      console.log(this.$rootScope.getClass(this.$rootScope.testAttachment.contentType));
+    it('The getClass fn should return the fa-file-image-o fontwasome class for image', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'image/png', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-image-o');
+      done();
+    });
+
+    it('The getClass fn should return the fa-file-video-o fontwasome class for video', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'video/mp4', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-video-o');
+      done();
+    });
+
+    it('The getClass fn should return the fa-file-o fontwasome class for unknown type', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'foo/bar', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-o');
       done();
     });
   });
