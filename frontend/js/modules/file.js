@@ -780,22 +780,33 @@ angular.module('esn.file', [])
       'text/x-markdown': 'markdown'
     };
 
+    function getTypesMapping() {
+      return extensions;
+    }
+
     function getExtension(mimeType) {
+      if (!mimeType) {
+        return;
+      }
       var type = mimeType.match(/^\s*([^;\s]*)(?:;|\s|$)/)[1].toLowerCase();
       return extensions[type];
     }
 
     function getType(mimeType) {
+      if (!mimeType) {
+        return;
+      }
       var type = mimeType.match(/^\s*([^;\s]*)(?:;|\s|$)/)[1].toLowerCase();
       if (type.indexOf('/') >= 0) {
         return type.substring(0, type.indexOf('/'));
       }
-      return '';
+      return;
     }
 
     return {
       getExtension: getExtension,
-      getType: getType
+      getType: getType,
+      getTypesMapping: getTypesMapping
     };
   })
   .filter('extension', function(contentTypeService) {
