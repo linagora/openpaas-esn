@@ -1,6 +1,6 @@
 .miniprofile
   a.avatar(href='#', title='{{user.name}} <{{user.address}}>')
-    img(src='/images/user.png')
+    img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{user.address}}")
     span.label.emaillabel(ng-class="labelclass") {{label}}
   div.ellipsis
     {{user.name}}
