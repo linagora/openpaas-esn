@@ -227,15 +227,10 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
   .directive('messageAttachments', function() {
     return {
       restrict: 'E',
-      //replace: true,
       scope: {
         message: '='
       },
-      templateUrl: '/views/modules/message/attachments/messageAttachments.html',
-      controller: function($scope) {
-        console.log('Message attachments for message', $scope.message);
-        $scope.attachments = [{name: 'foo.zip', mime: 'zip', size: '1020', id: '123456789'}, {name: 'openpaas.opd', mime: 'odp', size: '872872', id: '12345398398399'}];
-      }
+      templateUrl: '/views/modules/message/attachments/messageAttachments.html'
     };
   })
   .factory('messageAPI', ['Restangular', function(Restangular) {

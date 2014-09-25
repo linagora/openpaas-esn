@@ -1,0 +1,9 @@
+.attachment
+  span.attachment-menu
+    a.download(target='_blank', ng-href='/api/files/{{attachment.file}}' title='Download {{attachment.name}}')
+      i.fa.fa-lg.fa-cloud-download
+    a.preview(ng-click='', title='Preview file')
+      i.fa.fa-lg.fa-photo
+  span
+    b {{attachment.name}}
+    i &nbsp;({{attachment.length | bytes}})
