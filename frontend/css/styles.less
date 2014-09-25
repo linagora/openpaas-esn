@@ -620,32 +620,37 @@ ul.emails-list {
 }
 
 .attachments {
-  border-bottom: 2px dotted #CCCCCC;
   padding: 10px 0px;
   margin-bottom: 20px;
   font-size: 12px;
   border-top: 2px dotted #CCCCCC;
 }
 
-.attachments ul {
-  list-style: none outside none;
-  margin: 0px 0px 0px -40px;
-}
-
-.attachments ul li {
-  margin: 10px 0px;
-}
-
-.attachments ul li .label {
-  padding: 2px 4px;
-  font-weight: normal;
-  margin-right: 5px;
-}
-
-.attachments ul li span.attachment-menu {
+.attachment-widget {
+  width: 200px;
+  border: 1px solid #E9EBEC;
+  background: none repeat scroll 0% 0% #F7F7F8;
   float: left;
-  text-align: right;
-  a {
-    color: #666666;
+  padding: 5px;
+  margin: 0px 0px 5px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 12px;
+
+  .icon {
+    float: left;
+    margin-right: 10px;
+    width: 40px;
   }
+
+  a.download {
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  span.meta {
+    font-size: 12px;
+    font-style: italic;
+  }
+
 }

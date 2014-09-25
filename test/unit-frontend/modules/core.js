@@ -39,32 +39,32 @@ describe('The Angular core module', function() {
 
     it('should round the filesize based on the configured precision', function() {
       var size = 1024 + 512;
-      expect(bytes(size)).to.equal('1.5 kB');
-      expect(bytes(size, 2)).to.equal('1.50 kB');
+      expect(bytes(size)).to.equal('1.5KB');
+      expect(bytes(size, 2)).to.equal('1.50KB');
     });
 
     it('should recognize bytes', function() {
-      expect(bytes(1, 0)).to.equal('1 bytes');
+      expect(bytes(1, 0)).to.equal('1bytes');
     });
 
     it('should recognize KiloBytes', function() {
-      expect(bytes(Math.pow(1024, 1), 0)).to.equal('1 kB');
+      expect(bytes(Math.pow(1024, 1), 0)).to.equal('1KB');
     });
 
     it('should recognize MegaBytes', function() {
-      expect(bytes(Math.pow(1024, 2), 0)).to.equal('1 MB');
+      expect(bytes(Math.pow(1024, 2), 0)).to.equal('1MB');
     });
 
     it('should recognize GigaBytes', function() {
-      expect(bytes(Math.pow(1024, 3), 0)).to.equal('1 GB');
+      expect(bytes(Math.pow(1024, 3), 0)).to.equal('1GB');
     });
 
     it('should recognize TeraBytes', function() {
-      expect(bytes(Math.pow(1024, 4), 0)).to.equal('1 TB');
+      expect(bytes(Math.pow(1024, 4), 0)).to.equal('1TB');
     });
 
     it('should recognize PetaBytes', function() {
-      expect(bytes(Math.pow(1024, 5), 0)).to.equal('1 PB');
+      expect(bytes(Math.pow(1024, 5), 0)).to.equal('1PB');
     });
   });
 });

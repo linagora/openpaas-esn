@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
+angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
   .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
 
     $scope.rows = 1;
@@ -214,14 +214,26 @@ angular.module('esn.message', ['restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ng
       templateUrl: '/views/modules/message/messagesThread.html'
     };
   })
-  .directive('messageAttachment', function() {
+  .directive('messageAttachment', function(contentTypeService) {
+    var classes = {
+      application: 'fa-file-text',
+      image: 'fa-file-image-o',
+      video: 'fa-file-video-o',
+      'default': 'fa-file-o'
+    };
     return {
       restrict: 'E',
       replace: true,
       scope: {
         attachment: '='
       },
-      templateUrl: '/views/modules/message/attachments/messageAttachment.html'
+      templateUrl: '/views/modules/message/attachments/messageAttachment.html',
+      link: function($scope) {
+        $scope.getClass = function(contentType) {
+          var type = contentTypeService.getType(contentType);
+          return classes[type] || classes.default;
+        };
+      }
     };
   })
   .directive('messageAttachments', function() {

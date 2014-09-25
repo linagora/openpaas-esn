@@ -21,10 +21,10 @@ angular.module('esn.core', [])
         precision = 1;
       }
 
-      var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+      var units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'],
         number = Math.floor(Math.log(bytes) / Math.log(1024)),
         val = (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision);
 
-      return (val.match(/\.0*$/) ? val.substr(0, val.indexOf('.')) : val) + ' ' + units[number];
+      return (val.match(/\.0*$/) ? val.substr(0, val.indexOf('.')) : val) + '' + units[number];
     };
   });
