@@ -3,7 +3,7 @@
 var expect = require('chai').expect,
     mockery = require('mockery');
 
-describe('The messages module', function() {
+describe('The messages controller', function() {
 
   describe('POST /api/messages', function() {
     var validReq;
@@ -204,8 +204,9 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
+        getInstance: function() {return {};},
+        addNewComment: function(m, r, callback) {
+          callback(new Error('failed'));
         }
       });
 
@@ -249,17 +250,14 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {
+        getInstance: function() { return {}; },
         addNewComment: function(message, inReplyTo, callback) {
           callback(null, {_id: 'an id'}, {_id: 'a parent id', shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
       mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
-        }
-      });
+      mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -272,6 +270,7 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {
+        getInstance: function() { return {}; },
         addNewComment: function(message, inReplyTo, callback) {
           callback(null, {_id: 'an id'}, {_id: 'a parent id', shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
@@ -289,11 +288,7 @@ describe('The messages module', function() {
       mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/activitystreams/helpers', ashelpermock);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
-        }
-      });
+      mockery.registerMock('../../core/message', messageModuleMocked);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -314,17 +309,14 @@ describe('The messages module', function() {
       };
 
       var messageModuleMocked = {
+        getInstance: function() { return {}; },
         addNewComment: function(message, inReplyTo, callback) {
           callback(null, {_id: 'an id'}, {shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
       mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
-        }
-      });
+      mockery.registerMock('../../core/message', messageModuleMocked);
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
