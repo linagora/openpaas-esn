@@ -1,4 +1,8 @@
 div(data-ng-switch='message.objectType')
   whatsup-message(data-ng-switch-when='whatsup', message='message')
   email-message(data-ng-switch-when='email', message='message')
+
+  //message-attachments(ng-show='message.attachments', message='message')
+  message-attachments(message='message')
+
   include ./messagesBottomLinks
