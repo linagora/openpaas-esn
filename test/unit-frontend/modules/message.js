@@ -31,6 +31,20 @@ describe('The esn.message Angular module', function() {
       this.$rootScope.$digest();
       expect(element.html()).to.have.string(this.$rootScope.testAttachment.name);
     });
+
+    it.only('The getClass fn should return the right fontwasome class', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'application/pdf', length: 10240
+      };
+
+      this.$rootScope.$digest();
+
+      console.log(this.$rootScope.getClass(this.$rootScope.testAttachment.contentType));
+      done();
+    });
   });
 
   describe('messagesAttachments directive', function() {
