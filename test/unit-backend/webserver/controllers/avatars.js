@@ -8,6 +8,7 @@ describe('The avatars controller', function() {
   describe('The get function', function() {
     it('should send back 400 when req.query.objectType is not set', function(done) {
       mockery.registerMock('./communities', {});
+      mockery.registerMock('./users', {});
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/image', {});
 
@@ -28,6 +29,7 @@ describe('The avatars controller', function() {
 
     it('send back HTTP 400 when objectType is not recognized', function(done) {
       mockery.registerMock('./communities', {});
+      mockery.registerMock('./users', {});
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/image', {});
 
@@ -51,6 +53,7 @@ describe('The avatars controller', function() {
     describe('The community objectType', function() {
       it('should send back HTTP 400 when req.query.id is not set', function(done) {
         mockery.registerMock('./communities', {});
+        mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
 
@@ -77,6 +80,7 @@ describe('The avatars controller', function() {
             return done();
           }
         });
+        mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
 
@@ -101,6 +105,7 @@ describe('The avatars controller', function() {
             return next(new Error());
           }
         });
+        mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
 
@@ -132,6 +137,7 @@ describe('The avatars controller', function() {
             return done();
           }
         });
+        mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
 
@@ -157,6 +163,7 @@ describe('The avatars controller', function() {
     describe('The user objecType', function() {
       it('should redirect to /images/not_a_user.png when user with query email throws back error', function(done) {
         mockery.registerMock('./communities', {});
+        mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {
           findByEmail: function(email, callback) {
             return callback(new Error());
@@ -184,6 +191,7 @@ describe('The avatars controller', function() {
 
       it('should redirect to /images/not_a_user.png when user with query email can not be found', function(done) {
         mockery.registerMock('./communities', {});
+        mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {
           findByEmail: function(email, callback) {
             return callback();
@@ -208,89 +216,20 @@ describe('The avatars controller', function() {
         avatars.get(req, res);
       });
 
-      it('should redirect to /images/user.png when user with query email is found but avatar read thorw back error', function(done) {
-        mockery.registerMock('./communities', {});
-        mockery.registerMock('../../core/user', {
-          findByEmail: function(email, callback) {
-            return callback(null, {currentAvatar: 123});
-          }
-        });
-
-        mockery.registerMock('../../core/image', {
-          getAvatar: function(id, format, callback) {
-            return callback(new Error());
-          }
-        });
-
-        var req = {
-          query: {
-            objectType: 'user',
-            email: 'you@me.com'
-          }
+      it('should call users#getProfileAvatar with found user', function(done) {
+        var user = {
+          _id: 123
         };
-
-        var res = {
-          redirect: function(path) {
-            expect(path).to.equal('/images/user.png');
+        mockery.registerMock('./communities', {});
+        mockery.registerMock('./users', {
+          getProfileAvatar: function(req, res) {
+            expect(req.user).to.deep.equal(user);
             done();
           }
-        };
-
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
-        avatars.get(req, res);
-      });
-
-      it('should redirect to /images/user.png when user with query email is found but avatar can not be read', function(done) {
-        mockery.registerMock('./communities', {});
+        });
         mockery.registerMock('../../core/user', {
           findByEmail: function(email, callback) {
-            return callback(null, {currentAvatar: 123});
-          }
-        });
-
-        mockery.registerMock('../../core/image', {
-          getAvatar: function(id, format, callback) {
-            return callback(null, {}, null);
-          }
-        });
-
-        var req = {
-          query: {
-            objectType: 'user',
-            email: 'you@me.com'
-          },
-          user: {
-            _id: 1
-          }
-        };
-
-        var res = {
-          redirect: function(path) {
-            expect(path).to.equal('/images/user.png');
-            done();
-          }
-        };
-
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
-        avatars.get(req, res);
-
-      });
-
-      it('should send back the avatar when user with query email is found', function(done) {
-        mockery.registerMock('./communities', {});
-        mockery.registerMock('../../core/user', {
-          findByEmail: function(email, callback) {
-            return callback(null, {currentAvatar: 123});
-          }
-        });
-
-        mockery.registerMock('../../core/image', {
-          getAvatar: function(id, format, callback) {
-            return callback(null, null, {
-              pipe: function() {
-                return done();
-              }
-            });
+            return callback(null, user);
           }
         });
 
@@ -304,8 +243,6 @@ describe('The avatars controller', function() {
         var res = {
           redirect: function(path) {
             done(new Error());
-          },
-          status: function() {
           }
         };
 

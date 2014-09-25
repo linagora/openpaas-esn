@@ -1,40 +1,16 @@
 'use strict';
 
 var userModule = require('../../core/user');
-var imageModule = require('../../core/image');
 var communityController = require('./communities');
-var logger = require('../../core/logger');
+var userController = require('./users');
 
 function getUserAvatarFromEmail(req, res) {
   userModule.findByEmail(req.query.email, function(err, user) {
     if (err || !user) {
       return res.redirect('/images/not_a_user.png');
     }
-
-    imageModule.getAvatar(user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
-      if (err) {
-        logger.warn('Can not get user avatar : %s', err.message);
-        return res.redirect('/images/user.png');
-      }
-
-      if (!readable) {
-        logger.warn('Can not retrieve avatar stream for user %s', req.query.email);
-        return res.redirect('/images/user.png');
-      }
-
-      if (!fileStoreMeta) {
-        res.status(200);
-        return readable.pipe(res);
-      }
-
-      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-        return res.send(304);
-      } else {
-        res.header('Last-Modified', fileStoreMeta.uploadDate);
-        res.status(200);
-        return readable.pipe(res);
-      }
-    });
+    req.user = user;
+    return userController.getProfileAvatar(req, res);
   });
 }
 
