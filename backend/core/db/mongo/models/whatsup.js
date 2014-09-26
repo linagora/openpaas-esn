@@ -1,18 +1,16 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var baseMessage = require('./base-message');
+var extend = require('extend');
 
-var WhatsupSchema = new mongoose.Schema({
+var whatsUpSpecificSchema = {
   objectType: {type: String, required: true, default: 'whatsup'},
-  language: {type: String, required: false},
   content: {type: String, required: true},
-  published: {type: Date, default: Date.now},
-  author: {type: mongoose.Schema.ObjectId, required: true},
-  shares: [{
-    objectType: {type: String},
-    id: {type: String}
-  }],
-  responses: [mongoose.Schema.Mixed]
-}, { collection: 'messages' });
+  published: {type: Date, default: Date.now}
+};
+
+extend(true, whatsUpSpecificSchema, baseMessage);
+var WhatsupSchema = new mongoose.Schema(whatsUpSpecificSchema, { collection: 'messages' });
 
 module.exports = mongoose.model('Whatsup', WhatsupSchema);

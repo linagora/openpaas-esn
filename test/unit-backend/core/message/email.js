@@ -216,7 +216,12 @@ describe('The email message module', function() {
           return function() {
             return {
               save: function(callback) {
-                return callback(null);
+                var saved = {
+                  _id: {
+                    toString: function() {}
+                  }
+                };
+                return callback(null, saved);
               }
             };
           };
