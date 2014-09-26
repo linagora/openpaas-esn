@@ -25,21 +25,21 @@ function saveEmail(stream, author, shares, callback) {
     return callback(new Error('Author is required'));
   }
 
-  var errors = [];
+  var attachmentError;
 
   var mailparser = new MailParser({streamAttachments: true});
   mailparser.on('end', function(mail_object) {
     logger.debug('Parsed email', mail_object);
 
-    if (errors.length > 0) {
-      return callback(new Error('Error while saving attachments.'));
+    if (attachmentError) {
+      return callback(new Error('An error occured whilst saving attachment.'));
     }
+
+    var mail = new EmailMessage();
 
     if (!mail_object) {
       return callback(new Error('Can not parse email'));
     }
-
-    var mail = new EmailMessage();
 
     mail.parsedHeaders = {};
 
@@ -93,13 +93,18 @@ function saveEmail(stream, author, shares, callback) {
 
   mailparser.on('attachment', function(attachment) {
     logger.debug('Got attachment', attachment);
-    attachmentsModule.storeAttachment(attachment.fileName, attachment.contentType, attachment.length,
-      attachment.stream, function(err, attachmentModel) {
-        if (err) {
-          logger.debug('Error while saving attachment.', err);
-          errors.push(err);
-        }
-      });
+
+    var metaData = {
+      name: attachment.fileName,
+      contentType: attachment.contentType,
+      length: attachment.length
+    };
+    attachmentsModule.storeAttachment(mail, metaData, attachment.stream, function(err) {
+      if (err) {
+        logger.debug('Error while saving attachment.', err);
+        attachmentError = err;
+      }
+    });
   });
   stream.pipe(mailparser);
 }
