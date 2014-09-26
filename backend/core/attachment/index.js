@@ -3,7 +3,7 @@
 var uuid = require('node-uuid');
 var filestore = require('../filestore');
 
-function storeAttachment(message, metaData, stream, callback) {
+function storeAttachment(metaData, stream, callback) {
   if (!message) {
     return callback(new Error('Message is missing.'));
   }
@@ -13,17 +13,14 @@ function storeAttachment(message, metaData, stream, callback) {
   if (!metaData.contentType) {
     return callback(new Error('Attachment contentType is required.'));
   }
-  //TODO
- /* if (!metaData.length || isNaN(metaData.length)) {
-    return callback(new Error('Attachment length is required.'));
-  }*/
   if (!stream) {
     return callback(new Error('Attachment stream is required.'));
   }
 
   var fileId = uuid.v1();
 
-  var updateMessage = function(err) {
+  var updateMessage = function(err, file) {
+    var fileStoreMeta = filestore.getAsFileStoreMeta(file);
     if (err) {
       return callback(err);
     }
@@ -31,13 +28,11 @@ function storeAttachment(message, metaData, stream, callback) {
     var attachmentModel = {
       name: metaData.name,
       contentType: metaData.contentType,
-      length: metaData.length,
+      length: fileStoreMeta.length,
       file: fileId
     };
 
-    message.attachments.push(attachmentModel);
-
-    callback(null, message);
+    callback(null, attachmentModel);
   };
 
   filestore.store(fileId, metaData.contentType, {}, stream, updateMessage);
