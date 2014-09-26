@@ -3,10 +3,10 @@
 var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
 var EmailMessage = mongoose.model('EmailMessage');
-var Whatsup = mongoose.model('Whatsup');
 var emailHelpers = require('../../helpers/email');
 var logger = require('../logger');
-var pubsub = require('../pubsub').local;
+var pubsub = require('../../core').pubsub.local,
+    topic = pubsub.topic('message:stored');
 
 /**
  *
@@ -73,8 +73,15 @@ function saveEmail(stream, author, shares, callback) {
     if (shares) {
       mail.shares = shares;
     }
-
-    return mail.save(callback);
+    return mail.save(function(err, response) {
+      if (!err) {
+        topic.publish(response);
+        logger.info('Added new message in database:', { _id: response._id.toString() });
+      } else {
+        logger.warn('Error while trying to add a new emailmessage in database:', err.message);
+      }
+      callback(err, response);
+    });
   });
 
   mailparser.on('attachment', function(attachment) {
@@ -84,25 +91,3 @@ function saveEmail(stream, author, shares, callback) {
 }
 
 module.exports.saveEmail = saveEmail;
-
-module.exports.addNewComment = function(message, inReplyTo, callback) {
-  var whatsupComment = new Whatsup(message),
-    topic = pubsub.topic('message:comment');
-
-  EmailMessage.findById(inReplyTo._id, function(err, whatsupParent) {
-    if (err) {
-      return callback(err);
-    }
-
-    whatsupParent.responses.push(whatsupComment);
-    whatsupParent.save(function(err, newWhatsupParent) {
-      if (err) {
-        return callback(err);
-      }
-
-      message.inReplyTo = inReplyTo;
-      topic.publish(message);
-      callback(null, whatsupComment, newWhatsupParent);
-    });
-  });
-};

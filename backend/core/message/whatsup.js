@@ -13,7 +13,7 @@ module.exports.save = function(message, callback) {
       topic.publish(response);
       logger.info('Added new message in database:', { _id: response._id.toString() });
     } else {
-      logger.warn('Error while trying to add a new message in database:', err.message);
+      logger.warn('Error while trying to add a new whatsupmessage in database:', err.message);
     }
     callback(err, response);
   });
@@ -28,25 +28,4 @@ module.exports.findByIds = function(ids, callback) {
 
 module.exports.get = function(uuid, callback) {
   Whatsup.findById(uuid).populate('author responses.author', null, 'User').exec(callback);
-};
-
-module.exports.addNewComment = function(message, inReplyTo, callback) {
-  var whatsupComment = new Whatsup(message),
-      topic = pubsub.topic('message:comment');
-
-  Whatsup.findById(inReplyTo._id, function(err, whatsupParent) {
-    if (err) {
-      return callback(err);
-    }
-    whatsupParent.responses.push(whatsupComment);
-    whatsupParent.save(function(err, newWhatsupParent) {
-      if (err) {
-        return callback(err);
-      }
-
-      message.inReplyTo = inReplyTo;
-      topic.publish(message);
-      callback(null, whatsupComment, newWhatsupParent);
-    });
-  });
 };

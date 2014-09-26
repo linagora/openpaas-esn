@@ -37,19 +37,20 @@ function createNewMessage(message, req, res) {
 }
 
 function commentMessage(message, inReplyTo, req, res) {
+  var comment;
   if (!inReplyTo._id) {
-    return res.send(400, 'Missing inReplyTo _id in body');
+    return res.send(400, { error: { status: 400, message: 'Bad parameter', details: 'Missing inReplyTo _id in body'}});
   }
-
-  if (!messageModule.type[inReplyTo.objectType]) {
-    return res.send(400, 'Can not comment message on message with type' + inReplyTo.objectType);
+  try {
+    comment = messageModule.getInstance(message.objectType, message);
+  } catch (e) {
+    return res.send(400, { error: { status: 400, message: 'Bad parameter', details: 'Unknown message type ' + message.objectType}});
   }
-
-  messageModule.type[inReplyTo.objectType].addNewComment(message, inReplyTo, function(err, childMessage, parentMessage) {
+  messageModule.addNewComment(comment, inReplyTo, function(err, childMessage, parentMessage) {
     if (err) {
       return res.send(
         500,
-        { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message}});
+        { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message }});
     }
 
     var targets = messageSharesToTimelineTarget(parentMessage.shares);
