@@ -10,4 +10,4 @@ div(ng-controller="activitystreamController")
             li.media(ng-repeat="thread in threads")
               messages-thread(message='thread' activitystream-uuid='activitystreamUuid' last-post='lastPost' writable='writable')
       .throbber-container.text-center
-        span.throbber(us-spinner, spinner-key='activityStreamSpinner')
+        div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner')

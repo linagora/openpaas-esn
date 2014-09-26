@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'esn.user'])
+angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn.user'])
   .directive('profileDisplay', function() {
     return {
       restrict: 'E',

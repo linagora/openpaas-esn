@@ -5,7 +5,7 @@
             i.fa.fa-user
             | #{__('Contacts')}
       .row.throbber-container.text-center(ng-show='restActive')
-        span.throbber(us-spinner, spinner-key='addressbooksSpinner')
+        div.throbber(openpaas-logo-spinner, spinner-key='addressbooksSpinner')
       .row(ng-show='!restActive && !addressbooks.length')
         .col-xs-12 
           | #{__('No addressbooks')}
@@ -35,7 +35,7 @@
                 strong.horiz-space {{selectedAddressBookName()}}
               hr
             .row.throbber-container.text-center(ng-show='contactsRestActive')
-              span.throbber(us-spinner, spinner-key='contactsSpinner')
+              span.throbber(openpaas-logo-spinner, spinner-key='contactsSpinner')
             ul.contacts.nav.nav-list.ellipsis(ng-hide='contactsRestActive')
               li.vertiz-space.ellipsis(ng-repeat='contact in contacts', ng-class="isContactSelected(contact._id)", ng-click="selectContact(contact)")
                 span(title="{{ selectedContactDisplayName(contact) }}") {{ selectedContactDisplayName(contact) }}

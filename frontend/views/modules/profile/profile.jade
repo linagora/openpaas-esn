@@ -1,4 +1,4 @@
-div.row(ng-controller='profileEditionController')
+div.row.profile-edition(ng-controller='profileEditionController')
 
   div.col-md-3.col-xs-12.profile-image.text-center
     div(ng-controller='avatarController')
@@ -10,9 +10,8 @@ div.row(ng-controller='profileEditionController')
 
     div.row
       div.col-md-10.col-xs-10
-        span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
-        spinner-start-active='1',
-        ng-show='running.name')
+        span.edition-spinner(ng-show='running.name')
+          i.fa.fa-spinner.fa-spin
         p.lead(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)', e-class='profile-large-input') {{ fullName || initFullName(user.firstname, user.lastname) }}
       div.col-md-2.col-xs-2
         a(ng-click='nameForm.$show()', ng-hide='nameForm.$visible', ng-disabled='running.name') #{__('Edit')}
@@ -32,9 +31,8 @@ div.row(ng-controller='profileEditionController')
         i.fa.fa-quote-right.fa-lg.pull-right.visible-xs
         label.hidden-xs #{__('Job Title')}
       div.col-md-6.col-sm-4.col-xs-6
-        span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
-        spinner-start-active='1',
-        ng-show='running.job')
+        span.edition-spinner(ng-show='running.job')
+          i.fa.fa-spinner.fa-spin
         span(editable-text='user.job_title', e-form='jobForm', id= 'jobForm', onbeforesave='updateJob($data)'
           e-placeHolder="#{__('Job Title')}", e-maxlength='100', e-class='profile-small-input') {{ user.job_title }}
       div.col-md-2.col-sm-2.col-xs-2
@@ -44,11 +42,10 @@ div.row(ng-controller='profileEditionController')
       div.col-md-4.col-sm-4.col-xs-4
         i.fa.fa-briefcase.hidden-xs
         i.fa.fa-briefcase.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('Service')}
+        label.hidden-xs #{__('building_location')}
       div.col-md-6.col-sm-4.col-xs-6
-        span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
-        spinner-start-active='1',
-        ng-show='running.service')
+        span.edition-spinner(ng-show='running.service')
+          i.fa.fa-spinner.fa-spin
         span(editable-text='user.service', e-form='serviceForm', onbeforesave='updateService($data)',
         e-placeHolder="#{__('Service')}", e-maxlength='400', e-class='profile-small-input') {{ user.service }}
       div.col-md-2.col-sm-2.col-xs-2
@@ -60,9 +57,8 @@ div.row(ng-controller='profileEditionController')
         i.fa.fa-building.fa-lg.pull-right.visible-xs
         label.hidden-xs #{__('Building Location')}
       div.col-md-6.col-sm-4.col-xs-6
-        span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
-        spinner-start-active='1',
-        ng-show='running.building_location')
+        span.edition-spinner(ng-show='running.building_location')
+          i.fa.fa-spinner.fa-spin
         span(editable-text='user.building_location', e-form='buildingForm', onbeforesave='updateBuildingLocation($data)',
         e-placeHolder="#{__('Building Location')}", e-maxlength='400', e-class='profile-small-input') {{ user.building_location }}
       div.col-md-2.col-sm-2.col-xs-2
@@ -74,9 +70,8 @@ div.row(ng-controller='profileEditionController')
         i.fa.fa-building-o.fa-lg.pull-right.visible-xs
         label.hidden-xs #{__('Office Location')}
       div.col-md-6.col-sm-4.col-xs-6
-        span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
-        spinner-start-active='1',
-        ng-show='running.office_location')
+        span.edition-spinner(ng-show='office_location')
+          i.fa.fa-spinner.fa-spin
         span(editable-text='user.office_location', e-form='officeForm', onbeforesave='updateOfficeLocation($data)',
         e-placeHolder="#{__('Office Location')}", e-maxlength='400', e-class='profile-small-input') {{ user.office_location }}
       div.col-md-2.col-sm-2.col-xs-2
@@ -88,9 +83,8 @@ div.row(ng-controller='profileEditionController')
         i.fa.fa-phone.fa-lg.pull-right.visible-xs
         label.hidden-xs #{__('Phone')}
       div.col-md-6.col-sm-4.col-xs-6
-        span(us-spinner="{lines: 7, length: 3, width: 5, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 50, top: '10%', left: '20%'}",
-        spinner-start-active='1',
-        ng-show='running.phone')
+        span.edition-spinner(ng-show='running.phone')
+          i.fa.fa-spinner.fa-spin
         span(editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)',
         e-placeHolder="#{__('Phone')}", e-maxlength='20', e-class='profile-small-input') {{ user.main_phone }}
       div.col-md-2.col-sm-2.col-xs-2

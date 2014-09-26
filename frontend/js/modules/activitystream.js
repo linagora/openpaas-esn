@@ -9,7 +9,7 @@ angular.module('esn.activitystream', [
   'esn.notification',
   'mgcrea.ngStrap',
   'ngAnimate',
-  'angularSpinner'
+  'openpaas-logo'
 ])
   .factory('activitystreamAPI', ['Restangular', function(Restangular) {
     function get(id, options) {
