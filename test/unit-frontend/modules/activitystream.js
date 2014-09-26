@@ -1126,6 +1126,8 @@ describe('The esn.activitystream Angular module', function() {
 
   describe('activitystream directive', function() {
     beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.core'));
+
     beforeEach(function() {
       module('jadeTemplates');
       angular.mock.module('esn.activitystream');

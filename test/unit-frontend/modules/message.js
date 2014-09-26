@@ -10,11 +10,123 @@ describe('The esn.message Angular module', function() {
     angular.mock.module('esn.message');
   });
 
+  describe('messagesAttachment directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.core'));
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should display an attachment', function() {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'ms.doc', contentType: 'application/doc', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.html()).to.have.string(this.$rootScope.testAttachment.name);
+    });
+
+    it('The getClass fn should return the fa-file-text fontwasome class for application', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'application/pdf', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-text');
+      done();
+    });
+
+    it('The getClass fn should return the fa-file-image-o fontwasome class for image', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'image/png', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-image-o');
+      done();
+    });
+
+    it('The getClass fn should return the fa-file-video-o fontwasome class for video', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'video/mp4', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-video-o');
+      done();
+    });
+
+    it('The getClass fn should return the fa-file-o fontwasome class for unknown type', function(done) {
+      var html = '<message-attachment attachment="testAttachment"></messages-display>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testAttachment = {
+        id: 456, name: 'openpaas.pdf', contentType: 'foo/bar', length: 10240
+      };
+
+      this.$rootScope.$digest();
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-o');
+      done();
+    });
+  });
+
+  describe('messagesAttachments directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.core'));
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should display the attachments', function() {
+      var html = '<message-attachments message="testMessage"></message-attachments>';
+      var element = this.$compile(html)(this.$rootScope);
+
+      this.$rootScope.testMessage = { _id: 123456789,
+        objectType: 'whatsup',
+        content: 'This is the message content',
+        published: '123',
+        author: {
+          _id: '123456789',
+          firstname: 'Foo',
+          lastname: 'Bar'
+        },
+        attachments: [
+          {id: 123, name: 'foo.png', contentType: 'application/png', length: 1024},
+          {id: 456, name: 'ms.doc', contentType: 'application/doc', length: 10240}
+        ]
+      };
+
+      this.$rootScope.$digest();
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[0].name);
+      expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[1].name);
+    });
+  });
+
+
   describe('messagesTemplatesDisplayer directive', function() {
 
     beforeEach(module('jadeTemplates'));
     beforeEach(module('angularMoment'));
     beforeEach(module('esn.profile'));
+    beforeEach(module('esn.core'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
@@ -125,6 +237,7 @@ describe('The esn.message Angular module', function() {
 
     beforeEach(module('jadeTemplates'));
     beforeEach(module('angularMoment'));
+    beforeEach(module('esn.core'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
