@@ -4,7 +4,22 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
     form(name='whatsupcommentform')
       .form-group(ng-class='{nopadding: rows !== 4}')
         textarea.whatsupcomment-input.form-control(ng-model='whatsupcomment', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}")
+      .form-group(ng-show='position.show')
+        div(ng-show='position.load')
+          i.fa.fa-spinner.fa-spin
+          small #{__('Getting position...')}
+        div.ellipsis(ng-controller='whatsupMapController' ng-hide='position.load')
+          a.map(href='', ng-click='removePosition()')
+            i.fa.fa-remove
+          a.map(href='', ng-show='position', ng-click='showMap(position)')
+            i.fa.fa-map-marker
+            span(ng-show="position.message") #{__('Near')} {{position.message}}
+            span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
+          leaflet(ng-if="showMeMap", markers="markers", center="center", height="150px", width="100%")
       .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
+        button.btn.btn-link(type='button', ng-click='fillPosition()', ng-disabled='sending')
+          i.fa.fa-map-marker
+        &nbsp;
         button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
         &nbsp;
         button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}

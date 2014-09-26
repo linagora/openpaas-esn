@@ -99,6 +99,7 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
     $scope.resetMessage = function() {
       $scope.rows = 3;
       $scope.whatsupmessage = '';
+      $scope.position = {};
     };
 
     $scope.displayError = function(err) {
@@ -113,7 +114,7 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       });
     };
   }])
-  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
+  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, geoAPI) {
     $scope.whatsupcomment = '';
     $scope.sending = false;
     $scope.rows = 1;
@@ -121,7 +122,35 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       $scope.rows = 4;
     };
 
+    $scope.position = {};
+
+    $scope.fillPosition = function() {
+      $scope.position.load = true;
+      $scope.position.show = true;
+      geoAPI.getCurrentPosition().then(function(data) {
+        $scope.position.coords = data.coords;
+        $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
+        geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
+          $scope.position.message = data.data.display_name;
+          $scope.position.display_name = data.data.display_name;
+          $scope.position.load = false;
+        }, function(err) {
+          console.log(err);
+          $scope.position.load = false;
+        });
+      }, function(err) {
+        console.log('Error while getting position', err);
+        $scope.position.load = false;
+      });
+    };
+
+    $scope.removePosition = function() {
+      $scope.position = {};
+    };
+
     $scope.shrink = function(event) {
+      return;
+
       if (!$scope.whatsupcomment) {
         $scope.rows = 1;
       }
@@ -152,6 +181,16 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         _id: $scope.message._id
       };
 
+      if ($scope.position.coords) {
+        data.position = {
+          coords: $scope.position.coords
+        }
+      }
+
+      if ($scope.position.display_name) {
+        data.position.display_name = $scope.position.display_name;
+      }
+
       $scope.sending = true;
       messageAPI.addComment(objectType, data, inReplyTo).then(
         function(response) {
@@ -171,7 +210,9 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
             $scope.displayError('Error while adding comment');
           }
         }
-      );
+      ).finally(function() {
+        $scope.position = {};
+      });
     };
 
     $scope.resetComment = function() {

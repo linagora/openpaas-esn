@@ -21,10 +21,9 @@ div.esn-panel.whatsup-form.form-container(ng-controller='messageController')
         i.fa.fa-spinner.fa-spin
         small #{__('Getting position...')}
       div.ellipsis(ng-controller='whatsupMapController' ng-hide='position.load')
-        a(href='', ng-click='removePosition()')
+        a.map(href='', ng-click='removePosition()')
           i.fa.fa-remove
-        //div.ellipsis(ng-controller='whatsupMapController')
-        a(href='', ng-show='position', ng-click='showMap(position)')
+        a.map(href='', ng-show='position', ng-click='showMap(position)')
           i.fa.fa-map-marker
           span(ng-show="position.message") #{__('Near')} {{position.message}}
           span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
