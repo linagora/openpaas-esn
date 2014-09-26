@@ -294,6 +294,14 @@ describe('The email API', function() {
                 expect(fromHeaders).to.have.length(1);
                 expect(fromHeaders[0]).to.equal('"Choura Sleh" <schoura@linagora.com>');
 
+                expect(result[0].attachments).to.exist;
+                expect(result[0].attachments.length).to.equal(1);
+                var attachment = result[0].attachments[0];
+                expect(attachment.contentType).to.equal('image/png');
+                expect(attachment.name).to.equal('default_profile.png');
+                expect(attachment.length).to.equal(634);
+                expect(attachment._id).to.exist;
+
                 process.nextTick(function() {
                   TimelineEntry.find({}, function(err, results) {
                     expect(results).to.exist;
