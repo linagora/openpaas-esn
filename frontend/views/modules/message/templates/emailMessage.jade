@@ -12,7 +12,7 @@ div.esn-email
 
     .row.header
       a.avatar(href='#', title='{{message.parsedHeaders.from.name}} <{{message.parsedHeaders.from.address}}>')
-        img(src='/images/user.png')
+        img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{message.parsedHeaders.from.address}}")
         span.label.label-danger.emaillabel From
 
       .from
