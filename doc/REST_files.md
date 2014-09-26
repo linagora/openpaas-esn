@@ -41,3 +41,39 @@ This endpoint expects the request body to be the raw file data.
       "_id": "e0bbd496-9ca9-4c2d-8312-a13e837e0b60"
     }
 
+# GET /api/files/{id}
+
+Retrieve the raw file data with the given id.
+
+**Request Headers:**
+
+- If-Modified-Since: Date (optional)
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: The MIME type of the document being streamed.
+- Last-Modified: Date
+
+**Status Codes:**
+
+- 200 OK. The file data will be streamed
+- 304 Not Modified. The file has not been changed since the last modified date.
+- 400 Bad Request. The id parameters is missing.
+- 401 Unauthorized. The current request does not contains any valid data to be used for authentication
+- 404 Not Found.
+- 503 Internal Server Error: There was a problem recovering the file.
+
+**Request:**
+
+    GET /api/files/e0bbd496-9ca9-4c2d-8312-a13e837e0b60
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 Ok
+    Content-Type: text/plain
+    Content-Length: 11
+    Last-Modified: Wed, 18 Dec 2013 14:51:51 GMT
+
+    hello world

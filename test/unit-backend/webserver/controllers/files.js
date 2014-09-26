@@ -170,4 +170,166 @@ describe('The files controller', function() {
       files.create(req, res);
     });
   });
+
+  describe('The get function', function() {
+    it('should return 503 if the filestore fails', function(done) {
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(new Error('fooled by a test'), null, null);
+        }
+      });
+
+      var req = { params: { id: '123' } };
+      var res = {
+        json: function(code, detail) {
+            expect(code).to.equal(503);
+            expect(detail).to.be.an('object');
+            expect(detail.error).to.equal(503);
+            done();
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should return 400 if the id parameter is missing', function(done) {
+      var req = { params: {} };
+      var res = {
+        json: function(code, detail) {
+            expect(code).to.equal(400);
+            expect(detail).to.be.an('object');
+            expect(detail.error).to.equal(400);
+            done();
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should return 404 if the file is not found', function(done) {
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, null, null);
+        }
+      });
+
+      var req = { params: { id: '123' } };
+      var res = {
+        json: function(code, detail) {
+            expect(code).to.equal(404);
+            expect(detail).to.be.an('object');
+            expect(detail.error).to.equal(404);
+            expect(detail.message).to.equal('Not Found');
+            done();
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should send the request even if there is no metadata', function(done) {
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, null, {
+            pipe: function(res) {
+              done();
+            }
+          });
+        }
+      });
+
+      var req = { params: { id: '123' } };
+      var res = {
+        type: function(ctype) {
+          done(new Error('No content type should be set without metadata'));
+        },
+        set: function(hdr, val) {
+          done(new Error('No headers should be set without metadata'));
+        },
+        status: function(code) {
+          expect(code).to.equal(200);
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should send the file name if it exists', function(done) {
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, {
+            contentType: 'text/plain',
+            metadata: {
+              name: 'fred "The Great"'
+            },
+            uploadDate: new Date()
+          }, {
+            pipe: function(res) {
+              done();
+            }
+          });
+        }
+      });
+
+      var req = {
+        params: { id: '123' },
+        get: function(hdr) {
+            expect(hdr).to.equal('If-Modified-Since');
+            return null;
+        }
+      };
+      var res = {
+        type: function(ctype) {
+          expect(ctype).to.equal('text/plain');
+        },
+        set: function(hdr, val) {
+          if (hdr === 'Content-Disposition') {
+            expect(val).to.equal('inline; filename="fred The Great"');
+          }
+        },
+        status: function(code) {
+          expect(code).to.equal(200);
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should return 304 if the file was not modified', function(done) {
+      var modified = new Date();
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, {
+            contentType: 'text/plain',
+            metadata: {},
+            uploadDate: modified
+          }, {});
+        }
+      });
+
+      var req = {
+        params: { id: '123' },
+        get: function(hdr) {
+            expect(hdr).to.equal('If-Modified-Since');
+            return modified.toString();
+        }
+      };
+      var res = {
+        type: function(ctype) {
+            expect(ctype).to.equal('text/plain');
+        },
+        send: function(code) {
+            expect(code).to.equal(304);
+            done();
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+  });
 });
