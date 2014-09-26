@@ -2,11 +2,9 @@
 
 var uuid = require('node-uuid');
 var filestore = require('../filestore');
+var mongoose = require('mongoose');
 
 function storeAttachment(metaData, stream, callback) {
-  if (!message) {
-    return callback(new Error('Message is missing.'));
-  }
   if (!metaData.name) {
     return callback(new Error('Attachment name is required.'));
   }
@@ -19,13 +17,15 @@ function storeAttachment(metaData, stream, callback) {
 
   var fileId = uuid.v1();
 
-  var updateMessage = function(err, file) {
-    var fileStoreMeta = filestore.getAsFileStoreMeta(file);
+  var returnAttachmentModel = function(err, file) {
     if (err) {
       return callback(err);
     }
 
+    var fileStoreMeta = filestore.getAsFileStoreMeta(file);
+
     var attachmentModel = {
+      _id: mongoose.Types.ObjectId(),
       name: metaData.name,
       contentType: metaData.contentType,
       length: fileStoreMeta.length,
@@ -35,7 +35,7 @@ function storeAttachment(metaData, stream, callback) {
     callback(null, attachmentModel);
   };
 
-  filestore.store(fileId, metaData.contentType, {}, stream, updateMessage);
+  filestore.store(fileId, metaData.contentType, {}, stream, returnAttachmentModel);
 }
 module.exports.storeAttachment = storeAttachment;
 
