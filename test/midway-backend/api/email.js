@@ -300,7 +300,7 @@ describe('The email API', function() {
                 expect(attachment.contentType).to.equal('image/png');
                 expect(attachment.name).to.equal('default_profile.png');
                 expect(attachment.length).to.equal(634);
-                expect(attachment.file).to.exist;
+                expect(attachment._id).to.exist;
 
                 process.nextTick(function() {
                   TimelineEntry.find({}, function(err, results) {

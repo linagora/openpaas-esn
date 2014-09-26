@@ -92,7 +92,7 @@ describe('The attachment module', function() {
         expect(err).to.not.exist;
         expect(attachmentModel.name).to.equal(metaData.name);
         expect(attachmentModel.contentType).to.equal(metaData.contentType);
-        expect(attachmentModel.file).to.equal(fileId);
+        expect(attachmentModel._id).to.equal(fileId);
         expect(attachmentModel.length).to.equal(length);
       });
     });
@@ -113,13 +113,12 @@ describe('The attachment module', function() {
 
     it('should throw an error if the file store throws one', function() {
       var attachment = {
-        _id: '123',
-        file: '456'
+        _id: '123'
       };
 
       var filestoreMock = {
         get: function(id, callback) {
-          expect(id).to.equal(attachment.file);
+          expect(id).to.equal(attachment._id);
           callback(new Error());
         }
       };
@@ -135,8 +134,7 @@ describe('The attachment module', function() {
 
     it('should return the correct file from the file store', function() {
       var attachment = {
-        _id: '123',
-        file: '456'
+        _id: '123'
       };
       var meta = {
         meta1: 'meta1'
@@ -145,7 +143,7 @@ describe('The attachment module', function() {
 
       var filestoreMock = {
         get: function(id, callback) {
-          expect(id).to.equal(attachment.file);
+          expect(id).to.equal(attachment._id);
           callback(null, meta, stream);
         }
       };

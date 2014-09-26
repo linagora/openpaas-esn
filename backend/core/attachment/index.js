@@ -2,7 +2,6 @@
 
 var uuid = require('node-uuid');
 var filestore = require('../filestore');
-var mongoose = require('mongoose');
 
 function storeAttachment(metaData, stream, callback) {
   if (!metaData.name) {
@@ -25,11 +24,10 @@ function storeAttachment(metaData, stream, callback) {
     var fileStoreMeta = filestore.getAsFileStoreMeta(file);
 
     var attachmentModel = {
-      _id: mongoose.Types.ObjectId(),
+      _id: fileId,
       name: metaData.name,
       contentType: metaData.contentType,
-      length: fileStoreMeta.length,
-      file: fileId
+      length: fileStoreMeta.length
     };
 
     callback(null, attachmentModel);
@@ -44,7 +42,7 @@ function getAttachmentFile(attachment, callback) {
     return callback(new Error('Attachment parameter is missing.'));
   }
 
-  filestore.get(attachment.file, function(err, fileMeta, readStream) {
+  filestore.get(attachment._id, function(err, fileMeta, readStream) {
     if (err) {
       return callback(err);
     }

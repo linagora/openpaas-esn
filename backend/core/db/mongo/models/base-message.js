@@ -3,11 +3,10 @@
 var mongoose = require('mongoose');
 
 var AttachmentSchema = new mongoose.Schema({
-  _id: {type: mongoose.Schema.Types.ObjectId, required: true},
+  _id: {type: String, required: true},
   name: {type: String, required: true},
   contentType: {type: String, required: true},
-  length: {type: Number, required: true},
-  file: {type: String, required: true}
+  length: {type: Number, required: true}
 });
 
 module.exports = {
