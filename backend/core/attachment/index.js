@@ -42,12 +42,7 @@ function getAttachmentFile(attachment, callback) {
     return callback(new Error('Attachment parameter is missing.'));
   }
 
-  filestore.get(attachment._id, function(err, fileMeta, readStream) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, fileMeta, readStream);
-  });
+  filestore.get(attachment._id, callback);
 }
 module.exports.getAttachmentFile = getAttachmentFile;
 
