@@ -23,7 +23,7 @@ div.esn-panel.whatsup-form.form-container(ng-controller='messageController')
       div.ellipsis(ng-controller='whatsupMapController' ng-hide='position.load')
         a.map(href='', ng-click='removePosition()')
           i.fa.fa-remove
-        a.map(href='', ng-show='position', ng-click='showMap(position)')
+        a.map(href='', ng-show='position', ng-click='toggleMapDisplay(position)')
           i.fa.fa-map-marker
           span(ng-show="position.message") #{__('Near')} {{position.message}}
           span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
@@ -35,5 +35,5 @@ div.esn-panel.whatsup-form.form-container(ng-controller='messageController')
         &nbsp;
         button.btn.btn-default(type='reset', ng-click='resetMessage()') #{__('Cancel')}
         &nbsp;
-        button.btn.btn-link(type='button', ng-click='fillPosition()')
+        a(href='', ng-click='fillPosition()')
           i.fa.fa-map-marker

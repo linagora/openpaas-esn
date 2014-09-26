@@ -250,7 +250,7 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       templateUrl: '/views/modules/message/templates/emailMessage.html'
     };
   })
-  .controller('whatsupMapController', function($scope, leafletData) {
+  .controller('whatsupMapController', function($scope) {
 
     angular.extend($scope, {
       defaults: {
@@ -264,10 +264,12 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
 
     $scope.showMeMap = false;
 
-    $scope.showMap = function(position) {
+    $scope.toggleMapDisplay = function(position) {
       if (!position) {
         return;
       }
+
+      $scope.showMeMap = !$scope.showMeMap;
 
       $scope.markers = {
         me: {
@@ -284,7 +286,6 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         zoom: 16
       };
 
-      $scope.showMeMap = true;
     };
   })
   .directive('whatsupEdition', function() {

@@ -11,13 +11,13 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
         div.ellipsis(ng-controller='whatsupMapController' ng-hide='position.load')
           a.map(href='', ng-click='removePosition()')
             i.fa.fa-remove
-          a.map(href='', ng-show='position', ng-click='showMap(position)')
+          a.map(href='', ng-show='position', ng-click='toggleMapDisplay(position)')
             i.fa.fa-map-marker
             span(ng-show="position.message") #{__('Near')} {{position.message}}
             span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
           leaflet(ng-if="showMeMap", markers="markers", center="center", height="150px", width="100%")
       .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
-        button.btn.btn-link(type='button', ng-click='fillPosition()', ng-disabled='sending')
+        a(href='', ng-click='fillPosition()', ng-disabled='sending')
           i.fa.fa-map-marker
         &nbsp;
         button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
