@@ -53,6 +53,16 @@ before(function() {
   helpers(this.helpers, this.testEnv);
 
   this.helpers.api = {
+    getStreamData: function(stream, callback) {
+      var data = [];
+      stream.on('data', function(chunk) {
+        data.push(chunk);
+      });
+      stream.on('end', function() {
+        callback(data.join(''));
+      });
+    },
+
     cleanDomainDeployment: function(models, callback) {
       require(self.testEnv.basePath + '/backend/core').db.mongo;
 
