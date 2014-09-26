@@ -27,14 +27,11 @@ function saveEmail(stream, author, shares, callback) {
     return callback(new Error('Author is required'));
   }
 
-  var attachmentError;
-
   var mailparser = new MailParser({streamAttachments: true});
   mailparser.on('end', function(mail_object) {
     logger.debug('Parsed email', mail_object);
 
     q.all(attachments).then(function(attachmentModels) {
-      console.log('attachments: ', attachmentModels);
       var mail = new EmailMessage();
 
       if (!mail_object) {
@@ -96,6 +93,8 @@ function saveEmail(stream, author, shares, callback) {
         return callback(err);
       });
 
+    }, function(err) {
+      return callback(err);
     });
   });
 
