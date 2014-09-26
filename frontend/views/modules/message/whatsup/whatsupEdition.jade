@@ -19,10 +19,17 @@ div.esn-panel.whatsup-form.form-container(ng-controller='messageController')
     .form-group(ng-show='position.show')
       div(ng-show='position.load')
         i.fa.fa-spinner.fa-spin
-        small Getting position...
-      div(ng-hide='position.load')
-        i.fa.fa-map-marker
-        small {{position.message}}
+        small #{__('Getting position...')}
+      div.ellipsis(ng-controller='whatsupMapController' ng-hide='position.load')
+        a(href='', ng-click='removePosition()')
+          i.fa.fa-remove
+        //div.ellipsis(ng-controller='whatsupMapController')
+        a(href='', ng-show='position', ng-click='showMap(position)')
+          i.fa.fa-map-marker
+          span(ng-show="position.message") #{__('Near')} {{position.message}}
+          span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
+        leaflet(ng-if="showMeMap", markers="markers", center="center", height="150px", width="100%")
+
     .form-group(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')
       .text-left
         button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Publish')}

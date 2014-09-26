@@ -37,6 +37,10 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       });
     };
 
+    $scope.removePosition = function() {
+      $scope.position = {};
+    };
+
     $scope.sendMessage = function() {
       if (!$scope.whatsupmessage || $scope.whatsupmessage.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
