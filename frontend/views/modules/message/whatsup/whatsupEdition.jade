@@ -16,18 +16,8 @@ div.esn-panel.whatsup-form.form-container(ng-controller='messageController')
   form(name='whatsupform')
     .form-group(ng-class='{nopadding: rows !== 5}')
       textarea.whatsup-input.form-control(ng-model='whatsupmessage', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}")
-    .form-group(ng-show='position.show')
-      div(ng-show='position.load')
-        i.fa.fa-spinner.fa-spin
-        small #{__('Getting position...')}
-      div.ellipsis(ng-controller='whatsupMapController' ng-hide='position.load')
-        a.map(href='', ng-click='removePosition()')
-          i.fa.fa-remove
-        a.map(href='', ng-show='position', ng-click='toggleMapDisplay(position)')
-          i.fa.fa-map-marker
-          span(ng-show="position.message") #{__('Near')} {{position.message}}
-          span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
-        leaflet(ng-if="showMeMap", markers="markers", center="center", height="150px", width="100%")
+    .form-group
+      map-get-display-current-position
 
     .form-group(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')
       .text-left

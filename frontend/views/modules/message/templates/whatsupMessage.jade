@@ -10,6 +10,6 @@ div
     a.map(href='', ng-show='message.position', ng-click='toggleMapDisplay(message.position)')
       i.fa.fa-map-marker
       span(ng-show="message.position.display_name") #{__('Near')} {{message.position.display_name}}
-    leaflet(ng-if="showMeMap", markers="markers", center="center", height="150px", width="100%")
+    leaflet(ng-if="showMeMap", markers="markers", center="center", height="200px", width="100%")
 
   p.multilines {{message.content}}
