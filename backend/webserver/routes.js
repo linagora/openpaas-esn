@@ -3,6 +3,7 @@
 var authorize = require('./middleware/authorization');
 var cookielifetime = require('./middleware/cookie-lifetime');
 var link = require('./middleware/link');
+var requestMW = require('./middleware/request');
 var config = require('../core').config('default');
 var cors = require('cors');
 var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
@@ -55,6 +56,13 @@ exports = module.exports = function(application) {
   application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterWritableTargets, messages.createOrReplyToMessage);
   application.get('/api/messages/:uuid', authorize.requiresAPILogin, messages.getMessage);
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
+
+  var files = require('./controllers/files');
+  application.post('/api/files',
+                   authorize.requiresAPILogin,
+                   requestMW.requireBody,
+                   requestMW.requireQueryParams('mimetype', 'size'),
+                   files.create);
 
   var views = require('./controllers/views');
   var templates = require('./middleware/templates');
