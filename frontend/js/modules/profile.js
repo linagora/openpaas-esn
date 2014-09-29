@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'esn.user'])
+angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn.user'])
   .directive('profileDisplay', function() {
     return {
       restrict: 'E',
@@ -46,18 +46,20 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
     };
 
     var updateField = function(data, runningMarker, fieldName) {
-      runningMarker = true;
+      $scope.running[runningMarker] = true;
 
       return profileAPI.updateProfileField(fieldName, data).then(
         function(data) {
-          runningMarker = false;
+          $scope.running[runningMarker] = false;
           return true;
         },
         function(error) {
-          runningMarker = false;
+          $scope.running[runningMarker] = false;
           return error.statusText;
         }
-      );
+      ).finally (function() {
+        $scope.running[runningMarker] = false;
+      });
     };
 
     $scope.updateName = function(data) {
@@ -88,23 +90,23 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'angularSpinner', 'es
     };
 
     $scope.updateJob = function(data) {
-      return updateField(data, $scope.running.job, 'job_title');
+      return updateField(data, 'job', 'job_title');
     };
 
     $scope.updateService = function(data) {
-      return updateField(data, $scope.running.service, 'service');
+      return updateField(data, 'service', 'service');
     };
 
     $scope.updateBuildingLocation = function(data) {
-      return updateField(data, $scope.running.building_location, 'building_location');
+      return updateField(data, 'building_location', 'building_location');
     };
 
     $scope.updateOfficeLocation = function(data) {
-      return updateField(data, $scope.running.office_location, 'office_location');
+      return updateField(data, 'office_location', 'office_location');
     };
 
     $scope.updatePhone = function(data) {
-      return updateField(data, $scope.running.phone, 'main_phone');
+      return updateField(data, 'phone', 'main_phone');
     };
 
   }])

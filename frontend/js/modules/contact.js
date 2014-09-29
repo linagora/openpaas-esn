@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.contact', ['restangular', 'angularSpinner', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
+angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
   .controller('contactsController', ['$scope', 'contactAPI', 'session', '$alert', 'usSpinnerService', 'addressbookOwner',
   function($scope, contactAPI, session, alert, usSpinnerService, ownerId) {
     var spinnerKey = 'addressbooksSpinner';

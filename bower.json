@@ -35,7 +35,6 @@
     "underscore": "~1.6.0",
     "angular-recaptcha": "~0.0.7",
     "ngInfiniteScroll": "~1.0.0",
-    "angular-spinner": "0.4.0",
     "ng-tags-input": "2.0.0",
     "jcrop": "~0.9.12",
     "angular-xeditable": "0.1.8",
@@ -49,6 +48,7 @@
     "angular-truncate": "sparkalow/angular-truncate",
     "font-awesome-animation": "~0.0.5",
     "recaptcha_ajax": "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js",
-    "angular-sanitize": "~1.2.24"
+    "angular-sanitize": "~1.2.24",
+    "openpaas-logo": "0.6.0"
   }
 }

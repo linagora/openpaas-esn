@@ -101,11 +101,6 @@ html.no-websockets body.esn-welcome-app #unsupported img {
   padding: 0.5em 0;
 }
 
-.throbber{
-  position: relative;
-  top: 2em;
-}
-
 .whatsup-input {
   resize: none;
 }
@@ -484,13 +479,23 @@ header.topbar {
   .profile-small-input {
     width: 80px;
   }
-  .profile-medium-input {
-    width: 160px;
-  }
   .profile-large-input {
     width: 200px;
   }
 }
+
+.profile-edition {
+  .edition-spinner {    
+    position: absolute;
+    top: 0.5em;
+    left: 1.3em;
+  }  
+  .profile-small-input, .profile-large-input {
+    padding-left: 1.2em;
+  }
+}
+
+
 
 .community-highlight-label {
   background-color: @esn-secondary-dark;

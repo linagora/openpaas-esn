@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infinite-list', 'angularSpinner'])
+angular.module('esn.member', ['ngRoute', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
   .constant('memberSearchConfiguration', {
     searchLimit: 20
   })

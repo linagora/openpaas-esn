@@ -7,6 +7,7 @@ angular.module('esnApp', [
   'ui.notify',
   'angularMoment',
   'truncate',
+  'openpaas-logo',
   'esn.core',
   'esn.member',
   'esn.domain',
