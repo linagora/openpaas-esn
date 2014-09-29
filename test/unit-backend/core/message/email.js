@@ -269,6 +269,110 @@ describe('The email message module', function() {
       });
     });
 
+    it('should set the author as attachment creator', function(done) {
+      var author = {_id: 123};
+      var mail = {
+        headers: {
+          'Received': ['from locahost (localhost [127.0.0.1])', 'from linagora (linagora [10.75.9.2])'],
+          'From': 'AwesomeGuy <awesomeguy@linagora.com',
+          'To': 'anotherone@linagora.com',
+          'Subject': 'a subject'
+        },
+        text: 'The text part of email body',
+        html: 'The html part of email body'
+      };
+
+      var attachment1 = {
+        contentType: 'image/png',
+        fileName: 'image1.png'
+      };
+
+      var attachment2 = {
+        contentType: 'image/png',
+        fileName: 'image2.png'
+      };
+
+      var calls = 0;
+      mockery.registerMock('../attachment', {
+        storeAttachment: function(metaData, attachmentStream, callback) {
+          calls++;
+          expect(metaData).to.exist;
+          expect(metaData.creator).to.exist;
+          expect(metaData.creator.objectType).to.equal('user');
+          expect(metaData.creator.id).to.equal(author._id);
+
+          if (metaData.name === attachment1.fileName) {
+            expect(metaData.contentType).to.equal(attachment1.contentType);
+            callback(null, {});
+          }
+          else if (metaData.name === attachment2.fileName) {
+            expect(metaData.contentType).to.equal(attachment2.contentType);
+            callback(null, {});
+          }
+          else {
+            done(new Error('Unexpected call'));
+          }
+        }
+      });
+
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return function() {
+            return {
+              save: function(callback) {
+                var saved = {
+                  _id: {
+                    toString: function() {}
+                  }
+                };
+                return callback(null, saved);
+              }
+            };
+          };
+        }
+      });
+
+      mockery.registerMock('mailparser', {
+        MailParser: function() {
+          return new EventEmitter();
+        }
+      });
+
+      mockery.registerMock('q', {
+        defer: function() {
+          return {
+            promise: {},
+            resolve: function() {},
+            reject: function() {
+              return done(new Error('Unexpected error.'));
+            }
+          };
+        },
+        all: function() {
+          return {
+            then: function(callback) {
+              callback([]);
+            }
+          };
+        }
+      });
+
+      var stream = {
+        pipe: function(parser) {
+          parser.emit('attachment', attachment1);
+          parser.emit('attachment', attachment2);
+          parser.emit('end', mail);
+        }
+      };
+
+      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      emailModule.saveEmail(stream, author, [], function(err) {
+        expect(err).to.not.exist;
+        expect(calls).to.equal(2);
+        done();
+      });
+    });
+
 
     it('should throw an error if attachmentModule#storeAttachment fails', function(done) {
       var author = 123;

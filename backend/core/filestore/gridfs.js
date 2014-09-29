@@ -30,12 +30,18 @@ module.exports.store = function(id, contentType, metadata, stream, callback) {
     return callback(new Error('Stream is mandatory'));
   }
 
+  if (!metadata) {
+    return callback(new Error('Metadata is required'));
+  }
+
+  if (!metadata.creator) {
+    return callback(new Error('Creator metadata is required'));
+  }
+
   callback = callback || function(err, result) {
     console.log(err);
     console.log(result);
   };
-
-  metadata = metadata || {};
 
   var opts = {
     filename: id,

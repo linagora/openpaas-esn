@@ -105,8 +105,10 @@ function saveEmail(stream, author, shares, callback) {
     var metaData = {
       name: attachment.fileName,
       contentType: attachment.contentType,
-      length: attachment.length
+      length: attachment.length,
+      creator: {objectType: 'user', id: author._id}
     };
+
     attachmentsModule.storeAttachment(metaData, attachment.stream, function(err, attachmentModel) {
       if (err) {
         d.reject(err);

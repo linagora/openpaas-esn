@@ -97,8 +97,28 @@ describe('The attachment module', function() {
       });
     });
 
-  });
+    it('should set the author as file creator in metadata', function(done) {
+      var user = 456;
+      var metaData = {
+        name: 'file.txt',
+        contentType: 'text',
+        creator: {objectType: 'user', id: user}
+      };
 
+      var filestoreMock = {
+        store: function(id, type, opts) {
+          expect(opts.creator).to.exist;
+          expect(opts.creator.objectType).to.equal('user');
+          expect(opts.creator.id).to.equal(user);
+          return done();
+        }
+      };
+      mockery.registerMock('../filestore', filestoreMock);
+
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      attachmentModule.storeAttachment(metaData, {});
+    });
+  });
 
   describe('getAttachmentFile method', function() {
 

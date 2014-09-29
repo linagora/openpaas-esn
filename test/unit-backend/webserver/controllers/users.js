@@ -917,6 +917,28 @@ describe('The User controller', function() {
       users.postProfileAvatar(req, res);
     });
 
+    it('should set the current user as avatar creator', function(done) {
+      var user = {
+        _id: 123
+      };
+
+      var imageMock = {
+        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+          expect(opts).to.exist;
+          expect(opts.creator).to.exist;
+          expect(opts.creator.objectType).to.equal('user');
+          expect(opts.creator.id).to.equal(user._id);
+          done();
+        }
+      };
+      mockery.registerMock('./image', imageMock);
+      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var req = {user: user, query: {mimetype: 'image/png', size: 42}};
+      var res = {
+      };
+      users.postProfileAvatar(req, res);
+    });
+
     it('should return 500 if the recordAvatar response is a datastore failure', function(done) {
       var imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
