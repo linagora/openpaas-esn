@@ -169,5 +169,33 @@ describe('The files controller', function() {
       var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
       files.create(req, res);
     });
+
+    it('should save the current user as creator', function(done) {
+      var req = {
+        query: { name: 'filename', mimetype: 'text/plain', size: 2 },
+        body: 'yeah',
+        user: { _id: 123 }
+      };
+
+      mockery.registerMock('../../core/filestore', {
+        store: function(id, contentType, metadata) {
+          expect(id).not.to.be.null;
+          expect(metadata).to.be.an('object');
+          expect(metadata.creator).to.exist;
+          expect(metadata.creator.objectType).to.equal('user');
+          expect(metadata.creator.id).to.equal(req.user._id);
+          return done();
+        }
+      });
+
+
+      var res = {
+        json: function() {
+          return done(new Error());
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.create(req, res);
+    });
   });
 });
