@@ -33,7 +33,7 @@ function storeAttachment(metaData, stream, callback) {
     callback(null, attachmentModel);
   };
 
-  filestore.store(fileId, metaData.contentType, {name: metaData.name}, stream, returnAttachmentModel);
+  filestore.store(fileId, metaData.contentType, {name: metaData.name, creator: metaData.creator}, stream, returnAttachmentModel);
 }
 module.exports.storeAttachment = storeAttachment;
 

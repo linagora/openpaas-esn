@@ -203,7 +203,13 @@ module.exports.uploadAvatar = function(req, res) {
     }
     updateCommunityAvatar();
   }
-  return imageModule.recordAvatar(avatarId, mimetype, {}, req, avatarRecordResponse);
+
+  var metadata = {};
+  if (req.user) {
+    metadata.creator = {objectType: 'user', id: req.user._id};
+  }
+
+  return imageModule.recordAvatar(avatarId, mimetype, metadata, req, avatarRecordResponse);
 };
 
 module.exports.getAvatar = function(req, res) {

@@ -135,6 +135,35 @@ describe('The files API', function() {
         });
       });
     });
+
+    it('should set the current user as creator in file metadata', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        req.query({ 'size': 15, 'mimetype': 'text/plain', 'name': 'creator'})
+          .set('Content-Type', 'text/plain')
+          .send('testing creator')
+          .expect(201)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+
+            filestore.getMeta(res.body._id, function(err, meta) {
+              if (err) { return done(err); }
+              if (!meta) {
+                return done(new Error('Meta should exist'));
+              }
+
+              expect(meta.metadata).to.exist;
+              expect(meta.metadata.creator).to.exist;
+              expect(meta.metadata.creator.objectType).to.equal('user');
+              expect(meta.metadata.creator.id + '').to.equal(user._id + '');
+              done();
+            });
+          });
+      });
+    });
   });
 
   describe('GET /api/files/:id', function() {

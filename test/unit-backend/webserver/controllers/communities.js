@@ -753,6 +753,37 @@ describe('The communities controller', function() {
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
+
+    it('should set the current user as avatar creator', function(done) {
+      var user = {
+        _id: 123
+      };
+
+      var mock = {
+        recordAvatar: function(id, mime, options, req, callback) {
+          expect(options).to.exist;
+          expect(options.creator).to.exist;
+          expect(options.creator.objectType).to.equal('user');
+          expect(options.creator.id).to.equal(user._id);
+          return done();
+        }
+      };
+      mockery.registerMock('../../core/image', mock);
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
+      var req = {
+        community: {},
+        query: {
+          size: 1,
+          mimetype: 'image/png'
+        },
+        user: user
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.uploadAvatar(req, {});
+    });
   });
 
   describe('The getAvatar fn', function() {

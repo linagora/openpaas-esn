@@ -223,7 +223,12 @@ function postProfileAvatar(req, res) {
     updateUserProfile();
   }
 
-  imageModule.recordAvatar(avatarId, mimetype, {}, req, avatarRecordResponse);
+  var metadata = {};
+  if (req.user) {
+    metadata.creator = {objectType: 'user', id: req.user._id};
+  }
+
+  imageModule.recordAvatar(avatarId, mimetype, metadata, req, avatarRecordResponse);
 }
 
 module.exports.postProfileAvatar = postProfileAvatar;
