@@ -44,6 +44,59 @@ function create(req, res) {
   });
 }
 
+function get(req, res) {
+  if (!req.params.id) {
+    return res.json(400, {
+      error: 400,
+      message: 'Bad Request',
+      details: 'Missing id parameter'
+    });
+  }
+
+  filestore.get(req.params.id, function(err, fileMeta, readStream) {
+    if (err) {
+      return res.json(503, {
+        error: 503,
+        message: 'Server error',
+        details: err.message || err
+      });
+    }
+
+    if (!readStream) {
+      return res.json(404, {
+        error: 404,
+        message: 'Not Found',
+        details: 'Could not find file'
+      });
+    }
+
+    if (fileMeta) {
+      var modSince = req.get('If-Modified-Since');
+      var clientMod = new Date(modSince);
+      var serverMod = fileMeta.uploadDate;
+      clientMod.setMilliseconds(0);
+      serverMod.setMilliseconds(0);
+
+      if (modSince && clientMod.getTime() === serverMod.getTime()) {
+        return res.send(304);
+      } else {
+        res.set('Last-Modified', fileMeta.uploadDate);
+      }
+
+      res.type(fileMeta.contentType);
+
+      if (fileMeta.metadata.name) {
+        res.set('Content-Disposition', 'inline; filename="' +
+                fileMeta.metadata.name.replace(/"/g, '') + '"');
+      }
+    }
+
+    res.status(200);
+    return readStream.pipe(res);
+  });
+}
+
 module.exports = {
-  create: create
+  create: create,
+  get: get
 };

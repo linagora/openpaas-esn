@@ -136,4 +136,82 @@ describe('The files API', function() {
       });
     });
   });
+
+  describe('GET /api/files/:id', function() {
+    it('should send back 401 when not logged in', function(done) {
+      request(webserver.application).post('/api/files').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should roundtrip the file', function(done) {
+      function createFile(req, callback) {
+        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+           .set('Content-Type', 'text/plain')
+           .send('hello world')
+           .expect(201)
+           .end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body._id).to.exist;
+          callback(res.body._id);
+        });
+      }
+      function getFile(req, callback) {
+        req.expect(200, 'hello world').end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.get('Content-Disposition')).to.equal('inline; filename="fname"');
+          expect(res.get('Content-Type')).to.have.string('text/plain'); // accept charset
+          callback();
+        });
+      }
+
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        createFile(req, function(id) {
+          req = loggedInAsUser(request(webserver.application).get('/api/files/' + id));
+          getFile(req, done);
+        });
+      });
+    });
+
+    it('should return 304 if not modified', function(done) {
+      function createFile(req, callback) {
+        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+           .set('Content-Type', 'text/plain')
+           .send('hello world')
+           .expect(201)
+           .end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body._id).to.exist;
+          callback(res.body._id, res.get('Date'));
+        });
+      }
+      function getFile(req, lastModified, callback) {
+        req.set('If-Modified-Since', lastModified)
+           .expect(304)
+           .end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.get('Content-Disposition')).to.not.exist;
+          expect(res.get('Content-Type')).to.not.exist;
+          expect(res.get('Content-Length')).to.not.exist;
+          callback();
+        });
+      }
+
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        createFile(req, function(id, lastModified) {
+          req = loggedInAsUser(request(webserver.application).get('/api/files/' + id));
+          getFile(req, lastModified, done);
+        });
+      });
+    });
+  });
 });
