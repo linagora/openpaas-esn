@@ -180,5 +180,9 @@
   "You are no allowed to see the content of this community.": "You are no allowed to see the content of this community.",
   "Show all members": "Show all members",
   "Error while getting members": "Error while getting members",
-  "You are not allowed to see the members of this community": "You are not allowed to see the members of this community"
+  "You are not allowed to see the members of this community": "You are not allowed to see the members of this community",
+  "Notifications" : "Notifications",
+  "Mark as read" : "Mark as read",
+  "You have no notification." : "You have no notification.",
+  "Previous" : "Previous"
 }
