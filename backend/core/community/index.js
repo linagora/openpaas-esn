@@ -8,6 +8,9 @@ var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 
+var defaultLimit = 50;
+var defaultOffset = 0;
+
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
@@ -166,24 +169,19 @@ module.exports.isMember = function(community, user, callback) {
   });
 };
 
-module.exports.getMembers = function(community, callback) {
+module.exports.getMembers = function(community, query, callback) {
+  query = query ||  {};
   var id = community._id || community;
 
-  if (community.members) {
-    return callback(null, community.members);
-  } else {
-    Community.findById(id, function(err, result) {
-      if (err) {
-        return callback(err);
-      }
+  var q = Community.findById(id);
+  q.slice('members', [query.offset ||  defaultOffset, query.limit ||  defaultLimit]);
 
-      if (!result) {
-        return callback(null, []);
-      }
-
-      return callback(null, result.members || []);
-    });
-  }
+  q.exec(function(err, community) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, community ? community.members : []);
+  });
 };
 
 module.exports.getUserCommunities = function(user, domainId, callback) {

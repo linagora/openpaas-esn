@@ -270,10 +270,26 @@ module.exports.getMembers = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.getMembers(community, function(err, members) {
+  var query = {};
+  if (req.param('limit')) {
+    var limit = parseInt(req.param('limit'));
+    if (!isNaN(limit)) {
+      query.limit = limit;
+    }
+  }
+
+  if (req.param('offset')) {
+    var offset = parseInt(req.param('offset'));
+    if (!isNaN(offset)) {
+      query.offset = offset;
+    }
+  }
+
+  communityModule.getMembers(community, query, function(err, members) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
+    res.header('X-ESN-Items-Count', req.community.members ? req.community.members.length : 0);
     return res.json(200, members || []);
   });
 };

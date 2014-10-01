@@ -265,7 +265,7 @@ describe('The WebSockets notification module', function() {
       mockery.registerMock('../helper/socketio', socketHelper);
 
       var communityMock = {
-        getMembers: function(communityId, callback) {
+        getMembers: function(communityId, query, callback) {
           return callback(null, [
             {user: 'user1'}, {user: 'user2'}
           ]);
@@ -328,7 +328,7 @@ describe('The WebSockets notification module', function() {
       mockery.registerMock('../helper/socketio', socketHelper);
 
       var communityMock = {
-        getMembers: function(communityId, callback) {
+        getMembers: function(communityId, query, callback) {
           return callback(null, [
             {user: 'user1'}
           ]);
