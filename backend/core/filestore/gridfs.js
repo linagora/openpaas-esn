@@ -52,7 +52,7 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
   if (options && options.chunk_size) {
     var size = parseInt(options.chunk_size, 10);
     if (!isNaN(size) && size > 0 && size < 255) {
-      opts.chunk_size = options.chunk_size * size;
+      opts.chunk_size = chunk_size * size;
     }
   }
 
