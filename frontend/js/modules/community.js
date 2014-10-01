@@ -32,8 +32,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       });
     }
 
-    function getMembers(id) {
-      return Restangular.one('communities', id).all('members').getList();
+    function getMembers(id, options) {
+      return Restangular.one('communities', id).all('members').getList(options);
     }
 
     function getMember(id, member) {

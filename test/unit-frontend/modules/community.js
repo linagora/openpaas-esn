@@ -162,6 +162,12 @@ describe('The Community Angular module', function() {
         this.$httpBackend.flush();
       });
 
+      it('should send a GET request to /communities/:id/members?limit=X&offset=Y', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/members?limit=10&offset=2').respond(200, []);
+        this.communityAPI.getMembers(this.communityId, {limit: 10, offset: 2});
+        this.$httpBackend.flush();
+      });
+
       it('should return a promise', function() {
         var promise = this.communityAPI.getMembers(123);
         expect(promise.then).to.be.a.function;
