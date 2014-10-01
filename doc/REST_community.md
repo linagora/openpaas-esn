@@ -288,9 +288,15 @@ List all users who are members of the community.
 
 - community_id: The community id
 
+**Query Parameters:**
+
+- limit (int): The number of members to return. This will only keep the N first members (where N=limit). Default value is 50.
+- offset (int): Start the list of members after skipping N members (where N=offset). For example, if the size of the members list is 100 and the offset is 50, the result list will contain only members from 50 to 99 (list index starts at index 0).
+
 **Response Headers:**
 
 - Content-Type: application/json
+- X-ESN-Items-Count: The number of members in the community
 
 **Response JSON Object**
 
