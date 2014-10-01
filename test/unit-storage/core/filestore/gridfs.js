@@ -43,7 +43,7 @@ describe('The filestore gridfs module', function() {
 
       var id = uuid.v4();
       var type = 'application/text';
-      filestore.store(id, type, null, stream, function(err, data) {
+      filestore.store(id, type, null, stream, null, function(err, data) {
         expect(err).to.exist;
         done();
       });
@@ -62,7 +62,7 @@ describe('The filestore gridfs module', function() {
 
       var id = uuid.v4();
       var type = 'application/text';
-      filestore.store(id, type, {}, stream, function(err, data) {
+      filestore.store(id, type, {}, stream, null, function(err, data) {
         expect(err).to.exist;
         done();
       });
@@ -75,7 +75,7 @@ describe('The filestore gridfs module', function() {
     var stream = require('fs').createReadStream(file);
 
     var id = uuid.v4();
-    filestore.store(id, 'application/text', {creator: creator}, stream, function(err, data) {
+    filestore.store(id, 'application/text', {creator: creator}, stream, null, function(err, data) {
       expect(err).to.not.exist;
       expect(data).to.exist;
       done();
@@ -94,7 +94,7 @@ describe('The filestore gridfs module', function() {
 
       var id = uuid.v4();
       var type = 'application/text';
-      filestore.store(id, type, {creator: creator}, stream, function(err, data) {
+      filestore.store(id, type, {creator: creator}, stream, null, function(err, data) {
         expect(err).to.not.exist;
         expect(data).to.exist;
         expect(data.md5).to.equal(hash);
@@ -108,7 +108,7 @@ describe('The filestore gridfs module', function() {
   it('should fail to store when input stream is not set', function(done) {
     var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
     var id = uuid.v4();
-    filestore.store(id, 'application/text', {creator: creator}, null, function(err, data) {
+    filestore.store(id, 'application/text', {creator: creator}, null, null, function(err, data) {
       expect(err).to.exist;
       done();
     });
@@ -116,7 +116,7 @@ describe('The filestore gridfs module', function() {
 
   it('should fail to store when input id is not set', function(done) {
     var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
-    filestore.store(null, 'application/text', {creator: creator}, null, function(err, data) {
+    filestore.store(null, 'application/text', {creator: creator}, null, null, function(err, data) {
       expect(err).to.exist;
       done();
     });
@@ -149,7 +149,7 @@ describe('The filestore gridfs module', function() {
     };
 
     var id = uuid.v4();
-    filestore.store(id, 'application/text', userMeta, stream, function(err, data) {
+    filestore.store(id, 'application/text', userMeta, stream, {}, function(err, data) {
       if (err) {
         return done(err);
       }
@@ -195,7 +195,7 @@ describe('The filestore gridfs module', function() {
     var stream = require('fs').createReadStream(file);
 
     var id = uuid.v4();
-    filestore.store(id, 'application/text', {creator: creator}, stream, function(err, data) {
+    filestore.store(id, 'application/text', {creator: creator}, stream, {}, function(err, data) {
       if (err) {
         return done(err);
       }
@@ -228,7 +228,7 @@ describe('The filestore gridfs module', function() {
     var stream = require('fs').createReadStream(file);
 
     var id = uuid.v4();
-    filestore.store(id, 'application/text', {creator: creator}, stream, function(err, data) {
+    filestore.store(id, 'application/text', {creator: creator}, stream, {}, function(err, data) {
       if (err) {
         return done(err);
       }
@@ -262,7 +262,7 @@ describe('The filestore gridfs module', function() {
     var outstream = fs.createWriteStream(out);
 
     var id = uuid.v4();
-    filestore.store(id, 'application/text', {creator: creator}, stream, function(err, data) {
+    filestore.store(id, 'application/text', {creator: creator}, stream, {}, function(err, data) {
       if (err) {
         return done(err);
       }
@@ -321,7 +321,7 @@ describe('The filestore gridfs module', function() {
     var outstream = fs.createWriteStream(out);
 
     var id = uuid.v4();
-    filestore.store(id, 'application/text', {creator: creator}, stream, function(err, data) {
+    filestore.store(id, 'application/text', {creator: creator}, stream, {}, function(err, data) {
       if (err) {
         return done(err);
       }

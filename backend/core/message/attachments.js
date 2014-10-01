@@ -3,7 +3,7 @@
 var uuid = require('node-uuid');
 var filestore = require('../filestore');
 
-function storeAttachment(metaData, stream, callback) {
+function storeAttachment(metaData, stream, options, callback) {
   if (!metaData.name) {
     return callback(new Error('Attachment name is required.'));
   }
@@ -33,7 +33,7 @@ function storeAttachment(metaData, stream, callback) {
     callback(null, attachmentModel);
   };
 
-  filestore.store(fileId, metaData.contentType, {name: metaData.name, creator: metaData.creator}, stream, returnAttachmentModel);
+  filestore.store(fileId, metaData.contentType, {name: metaData.name, creator: metaData.creator}, stream, options, returnAttachmentModel);
 }
 module.exports.storeAttachment = storeAttachment;
 

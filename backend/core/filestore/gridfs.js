@@ -21,7 +21,7 @@ module.exports.getAsFileStoreMeta = function(gridfsMeta) {
   return result;
 };
 
-module.exports.store = function(id, contentType, metadata, stream, callback) {
+module.exports.store = function(id, contentType, metadata, stream, options, callback) {
   if (!id) {
     return callback(new Error('ID is mandatory'));
   }
@@ -49,7 +49,10 @@ module.exports.store = function(id, contentType, metadata, stream, callback) {
     content_type: contentType
   };
 
-  opts.chunk_size = chunk_size;
+  if (options && options.chunk_size) {
+    opts.chunk_size = options.chunk_size * chunk_size;
+  }
+
   opts.metadata = metadata;
 
   var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
