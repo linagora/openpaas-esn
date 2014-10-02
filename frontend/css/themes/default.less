@@ -483,3 +483,35 @@ body {
   padding-bottom: 10px;
   box-shadow: none;
 }
+
+.community-members-widget {
+  padding-bottom: 10px;
+  text-align: left;
+  .title {
+    padding: 10px 0px 0px 10px;
+  }
+  hr {
+    border: 1px solid;
+    margin: 10px;
+  }
+  ul {
+    margin-left: 5px;
+    text-align: left;
+  }
+  ul li {
+    .ResizeImage(@defaultImageSizeSmall, auto);
+    padding-top: 4px;
+    padding-right: 0px;
+    img {
+      margin-right: 0px;
+    }
+    a {
+      color: @defaultFontColor;
+      outline: none;
+      opacity: 0.8;
+    }
+    a:hover {
+      opacity: 1;
+    }
+  }
+}

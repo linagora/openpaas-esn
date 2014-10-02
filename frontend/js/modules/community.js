@@ -625,4 +625,22 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         });
       }
     };
-  }]);
+  }])
+  .directive('communityMembersWidget', ['$rootScope', 'livenotification', 'communityAPI', function($rootScope, livenotification, communityAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-members-widget.html',
+      controller: function($scope) {
+        communityAPI.getMembers($scope.community._id).then(function(result) {
+          $scope.members = result.data;
+        }, function() {
+          $scope.error = true;
+        });
+      }
+    }
+  }])
+;

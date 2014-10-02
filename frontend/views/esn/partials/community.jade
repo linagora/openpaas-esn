@@ -7,7 +7,7 @@
     activity-stream(activitystream-uuid='{{community.activity_stream.uuid}}')
     activity-stream-notification(activitystream-uuid='{{community.activity_stream.uuid}}')
   .col-md-2.col-sm-3.hidden-xs
-    .esn-panel.widget.rightPane
-      p Community Widgets
+    .esn-panel.rightPane
+      community-members-widget(community='community')
 .col-xs-12.esn-panel(ng-if='!canRead()')
   p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}
