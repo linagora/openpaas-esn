@@ -38,8 +38,6 @@ describe('The messages controller', function() {
         }
       };
 
-      var messageModuleMocked = {};
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -61,8 +59,6 @@ describe('The messages controller', function() {
         }
       };
 
-      var messageModuleMocked = {};
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -80,13 +76,21 @@ describe('The messages controller', function() {
       };
 
       var messageModuleMocked = {
-        save: function(message, callback) {
-          callback(new Error('an error has occured'));
+        getInstance: function() {
+          return {
+            save: function(callback) {
+              callback(new Error('an error has occured'));
+            }
+          };
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -102,13 +106,21 @@ describe('The messages controller', function() {
       };
 
       var messageModuleMocked = {
-        save: function(message, callback) {
-          callback(null, {_id: 'a new id'});
+        getInstance: function() {
+          return {
+            save: function(callback) {
+              callback(null, {_id: 'a new id'});
+            }
+          };
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -129,13 +141,21 @@ describe('The messages controller', function() {
       };
 
       var messageModuleMocked = {
-        save: function(message, callback) {
-          callback(null, {_id: 'a new id', message: 123 });
+        getInstance: function() {
+          return {
+            save: function(callback) {
+              callback(null, {_id: 'a new id'});
+            }
+          };
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
@@ -152,13 +172,21 @@ describe('The messages controller', function() {
       };
 
       var messageModuleMocked = {
-        save: function(message, callback) {
-          callback(null, false);
+        getInstance: function() {
+          return {
+            save: function(callback) {
+              callback(null, false);
+            }
+          };
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', messageModuleMocked);
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -196,12 +224,6 @@ describe('The messages controller', function() {
         }
       };
 
-      var messageModuleMocked = {
-        addNewComment: function(message, inReplyTo, callback) {
-          callback(new Error('an error has occured'));
-        }
-      };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {
         getInstance: function() {return {};},
@@ -227,7 +249,6 @@ describe('The messages controller', function() {
           callback(new Error('an error has occured'));
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {
         type: {
@@ -255,7 +276,6 @@ describe('The messages controller', function() {
           callback(null, {_id: 'an id'}, {_id: 'a parent id', shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
 
@@ -285,7 +305,6 @@ describe('The messages controller', function() {
           done();
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/activitystreams/helpers', ashelpermock);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -314,7 +333,6 @@ describe('The messages controller', function() {
           callback(null, {_id: 'an id'}, {shares: [{objectType: 'activitystream', id: 'abb5bd53-117e-4859-8a97-76392937fcc9'}]});
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
 
@@ -349,8 +367,6 @@ describe('The messages controller', function() {
         }
       };
 
-      var messageModuleMocked = {};
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -372,8 +388,6 @@ describe('The messages controller', function() {
         }
       };
 
-      var messageModuleMocked = {};
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -390,18 +404,18 @@ describe('The messages controller', function() {
         }
       };
 
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
       var messageModuleMocked = {
         findByIds: function(ids, callback) {
           callback(new Error('an error has occured'));
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
+      mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
-        }
-      });
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(validReq, res);
@@ -425,6 +439,11 @@ describe('The messages controller', function() {
         }
       };
 
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
       var messageModuleMocked = {
         findByIds: function(ids, callback) {
           expect(ids).to.deep.equal(['1', '2']);
@@ -439,13 +458,8 @@ describe('The messages controller', function() {
           ]);
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
+      mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
-        }
-      });
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(validReq, res);
@@ -461,6 +475,11 @@ describe('The messages controller', function() {
           done();
         }
       };
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
 
       var messageModuleMocked = {
         findByIds: function(ids, callback) {
@@ -483,13 +502,8 @@ describe('The messages controller', function() {
           ]);
         }
       };
-      mockery.registerMock('../../core/message/whatsup', messageModuleMocked);
+      mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {
-        type: {
-          whatsup: messageModuleMocked
-        }
-      });
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.getMessages(validReq, res);
@@ -498,7 +512,6 @@ describe('The messages controller', function() {
 
   describe('The getMessage fn', function() {
     it('should return send back HTTP 400 if req.param.uuid is undefined', function(done) {
-      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -520,15 +533,13 @@ describe('The messages controller', function() {
     });
 
     it('should return send back HTTP 500 if core module returns an error', function(done) {
-
       var mock = {
         get: function(id, callback) {
           return callback(new Error());
         }
       };
-      mockery.registerMock('../../core/message/whatsup', mock);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', mock);
 
       var req = {
         param: function() {
@@ -553,9 +564,8 @@ describe('The messages controller', function() {
           return callback();
         }
       };
-      mockery.registerMock('../../core/message/whatsup', mock);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', mock);
 
       var req = {
         param: function() {
@@ -580,9 +590,8 @@ describe('The messages controller', function() {
           return callback(null, {_id: 123});
         }
       };
-      mockery.registerMock('../../core/message/whatsup', mock);
       mockery.registerMock('../../core/message/email', {});
-      mockery.registerMock('../../core/message', {});
+      mockery.registerMock('../../core/message', mock);
 
       var req = {
         param: function() {
@@ -605,7 +614,6 @@ describe('The messages controller', function() {
 
   describe('createMessageFromEmail fn', function() {
     it('should return 400 if query.objectType is not set', function(done) {
-      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -627,7 +635,6 @@ describe('The messages controller', function() {
     });
 
     it('should return 400 if query.id is not set', function(done) {
-      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
@@ -649,7 +656,6 @@ describe('The messages controller', function() {
     });
 
     it('should return 500 if email module fails', function(done) {
-      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
@@ -676,7 +682,6 @@ describe('The messages controller', function() {
     });
 
     it('should return 201 if email module saves the message', function(done) {
-      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
@@ -716,7 +721,6 @@ describe('The messages controller', function() {
         }
       };
 
-      mockery.registerMock('../../core/message/whatsup', {});
       mockery.registerMock('../../core/message', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
