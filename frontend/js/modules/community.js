@@ -651,7 +651,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       restrict: 'E',
       replace: true,
       scope: {
-        member: '='
+        member: '=',
+        community: '='
       },
       templateUrl: '/views/modules/community/community-member-avatar.html',
       controller: function($scope) {
@@ -665,6 +666,10 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         $scope.tooltip = {
           title: title
         };
+
+        if ($scope.community.creator === $scope.member.user._id) {
+          $scope.creator = true;
+        }
       }
     };
   });

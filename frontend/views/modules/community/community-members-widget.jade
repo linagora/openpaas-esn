@@ -7,7 +7,7 @@
   .row
     .row(ng-repeat="row in members | inSlicesOf: 3")
       .col-xs-4.nopadding(ng-repeat="member in row")
-        community-member-avatar(member="member")
+        community-member-avatar(member="member", community="community")
 
   .row.text-center(ng-show='more > 0')
     a(ng-href='#/communities/{{community._id}}/members') #{__('And')} {{more}} #{__('more')}...
