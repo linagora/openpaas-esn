@@ -12,6 +12,7 @@ module.exports = function(config) {
       'frontend/components/angular-mocks/angular-mocks.js',
       'frontend/components/angular-animate/angular-animate.js',
       'frontend/components/angular-strap/dist/angular-strap.js',
+      'frontend/components/angular-strap/dist/angular-strap.tpl.js',
       'frontend/components/underscore/underscore.js',
       'frontend/components/restangular/dist/restangular.js',
       'frontend/components/openpaas-logo/openpaas-logo.js',

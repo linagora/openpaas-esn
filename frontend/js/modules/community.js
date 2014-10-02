@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
@@ -626,7 +626,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .directive('communityMembersWidget', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
+  .directive('communityMembersWidget', ['communityAPI', function(communityAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -635,12 +635,27 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       },
       templateUrl: '/views/modules/community/community-members-widget.html',
       controller: function($scope) {
+        $scope.error = false;
         communityAPI.getMembers($scope.community._id).then(function(result) {
           $scope.members = result.data;
         }, function() {
           $scope.error = true;
         });
       }
-    }
+    };
   }])
-;
+  .directive('communityMemberAvatar', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        member: '='
+      },
+      templateUrl: '/views/modules/community/community-member-avatar.html',
+      controller: function($scope) {
+        $scope.tooltip = {
+          title: $scope.member.user
+        };
+      }
+    };
+  });

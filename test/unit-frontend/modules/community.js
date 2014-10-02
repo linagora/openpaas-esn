@@ -1615,4 +1615,35 @@ describe('The Community Angular module', function() {
     });
   });
 
+  describe('The communityMembersWidget directive', function() {
+    beforeEach(function() {
+      var self = this;
+      this.communityAPI = {};
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', self.communityAPI);
+      });
+      module('jadeTemplates');
+      module('esn.core');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.community = {
+        _id: 'community1',
+        creator: 'user1'
+      };
+      this.html = '<community-members-widget community="community"/>';
+    }));
+
+    it('should call communityAPI#getMembers', function(done) {
+      this.communityAPI.getMembers = function() {
+        return done();
+      };
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+    });
+  });
 });

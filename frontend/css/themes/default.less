@@ -486,32 +486,35 @@ body {
 
 .community-members-widget {
   padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
   text-align: left;
   .title {
     padding: 10px 0px 0px 10px;
   }
   hr {
     border: 1px solid;
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
-  ul {
-    margin-left: 5px;
-    text-align: left;
+}
+
+.community-member-avatar {
+  .ResizeImage(100%, auto);
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+
+  img {
+    margin-right: 0px;
+    border-radius: 2px;
   }
-  ul li {
-    .ResizeImage(@defaultImageSizeSmall, auto);
-    padding-top: 4px;
-    padding-right: 0px;
-    img {
-      margin-right: 0px;
-    }
-    a {
-      color: @defaultFontColor;
-      outline: none;
-      opacity: 0.8;
-    }
-    a:hover {
-      opacity: 1;
-    }
+  a {
+    color: @defaultFontColor;
+    outline: none;
+    opacity: 0.8;
+  }
+  a:hover {
+    opacity: 1;
   }
 }
