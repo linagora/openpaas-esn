@@ -8,8 +8,8 @@ var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 
-var defaultLimit = 50;
-var defaultOffset = 0;
+var DEFAULT_LIMIT = 50;
+var DEFAULT_OFFSET = 0;
 
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
@@ -174,7 +174,7 @@ module.exports.getMembers = function(community, query, callback) {
   var id = community._id || community;
 
   var q = Community.findById(id);
-  q.slice('members', [query.offset ||  defaultOffset, query.limit ||  defaultLimit]);
+  q.slice('members', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
 
   q.exec(function(err, community) {
     if (err) {
