@@ -799,6 +799,112 @@ describe('The communities API', function() {
               expect(err).to.not.exist;
               expect(res.body).to.be.an.array;
               expect(res.body.length).to.equal(2);
+              expect(res.body[0].user).to.exist;
+              expect(res.body[0].user._id).to.exist;
+              expect(res.body[0].user.password).to.not.exist;
+              expect(res.body[0].metadata).to.exist;
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return the sliced members list', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        members: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id}, {user: user._id}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
+            req.query({limit: 3, offset: 1});
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(3);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return number of community members in the header', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        members: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id}, {user: user._id}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('4');
               done();
             });
           });

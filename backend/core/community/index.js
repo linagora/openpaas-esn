@@ -8,6 +8,9 @@ var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 
+var DEFAULT_LIMIT = 50;
+var DEFAULT_OFFSET = 0;
+
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
@@ -166,24 +169,42 @@ module.exports.isMember = function(community, user, callback) {
   });
 };
 
-module.exports.getMembers = function(community, callback) {
+module.exports.userToMember = function(document) {
+  var result = {};
+  if (!document || !document.user) {
+    return result;
+  }
+
+  if (typeof(document.user.toObject) === 'function') {
+    result.user = document.user.toObject();
+  } else {
+    result.user = document.user;
+  }
+
+  delete result.user.password;
+  delete result.user.avatars;
+  delete result.user.login;
+
+  result.metadata = {
+    timestamps: document.timestamps
+  };
+
+  return result;
+};
+
+module.exports.getMembers = function(community, query, callback) {
+  query = query ||  {};
   var id = community._id || community;
 
-  if (community.members) {
-    return callback(null, community.members);
-  } else {
-    Community.findById(id, function(err, result) {
-      if (err) {
-        return callback(err);
-      }
-
-      if (!result) {
-        return callback(null, []);
-      }
-
-      return callback(null, result.members || []);
-    });
-  }
+  var q = Community.findById(id);
+  q.slice('members', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
+  q.populate('members.user');
+  q.exec(function(err, community) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, community ? community.members : []);
+  });
 };
 
 module.exports.getUserCommunities = function(user, domainId, callback) {

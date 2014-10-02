@@ -40,7 +40,7 @@ function init(io) {
         users[target.id] = true;
         callback();
       } else if (target.objectType === 'community') {
-        community.getMembers(target.id, function(err, members) {
+        community.getMembers(target.id, null, function(err, members) {
           if (err) {
             return callback(err);
           }
