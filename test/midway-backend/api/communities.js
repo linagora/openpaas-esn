@@ -799,6 +799,10 @@ describe('The communities API', function() {
               expect(err).to.not.exist;
               expect(res.body).to.be.an.array;
               expect(res.body.length).to.equal(2);
+              expect(res.body[0].user).to.exist;
+              expect(res.body[0].user._id).to.exist;
+              expect(res.body[0].user.password).to.not.exist;
+              expect(res.body[0].metadata).to.exist;
               done();
             });
           });

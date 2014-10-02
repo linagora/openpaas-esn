@@ -669,6 +669,7 @@ describe('The communities module', function() {
             findById: function(id) {
               return {
                 slice: function() {},
+                populate: function() {},
                 exec: function(callback) {
                   return callback(new Error());
                 }
@@ -692,6 +693,7 @@ describe('The communities module', function() {
             findById: function() {
               return {
                 slice: function() {},
+                populate: function() {},
                 exec: function(callback) {
                   return callback();
                 }
@@ -718,6 +720,7 @@ describe('The communities module', function() {
             findById: function(a) {
               return {
                 slice: function() {},
+                populate: function() {},
                 exec: function(callback) {
                   return callback(null, {members: result});
                 }
@@ -747,6 +750,7 @@ describe('The communities module', function() {
           return {
             findById: function(a) {
               return {
+                populate: function() {},
                 slice: function(field, array) {
                   expect(field).to.equal('members');
                   expect(array).to.exist;
@@ -780,6 +784,7 @@ describe('The communities module', function() {
                   expect(array[0]).to.exist;
                   expect(array[1]).to.exist;
                 },
+                populate: function() {},
                 exec: function(callback) {
                   return callback(null, {members: []});
                 }
@@ -808,6 +813,59 @@ describe('The communities module', function() {
         expect(err).to.exist;
         return done();
       });
+    });
+  });
+
+  describe('The userToMember fn', function() {
+    it('should send back result even if user is null', function(done) {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var member = community.userToMember(null);
+      expect(member).to.exist;
+      done();
+    });
+
+    it('should send back result even if document.user is null', function(done) {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var member = community.userToMember({});
+      expect(member).to.exist;
+      done();
+    });
+
+    it('should filter document', function(done) {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+
+      var user = {
+        _id: 1,
+        firstname: 'Me',
+        password: '1234',
+        avatars: [1, 2, 3],
+        login: [4, 5, 6]
+      };
+
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var member = community.userToMember({user: user});
+      expect(member).to.exist;
+      expect(member.user).to.exist;
+      expect(member.user._id).to.exist;
+      expect(member.user.firstname).to.exist;
+      expect(member.user.password).to.not.exist;
+      expect(member.user.avatars).to.not.exist;
+      expect(member.user.login).to.not.exist;
+      done();
     });
   });
 });

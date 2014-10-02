@@ -290,7 +290,10 @@ module.exports.getMembers = function(req, res) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
     res.header('X-ESN-Items-Count', req.community.members ? req.community.members.length : 0);
-    return res.json(200, members || []);
+    var result = members.map(function(member) {
+      return communityModule.userToMember(member);
+    });
+    return res.json(200, result || []);
   });
 };
 

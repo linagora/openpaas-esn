@@ -322,16 +322,56 @@ Array of community members.
     HTTP/1.1 200 OK
     [
       {
-        "_id": "02029904094900300",
-        "firstname": "John",
-        "lastname": "Doe",
-        "avatar": "9330-0393-7373-7280"
+        "user": {
+          "_id": "5375de9fd684db7f6fbd5010",
+          "currentAvatar": "5f9cef20-494c-11e4-a670-e32f9c5817b5",
+          "firstname": "Bruce",
+          "lastname": "Willis",
+          "job_title": "Die Harder",
+          "domains": [
+            {
+              "domain_id": "5375de4bd684db7f6fbd4f98",
+              "joined_at": "2014-05-16T09:47:11.732Z"
+            }
+          ],
+          "timestamps": {
+            "creation": "2014-05-16T09:47:11.703Z"
+          },
+          "emails": [
+            "bruce@willis.name"
+          ]
+        },
+        "metadata": {
+          "timestamps": {
+            "creation": "2014-09-16T20:16:51.449Z"
+          }
+        }
       },
       {
-        "_id": "02029904094900301",
-        "firstname": "Bruce",
-        "lastname": "Willis",
-        "avatar": "9330-0393-7373-7281"
+        "user": {
+          "_id": "5375de9fd684db7f6fbd5011",
+          "currentAvatar": "5f9cef20-494c-11e4-a670-e32f9c5817b6",
+          "firstname": "Karate",
+          "lastname": "Kid",
+          "job_title": "Foo Foo Fighter",
+          "domains": [
+            {
+              "domain_id": "5375de4bd684db7f6fbd4f98",
+              "joined_at": "2014-05-16T10:47:11.732Z"
+            }
+          ],
+          "timestamps": {
+            "creation": "2014-05-16T09:48:11.703Z"
+          },
+          "emails": [
+            "karatekid@savetheworld.com"
+          ]
+        },
+        "metadata": {
+          "timestamps": {
+            "creation": "2014-09-16T20:17:51.449Z"
+          }
+        }
       }
     ]
 

@@ -169,13 +169,36 @@ module.exports.isMember = function(community, user, callback) {
   });
 };
 
+module.exports.userToMember = function(document) {
+  var result = {};
+  if (!document || !document.user) {
+    return result;
+  }
+
+  if (typeof(document.user.toObject) === 'function') {
+    result.user = document.user.toObject();
+  } else {
+    result.user = document.user;
+  }
+
+  delete result.user.password;
+  delete result.user.avatars;
+  delete result.user.login;
+
+  result.metadata = {
+    timestamps: document.timestamps
+  };
+
+  return result;
+};
+
 module.exports.getMembers = function(community, query, callback) {
   query = query ||  {};
   var id = community._id || community;
 
   var q = Community.findById(id);
   q.slice('members', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
-
+  q.populate('members.user');
   q.exec(function(err, community) {
     if (err) {
       return callback(err);
