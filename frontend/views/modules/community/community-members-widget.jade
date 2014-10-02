@@ -6,7 +6,7 @@
   .row.no-padding
     ul.list-inline
       li(ng-repeat="member in members")
-        a(ng-href="#/profile/{{member.user}}")
-          img(ng-src="/api/users/{{member.user}}/profile/avatar", width="48", height="48")
+        a(ng-href="#/profile/{{member.user}}", href="#", title='{{member.user}}')
+          img(ng-src="/api/users/{{member.user}}/profile/avatar", src="/images/user.png", width="48", height="48")
   .row.text-center
-    a(href='#/communities/{{community._id}}/members') #{__('More')}...
+    a(ng-href='#/communities/{{community._id}}/members') #{__('More')}...

@@ -626,7 +626,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       }
     };
   }])
-  .directive('communityMembersWidget', ['$rootScope', 'livenotification', 'communityAPI', function($rootScope, livenotification, communityAPI) {
+  .directive('communityMembersWidget', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
     return {
       restrict: 'E',
       replace: true,
