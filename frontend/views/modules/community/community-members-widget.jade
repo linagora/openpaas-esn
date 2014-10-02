@@ -9,5 +9,7 @@
       .col-xs-4.nopadding(ng-repeat="member in row")
         community-member-avatar(member="member")
 
-  .row.text-center
+  .row.text-center(ng-show='more > 0')
+    a(ng-href='#/communities/{{community._id}}/members') #{__('And')} {{more}} #{__('more')}...
+  .row.text-center(ng-show='more === 0')
     a(ng-href='#/communities/{{community._id}}/members') #{__('Show all members')}...
