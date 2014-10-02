@@ -1,3 +1,3 @@
 .community-member-avatar
-  a(ng-href="#/profile/{{member.user}}", href="#", title='{{member.user}}', bs-tooltip='tooltip')
-    img(ng-src="/api/users/{{member.user}}/profile/avatar", src="/images/user.png")
+  a(ng-href="#/profile/{{member.user._id}}", href="#", title='{{tooltip.title}}', data-placement="bottom", bs-tooltip="tooltip")
+    img(ng-src="/api/users/{{member.user._id}}/profile/avatar", src="/images/user.png")

@@ -655,8 +655,15 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       },
       templateUrl: '/views/modules/community/community-member-avatar.html',
       controller: function($scope) {
+        var title = '';
+        if ($scope.member.user.firstname || $scope.member.user.lastname) {
+          title = $scope.member.user.firstname + ' ' + $scope.member.user.lastname
+        } else {
+          title = $scope.member.user.emails[0];
+        }
+
         $scope.tooltip = {
-          title: $scope.member.user
+          title: title
         };
       }
     };
