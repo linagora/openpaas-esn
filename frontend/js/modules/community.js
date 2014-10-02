@@ -636,7 +636,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       templateUrl: '/views/modules/community/community-members-widget.html',
       controller: function($scope) {
         $scope.error = false;
-        communityAPI.getMembers($scope.community._id, {limit: 18}).then(function(result) {
+        communityAPI.getMembers($scope.community._id, {limit: 15}).then(function(result) {
           $scope.members = result.data;
           var total = parseInt(result.headers('X-ESN-Items-Count'));
           $scope.more = total - $scope.members.length;
