@@ -1645,5 +1645,112 @@ describe('The Community Angular module', function() {
       this.$compile(this.html)(this.scope);
       this.scope.$digest();
     });
+
+    it('should set more to the difference between header and array size', function(done) {
+      var defer = this.$q.defer();
+      this.communityAPI.getMembers = function() {
+        return defer.promise;
+      };
+      defer.resolve({
+        headers: function() {
+          return 3;
+        },
+        data: [{user: {firstname: 'john'}}]
+      });
+
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+
+      var iscope = element.isolateScope();
+      expect(iscope.more).to.exist;
+      expect(iscope.more).to.equal(2);
+      done();
+    });
+
+    it('should set error when call the API fails', function(done) {
+      var defer = this.$q.defer();
+      this.communityAPI.getMembers = function() {
+        return defer.promise;
+      };
+      defer.reject();
+
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+
+      var iscope = element.isolateScope();
+      expect(iscope.error).to.exist;
+      expect(iscope.error).to.be.true;
+      done();
+    });
+  });
+
+  describe('The communityMemberAvatar directive', function() {
+    beforeEach(function() {
+      module('jadeTemplates');
+      module('esn.core');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.community = {
+        _id: 'community1',
+        creator: 'user1'
+      };
+      this.scope.member = {
+        user: {
+          _id: 1
+        }
+      };
+      this.html = '<community-member-avatar member="member" community="community"/>';
+    }));
+
+    it('should set the title with firstname and lastname if they are set', function(done) {
+      this.scope.member.user.firstname = 'john';
+      this.scope.member.user.lastname = 'doe';
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      var iscope = element.isolateScope();
+      expect(iscope.tooltip).to.be.defined;
+      expect(iscope.tooltip.title).to.equal('john doe');
+      done();
+    });
+
+    it('should set the title with email when firstname and lastname are not set', function(done) {
+      this.scope.member.user.emails = ['john@doe.name'];
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      var iscope = element.isolateScope();
+      expect(iscope.tooltip).to.be.defined;
+      expect(iscope.tooltip.title).to.equal('john@doe.name');
+      done();
+    });
+
+    it('should set the creator when user is community creator', function(done) {
+      this.scope.member.user.emails = ['john@doe.name'];
+      this.scope.member.user._id = 1;
+      this.scope.community.creator = 1;
+
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      var iscope = element.isolateScope();
+      expect(iscope.creator).to.be.defined;
+      expect(iscope.creator).to.be.true;
+      done();
+    });
+
+    it('should not set the creator when user is not community creator', function(done) {
+      this.scope.member.user.emails = ['john@doe.name'];
+      this.scope.member.user._id = 1;
+      this.scope.community.creator = 2;
+
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      var iscope = element.isolateScope();
+      expect(iscope.creator).to.not.be.defined;
+      done();
+    });
   });
 });

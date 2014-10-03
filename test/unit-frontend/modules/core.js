@@ -79,6 +79,15 @@ describe('The Angular core module', function() {
       expect(slices(null)).to.be.null;
     });
 
+    it('should return empty array when input array is empty', function() {
+      expect(slices([])).to.exist;
+      expect(slices([])).to.have.length(0);
+    });
+
+    it('should return the input if not an array not a string', function() {
+      expect(slices(1)).to.equal(1);
+    });
+
     it('should slice the input array in arrays of N elements', function() {
       var input = [1, 2, 3, 4, 5, 6, 7, 8, 9];
       var out = slices(input, 3);
