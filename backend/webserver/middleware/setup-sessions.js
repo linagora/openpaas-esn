@@ -1,7 +1,7 @@
 'use strict';
 
 var expressSession = require('express-session'),
-    MongoStore = require('connect-mongo')(expressSession),
+    MongoStore = require('awesome-sessionstore')(expressSession),
     mongoose = require('mongoose'),
     core = require('../../core'),
     mongo = core.db.mongo,
@@ -15,8 +15,7 @@ function setupSession(session) {
     session.setMiddleware(expressSession({
       cookie: { maxAge: 6000000 },
       store: new MongoStore({
-        auto_reconnect: true,
-        mongoose_connection: mongoose.connections[0]
+        mongoose: mongoose
       })
     }));
     mongosessiontopic.publish({});
