@@ -4,6 +4,9 @@
     | #{__('Members')}
   hr
 
+  .row.alert.alert-danger(ng-show="error", role="alert")
+    p #{__('Error while getting members')}.
+
   .row
     .row(ng-repeat="row in members | inSlicesOf: 3")
       .col-xs-4.nopadding(ng-repeat="member in row")
