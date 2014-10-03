@@ -4,10 +4,10 @@ var MailParser = require('mailparser').MailParser;
 var mongoose = require('mongoose');
 var EmailMessage = mongoose.model('EmailMessage');
 var emailHelpers = require('../../helpers/email');
-var attachmentsModule = require('../attachment');
+var attachmentsModule = require('./attachments');
 var logger = require('../logger');
-var pubsub = require('../../core').pubsub.local,
-  topic = pubsub.topic('message:stored');
+var pubsub = require('../../core').pubsub.local;
+var topic = pubsub.topic('message:stored');
 var q = require('q');
 
 /**
@@ -109,7 +109,7 @@ function saveEmail(stream, author, shares, callback) {
       creator: {objectType: 'user', id: author._id}
     };
 
-    attachmentsModule.storeAttachment(metaData, attachment.stream, function(err, attachmentModel) {
+    attachmentsModule.storeAttachment(metaData, attachment.stream, {chunk_size: 10}, function(err, attachmentModel) {
       if (err) {
         d.reject(err);
         logger.debug('Error while saving attachment.', err);

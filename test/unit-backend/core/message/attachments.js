@@ -8,36 +8,36 @@ describe('The attachment module', function() {
   describe('storeAttachment method', function() {
 
     it('should throw an error if name is not defined', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       var metaData = {
         name: null,
         contentType: 'text'
       };
-      attachmentModule.storeAttachment(metaData, {}, function(err, savedAttachment) {
+      attachmentModule.storeAttachment(metaData, {}, {}, function(err, savedAttachment) {
         expect(err).to.exist;
         expect(savedAttachment).to.not.exist;
       });
     });
 
     it('should throw an error if contentType is not defined', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       var metaData = {
         name: 'file.txt',
         contentType: ''
       };
-      attachmentModule.storeAttachment(metaData, {}, function(err, savedAttachment) {
+      attachmentModule.storeAttachment(metaData, {}, {}, function(err, savedAttachment) {
         expect(err).to.exist;
         expect(savedAttachment).to.not.exist;
       });
     });
 
     it('should throw an error if stream is not defined', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       var metaData = {
         name: 'file.txt',
         contentType: 'text'
       };
-      attachmentModule.storeAttachment(metaData, null, function(err, savedAttachment) {
+      attachmentModule.storeAttachment(metaData, null, {}, function(err, savedAttachment) {
         expect(err).to.exist;
         expect(savedAttachment).to.not.exist;
       });
@@ -50,7 +50,7 @@ describe('The attachment module', function() {
         length: 1
       };
       var filestoreMock = {
-        store: function(id, type, opts, stream, callback) {
+        store: function(id, type, opts, stream, options, callback) {
           expect(id).to.exist;
           expect(type).to.equal(metaData.contentType);
           callback(new Error());
@@ -58,8 +58,8 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
-      attachmentModule.storeAttachment(metaData, {}, function(err, savedAttachment) {
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      attachmentModule.storeAttachment(metaData, {}, {}, function(err, savedAttachment) {
         expect(err).to.exist;
         expect(savedAttachment).to.not.exist;
       });
@@ -73,7 +73,7 @@ describe('The attachment module', function() {
       var fileId;
       var length = 123;
       var filestoreMock = {
-        store: function(id, type, opts, stream, callback) {
+        store: function(id, type, opts, stream, options, callback) {
           expect(id).to.exist;
           fileId = id;
           expect(type).to.equal(metaData.contentType);
@@ -87,8 +87,8 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
-      attachmentModule.storeAttachment(metaData, {}, function(err, attachmentModel) {
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      attachmentModule.storeAttachment(metaData, {}, {}, function(err, attachmentModel) {
         expect(err).to.not.exist;
         expect(attachmentModel.name).to.equal(metaData.name);
         expect(attachmentModel.contentType).to.equal(metaData.contentType);
@@ -115,7 +115,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       attachmentModule.storeAttachment(metaData, {});
     });
   });
@@ -123,7 +123,7 @@ describe('The attachment module', function() {
   describe('getAttachmentFile method', function() {
 
     it('should throw an error if attachment id is null', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       attachmentModule.getAttachmentFile(null, function(err, fileMetaData, fileStream) {
         expect(err).to.exist;
         expect(fileMetaData).to.not.exist;
@@ -144,7 +144,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       attachmentModule.getAttachmentFile(attachment, function(err, fileMetaData, fileStream) {
         expect(err).to.exist;
         expect(fileMetaData).to.not.exist;
@@ -169,7 +169,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/attachment');
+      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
       attachmentModule.getAttachmentFile(attachment, function(err, fileMetaData, fileStream) {
         expect(err).to.not.exist;
         expect(fileMetaData).to.deep.equal(meta);

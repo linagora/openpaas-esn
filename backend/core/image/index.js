@@ -61,7 +61,7 @@ function recordAvatar(id, contentType, opts, readable, callback) {
   async.parallel(
     [
       function(callback) {
-        filestore.store(id, contentType, opts, streams[0], function(err, file) {
+        filestore.store(id, contentType, opts, streams[0], {}, function(err, file) {
           var fileStoreMeta = filestore.getAsFileStoreMeta(file);
           if (err) {
             logger.debug('failed to record original image');
@@ -105,7 +105,7 @@ function recordAvatar(id, contentType, opts, readable, callback) {
           err.code = 2;
           return callback(err);
         }
-        filestore.store(resizedId, contentType, opts, stdout, function(err) {
+        filestore.store(resizedId, contentType, opts, stdout, {}, function(err) {
           if (err) {
             logger.debug('failed to record resized image');
             logger.debug(err.stack);

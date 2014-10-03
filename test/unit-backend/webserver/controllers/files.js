@@ -45,7 +45,7 @@ describe('The files controller', function() {
       var storeId = null;
 
       mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, callback) {
+        store: function(id, contentType, metadata, stream, options, callback) {
           expect(id).to.not.be.null;
           expect(contentType).to.equal(req.query.mimetype);
           expect(metadata).to.be.an('object');
@@ -76,7 +76,7 @@ describe('The files controller', function() {
       var storeId = null;
 
       mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, callback) {
+        store: function(id, contentType, metadata, stream, options, callback) {
           expect(id).to.not.be.null;
           storeId = id;
 
@@ -108,7 +108,7 @@ describe('The files controller', function() {
       var deleteCalled = false;
 
       mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, callback) {
+        store: function(id, contentType, metadata, stream, options, callback) {
           expect(id).to.not.be.null;
           expect(contentType).to.equal(req.query.mimetype);
           expect(req).to.equal(stream);
@@ -141,7 +141,7 @@ describe('The files controller', function() {
     it('should send 500 on failing file storage', function(done) {
       var storeId = null;
       mockery.registerMock('../../core/filestore', {
-        store: function(id, contentType, metadata, stream, callback) {
+        store: function(id, contentType, metadata, stream, options, callback) {
           expect(id).not.to.be.null;
           storeId = id;
 

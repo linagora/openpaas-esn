@@ -68,7 +68,7 @@ describe('The core image module', function() {
 
     it('should return an error if the image is not a square', function(done) {
       var filestoreMock = {
-        store: function(id, contentType, opts, readableStream, callback) {
+        store: function(id, contentType, opts, readableStream, options, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           return callback(null, { length: 42 });
@@ -96,7 +96,7 @@ describe('The core image module', function() {
 
     it('should call filestore.store and then filestore.delete if the image is not a square', function(done) {
       var filestoreMock = {
-        store: function(id, contentType, opts, readableStream, callback) {
+        store: function(id, contentType, opts, readableStream, options, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           expect(id).to.equal('666');
@@ -126,7 +126,7 @@ describe('The core image module', function() {
 
     it('should return a gm error if the image is not an image', function(done) {
       var filestoreMock = {
-        store: function(id, contentType, opts, readableStream, callback) {
+        store: function(id, contentType, opts, readableStream, options, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           return callback(null, { length: 42 });
@@ -155,7 +155,7 @@ describe('The core image module', function() {
 
     it('should call filestore.store and then filestore.delete if the image is not an image', function(done) {
       var filestoreMock = {
-        store: function(id, contentType, opts, readableStream, callback) {
+        store: function(id, contentType, opts, readableStream, options, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           expect(id).to.equal('666');
@@ -189,7 +189,7 @@ describe('The core image module', function() {
         done();
       };
       var filestoreMock = {
-        store: function(id, contentType, opts, readableStream, callback) {
+        store: function(id, contentType, opts, readableStream, options, callback) {
           var ws = createWriteStream(tmpdir + '/img.jpg');
           readableStream.pipe(ws);
           expect(id).to.equal('666');

@@ -193,8 +193,8 @@ describe('The email message module', function() {
       };
 
       var calls = 0;
-      mockery.registerMock('../attachment', {
-        storeAttachment: function(metaData, attachmentStream, callback) {
+      mockery.registerMock('./attachments', {
+        storeAttachment: function(metaData, attachmentStream, options, callback) {
           calls++;
           expect(metaData).to.exist;
           if (metaData.name === attachment1.fileName) {
@@ -293,8 +293,8 @@ describe('The email message module', function() {
       };
 
       var calls = 0;
-      mockery.registerMock('../attachment', {
-        storeAttachment: function(metaData, attachmentStream, callback) {
+      mockery.registerMock('./attachments', {
+        storeAttachment: function(metaData, attachmentStream, options, callback) {
           calls++;
           expect(metaData).to.exist;
           expect(metaData.creator).to.exist;
@@ -381,8 +381,8 @@ describe('The email message module', function() {
         fileName: 'image1.png'
       };
 
-      mockery.registerMock('../attachment', {
-        storeAttachment: function(metaData, attachmentStream, callback) {
+      mockery.registerMock('./attachments', {
+        storeAttachment: function(metaData, attachmentStream, options, callback) {
           callback(new Error('Attachment storage problem'));
         }
       });

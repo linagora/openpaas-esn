@@ -23,7 +23,7 @@ function create(req, res) {
     metadata.creator = {objectType: 'user', id: req.user._id};
   }
 
-  filestore.store(fileId, req.query.mimetype, metadata, req, function(err, file) {
+  filestore.store(fileId, req.query.mimetype, metadata, req, {}, function(err, file) {
     if (err) {
       return res.json(500, {
         error: 500,
