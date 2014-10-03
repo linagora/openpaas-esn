@@ -867,5 +867,159 @@ describe('The communities module', function() {
       expect(member.user.login).to.not.exist;
       done();
     });
+
   });
+
+
+  describe('The addMembershipRequest fn', function() {
+    beforeEach(function() {
+      this.objectId = function(stringId) {
+        return {
+          value: function() {
+            return stringId;
+          },
+          equals: function(otherObjectId) {
+            return stringId === otherObjectId.value();
+          }
+        };
+      };
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+    });
+
+    it('should send back error when user is null', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.addMembershipRequest({}, null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when community is null', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.addMembershipRequest(null, {}, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error if community type is not restricted or private', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.addMembershipRequest({type: 'open'}, {}, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+      communityModule.addMembershipRequest({type: 'confidential'}, {}, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error if user is already member of the community', function() {
+      var user = { _id: 'uid' };
+      var community = {
+        _id: 'cid',
+        type: 'restricted'
+      };
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.isMember = function(c, u, callback) {
+        expect(c).to.deep.equal(community);
+        expect(u).to.deep.equal(user);
+        callback(null, true);
+      };
+      communityModule.addMembershipRequest(community, user, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error if the check if the user is member of the community fails', function() {
+      var user = { _id: 'uid' };
+      var community = {
+        _id: 'cid',
+        type: 'restricted'
+      };
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.isMember = function(c, u, callback) {
+        expect(c).to.deep.equal(community);
+        expect(u).to.deep.equal(user);
+        callback(new Error('isMember fail'));
+      };
+      communityModule.addMembershipRequest(community, user, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should not add a request if the user has already made one', function() {
+      var user = { _id: this.objectId('uid') };
+      var community = {
+        _id: 'cid',
+        type: 'restricted',
+        membershipRequests: [{user: user._id}]
+      };
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.isMember = function(c, u, callback) {
+        expect(c).to.deep.equal(community);
+        expect(u).to.deep.equal(user);
+        callback(null, false);
+      };
+      communityModule.addMembershipRequest(community, user, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should fail if the updated community save fails', function() {
+      var user = { _id: this.objectId('uid') };
+      var community = {
+        _id: 'cid',
+        type: 'restricted',
+        membershipRequests: [{user: this.objectId('otherUser')}],
+        save: function(callback) {
+          return callback(new Error('save fail'));
+        }
+      };
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.isMember = function(c, u, callback) {
+        expect(c).to.deep.equal(community);
+        expect(u).to.deep.equal(user);
+        callback(null, false);
+      };
+      communityModule.addMembershipRequest(community, user, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should add a new request and return the updated community', function() {
+      var user = { _id: this.objectId('uid') };
+      var community = {
+        _id: 'cid',
+        type: 'restricted',
+        membershipRequests: [{user: this.objectId('otherUser')}],
+        save: function(callback) {
+          return callback(null, community);
+        }
+      };
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.isMember = function(c, u, callback) {
+        expect(c).to.deep.equal(community);
+        expect(u).to.deep.equal(user);
+        callback(null, false);
+      };
+      communityModule.addMembershipRequest(community, user, function(err, c) {
+        expect(err).to.not.exist;
+        expect(c).to.exist;
+        expect(c.membershipRequests.length).to.equal(2);
+        var newRequest = c.membershipRequests[1];
+        expect(newRequest.user).to.deep.equal(user._id);
+      });
+    });
+
+  });
+
 });

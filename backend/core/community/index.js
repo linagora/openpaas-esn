@@ -222,3 +222,38 @@ module.exports.getUserCommunities = function(user, domainId, callback) {
   }
   return query({'members.user': id}, callback);
 };
+
+module.exports.addMembershipRequest = function(community, user, callback) {
+  if (!user) {
+    return callback(new Error('User object is required'));
+  }
+  var userId = user._id || user;
+
+  if (!community) {
+    return callback(new Error('Community object is required'));
+  }
+
+  if (community.type !== 'restricted' && community.type !== 'private') {
+    return callback(new Error('Only Restricted and Private communities allow membership requests.'));
+  }
+
+  this.isMember(community, user, function(err, isMember) {
+    if (err) {
+      return callback(err);
+    }
+    if (isMember) {
+      return callback(new Error('User already member of the community.'));
+    }
+
+    var previousRequests = community.membershipRequests.filter(function(request) {
+      var requestUserId = request.user._id || request.user;
+      return requestUserId.equals(userId);
+    });
+    if (previousRequests.length > 0) {
+      return callback(new Error('User has already requested membership for this community.'));
+    }
+
+    community.membershipRequests.push({user: userId});
+    community.save(callback);
+  });
+};
