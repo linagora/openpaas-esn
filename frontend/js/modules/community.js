@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
@@ -625,4 +625,51 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         });
       }
     };
-  }]);
+  }])
+  .directive('communityMembersWidget', ['communityAPI', function(communityAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-members-widget.html',
+      controller: function($scope) {
+        $scope.error = false;
+        communityAPI.getMembers($scope.community._id, {limit: 15}).then(function(result) {
+          $scope.members = result.data;
+          var total = parseInt(result.headers('X-ESN-Items-Count'));
+          $scope.more = total - $scope.members.length;
+        }, function() {
+          $scope.error = true;
+        });
+      }
+    };
+  }])
+  .directive('communityMemberAvatar', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        member: '=',
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-member-avatar.html',
+      controller: function($scope) {
+        var title = '';
+        if ($scope.member.user.firstname || $scope.member.user.lastname) {
+          title = ($scope.member.user.firstname || '') + ' ' + ($scope.member.user.lastname || '');
+        } else {
+          title = $scope.member.user.emails[0];
+        }
+
+        $scope.tooltip = {
+          title: title
+        };
+
+        if ($scope.community.creator === $scope.member.user._id) {
+          $scope.creator = true;
+        }
+      }
+    };
+  });

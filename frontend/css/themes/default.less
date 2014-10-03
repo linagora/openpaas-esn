@@ -483,3 +483,48 @@ body {
   padding-bottom: 10px;
   box-shadow: none;
 }
+
+.community-members-widget {
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: left;
+  .title {
+    padding: 10px 0px 0px 10px;
+  }
+  hr {
+    border: 1px solid;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+.community-member-avatar {
+  .ResizeImage(100%, auto);
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+
+  img {
+    margin-right: 0px;
+    border-radius: 2px;
+  }
+  a {
+    color: @defaultFontColor;
+    outline: none;
+    opacity: 0.8;
+  }
+  a:hover {
+    opacity: 1;
+  }
+  .creator {
+    background-color: red;
+    opacity: 0.9;
+    bottom: 3px;
+    display: inline-block;
+    height: 10px;
+    position: absolute;
+    right: 3px;
+    width: 10px;
+  }
+}
