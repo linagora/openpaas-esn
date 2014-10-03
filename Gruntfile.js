@@ -108,7 +108,8 @@ module.exports = function(grunt) {
           ' -Des.cluster.name=' + servers.elasticsearch.cluster_name +
           ' -Des.path.data=' + servers.elasticsearch.data_path +
           ' -Des.path.work=' + servers.elasticsearch.work_path +
-          ' -Des.path.logs=' + servers.elasticsearch.logs_path,
+          ' -Des.path.logs=' + servers.elasticsearch.logs_path +
+          ' -Des.discovery.zen.ping.multicast.enabled=false',
         options: {
           async: false,
           stdout: function(chunk){
