@@ -164,6 +164,23 @@ angular.module('esnApp', [
       }
     });
 
+    $routeProvider.when('/communities/:community_id/members', {
+      templateUrl: '/views/modules/community/community-members',
+      controller: 'communityController',
+      resolve: {
+        community: function(communityAPI, $route, $location) {
+          return communityAPI.get($route.current.params.community_id).then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/communities/' + $route.current.params.community_id);
+            }
+          );
+        }
+      }
+    });
+
     $routeProvider.otherwise({redirectTo: '/'});
 
     RestangularProvider.setBaseUrl('/api');

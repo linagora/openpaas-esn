@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
@@ -355,6 +355,73 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     };
 
     $scope.getAll();
+  }])
+  .controller('communityMembersController', ['$scope', 'communityAPI', 'usSpinnerService', function($scope, communityAPI, usSpinnerService) {
+    var community_id = $scope.community._id;
+    $scope.spinnerKey = 'membersSpinner';
+
+    var opts = {
+      offset: 0,
+      limit: 20
+    };
+
+    $scope.search = {
+      running: false
+    };
+
+    $scope.members = [];
+    $scope.restActive = false;
+    $scope.error = false;
+
+    var formatResultsCount = function(count) {
+      $scope.search.count = count;
+
+      if (count < 1000) {
+        $scope.search.formattedCount = count;
+      }
+      else {
+        var len = Math.ceil(Math.log(count + 1) / Math.LN10);
+        var num = Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3);
+
+        $scope.search.formattedCount = num.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1 ');
+      }
+    };
+
+    var updateMembersList = function() {
+      $scope.error = false;
+      if ($scope.restActive) {
+        return;
+      } else {
+        $scope.restActive = true;
+        $scope.search.running = true;
+        formatResultsCount(0);
+        usSpinnerService.spin($scope.spinnerKey);
+
+        communityAPI.getMembers(community_id, opts).then(function(data) {
+          formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
+          $scope.members = $scope.members.concat(data.data);
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.search.running = false;
+          $scope.restActive = false;
+          usSpinnerService.stop($scope.spinnerKey);
+        });
+      }
+    };
+
+    $scope.init = function() {
+      updateMembersList();
+    };
+
+    $scope.loadMoreElements = function() {
+      if ($scope.members.length === 0 || $scope.members.length < $scope.search.count) {
+        opts.offset = $scope.members.length;
+        updateMembersList();
+      }
+    };
+
+    $scope.init();
   }])
   .directive('communityDisplay', function() {
     return {
