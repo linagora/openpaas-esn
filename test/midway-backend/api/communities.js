@@ -1406,8 +1406,158 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 404 if input user is not a community member', function(done) {
-      return done();
+  });
+
+  describe('PUT /api/communities/:id/membership/:user_id', function() {
+
+    it('should return 401 if user is not authenticated', function(done) {
+      request(webserver.application).put('/api/communities/123/membership/456').expect(401).end(function(err) {
+        expect(err).to.be.null;
+        done();
+      });
     });
+
+    it('should return 500 if user is already member of the community', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        members: [],
+        type: 'private'
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = user._id;
+          community.domain_ids = [domain._id];
+          community.members.push({user: user._id});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
+            req.end(function(err, res) {
+              expect(res.status).to.equal(500);
+              expect(res.text).to.contain('already member');
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return 500 if user has already made a request for this community', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        members: [],
+        type: 'private',
+        membershipRequests: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = user._id;
+          community.domain_ids = [domain._id];
+          community.membershipRequests.push({user: user._id});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
+            req.end(function(err, res) {
+              expect(res.status).to.equal(500);
+              expect(res.text).to.contain('already requested membership');
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return 200 with the community containing a new request', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        members: [],
+        type: 'private',
+        membershipRequests: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = user._id;
+          community.domain_ids = [domain._id];
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
+            req.end(function(err, res) {
+              expect(res.status).to.equal(200);
+
+              expect(res.body).to.exist;
+              expect(res.body.title).to.equal(community.title);
+              expect(res.body.description).to.equal(community.description);
+              expect(res.body.type).to.equal(community.type);
+              expect(res.body.members).to.have.length(0);
+
+              expect(res.body.membershipRequests).to.have.length(1);
+              var newRequest = res.body.membershipRequests[0];
+              expect(newRequest.user).to.equal(user._id.toString());
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
   });
 });
