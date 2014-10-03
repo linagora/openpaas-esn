@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
-
+  .constant('AVATAR_MIN_SIZE_PX', 128)
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
@@ -242,7 +242,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       scope.$on('$destroy', clear);
     }
   };
-}).directive('loadButton', function(selectionService) {
+}]).directive('loadButton', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
 
     return {
       restrict: 'A',
@@ -269,8 +269,15 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
                   var image = new Image();
                   image.src = e.target.result;
                   image.onload = function() {
-                    selectionService.setError();
-                    selectionService.setImage(image);
+                    var imgHeight = image.naturalHeight,
+                        imgWidth = image.naturalWidth;
+                    if (imgHeight < AVATAR_MIN_SIZE_PX || imgWidth < AVATAR_MIN_SIZE_PX) {
+                      selectionService.setError('Image dimensions are to small: got ' + imgWidth + 'x' + imgHeight +
+                                                'px, minimum is ' + AVATAR_MIN_SIZE_PX + 'x' + AVATAR_MIN_SIZE_PX + 'px');
+                    } else {
+                      selectionService.setError();
+                      selectionService.setImage(image);
+                    }
                   };
                 };
               })(file);
@@ -280,5 +287,5 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         });
       }
     };
-  });
+  }]);
 
