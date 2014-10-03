@@ -41,32 +41,6 @@ describe('The Avatar Angular module', function() {
     });
   });
 
-  describe('imgPreview directive', function() {
-
-    var html = '<canvas img-preview></canvas>';
-    beforeEach(inject(['$compile', '$rootScope', 'selectionService', function($c, $r, selectionService) {
-      this.$compile = $c;
-      this.$rootScope = $r;
-      this.selectionService = selectionService;
-    }]));
-
-    it('should draw the image in canvas on crop:selected event', function(done) {
-      var img = {img: 'mock'};
-
-      var element = this.$compile(html)(this.$rootScope);
-      element[0].getContext = function() {
-        return {
-          drawImage: function(image) {
-            expect(image).to.equal(img);
-            done();
-          }
-        };
-      };
-      this.selectionService.image = img;
-      this.$rootScope.$broadcast('crop:selected', {cords: {x: 1, y: 2}, ratio: 1});
-    });
-  });
-
   describe('loadButton directive', function() {
     var html = '<input type="file" load-button/>';
     beforeEach(inject(['$compile', '$rootScope', 'selectionService', function($c, $r, selectionService) {
