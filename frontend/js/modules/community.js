@@ -365,27 +365,11 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       limit: 20
     };
 
-    $scope.search = {
-      running: false
-    };
+    $scope.total = 0;
 
     $scope.members = [];
     $scope.restActive = false;
     $scope.error = false;
-
-    var formatResultsCount = function(count) {
-      $scope.search.count = count;
-
-      if (count < 1000) {
-        $scope.search.formattedCount = count;
-      }
-      else {
-        var len = Math.ceil(Math.log(count + 1) / Math.LN10);
-        var num = Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3);
-
-        $scope.search.formattedCount = num.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1 ');
-      }
-    };
 
     var updateMembersList = function() {
       $scope.error = false;
@@ -393,17 +377,14 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
         return;
       } else {
         $scope.restActive = true;
-        $scope.search.running = true;
-        formatResultsCount(0);
         usSpinnerService.spin($scope.spinnerKey);
 
         communityAPI.getMembers(community_id, opts).then(function(data) {
-          formatResultsCount(parseInt(data.headers('X-ESN-Items-Count')));
+          $scope.total = parseInt(data.headers('X-ESN-Items-Count'));
           $scope.members = $scope.members.concat(data.data);
         }, function() {
           $scope.error = true;
         }).finally (function() {
-          $scope.search.running = false;
           $scope.restActive = false;
           usSpinnerService.stop($scope.spinnerKey);
         });
@@ -415,7 +396,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
     };
 
     $scope.loadMoreElements = function() {
-      if ($scope.members.length === 0 || $scope.members.length < $scope.search.count) {
+      if ($scope.members.length === 0 || $scope.members.length < $scope.total) {
         opts.offset = $scope.members.length;
         updateMembersList();
       }
