@@ -329,5 +329,173 @@ describe('The message core module', function() {
 
   });
 
+  describe('findByIds() method', function() {
+    beforeEach(function() {
+      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      mockery.registerMock('mongoose', this.mongoose);
+    });
+
+    it('should throw an error if the db search fails', function() {
+      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      this.mongoose.model = function() {
+        return {
+          collection: {
+            find: function() {
+              return {
+                toArray: function(callback) {
+                  callback(new Error('error'));
+                }
+              };
+            }
+          }
+        };
+      };
+      messageModule.findByIds([1, 2], function(err, result) {
+        expect(err).to.exist;
+        expect(result).to.not.exist;
+      });
+    });
+
+    it('should search for messages authors', function(done) {
+      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      this.mongoose.model = function(modelName) {
+        if (modelName === 'User') {
+          return {
+            find: function(query) {
+              expect(query._id.$in).to.exist;
+              expect(query._id.$in.indexOf('3')).to.equal(0);
+              expect(query._id.$in.indexOf('4')).to.equal(1);
+              return {
+                exec: function() {
+                  done();
+                }
+              };
+            }
+          };
+        }
+        return {
+          collection: {
+            find: function() {
+              return {
+                toArray: function(callback) {
+                  callback(null, [{_id: '1', author: '3'}, {_id: '2', author: '4'}]);
+                }
+              };
+            }
+          }
+        };
+      };
+      messageModule.findByIds(['1', '2'], null);
+    });
+
+    it('should fail if message author search fails', function() {
+      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      this.mongoose.model = function(modelName) {
+        if (modelName === 'User') {
+          return {
+            find: function(query) {
+              expect(query._id.$in).to.exist;
+              expect(query._id.$in.indexOf('3')).to.equal(0);
+              expect(query._id.$in.indexOf('4')).to.equal(1);
+              return {
+                exec: function(callback) {
+                  callback(new Error('db search error'));
+                }
+              };
+            }
+          };
+        }
+        return {
+          collection: {
+            find: function() {
+              return {
+                toArray: function(callback) {
+                  callback(null, [{_id: '1', author: '3'}, {_id: '2', author: '4'}]);
+                }
+              };
+            }
+          }
+        };
+      };
+      messageModule.findByIds(['1', '2'], function(err, result) {
+        expect(err).to.exist;
+        expect(result).to.not.exist;
+      });
+    });
+
+
+    it('should return messages populated with their authors', function() {
+      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var user3 = {
+        _id: {
+          equals: function(id) {
+            return id === '3';
+          }
+        },
+        name: 'user3'
+      };
+      var user4 = {
+        _id: {
+          equals: function(id) {
+            return id === '4';
+          }
+        },
+        name: 'user4'
+      };
+      this.mongoose.model = function(modelName) {
+        if (modelName === 'User') {
+          return {
+            find: function(query) {
+              expect(query._id.$in).to.exist;
+              expect(query._id.$in.indexOf('3')).to.equal(0);
+              expect(query._id.$in.indexOf('4')).to.equal(1);
+              return {
+                exec: function(callback) {
+                  callback(null, [user3, user4]);
+                }
+              };
+            }
+          };
+        }
+        else {
+          var messageModel = function() {
+            return {
+              init: function(message) {
+                messageModel.value = message;
+              },
+              toObject: function() {
+                return messageModel.value;
+              }
+            };
+          };
+          messageModel.collection = {
+            find: function() {
+              return {
+                toArray: function(callback) {
+                  callback(null, [{_id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', author: '4'}]},
+                    {_id: '2', author: '4', objectType: 'email'}]);
+                }
+              };
+            }
+          };
+          return messageModel;
+        }
+      };
+      messageModule.findByIds(['1', '2'], function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.exist;
+        expect(result.length).to.equal(2);
+        expect(result[0]._id).to.equal('1');
+        expect(result[0].author).to.deep.equal(user3);
+        expect(result[0].responses).to.exist;
+        expect(result[0].responses.length).to.equal(1);
+        expect(result[0].responses[0].author).to.exist;
+        expect(result[0].responses[0].author).to.deep.equal(user4);
+        expect(result[1]._id).to.equal('2');
+        expect(result[1].author).to.deep.equal(user4);
+      });
+    });
+
+  });
 
 });

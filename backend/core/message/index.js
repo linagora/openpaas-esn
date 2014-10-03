@@ -46,6 +46,83 @@ function get(uuid, callback) {
   });
 }
 
+function findByIds(ids, callback) {
+  var whatsupModel = mongoose.model('Whatsup');
+  var formattedIds = ids.map(function(id) {
+    return mongoose.Types.ObjectId(id);
+  });
+  var query = {
+    _id: { $in: formattedIds}
+  };
+  var result = [];
+  var authorsId = [];
+
+  var getAuthors = function(ids, callback) {
+    var User = mongoose.model('User');
+    var query = {
+      _id: { $in: ids}
+    };
+    User.find(query).exec(callback);
+  };
+
+  var saveAuthorId = function(authorId) {
+    if (authorsId.indexOf(authorId) < 0) {
+      authorsId.push(authorId);
+    }
+  };
+
+  whatsupModel.collection.find(query).toArray(function(err, foundMessages) {
+    if (err) {
+      return callback(err);
+    }
+
+    foundMessages.forEach(function(foundMessage) {
+      saveAuthorId(foundMessage.author);
+      if (foundMessage.responses) {
+        foundMessage.responses.forEach(function(response) {
+          saveAuthorId(response.author);
+        });
+      }
+    });
+
+    getAuthors(authorsId, function(err, authors) {
+      if (err) {
+        return callback(err);
+      }
+
+      foundMessages.forEach(function(message) {
+        var Model, instance;
+        try {
+          Model = getModel(message.objectType);
+        } catch (e) {
+          return callback(e);
+        }
+        instance = new Model();
+
+        instance.init(message);
+
+        var getAuthor = function(authorId) {
+          return authors.filter(function(user) {
+            return user._id.equals(authorId);
+          })[0];
+        };
+
+        var resultMessage = instance.toObject();
+        resultMessage.author = getAuthor(message.author);
+        if (resultMessage.responses) {
+          resultMessage.responses.forEach(function(response) {
+            response.author = getAuthor(response.author);
+          });
+        }
+
+        result.push(resultMessage);
+      });
+
+      return callback(null, result);
+    });
+  });
+}
+
 function addNewComment(message, inReplyTo, callback) {
   get(inReplyTo._id, function(err, parent) {
     if (err) {
@@ -74,5 +151,6 @@ module.exports = {
   get: get,
   getModel: getModel,
   getInstance: getInstance,
-  addNewComment: addNewComment
+  addNewComment: addNewComment,
+  findByIds: findByIds
 };

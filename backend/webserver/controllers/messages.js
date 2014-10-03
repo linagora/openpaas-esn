@@ -1,7 +1,6 @@
 'use strict';
 
-var whatsupModule = require('../../core/message/whatsup'),
-  messageModule = require('../../core/message'),
+var messageModule = require('../../core/message'),
   emailModule = require('../../core/message/email'),
   postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
   localpubsub = require('../../core/pubsub').local,
@@ -17,7 +16,7 @@ function messageSharesToTimelineTarget(shares) {
 }
 
 function createNewMessage(message, req, res) {
-  whatsupModule.save(message, function(err, saved) {
+  messageModule.getInstance(message.objectType, message).save(function(err, saved) {
     if (err) {
       return res.send(
         500,
@@ -88,7 +87,7 @@ function get(req, res) {
     return res.send(400, 'Missing ids in query');
   }
 
-  whatsupModule.findByIds(req.query.ids, function(err, result) {
+  messageModule.findByIds(req.query.ids, function(err, result) {
     if (err) {
       return res.send(
         500,
@@ -121,7 +120,7 @@ function getOne(req, res) {
 
   var uuid = req.param('uuid');
 
-  whatsupModule.get(uuid, function(err, result) {
+  messageModule.get(uuid, function(err, result) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
     }
