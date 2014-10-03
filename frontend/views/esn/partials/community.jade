@@ -1,7 +1,5 @@
 .col-xs-12.esn-panel.community-summary
     community-description(community="community")
-.col-xs-12
-    hr
 .row(ng-if='canRead()')
   .col-lg-10.col-md-10.col-sm-10.col-xs-12
     activity-stream(activitystream-uuid='{{community.activity_stream.uuid}}')
