@@ -6,12 +6,12 @@
   "dependencies": {
     "async": "~0.8.0",
     "awesome-node-redis-pubsub": "git+https://ci.open-paas.org/stash/scm/or/awesome-node-redis-pubsub.git",
+    "awesome-sessionstore": "git+https://ci.open-paas.org/stash/scm/or/awesome-sessionstore.git",
     "bcrypt-nodejs": "~0.0.3",
     "body-parser": "~1.2.0",
     "chokidar": "~0.8.1",
     "connect-dynamic-middleware": "~0.1.0",
     "connect-flash": "0.1.1",
-    "connect-mongo": "git+https://ci.open-paas.org/stash/scm/or/connect-mongo.git",
     "cookie-parser": "~1.1.0",
     "cors": "~2.4.1",
     "dotty": "0.0.2",
