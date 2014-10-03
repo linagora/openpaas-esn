@@ -3,7 +3,7 @@
     community-description(community="community")
 
   .col-xs-12.esn-panel(ng-if='!canRead()')
-    p.text-center.community-not-allowed #{__('You are no allowed to see the members of this community.')}
+    p.text-center.community-not-allowed #{__('You are no allowed to see the members of this community')}
 
 .row(ng-if="canRead()", ng-controller="communityMembersController")
   .col-xs-12.alert-danger(ng-show="error", role="alert")
