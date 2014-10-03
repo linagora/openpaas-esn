@@ -58,32 +58,19 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       $scope.uploading = true;
       $scope.status = 'Uploading';
       $scope.progress = 1;
-
-      var image = selectionService.getImage();
-      var ratio = selectionService.selection.ratio || 1;
-      var selection = selectionService.selection.cords;
-      var canvas = document.createElement('canvas');
-      var context = canvas.getContext('2d');
-
-      if (selection.w === 0 || selection.h === 0) {
-        canvas.width = 128;
-        canvas.height = 128;
-        context.drawImage(image, 0, 0, 128, 128);
-      } else {
-        canvas.width = selection.w * ratio;
-        canvas.height = selection.h * ratio;
-        context.drawImage(image, selection.x * ratio, selection.y * ratio, selection.w * ratio, selection.h * ratio, 0, 0, canvas.width, canvas.height);
-      }
-
       var mime = 'image/png';
-      canvas.toBlob(function(blob) {
+      selectionService.getBlob(mime, function(blob) {
         $scope.send(blob, mime);
-      }, mime);
+      });
     };
 
-    $rootScope.$on('crop:loaded', $scope.initUploadContext);
+    $scope.$on('crop:loaded', function() {
+      $scope.initUploadContext();
+      $scope.preview = true;
+      $scope.$apply();
+    });
 
-    $rootScope.$on('crop:error', function(context, error) {
+    $scope.$on('crop:error', function(context, error) {
       if (error) {
         $alert({
           title: 'Error',
@@ -96,11 +83,6 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           animation: 'am-fade'
         });
       }
-    });
-
-    $rootScope.$on('crop:loaded', function() {
-      $scope.preview = true;
-      $scope.$apply();
     });
 
     $scope.initUploadContext();
@@ -122,7 +104,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       uploadAvatar: uploadAvatar
     };
 
-  }).factory('selectionService', function($rootScope) {
+  }).factory('selectionService', ['$rootScope', 'AVATAR_MIN_SIZE_PX', function($rootScope, AVATAR_MIN_SIZE_PX) {
 
   var sharedService = {};
   sharedService.image = null;
@@ -152,6 +134,43 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
     $rootScope.$broadcast('crop:selected', x);
   };
 
+  sharedService.computeCanvasSelection = function computeCanvasSelection(img, ratio, selection) {
+    var w = selection.w * ratio;
+    if (w > img.naturalWidth) {
+      w = img.naturalWidth;
+    }
+    var h = selection.h * ratio;
+    if (h > img.naturalHeight) {
+      h = img.naturalHeight;
+    }
+    return {
+      x: selection.x * ratio,
+      y: selection.y * ratio,
+      w: w,
+      h: h
+    };
+  };
+
+  sharedService.getBlob = function getBlob(mime, callback) {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    var image = sharedService.getImage();
+    var ratio = sharedService.selection.ratio || 1;
+    var selection = sharedService.selection.cords;
+    if (selection.w === 0 || selection.h === 0) {
+      canvas.width = AVATAR_MIN_SIZE_PX;
+      canvas.height = AVATAR_MIN_SIZE_PX;
+      context.drawImage(image, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
+    } else {
+      var canvasSelection = sharedService.computeCanvasSelection(image, ratio, selection);
+      canvas.width = canvasSelection.w;
+      canvas.height = canvasSelection.h;
+      context.drawImage(image, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
+    }
+
+    canvas.toBlob(callback, mime);
+  };
+
   sharedService.clear = function() {
     sharedService.image = null;
     sharedService.selection = {};
@@ -160,31 +179,31 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
   return sharedService;
 
-}).directive('imgPreview', function(selectionService) {
+}]).directive('imgPreview', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
 
   return {
     restrict: 'A',
     replace: true,
     link: function($scope, element) {
+      var canvas = element[0];
+      canvas.width = canvas.height = AVATAR_MIN_SIZE_PX;
+      var ctx = canvas.getContext('2d');
       $scope.$on('crop:selected', function(context, data) {
-
         var selection = data.cords;
         var ratio = data.ratio || 1;
-
         var img = selectionService.getImage();
-        var canvas = element[0];
-        canvas.width = canvas.height = 128;
 
-        var ctx = canvas.getContext('2d');
-        if (Math.round(selection.w * ratio) < 128 || Math.round(selection.h * ratio) < 128) {
-          ctx.drawImage(img, 0, 0, 128, 128);
+        canvas.width = canvas.width;
+        if (Math.round(selection.w * ratio) < AVATAR_MIN_SIZE_PX || Math.round(selection.h * ratio) < AVATAR_MIN_SIZE_PX) {
+          ctx.drawImage(img, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
         } else {
-          ctx.drawImage(img, selection.x * ratio, selection.y * ratio, selection.w * ratio, selection.h * ratio, 0, 0, canvas.width, canvas.height);
+          var canvasSelection = selectionService.computeCanvasSelection(img, ratio, selection);
+          ctx.drawImage(img, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
         }
       });
     }
   };
-}).directive('imgLoaded', function(selectionService) {
+}]).directive('imgLoaded', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
 
   return {
     restrict: 'E',
@@ -210,8 +229,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         var width = scope.width || 380;
         var height = image.height * (width / image.width);
         var ratio = image.width / width;
-        var minsize = 128 / ratio;
-
+        var minsize = AVATAR_MIN_SIZE_PX / ratio;
         canvas.width = width;
         canvas.height = height;
 

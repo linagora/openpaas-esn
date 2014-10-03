@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
@@ -150,6 +150,21 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
       });
     };
 
+    $scope.$on('crop:error', function(context, error) {
+      if (error) {
+        $alert({
+          title: 'Error',
+          content: error,
+          type: 'danger',
+          show: true,
+          position: 'bottom',
+          container: '#error',
+          duration: '3',
+          animation: 'am-fade'
+        });
+      }
+    });
+
     $scope.create = function(community) {
       $scope.createStatus.step = 'post';
       $scope.sending = true;
@@ -198,26 +213,8 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
           if (selectionService.getImage()) {
             $scope.createStatus.step = 'upload';
             $scope.percent = 20;
-
-            var image = selectionService.getImage();
-            var ratio = selectionService.selection.ratio || 1;
-            var selection = selectionService.selection.cords;
-            var canvas = document.createElement('canvas');
-            var context = canvas.getContext('2d');
-
-            if (selection.w === 0 || selection.h === 0) {
-              canvas.width = 128;
-              canvas.height = 128;
-              context.drawImage(image, 0, 0, 128, 128);
-            } else {
-              canvas.width = selection.w * ratio;
-              canvas.height = selection.h * ratio;
-              context.drawImage(image, selection.x * ratio, selection.y * ratio, selection.w * ratio, selection.h * ratio, 0, 0, canvas.width, canvas.height);
-            }
-
             var mime = 'image/png';
-            canvas.toBlob(function(blob) {
-
+            selectionService.getBlob(mime, function(blob) {
               communityAPI.uploadAvatar(data.data._id, blob, mime)
                 .progress(function(evt) {
                   var value = parseInt(80.0 * evt.loaded / evt.total);
@@ -234,7 +231,7 @@ angular.module('esn.community', ['esn.session', 'esn.image', 'esn.user', 'esn.av
                   $scope.create.error = error;
                   return done(data.data._id);
                 });
-            }, mime);
+            });
 
           } else {
             $scope.percent = 100;
