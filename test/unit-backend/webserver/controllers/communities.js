@@ -83,6 +83,9 @@ describe('The communities controller', function() {
         },
         isMember: function(community, user, callback) {
           return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return false;
         }
       };
       mockery.registerMock('../../core/community', mock);
@@ -163,7 +166,7 @@ describe('The communities controller', function() {
       communities.list(req, res);
     });
 
-    it('should send back 200 if with communities and members_count', function(done) {
+    it('should send back 200 with communities and members_count', function(done) {
       var result = [
         {_id: 1, members: [1, 2]},
         {_id: 2, members: [1, 2, 3]}
@@ -174,6 +177,9 @@ describe('The communities controller', function() {
         },
         isMember: function(community, user, callback) {
           return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return false;
         }
       };
       mockery.registerMock('../../core/community', mock);
@@ -419,6 +425,9 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community', {
         isMember: function(c, u, callback) {
           return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return false;
         }
       });
       mockery.registerMock('../../core/community/permission', {
@@ -1038,6 +1047,9 @@ describe('The communities controller', function() {
         },
         isMember: function(c, u , callback) {
           return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return false;
         }
       });
       mockery.registerMock('../../core/community/permission', {});
@@ -1061,6 +1073,41 @@ describe('The communities controller', function() {
       communities.getMine(req, res);
     });
 
+    it('should send back 200 with the communities(membershipRequest)', function(done) {
+      var result = [{_id: 1}, {_id: 2}];
+      mockery.registerMock('../../core/community', {
+        query: function(q, callback) {
+          return callback(null, result);
+        },
+        isMember: function(c, u , callback) {
+          return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return { timestamp: { creation: new Date(1419509532000) } };
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code, json) {
+          expect(code).to.equal(200, json);
+          expect(json).to.be.an('array');
+          expect(json).to.have.length(2);
+          expect(json[0]).to.have.property('membershipRequest');
+          expect(json[0].membershipRequest).to.be.a('number');
+          expect(json[0].membershipRequest).to.equal(1419509532000);
+          done();
+        }
+      };
+
+      var req = {
+        user: {_id: 123}
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMine(req, res);
+    });
+
     it('should send the transformed community model', function(done) {
       var result = [{_id: 1, members: [{_id: 'user1'}, {_id: 'user2'}]}, {_id: 2, members: [{_id: 'user2'}]}];
       mockery.registerMock('../../core/community', {
@@ -1069,6 +1116,9 @@ describe('The communities controller', function() {
         },
         isMember: function(c, u , callback) {
           return callback(null, true);
+        },
+        getMembershipRequest: function() {
+          return false;
         }
       });
       mockery.registerMock('../../core/community/permission', {});

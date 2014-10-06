@@ -1013,4 +1013,42 @@ describe('The communities module', function() {
 
   });
 
+  describe('getMembershipRequest() method', function() {
+    it('should support communities that have no membershipRequests array property', function() {
+      var mongoose = { model: function() {} };
+      mockery.registerMock('mongoose', mongoose);
+      var user = {_id: 'user1'};
+      var community = {_id: 'community1'};
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var mr = communityModule.getMembershipRequest(community, user);
+      expect(mr).to.be.false;
+    });
+    it('should return nothing if user does not have a membership request', function() {
+      var mongoose = { model: function() {} };
+      mockery.registerMock('mongoose', mongoose);
+      var user = {_id: 'user1'};
+      var community = {_id: 'community1', membershipRequests: [{
+        user: { equals: function() { return false; } },
+        timestamp: {creation: new Date()}
+      }]};
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var mr = communityModule.getMembershipRequest(community, user);
+      expect(mr).to.be.not.ok;
+    });
+    it('should return the membership object if user have a membership request', function() {
+      var mongoose = { model: function() {} };
+      mockery.registerMock('mongoose', mongoose);
+      var user = {_id: 'user1'};
+      var community = {_id: 'community1', membershipRequests: [{
+        user: { equals: function() { return true; } },
+        timestamp: {creation: new Date(1419509532000)}
+      }]};
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var mr = communityModule.getMembershipRequest(community, user);
+      expect(mr).to.be.ok;
+      expect(mr.timestamp).to.have.property('creation');
+      expect(mr.timestamp.creation).to.be.a('Date');
+      expect(mr.timestamp.creation.getTime()).to.equal(1419509532000);
+    });
+  });
 });
