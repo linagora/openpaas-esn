@@ -251,7 +251,7 @@ module.exports.addMembershipRequest = function(community, user, callback) {
       return requestUserId.equals(userId);
     });
     if (previousRequests.length > 0) {
-      return callback(new Error('User has already requested membership for this community.'));
+      return callback(null, community);
     }
 
     community.membershipRequests.push({user: userId});

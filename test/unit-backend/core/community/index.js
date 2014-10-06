@@ -968,8 +968,9 @@ describe('The communities module', function() {
         callback(null, false);
       };
       communityModule.addMembershipRequest(community, user, function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
+        expect(err).to.not.exist;
+        expect(c).to.exist;
+        expect(c.membershipRequests).to.deep.equal(community.membershipRequests);
       });
     });
 
