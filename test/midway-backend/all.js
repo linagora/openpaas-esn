@@ -3,6 +3,7 @@
 var mockery = require('mockery'),
     path = require('path'),
     fs = require('fs-extra'),
+    extend = require('extend'),
     helpers = require('../helpers');
 var testConfig = require('../config/servers-conf.js');
 
@@ -164,7 +165,11 @@ before(function() {
       });
     },
 
-    createCommunity: function(title, creator, domain, done) {
+    createCommunity: function(title, creator, domain, opts, done) {
+      if (opts && !done) {
+        done = opts;
+        opts = null;
+      }
       var Community = require('mongoose').model('Community');
       var json = {
         title: title,
@@ -172,6 +177,9 @@ before(function() {
         domain_ids: [domain._id || domain],
         members: [{user: creator._id}]
       };
+      if (opts) {
+        extend(true, json, opts);
+      }
       var community = new Community(json);
       return community.save(done);
     },
