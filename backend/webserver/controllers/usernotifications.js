@@ -1,6 +1,7 @@
 'use strict';
 
 var notificationModule = require('../../core/notification/user');
+var logger = require('../../core/logger');
 
 module.exports.list = function(req, res) {
   var user = req.user;
@@ -20,13 +21,11 @@ module.exports.list = function(req, res) {
     }
   }
 
-  if (req.param('read')) {
-    if (req.param('read') === 'true') {
-      query.read = true;
-    }
-    if (req.param('read') === 'false') {
-      query.read = false;
-    }
+  if (req.param('read') === 'true') {
+    query.read = true;
+  }
+  if (req.param('read') === 'false') {
+    query.read = false;
   }
 
   notificationModule.getForUser(user, query, function(err, notifications) {
@@ -38,6 +37,7 @@ module.exports.list = function(req, res) {
 
     notificationModule.countForUser(user, query, function(err, count) {
       if (err) {
+        logger.warn('Can not count user notification : ' + err.message);
         count = notifications.length;
       }
       res.header('X-ESN-Items-Count', count);
