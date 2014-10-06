@@ -370,3 +370,39 @@ An array of OAuth clients the current user created.
         "created":"2014-09-16T20:35:24.643Z"
       }
     ]
+
+## PUT /api/user/notifications/:uuid/read
+
+Mark the user notification of id :uuid as read.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Request Body:**
+
+This endpoint expects the request body to be either 'true' or 'false'.
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 204 No Content
+- 400 Bad request
+- 401 Unauthorized
+- 404 Not found
+- 500 Internal server error
+
+**Request:**
+
+    PUT /api/user/notifications/1234567589/read
+    Accept: application/json
+    Host: localhost:8080
+
+        true
+
+**Response:**
+
+    HTTP/1.1 204 OK
