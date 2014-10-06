@@ -124,4 +124,38 @@ describe('The esn.user-notification Angular module', function() {
       expect(divElement.height()).to.equal(elementHeight);
     });
   });
+
+  describe('The userNotificationAPI factory', function() {
+
+    beforeEach(angular.mock.inject(function(userNotificationAPI, $httpBackend) {
+      this.$httpBackend = $httpBackend;
+      this.userNotificationAPI = userNotificationAPI;
+    }));
+
+    describe('list fn', function() {
+
+      it('should send a request to /user/notifications', function() {
+        this.$httpBackend.expectGET('/user/notifications').respond([]);
+        this.userNotificationAPI.list();
+        this.$httpBackend.flush();
+      });
+
+      it('should send a request to /user/notifications?limit=10&offset=2&read=false', function() {
+        this.$httpBackend.expectGET('/user/notifications?limit=10&offset=2&read=false').respond([]);
+        var options = {
+          limit: 10,
+          offset: 2,
+          read: false
+        };
+        this.userNotificationAPI.list(options);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.userNotificationAPI.list();
+        expect(promise.then).to.be.a.function;
+      });
+    });
+  });
+
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user-notification', [])
+angular.module('esn.user-notification', ['restangular'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -95,5 +95,14 @@ angular.module('esn.user-notification', [])
             angular.element($window).off('resize', onResize);
           });
         }
+      };
+    }])
+    .factory('userNotificationAPI', ['Restangular', function(Restangular) {
+      function list(options) {
+        return Restangular.one('user').all('notifications').getList(options);
+      }
+
+      return {
+        list: list
       };
     }]);
