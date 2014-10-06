@@ -63,6 +63,27 @@ module.exports.isMember = function(req, res, next) {
   });
 };
 
+module.exports.checkUserParamIsNotMember = function(req, res, next) {
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.param('user_id')) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
+  }
+
+  communityModule.isMember(req.community, req.param('user_id'), function(err, isMember) {
+    if (err) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
+    }
+
+    if (isMember) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'User is already member of the community.'});
+    }
+    return next();
+  });
+};
+
 module.exports.isCreator = function(req, res, next) {
   if (!req.community) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});

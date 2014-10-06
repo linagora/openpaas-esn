@@ -3,7 +3,6 @@
 var communityModule = require('./index');
 
 module.exports.canWrite = function(community, user, callback) {
-
   if (!community || !community.type) {
     return callback(new Error('Community object is required'));
   }
@@ -21,4 +20,11 @@ module.exports.canWrite = function(community, user, callback) {
   }
 
   return callback(new Error('Can not define write rights for this community'));
+};
+
+module.exports.supportsMemberShipRequests = function(community) {
+  if (!community || !community.type) {
+    return false;
+  }
+  return community.type === 'restricted' || community.type === 'private';
 };

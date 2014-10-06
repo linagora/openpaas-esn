@@ -28,6 +28,12 @@ var CommunitySchema = new Schema({
       creation: {type: Date, default: Date.now}
     }
   },
+  membershipRequests: [{
+    user: {type: Schema.ObjectId, ref: 'User'},
+    timestamp: {
+      creation: {type: Date, default: Date.now}
+    }
+  }],
   schemaVersion: {type: Number, default: 1}
 });
 

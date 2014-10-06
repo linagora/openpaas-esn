@@ -23,6 +23,18 @@ before(function() {
   };
   this.helpers = {};
   helpers(this.helpers, this.testEnv);
+
+  this.helpers.objectIdMock = function(stringId) {
+    return {
+      value: function() {
+        return stringId;
+      },
+      equals: function(otherObjectId) {
+        return stringId === otherObjectId.value();
+      }
+    };
+  };
+
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
   fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');

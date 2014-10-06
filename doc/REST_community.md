@@ -504,3 +504,65 @@ No response.
 
     HTTP/1.1 204 No Content
 
+## PUT /api/communities/{community_id}/membership/{user_id}
+
+Adds a new item in commnity memberShipRequests i.e. the user request to be part of the community.
+
+Notes:
+
+- Only private and restricted communities support membership requests
+- A user cannot make a membership request for a community he is already member of.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+- user_id: The user id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+The updated community.
+
+**Status Codes:**
+
+- 200 OK - Updated community.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    PUT /api/communities/538e3bd6654d7c3307f990fa/membership/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+        {
+          "_id": "538e3bd6654d7c3307f990fa",
+          "title": "Node.js",
+          "description": "All about node.js",
+          "domain_ids": ["9328938983983"],
+          "timestamps": {
+            "creation": "2014-05-16T09:47:11.703Z"
+          },
+          activity_stream: {
+            uuid: "9330-0393-7373-7280",
+            "timestamps": {
+              "creation": "2014-05-16T09:47:11.704Z"
+            }
+          },
+          membershipRequests: [
+            {
+                user: "538e3bd6654d7c3307f990fb"
+            }
+          ]
+        }
