@@ -7,6 +7,109 @@ var expect = chai.expect;
 describe('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
+  describe('The communityMembersController controller', function() {
+
+    beforeEach(angular.mock.inject(function($controller, $q, $rootScope) {
+      var self = this;
+      this.$q = $q;
+      this.communityAPI = {};
+      this.defer = this.$q.defer();
+      this.communityAPI.getMembers = function(id, opts) {
+        return self.defer.promise;
+      };
+      this.usSpinnerService = {};
+      this.usSpinnerService.spin = function(id) {};
+      this.usSpinnerService.stop = function(id) {};
+      this.$controller = $controller;
+      this.scope = $rootScope.$new();
+      this.scope.community = {_id: 123};
+      this.scope.restActive = true;
+
+      $controller('communityMembersController', {
+        $scope: this.scope,
+        communityAPI: this.communityAPI,
+        $routeParams: this.$routeParams,
+        usSpinnerService: this.usSpinnerService
+      });
+
+    }));
+
+    describe('init function', function() {
+
+      beforeEach(function() {
+        this.scope.restActive = false;
+      });
+
+      it('should call the api and update the members array', function(done) {
+        this.defer.resolve({data: [1, 2, 3], headers: function() { return 10;}});
+        this.scope.$digest();
+        expect(this.scope.members.length).to.equal(3);
+        expect(this.scope.total).to.equal(10);
+        done();
+      });
+
+      it('should set error when the api call fails', function(done) {
+        this.defer.reject({data: [1, 2, 3], headers: function() { return 10;}});
+        this.scope.$digest();
+        expect(this.scope.error).to.be.true;
+        done();
+      });
+
+      describe('when request running', function() {
+        beforeEach(function() {
+          this.scope.restActive = true;
+        });
+
+        it('should not call the community API', function(done) {
+          this.communityAPI.getMembers = function() {
+            return done(new Error());
+          };
+          this.scope.init();
+          done();
+        });
+      });
+    });
+
+    describe('loadMoreElements function', function() {
+      beforeEach(function() {
+        this.scope.restActive = true;
+      });
+
+      it('should call the API when scope.members is empty', function(done) {
+        this.scope.restActive = false;
+        this.scope.members = [];
+        this.communityAPI.getMembers = function() {
+          return done();
+        };
+        this.scope.$digest();
+        this.scope.loadMoreElements();
+      });
+
+      it('should call the API when not all members are loaded', function(done) {
+        this.scope.total = 10;
+        this.scope.members = [1, 2];
+        this.scope.restActive = false;
+        this.communityAPI.getMembers = function() {
+          return done();
+        };
+        this.scope.$digest();
+        this.scope.loadMoreElements();
+      });
+
+      it('should call the API with valid offset', function(done) {
+        this.scope.total = 10;
+        this.scope.members = [1, 2];
+        this.scope.restActive = false;
+        this.communityAPI.getMembers = function(id, options) {
+          expect(options.offset).to.equal(2);
+          return done();
+        };
+        this.scope.$digest();
+        this.scope.loadMoreElements();
+      });
+    });
+  });
+
   describe('The communitiesEventListener directive', function() {
 
     var called = 0;

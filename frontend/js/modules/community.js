@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload'])
+angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo'])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
@@ -355,6 +355,54 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     };
 
     $scope.getAll();
+  }])
+  .controller('communityMembersController', ['$scope', 'communityAPI', 'usSpinnerService', function($scope, communityAPI, usSpinnerService) {
+    var community_id = $scope.community._id;
+    $scope.spinnerKey = 'membersSpinner';
+
+    var opts = {
+      offset: 0,
+      limit: 20
+    };
+
+    $scope.total = 0;
+
+    $scope.members = [];
+    $scope.restActive = false;
+    $scope.error = false;
+
+    var updateMembersList = function() {
+      $scope.error = false;
+      if ($scope.restActive) {
+        return;
+      } else {
+        $scope.restActive = true;
+        usSpinnerService.spin($scope.spinnerKey);
+
+        communityAPI.getMembers(community_id, opts).then(function(data) {
+          $scope.total = parseInt(data.headers('X-ESN-Items-Count'));
+          $scope.members = $scope.members.concat(data.data);
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.restActive = false;
+          usSpinnerService.stop($scope.spinnerKey);
+        });
+      }
+    };
+
+    $scope.init = function() {
+      updateMembersList();
+    };
+
+    $scope.loadMoreElements = function() {
+      if ($scope.members.length === 0 || $scope.members.length < $scope.total) {
+        opts.offset = $scope.members.length;
+        updateMembersList();
+      }
+    };
+
+    $scope.init();
   }])
   .directive('communityDisplay', function() {
     return {

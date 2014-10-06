@@ -178,5 +178,7 @@
   "My communities": "My communities",
   "Accept picture": "Accept picture",
   "You are no allowed to see the content of this community.": "You are no allowed to see the content of this community.",
-  "Show all members": "Show all members"
+  "Show all members": "Show all members",
+  "Error while getting members": "Error while getting members",
+  "You are not allowed to see the members of this community": "You are not allowed to see the members of this community"
 }
