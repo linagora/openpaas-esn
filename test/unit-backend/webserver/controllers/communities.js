@@ -1705,7 +1705,7 @@ describe('The communities controller', function() {
     it('should send back the community modified by communityModule#addMembershipRequest', function(done) {
       var modifiedCommunity = {
         _id: '1',
-        membershipRequests: [{user: '2'}]
+        membershipRequests: [{user: this.helpers.objectIdMock('2')}]
       };
       mockery.registerMock('../../core/community', {
         addMembershipRequest: function(community, user, callback) {
@@ -1725,10 +1725,12 @@ describe('The communities controller', function() {
       };
 
       var req = {
-        community: {_id: '1'},
-        user: {_id: '2'},
+        community: {
+          _id: '1',
+          membershipRequests: [{user: this.helpers.objectIdMock('anotherUserrequest')}]},
+        user: {_id: this.helpers.objectIdMock('2')},
         params: {
-          user_id: '2'
+          user_id: this.helpers.objectIdMock('2')
         }
       };
 

@@ -873,16 +873,6 @@ describe('The communities module', function() {
 
   describe('The addMembershipRequest fn', function() {
     beforeEach(function() {
-      this.objectId = function(stringId) {
-        return {
-          value: function() {
-            return stringId;
-          },
-          equals: function(otherObjectId) {
-            return stringId === otherObjectId.value();
-          }
-        };
-      };
       var mongoose = {
         model: function() {
         }
@@ -955,7 +945,7 @@ describe('The communities module', function() {
     });
 
     it('should not add a request if the user has already made one', function() {
-      var user = { _id: this.objectId('uid') };
+      var user = { _id: this.helpers.objectIdMock('uid') };
       var community = {
         _id: 'cid',
         type: 'restricted',
@@ -975,11 +965,11 @@ describe('The communities module', function() {
     });
 
     it('should fail if the updated community save fails', function() {
-      var user = { _id: this.objectId('uid') };
+      var user = { _id: this.helpers.objectIdMock('uid') };
       var community = {
         _id: 'cid',
         type: 'restricted',
-        membershipRequests: [{user: this.objectId('otherUser')}],
+        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
         save: function(callback) {
           return callback(new Error('save fail'));
         }
@@ -997,11 +987,11 @@ describe('The communities module', function() {
     });
 
     it('should add a new request and return the updated community', function() {
-      var user = { _id: this.objectId('uid') };
+      var user = { _id: this.helpers.objectIdMock('uid') };
       var community = {
         _id: 'cid',
         type: 'restricted',
-        membershipRequests: [{user: this.objectId('otherUser')}],
+        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
         save: function(callback) {
           return callback(null, community);
         }
