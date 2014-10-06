@@ -1417,7 +1417,7 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 500 if user is already member of the community', function(done) {
+    it('should return 400 if user is already member of the community', function(done) {
       var self = this;
       var community = {
         title: 'Node.js',
@@ -1448,7 +1448,7 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
             req.end(function(err, res) {
-              expect(res.status).to.equal(500);
+              expect(res.status).to.equal(400);
               expect(res.text).to.contain('already member');
               done();
             });
@@ -1461,7 +1461,7 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 500 if user has already made a request for this community', function(done) {
+    it('should return 200 if user has already made a request for this community', function(done) {
       var self = this;
       var community = {
         title: 'Node.js',
@@ -1493,8 +1493,8 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
             req.end(function(err, res) {
-              expect(res.status).to.equal(500);
-              expect(res.text).to.contain('already requested membership');
+              expect(res.status).to.equal(200);
+              expect(res.body.membershipRequests).to.have.length(1);
               done();
             });
           });

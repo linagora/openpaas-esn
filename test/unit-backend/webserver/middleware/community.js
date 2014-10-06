@@ -408,4 +408,109 @@ describe('The community middleware', function() {
     });
   });
 
+  describe('the checkUserParamIsNotMember fn', function() {
+
+    it('should send back 400 when req.community is not defined', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var req = {
+        param: function() {
+          return '123';
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 400 when req.param(user_id) is not defined', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var req = {
+        community: {},
+        param: function() {
+          return null;
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 400 when service check fails', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          return callback(new Error());
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var req = {
+        community: {},
+        param: function() {
+          return '123';
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 400 when user is already a community member', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          return callback(null, true);
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var req = {
+        community: {},
+        param: function() {
+          return '123';
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should call next if user is not a community member', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          return callback(null, false);
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var req = {
+        community: {},
+        param: function() {
+          return '123';
+        }
+      };
+      var res = {
+        json: function() {
+          done(new Error());
+        }
+      };
+      middleware(req, res, done);
+    });
+
+  });
+
+
 });
