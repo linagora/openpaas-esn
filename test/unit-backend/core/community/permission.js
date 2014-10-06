@@ -98,4 +98,44 @@ describe('The communities permission module', function() {
     });
   });
 
+
+  describe('The supportsMemberShipRequests fn', function() {
+
+    it('should return false if community is undefined', function() {
+      mockery.registerMock('./index', {});
+      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var result = permission.supportsMemberShipRequests(null);
+      expect(result).to.be.false;
+    });
+
+    it('should return false if community does not have type property', function() {
+      mockery.registerMock('./index', {});
+      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var result = permission.supportsMemberShipRequests({foo: 'bar'});
+      expect(result).to.be.false;
+    });
+
+    it('should return false if community is not private or restricted', function() {
+      mockery.registerMock('./index', {});
+      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var result = permission.supportsMemberShipRequests({type: 'bar'});
+      expect(result).to.be.false;
+    });
+
+    it('should return false if community is private', function() {
+      mockery.registerMock('./index', {});
+      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var result = permission.supportsMemberShipRequests({type: 'private'});
+      expect(result).to.be.true;
+    });
+
+    it('should return false if community is restricted', function() {
+      mockery.registerMock('./index', {});
+      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var result = permission.supportsMemberShipRequests({type: 'restricted'});
+      expect(result).to.be.true;
+    });
+
+  });
+
 });

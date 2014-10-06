@@ -7,6 +7,7 @@ var domainModule = require('../domain');
 var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
+var permission = require('./permission');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -233,7 +234,7 @@ module.exports.addMembershipRequest = function(community, user, callback) {
     return callback(new Error('Community object is required'));
   }
 
-  if (community.type !== 'restricted' && community.type !== 'private') {
+  if (!permission.supportsMemberShipRequests(community)) {
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
