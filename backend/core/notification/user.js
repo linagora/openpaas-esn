@@ -1,7 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var UserNotification = mongoose.model('UserNotification');
+var UserNotification = mongoose.model('Usernotification');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -10,7 +10,7 @@ module.exports.getForUser = function(user, query, callback) {
   query = query || {};
   var id = user._id || user;
 
-  var q = {'target.objectType' : 'user', 'subject.id': id};
+  var q = {target: {objectType: 'user', id: id}};
   if (query.read !== undefined) {
     q.read = query.read;
   }
@@ -26,7 +26,7 @@ module.exports.countForUser = function(user, query, callback) {
   query = query || {};
   var id = user._id || user;
 
-  var q = {'target.objectType' : 'user', 'subject.id': id};
+  var q = {target: {objectType: 'user', id: id}};
   if (query.read !== undefined) {
     q.read = query.read;
   }
