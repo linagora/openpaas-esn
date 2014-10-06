@@ -15,7 +15,11 @@ module.exports.getForUser = function(user, query, callback) {
     q.read = query.read;
   }
 
-  return UserNotification.find(q).limit(query.limit || DEFAULT_LIMIT).skip(query.offset || DEFAULT_OFFSET).sort('-timestamps.creation').exec(callback);
+  var mq = UserNotification.find(q);
+  mq.limit(query.limit || DEFAULT_LIMIT);
+  mq.skip(query.offset || DEFAULT_OFFSET);
+  mq.sort('-timestamps.creation');
+  mq.exec(callback);
 };
 
 module.exports.countForUser = function(user, query, callback) {
@@ -23,7 +27,7 @@ module.exports.countForUser = function(user, query, callback) {
   var id = user._id || user;
 
   var q = {'target.objectType' : 'user', 'subject.id': id};
-  if (query.read) {
+  if (query.read !== undefined) {
     q.read = query.read;
   }
 

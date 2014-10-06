@@ -21,7 +21,12 @@ module.exports.list = function(req, res) {
   }
 
   if (req.param('read')) {
-    query.read = Boolean(req.param);
+    if (req.param('read') === 'true') {
+      query.read = true;
+    }
+    if (req.param('read') === 'false') {
+      query.read = false;
+    }
   }
 
   notificationModule.getForUser(user, query, function(err, notifications) {
