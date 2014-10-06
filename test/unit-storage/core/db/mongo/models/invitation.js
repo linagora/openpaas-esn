@@ -1,17 +1,14 @@
 'use strict';
 
-var expect = require('chai').expect,
-  mongoose = require('mongoose');
+var expect = require('chai').expect;
 
 describe('The Invitation model', function() {
   var Invitation;
 
-  before(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
-  });
-
   beforeEach(function() {
+    var mongoose = require('mongoose');
     mongoose.connect(this.testEnv.mongoUrl);
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
     Invitation = mongoose.model('Invitation');
   });
 
@@ -131,6 +128,7 @@ describe('The Invitation model', function() {
         });
       }
     ], function() {
+      var mongoose = require('mongoose');
       mongoose.disconnect(done);
     });
   });
