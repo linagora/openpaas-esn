@@ -371,6 +371,67 @@ An array of OAuth clients the current user created.
       }
     ]
 
+
+## GET /api/user/notifications
+
+List all the 'user notifications' for the current user.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Query Parameters:**
+
+- limit (int): The number of members to return. This will only keep the N first members (where N=limit). Default value is 50.
+- offset (int): Start the list of members after skipping N members (where N=offset). For example, if the size of the members list is 100 and the offset is 50, the result list will contain only members from 50 to 99 (list index starts at index 0).
+- read (boolean): If true, show notifications marked as read, if false, show only unread ones. If undefined, show all.
+
+**Response Headers:**
+
+- Content-Type: application/json
+- X-ESN-Items-Count: The total number of notifications for the user.
+
+**Response JSON Object**
+
+Array of user notifications.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    GET /api/user/notifications?read=false
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        _id: '54327ab55489fe31a957c4b2',
+        subject: { id: '54327ab55489fe31a957c4ae', objectType: 'user' },
+        verb: { label: 'created', text: 'created' },
+        complement: { id: 54327ab55489fe31a957c4af, objectType: 'community' },
+        category: 'A category',
+        acknowledged: false,
+        read: false,
+        target: [
+          {
+            objectType: 'user',
+            id: '54327ab55489fe31a957c4aa'
+          }
+        ],
+        action: [],
+        interactive: false,
+        timestamps: { creation: '2014-10-06T11:19:17.035Z' }
+      }
+    ]
+
 ## PUT /api/user/notifications/:uuid/read
 
 Mark the user notification of id :uuid as read.
@@ -382,10 +443,6 @@ Mark the user notification of id :uuid as read.
 **Request Body:**
 
 This endpoint expects the request body to be either 'true' or 'false'.
-
-**Response Headers:**
-
-- Content-Type: application/json
 
 **Status Codes:**
 
