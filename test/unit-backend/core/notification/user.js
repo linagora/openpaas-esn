@@ -209,4 +209,29 @@ describe('The core user notifications module', function() {
     });
   });
 
+  describe('setAcknowledged method', function() {
+    it('should return an error if usernotification is no defined', function(done) {
+      this.helpers.mock.models({});
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.setAcknowledged(null, false, function(err) {
+        expect(err).to.exists;
+        done();
+      });
+    });
+
+    it('should update a usernotification by setting read to true', function(done) {
+      var usernotification = {
+        save: function(callback) {
+          callback();
+        }
+      };
+      this.helpers.mock.models({});
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.setAcknowledged(usernotification, true, function() {
+        expect(usernotification.acknowledged).to.be.true;
+        done();
+      });
+    });
+  });
+
 });

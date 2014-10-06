@@ -50,3 +50,12 @@ function setRead(usernotification, read, callback) {
   usernotification.save(callback);
 }
 module.exports.setRead = setRead;
+
+function setAcknowledged(usernotification, acknowledged, callback) {
+  if (!usernotification) {
+    return callback(new Error('usernotification is required'));
+  }
+  usernotification.acknowledged = acknowledged;
+  usernotification.save(callback);
+}
+module.exports.setAcknowledged = setAcknowledged;
