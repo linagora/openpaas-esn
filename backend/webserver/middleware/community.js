@@ -42,7 +42,7 @@ module.exports.canLeave = function(req, res, next) {
   return next();
 };
 
-module.exports.isMember = function(req, res, next) {
+function isMember(req, res, next) {
   if (!req.community) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
   }
@@ -61,7 +61,9 @@ module.exports.isMember = function(req, res, next) {
     }
     return next();
   });
-};
+}
+
+module.exports.isMember = isMember;
 
 module.exports.checkUserParamIsNotMember = function(req, res, next) {
   if (!req.community) {
@@ -113,4 +115,19 @@ module.exports.checkUserIdParameterIsCurrentUser = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Parameters do not match'});
   }
   return next();
+};
+
+module.exports.canRead = function(req, res, next) {
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  if (req.community.type === 'open' || req.community.type === 'restricted') {
+    return next();
+  }
+  return isMember(req, res, next);
 };

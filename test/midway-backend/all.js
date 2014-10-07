@@ -173,12 +173,17 @@ before(function() {
       var Community = require('mongoose').model('Community');
       var json = {
         title: title,
+        type: 'open',
         creator: creator._id || creator,
         domain_ids: [domain._id || domain],
         members: [{user: creator._id}]
       };
       if (opts) {
-        extend(true, json, opts);
+        if (typeof opts === 'function') {
+          json = opts(json);
+        } else {
+          extend(true, json, opts);
+        }
       }
       var community = new Community(json);
       return community.save(done);
