@@ -435,9 +435,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         };
 
         $scope.canJoin = function() {
-          return $scope.user._id !== $scope.community.creator &&
-                 communityService.openMembership($scope.community) &&
-                 !communityService.isMember($scope.community);
+          return communityService.canJoin($scope.community, $scope.user);
         };
       },
       scope: {
@@ -465,8 +463,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         };
 
         $scope.canLeave = function() {
-          return $scope.user._id !== $scope.community.creator &&
-                 communityService.isMember($scope.community);
+          return communityService.canLeave($scope.community, $scope.user);
         };
       },
       scope: {
@@ -545,6 +542,9 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     $scope.canRead = function() {
       return communityService.canRead(community);
     };
+    $scope.isCommunityMember = function() {
+      return communityService.isMember(community);
+    };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
     return {
@@ -614,10 +614,6 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return community.member_status === 'member';
     }
 
-    function openMembership(community) {
-      return (community.type === 'open');
-    }
-
     function join(community, user) {
       if (isMember(community)) {
         var defer = $q.defer();
@@ -636,15 +632,29 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return communityAPI.leave(community._id, user._id);
     }
 
+    function canLeave(community, user) {
+        return user._id !== community.creator &&
+               isMember(community);
+    }
+
+    function canJoin(community, user) {
+        return user._id !== community.creator &&
+               community.type === 'open' &&
+               !isMember(community);
+    }
+
     function canRead(community) {
-      return openMembership(community) || isMember(community);
+      return community.type === 'open' ||
+             community.type === 'restricted' ||
+             isMember(community);
     }
 
     return {
-      openMembership: openMembership,
       isMember: isMember,
       join: join,
       leave: leave,
+      canJoin: canJoin,
+      canLeave: canLeave,
       canRead: canRead
     };
   }])

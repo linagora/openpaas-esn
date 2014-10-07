@@ -4,7 +4,7 @@
   .col-lg-10.col-md-10.col-sm-10.col-xs-12
     activity-stream(activitystream-uuid='{{community.activity_stream.uuid}}')
     activity-stream-notification(activitystream-uuid='{{community.activity_stream.uuid}}')
-  .col-lg-2.col-md-2.col-sm-2.hidden-xs.rightPane
+  .col-lg-2.col-md-2.col-sm-2.hidden-xs.rightPane(ng-if='isCommunityMember()')
     .esn-panel
       community-members-widget(community='community')
 .col-xs-12.esn-panel(ng-if='!canRead()')

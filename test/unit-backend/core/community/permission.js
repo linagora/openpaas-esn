@@ -34,14 +34,19 @@ describe('The communities permission module', function() {
       });
     });
 
-    it('should send back error if community is not open but user undefined', function(done) {
+    it('should send back error if community type is unsupported and user undefined', function(done) {
       mockery.registerMock('./index', {});
       var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
-      permission.canWrite({type: 'notopen'}, null, function(err) {
+      permission.canWrite({type: 'unsupportedtype'}, null, function(err) {
         expect(err).to.exist;
         done();
       });
     });
+
+    // NOTE: The testcases for restricted communities also cover private and
+    // confidential cases, since at this point the member type is the only
+    // important thing also cover private and confidential cases, since at this
+    // point the member type is the only important thing.
 
     it('should send back error if community is restricted and isMember returns error', function(done) {
       mockery.registerMock('./index', {
@@ -80,19 +85,6 @@ describe('The communities permission module', function() {
       permission.canWrite({type: 'restricted'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
-        done();
-      });
-    });
-
-    it('should send back error when community and user are set to community is nor public not restricted', function(done) {
-      mockery.registerMock('./index', {
-        isMember: function(community, user, callback) {
-          return done(new Error());
-        }
-      });
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
-      permission.canWrite({type: 'unsupportedtype'}, {}, function(err, result) {
-        expect(err).to.exist;
         done();
       });
     });
