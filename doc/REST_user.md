@@ -442,11 +442,11 @@ Mark the user notification of id :uuid as read.
 
 **Request Body:**
 
-This endpoint expects the request body to be either 'true' or 'false'.
+This endpoint expects the request body to be either { value : true } or { value : false } .
 
 **Status Codes:**
-
-- 204 No Content
+  
+- 205 Reset content
 - 400 Bad request
 - 401 Unauthorized
 - 404 Not found
@@ -457,9 +457,10 @@ This endpoint expects the request body to be either 'true' or 'false'.
     PUT /api/user/notifications/1234567589/read
     Accept: application/json
     Host: localhost:8080
-
-        true
+    {
+        value: true
+    }
 
 **Response:**
 
-    HTTP/1.1 204 OK
+    HTTP/1.1 205 Reset content
