@@ -15,12 +15,19 @@ function transform(community, user, callback) {
     return {};
   }
 
+  var membershipRequest = communityModule.getMembershipRequest(community, user);
+
   if (typeof(community.toObject) === 'function') {
     community = community.toObject();
   }
 
   community.members_count = community.members ? community.members.length : 0;
   delete community.members;
+
+  delete community.membershipRequests;
+  if (membershipRequest) {
+    community.membershipRequest = membershipRequest.timestamp.creation.getTime();
+  }
 
   communityModule.isMember(community._id, user._id, function(err, membership) {
     if (membership) {

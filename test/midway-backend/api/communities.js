@@ -262,6 +262,48 @@ describe('The communities API', function() {
         }
       );
     });
+    describe('membershipRequests', function() {
+      beforeEach(function(done) {
+        var self = this;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { done(err); }
+          self.domain = models.domain;
+          self.user = models.users[0];
+          self.user2 = models.users[1];
+
+          self.membershipRequest = {
+            user: self.user2._id,
+            timestamp: {
+              creation: new Date(1419509532000)
+            }
+          };
+
+          self.helpers.api.createCommunity('Node', self.user, self.domain, {membershipRequests: [self.membershipRequest]},
+                                           function(err, saved) {
+            if (err) { return done(err); }
+            self.community = saved;
+            done();
+          });
+        });
+      });
+      it('should return the membershipRequest date', function(done) {
+        var self = this;
+        this.helpers.api.loginAsUser(webserver.application, this.user2.emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) { return done(err); }
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + self.domain._id));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body).to.be.an('array');
+            expect(res.body.length).to.equal(1);
+            expect(res.body[0]).to.have.property('membershipRequest');
+            expect(res.body[0].membershipRequest).to.equal(1419509532000);
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('POST /api/communities', function() {

@@ -258,3 +258,11 @@ module.exports.addMembershipRequest = function(community, user, callback) {
     community.save(callback);
   });
 };
+
+module.exports.getMembershipRequest = function(community, user) {
+  if (!community.membershipRequests) {
+    return false;
+  }
+  var mr = community.membershipRequests.filter(function(mr) { return mr.user.equals(user._id); });
+  return mr.pop();
+};
