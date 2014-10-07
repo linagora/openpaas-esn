@@ -135,7 +135,9 @@ exports = module.exports = function(application) {
   application.put('/api/notifications/:id', authorize.requiresAPILogin, notifications.load, notificationMiddleware.userCanWriteNotification, notifications.setAsRead);
 
   var usernotifications = require('./controllers/usernotifications');
+  var usernotificationsAsMiddleware = require('./middleware/usernotifications');
   application.get('/api/user/notifications', authorize.requiresAPILogin, usernotifications.list);
+  application.put('/api/user/notifications/:id/read', authorize.requiresAPILogin, usernotifications.load, usernotificationsAsMiddleware.userCanWriteNotification, usernotifications.setRead);
 
   var communities = require('./controllers/communities');
   var communityMiddleware = require('./middleware/community');

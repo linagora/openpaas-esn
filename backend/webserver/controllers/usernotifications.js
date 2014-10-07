@@ -45,3 +45,41 @@ module.exports.list = function(req, res) {
     });
   });
 };
+
+function load(req, res, next) {
+  if (req.params.id) {
+    notificationModule.get(req.params.id, function(err, usernotification) {
+      if (err) {
+        return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot load user notification: ' + err.message}});
+      }
+      if (!usernotification) {
+        return res.json(404, {error: { status: 404, message: 'Not found', details: 'The user notification has not been found'}});
+      }
+      req.usernotification = usernotification;
+      next();
+    });
+  } else {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Missing parameter id'}});
+  }
+}
+module.exports.load = load;
+
+function setRead(req, res) {
+
+  if (!req.body) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+  }
+
+  if (req.body.value !== true && req.body.value !== false) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+  }
+
+  notificationModule.setRead(req.usernotification, req.body.value, function(err) {
+    if (err) {
+      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as read: ' + err.message}});
+    }
+    return res.send(205);
+  });
+}
+
+module.exports.setRead = setRead;

@@ -33,3 +33,20 @@ module.exports.countForUser = function(user, query, callback) {
 
   return UserNotification.count(q).exec(callback);
 };
+
+function get(id, callback) {
+  if (!id) {
+    return callback(new Error('id is not defined'));
+  }
+  return UserNotification.findById(id).exec(callback);
+}
+module.exports.get = get;
+
+function setRead(usernotification, read, callback) {
+  if (!usernotification) {
+    return callback(new Error('usernotification is required'));
+  }
+  usernotification.read = read;
+  usernotification.save(callback);
+}
+module.exports.setRead = setRead;
