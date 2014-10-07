@@ -195,6 +195,29 @@ module.exports = function(grunt) {
         },
         src: ['Gruntfile-tests.js']
       },
+      midway_backend_split: {
+        options: {
+          log: true,
+          stdout: function(data) {
+            grunt.log.write(data);
+          },
+          stderr: function(data) {
+            grunt.log.error(data);
+          },
+          args: grunt.option('test') ? {test: grunt.option('test')} : {},
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-midway-backend-split']
+        },
+        src: ['Gruntfile-tests.js']
+      },
       unit_backend: {
         options: {
           log: true,
@@ -543,11 +566,13 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('dev', ['nodemon:dev']);
-  grunt.registerTask('test-midway-backend', ['setup-environment', 'spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers']);
+  grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-mbsplit', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend_split', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
-  grunt.registerTask('test-unit-storage', ['setup-environment', 'spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
-  grunt.registerTask('test', ['jshint', 'gjslint', 'setup-environment', 'spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers', 'run_grunt:all', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend', 'setup-mongo-es', 'run_grunt:unit_storage', 'run_grunt:midway_backend_split', 'kill-servers', 'clean-environment']);
   grunt.registerTask('linters', ['jshint', 'gjslint']);
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
