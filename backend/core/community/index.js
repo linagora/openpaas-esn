@@ -263,6 +263,40 @@ module.exports.getMembershipRequest = function(community, user) {
   if (!community.membershipRequests) {
     return false;
   }
-  var mr = community.membershipRequests.filter(function(mr) { return mr.user.equals(user._id); });
+  var mr = community.membershipRequests.filter(function (mr) {
+    return mr.user.equals(user._id);
+  });
   return mr.pop();
+};
+
+module.exports.removeMembershipRequest = function(community, user, callback) {
+  if (!user) {
+    return callback(new Error('User object is required'));
+  }
+  var userId = user._id || user;
+
+  if (!community) {
+    return callback(new Error('Community object is required'));
+  }
+
+  if (!permission.supportsMemberShipRequests(community)) {
+    return callback(new Error('Only Restricted and Private communities allow membership requests.'));
+  }
+
+  this.isMember(community, user, function(err, isMember) {
+    if (err) {
+      return callback(err);
+    }
+    if (isMember) {
+      return callback(new Error('User already member of the community.'));
+    }
+
+    var otherUserRequests = community.membershipRequests.filter(function(request) {
+      var requestUserId = request.user._id || request.user;
+      return !requestUserId.equals(userId);
+    });
+
+    community.membershipRequests = otherUserRequests;
+    community.save(callback);
+  });
 };
