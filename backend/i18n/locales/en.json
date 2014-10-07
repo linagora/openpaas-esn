@@ -187,5 +187,7 @@
   "Previous" : "Previous",
   "Request membership": "Request membership",
   "Cancel request": "Cancel request",
-  "Your membership request is pending": "Your membership request is pending"
+  "Your membership request is pending": "Your membership request is pending",
+  "Loading notifications": "Loading notifications",
+  "Error while getting notifications": "Error while getting notifications"
 }

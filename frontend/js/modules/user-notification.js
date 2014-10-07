@@ -8,20 +8,129 @@ angular.module('esn.user-notification', ['restangular'])
   .constant('POPOVER_TITLE_HEIGHT', 35)
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
-  .controller('userNotificationController', ['$scope', function($scope) {
-    $scope.popoverObject = {
-      open: false,
-      currentItems: []
+
+
+  .factory('userNotificationCache', function($q) {
+    var defer = $q.defer();
+    return {
+      setItemSize: function(size) {
+        defer.resolve(size);
+        // for next time...
+        defer = $q.defer();
+      },
+      getItemSize: function() {
+        return defer.promise;
+      }
     };
-    $scope.togglePopover = function() {
-      $scope.popoverObject.open = !$scope.popoverObject.open;
+  })
+
+  .controller('userNotificationController', ['$scope', 'userNotificationAPI', 'userNotificationCache', function($scope, userNotificationAPI, userNotificationCache) {
+    $scope.loading = false;
+    $scope.error = false;
+    $scope.notifications = [];
+    $scope.totalNotifications = 0;
+    $scope.offset = 0;
+    $scope.notificationsPerPage = 5;
+
+    $scope.popoverObject = {
+      open: false
     };
 
-    $scope.items = [];
+    $scope.pagination = {
+      current: 1,
+      last: 0
+    };
+
+    $scope.reset = function() {
+      $scope.notifications = [];
+      $scope.pagination = {
+        current: 1,
+        last: 0
+      };
+      $scope.notificationsPerPage = 5;
+    };
+
+    $scope.togglePopover = function() {
+      console.log('Toggle popover in userNotificationController');
+
+      $scope.popoverObject.open = !$scope.popoverObject.open;
+      if (!$scope.popoverObject.open) {
+        $scope.reset();
+      } else {
+        userNotificationCache.getItemSize().then(function(data) {
+          console.log('Got promise result');
+          $scope.notificationsPerPage = data;
+          $scope.load();
+        });
+      }
+    };
+
+    $scope.nextPage = function() {
+      if ($scope.pagination.current === $scope.pagination.last) {
+        return;
+      }
+      $scope.load($scope.pagination.current + 1);
+    };
+
+    $scope.previousPage = function() {
+      if ($scope.pagination.current === 1) {
+        return;
+      }
+      $scope.load($scope.pagination.current - 1);
+    };
+
+    $scope.load = function(pageToLoad) {
+      pageToLoad = pageToLoad || 1;
+
+      var options = {limit: $scope.notificationsPerPage, offset: (pageToLoad - 1) * $scope.notificationsPerPage, read: false};
+      $scope.loading = true;
+
+      userNotificationAPI.list(options).then(function(response) {
+        $scope.notifications = response.data;
+        $scope.totalNotifications = response.headers('X-ESN-Items-Count');
+
+        // TODO : Change the current page according to the pagination.last value and total notifications
+        $scope.pagination.current = pageToLoad;
+        $scope.pagination.last = Math.ceil($scope.totalNotifications / $scope.notificationsPerPage);
+      }, function() {
+        $scope.error = true;
+      }).finally(function() {
+        $scope.loading = false;
+      });
+    };
+
+    /*
+    $scope.$on('notification:load', function(event, data) {
+      if (!$scope.notifications.length) {
+        $scope.notificationsPerPage = data;
+        $scope.load();
+      }
+    });
+    */
   }])
+  .directive('notificationTemplateDisplayer', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/notificationTemplateDisplayer.html'
+    };
+  })
+  .directive('infoNotification', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/templates/info-notification.html'
+    };
+  })
   .directive('userNotificationPopover',
-  ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
-    function($timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
+  ['$timeout', '$window', 'userNotificationCache', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
+    function($timeout, $window, userNotificationCache, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
       return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -70,11 +179,9 @@ angular.module('esn.user-notification', ['restangular'])
                 nbItems = Math.floor(popoverMaxHeight / USER_NOTIFICATION_ITEM_HEIGHT);
               }
 
-              if (scope.items.length > nbItems) {
-                scope.popoverObject.currentItems = scope.items.slice(0, nbItems);
-              } else {
-                scope.popoverObject.currentItems = scope.items;
-              }
+              console.log('Set item from directive')
+              userNotificationCache.setItemSize(nbItems);
+              //scope.$emit('notification:load', nbItems);
               isResizing = false;
             }
 

@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The esn.user-notification Angular module', function() {
+describe.only('The esn.user-notification Angular module', function() {
   beforeEach(function() {
     angular.mock.module('esn.user-notification');
   });
@@ -158,4 +158,117 @@ describe('The esn.user-notification Angular module', function() {
     });
   });
 
+  describe('The userNotificationController controller', function() {
+
+    beforeEach(inject(function($rootScope, $controller, $q) {
+      this.userNotificationAPI = {};
+      this.rootScope = $rootScope;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+
+      $controller('userNotificationController', {
+        $scope: this.scope,
+        userNotificationAPI: this.userNotificationAPI
+      });
+    }));
+
+    describe('togglePopover()', function() {
+      it('should call load when popoverObject is opened', function(done) {
+        this.scope.popoverObject.open = false;
+        this.userNotificationAPI.list = function() {
+          done();
+        };
+        this.scope.togglePopover();
+      });
+
+      it('should reset notifications when popoverObject is closed', function(done) {
+        this.scope.notifications = [1,2,3];
+        this.scope.popoverObject.open = true;
+        this.scope.togglePopover();
+        expect(this.scope.notifications).to.be.empty;
+        done();
+      });
+    });
+
+    describe('nextPage()', function() {
+      it('should not call load() when last page has been reached', function(done) {
+        this.scope.pagination.current = 2;
+        this.scope.pagination.last = 2;
+
+        this.userNotificationAPI.list = function() {
+          done(new Error());
+        };
+        this.scope.nextPage();
+        done();
+      });
+
+      it('should call load() when last page has not been reached', function(done) {
+        this.scope.pagination.current = 1;
+        this.scope.pagination.last = 2;
+
+        this.userNotificationAPI.list = function() {
+          done();
+        };
+        this.scope.nextPage();
+        done(new Error());
+      });
+    });
+
+    describe('previousPage()', function() {
+      it('should not call load() when first page has been reached', function(done) {
+        this.scope.pagination.current = 1;
+
+        this.userNotificationAPI.list = function() {
+          done(new Error());
+        };
+        this.scope.previousPage();
+        done();
+      });
+
+      it('should call load() when first page has not been reached', function(done) {
+        this.scope.pagination.current = 2;
+
+        this.userNotificationAPI.list = function() {
+          done();
+        };
+        this.scope.previousPage();
+        done(new Error());
+      });
+    });
+
+    describe('load()', function() {
+      it('should update local notifications and counter on request success', function(done) {
+        var array = [1, 2, 3];
+        var size = 103;
+
+        var defer = this.$q.defer();
+        this.userNotificationAPI.list = function(options) {
+          return defer.promise;
+        };
+
+        defer.resolve({data: array, headers: function() {
+          return size;
+        }});
+
+        this.scope.load();
+        this.scope.$digest();
+        expect(this.scope.notifications).to.deep.equal(array);
+        expect(this.scope.totalNotifications).to.equal(size);
+        done();
+      });
+
+      it('should set error on request failure', function(done) {
+        var defer = this.$q.defer();
+        this.userNotificationAPI.list = function(options) {
+          return defer.promise;
+        };
+
+        defer.reject();
+        this.scope.load();
+        this.scope.$digest();
+        expect(this.scope.error).to.be.true;
+        done();
+      });
+    });
+  });
 });
