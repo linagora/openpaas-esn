@@ -501,3 +501,35 @@ This endpoint expects the request body to be either { value : true } or { value 
 **Response:**
 
     HTTP/1.1 205 Reset content
+
+## GET /api/user/notifications/unreadcount
+
+Return the number of unread user notifications for the current user.
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Response JSON Object:**
+
+- unread_count: unread user notifications
+
+**Status Codes:**
+
+- 200 Ok.
+- 401 Unauthorized.
+- 500 Internal server error.
+
+**Request:**
+
+    GET /api/user/notifications/unreadcount
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 Ok
+    {
+      "unread_count": 42
+    }
