@@ -1,3 +1,4 @@
+@import "../styles.less";
 
 // Site Colors
 // -----------
@@ -6,6 +7,7 @@
 @light-grey: #f8f8f8;
 @dark-grey: #adadad;
 @blue: #4982eb;
+@secondary-blue: #428BCA;
 @yellow: #eecb25;
 @green: #abc85c;
 @red: #bc015c;
@@ -513,18 +515,40 @@ body {
     color: @defaultFontColor;
     outline: none;
     opacity: 0.8;
+    display: block;
   }
   a:hover {
     opacity: 1;
   }
   .creator {
-    background-color: red;
+    background-color: @secondary-blue;
     opacity: 0.9;
-    bottom: 3px;
+    bottom: 0px;
     display: inline-block;
-    height: 10px;
     position: absolute;
-    right: 3px;
-    width: 10px;
+    right: 0px;
+    box-shadow: 0px 0px 15px -3px black;
+    -webkit-box-shadow: 0px 0px 15px -3px black;
+    -o-box-shadow: 0px 0px 15px -3px black;
+    -ms-box-shadow: 0px 0px 15px -3px black;
+    padding: 2px;
+    font-size: 0.5em;
+    .fa {
+      margin-right: 0px;
+      color: white;
+    }
+  }
+}
+
+@media(min-width: @screen-md-min) {
+  .community-member-avatar .creator{
+    font-size: 0.75em;
+    padding: 3px;
+  }
+}
+
+@media(min-width: @screen-lg-min) {
+  .community-member-avatar .creator{
+    font-size: 1em;
   }
 }
