@@ -17,10 +17,10 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
       userNotificationAPI
         .setRead(id, true)
         .then(function() {
-          $scope.unreadCount.startRefresh();
+          $scope.unreadCount.refresh();
           $log.info('Successfully setting ' + id + ' as read');
         }, function(err) {
-          $scope.unreadCount.startRefresh();
+          $scope.unreadCount.refresh();
           $log.error('Error setting ' + id + ' as read: ' + err);
         });
     };
@@ -105,21 +105,26 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
 
     function UnreadCount(count) {
       this.count = count;
+      this.timer = null;
     }
 
-    UnreadCount.prototype.startRefresh = function startRefresh() {
+    UnreadCount.prototype.refresh = function refresh() {
       var self = this;
-      function getUnReadCount() {
-        userNotificationAPI
-          .getUnreadCount()
-          .then(function(response) {
-            self.count = response.data.unread_count;
-            $log.info('count is ' + response.data.unread_count);
-          }, function(err) {
-            $log.error('Error listing read user notification: ' + err);
-          });
+      if(self.timer === null) {
+        self.timer = $timeout(function() {
+          userNotificationAPI
+            .getUnreadCount()
+            .then(function(response) {
+              self.count = response.data.unread_count;
+              $log.info('count is ' + response.data.unread_count);
+            }, function(err) {
+              $log.error('Error listing read user notification: ' + err);
+            });
+          self.timer = null;
+        }, 10 * 1000);
+      } else {
+        $log.info('timer is already up');
       }
-      $timeout(getUnReadCount, 10 * 1000);
     };
 
     UnreadCount.prototype.decreaseBy = function decreaseBy(number) {
