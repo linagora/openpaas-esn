@@ -8,18 +8,15 @@ module.exports.canWrite = function(community, user, callback) {
   }
 
   if (community.type === 'open') {
+    // Open communities allow participation even without a user.
     return callback(null, true);
-  }
-
-  if (!user) {
+  } else if (!user) {
+    // For other community types, require a user
     return callback(new Error('User is required'));
-  }
-
-  if (community.type === 'restricted') {
+  } else {
+    // The remaining case for restricted, private and confidential communities.
     return communityModule.isMember(community, user, callback);
   }
-
-  return callback(new Error('Can not define write rights for this community'));
 };
 
 module.exports.supportsMemberShipRequests = function(community) {

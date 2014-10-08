@@ -196,7 +196,8 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       restrict: 'E',
       replace: true,
       scope: {
-        message: '='
+        message: '=',
+        writable: '='
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html'
     };

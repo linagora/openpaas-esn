@@ -1102,6 +1102,18 @@ describe('The Community Angular module', function() {
       });
     });
 
+    describe('isCommunityMember() method', function() {
+      it('should call communityService.isMember() method with the current scope community', function(done) {
+        var comm = this.community;
+        this.communityService.isMember = function(community) {
+          expect(community).to.deep.equal(comm);
+          done();
+        };
+
+        this.scope.isCommunityMember();
+      });
+    });
+
     describe('$rootScope community:join event', function() {
       it('should not call the communityAPI if event msg is null', function(done) {
         this.communityAPI.get = function() {
@@ -1276,24 +1288,6 @@ describe('The Community Angular module', function() {
       this.$rootScope = $rootScope;
     }));
 
-    describe('openMembership() method', function() {
-      it('should return true if the community is open', function() {
-        expect(this.communityService.openMembership({type: 'open'})).to.be.true;
-      });
-      it('should return false if the community is restricted', function() {
-        expect(this.communityService.openMembership({type: 'restricted'})).to.be.false;
-      });
-      it('should return false if the community is private', function() {
-        expect(this.communityService.openMembership({type: 'private'})).to.be.false;
-      });
-      it('should return false if the community is invisible', function() {
-        expect(this.communityService.openMembership({type: 'invisible'})).to.be.false;
-      });
-      it('should return false if the community type is undefined', function() {
-        expect(this.communityService.openMembership({_id: 'community1'})).to.be.false;
-      });
-    });
-
     describe('isMember() method', function() {
       beforeEach(function() {
         this.community = {
@@ -1372,6 +1366,121 @@ describe('The Community Angular module', function() {
         this.communityService.leave(this.community, {_id: 'user2'});
       });
     });
+
+    describe('canJoin() method', function() {
+      beforeEach(function() {
+        this.community = {
+          _id: 'community1',
+          members_count: 4,
+          member_status: 'none',
+          creator: 'user4'
+        };
+        this.user = {
+          _id: 'user1'
+        };
+      });
+
+      describe('when the user is not a member', function() {
+        it('should correctly respond in each community type', function() {
+          this.community.member_status = 'none';
+          this.community.type = 'open';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.true;
+          this.community.type = 'restricted';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.type = 'private';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.type = 'confidential';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+        });
+        it('should correctly respond if the user is creator or not', function() {
+          this.community.member_status = 'none';
+          this.community.type = 'open';
+          this.community.creator = 'user1';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.creator = 'user4';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.true;
+        });
+      });
+      describe('when the user is a member', function() {
+        it('should return false for each community type', function() {
+          this.community.member_status = 'member';
+          this.community.type = 'open';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.type = 'restricted';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.type = 'private';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.type = 'confidential';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+        });
+        it('should return false the user is creator or not', function() {
+          this.community.member_status = 'member';
+          this.community.type = 'open';
+          this.community.creator = 'user1';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+          this.community.creator = 'user4';
+          expect(this.communityService.canJoin(this.community, this.user)).to.be.false;
+        });
+      });
+    });
+
+    describe('canLeave() method', function() {
+      beforeEach(function() {
+        this.community = {
+          _id: 'community1',
+          members_count: 4,
+          member_status: 'none',
+          creator: 'user4'
+        };
+        this.user = {
+          _id: 'user1'
+        };
+      });
+
+      describe('when the user is not a member', function() {
+        it('should return false for each community type', function() {
+          this.community.member_status = 'none';
+          this.community.type = 'open';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+          this.community.type = 'restricted';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+          this.community.type = 'private';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+          this.community.type = 'confidential';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+        });
+        it('should return false for any creator status', function() {
+          this.community.member_status = 'none';
+          this.community.type = 'open';
+          this.community.creator = 'user1';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+          this.community.creator = 'user4';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+        });
+      });
+      describe('when the user is a member', function() {
+        it('should return true for each community type', function() {
+          this.community.member_status = 'member';
+          this.community.type = 'open';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.true;
+          this.community.type = 'restricted';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.true;
+          this.community.type = 'private';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.true;
+          this.community.type = 'confidential';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.true;
+        });
+        it('should return the correct value when the user is creator or not', function() {
+          this.community.member_status = 'member';
+          this.community.type = 'open';
+          this.community.creator = 'user1';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.false;
+          this.community.creator = 'user4';
+          expect(this.communityService.canLeave(this.community, this.user)).to.be.true;
+        });
+      });
+    });
+
     describe('canRead() method', function() {
       beforeEach(function() {
         this.community = {
@@ -1381,35 +1490,36 @@ describe('The Community Angular module', function() {
           member_status: 'none'
         };
       });
-      describe('when the community is open', function() {
-        it('should return true', function() {
-          expect(this.communityService.canRead(this.community)).to.be.true;
+      describe('when the community is open or restricted', function() {
+        it('should return true for members', function() {
           this.community.member_status = 'member';
+          this.community.type = 'open';
+          expect(this.communityService.canRead(this.community)).to.be.true;
+          this.community.type = 'restricted';
+          expect(this.communityService.canRead(this.community)).to.be.true;
+        });
+        it('should return true for non-members', function() {
+          this.community.member_status = 'none';
+          this.community.type = 'open';
+          expect(this.communityService.canRead(this.community)).to.be.true;
+          this.community.type = 'restricted';
           expect(this.communityService.canRead(this.community)).to.be.true;
         });
       });
-      describe('when the community is not open', function() {
-        describe('and user is not a community member', function() {
-          it('should return false', function() {
-            this.community.member_status = 'none';
-            this.community.type = 'protected';
-            expect(this.communityService.canRead(this.community)).to.be.false;
-            this.community.type = 'private';
-            expect(this.communityService.canRead(this.community)).to.be.false;
-            this.community.type = 'invisible';
-            expect(this.communityService.canRead(this.community)).to.be.false;
-          });
+      describe('when the community is private or confidential', function() {
+        it('should return true', function() {
+          this.community.member_status = 'member';
+          this.community.type = 'private';
+          expect(this.communityService.canRead(this.community)).to.be.true;
+          this.community.type = 'confidential';
+          expect(this.communityService.canRead(this.community)).to.be.true;
         });
-        describe('and user is a community member', function() {
-          it('should return true', function() {
-            this.community.member_status = 'member';
-            this.community.type = 'protected';
-            expect(this.communityService.canRead(this.community)).to.be.true;
-            this.community.type = 'private';
-            expect(this.communityService.canRead(this.community)).to.be.true;
-            this.community.type = 'invisible';
-            expect(this.communityService.canRead(this.community)).to.be.true;
-          });
+        it('should return false for non-members', function() {
+          this.community.member_status = 'none';
+          this.community.type = 'private';
+          expect(this.communityService.canRead(this.community)).to.be.false;
+          this.community.type = 'confidential';
+          expect(this.communityService.canRead(this.community)).to.be.false;
         });
       });
     });
@@ -1436,30 +1546,10 @@ describe('The Community Angular module', function() {
       this.html = '<community-button-join community="community" user="user"></community-button-join>';
     }));
 
-    describe('when user is community creator', function() {
+    describe('when the user cannot join the community', function() {
       it('should hide the button', function() {
+        this.communityService.canJoin = function() { return false; };
         this.scope.user = {_id: 'user1'};
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        expect(element).to.have.length(1);
-        expect(element.hasClass('ng-hide')).to.be.true;
-      });
-    });
-    describe('when community is not open', function() {
-      it('should hide the button', function() {
-        this.communityService.openMembership = function() {return false;};
-        this.scope.user = {_id: 'user4'};
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        expect(element).to.have.length(1);
-        expect(element.hasClass('ng-hide')).to.be.true;
-      });
-    });
-    describe('when user is already a member of the community', function() {
-      it('should hide the button', function() {
-        this.communityService.openMembership = function() {return true;};
-        this.communityService.isMember = function() {return true;};
-        this.scope.user = {_id: 'user4'};
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
         expect(element).to.have.length(1);
@@ -1468,8 +1558,7 @@ describe('The Community Angular module', function() {
     });
     describe('when user can join the community', function() {
       it('should show the button', function() {
-        this.communityService.openMembership = function() {return true;};
-        this.communityService.isMember = function() {return false;};
+        this.communityService.canJoin = function() { return true; };
         this.scope.user = {_id: 'user4'};
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
@@ -1480,8 +1569,7 @@ describe('The Community Angular module', function() {
 
     describe('button click', function() {
       beforeEach(function() {
-        this.communityService.openMembership = function() {return true;};
-        this.communityService.isMember = function() {return false;};
+        this.communityService.canJoin = function() { return true; };
         this.scope.user = {_id: 'user4'};
         this.html = '<community-button-join community="community" user="user"></community-button-join>';
       });
@@ -1592,20 +1680,9 @@ describe('The Community Angular module', function() {
       this.html = '<community-button-leave community="community" user="user"></community-button-leave>';
     }));
 
-    describe('when user is community creator', function() {
+    describe('when the user cannot leave', function() {
       it('should hide the button', function() {
-        this.scope.user = {_id: 'user1'};
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        expect(element).to.have.length(1);
-        expect(element.hasClass('ng-hide')).to.be.true;
-      });
-    });
-
-    describe('when user is not a member of the community', function() {
-      it('should hide the button', function() {
-        this.communityService.isMember = function() {return false;};
-        this.scope.user = {_id: 'user4'};
+        this.communityService.canLeave = function() { return false; };
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
         expect(element).to.have.length(1);
@@ -1615,8 +1692,7 @@ describe('The Community Angular module', function() {
 
     describe('when user can leave the community', function() {
       it('should show the button', function() {
-        this.communityService.isMember = function() {return true;};
-        this.scope.user = {_id: 'user4'};
+        this.communityService.canLeave = function() { return true; };
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
         expect(element).to.have.length(1);
@@ -1626,8 +1702,9 @@ describe('The Community Angular module', function() {
 
     describe('button click', function() {
       beforeEach(function() {
-        this.communityService.openMembership = function() {return true;};
+        this.scope.community.type = 'open';
         this.communityService.isMember = function() {return true;};
+        this.communityService.canLeave = function() {return true;};
         this.scope.user = {_id: 'user2'};
         this.html = '<community-button-leave community="community" user="user"></community-button-leave>';
       });

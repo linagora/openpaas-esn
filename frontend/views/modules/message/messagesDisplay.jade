@@ -2,4 +2,4 @@ div
   a.pull-left(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div.media-body
-    message-template-displayer(message='message')
+    message-template-displayer(message='message' writable='writable')

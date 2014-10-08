@@ -3,11 +3,11 @@ ul.message-bottom-links.list-inline
     button.btn.btn-link(type='button')
       span.hideme.hidden-sm.hidden-xs #{__('Share')} &nbsp;
       i.fa.fa-share
-  li.pull-right
+  li.pull-right(ng-show='writable')
     button.btn.btn-link(type='button')
       span.hideme.hidden-sm.hidden-xs #{__('Comment')} &nbsp;
       i.fa.fa-comment
-  li.pull-right
+  li.pull-right(ng-show='writable')
     button.btn.btn-link(type='button')
       span.hideme.hidden-sm.hidden-xs #{__('Useful')} &nbsp;
       i.fa.fa-thumbs-up
