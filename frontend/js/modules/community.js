@@ -48,6 +48,14 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return Restangular.one('communities', id).one('members', member).remove();
     }
 
+    function requestMembership(id, member) {
+      return Restangular.one('communities', id).one('membership', member).put();
+    }
+
+    function cancelRequestMembership(id, member) {
+      return Restangular.one('communities', id).one('membership', member).remove();
+    }
+
     return {
       list: list,
       get: get,
@@ -57,7 +65,9 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       getMembers: getMembers,
       getMember: getMember,
       join: join,
-      leave: leave
+      leave: leave,
+      requestMembership: requestMembership,
+      cancelRequestMembership: cancelRequestMembership
     };
   }])
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
@@ -291,6 +301,24 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       refreshCommunity(community);
     };
 
+    $scope.requestMembershipSuccess = function(community) {
+      refreshCommunity(community);
+    };
+
+    $scope.requestMembershipFailure = function(community) {
+      $log.error('failed to request membership to the community', community);
+      refreshCommunity(community);
+    };
+
+    $scope.cancelRequestMembershipSuccess = function(community) {
+      refreshCommunity(community);
+    };
+
+    $scope.cancelRequestMembershipFailure = function(community) {
+      $log.error('failed to cancel request membership to the community', community);
+      refreshCommunity(community);
+    };
+
     $scope.getAll = function() {
       $scope.selected = 'all';
       $scope.loading = true;
@@ -474,6 +502,62 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       }
     };
   }])
+  .directive('communityButtonRequestMembership', ['communityService', function(communityService) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-button-request-membership.html',
+      replace: true,
+      link: function($scope) {
+        $scope.disabled = false;
+        $scope.requestMembership = function() {
+          $scope.disabled = true;
+          communityService.requestMembership($scope.community, $scope.user)
+            .then($scope.onRequest, $scope.onFail)
+            .finally (function() {
+              $scope.disabled = false;
+            });
+        };
+
+        $scope.canRequestMembership = function() {
+          return communityService.canRequestMembership($scope.community, $scope.user);
+        };
+      },
+      scope: {
+        community: '=',
+        user: '=',
+        onRequest: '&',
+        onFail: '&'
+      }
+    };
+  }])
+  .directive('communityButtonCancelRequestMembership', ['communityService', function(communityService) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-button-cancel-request-membership.html',
+      replace: true,
+      link: function($scope) {
+        $scope.disabled = false;
+        $scope.cancelRequestMembership = function() {
+          $scope.disabled = true;
+          communityService.cancelRequestMembership($scope.community, $scope.user)
+            .then($scope.onCancelRequest, $scope.onFail)
+            .finally (function() {
+            $scope.disabled = false;
+          });
+        };
+
+        $scope.canCancelRequestMembership = function() {
+          return communityService.canCancelRequestMembership($scope.community, $scope.user);
+        };
+      },
+      scope: {
+        community: '=',
+        user: '=',
+        onCancelRequest: '&',
+        onFail: '&'
+      }
+    };
+  }])
   .directive('communityButtonCreate', ['$modal', function($modal) {
     return {
       restrict: 'E',
@@ -536,6 +620,16 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
 
     $scope.leaveFailure = function() {
       $log.error('unable to leave community');
+      $scope.reload();
+    };
+
+    $scope.requestMembershipFailure = function() {
+      $log.error('unable to request membership to the community');
+      $scope.reload();
+    };
+
+    $scope.cancelRequestMembershipFailure = function() {
+      $log.error('unable to cancel request membership to the community');
       $scope.reload();
     };
 
@@ -633,20 +727,52 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     }
 
     function canLeave(community, user) {
-        return user._id !== community.creator &&
-               isMember(community);
+      return user._id !== community.creator &&
+        isMember(community);
     }
 
     function canJoin(community, user) {
-        return user._id !== community.creator &&
-               community.type === 'open' &&
-               !isMember(community);
+      return user._id !== community.creator &&
+        community.type === 'open' &&
+        !isMember(community);
     }
 
     function canRead(community) {
       return community.type === 'open' ||
-             community.type === 'restricted' ||
-             isMember(community);
+        community.type === 'restricted' ||
+        isMember(community);
+    }
+
+    function canRequestMembership(community, user) {
+      return user._id !== community.creator &&
+        community.type !== 'open' &&
+        !isMember(community) &&
+        !community.membershipRequests;
+    }
+
+    function canCancelRequestMembership(community, user) {
+      return user._id !== community.creator &&
+        community.type !== 'open' &&
+        !isMember(community) &&
+        community.membershipRequests;
+    }
+
+    function requestMembership(community, user) {
+      if (isMember(community)) {
+        var defer = $q.defer();
+        defer.reject('User is already a member, can not request membership');
+        return defer.promise;
+      }
+      return communityAPI.requestMembership(community._id, user._id);
+    }
+
+    function cancelRequestMembership(community, user) {
+      if (isMember(community)) {
+        var defer = $q.defer();
+        defer.reject('User is already a member, can not cancel request membership');
+        return defer.promise;
+      }
+      return communityAPI.cancelRequestMembership(community._id, user._id);
     }
 
     return {
@@ -655,7 +781,11 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       leave: leave,
       canJoin: canJoin,
       canLeave: canLeave,
-      canRead: canRead
+      canRead: canRead,
+      canRequestMembership: canRequestMembership,
+      canCancelRequestMembership: canCancelRequestMembership,
+      requestMembership: requestMembership,
+      cancelRequestMembership: cancelRequestMembership
     };
   }])
   .directive('communitiesEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {

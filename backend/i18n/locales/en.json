@@ -184,5 +184,8 @@
   "Notifications" : "Notifications",
   "Mark as read" : "Mark as read",
   "You have no notification." : "You have no notification.",
-  "Previous" : "Previous"
+  "Previous" : "Previous",
+  "Request membership": "Request membership",
+  "Cancel request": "Cancel request",
+  "Your membership request is pending": "Your membership request is pending"
 }

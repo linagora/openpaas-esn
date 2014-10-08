@@ -1327,7 +1327,7 @@ describe('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call communityAPI.join(:userid, :communityid) if the user is not a member', function(done) {
+      it('should call communityAPI.join(:communityid, :userid) if the user is not a member', function(done) {
         this.community.member_status = '???';
         this.communityAPI.join = function(cid, uid) {
           expect(cid).to.equal('community1');
@@ -1356,7 +1356,7 @@ describe('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call communityAPI.leave(:userid, :communityid) if the user is a member', function(done) {
+      it('should call communityAPI.leave(:communityid, :userid) if the user is a member', function(done) {
         this.community.member_status = 'member';
         this.communityAPI.leave = function(cid, uid) {
           expect(cid).to.equal('community1');
@@ -1521,6 +1521,52 @@ describe('The Community Angular module', function() {
           this.community.type = 'confidential';
           expect(this.communityService.canRead(this.community)).to.be.false;
         });
+      });
+    });
+
+    describe('requestMembership() method', function() {
+      beforeEach(function() {
+        this.community = {
+          _id: 'community1',
+          member_status: 'none'
+        };
+      });
+
+      it('should return a rejected promise if the user is already a member', function() {
+        var rejected = false;
+        this.community.member_status = 'member';
+        this.communityService.requestMembership(this.community, {_id: 'user1'}).then(null, function() {
+          rejected = true;
+        });
+        this.$rootScope.$digest();
+        expect(rejected).to.be.true;
+      });
+
+      it('should call communityAPI.requestMembership(:communityid, :userid) if the user is not a member', function(done) {
+        this.community.member_status = '???';
+        this.communityAPI.requestMembership = function(cid, uid) {
+          expect(cid).to.equal('community1');
+          expect(uid).to.equal('user8');
+          done();
+        };
+        this.communityService.requestMembership(this.community, {_id: 'user8'});
+      });
+    });
+
+    describe('cancelRequestMembership() method', function() {
+      beforeEach(function() {
+        this.community = {
+          _id: 'community1'
+        };
+      });
+
+      it('should call communityAPI.cancelRequestMembership(:communityid, :userid)', function(done) {
+        this.communityAPI.cancelRequestMembership = function(cid, uid) {
+          expect(cid).to.equal('community1');
+          expect(uid).to.equal('user8');
+          done();
+        };
+        this.communityService.cancelRequestMembership(this.community, {_id: 'user8'});
       });
     });
   });
@@ -1787,6 +1833,274 @@ describe('The Community Angular module', function() {
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
           element.click();
+          this.scope.$digest();
+          deferred.reject();
+          this.scope.$digest();
+        });
+      });
+    });
+  });
+
+  describe('communityButtonRequestMembership directive', function() {
+    beforeEach(function() {
+      var self = this;
+      this.communityService = {};
+      angular.mock.module(function($provide) {
+        $provide.value('communityService', self.communityService);
+      });
+      module('jadeTemplates');
+    });
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.community = {
+        _id: 'community1',
+        creator: 'user1'
+      };
+      this.html = '<community-button-request-membership community="community" user="user"></community-button-request-membership>';
+    }));
+
+    describe('when the user cannot request membership to the community', function() {
+      it('should hide the button', function() {
+        this.communityService.canRequestMembership = function() { return false; };
+        this.scope.user = {_id: 'user4'};
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(element).to.have.length(1);
+        expect(element.hasClass('ng-hide')).to.be.true;
+      });
+    });
+    describe('when user can request membership to the community', function() {
+      it('should show the button', function() {
+        this.communityService.canRequestMembership = function() { return true; };
+        this.scope.user = {_id: 'user4'};
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(element).to.have.length(1);
+        expect(element.hasClass('ng-hide')).to.be.false;
+      });
+    });
+
+    describe('button click', function() {
+      beforeEach(function() {
+        this.communityService.canRequestMembership = function() { return true; };
+        this.scope.user = {_id: 'user4'};
+        this.html = '<community-button-request-membership community="community" user="user"></community-button-request-membership>';
+      });
+
+      it('should call the communityService.requestMembership() method', function(done) {
+        this.communityService.requestMembership = function(cid, uid) {
+          expect(cid._id).to.equal('community1');
+          expect(uid._id).to.equal('user4');
+          done();
+        };
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        element.click();
+      });
+
+      it('should disable the button', function() {
+        var deferred = this.$q.defer();
+        this.communityService.requestMembership = function(cid, uid) {
+          return deferred.promise;
+        };
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(element.attr('disabled')).to.be.undefined;
+        element.click();
+        this.scope.$digest();
+        expect(element.attr('disabled')).to.equal('disabled');
+      });
+
+      describe('on communityService.requestMembership() response', function() {
+        it('should enable back the button on success', function() {
+          var deferred = this.$q.defer();
+          this.communityService.requestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.click();
+          this.scope.$digest();
+          deferred.resolve();
+          this.scope.$digest();
+          expect(element.attr('disabled')).to.be.undefined;
+        });
+        it('should enable back the button on failure', function() {
+          var deferred = this.$q.defer();
+          this.communityService.requestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.click();
+          this.scope.$digest();
+          deferred.reject();
+          this.scope.$digest();
+          expect(element.attr('disabled')).to.be.undefined;
+        });
+
+        it('should call the success callback on success', function(done) {
+          this.html = '<community-button-request-membership community="community" user="user" on-request="requestMembershipSuccess(community)"></community-button-request-membership>';
+          this.scope.requestMembershipSuccess = function() {done();};
+          var deferred = this.$q.defer();
+          this.communityService.requestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.click();
+          this.scope.$digest();
+          deferred.resolve();
+          this.scope.$digest();
+        });
+
+        it('should call the failure callback on failure', function(done) {
+          this.html = '<community-button-request-membership community="community" user="user" on-fail="requestMembershipFailure(community)"></community-button-request-membership>';
+          this.scope.requestMembershipFailure = function() {done();};
+          var deferred = this.$q.defer();
+          this.communityService.requestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.click();
+          this.scope.$digest();
+          deferred.reject();
+          this.scope.$digest();
+        });
+      });
+    });
+  });
+
+  describe('communityButtonCancelRequestMembership directive', function() {
+    beforeEach(function() {
+      var self = this;
+      this.communityService = {};
+      angular.mock.module(function($provide) {
+        $provide.value('communityService', self.communityService);
+      });
+      module('jadeTemplates');
+    });
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.community = {
+        _id: 'community1',
+        creator: 'user1'
+      };
+      this.html = '<community-button-cancel-request-membership community="community" user="user"></community-button-cancel-request-membership>';
+    }));
+
+    describe('when the user cannot cancel request membership to the community', function() {
+      it('should hide the button', function() {
+        this.communityService.canCancelRequestMembership = function() { return false; };
+        this.scope.user = {_id: 'user4'};
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(element).to.have.length(1);
+        expect(element.hasClass('ng-hide')).to.be.true;
+      });
+    });
+    describe('when the user can cancel request membership to the community', function() {
+      it('should show the button', function() {
+        this.communityService.canCancelRequestMembership = function() { return true; };
+        this.scope.user = {_id: 'user4'};
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(element).to.have.length(1);
+        expect(element.hasClass('ng-hide')).to.be.false;
+      });
+    });
+
+    describe('button click', function() {
+      beforeEach(function() {
+        this.communityService.canCancelRequestMembership = function() { return true; };
+        this.scope.user = {_id: 'user4'};
+        this.html = '<community-button-cancel-request-membership community="community" user="user"></community-button-cancel-request-membership>';
+      });
+
+      it('should call the communityService.cancelRequestMembership() method', function(done) {
+        this.communityService.cancelRequestMembership = function(cid, uid) {
+          expect(cid._id).to.equal('community1');
+          expect(uid._id).to.equal('user4');
+          done();
+        };
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        element.find('.btn').click();
+      });
+
+      it('should disable the button', function() {
+        var deferred = this.$q.defer();
+        this.communityService.cancelRequestMembership = function(cid, uid) {
+          return deferred.promise;
+        };
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(element.find('.btn').attr('disabled')).to.be.undefined;
+        element.find('.btn').click();
+        this.scope.$digest();
+        expect(element.find('.btn').attr('disabled')).to.equal('disabled');
+      });
+
+      describe('on communityService.cancelRequestMembership() response', function() {
+        it('should enable back the button on success', function() {
+          var deferred = this.$q.defer();
+          this.communityService.cancelRequestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.find('.btn').click();
+          this.scope.$digest();
+          deferred.resolve();
+          this.scope.$digest();
+          expect(element.attr('disabled')).to.be.undefined;
+        });
+        it('should enable back the button on failure', function() {
+          var deferred = this.$q.defer();
+          this.communityService.cancelRequestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.find('.btn').click();
+          this.scope.$digest();
+          deferred.reject();
+          this.scope.$digest();
+          expect(element.attr('disabled')).to.be.undefined;
+        });
+
+        it('should call the success callback on success', function(done) {
+          this.html = '<community-button-cancel-request-membership community="community" user="user" on-cancel-request="cancelRequestMembershipSuccess(community)"></community-button-cancel-request-membership>';
+          this.scope.cancelRequestMembershipSuccess = function() {done();};
+          var deferred = this.$q.defer();
+          this.communityService.cancelRequestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.find('.btn').click();
+          this.scope.$digest();
+          deferred.resolve();
+          this.scope.$digest();
+        });
+
+        it('should call the failure callback on failure', function(done) {
+          this.html = '<community-button-cancel-request-membership community="community" user="user" on-fail="cancelRequestMembershipFailure(community)"></community-button-cancel-request-membership>';
+          this.scope.cancelRequestMembershipFailure = function() {done();};
+          var deferred = this.$q.defer();
+          this.communityService.cancelRequestMembership = function(cid, uid) {
+            return deferred.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.find('.btn').click();
           this.scope.$digest();
           deferred.reject();
           this.scope.$digest();
