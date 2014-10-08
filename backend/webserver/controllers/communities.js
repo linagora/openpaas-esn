@@ -8,7 +8,6 @@ var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core').logger;
 var async = require('async');
-var communityHelper = require('../../helpers/community');
 
 function transform(community, user, callback) {
   if (!community) {
@@ -400,9 +399,9 @@ module.exports.addMembershipRequest = function(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }
-
-    var resultCommunity = communityHelper.filterMemberShipRequestsByUser(community, targetUser);
-    return res.json(200, resultCommunity);
+    return transform(community, user, function(transformed) {
+      return res.json(200, transformed);
+    });
   });
 };
 
@@ -427,8 +426,8 @@ module.exports.removeMembershipRequest = function(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }
-
-    var resultCommunity = communityHelper.filterMemberShipRequestsByUser(community, targetUser);
-    return res.json(200, resultCommunity);
+    return transform(community, user, function(transformed) {
+      return res.json(200, transformed);
+    });
   });
 };

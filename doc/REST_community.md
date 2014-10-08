@@ -560,11 +560,7 @@ The updated community.
               "creation": "2014-05-16T09:47:11.704Z"
             }
           },
-          membershipRequests: [
-            {
-                user: "538e3bd6654d7c3307f990fb"
-            }
-          ]
+          membershipRequest: "2014-05-16T09:47:11.704Z"
         }
 
 ## DELETE /api/communities/{community_id}/membership/{user_id}
@@ -622,6 +618,5 @@ The updated community.
             "timestamps": {
               "creation": "2014-05-16T09:47:11.704Z"
             }
-          },
-          membershipRequests: []
+          }
         }

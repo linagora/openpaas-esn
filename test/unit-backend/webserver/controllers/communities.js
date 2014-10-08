@@ -1755,13 +1755,26 @@ describe('The communities controller', function() {
     it('should send back the community modified by communityModule#addMembershipRequest', function(done) {
       var modifiedCommunity = {
         _id: '1',
-        membershipRequests: [{user: this.helpers.objectIdMock('2')}]
+        membershipRequests: [
+          {
+            user: this.helpers.objectIdMock('2'),
+            timestamp: {
+              creation: new Date()
+            }
+          }
+        ]
       };
       mockery.registerMock('../../core/community', {
         addMembershipRequest: function(community, user, callback) {
           expect(community).to.deep.equal(req.community);
           expect(user).to.deep.equal(req.params.user_id);
           callback(null, modifiedCommunity);
+        },
+        getMembershipRequest: function() {
+          return modifiedCommunity.membershipRequests[0];
+        },
+        isMember: function(community, user, callback) {
+          callback(null, false);
         }
       });
       mockery.registerMock('../../core/community/permission', {});
@@ -1894,6 +1907,12 @@ describe('The communities controller', function() {
           expect(community).to.deep.equal(req.community);
           expect(user).to.deep.equal(req.params.user_id);
           callback(null, modifiedCommunity);
+        },
+        getMembershipRequest: function() {
+          return false;
+        },
+        isMember: function(community, user, callback) {
+          callback(null, false);
         }
       });
       mockery.registerMock('../../core/community/permission', {});
