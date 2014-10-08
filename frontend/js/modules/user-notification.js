@@ -8,17 +8,19 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_TITLE_HEIGHT', 35)
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
-  .controller('userNotificationController', ['$scope', '$log', 'userNotificationAPI', function($scope, $log, userNotificationAPI) {
+  .controller('userNotificationController', ['$scope', '$log', '$timeout', 'userNotificationAPI', 'unreadCountFactory', function($scope, $log, $timeout, userNotificationAPI, unreadCountFactory) {
     // TODO resolve readCount with getList here or in app.js
-    $scope.readCount = 42;
+    $scope.unreadCount = unreadCountFactory.newUnreadCount(42);
 
     $scope.setAsRead = function(id) {
-      $scope.readCount--;
+      $scope.unreadCount.decreaseBy(1);
       userNotificationAPI
         .setRead(id, true)
-        .then(function(response) {
+        .then(function() {
+          $scope.unreadCount.startRefresh();
           $log.info('Successfully setting ' + id + ' as read');
         }, function(err) {
+          $scope.unreadCount.startRefresh();
           $log.error('Error setting ' + id + ' as read: ' + err);
         });
     };
@@ -99,6 +101,37 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
       templateUrl: '/views/modules/user-notification/templates/info-notification.html'
     };
   })
+  .factory('unreadCountFactory', ['$log', '$timeout', 'userNotificationAPI', function($log, $timeout, userNotificationAPI) {
+
+    function UnreadCount(count) {
+      this.count = count;
+    }
+
+    UnreadCount.prototype.startRefresh = function startRefresh() {
+      var self = this;
+      function getUnReadCount() {
+        userNotificationAPI
+          .getUnreadCount()
+          .then(function(response) {
+            self.count = response.data.unread_count;
+            $log.info('count is ' + response.data.unread_count);
+          }, function(err) {
+            $log.error('Error listing read user notification: ' + err);
+          });
+      }
+      $timeout(getUnReadCount, 10 * 1000);
+    };
+
+    UnreadCount.prototype.decreaseBy = function decreaseBy(number) {
+      this.count -= number;
+    };
+
+    return {
+      newUnreadCount: function(count) {
+        return new UnreadCount(count);
+      }
+    };
+  }])
   .directive('userNotificationPopover',
   ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
     function($timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
