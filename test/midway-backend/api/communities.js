@@ -1655,7 +1655,7 @@ describe('The communities API', function() {
     });
 
 
-    it('should return 200 with the community having no more membership requests', function(done) {
+    it('should return 204 with the community having no more membership requests', function(done) {
       var self = this;
       var community = {
         title: 'Node.js',
@@ -1686,13 +1686,7 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
             req.end(function(err, res) {
-              expect(res.status).to.equal(200);
-              expect(res.body).to.exist;
-              expect(res.body.title).to.equal(community.title);
-              expect(res.body.description).to.equal(community.description);
-              expect(res.body.type).to.equal(community.type);
-              expect(res.body.membershipRequests).to.not.exist;
-              expect(res.body.membershipRequest).to.not.exist;
+              expect(res.status).to.equal(204);
               done();
             });
           });
@@ -1704,7 +1698,7 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 200 even if the community had no membership request for this user', function(done) {
+    it('should return 204 even if the community had no membership request for this user', function(done) {
       var self = this;
       var community = {
         title: 'Node.js',
@@ -1739,13 +1733,7 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
             req.end(function(err, res) {
-              expect(res.status).to.equal(200);
-              expect(res.body).to.exist;
-              expect(res.body.title).to.equal(community.title);
-              expect(res.body.description).to.equal(community.description);
-              expect(res.body.type).to.equal(community.type);
-              expect(res.body.membershipRequests).to.not.exist;
-              expect(res.body.membershipRequest).to.not.exist;
+              expect(res.status).to.equal(204);
               done();
             });
           });

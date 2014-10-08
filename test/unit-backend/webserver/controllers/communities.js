@@ -1897,30 +1897,19 @@ describe('The communities controller', function() {
       communities.removeMembershipRequest(req, res);
     });
 
-    it('should send back the community modified by communityModule#removeMembershipRequest', function(done) {
-      var modifiedCommunity = {
-        _id: '1',
-        membershipRequests: [{user: this.helpers.objectIdMock('2')}]
-      };
+    it('should send 204 if communityModule#removeMembershipRequest succeeds', function(done) {
       mockery.registerMock('../../core/community', {
         removeMembershipRequest: function(community, user, callback) {
           expect(community).to.deep.equal(req.community);
           expect(user).to.deep.equal(req.params.user_id);
-          callback(null, modifiedCommunity);
-        },
-        getMembershipRequest: function() {
-          return false;
-        },
-        isMember: function(community, user, callback) {
-          callback(null, false);
+          callback(null, {});
         }
       });
       mockery.registerMock('../../core/community/permission', {});
 
       var res = {
-        json: function(code, content) {
-          expect(code).to.equal(200);
-          expect(content).to.deep.equal(modifiedCommunity);
+        send: function(code) {
+          expect(code).to.equal(204);
           done();
         }
       };

@@ -591,7 +591,7 @@ The updated community.
 
 **Status Codes:**
 
-- 200 OK - Updated community.
+- 204 No content. The user does not request for community membership anymore.
 - 400 Bad request.
 - 401 Unauthorized. The user is not authenticated on the platform.
 - 500 Internal server error - Something went wrong on the server side.
@@ -604,19 +604,4 @@ The updated community.
 
 **Response:**
 
-    HTTP/1.1 200 OK
-        {
-          "_id": "538e3bd6654d7c3307f990fa",
-          "title": "Node.js",
-          "description": "All about node.js",
-          "domain_ids": ["9328938983983"],
-          "timestamps": {
-            "creation": "2014-05-16T09:47:11.703Z"
-          },
-          activity_stream: {
-            uuid: "9330-0393-7373-7280",
-            "timestamps": {
-              "creation": "2014-05-16T09:47:11.704Z"
-            }
-          }
-        }
+    HTTP/1.1 204 No Content

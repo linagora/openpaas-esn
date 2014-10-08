@@ -426,8 +426,6 @@ module.exports.removeMembershipRequest = function(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }
-    return transform(community, user, function(transformed) {
-      return res.json(200, transformed);
-    });
+    return res.send(204);
   });
 };
