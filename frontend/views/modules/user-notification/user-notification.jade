@@ -1,7 +1,7 @@
 .popover(tabindex="-1" user-notification-popover)
   .arrow
   .popover-title #{__('Notifications')}
-    a.pull-right(href="#", ng-show="notifications.length") #{__('Mark as read')}
+    a.pull-right(href="", ng-show="notifications.length", data-ng-click="setAsRead(1234)") #{__('Mark as read')}
   .popover-content
     ul.nav.nav-pills.nav-stacked
       li.popover-item.read.text-center(ng-show="!notifications.length && !loading") #{__('You have no notification.')}

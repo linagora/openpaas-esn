@@ -30,11 +30,11 @@ div(ng-controller='selectActiveItem')
                 span
                   button.btn-link.noborder(ng-controller="userNotificationPopoverController" type="button" data-template="/views/modules/user-notification/user-notification.html" data-placement="bottom-left" ng-click='togglePopover()' bs-popover)
                     i.fa.fa-bell-o(ng-class="{'animated swing open': popoverObject.open}")
-                  span.badge 10
+                  span.badge(data-ng-hide="!readCount") {{ readCount }}
             div.esn-navbar-main
               .esn-item(ng-class='{active: selected === 1}')
                 span
-                  a(href='/#', ng-click='selectItem(1)')
+                  a(href='', ng-click='selectItem(1)')
                     i.fa.fa-comments-o
                     span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
               .esn-item(ng-class='{active: selected === 2}')

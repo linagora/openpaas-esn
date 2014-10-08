@@ -8,11 +8,22 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_TITLE_HEIGHT', 35)
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
+  .controller('userNotificationController', ['$scope', '$log', 'userNotificationAPI', function($scope, $log, userNotificationAPI) {
+    // TODO resolve readCount with getList here or in app.js
+    $scope.readCount = 42;
 
-    .controller('userNotificationController', ['$scope', 'userNotificationAPI', function($scope, userNotificationAPI) {
-    }])
-
-    .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
+    $scope.setAsRead = function(id) {
+      $scope.readCount--;
+      userNotificationAPI
+        .setRead(id, true)
+        .then(function(response) {
+          $log.info('Successfully setting ' + id + ' as read');
+        }, function(err) {
+          $log.error('Error setting ' + id + ' as read: ' + err);
+        });
+    };
+  }])
+  .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
     $scope.loading = false;
     $scope.error = false;
