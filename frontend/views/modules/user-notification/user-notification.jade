@@ -14,8 +14,8 @@
       li.divider.nopadding
       li.popover-pager(ng-show="pagination.last > 0")
         ul.pager
-          li.pull-left.popover-pager(ng-class="{ disabled : pagination.current === 1 || loading}" class="ng-scope")
+          li.pull-left.popover-pager(ng-hide="pagination.current === 1" ng-class="{ disabled : loading}" class="ng-scope")
             a(href="" ng-click="previousPage()" class="ng-binding") #{__('Previous')}
           li.popover-pager.textcenter {{pagination.current}} / {{pagination.last}}
-          li.pull-right.popover-pager(ng-class="{ disabled : pagination.current === pagination.last || loading}" class="ng-scope")
+          li.pull-right.popover-pager(ng-hide="pagination.current === pagination.last" ng-class="{ disabled : loading}" class="ng-scope")
             a(href="" ng-click="nextPage()", ng-class="ng-binding") #{__('Next')}
