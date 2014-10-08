@@ -735,52 +735,173 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 403 if user is not a community member', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+    describe('access rights', function() {
+      beforeEach(function(done) {
+        var self = this;
+        var user, domain;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          self.models = models;
+          domain = models.domain;
+          user = models.users[0];
+          var member = {user: models.users[1]._id};
+          function patchCommunity(type) {
+            return function(json) {
+              json.type = type;
+              json.members.push(member);
+              return json;
+            };
+          }
 
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.type = 'open';
-          community.members.push({user: foouser._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
+
+          async.series([
+            function(callback) {
+              self.helpers.api.createCommunity('Open', user, domain, patchCommunity('open'), callback);
+            },
+            function(callback) {
+              self.helpers.api.createCommunity('Restricted', user, domain, patchCommunity('restricted'), callback);
+            },
+            function(callback) {
+              self.helpers.api.createCommunity('Private', user, domain, patchCommunity('private'), callback);
+            },
+            function(callback) {
+              self.helpers.api.createCommunity('Confidential', user, domain, patchCommunity('confidential'), callback);
             }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
+          ], function(err, communities) {
+            if (err) { return done(err); }
+            self.communities = communities;
+            done();
+          });
+        });
+      });
+
+      describe('open communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[0][0];
+          this.creator = this.models.users[0].emails[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 200 if user is not a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+        it('should return 200 if user is a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+      describe('restricted communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[1][0];
+          this.creator = this.models.users[0].emails[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 200 if user is not a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+        it('should return 200 if user is a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+      describe('private communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[2][0];
+          this.creator = this.models.users[0].emails[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 403 if user is not a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
             req.expect(403);
             req.end(function(err, res) {
               expect(err).to.not.exist;
               done();
             });
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
+        it('should return 200 if user is a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+      describe('confidential communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[3][0];
+          this.creator = this.models.users[0].emails[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 403 if user is not a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(403);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+        it('should return 200 if user is a member', function(done) {
+          var self = this;
+          this.helpers.api.loginAsUser(webserver.application, this.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
       });
     });
 
@@ -1351,51 +1472,180 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 403 if current user is not a community member', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        type: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+    describe('access rights', function() {
+      beforeEach(function(done) {
+        var self = this;
+        var user, domain;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          self.models = models;
+          domain = models.domain;
+          user = models.users[0];
+          var member = {user: models.users[1]._id};
+          function patchCommunity(type) {
+            return function(json) {
+              json.type = type;
+              json.members.push(member);
+              return json;
+            };
+          }
 
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
+
+          async.series([
+            function(callback) {
+              self.helpers.api.createCommunity('Open', user, domain, patchCommunity('open'), callback);
+            },
+            function(callback) {
+              self.helpers.api.createCommunity('Restricted', user, domain, patchCommunity('restricted'), callback);
+            },
+            function(callback) {
+              self.helpers.api.createCommunity('Private', user, domain, patchCommunity('private'), callback);
+            },
+            function(callback) {
+              self.helpers.api.createCommunity('Confidential', user, domain, patchCommunity('confidential'), callback);
             }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members/' + foouser._id));
+          ], function(err, communities) {
+            if (err) { return done(err); }
+            self.communities = communities;
+            done();
+          });
+        });
+      });
+
+      describe('open communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[0][0];
+          this.creator = this.models.users[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 200 if the user is not a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+
+        it('should return 200 if the user is a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+
+      describe('restricted communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[1][0];
+          this.creator = this.models.users[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 200 if the user is not a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+
+        it('should return 200 if the user is a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+
+      describe('private communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[2][0];
+          this.creator = this.models.users[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 403 if the user is not a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
             req.expect(403);
             req.end(function(err, res) {
               expect(err).to.not.exist;
               done();
             });
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
+
+        it('should return 200 if the user is a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+
+      describe('confidential communities', function() {
+        beforeEach(function() {
+          this.com = this.communities[3][0];
+          this.creator = this.models.users[0];
+          this.member = this.models.users[1].emails[0];
+          this.nonMember = this.models.users[2].emails[0];
+        });
+        it('should return 403 if the user is not a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.nonMember, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(403);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+
+        it('should return 200 if the user is a community member', function(done) {
+          var self = this;
+          self.helpers.api.loginAsUser(webserver.application, self.member, 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + self.com._id + '/members/' + self.creator._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
       });
     });
 

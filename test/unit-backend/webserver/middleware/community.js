@@ -512,5 +512,64 @@ describe('The community middleware', function() {
 
   });
 
-
+  describe('canRead() method', function() {
+    it('should call next if the community type is "open"', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          done(new Error('I should not be called'));
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var req = {
+        community: { type: 'open' },
+        user: {_id: 'user1'}
+      };
+      var res = {};
+      middleware(req, res, done);
+    });
+    it('should call next if the community type is "restricted"', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          done(new Error('I should not be called'));
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var req = {
+        community: { type: 'restricted' },
+        user: {_id: 'user1'}
+      };
+      var res = {};
+      middleware(req, res, done);
+    });
+    it('should delegate to isMember middleware if the community type is "private"', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          done();
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var req = {
+        community: { type: 'private' },
+        user: {_id: 'user1'}
+      };
+      var res = {};
+      var err = function() { done(new Error('I should not be called')); };
+      middleware(req, res, err);
+    });
+    it('should delegate to isMember middleware if the community type is "confidential"', function(done) {
+      mockery.registerMock('../../core/community', {
+        isMember: function(com, user, callback) {
+          done();
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var req = {
+        community: { type: 'confidential' },
+        user: {_id: 'user1'}
+      };
+      var res = {};
+      var err = function() { done(new Error('I should not be called')); };
+      middleware(req, res, err);
+    });
+  });
 });
