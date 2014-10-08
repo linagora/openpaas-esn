@@ -174,7 +174,17 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
         return Restangular.one('user').all('notifications').getList(options);
       }
 
+      function setRead(id, read) {
+        return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
+      }
+
+      function setAcknowledgeded(id, acknowledgeded) {
+        return Restangular.one('user').one('notifications', id).one('acknowledgeded').customPUT({value: acknowledgeded});
+      }
+
       return {
-        list: list
+        list: list,
+        setRead: setRead,
+        setAcknowledgeded: setAcknowledgeded
       };
     }]);
