@@ -155,6 +155,7 @@ exports = module.exports = function(application) {
   application.delete('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
   application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.isMember, communities.getMember);
   application.put('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserParamIsNotMember, communities.addMembershipRequest);
+  application.delete('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserParamIsNotMember, communities.removeMembershipRequest);
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

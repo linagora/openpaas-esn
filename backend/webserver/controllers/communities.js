@@ -8,7 +8,6 @@ var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core').logger;
 var async = require('async');
-var communityHelper = require('../../helpers/community');
 
 function transform(community, user, callback) {
   if (!community) {
@@ -400,8 +399,33 @@ module.exports.addMembershipRequest = function(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }
+    return transform(community, user, function(transformed) {
+      return res.json(200, transformed);
+    });
+  });
+};
 
-    var resultCommunity = communityHelper.filterMemberShipRequestsByUser(community, targetUser);
-    return res.json(200, resultCommunity);
+module.exports.removeMembershipRequest = function(req, res) {
+  var community = req.community;
+  var user = req.user;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+  }
+
+  if (!req.params || !req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
+  }
+  var targetUser = req.params.user_id;
+
+  if (!community) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+  }
+
+  communityModule.removeMembershipRequest(community, targetUser, function(err, community) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+    }
+    return res.send(204);
   });
 };

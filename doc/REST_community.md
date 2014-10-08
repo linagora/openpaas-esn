@@ -506,7 +506,7 @@ No response.
 
 ## PUT /api/communities/{community_id}/membership/{user_id}
 
-Adds a new item in commnity memberShipRequests i.e. the user request to be part of the community.
+Adds an item in the community membership requests list i.e. the user request to be part of the community.
 
 Notes:
 
@@ -560,9 +560,48 @@ The updated community.
               "creation": "2014-05-16T09:47:11.704Z"
             }
           },
-          membershipRequests: [
-            {
-                user: "538e3bd6654d7c3307f990fb"
-            }
-          ]
+          membershipRequest: "2014-05-16T09:47:11.704Z"
         }
+
+## DELETE /api/communities/{community_id}/membership/{user_id}
+
+Removes an item from the community membership requests list i.e. the user cancels his request to be part of the community.
+
+Notes:
+
+- Only private and restricted communities support membership requests
+- A user cannot trigger an operation on membership requests for a community he is already member of.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+- user_id: The user id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+The updated community.
+
+**Status Codes:**
+
+- 204 No content. The user does not request for community membership anymore.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    DELETE /api/communities/538e3bd6654d7c3307f990fa/membership/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No Content
