@@ -506,7 +506,7 @@ No response.
 
 ## PUT /api/communities/{community_id}/membership/{user_id}
 
-Adds a new item in community memberShipRequests i.e. the user request to be part of the community.
+Adds an item in the community membership requests list i.e. the user request to be part of the community.
 
 Notes:
 
@@ -565,7 +565,7 @@ The updated community.
 
 ## DELETE /api/communities/{community_id}/membership/{user_id}
 
-Removes an item in community memberShipRequests i.e. the user cancels his request to be part of the community.
+Removes an item from the community membership requests list i.e. the user cancels his request to be part of the community.
 
 Notes:
 
