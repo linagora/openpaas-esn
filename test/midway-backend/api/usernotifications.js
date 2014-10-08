@@ -397,4 +397,90 @@ describe('The user notification API', function() {
     });
   });
 
+  describe('/api/user/notifications/:uuid/acknowledged', function() {
+
+    it('should return 401 when not authenticated', function(done) {
+      request(app)
+        .put('/api/user/notifications/5331f287589a2ef541867680/acknowledged')
+        .expect(401)
+        .end(done);
+    });
+
+    it('should return 400 if req.body is not defined', function(done) {
+      var self = this;
+      saveNotification(testuser1, false, function(err, saved) {
+        self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
+          if (err) {
+            return done(err);
+          }
+          requestAsMember(request(app).put('/api/user/notifications/' + saved._id + '/acknowledged'))
+            .expect(400)
+            .end(done);
+        });
+      });
+    });
+
+    it('should return 400 if req.body.value is not defined', function(done) {
+      var self = this;
+      saveNotification(testuser1, false, function(err, saved) {
+        self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
+          if (err) {
+            return done(err);
+          }
+          requestAsMember(request(app).put('/api/user/notifications/' + saved._id + '/acknowledged'))
+            .send({
+              value: 'blabla'
+            })
+            .expect(400)
+            .end(done);
+        });
+      });
+    });
+
+    it('should return 404 if user notification was not found', function(done) {
+      this.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+        requestAsMember(request(app).put('/api/user/notifications/5331f287589a2ef541867680/acknowledged'))
+          .expect(404)
+          .end(done);
+      });
+    });
+
+    it('should return 403 if user is not allowed', function(done) {
+      var self = this;
+      saveNotification(testuser1, false, function(err, saved) {
+        self.helpers.api.loginAsUser(app, testuser.emails[0], password, function(err, requestAsMember) {
+          if (err) {
+            return done(err);
+          }
+          requestAsMember(request(app).put('/api/user/notifications/' + saved._id + '/acknowledged'))
+            .send({
+              value: true
+            })
+            .expect(403)
+            .end(done);
+        });
+      });
+    });
+
+    it('should return 205 if could set read to true', function(done) {
+      var self = this;
+      saveNotification(testuser1, false, function(err, saved) {
+        self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
+          if (err) {
+            return done(err);
+          }
+          requestAsMember(request(app).put('/api/user/notifications/' + saved._id + '/acknowledged'))
+            .send({
+              value: true
+            })
+            .expect(205)
+            .end(done);
+        });
+      });
+    });
+  });
+
 });

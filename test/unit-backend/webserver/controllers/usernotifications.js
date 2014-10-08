@@ -526,4 +526,96 @@ describe('The user notifications controller', function() {
     });
   });
 
+  describe('setAcknowledged method', function() {
+
+    it('should return 400 if req.body is undefined', function(done) {
+      mockery.registerMock('../../core/notification/user', {});
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var req = {
+        usernotification: 'usernotification'
+      };
+      var res = {
+        json: function(code, message) {
+          expect(code).to.equal(400);
+          expect(message.error).to.exists;
+          expect(message.error.status).to.equal(400);
+          expect(message.error.details).to.exists;
+          done();
+        }
+      };
+      controller.setAcknowledged(req, res);
+    });
+
+    it('should return 400 if req.body.value is undefined', function(done) {
+      mockery.registerMock('../../core/notification/user', {});
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var req = {
+        usernotification: 'usernotification',
+        body: {}
+      };
+      var res = {
+        json: function(code, message) {
+          expect(code).to.equal(400);
+          expect(message.error).to.exists;
+          expect(message.error.status).to.equal(400);
+          expect(message.error.details).to.exists;
+          done();
+        }
+      };
+      controller.setAcknowledged(req, res);
+    });
+
+    it('should return 500 if module.setRead return an error', function(done) {
+      var userNotificationModuleMocked = {
+        setAcknowledged: function(usernotification, read, callback) {
+          callback(new Error());
+        }
+      };
+      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var req = {
+        usernotification: 'usernotification',
+        body: {
+          value: true
+        }
+      };
+      var res = {
+        json: function(code, message) {
+          expect(code).to.equal(500);
+          expect(message.error).to.exists;
+          expect(message.error.status).to.equal(500);
+          expect(message.error.details).to.exists;
+          done();
+        }
+      };
+      controller.setAcknowledged(req, res);
+    });
+
+    it('should return 205 if module.setAcknowledged is a success', function(done) {
+      var readArgs;
+      var userNotificationModuleMocked = {
+        setAcknowledged: function(usernotification, read, callback) {
+          readArgs = read;
+          callback(null);
+        }
+      };
+      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var req = {
+        usernotification: 'usernotification',
+        body: {
+          value: true
+        }
+      };
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(205);
+          expect(readArgs).to.be.true;
+          done();
+        }
+      };
+      controller.setAcknowledged(req, res);
+    });
+  });
+
 });

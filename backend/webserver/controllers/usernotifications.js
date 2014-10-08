@@ -83,3 +83,23 @@ function setRead(req, res) {
 }
 
 module.exports.setRead = setRead;
+
+function setAcknowledged(req, res) {
+
+  if (!req.body) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+  }
+
+  if (req.body.value !== true && req.body.value !== false) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+  }
+
+  notificationModule.setAcknowledged(req.usernotification, req.body.value, function(err) {
+    if (err) {
+      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as acknowledged: ' + err.message}});
+    }
+    return res.send(205);
+  });
+}
+
+module.exports.setAcknowledged = setAcknowledged;
