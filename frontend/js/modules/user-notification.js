@@ -9,16 +9,16 @@ angular.module('esn.user-notification', ['restangular'])
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
 
-
   .factory('userNotificationCache', function($q) {
     var defer = $q.defer();
     return {
-      setItemSize: function(size) {
+
+      setNbOfItems: function(size) {
         defer.resolve(size);
-        // for next time...
         defer = $q.defer();
       },
-      getItemSize: function() {
+
+      getNbOfItems: function() {
         return defer.promise;
       }
     };
@@ -30,13 +30,13 @@ angular.module('esn.user-notification', ['restangular'])
     $scope.notifications = [];
     $scope.totalNotifications = 0;
     $scope.offset = 0;
-    $scope.notificationsPerPage = 5;
 
     $scope.popoverObject = {
       open: false
     };
 
     $scope.pagination = {
+      itemsPerPage: 5,
       current: 1,
       last: 0
     };
@@ -44,22 +44,19 @@ angular.module('esn.user-notification', ['restangular'])
     $scope.reset = function() {
       $scope.notifications = [];
       $scope.pagination = {
+        itemsPerPage: 5,
         current: 1,
         last: 0
       };
-      $scope.notificationsPerPage = 5;
     };
 
     $scope.togglePopover = function() {
-      console.log('Toggle popover in userNotificationController');
-
       $scope.popoverObject.open = !$scope.popoverObject.open;
       if (!$scope.popoverObject.open) {
         $scope.reset();
       } else {
-        userNotificationCache.getItemSize().then(function(data) {
-          console.log('Got promise result');
-          $scope.notificationsPerPage = data;
+        userNotificationCache.getNbOfItems().then(function(data) {
+          $scope.pagination.itemsPerPage = data;
           $scope.load();
         });
       }
@@ -82,31 +79,28 @@ angular.module('esn.user-notification', ['restangular'])
     $scope.load = function(pageToLoad) {
       pageToLoad = pageToLoad || 1;
 
-      var options = {limit: $scope.notificationsPerPage, offset: (pageToLoad - 1) * $scope.notificationsPerPage, read: false};
+      var options = {limit: $scope.pagination.itemsPerPage, offset: (pageToLoad - 1) * $scope.pagination.itemsPerPage, read: false};
       $scope.loading = true;
 
       userNotificationAPI.list(options).then(function(response) {
+
+        var total = $scope.totalNotifications;
         $scope.notifications = response.data;
         $scope.totalNotifications = response.headers('X-ESN-Items-Count');
 
-        // TODO : Change the current page according to the pagination.last value and total notifications
-        $scope.pagination.current = pageToLoad;
-        $scope.pagination.last = Math.ceil($scope.totalNotifications / $scope.notificationsPerPage);
+        if (total > 0) {
+          $scope.pagination.current = Math.ceil((pageToLoad * $scope.totalNotifications) / total);
+        } else {
+          $scope.pagination.current = pageToLoad;
+        }
+        $scope.pagination.last = Math.ceil($scope.totalNotifications / $scope.pagination.itemsPerPage);
+
       }, function() {
         $scope.error = true;
-      }).finally(function() {
+      }).finally (function() {
         $scope.loading = false;
       });
     };
-
-    /*
-    $scope.$on('notification:load', function(event, data) {
-      if (!$scope.notifications.length) {
-        $scope.notificationsPerPage = data;
-        $scope.load();
-      }
-    });
-    */
   }])
   .directive('notificationTemplateDisplayer', function() {
     return {
@@ -137,6 +131,7 @@ angular.module('esn.user-notification', ['restangular'])
           function hidePopover() {
             if (scope.$hide) {
               scope.popoverObject.open = false;
+              scope.reset();
               scope.$hide();
               scope.$apply();
             }
@@ -178,10 +173,7 @@ angular.module('esn.user-notification', ['restangular'])
                 element.width(width - 10);
                 nbItems = Math.floor(popoverMaxHeight / USER_NOTIFICATION_ITEM_HEIGHT);
               }
-
-              console.log('Set item from directive')
-              userNotificationCache.setItemSize(nbItems);
-              //scope.$emit('notification:load', nbItems);
+              userNotificationCache.setNbOfItems(nbItems);
               isResizing = false;
             }
 

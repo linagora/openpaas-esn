@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.only('The esn.user-notification Angular module', function() {
+describe('The esn.user-notification Angular module', function() {
   beforeEach(function() {
     angular.mock.module('esn.user-notification');
   });
@@ -162,27 +162,37 @@ describe.only('The esn.user-notification Angular module', function() {
 
     beforeEach(inject(function($rootScope, $controller, $q) {
       this.userNotificationAPI = {};
+      this.userNotificationCache = {
+        getNbOfItems: function() {}
+      };
       this.rootScope = $rootScope;
       this.$q = $q;
       this.scope = $rootScope.$new();
 
       $controller('userNotificationController', {
         $scope: this.scope,
-        userNotificationAPI: this.userNotificationAPI
+        userNotificationAPI: this.userNotificationAPI,
+        userNotificationCache: this.userNotificationCache
       });
     }));
 
     describe('togglePopover()', function() {
       it('should call load when popoverObject is opened', function(done) {
+        var defer = this.$q.defer();
+        this.userNotificationCache.getNbOfItems = function() {
+          return defer.promise;
+        };
         this.scope.popoverObject.open = false;
         this.userNotificationAPI.list = function() {
           done();
         };
+        defer.resolve(4);
         this.scope.togglePopover();
+        this.scope.$digest();
       });
 
       it('should reset notifications when popoverObject is closed', function(done) {
-        this.scope.notifications = [1,2,3];
+        this.scope.notifications = [1, 2, 3];
         this.scope.popoverObject.open = true;
         this.scope.togglePopover();
         expect(this.scope.notifications).to.be.empty;
@@ -254,6 +264,29 @@ describe.only('The esn.user-notification Angular module', function() {
         this.scope.$digest();
         expect(this.scope.notifications).to.deep.equal(array);
         expect(this.scope.totalNotifications).to.equal(size);
+        done();
+      });
+
+      it('should define the pagination page based on response data', function(done) {
+        var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        var size = 101;
+        this.scope.pagination.itemsPerPage = 10;
+
+        var defer = this.$q.defer();
+        this.userNotificationAPI.list = function(options) {
+          return defer.promise;
+        };
+
+        defer.resolve({data: array, headers: function() {
+          return size;
+        }});
+
+        this.scope.load(1);
+        this.scope.$digest();
+
+        expect(this.scope.pagination.current).to.equal(1);
+        expect(this.scope.pagination.last).to.equal(11);
+
         done();
       });
 
