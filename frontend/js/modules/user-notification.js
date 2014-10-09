@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
+angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.websocket'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -9,7 +9,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
   .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
-  .controller('userNotificationController', ['$scope', '$log', '$timeout', 'userNotificationAPI', 'unreadCountFactory', function($scope, $log, $timeout, userNotificationAPI, unreadCountFactory) {
+  .controller('userNotificationController', ['$scope', '$log', '$timeout', 'userNotificationAPI', 'unreadCountFactory' , 'livenotification', function($scope, $log, $timeout, userNotificationAPI, unreadCountFactory, livenotification) {
     // TODO resolve readCount with getList here or in app.js
     $scope.unreadCount = unreadCountFactory.newUnreadCount(42);
 
@@ -25,6 +25,11 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
           $log.error('Error setting ' + id + ' as read: ' + err);
         });
     };
+
+    livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
+    $scope.$on('$destroy', function() {
+      livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
+    });
   }])
   .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
