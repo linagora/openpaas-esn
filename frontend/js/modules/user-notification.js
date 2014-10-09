@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.websocket'])
+angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -9,28 +9,36 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
   .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
-  .controller('userNotificationController', ['$scope', '$log', '$timeout', 'userNotificationAPI', 'unreadCountFactory' , 'livenotification', function($scope, $log, $timeout, userNotificationAPI, unreadCountFactory, livenotification) {
-    // TODO resolve readCount with getList here or in app.js
-    $scope.unreadCount = unreadCountFactory.newUnreadCount(42);
+  .controller('userNotificationController', [
+    '$scope',
+    '$log',
+    '$timeout',
+    'userNotificationAPI',
+    'userNotificationCounter',
+    'livenotification',
+    function($scope, $log, $timeout, userNotificationAPI, userNotificationCounter, livenotification) {
+      // TODO resolve readCount with getList here or in app.js
+      $scope.unreadCount = userNotificationCounter;
 
-    $scope.setAsRead = function(id) {
-      $scope.unreadCount.decreaseBy(1);
-      userNotificationAPI
-        .setRead(id, true)
-        .then(function() {
-          $scope.unreadCount.refresh();
-          $log.debug('Successfully setting ' + id + ' as read');
-        }, function(err) {
-          $scope.unreadCount.refresh();
-          $log.error('Error setting ' + id + ' as read: ' + err);
-        });
-    };
+      $scope.setAsRead = function(id) {
+        $scope.unreadCount.decreaseBy(1);
+        userNotificationAPI
+          .setRead(id, true)
+          .then(function() {
+            $scope.unreadCount.refresh();
+            $log.debug('Successfully setting ' + id + ' as read');
+          }, function(err) {
+            $scope.unreadCount.refresh();
+            $log.error('Error setting ' + id + ' as read: ' + err);
+          });
+      };
 
-    livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
-    $scope.$on('$destroy', function() {
-      livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
-    });
-  }])
+      livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
+      $scope.$on('$destroy', function() {
+        livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
+      });
+    }
+  ])
   .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
     $scope.loading = false;
@@ -107,41 +115,8 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
       templateUrl: '/views/modules/user-notification/templates/info-notification.html'
     };
   })
-  .factory('unreadCountFactory', ['$log', '$timeout', 'userNotificationAPI', 'UNREAD_REFRESH_TIMER', function($log, $timeout, userNotificationAPI, UNREAD_REFRESH_TIMER) {
-
-    function UnreadCount(count) {
-      this.count = count;
-      this.timer = null;
-    }
-
-    UnreadCount.prototype.refresh = function refresh() {
-      var self = this;
-      if (self.timer === null) {
-        self.timer = $timeout(function() {
-          userNotificationAPI
-            .getUnreadCount()
-            .then(function(response) {
-              self.count = response.data.unread_count;
-              $log.debug('count is ' + response.data.unread_count);
-            }, function(err) {
-              $log.error('Error getting unread count of user notification: ' + err);
-            });
-          self.timer = null;
-        }, UNREAD_REFRESH_TIMER);
-      } else {
-        $log.debug('get unread timer is already up');
-      }
-    };
-
-    UnreadCount.prototype.decreaseBy = function decreaseBy(number) {
-      this.count -= number;
-    };
-
-    return {
-      newUnreadCount: function(count) {
-        return new UnreadCount(count);
-      }
-    };
+  .factory('userNotificationCounter', ['CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function(CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
+    return new CounterFactory.newCounter(0, UNREAD_REFRESH_TIMER, userNotificationAPI.getUnreadCount);
   }])
   .directive('userNotificationPopover',
   ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',

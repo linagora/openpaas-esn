@@ -1,6 +1,47 @@
 'use strict';
 
 angular.module('esn.core', [])
+  .factory('CounterFactory', ['$log', '$timeout', function($log, $timeout) {
+
+    function Counter(initialCount, refreshTimer, refreshFn) {
+      this.count = initialCount;
+      this.refreshTimer = refreshTimer;
+      this.refreshFn = refreshFn;
+      this.timer = null;
+    }
+
+    Counter.prototype.refresh = function refresh() {
+      var self = this;
+      if (self.timer === null) {
+        self.timer = $timeout(function() {
+          self.refreshFn()
+            .then(function(response) {
+              self.count = response.data.unread_count;
+              $log.debug('count is ' + response.data.unread_count);
+            }, function(err) {
+              $log.error('Error getting unread count of user notification: ' + err);
+            });
+          self.timer = null;
+        }, self.refreshTimer);
+      } else {
+        $log.debug('get unread timer is already up');
+      }
+    };
+
+    Counter.prototype.decreaseBy = function decreaseBy(number) {
+      this.count -= number;
+    };
+
+    Counter.prototype.increaseBy = function increaseBy(number) {
+      this.count += number;
+    };
+
+    return {
+      newCounter: function(initialCount, refreshTimer, refreshFn) {
+        return new Counter(initialCount, refreshTimer, refreshFn);
+      }
+    };
+  }])
   .controller('selectActiveItem', ['$scope', function($scope) {
     $scope.selected = 1;
     $scope.selectItem = function(index) {
