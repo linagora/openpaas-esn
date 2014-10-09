@@ -8,8 +8,8 @@
     p #{__('Error while getting members')}.
 
   .row
-    .row(ng-repeat="row in members | inSlicesOf: 3")
-      .col-xs-4.nopadding(ng-repeat="member in row")
+    .row(ng-repeat="row in members | inSlicesOf: 4")
+      .col-xs-3.nopadding(ng-repeat="member in row")
         community-member-avatar(member="member", community="community")
 
   .row.text-center(ng-show='more > 0')
