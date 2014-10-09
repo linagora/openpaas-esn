@@ -1,2 +1,5 @@
-div(data-ng-switch='notification.type')
-  info-notification(data-ng-switch-when='info', notification='notification')
+div(ng-switch='notification.category')
+  community-subscription-request-user-notification(ng-switch-when='community:subscriptionRequest', notification='notification')
+  external-user-notification(ng-switch-when='external', notification='notification')
+  external-user-notification(ng-switch-default, notification='notification')
+

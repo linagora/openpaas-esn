@@ -2,7 +2,7 @@
 
 angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('SCREEN_SM_MIN', 768)
-  .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
+  .constant('USER_NOTIFICATION_ITEM_HEIGHT', 75)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
   .constant('POPOVER_ARROW_HEIGHT', 10)
   .constant('POPOVER_TITLE_HEIGHT', 35)
@@ -78,14 +78,24 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
       templateUrl: '/views/modules/user-notification/notificationTemplateDisplayer.html'
     };
   })
-  .directive('infoNotification', function() {
+  .directive('externalUserNotification', function() {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/info-notification.html'
+      templateUrl: '/views/modules/user-notification/templates/external-notification.html'
+    };
+  })
+  .directive('communitySubscriptionRequestUserNotification', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/templates/community-subscription-request-notification.html'
     };
   })
   .directive('userNotificationPopover',
