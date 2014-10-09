@@ -9,6 +9,95 @@ describe('The esn.user-notification Angular module', function() {
     angular.mock.module('esn.user-notification');
   });
 
+  describe('unreadCountFactory', function() {
+    var service, $log, $timeout, userNotificationAPI, $q, unreadDefer, $rootScope;
+    var unreadcount, timeoutToTest, callTimes;
+
+    beforeEach(function() {
+      callTimes = 0;
+      userNotificationAPI = {};
+      userNotificationAPI.getUnreadCount = function() {
+        unreadDefer = $q.defer();
+        return unreadDefer.promise;
+      };
+
+      $log = {
+        debug: function() {},
+        info: function() {},
+        error: function() {}
+      };
+
+      $timeout = function(fn, timeout) {
+        timeoutToTest = timeout;
+        callTimes++;
+        setTimeout(fn, 500);
+      };
+
+      module(function($provide) {
+        $provide.value('userNotificationAPI', userNotificationAPI);
+        $provide.value('$log', $log);
+        $provide.value('$timeout', $timeout);
+      });
+    });
+
+    beforeEach(angular.mock.inject(function($injector, _$q_, _$rootScope_) {
+      service = $injector.get('unreadCountFactory');
+      $q = _$q_;
+      $rootScope = _$rootScope_;
+    }));
+
+    beforeEach(function() {
+      unreadcount = service.newUnreadCount(42);
+    });
+
+    afterEach(function() {
+      timeoutToTest = null;
+      callTimes = null;
+    });
+
+    it('should decreaseBy 1 count', function() {
+      unreadcount.decreaseBy(1);
+      expect(unreadcount.count).to.equals(41);
+    });
+
+    it('should allow refreshing the count by calling getUnreadCount after 10 seconds', function() {
+      unreadcount.refresh();
+
+      setTimeout(function() {
+        unreadDefer.resolve({
+          data: {
+            unread_count: 420
+          }
+        });
+        $rootScope.$digest();
+
+        expect(unreadcount.count).to.equals(420);
+        expect(timeoutToTest).to.equals(10 * 1000);
+      }, 1000);
+    });
+
+    it('should not call getUnreadCount if the timer is already up', function() {
+      unreadcount.refresh();
+      unreadcount.refresh();
+      unreadcount.refresh();
+      unreadcount.refresh();
+
+      setTimeout(function() {
+        unreadDefer.resolve({
+          data: {
+            unread_count: 420
+          }
+        });
+        $rootScope.$digest();
+
+        expect(unreadcount.count).to.equals(420);
+        expect(callTimes).to.equals(1);
+        expect(timeoutToTest).to.equals(10 * 1000);
+      }, 1000);
+    });
+
+  });
+
   describe('userNotificationAPI service', function() {
 
     beforeEach(inject(function(userNotificationAPI, $httpBackend) {
