@@ -25,11 +25,12 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
         userNotificationAPI
           .setRead(id, true)
           .then(function() {
-            $scope.unreadCount.refresh();
             $log.debug('Successfully setting ' + id + ' as read');
           }, function(err) {
-            $scope.unreadCount.refresh();
             $log.error('Error setting ' + id + ' as read: ' + err);
+          })
+          .finally(function() {
+            $scope.unreadCount.refresh();
           });
       };
 
