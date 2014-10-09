@@ -1,4 +1,4 @@
-.popover(tabindex="-1" user-notification-popover)
+.popover(tabindex="-1" ng-controller="userNotificationPopOverController" user-notification-popover)
   .arrow
   .popover-title #{__('Notifications')}
     a.pull-right(href="#", ng-show="notifications.length") #{__('Mark as read')}
@@ -12,10 +12,10 @@
       li.popover-item(ng-repeat="notification in notifications")
         notification-template-displayer(notification='notification')
       li.divider.nopadding
-      li.popover-pager(ng-show="pagination.last > 0")
+      li.popover-pager(ng-show="lastPageNb > 0")
         ul.pager
-          li.pull-left.popover-pager(ng-hide="pagination.current === 1" ng-class="{ disabled : loading}" class="ng-scope")
+          li.pull-left.popover-pager(ng-hide="currentPageNb === 1" ng-class="{ disabled : loading}" class="ng-scope")
             a(href="" ng-click="previousPage()" class="ng-binding") #{__('Previous')}
-          li.popover-pager.textcenter {{pagination.current}} / {{pagination.last}}
-          li.pull-right.popover-pager(ng-hide="pagination.current === pagination.last" ng-class="{ disabled : loading}" class="ng-scope")
+          li.popover-pager.textcenter {{currentPageNb}} / {{lastPageNb}}
+          li.pull-right.popover-pager(ng-hide="currentPageNb === lastPageNb" ng-class="{ disabled : loading}" class="ng-scope")
             a(href="" ng-click="nextPage()", ng-class="ng-binding") #{__('Next')}

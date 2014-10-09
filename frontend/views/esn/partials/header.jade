@@ -26,11 +26,11 @@ div(ng-controller='selectActiveItem')
           .col-sm-2.hidden-xs.nopadding.esn-navbar-side.text-center LINAGORA
           .col-sm-10.col-xs-12.nopadding
             div.esn-navbar-side
-              div.esn-item.esn-user-notification(ng-controller="userNotificationController")
+              div.esn-item.esn-user-notification
                 span
-                  button.btn-link.noborder(type="button" data-template="/views/modules/user-notification/user-notification.html" data-placement="bottom-left" ng-click="togglePopover()" ng-class="{'animated swing open': popoverObject.open}" bs-popover)
+                  button.btn-link.noborder(type="button" data-template="/views/modules/user-notification/user-notification.html" data-placement="bottom-left" class="animated swing open" bs-popover)
                     i.fa.fa-bell-o
-                    span.badge(ng-hide="true") 42
+                    span.badge 10
             div.esn-navbar-main
               .esn-item(ng-class='{active: selected === 1}')
                 span

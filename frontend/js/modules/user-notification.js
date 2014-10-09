@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user-notification', ['restangular'])
+angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -9,97 +9,52 @@ angular.module('esn.user-notification', ['restangular'])
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
 
-  .factory('userNotificationCache', function($q) {
-    var defer = $q.defer();
-    return {
+  .controller('userNotificationPopOverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
-      setNbOfItems: function(size) {
-        defer.resolve(size);
-        defer = $q.defer();
-      },
-
-      getNbOfItems: function() {
-        return defer.promise;
-      }
-    };
-  })
-
-  .controller('userNotificationController', ['$scope', 'userNotificationAPI', 'userNotificationCache', function($scope, userNotificationAPI, userNotificationCache) {
     $scope.loading = false;
     $scope.error = false;
     $scope.notifications = [];
     $scope.totalNotifications = 0;
-    $scope.offset = 0;
 
-    $scope.popoverObject = {
-      open: false
-    };
-
-    $scope.pagination = {
-      itemsPerPage: 5,
-      current: 1,
-      last: 0
-    };
-
-    $scope.reset = function() {
-      $scope.notifications = [];
-      $scope.pagination = {
-        itemsPerPage: 5,
-        current: 1,
-        last: 0
-      };
-    };
-
-    $scope.togglePopover = function() {
-      $scope.popoverObject.open = !$scope.popoverObject.open;
-      if (!$scope.popoverObject.open) {
-        $scope.reset();
-      } else {
-        userNotificationCache.getNbOfItems().then(function(data) {
-          $scope.pagination.itemsPerPage = data;
-          $scope.load();
-        });
+    $scope.updateData = function(err, items, total, page) {
+      if (err) {
+        $scope.error = true;
       }
+      if (items) {
+        $scope.notifications = items;
+      }
+      if (total) {
+        $scope.totalNotifications = total;
+      }
+
+      $scope.currentPageNb = page + 1;
+      $scope.lastPageNb = Math.ceil($scope.totalNotifications / (items.length || 1));
+    };
+
+    $scope.initPager = function(nbItemsPerPage) {
+      $scope.pager = paginator(nbItemsPerPage, {
+        getItems: function(offset, limit, callback) {
+          $scope.error = false;
+          var options = {limit: limit, offset: offset, read: false};
+          $scope.loading = true;
+          userNotificationAPI.list(options).then(function(response) {
+            return callback(null, response.data, response.headers('X-ESN-Items-Count'));
+          }, function(err) {
+            return callback(err);
+          }).finally (function() {
+            $scope.loading = false;
+          });
+        }
+      });
+      $scope.pager.currentPage($scope.updateData);
     };
 
     $scope.nextPage = function() {
-      if ($scope.pagination.current === $scope.pagination.last) {
-        return;
-      }
-      $scope.load($scope.pagination.current + 1);
+      return $scope.pager.nextPage($scope.updateData);
     };
 
     $scope.previousPage = function() {
-      if ($scope.pagination.current === 1) {
-        return;
-      }
-      $scope.load($scope.pagination.current - 1);
-    };
-
-    $scope.load = function(pageToLoad) {
-      pageToLoad = pageToLoad || 1;
-
-      var options = {limit: $scope.pagination.itemsPerPage, offset: (pageToLoad - 1) * $scope.pagination.itemsPerPage, read: false};
-      $scope.loading = true;
-
-      userNotificationAPI.list(options).then(function(response) {
-
-        var total = $scope.totalNotifications;
-        $scope.notifications = response.data;
-        $scope.totalNotifications = response.headers('X-ESN-Items-Count');
-
-        if (total > 0) {
-          $scope.pagination.current = Math.ceil((pageToLoad * $scope.totalNotifications) / total);
-        } else {
-          $scope.pagination.current = pageToLoad;
-        }
-        $scope.pagination.last = Math.ceil($scope.totalNotifications / $scope.pagination.itemsPerPage);
-
-      }, function() {
-        $scope.error = true;
-      }).finally (function() {
-        $scope.loading = false;
-      });
+      return $scope.pager.previousPage($scope.updateData);
     };
   }])
   .directive('notificationTemplateDisplayer', function() {
@@ -123,15 +78,16 @@ angular.module('esn.user-notification', ['restangular'])
     };
   })
   .directive('userNotificationPopover',
-  ['$timeout', '$window', 'userNotificationCache', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
-    function($timeout, $window, userNotificationCache, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
+  ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
+    function($timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
       return {
         restrict: 'A',
         link: function(scope, element, attrs) {
+
+          var loaded = false;
           function hidePopover() {
             if (scope.$hide) {
-              scope.popoverObject.open = false;
-              scope.reset();
+              loaded = false;
               scope.$hide();
               scope.$apply();
             }
@@ -173,7 +129,12 @@ angular.module('esn.user-notification', ['restangular'])
                 element.width(width - 10);
                 nbItems = Math.floor(popoverMaxHeight / USER_NOTIFICATION_ITEM_HEIGHT);
               }
-              userNotificationCache.setNbOfItems(nbItems);
+
+              if (!loaded) {
+                scope.initPager(nbItems);
+                loaded = true;
+              }
+
               isResizing = false;
             }
 
