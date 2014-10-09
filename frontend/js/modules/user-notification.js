@@ -9,26 +9,34 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
 
-  .controller('userNotificationPopOverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
+  .controller('userNotificationController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
     $scope.loading = false;
     $scope.error = false;
     $scope.notifications = [];
     $scope.totalNotifications = 0;
+    $scope.display = false;
+    $scope.popoverObject = {
+      open: false
+    };
+
+    $scope.togglePopover = function() {
+      $scope.popoverObject.open = !$scope.popoverObject.open;
+    };
 
     $scope.updateData = function(err, items, total, page) {
       if (err) {
         $scope.error = true;
+      } else {
+        if (items) {
+          $scope.notifications = items;
+        }
+        if (total) {
+          $scope.totalNotifications = total;
+        }
+        $scope.currentPageNb = page + 1;
+        $scope.lastPageNb = Math.ceil($scope.totalNotifications / (items.length || 1));
       }
-      if (items) {
-        $scope.notifications = items;
-      }
-      if (total) {
-        $scope.totalNotifications = total;
-      }
-
-      $scope.currentPageNb = page + 1;
-      $scope.lastPageNb = Math.ceil($scope.totalNotifications / (items.length || 1));
     };
 
     $scope.initPager = function(nbItemsPerPage) {
@@ -88,6 +96,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
           function hidePopover() {
             if (scope.$hide) {
               loaded = false;
+              scope.popoverObject.open = false;
               scope.$hide();
               scope.$apply();
             }

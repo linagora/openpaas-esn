@@ -30,9 +30,22 @@ describe('The esn.user-notification Angular module', function() {
       }
     };
 
+    var userNotificationAPI = {
+      list: function() {
+        return {
+          then: function() {
+            return {
+              finally: function() {}
+            };
+          }
+        };
+      }
+    };
+
     beforeEach(function() {
       angular.mock.module(function($provide) {
         $provide.value('$window', $window);
+        $provide.value('userNotificationAPI', userNotificationAPI);
       });
       angular.mock.inject(function($compile, $rootScope, $timeout) {
         this.$compile = $compile;
@@ -161,9 +174,13 @@ describe('The esn.user-notification Angular module', function() {
   describe('The userNotificationController controller', function() {
 
     beforeEach(inject(function($rootScope, $controller, $q) {
+      this.getItems = function() {};
+      var self = this;
       this.userNotificationAPI = {};
-      this.userNotificationCache = {
-        getNbOfItems: function() {}
+      this.paginator = function() {
+        return {
+          getItems: self.getItems
+        };
       };
       this.rootScope = $rootScope;
       this.$q = $q;
@@ -172,82 +189,40 @@ describe('The esn.user-notification Angular module', function() {
       $controller('userNotificationController', {
         $scope: this.scope,
         userNotificationAPI: this.userNotificationAPI,
-        userNotificationCache: this.userNotificationCache
+        paginator: this.paginator
       });
     }));
 
-    describe('togglePopover()', function() {
-      it('should call load when popoverObject is opened', function(done) {
-        var defer = this.$q.defer();
-        this.userNotificationCache.getNbOfItems = function() {
-          return defer.promise;
-        };
-        this.scope.popoverObject.open = false;
-        this.userNotificationAPI.list = function() {
-          done();
-        };
-        defer.resolve(4);
-        this.scope.togglePopover();
-        this.scope.$digest();
-      });
-
-      it('should reset notifications when popoverObject is closed', function(done) {
-        this.scope.notifications = [1, 2, 3];
-        this.scope.popoverObject.open = true;
-        this.scope.togglePopover();
-        expect(this.scope.notifications).to.be.empty;
-        done();
-      });
-    });
-
     describe('nextPage()', function() {
-      it('should not call load() when last page has been reached', function(done) {
-        this.scope.pagination.current = 2;
-        this.scope.pagination.last = 2;
-
-        this.userNotificationAPI.list = function() {
-          done(new Error());
-        };
+      it('should call the pager', function(done) {
+        this.getItems = done();
         this.scope.nextPage();
-        done();
-      });
-
-      it('should call load() when last page has not been reached', function(done) {
-        this.scope.pagination.current = 1;
-        this.scope.pagination.last = 2;
-
-        this.userNotificationAPI.list = function() {
-          done();
-        };
-        this.scope.nextPage();
-        done(new Error());
       });
     });
 
     describe('previousPage()', function() {
-      it('should not call load() when first page has been reached', function(done) {
-        this.scope.pagination.current = 1;
-
-        this.userNotificationAPI.list = function() {
-          done(new Error());
-        };
+      it('should call the pager', function(done) {
+        this.getItems = done();
         this.scope.previousPage();
-        done();
-      });
-
-      it('should call load() when first page has not been reached', function(done) {
-        this.scope.pagination.current = 2;
-
-        this.userNotificationAPI.list = function() {
-          done();
-        };
-        this.scope.previousPage();
-        done(new Error());
       });
     });
 
-    describe('load()', function() {
-      it('should update local notifications and counter on request success', function(done) {
+    describe('initPager()', function() {
+      beforeEach(inject(function($rootScope, $controller, $q, paginator) {
+        this.userNotificationAPI = {};
+        this.rootScope = $rootScope;
+        this.$q = $q;
+        this.scope = $rootScope.$new();
+        this.paginator = paginator;
+
+        $controller('userNotificationController', {
+          $scope: this.scope,
+          userNotificationAPI: this.userNotificationAPI,
+          paginator: this.paginator
+        });
+      }));
+
+      it('should update local notifications request success', function(done) {
         var array = [1, 2, 3];
         var size = 103;
 
@@ -260,7 +235,7 @@ describe('The esn.user-notification Angular module', function() {
           return size;
         }});
 
-        this.scope.load();
+        this.scope.initPager();
         this.scope.$digest();
         expect(this.scope.notifications).to.deep.equal(array);
         expect(this.scope.totalNotifications).to.equal(size);
@@ -270,7 +245,6 @@ describe('The esn.user-notification Angular module', function() {
       it('should define the pagination page based on response data', function(done) {
         var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         var size = 101;
-        this.scope.pagination.itemsPerPage = 10;
 
         var defer = this.$q.defer();
         this.userNotificationAPI.list = function(options) {
@@ -281,11 +255,11 @@ describe('The esn.user-notification Angular module', function() {
           return size;
         }});
 
-        this.scope.load(1);
+        this.scope.initPager(10);
         this.scope.$digest();
 
-        expect(this.scope.pagination.current).to.equal(1);
-        expect(this.scope.pagination.last).to.equal(11);
+        expect(this.scope.currentPageNb).to.equal(1);
+        expect(this.scope.lastPageNb).to.equal(11);
 
         done();
       });
@@ -296,8 +270,8 @@ describe('The esn.user-notification Angular module', function() {
           return defer.promise;
         };
 
-        defer.reject();
-        this.scope.load();
+        defer.reject(new Error());
+        this.scope.initPager(1);
         this.scope.$digest();
         expect(this.scope.error).to.be.true;
         done();
