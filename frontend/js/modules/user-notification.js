@@ -8,6 +8,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_TITLE_HEIGHT', 35)
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
+  .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
   .controller('userNotificationController', ['$scope', '$log', '$timeout', 'userNotificationAPI', 'unreadCountFactory', function($scope, $log, $timeout, userNotificationAPI, unreadCountFactory) {
     // TODO resolve readCount with getList here or in app.js
     $scope.unreadCount = unreadCountFactory.newUnreadCount(42);
@@ -18,7 +19,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
         .setRead(id, true)
         .then(function() {
           $scope.unreadCount.refresh();
-          $log.info('Successfully setting ' + id + ' as read');
+          $log.debug('Successfully setting ' + id + ' as read');
         }, function(err) {
           $scope.unreadCount.refresh();
           $log.error('Error setting ' + id + ' as read: ' + err);
@@ -101,7 +102,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
       templateUrl: '/views/modules/user-notification/templates/info-notification.html'
     };
   })
-  .factory('unreadCountFactory', ['$log', '$timeout', 'userNotificationAPI', function($log, $timeout, userNotificationAPI) {
+  .factory('unreadCountFactory', ['$log', '$timeout', 'userNotificationAPI', 'UNREAD_REFRESH_TIMER', function($log, $timeout, userNotificationAPI, UNREAD_REFRESH_TIMER) {
 
     function UnreadCount(count) {
       this.count = count;
@@ -110,20 +111,20 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
 
     UnreadCount.prototype.refresh = function refresh() {
       var self = this;
-      if(self.timer === null) {
+      if (self.timer === null) {
         self.timer = $timeout(function() {
           userNotificationAPI
             .getUnreadCount()
             .then(function(response) {
               self.count = response.data.unread_count;
-              $log.info('count is ' + response.data.unread_count);
+              $log.debug('count is ' + response.data.unread_count);
             }, function(err) {
-              $log.error('Error listing read user notification: ' + err);
+              $log.error('Error getting unread count of user notification: ' + err);
             });
           self.timer = null;
-        }, 10 * 1000);
+        }, UNREAD_REFRESH_TIMER);
       } else {
-        $log.info('timer is already up');
+        $log.debug('get unread timer is already up');
       }
     };
 

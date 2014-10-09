@@ -4,7 +4,7 @@ var request = require('supertest'),
   expect = require('chai').expect,
   async = require('async');
 
-describe.only('The user notification API', function() {
+describe('The user notification API', function() {
 
   var app;
   var testuser;
