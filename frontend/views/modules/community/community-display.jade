@@ -18,5 +18,7 @@ div.nopadding.esn-community
       li.pull-right
         community-button-join(community='community', user='user', on-join='joinSuccess(community)', on-fail='joinFailure(community)')
         community-button-leave(community='community', user='user', on-leave='leaveSuccess(community)', on-fail='leaveFailure(community)')
+        community-button-request-membership(community='community', user='user', on-request='requestMembershipSuccess(community)', on-fail='requestMembershipFailure(community)')
+        community-button-cancel-request-membership(community='community', user='user', on-cancel-request='cancelRequestMembershipSuccess(community)', on-fail='cancelRequestMembershipFailure(community)')
       .clearfix
     p.hidden-xs.community-description(ng-show='community.description') {{community.description | characters:256 :false }}
