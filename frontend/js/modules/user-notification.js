@@ -218,27 +218,27 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
         }
       };
     }])
-    .factory('userNotificationAPI', ['Restangular', function(Restangular) {
-      function list(options) {
-        return Restangular.one('user').all('notifications').getList(options);
-      }
+  .factory('userNotificationAPI', ['Restangular', function(Restangular) {
+    function list(options) {
+      return Restangular.one('user').all('notifications').getList(options);
+    }
 
-      function setRead(id, read) {
-        return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
-      }
+    function setRead(id, read) {
+      return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
+    }
 
-      function setAcknowledgeded(id, acknowledgeded) {
-        return Restangular.one('user').one('notifications', id).one('acknowledgeded').customPUT({value: acknowledgeded});
-      }
+    function setAcknowledged(id, acknowledged) {
+      return Restangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
+    }
 
-      function getUnreadCount() {
-        return Restangular.one('user').one('notifications').one('unread').get();
-      }
+    function getUnreadCount() {
+      return Restangular.one('user').one('notifications').one('unread').get();
+    }
 
-      return {
-        list: list,
-        setRead: setRead,
-        setAcknowledgeded: setAcknowledgeded,
-        getUnreadCount: getUnreadCount
-      };
-    }]);
+    return {
+      list: list,
+      setRead: setRead,
+      setAcknowledged: setAcknowledged,
+      getUnreadCount: getUnreadCount
+    };
+  }]);
