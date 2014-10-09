@@ -747,14 +747,14 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return user._id !== community.creator &&
         community.type !== 'open' &&
         !isMember(community) &&
-        !community.membershipRequests;
+        !community.membershipRequest;
     }
 
     function canCancelRequestMembership(community, user) {
       return user._id !== community.creator &&
         community.type !== 'open' &&
         !isMember(community) &&
-        community.membershipRequests;
+        community.membershipRequest;
     }
 
     function requestMembership(community, user) {
