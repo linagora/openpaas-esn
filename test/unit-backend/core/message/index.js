@@ -144,20 +144,82 @@ describe('The message core module', function() {
         var messageModule = require(this.testEnv.basePath + '/backend/core/message');
         messageModule.get('message1', function(err, resp) {
           expect(err).to.be.not.ok;
-          expect(resp.args).to.deep.equal({ objectType: 'whatsup' });
+          expect(resp).to.deep.equal({ objectType: 'whatsup' });
           expect(throughInit).to.be.true;
           done();
         });
         this.mongoose.model = function(name) {
-          function ModelMock() {
-            this.init = function(args) {
-              throughInit = true;
-              this.args = args;
+          if (name === 'Whatsup') {
+            return function ModelMock() {
+              this.init = function(args) {
+                throughInit = true;
+                this.args = args;
+              };
+              this.toObject = function() {
+                return this.args;
+              };
+            };
+          } else if (name === 'User') {
+            return {
+              find: function(query) {
+                return { exec: function(cb) { cb(null, []); } };
+              }
             };
           }
-          return ModelMock;
         };
         this.findOneCb(null, {objectType: 'whatsup'});
+      });
+
+      it('should expand all authors', function(done) {
+        var throughInit = false;
+        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        this.mongoose.Types.ObjectId = function(name) { return name; };
+        messageModule.get('message1', function(err, resp) {
+          expect(err).to.be.not.ok;
+          expect(resp).to.deep.equal({
+            objectType: 'whatsup',
+            author: { _id: 'user1' },
+            responses: [
+              { objectType: 'whatsup', author: { _id: 'user2' } },
+              { objectType: 'whatsup', author: { _id: 'user1' } }
+            ]
+          });
+          expect(throughInit).to.be.true;
+          done();
+        });
+        this.mongoose.model = function(name) {
+          if (name === 'Whatsup') {
+            return function ModelMock() {
+              this.init = function(args) {
+                throughInit = true;
+                this.args = args;
+              };
+              this.toObject = function() {
+                return this.args;
+              };
+            };
+          } else if (name === 'User') {
+            return {
+              find: function(query) {
+                return { exec: function(cb) {
+                  expect(query._id.$in).to.exist;
+                  expect(query._id.$in.indexOf('user1')).to.equal(0);
+                  expect(query._id.$in.indexOf('user2')).to.equal(1);
+                  var users = [{ _id: 'user1' }, { _id: 'user2' }];
+                  cb(null, users);
+                } };
+              }
+            };
+          }
+        };
+        this.findOneCb(null, {
+            objectType: 'whatsup',
+            author: 'user1',
+            responses: [
+              { objectType: 'whatsup', author: 'user2' },
+              { objectType: 'whatsup', author: 'user1' }
+            ]
+        });
       });
     });
 
@@ -332,6 +394,7 @@ describe('The message core module', function() {
   describe('findByIds() method', function() {
     beforeEach(function() {
       this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose.Types.ObjectId = function(name) { return name; };
       mockery.registerMock('mongoose', this.mongoose);
     });
 
@@ -427,19 +490,11 @@ describe('The message core module', function() {
     it('should return messages populated with their authors', function() {
       var messageModule = require(this.testEnv.basePath + '/backend/core/message');
       var user3 = {
-        _id: {
-          equals: function(id) {
-            return id === '3';
-          }
-        },
+        _id: '3',
         name: 'user3'
       };
       var user4 = {
-        _id: {
-          equals: function(id) {
-            return id === '4';
-          }
-        },
+        _id: '4',
         name: 'user4'
       };
       this.mongoose.model = function(modelName) {

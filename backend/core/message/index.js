@@ -24,6 +24,32 @@ function getInstance(objectType, message) {
   return new Model(message);
 }
 
+function collectAuthors(messages, authorsMap) {
+  var authors = authorsMap || Object.create(null);
+
+  messages.forEach(function(message) {
+    if (message.author in authors) {
+      authors[message.author].push(message);
+    } else {
+      authors[message.author] = [message];
+    }
+
+    if (message.responses) {
+        collectAuthors(message.responses, authors);
+    }
+  });
+
+  return authors;
+}
+
+function applyAuthors(authorsMap, authors) {
+  authors.forEach(function(author) {
+    authorsMap[author._id].forEach(function(message) {
+      message.author = author;
+    });
+  });
+}
+
 function get(uuid, callback) {
   var whatsupModel = mongoose.model('Whatsup');
   var ouuid = new mongoose.Types.ObjectId(uuid);
@@ -46,79 +72,51 @@ function get(uuid, callback) {
   });
 }
 
+function getWithAuthors(uuid, callback) {
+  return get(uuid, function(err, instance) {
+    if (err) { return callback(err); }
+
+    var doc = instance.toObject();
+    var userModel = mongoose.model('User');
+
+    var authorsMap = collectAuthors([doc]);
+    var ids = Object.keys(authorsMap).map(function(id) {
+        return mongoose.Types.ObjectId(id);
+    });
+
+    return userModel.find({ _id: { '$in': ids } }).exec(function(err, authors) {
+      if (err) { return callback(err); }
+
+      applyAuthors(authorsMap, authors);
+      return callback(null, doc);
+    });
+  });
+}
+
 function findByIds(ids, callback) {
   var whatsupModel = mongoose.model('Whatsup');
   var formattedIds = ids.map(function(id) {
     return mongoose.Types.ObjectId(id);
   });
-  var query = {
-    _id: { $in: formattedIds}
-  };
-  var result = [];
-  var authorsId = [];
-
-  var getAuthors = function(ids, callback) {
-    var User = mongoose.model('User');
-    var query = {
-      _id: { $in: ids}
-    };
-    User.find(query).exec(callback);
-  };
-
-  var saveAuthorId = function(authorId) {
-    if (authorsId.indexOf(authorId) < 0) {
-      authorsId.push(authorId);
-    }
-  };
+  var query = { _id: { $in: formattedIds } };
 
   whatsupModel.collection.find(query).toArray(function(err, foundMessages) {
     if (err) {
       return callback(err);
     }
 
-    foundMessages.forEach(function(foundMessage) {
-      saveAuthorId(foundMessage.author);
-      if (foundMessage.responses) {
-        foundMessage.responses.forEach(function(response) {
-          saveAuthorId(response.author);
-        });
-      }
+    var authorsMap = collectAuthors(foundMessages);
+    var ids = Object.keys(authorsMap).map(function(id) {
+        return mongoose.Types.ObjectId(id);
     });
 
-    getAuthors(authorsId, function(err, authors) {
-      if (err) {
-        return callback(err);
-      }
+    var userModel = mongoose.model('User');
+    var query = { _id: { $in: ids} };
+    userModel.find(query).exec(function(err, authors) {
+      if (err) { return callback(err); }
 
-      foundMessages.forEach(function(message) {
-        var Model, instance;
-        try {
-          Model = getModel(message.objectType);
-        } catch (e) {
-          return callback(e);
-        }
-        instance = new Model();
-
-        instance.init(message);
-
-        var getAuthor = function(authorId) {
-          return authors.filter(function(user) {
-            return user._id.equals(authorId);
-          })[0];
-        };
-
-        var resultMessage = instance.toObject();
-        resultMessage.author = getAuthor(message.author);
-        if (resultMessage.responses) {
-          resultMessage.responses.forEach(function(response) {
-            response.author = getAuthor(response.author);
-          });
-        }
-
-        result.push(resultMessage);
-      });
-
-      return callback(null, result);
+      applyAuthors(authorsMap, authors);
+      return callback(null, foundMessages);
     });
   });
 }
@@ -148,7 +146,7 @@ module.exports = {
     whatsup: whatsupMessageModule
   },
   permission: require('./permission'),
-  get: get,
+  get: getWithAuthors,
   getModel: getModel,
   getInstance: getInstance,
   addNewComment: addNewComment,
