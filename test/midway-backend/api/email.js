@@ -118,7 +118,7 @@ describe('The email API', function() {
                   TimelineEntry.find({}, function(err, results) {
                     expect(results).to.exist;
                     expect(results.length).to.equal(1);
-                    expect(results[0].verb).to.equal('email');
+                    expect(results[0].verb).to.equal('post');
                     expect(results[0].target).to.exist;
                     expect(results[0].target.length).to.equal(1);
                     expect(results[0].target[0].objectType).to.equal('activitystream');
@@ -208,7 +208,7 @@ describe('The email API', function() {
                   TimelineEntry.find({}, function(err, results) {
                     expect(results).to.exist;
                     expect(results.length).to.equal(1);
-                    expect(results[0].verb).to.equal('email');
+                    expect(results[0].verb).to.equal('post');
                     expect(results[0].target).to.exist;
                     expect(results[0].target.length).to.equal(1);
                     expect(results[0].target[0].objectType).to.equal('activitystream');
@@ -306,7 +306,7 @@ describe('The email API', function() {
                   TimelineEntry.find({}, function(err, results) {
                     expect(results).to.exist;
                     expect(results.length).to.equal(1);
-                    expect(results[0].verb).to.equal('email');
+                    expect(results[0].verb).to.equal('post');
                     expect(results[0].target).to.exist;
                     expect(results[0].target.length).to.equal(1);
                     expect(results[0].target[0].objectType).to.equal('activitystream');

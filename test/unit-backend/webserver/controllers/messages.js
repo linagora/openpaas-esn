@@ -710,6 +710,7 @@ describe('The messages controller', function() {
     it('should publish message:activity in local and global pubsub on email save success', function(done) {
       var localstub = {};
       var globalstub = {};
+      var id = 234;
 
       var res = {
         json: function() {
@@ -717,6 +718,11 @@ describe('The messages controller', function() {
           expect(globalstub.topics[0]).to.equal('message:activity');
           expect(localstub.topics['message:activity'].data).to.exist;
           expect(globalstub.topics['message:activity'].data).to.exist;
+          expect(localstub.topics['message:activity'].data[0].verb).to.equal('post');
+          expect(globalstub.topics['message:activity'].data[0].object.objectType).to.equal('email');
+          expect(globalstub.topics['message:activity'].data[0].object._id).to.equal(id);
+          expect(localstub.topics['message:activity'].data[0].object.objectType).to.equal('email');
+          expect(localstub.topics['message:activity'].data[0].object._id).to.equal(id);
           done();
         }
       };
@@ -724,7 +730,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', {});
       mockery.registerMock('../../core/message/email', {
         saveEmail: function(request, user, shares, callback) {
-          return callback(null, {_id: 234, shares: []});
+          return callback(null, {_id: id, objectType: 'email', shares: []});
         }
       });
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
