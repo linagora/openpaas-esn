@@ -2,7 +2,7 @@
 
 angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core'])
   .constant('SCREEN_SM_MIN', 768)
-  .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
+  .constant('USER_NOTIFICATION_ITEM_HEIGHT', 75)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
   .constant('POPOVER_ARROW_HEIGHT', 10)
   .constant('POPOVER_TITLE_HEIGHT', 35)
@@ -106,14 +106,24 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
       templateUrl: '/views/modules/user-notification/notification-template-displayer.html'
     };
   })
-  .directive('infoNotification', function() {
+  .directive('externalUserNotification', function() {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/info-notification.html'
+      templateUrl: '/views/modules/user-notification/templates/external-notification.html'
+    };
+  })
+  .directive('communitySubscriptionRequestUserNotification', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/templates/community-subscription-request-notification.html'
     };
   })
   .factory('userNotificationCounter', ['$log', 'CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function($log, CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
@@ -171,6 +181,9 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
               } else {
                 element.width(width - 10);
                 nbItems = Math.floor(popoverMaxHeight / USER_NOTIFICATION_ITEM_HEIGHT);
+                if (nbItems === 0) {
+                  nbItems = 1;
+                }
               }
 
               if (!loaded) {

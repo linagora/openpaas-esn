@@ -1,0 +1,16 @@
+.media.notification-content
+  a.pull-left(ng-href='/#/communities/{{notification.community._id}}')
+    img.media-object(ng-src='/api/avatars?objectType=community&id={{notification.community._id}}', src='/images/community.png')
+  .media-body
+    .notification-head.ellipsis
+      a(ng-href="/#/communities/{{community._id}}") {{notification.community.title}}
+      span.pull-right.date.hidden-xs(am-time-ago="notification.timestamps.creation")
+    .notification-body
+      span
+        a(ng-href="/#/profile/{{notification.user._id}}") {{notification.user.firstname}} {{notification.user.lastname}}
+        | &nbsp;#{__('invites you to join this community')}
+    .notification-actions
+      span.pull-left
+        button.btn.btn-info(type="submit") #{__('Accept')}
+        &nbsp;
+        button.btn.btn-info(type="submit") #{__('Decline')}
