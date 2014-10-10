@@ -103,7 +103,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/notificationTemplateDisplayer.html'
+      templateUrl: '/views/modules/user-notification/notification-template-displayer.html'
     };
   })
   .directive('infoNotification', function() {
