@@ -9,7 +9,10 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
 
-  .controller('userNotificationController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
+    .controller('userNotificationController', ['$scope', 'userNotificationAPI', function($scope, userNotificationAPI) {
+    }])
+
+    .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
     $scope.loading = false;
     $scope.error = false;

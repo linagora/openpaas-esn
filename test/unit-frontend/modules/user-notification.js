@@ -61,7 +61,7 @@ describe('The esn.user-notification Angular module', function() {
       $window.outerHeight = portraitInnerHeightUrlBar;
       $window.screen.availWidth = portraitWidth;
       $window.screen.availHeight = portraitScreenHeight;
-      var html = '<div ng-controller="userNotificationController"><div id="test" user-notification-popover></div></div>';
+      var html = '<div ng-controller="userNotificationPopoverController"><div id="test" user-notification-popover></div></div>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       var divElement = element.find('#test');
@@ -90,7 +90,7 @@ describe('The esn.user-notification Angular module', function() {
       $window.outerHeight = portraitInnerHeightUrlBar;
       $window.screen.availWidth = portraitWidth;
       $window.screen.availHeight = portraitScreenHeight;
-      var html = '<div ng-controller="userNotificationController"><div id="test" user-notification-popover></div></div>';
+      var html = '<div ng-controller="userNotificationPopoverController"><div id="test" user-notification-popover></div></div>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       var divElement = element.find('#test');
@@ -117,7 +117,7 @@ describe('The esn.user-notification Angular module', function() {
       $window.outerHeight = portraitInnerHeightUrlBar;
       $window.screen.availWidth = portraitWidth;
       $window.screen.availHeight = portraitScreenHeight;
-      var html = '<div ng-controller="userNotificationController"><div id="test" user-notification-popover></div></div>';
+      var html = '<div ng-controller="userNotificationPopoverController"><div id="test" user-notification-popover></div></div>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       var divElement = element.find('#test');
@@ -171,7 +171,7 @@ describe('The esn.user-notification Angular module', function() {
     });
   });
 
-  describe('The userNotificationController controller', function() {
+  describe('The userNotificationPopoverController controller', function() {
 
     beforeEach(inject(function($rootScope, $controller, $q) {
       this.getItems = function() {};
@@ -186,7 +186,7 @@ describe('The esn.user-notification Angular module', function() {
       this.$q = $q;
       this.scope = $rootScope.$new();
 
-      $controller('userNotificationController', {
+      $controller('userNotificationPopoverController', {
         $scope: this.scope,
         userNotificationAPI: this.userNotificationAPI,
         paginator: this.paginator
@@ -215,7 +215,7 @@ describe('The esn.user-notification Angular module', function() {
         this.scope = $rootScope.$new();
         this.paginator = paginator;
 
-        $controller('userNotificationController', {
+        $controller('userNotificationPopoverController', {
           $scope: this.scope,
           userNotificationAPI: this.userNotificationAPI,
           paginator: this.paginator
