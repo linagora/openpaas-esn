@@ -10,6 +10,17 @@ angular.module('esn.core', [])
       this.timer = null;
     }
 
+    Counter.prototype.init = function init() {
+      var self = this;
+      self.refreshFn()
+        .then(function(response) {
+          self.count = response.data.unread_count;
+          $log.debug('Initial count is ' + response.data.unread_count);
+        }, function(err) {
+          $log.error('Error getting unread count of user notification: ' + err);
+        });
+    };
+
     Counter.prototype.refresh = function refresh() {
       var self = this;
       if (self.timer === null) {

@@ -73,6 +73,19 @@ describe('The Angular core module', function() {
       }, 200);
     });
 
+    it('should allow set initial count by calling getUnreadCount directly', function() {
+      counter.init();
+
+      unreadDefer.resolve({
+        data: {
+          unread_count: 420
+        }
+      });
+      $rootScope.$digest();
+
+      expect(counter.count).to.equals(420);
+    });
+
     it('should not call getUnreadCount if the timer is already up', function() {
       counter.refresh();
       counter.refresh();

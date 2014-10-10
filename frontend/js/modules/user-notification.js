@@ -17,8 +17,8 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
     'userNotificationCounter',
     'livenotification',
     function($scope, $log, $timeout, userNotificationAPI, userNotificationCounter, livenotification) {
-      // TODO resolve readCount with getList here or in app.js
       $scope.unreadCount = userNotificationCounter;
+      $scope.unreadCount.init();
 
       $scope.setAsRead = function(id) {
         $scope.unreadCount.decreaseBy(1);
@@ -116,7 +116,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
       templateUrl: '/views/modules/user-notification/templates/info-notification.html'
     };
   })
-  .factory('userNotificationCounter', ['CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function(CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
+  .factory('userNotificationCounter', ['$log', 'CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function($log, CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
     return new CounterFactory.newCounter(0, UNREAD_REFRESH_TIMER, userNotificationAPI.getUnreadCount);
   }])
   .directive('userNotificationPopover',
