@@ -152,7 +152,7 @@ function createMessageFromEmail(req, res) {
 
     if (email) {
       var targets = messageSharesToTimelineTarget(email.shares);
-      var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(email, 'email', req.user, targets);
+      var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(email, 'post', req.user, targets);
       localpubsub.topic('message:activity').publish(activity);
       globalpubsub.topic('message:activity').publish(activity);
       return res.json(201, { _id: email._id});
