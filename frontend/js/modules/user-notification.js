@@ -29,7 +29,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
           }, function(err) {
             $log.error('Error setting ' + id + ' as read: ' + err);
           })
-          .finally(function() {
+          .finally (function() {
             $scope.unreadCount.refresh();
           });
       };

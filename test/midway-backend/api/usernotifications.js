@@ -487,30 +487,30 @@ describe('The user notification API', function() {
 
   describe('/api/user/notifications/unread', function() {
 
-    it('should return 401 when not authenticated', function (done) {
+    it('should return 401 when not authenticated', function(done) {
       request(app)
         .get('/api/user/notifications/unread')
         .expect(401)
         .end(done);
     });
 
-    it('should return 200 and the unread count if it success', function (done) {
+    it('should return 200 and the unread count if it success', function(done) {
       var self = this;
       async.series([
         saveNotification.bind(null, testuser1, false),
         saveNotification.bind(null, testuser1, false),
         saveNotification.bind(null, testuser1, true)
-      ], function (err) {
+      ], function(err) {
         if (err) {
           return done(err);
         }
-        self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function (err, requestAsMember) {
+        self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
           if (err) {
             return done(err);
           }
           requestAsMember(request(app).get('/api/user/notifications/unread'))
             .expect(200)
-            .end(function (err, result) {
+            .end(function(err, result) {
               expect(result.body.unread_count).to.equal(2);
               done();
             });
