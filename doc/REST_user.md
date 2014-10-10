@@ -465,6 +465,39 @@ This endpoint expects the request body to be either { value : true } or { value 
 
     HTTP/1.1 205 Reset content
 
+## PUT /api/user/notifications/read?ids=[]
+
+Mark each user notifications of id inside ids as read.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Request Body:**
+
+This endpoint expects the request body to be either { value : true } or { value : false } .
+
+**Status Codes:**
+
+- 205 Reset content
+- 400 Bad request
+- 401 Unauthorized
+- 404 Not found
+- 500 Internal server error
+
+**Request:**
+
+    PUT /api/user/notifications/read?ids[]=123456&ids[]=789
+    Accept: application/json
+    Host: localhost:8080
+    {
+        value: true
+    }
+
+**Response:**
+
+    HTTP/1.1 205 Reset content
+
 ## PUT /api/user/notifications/:uuid/acknowledged
 
 Mark the user notification of id :uuid as acknowledged.
