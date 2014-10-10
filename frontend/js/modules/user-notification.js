@@ -150,6 +150,9 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
               } else {
                 element.width(width - 10);
                 nbItems = Math.floor(popoverMaxHeight / USER_NOTIFICATION_ITEM_HEIGHT);
+                if (nbItems === 0) {
+                  nbItems = 1;
+                }
               }
 
               if (!loaded) {
