@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user-notification', [])
+angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -8,25 +8,97 @@ angular.module('esn.user-notification', [])
   .constant('POPOVER_TITLE_HEIGHT', 35)
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
-  .controller('userNotificationController', ['$scope', function($scope) {
+
+    .controller('userNotificationController', ['$scope', 'userNotificationAPI', function($scope, userNotificationAPI) {
+    }])
+
+    .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
+
+    $scope.loading = false;
+    $scope.error = false;
+    $scope.notifications = [];
+    $scope.totalNotifications = 0;
+    $scope.display = false;
     $scope.popoverObject = {
-      open: false,
-      currentItems: []
+      open: false
     };
+
     $scope.togglePopover = function() {
       $scope.popoverObject.open = !$scope.popoverObject.open;
     };
 
-    $scope.items = [];
+    $scope.updateData = function(err, items, total, page) {
+      if (err) {
+        $scope.error = true;
+      } else {
+        if (items) {
+          $scope.notifications = items;
+        }
+        if (total) {
+          $scope.totalNotifications = total;
+        }
+        $scope.currentPageNb = page + 1;
+        $scope.lastPageNb = Math.ceil($scope.totalNotifications / (items.length || 1));
+      }
+    };
+
+    $scope.initPager = function(nbItemsPerPage) {
+      $scope.pager = paginator(nbItemsPerPage, {
+        getItems: function(offset, limit, callback) {
+          $scope.error = false;
+          var options = {limit: limit, offset: offset, read: false};
+          $scope.loading = true;
+          userNotificationAPI.list(options).then(function(response) {
+            return callback(null, response.data, response.headers('X-ESN-Items-Count'));
+          }, function(err) {
+            return callback(err);
+          }).finally (function() {
+            $scope.loading = false;
+          });
+        }
+      });
+      $scope.pager.currentPage($scope.updateData);
+    };
+
+    $scope.nextPage = function() {
+      return $scope.pager.nextPage($scope.updateData);
+    };
+
+    $scope.previousPage = function() {
+      return $scope.pager.previousPage($scope.updateData);
+    };
   }])
+  .directive('notificationTemplateDisplayer', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/notificationTemplateDisplayer.html'
+    };
+  })
+  .directive('infoNotification', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/templates/info-notification.html'
+    };
+  })
   .directive('userNotificationPopover',
   ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
     function($timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
       return {
         restrict: 'A',
         link: function(scope, element, attrs) {
+
+          var loaded = false;
           function hidePopover() {
             if (scope.$hide) {
+              loaded = false;
               scope.popoverObject.open = false;
               scope.$hide();
               scope.$apply();
@@ -70,11 +142,11 @@ angular.module('esn.user-notification', [])
                 nbItems = Math.floor(popoverMaxHeight / USER_NOTIFICATION_ITEM_HEIGHT);
               }
 
-              if (scope.items.length > nbItems) {
-                scope.popoverObject.currentItems = scope.items.slice(0, nbItems);
-              } else {
-                scope.popoverObject.currentItems = scope.items;
+              if (!loaded) {
+                scope.initPager(nbItems);
+                loaded = true;
               }
+
               isResizing = false;
             }
 
@@ -95,5 +167,14 @@ angular.module('esn.user-notification', [])
             angular.element($window).off('resize', onResize);
           });
         }
+      };
+    }])
+    .factory('userNotificationAPI', ['Restangular', function(Restangular) {
+      function list(options) {
+        return Restangular.one('user').all('notifications').getList(options);
+      }
+
+      return {
+        list: list
       };
     }]);

@@ -30,9 +30,22 @@ describe('The esn.user-notification Angular module', function() {
       }
     };
 
+    var userNotificationAPI = {
+      list: function() {
+        return {
+          then: function() {
+            return {
+              finally: function() {}
+            };
+          }
+        };
+      }
+    };
+
     beforeEach(function() {
       angular.mock.module(function($provide) {
         $provide.value('$window', $window);
+        $provide.value('userNotificationAPI', userNotificationAPI);
       });
       angular.mock.inject(function($compile, $rootScope, $timeout) {
         this.$compile = $compile;
@@ -48,7 +61,7 @@ describe('The esn.user-notification Angular module', function() {
       $window.outerHeight = portraitInnerHeightUrlBar;
       $window.screen.availWidth = portraitWidth;
       $window.screen.availHeight = portraitScreenHeight;
-      var html = '<div ng-controller="userNotificationController"><div id="test" user-notification-popover></div></div>';
+      var html = '<div ng-controller="userNotificationPopoverController"><div id="test" user-notification-popover></div></div>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       var divElement = element.find('#test');
@@ -77,7 +90,7 @@ describe('The esn.user-notification Angular module', function() {
       $window.outerHeight = portraitInnerHeightUrlBar;
       $window.screen.availWidth = portraitWidth;
       $window.screen.availHeight = portraitScreenHeight;
-      var html = '<div ng-controller="userNotificationController"><div id="test" user-notification-popover></div></div>';
+      var html = '<div ng-controller="userNotificationPopoverController"><div id="test" user-notification-popover></div></div>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       var divElement = element.find('#test');
@@ -104,7 +117,7 @@ describe('The esn.user-notification Angular module', function() {
       $window.outerHeight = portraitInnerHeightUrlBar;
       $window.screen.availWidth = portraitWidth;
       $window.screen.availHeight = portraitScreenHeight;
-      var html = '<div ng-controller="userNotificationController"><div id="test" user-notification-popover></div></div>';
+      var html = '<div ng-controller="userNotificationPopoverController"><div id="test" user-notification-popover></div></div>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
       var divElement = element.find('#test');
@@ -122,6 +135,147 @@ describe('The esn.user-notification Angular module', function() {
       this.$rootScope.$digest();
       this.$timeout.flush();
       expect(divElement.height()).to.equal(elementHeight);
+    });
+  });
+
+  describe('The userNotificationAPI factory', function() {
+
+    beforeEach(angular.mock.inject(function(userNotificationAPI, $httpBackend) {
+      this.$httpBackend = $httpBackend;
+      this.userNotificationAPI = userNotificationAPI;
+    }));
+
+    describe('list fn', function() {
+
+      it('should send a request to /user/notifications', function() {
+        this.$httpBackend.expectGET('/user/notifications').respond([]);
+        this.userNotificationAPI.list();
+        this.$httpBackend.flush();
+      });
+
+      it('should send a request to /user/notifications?limit=10&offset=2&read=false', function() {
+        this.$httpBackend.expectGET('/user/notifications?limit=10&offset=2&read=false').respond([]);
+        var options = {
+          limit: 10,
+          offset: 2,
+          read: false
+        };
+        this.userNotificationAPI.list(options);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.userNotificationAPI.list();
+        expect(promise.then).to.be.a.function;
+      });
+    });
+  });
+
+  describe('The userNotificationPopoverController controller', function() {
+
+    beforeEach(inject(function($rootScope, $controller, $q) {
+      this.getItems = function() {};
+      var self = this;
+      this.userNotificationAPI = {};
+      this.paginator = function() {
+        return {
+          getItems: self.getItems
+        };
+      };
+      this.rootScope = $rootScope;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+
+      $controller('userNotificationPopoverController', {
+        $scope: this.scope,
+        userNotificationAPI: this.userNotificationAPI,
+        paginator: this.paginator
+      });
+    }));
+
+    describe('nextPage()', function() {
+      it('should call the pager', function(done) {
+        this.getItems = done();
+        this.scope.nextPage();
+      });
+    });
+
+    describe('previousPage()', function() {
+      it('should call the pager', function(done) {
+        this.getItems = done();
+        this.scope.previousPage();
+      });
+    });
+
+    describe('initPager()', function() {
+      beforeEach(inject(function($rootScope, $controller, $q, paginator) {
+        this.userNotificationAPI = {};
+        this.rootScope = $rootScope;
+        this.$q = $q;
+        this.scope = $rootScope.$new();
+        this.paginator = paginator;
+
+        $controller('userNotificationPopoverController', {
+          $scope: this.scope,
+          userNotificationAPI: this.userNotificationAPI,
+          paginator: this.paginator
+        });
+      }));
+
+      it('should update local notifications request success', function(done) {
+        var array = [1, 2, 3];
+        var size = 103;
+
+        var defer = this.$q.defer();
+        this.userNotificationAPI.list = function(options) {
+          return defer.promise;
+        };
+
+        defer.resolve({data: array, headers: function() {
+          return size;
+        }});
+
+        this.scope.initPager();
+        this.scope.$digest();
+        expect(this.scope.notifications).to.deep.equal(array);
+        expect(this.scope.totalNotifications).to.equal(size);
+        done();
+      });
+
+      it('should define the pagination page based on response data', function(done) {
+        var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        var size = 101;
+
+        var defer = this.$q.defer();
+        this.userNotificationAPI.list = function(options) {
+          return defer.promise;
+        };
+
+        defer.resolve({data: array, headers: function() {
+          return size;
+        }});
+
+        this.scope.initPager(10);
+        this.scope.$digest();
+
+        expect(this.scope.currentPageNb).to.equal(1);
+        expect(this.scope.lastPageNb).to.equal(11);
+
+        done();
+      });
+
+      it('should set error on request failure', function(done) {
+        var defer = this.$q.defer();
+        this.userNotificationAPI.list = function(options) {
+          return defer.promise;
+        };
+
+        defer.reject(new Error());
+        this.scope.initPager(1);
+        this.scope.$digest();
+        expect(this.scope.error).to.be.true;
+        done();
+      });
     });
   });
 });

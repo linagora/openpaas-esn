@@ -1,17 +1,21 @@
 .popover(tabindex="-1" user-notification-popover)
   .arrow
   .popover-title #{__('Notifications')}
-    a.pull-right(href="/#") #{__('Mark as read')}
+    a.pull-right(href="#", ng-show="notifications.length") #{__('Mark as read')}
   .popover-content
     ul.nav.nav-pills.nav-stacked
-      li.popover-item.read.text-center(ng-show="!items.length") #{__('You have no notification.')}
-      li.popover-item(ng-repeat="item in popoverObject.currentItems" ng-hide="!items.length")
-        div
+      li.popover-item.read.text-center(ng-show="!notifications.length && !loading") #{__('You have no notification.')}
+      li.popover-item.read.text-center(ng-show="error && !loading") #{__('Error while getting notifications')}.
+      li.popover-item.read.text-center(ng-show="!notifications.length && loading")
+        i.fa.fa-cog.fa-spin
+        | #{__('Loading notifications')}...
+      li.popover-item(ng-repeat="notification in notifications")
+        notification-template-displayer(notification='notification')
       li.divider.nopadding
-      li.popover-pager
+      li.popover-pager(ng-show="lastPageNb > 0")
         ul.pager
-          li.pull-left.popover-pager
-            a(href="#" ng-hide="true") #{__('Previous')}
-          li.popover-pager(ng-hide="true") 1 / 1
-          li.pull-right.popover-pager
-            a(href="#" ng-hide="true") #{__('Next')}
+          li.pull-left.popover-pager(ng-hide="currentPageNb === 1" ng-class="{ disabled : loading}" class="ng-scope")
+            a(href="" ng-click="previousPage()" class="ng-binding") #{__('Previous')}
+          li.popover-pager.textcenter {{currentPageNb}} / {{lastPageNb}}
+          li.pull-right.popover-pager(ng-hide="currentPageNb === lastPageNb" ng-class="{ disabled : loading}" class="ng-scope")
+            a(href="" ng-click="nextPage()", ng-class="ng-binding") #{__('Next')}
