@@ -5,7 +5,7 @@
 
 @grey: #eff0f4;
 @light-grey: #f8f8f8;
-@dark-grey: #adadad;
+@dark-grey: #5C5C5C;
 @blue: #4982eb;
 @secondary-blue: #428BCA;
 @yellow: #eecb25;
@@ -256,6 +256,14 @@ body {
   .ResizeImage(100%, auto);
   .btn.btn-primary {
     width: 100%;
+    margin-bottom: 20px;
+  }
+  .cancel-request-membership {
+    text-align: center;
+    >div {
+      color: @dark-grey;
+      font-style: italic;
+    }
   }
   @media (min-width: 992px) {
     .ResizeImage(@defaultImageSizeBig, auto);
