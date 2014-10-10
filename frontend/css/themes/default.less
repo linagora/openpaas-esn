@@ -218,9 +218,21 @@ body {
 }
 
 .esn-home-container {
-  .container {
-    padding: 0;
+  .container-fluid {
+    padding: 0px 10px 0px 10px;
   }
+}
+
+@media (min-width: @screen-md-min) {
+  .esn-home-container {
+    .container-fluid {
+      padding: 0px 30px 0px 30px;
+    }
+  }
+}
+
+.esn-component-container {
+  padding: 0;
 }
 
 .esn-member {
