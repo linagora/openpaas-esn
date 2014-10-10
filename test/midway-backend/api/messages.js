@@ -15,12 +15,14 @@ describe('The messages API', function() {
   var password = 'secret';
   var email = 'foo@bar.com';
   var restrictedEmail = 'restricted@bar.com';
+  var message1, message2;
 
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
       app = require(self.testEnv.basePath + '/backend/webserver/application');
       self.mongoose = require('mongoose');
+      var Whatsup = require(self.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
       var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
       var Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
       var Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
@@ -52,10 +54,27 @@ describe('The messages API', function() {
         type: 'restricted'
       });
 
+      message1 = new Whatsup({
+        content: 'message 1'
+      });
+
+      message2 = new Whatsup({
+        content: 'message 2'
+      });
+
       function saveUser(user, cb) {
         user.save(function(err, saved) {
           if (saved) {
             user._id = saved._id;
+          }
+          return cb(err, saved);
+        });
+      }
+
+      function saveMessage(message, cb) {
+        message.save(function(err, saved) {
+          if (saved) {
+            message._id = saved._id;
           }
           return cb(err, saved);
         });
@@ -89,6 +108,14 @@ describe('The messages API', function() {
         },
         function(callback) {
           saveCommunity(community, domain, callback);
+        },
+        function(callback) {
+          message1.author = testuser._id;
+          saveMessage(message1, callback);
+        },
+        function(callback) {
+          message2.author = restrictedUser._id;
+          saveMessage(message2, callback);
         },
         function(callback) {
           restrictedCommunity.members = [
@@ -546,6 +573,42 @@ describe('The messages API', function() {
             });
           });
         });
+      });
+    });
+  });
+
+  it('should expand authors when retrieving multiple messages', function(done) {
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + message2._id));
+      req.expect(200);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        console.log(res.body);
+        expect(res.body).to.be.an.array;
+        expect(res.body.length).to.equal(2);
+        expect(res.body[0].author).to.be.an('object');
+        expect(res.body[0].author._id).to.equal(testuser._id.toString());
+        expect(res.body[1].author).to.be.an('object');
+        expect(res.body[1].author._id).to.equal(restrictedUser._id.toString());
+        done();
+      });
+    });
+  });
+
+  it('should expand authors when retrieving a single message', function(done) {
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages/' + message1._id));
+      req.expect(200);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.an('object');
+        expect(res.body.author).to.be.an('object');
+        expect(res.body.author._id).to.equal(testuser._id.toString());
+        done();
       });
     });
   });
