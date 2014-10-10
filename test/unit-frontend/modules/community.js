@@ -2176,6 +2176,40 @@ describe('The Community Angular module', function() {
       expect(iscope.error).to.be.true;
       done();
     });
+
+    it('should call the API when community:join event is received', function(done) {
+      var call = 0;
+      this.communityAPI.getMembers = function() {
+        if (call === 1) {
+          return done();
+        }
+        call++;
+        return {
+          then: function() {}
+        };
+      };
+
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      this.$rootScope.$emit('community:join', {data: 'fake'});
+    });
+
+    it('should call the API when community:leave event is received', function(done) {
+      var call = 0;
+      this.communityAPI.getMembers = function() {
+        if (call === 1) {
+          return done();
+        }
+        call++;
+        return {
+          then: function() {}
+        };
+      };
+
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      this.$rootScope.$emit('community:leave', {data: 'fake'});
+    });
   });
 
   describe('The communityMemberAvatar directive', function() {

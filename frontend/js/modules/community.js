@@ -811,7 +811,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       }
     };
   }])
-  .directive('communityMembersWidget', ['communityAPI', function(communityAPI) {
+  .directive('communityMembersWidget', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -820,14 +820,22 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       },
       templateUrl: '/views/modules/community/community-members-widget.html',
       controller: function($scope) {
+
         $scope.error = false;
-        communityAPI.getMembers($scope.community._id, {limit: 16}).then(function(result) {
-          $scope.members = result.data;
-          var total = parseInt(result.headers('X-ESN-Items-Count'));
-          $scope.more = total - $scope.members.length;
-        }, function() {
-          $scope.error = true;
-        });
+
+        $scope.updateMembers = function() {
+          communityAPI.getMembers($scope.community._id, {limit: 16}).then(function(result) {
+            $scope.members = result.data;
+            var total = parseInt(result.headers('X-ESN-Items-Count'));
+            $scope.more = total - $scope.members.length;
+          }, function() {
+            $scope.error = true;
+          });
+        };
+
+        $rootScope.$on('community:join', $scope.updateMembers);
+        $rootScope.$on('community:leave', $scope.updateMembers);
+        $scope.updateMembers();
       }
     };
   }])
