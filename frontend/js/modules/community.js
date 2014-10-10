@@ -73,6 +73,14 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
     function($rootScope, $scope, $location, $timeout, $log, $alert, session, communityAPI, $upload, selectionService) {
     selectionService.clear();
+    var alertInstance;
+
+    function destroyAlertInstance() {
+      if (alertInstance) {
+        alertInstance.destroy();
+        alertInstance = null;
+      }
+    }
 
     var initScope = function() {
       $scope.step = 0;
@@ -94,7 +102,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     };
     initScope();
 
-    $rootScope.$on('crop:loaded', function() {
+    $scope.$on('crop:loaded', function() {
       $scope.imageselected = true;
       $scope.imagevalidated = false;
       $scope.$apply();
@@ -159,17 +167,19 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         container: '#communityerror'
       });
     };
-
+    $scope.$on('crop:reset', function() {
+      destroyAlertInstance();
+      selectionService.clear();
+    });
     $scope.$on('crop:error', function(context, error) {
       if (error) {
-        $alert({
+        alertInstance = $alert({
           title: 'Error',
           content: error,
           type: 'danger',
           show: true,
           position: 'bottom',
           container: '#error',
-          duration: '3',
           animation: 'am-fade'
         });
       }
@@ -562,10 +572,13 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-create.html',
+      scope: true,
       link: function($scope) {
-        $scope.createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal', show: false});
+        $scope.$on('modal.hide', function(evt, modal) {
+          modal.destroy();
+        });
         $scope.showCreateModal = function() {
-          $scope.createModal.$promise.then($scope.createModal.show);
+          $modal({scope: $scope, template: '/views/modules/community/community-create-modal'});
         };
       }
     };

@@ -6,6 +6,15 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
     selectionService.clear();
     var createModal = $modal({scope: $scope, template: '/views/modules/profile/avatar-edit-modal.html', show: false, backdrop: 'static', keyboard: false});
+    var alertInstance;
+
+    function destroyAlertInstance() {
+      if (alertInstance) {
+        alertInstance.destroy();
+        alertInstance = null;
+      }
+    }
+
     $scope.showAvatarEditModal = function() {
       $scope.initUploadContext();
       createModal.$promise.then(createModal.show);
@@ -65,24 +74,30 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
     };
 
     $scope.$on('crop:loaded', function() {
+      destroyAlertInstance();
       $scope.initUploadContext();
       $scope.preview = true;
       $scope.$apply();
     });
 
     $scope.$on('crop:error', function(context, error) {
+      destroyAlertInstance();
       if (error) {
-        $alert({
+        alertInstance = $alert({
           title: 'Error',
           content: error,
           type: 'danger',
           show: true,
           position: 'bottom',
           container: '#error',
-          duration: '3',
           animation: 'am-fade'
         });
       }
+    });
+
+    $scope.$on('crop:reset', function() {
+      destroyAlertInstance();
+      selectionService.clear();
     });
 
     $scope.initUploadContext();
@@ -127,6 +142,10 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
   sharedService.setError = function(error) {
     this.error = error;
     $rootScope.$broadcast('crop:error', error);
+  };
+
+  sharedService.reset = function() {
+    $rootScope.$broadcast('crop:reset');
   };
 
   sharedService.broadcastSelection = function(x) {
@@ -188,6 +207,9 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       var canvas = element[0];
       canvas.width = canvas.height = AVATAR_MIN_SIZE_PX;
       var ctx = canvas.getContext('2d');
+      $scope.$on('crop:reset', function() {
+        canvas.width = canvas.width;
+      });
       $scope.$on('crop:selected', function(context, data) {
         var selection = data.cords;
         var ratio = data.ratio || 1;
@@ -220,7 +242,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           myImg = undefined;
         }
       };
-
+      scope.$on('crop:reset', clear);
       scope.$on('crop:loaded', function() {
         clear();
         var image = selectionService.getImage();
@@ -272,7 +294,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         element.bind('change', function(evt) {
           evt.stopPropagation();
           evt.preventDefault();
-
+          selectionService.reset();
           var file = evt.dataTransfer !== undefined ? evt.dataTransfer.files[0] : evt.target.files[0];
           if (!file || !file.type.match(/^image\//)) {
             selectionService.setError('Wrong file type, please select a valid image');
@@ -290,8 +312,8 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
                     var imgHeight = image.naturalHeight,
                         imgWidth = image.naturalWidth;
                     if (imgHeight < AVATAR_MIN_SIZE_PX || imgWidth < AVATAR_MIN_SIZE_PX) {
-                      selectionService.setError('Image dimensions are to small: got ' + imgWidth + 'x' + imgHeight +
-                                                'px, minimum is ' + AVATAR_MIN_SIZE_PX + 'x' + AVATAR_MIN_SIZE_PX + 'px');
+                      selectionService.setError('This image is too small, please select a picture with a minimum size of ' +
+                                                AVATAR_MIN_SIZE_PX + 'x' + AVATAR_MIN_SIZE_PX + 'px');
                     } else {
                       selectionService.setError();
                       selectionService.setImage(image);
@@ -306,4 +328,3 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       }
     };
   }]);
-
