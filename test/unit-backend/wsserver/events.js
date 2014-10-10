@@ -4,131 +4,65 @@ var mockery = require('mockery');
 
 describe('The WebSockets Event module', function() {
 
+  var io = {
+    sockets: {
+      on: function() {}
+    }
+  };
+
+  var initMock = function(callback) {
+    return {
+      init: function() { if (callback) { callback(); } }
+    };
+  };
+
   it('should initialize the activitystreams event', function(done) {
-    var io = {
-      sockets: {
-        on: function() {}
-      }
-    };
-
-    var activitystreamsMock = {
-      init: function() {
-        done();
-      }
-    };
-    mockery.registerMock('./notification/activitystreams', activitystreamsMock);
-
-    var conferencesMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/conferences', conferencesMock);
-
-    var notificationsMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/notifications', notificationsMock);
-
-    var communityMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/community', communityMock);
+    mockery.registerMock('./notification/activitystreams', initMock(done));
+    mockery.registerMock('./notification/conferences', initMock());
+    mockery.registerMock('./notification/notifications', initMock());
+    mockery.registerMock('./notification/usernotifications', initMock());
+    mockery.registerMock('./notification/community', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
 
   it('should initialize the conferences event', function(done) {
-    var io = {
-      sockets: {
-        on: function() {}
-      }
-    };
-
-    var activitystreamsMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/activitystreams', activitystreamsMock);
-
-    var conferencesMock = {
-      init: function() {
-        done();
-      }
-    };
-    mockery.registerMock('./notification/conferences', conferencesMock);
-
-    var notificationsMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/notifications', notificationsMock);
-
-    var communityMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/community', communityMock);
+    mockery.registerMock('./notification/activitystreams', initMock());
+    mockery.registerMock('./notification/conferences', initMock(done));
+    mockery.registerMock('./notification/notifications', initMock());
+    mockery.registerMock('./notification/usernotifications', initMock());
+    mockery.registerMock('./notification/community', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
 
 
   it('should initialize the notifications event', function(done) {
-    var io = {
-      sockets: {
-        on: function() {}
-      }
-    };
-
-    var activitystreamsMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/activitystreams', activitystreamsMock);
-
-    var conferencesMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/conferences', conferencesMock);
-
-    var notificationsMock = {
-      init: function() {
-        done();
-      }
-    };
-    mockery.registerMock('./notification/notifications', notificationsMock);
-
-    var communityMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/community', communityMock);
+    mockery.registerMock('./notification/activitystreams', initMock());
+    mockery.registerMock('./notification/conferences', initMock());
+    mockery.registerMock('./notification/notifications', initMock(done));
+    mockery.registerMock('./notification/usernotifications', initMock());
+    mockery.registerMock('./notification/community', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
 
   it('should initialize the community event', function(done) {
-    var io = {
-      sockets: {
-        on: function() {}
-      }
-    };
+    mockery.registerMock('./notification/activitystreams', initMock());
+    mockery.registerMock('./notification/conferences', initMock());
+    mockery.registerMock('./notification/notifications', initMock());
+    mockery.registerMock('./notification/usernotifications', initMock(done));
+    mockery.registerMock('./notification/community', initMock());
 
-    var activitystreamsMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/activitystreams', activitystreamsMock);
+    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+  });
 
-    var conferencesMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/conferences', conferencesMock);
-
-    var notificationsMock = {
-      init: function() {}
-    };
-    mockery.registerMock('./notification/notifications', notificationsMock);
-
-    var communityMock = {
-      init: function() {
-        done();
-      }
-    };
-    mockery.registerMock('./notification/community', communityMock);
+  it('should initialize the usernotifications event', function(done) {
+    mockery.registerMock('./notification/activitystreams', initMock());
+    mockery.registerMock('./notification/conferences', initMock());
+    mockery.registerMock('./notification/notifications', initMock());
+    mockery.registerMock('./notification/usernotifications', initMock());
+    mockery.registerMock('./notification/community', initMock(done));
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });

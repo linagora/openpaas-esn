@@ -3,6 +3,7 @@
 var logger = require('../core/logger'),
     activitystreams = require('./notification/activitystreams'),
     notifications = require('./notification/notifications'),
+    usernotifications = require('./notification/usernotifications'),
     conferences = require('./notification/conferences'),
     community = require('./notification/community');
 
@@ -13,5 +14,6 @@ module.exports = function(io) {
   activitystreams.init(io);
   conferences.init(io);
   notifications.init(io);
+  usernotifications.init(io);
   community.init(io);
 };

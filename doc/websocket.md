@@ -12,6 +12,10 @@ This documents sums up every websockets opened between a browser and the ESN.
                  Several rooms (of name conference_id) are created for each new
                  conferences.
 
+- /usernotifications : Forward 'usernotification:created' messages from the globalpubsub to the wsserver.
+                       It is used to send usernotification.
+
+
 ## Events
 
 - notification. Fired each time a new notification is sent after subscribing to a chosen room, for a given namespace.
