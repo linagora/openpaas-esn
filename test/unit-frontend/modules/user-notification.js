@@ -9,6 +9,51 @@ describe('The esn.user-notification Angular module', function() {
     angular.mock.module('esn.user-notification');
   });
 
+  describe('userNotificationAPI service', function() {
+
+    beforeEach(inject(function(userNotificationAPI, $httpBackend) {
+      this.api = userNotificationAPI;
+      this.$httpBackend = $httpBackend;
+    }));
+
+    describe('setRead method', function() {
+      it('should exist', function() {
+        expect(this.api).to.respondTo('setRead');
+      });
+
+      it('should send a request PUT /user/notifications/123456789/read', function() {
+        this.$httpBackend.expectPUT('/user/notifications/123456789/read').respond([]);
+        this.api.setRead(123456789, true);
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('setAcknowledged method', function() {
+      it('should exist', function() {
+        expect(this.api).to.respondTo('setAcknowledged');
+      });
+
+      it('should send a request PUT /user/notifications/123456789/acknowledged', function() {
+        this.$httpBackend.expectPUT('/user/notifications/123456789/acknowledged').respond([]);
+        this.api.setAcknowledged(123456789, true);
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('getUnreadCount method', function() {
+      it('should exist', function() {
+        expect(this.api).to.respondTo('getUnreadCount');
+      });
+
+      it('should send a request GET /user/notifications/unread', function() {
+        this.$httpBackend.expectGET('/user/notifications/unread').respond([]);
+        this.api.getUnreadCount();
+        this.$httpBackend.flush();
+      });
+    });
+
+  });
+
   describe('userNotificationPopover directive', function() {
     var portraitWidth = 360;
     var landscapeWidth = 640;

@@ -618,4 +618,45 @@ describe('The user notifications controller', function() {
     });
   });
 
+  describe('getUnreadCount method', function() {
+
+    it('should return 500 if module.countForUser return an error', function(done) {
+      var userNotificationModuleMocked = {
+        countForUser: function(user, query, callback) {
+          callback(new Error());
+        }
+      };
+      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var res = {
+        json: function(code, message) {
+          expect(code).to.equal(500);
+          expect(message.error).to.exists;
+          expect(message.error.status).to.equal(500);
+          expect(message.error.details).to.exists;
+          done();
+        }
+      };
+      controller.getUnreadCount({}, res);
+    });
+
+    it('should return 200 and unread_count if module.countForUser is a success', function(done) {
+      var userNotificationModuleMocked = {
+        countForUser: function(user, query, callback) {
+          callback(null, 42);
+        }
+      };
+      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var res = {
+        json: function(code, body) {
+          expect(code).to.equal(200);
+          expect(body.unread_count).to.equal(42);
+          done();
+        }
+      };
+      controller.getUnreadCount({}, res);
+    });
+  });
+
 });

@@ -3,6 +3,19 @@
 var notificationModule = require('../../core/notification/user');
 var logger = require('../../core/logger');
 
+function getUnreadCount(req, res) {
+  var query = {
+    read: false
+  };
+  notificationModule.countForUser(req.user, query, function(err, count) {
+    if (err) {
+      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot get unread notification for current user: ' + err.message}});
+    }
+    return res.json(200, { unread_count: count });
+  });
+}
+module.exports.getUnreadCount = getUnreadCount;
+
 module.exports.list = function(req, res) {
   var user = req.user;
 

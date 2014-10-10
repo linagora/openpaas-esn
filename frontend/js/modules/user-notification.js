@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
+angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 50)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -8,11 +8,39 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
   .constant('POPOVER_TITLE_HEIGHT', 35)
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
+  .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
+  .controller('userNotificationController', [
+    '$scope',
+    '$log',
+    '$timeout',
+    'userNotificationAPI',
+    'userNotificationCounter',
+    'livenotification',
+    function($scope, $log, $timeout, userNotificationAPI, userNotificationCounter, livenotification) {
+      $scope.unreadCount = userNotificationCounter;
+      $scope.unreadCount.init();
 
-    .controller('userNotificationController', ['$scope', 'userNotificationAPI', function($scope, userNotificationAPI) {
-    }])
+      $scope.setAsRead = function(id) {
+        $scope.unreadCount.decreaseBy(1);
+        userNotificationAPI
+          .setRead(id, true)
+          .then(function() {
+            $log.debug('Successfully setting ' + id + ' as read');
+          }, function(err) {
+            $log.error('Error setting ' + id + ' as read: ' + err);
+          })
+          .finally (function() {
+            $scope.unreadCount.refresh();
+          });
+      };
 
-    .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
+      livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
+      $scope.$on('$destroy', function() {
+        livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
+      });
+    }
+  ])
+  .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
 
     $scope.loading = false;
     $scope.error = false;
@@ -75,7 +103,7 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/notificationTemplateDisplayer.html'
+      templateUrl: '/views/modules/user-notification/notification-template-displayer.html'
     };
   })
   .directive('infoNotification', function() {
@@ -88,6 +116,9 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
       templateUrl: '/views/modules/user-notification/templates/info-notification.html'
     };
   })
+  .factory('userNotificationCounter', ['$log', 'CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function($log, CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
+    return new CounterFactory.newCounter(0, UNREAD_REFRESH_TIMER, userNotificationAPI.getUnreadCount);
+  }])
   .directive('userNotificationPopover',
   ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
     function($timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
@@ -169,12 +200,27 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate'])
         }
       };
     }])
-    .factory('userNotificationAPI', ['Restangular', function(Restangular) {
-      function list(options) {
-        return Restangular.one('user').all('notifications').getList(options);
-      }
+  .factory('userNotificationAPI', ['Restangular', function(Restangular) {
+    function list(options) {
+      return Restangular.one('user').all('notifications').getList(options);
+    }
 
-      return {
-        list: list
-      };
-    }]);
+    function setRead(id, read) {
+      return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
+    }
+
+    function setAcknowledged(id, acknowledged) {
+      return Restangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
+    }
+
+    function getUnreadCount() {
+      return Restangular.one('user').one('notifications').one('unread').get();
+    }
+
+    return {
+      list: list,
+      setRead: setRead,
+      setAcknowledged: setAcknowledged,
+      getUnreadCount: getUnreadCount
+    };
+  }]);
