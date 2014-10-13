@@ -52,6 +52,9 @@
     "openpaas-logo": "0.6.0",
     "ngGeolocation": "~0.0.4",
     "angular-leaflet-directive": "~0.7.8",
-    "leaflet": "~0.7.3"
+    "leaflet": "~0.7.3",
+    "angular-sanitize": "~1.2.24",
+    "fullcalendar": "~2.1.1",
+    "angular-ui-calendar": "~0.8.1"
   }
 }

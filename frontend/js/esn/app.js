@@ -185,6 +185,10 @@ angular.module('esnApp', [
       }
     });
 
+    $routeProvider.when('/communities/:community_id/calendar', {
+      templateUrl: '/views/modules/community/community-calendar'
+    });
+
     $routeProvider.otherwise({redirectTo: '/'});
 
     RestangularProvider.setBaseUrl('/api');

@@ -31,6 +31,8 @@ module.exports = function(config) {
       'frontend/components/angular-sanitize/angular-sanitize.min.js',
       'frontend/components/angular-leaflet-directive/dist/angular-leaflet-directive.js',
       'frontend/components/ngGeolocation/ngGeolocation.min.js',
+      'frontend/components/angular-ui-calendar/src/calendar.js',
+      'frontend/components/fullcalendar/dist/fullcalendar.min.js',
       'node_modules/easyrtc/api/easyrtc.js',
       'node_modules/async/lib/async.js',
       'node_modules/chai-jquery/chai-jquery.js',
