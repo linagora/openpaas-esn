@@ -1,6 +1,24 @@
 'use strict';
 
 angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
+  .controller('messageEditionController', ['$scope', function($scope) {
+    var types = ['whatsup', 'event'];
+    $scope.type = types[0];
+    $scope.show = function(type) {
+      if (types.indexOf(type) >= 0) {
+        $scope.type = type;
+      } else {
+        $scope.type = types[0];
+      }
+    };
+  }])
+  .directive('messageEdition', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/messageEdition.html'
+    };
+  })
   .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, geoAPI) {
 
     $scope.rows = 1;
