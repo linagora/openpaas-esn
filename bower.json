@@ -55,6 +55,7 @@
     "leaflet": "~0.7.3",
     "angular-sanitize": "~1.2.24",
     "fullcalendar": "~2.1.1",
-    "angular-ui-calendar": "~0.8.1"
+    "angular-ui-calendar": "~0.8.1",
+    "ical.js": "https://github.com/mozilla-comm/ical.js.git#~0.0.2"
   }
 }
