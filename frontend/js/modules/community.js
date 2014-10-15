@@ -575,10 +575,11 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       scope: true,
       link: function($scope) {
         $scope.$on('modal.hide', function(evt, modal) {
+          $scope.createModal = null;
           modal.destroy();
         });
         $scope.showCreateModal = function() {
-          $modal({scope: $scope, template: '/views/modules/community/community-create-modal'});
+          $scope.createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal'});
         };
       }
     };
