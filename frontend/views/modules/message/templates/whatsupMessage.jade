@@ -1,11 +1,14 @@
-div
-  h4.media-heading
-    a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-    small
-      | &nbsp;-&nbsp;
-      a(href="/#messages/{{message._id}}")
-        span(am-time-ago="message.published")
-
-  display-position(position='message.position')
-
-  p.multilines {{message.content}}
+div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
+  a.pull-left.message-avatar(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  div.media-body
+    div
+      h4.media-heading
+        a(href="#") {{message.author.firstname}} {{message.author.lastname}}
+        a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}")
+          small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
+      display-position(position='message.position')
+      p.multilines {{message.content}}
+    include ./includes/messagesBottomLinks
+    include ./includes/attachments.jade
+    include ./includes/comments.jade

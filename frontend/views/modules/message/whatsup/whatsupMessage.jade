@@ -9,4 +9,4 @@ div.inner-widget
         a(href="/#messages/{{message._id}}")
           span(am-time-ago="message.published")
     p.multilines(ng-bind-html="message.content | linky:'_blank'")
-    include ../messagesBottomLinks
+    include ../templates/includes/messagesBottomLinks

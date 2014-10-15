@@ -1,0 +1,37 @@
+div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
+  h3.media-heading
+      a(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}") {{event.title}}
+  a.pull-left.message-avatar(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+  div
+    a(href="#") {{message.author.firstname}} {{message.author.lastname}}
+    a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}")
+        small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
+    div.loading.text-center
+      div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner', spinner-size='0.3', spinner-start-active)
+      | Loading calendar event data, please wait...
+
+    div.hidden.message
+      div
+        p.multilines {{event.description}}
+      p
+        div.vertiz-space(style='background-color: #eff0f4')
+          div.text-center(style='color: #428bca')
+            strong(style='font-size: 1.1em') {{event.formattedDate}} from {{event.formattedStartTime}}&nbsp;
+              sup {{event.formattedStartA}}
+              |&nbsp; to {{event.formattedEndTime}}&nbsp;
+              sup {{event.formattedEndA}}
+            div.vertiz-space(style='color: #666' ng-show='event.location')
+              u Location :
+              | &nbsp;{{event.location}}
+            div.vertiz-space(style='color: #333')
+              strong Do you want to participate ?
+            div.vertiz-space(style='color: #428bca')
+              strong(style='padding: 0 1em') Yes
+              strong(style='padding: 0 1em') No
+              strong(style='padding: 0 1em') Maybe
+      include ./includes/messagesBottomLinks
+      include ./includes/attachments.jade
+      include ./includes/comments.jade
+    div.error.hidden
+      h4 Unable to get event details from server... sorry

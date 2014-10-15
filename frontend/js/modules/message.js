@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
+angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.caldav', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper'])
   .controller('messageEditionController', ['$scope', function($scope) {
     var types = ['whatsup', 'event'];
     $scope.type = types[0];
@@ -197,9 +197,11 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
     };
 
   }])
-  .controller('whatsupMessageDisplayController', function($scope, message) {
+  .controller('whatsupMessageDisplayController', ['$scope', 'message', '$routeParams', function($scope, message, $routeParams) {
     $scope.message = message;
-  })
+    $scope.parentMessage = true;
+    $scope.activitystreamUuid = $routeParams.asuuid;
+  }])
   .directive('whatsupMessage', function() {
     return {
       restrict: 'E',
@@ -214,6 +216,29 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
       templateUrl: '/views/modules/message/templates/emailMessage.html'
     };
   })
+  .directive('eventMessage', ['caldavAPI', 'moment', function(caldavAPI, moment) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/templates/eventMessage.html',
+      link: function(scope, element, attrs) {
+        caldavAPI.getEvent(scope.message.eventId)
+        .then(function(event) {
+          scope.event = event;
+          element.find('>div>div.loading').addClass('hidden');
+          element.find('>div>div.message').removeClass('hidden');
+          scope.event.formattedDate = moment(scope.event.startDate).format('MMMM D, YYYY');
+          scope.event.formattedStartTime = moment(scope.event.startDate).format('h');
+          scope.event.formattedStartA = moment(scope.event.startDate).format('a');
+          scope.event.formattedEndTime = moment(scope.event.endDate).format('h');
+          scope.event.formattedEndA = moment(scope.event.endDate).format('a');
+        }, function(err) {
+          element.find('>div.loading').addClass('hidden');
+          element.find('>div.error').removeClass('hidden');
+        });
+      }
+    };
+  }])
   .directive('whatsupEdition', function() {
     return {
       restrict: 'E',
@@ -238,17 +263,23 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
       templateUrl: '/views/modules/message/messagesDisplay.html'
     };
   })
-  .directive('messageTemplateDisplayer', function() {
+  .directive('messageTemplateDisplayer', ['RecursionHelper', function(RecursionHelper) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         message: '=',
-        writable: '='
+        writable: '=',
+        activitystreamUuid: '=',
+        lastPost: '=',
+        parentMessage: '='
       },
-      templateUrl: '/views/modules/message/messagesTemplateDisplayer.html'
+      templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
+      compile: function(element) {
+        return RecursionHelper.compile(element, function() {});
+      }
     };
-  })
+  }])
   .directive('messagesThread', function() {
     return {
       restrict: 'E',

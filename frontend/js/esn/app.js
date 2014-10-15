@@ -55,7 +55,7 @@ angular.module('esnApp', [
       }
     });
 
-    $routeProvider.when('/messages/:id', {
+    $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
       templateUrl: '/views/esn/partials/message',
       controller: 'whatsupMessageDisplayController',
       resolve: {
