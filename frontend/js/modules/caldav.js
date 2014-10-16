@@ -1,25 +1,27 @@
 'use strict';
-angular.module('esn.caldav', [])
+angular.module('esn.caldav', ['restangular'])
 .factory('caldavAPI', ['Restangular', '$q', function(Restangular, $q) {
   var serverUrlCache = null;
+
   function getCaldavServerURL() {
-    // return Restangular.get('caldavserver/' + id);
-    // for now we mock it
-    var d = $q.defer();
-    d.resolve({data: {url: 'http://localhost/'}});
-    return d.promise;
+    return Restangular.one('caldavserver').get();
   }
 
   function getCachedCaldavServerURL() {
     if (serverUrlCache) {
       return serverUrlCache.promise;
     }
+
     serverUrlCache = $q.defer();
-    getCaldavServerURL()
-    .then(
-      function(response) { serverUrlCache.resolve(response.data.url); },
-      function(err) { serverUrlCache.reject(err); }
+    getCaldavServerURL().then(
+      function(response) {
+        serverUrlCache.resolve(response.data.url);
+      },
+      function(err) {
+        serverUrlCache.reject(err);
+      }
     );
+
     return serverUrlCache.promise;
   }
 
