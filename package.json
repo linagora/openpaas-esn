@@ -91,6 +91,7 @@
     "karma-jasmine": "~0.1.5",
     "karma-mocha": "0.1.1",
     "karma-ng-jade2js-preprocessor": "git://github.com/th0masm/karma-ng-jade2js-preprocessor.git",
+    "karma-rawfixtures-preprocessor": "git+https://ci.open-paas.org/stash/scm/or/karma-rawfixtures-preprocessor.git",
     "karma-phantomjs-launcher": "~0.1.1",
     "karma-requirejs": "~0.2.1",
     "karma-script-launcher": "~0.1.0",

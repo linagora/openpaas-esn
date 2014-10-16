@@ -31,6 +31,7 @@ angular.module('esnApp', [
   'esn.api-notification',
   'esn.user-notification',
   'esn.calendar',
+  'esn.ical',
   'esn.object-type'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 

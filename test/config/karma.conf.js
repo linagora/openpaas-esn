@@ -47,7 +47,10 @@ module.exports = function(config) {
       'frontend/views/modules/community/**/*.jade',
       'frontend/views/modules/profile/**/*.jade',
       'frontend/views/modules/user-notification/**/*.jade',
-      'frontend/views/modules/maps/**/*.jade'
+      'frontend/views/modules/maps/**/*.jade',
+
+      // fixtures
+      'test/unit-frontend/fixtures/**'
     ],
 
     frameworks: ['mocha'],
@@ -58,7 +61,8 @@ module.exports = function(config) {
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
-      '**/*.jade': 'ng-jade2js'
+      '**/*.jade': 'ng-jade2js',
+      'test/unit-frontend/fixtures/**': ['raw2js']
     },
 
     plugins: [
@@ -68,7 +72,8 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-coverage',
       'karma-spec-reporter',
-      'karma-ng-jade2js-preprocessor'
+      'karma-ng-jade2js-preprocessor',
+      'karma-rawfixtures-preprocessor'
     ],
 
     junitReporter: {
