@@ -572,4 +572,79 @@ describe('The community middleware', function() {
       middleware(req, res, err);
     });
   });
+
+  describe('flagCommunityManager() method', function() {
+    it('should send back 400 when req.community is not defined', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var req = {
+        user: {}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 400 when req.user is not defined', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var req = {
+        community: {}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should send back 500 when community.isManager() failed', function(done) {
+      mockery.registerMock('../../core/community', {
+        isManager: function(community, user, callback) {
+          return callback(new Error('Fail'));
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var req = {
+        community: {},
+        user: {}
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+      middleware(req, res);
+    });
+
+    it('should call next with req.isCommunityManager initialized', function(done) {
+      mockery.registerMock('../../core/community', {
+        isManager: function(community, user, callback) {
+          return callback(null, true);
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var req = {
+        community: {},
+        user: {}
+      };
+      var res = {
+        json: function() {
+          done(new Error());
+        }
+      };
+      var next = function() {
+        expect(req.isCommunityManager).to.be.true;
+        done();
+      };
+      middleware(req, res, next);
+    });
+  });
 });
