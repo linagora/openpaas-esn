@@ -30,6 +30,7 @@ var CommunitySchema = new Schema({
   },
   membershipRequests: [{
     user: {type: Schema.ObjectId, ref: 'User'},
+    workflow: {type: String, required: true},
     timestamp: {
       creation: {type: Date, default: Date.now}
     }

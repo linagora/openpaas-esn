@@ -224,7 +224,7 @@ module.exports.getUserCommunities = function(user, domainId, callback) {
   return query({'members.user': id}, callback);
 };
 
-module.exports.addMembershipRequest = function(community, user, callback) {
+module.exports.addMembershipRequest = function(community, user, workflow, callback) {
   if (!user) {
     return callback(new Error('User object is required'));
   }
@@ -232,6 +232,10 @@ module.exports.addMembershipRequest = function(community, user, callback) {
 
   if (!community) {
     return callback(new Error('Community object is required'));
+  }
+
+  if (!workflow) {
+    return callback(new Error('Workflow string is required'));
   }
 
   if (!permission.supportsMemberShipRequests(community)) {
@@ -254,7 +258,7 @@ module.exports.addMembershipRequest = function(community, user, callback) {
       return callback(null, community);
     }
 
-    community.membershipRequests.push({user: userId});
+    community.membershipRequests.push({user: userId, workflow: workflow});
     community.save(callback);
   });
 };
