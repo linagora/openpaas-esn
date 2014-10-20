@@ -35,6 +35,27 @@ angular.module('esn.user-notification',
           });
       };
 
+      $scope.setAllAsRead = function(ids) {
+        $scope.unreadCount.decreaseBy(ids.length);
+        userNotificationAPI
+          .setAllRead(ids, true)
+          .then(function() {
+            $log.debug('Successfully setting ' + ids.toString() + ' as read');
+          }, function(err) {
+            $log.error('Error setting ' + ids.toString() + ' as read: ' + err);
+          })
+          .finally (function() {
+          $scope.unreadCount.refresh();
+        });
+      };
+
+      $scope.$on('usernotifications:received', function(event, usernotifications) {
+        var ids = usernotifications.map(function(usernotification) {
+          return usernotification._id;
+        });
+        $scope.setAllAsRead(ids);
+      });
+
       livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
       $scope.$on('$destroy', function() {
         livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
@@ -62,6 +83,7 @@ angular.module('esn.user-notification',
       } else {
         if (items) {
           $scope.notifications = items;
+          $scope.$emit('usernotifications:received', items);
         }
         if (total) {
           $scope.totalNotifications = total;
@@ -301,6 +323,12 @@ angular.module('esn.user-notification',
       return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
     }
 
+    function setAllRead(ids, read) {
+      var request = Restangular.one('user').one('notifications').one('read');
+      request.value = read;
+      return request.put({ ids: ids });
+    }
+
     function setAcknowledged(id, acknowledged) {
       return Restangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
     }
@@ -312,6 +340,7 @@ angular.module('esn.user-notification',
     return {
       list: list,
       setRead: setRead,
+      setAllRead: setAllRead,
       setAcknowledged: setAcknowledged,
       getUnreadCount: getUnreadCount
     };

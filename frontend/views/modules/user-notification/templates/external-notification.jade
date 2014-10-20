@@ -6,6 +6,8 @@
       a(ng-href="/#/profile/{{user._id}}") {{notification.user.firstname}} {{notification.user.lastname}}
       span &nbsp;{{notification.verb.text}}&nbsp;
       a.complement(href="#") {{notification.complement.id}}
+      &nbsp;
+      strong {{ notification.read }}
       span.pull-right.date.hidden-xs(am-time-ago="notification.timestamps.creation")
     .notification-description(ng-show='notification.description')
       span {{notification.description}}
