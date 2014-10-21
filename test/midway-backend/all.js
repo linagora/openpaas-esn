@@ -188,6 +188,21 @@ before(function() {
       var community = new Community(json);
       return community.save(done);
     },
+
+    createConference: function(creator, attendees, done) {
+      var Conference = require('mongoose').model('Conference');
+      var json = {
+        creator: creator._id || creator,
+        attendees: attendees.map(function(attendee) {
+          return {
+            user: attendee._id || attendee,
+            status: 'online'
+          };
+        })
+      };
+      var conference = new Conference(json);
+      return conference.save(done);
+    },
     /*
     * returns a function that adds authentication bits
     * for "email" user to the request.
