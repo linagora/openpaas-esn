@@ -45,6 +45,7 @@ Here is a list of the available topics with their associated data.
 
 - community:join({author, target, community}). Fired when a user joins a community.
 - community:leave({author, target, community}). Fired when a user leaves a community.
+- community:membership:remove({author, target, actor, community}). Fired when user or manager cancels community membership request.
 
 #### message:stored
 
@@ -104,6 +105,7 @@ For example, when a user 123 has sent a message 456 to the user 789:
 |                 | conference:leave            |                             |         |           |       |
 | community       | community:join              |                             |         |           |       |
 |                 | community:leave             |                             |         |           |       |
+|                 | community:membership:remove |                             |         |           |       |
 | user/login      | login:success               |                             |         |           |       |
 |                 | login:failure               |                             |         |           |       |
 | invitation      | invitation:init:failure     |                             |         |           |       |

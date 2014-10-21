@@ -1130,9 +1130,17 @@ describe('The communities module', function() {
       mockery.registerMock('mongoose', mongoose);
     });
 
-    it('should send back error when user is null', function() {
+    it('should send back error when author is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({}, null, function(err, c) {
+      communityModule.removeMembershipRequest({}, null, {}, '', function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when target is null', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.removeMembershipRequest({}, {}, null, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1140,7 +1148,7 @@ describe('The communities module', function() {
 
     it('should send back error when community is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest(null, {}, function(err, c) {
+      communityModule.removeMembershipRequest(null, {}, {}, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1148,11 +1156,11 @@ describe('The communities module', function() {
 
     it('should send back error if community type is not restricted or private', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({type: 'open'}, {}, function(err, c) {
+      communityModule.removeMembershipRequest({type: 'open'}, {}, {}, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
-      communityModule.removeMembershipRequest({type: 'confidential'}, {}, function(err, c) {
+      communityModule.removeMembershipRequest({type: 'confidential'}, {}, {}, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1160,6 +1168,7 @@ describe('The communities module', function() {
 
     it('should send back error if user is already member of the community', function() {
       var user = { _id: 'uid' };
+      var author = { _id: 'uuid' };
       var community = {
         _id: 'cid',
         type: 'restricted'
@@ -1167,10 +1176,10 @@ describe('The communities module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user);
+        expect(u).to.deep.equal(user._id);
         callback(null, true);
       };
-      communityModule.removeMembershipRequest(community, user, function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1178,6 +1187,7 @@ describe('The communities module', function() {
 
     it('should send back error if the check if the user is member of the community fails', function() {
       var user = { _id: 'uid' };
+      var author = { _id: 'uuid' };
       var community = {
         _id: 'cid',
         type: 'restricted'
@@ -1185,10 +1195,10 @@ describe('The communities module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user);
+        expect(u).to.deep.equal(user._id);
         callback(new Error('isMember fail'));
       };
-      communityModule.removeMembershipRequest(community, user, function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1196,10 +1206,13 @@ describe('The communities module', function() {
 
     it('should fail if the updated community save fails', function() {
       var user = { _id: this.helpers.objectIdMock('uid') };
+      var author = { _id: this.helpers.objectIdMock('uuid') };
       var community = {
         _id: 'cid',
         type: 'restricted',
-        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
+        membershipRequests: [
+          {user: this.helpers.objectIdMock('otherUser')}
+        ],
         save: function(callback) {
           return callback(new Error('save fail'));
         }
@@ -1207,10 +1220,10 @@ describe('The communities module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user);
+        expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.removeMembershipRequest(community, user, function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1218,10 +1231,13 @@ describe('The communities module', function() {
 
     it('should remove the request and return the updated community', function() {
       var user = { _id: this.helpers.objectIdMock('uid') };
+      var author = { _id: this.helpers.objectIdMock('uuid') };
       var community = {
         _id: 'cid',
         type: 'restricted',
-        membershipRequests: [{user: this.helpers.objectIdMock('uid')}],
+        membershipRequests: [
+          {user: this.helpers.objectIdMock('uid')}
+        ],
         save: function(callback) {
           return callback(null, community);
         }
@@ -1229,16 +1245,14 @@ describe('The communities module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user);
+        expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.removeMembershipRequest(community, user, function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(0);
       });
     });
-
   });
-
 });
