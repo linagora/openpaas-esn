@@ -3,41 +3,55 @@
 angular.module('esn.paginate', [])
   .factory('paginator', function() {
 
-    return function(itemsPerPage, loader) {
+    return function(items, itemsPerPage, totalItems, loader) {
 
       if (!loader) {
         throw new Error('Loader is required');
       }
 
-      var currentPage = 0;
-      var cache = {
-        items: []
-      };
+      var currentPage = 1;
+      var cache = { items: items };
       itemsPerPage = itemsPerPage || 1;
+      totalItems = totalItems || 1;
+      var lastPage = Math.ceil(totalItems / itemsPerPage);
+      var lastPageInCache = Math.ceil(items.length / itemsPerPage);
 
       return {
+        cache: cache,
+        offset: 0,
+        limit: itemsPerPage,
+        totalItems: totalItems,
+        lastPageInCache: lastPageInCache,
+        lastPage: lastPage,
         currentPage: function(callback) {
-          loader.getItems(currentPage * itemsPerPage, itemsPerPage, function(err, items, size) {
-            cache.items = items || [];
-            return callback(err, items, size, currentPage);
+          loader.getItems(this.cache.items, this.offset, this.limit, function(err, items) {
+            return callback(err, items, currentPage);
           });
         },
         nextPage: function(callback) {
-          var page = ++currentPage;
-          loader.getItems(page * itemsPerPage, itemsPerPage, function(err, items, size) {
-            cache.items = items || [];
-            return callback(err, items, size, page);
+          currentPage++;
+          this.offset += this.limit;
+          loader.getItems(this.cache.items, this.offset, this.limit, function (err, items) {
+            return callback(err, items, currentPage);
           });
         },
         previousPage: function(callback) {
-          var page = --currentPage;
-          loader.getItems(page * itemsPerPage, itemsPerPage, function(err, items, size) {
-            cache.items = items || [];
-            return callback(err, items, size, page);
+          currentPage--;
+          this.offset -= this.limit;
+          loader.getItems(this.cache.items, this.offset, this.limit, function(err, items) {
+            return callback(err, items, currentPage);
           });
         },
-        getItems: function() {
-          return cache.items;
+        loadNextItems: function(callback) {
+          var self = this;
+          loader.loadNextItems(function(err, items) {
+            if (!items || items && !items.length) {
+              return callback(err);
+            }
+            self.cache.items = self.cache.items.concat(items);
+            self.lastPageInCache += Math.ceil(items.length / self.limit);
+            callback(err);
+          });
         }
       };
     };
