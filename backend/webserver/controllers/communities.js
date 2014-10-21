@@ -395,7 +395,7 @@ module.exports.addMembershipRequest = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.addMembershipRequest(community, targetUser, function(err, community) {
+  communityModule.addMembershipRequest(community, targetUser, 'request', function(err, community) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }

@@ -1973,7 +1973,7 @@ describe('The communities API', function() {
         function(callback) {
           community.creator = user._id;
           community.domain_ids = [domain._id];
-          community.membershipRequests = [{user: user2._id}];
+          community.membershipRequests = [{user: user2._id, workflow: 'request'}];
           saveCommunity(community, callback);
         },
         function() {

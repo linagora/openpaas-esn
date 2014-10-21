@@ -1725,7 +1725,7 @@ describe('The communities controller', function() {
 
     it('should send back 500 if communityModule#addMembershipRequest fails', function(done) {
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, user, callback) {
+        addMembershipRequest: function(community, user, workflow, callback) {
           expect(community).to.deep.equal(req.community);
           expect(user).to.deep.equal(req.params.user_id);
           callback(new Error('community module error'));
@@ -1765,7 +1765,7 @@ describe('The communities controller', function() {
         ]
       };
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, user, callback) {
+        addMembershipRequest: function(community, user, workflow, callback) {
           expect(community).to.deep.equal(req.community);
           expect(user).to.deep.equal(req.params.user_id);
           callback(null, modifiedCommunity);

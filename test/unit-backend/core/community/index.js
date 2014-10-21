@@ -882,7 +882,7 @@ describe('The communities module', function() {
 
     it('should send back error when user is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({}, null, function(err, c) {
+      communityModule.addMembershipRequest({}, null, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -890,7 +890,15 @@ describe('The communities module', function() {
 
     it('should send back error when community is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest(null, {}, function(err, c) {
+      communityModule.addMembershipRequest(null, {}, '', function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when workflow is null', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.addMembershipRequest({}, {}, null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -898,11 +906,11 @@ describe('The communities module', function() {
 
     it('should send back error if community type is not restricted or private', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({type: 'open'}, {}, function(err, c) {
+      communityModule.addMembershipRequest({type: 'open'}, {}, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
-      communityModule.addMembershipRequest({type: 'confidential'}, {}, function(err, c) {
+      communityModule.addMembershipRequest({type: 'confidential'}, {}, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -920,7 +928,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user);
         callback(null, true);
       };
-      communityModule.addMembershipRequest(community, user, function(err, c) {
+      communityModule.addMembershipRequest(community, user, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -938,7 +946,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user);
         callback(new Error('isMember fail'));
       };
-      communityModule.addMembershipRequest(community, user, function(err, c) {
+      communityModule.addMembershipRequest(community, user, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -951,13 +959,14 @@ describe('The communities module', function() {
         type: 'restricted',
         membershipRequests: [{user: user._id}]
       };
+      var workflow = 'request';
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
         expect(u).to.deep.equal(user);
         callback(null, false);
       };
-      communityModule.addMembershipRequest(community, user, function(err, c) {
+      communityModule.addMembershipRequest(community, user, workflow, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests).to.deep.equal(community.membershipRequests);
@@ -980,7 +989,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user);
         callback(null, false);
       };
-      communityModule.addMembershipRequest(community, user, function(err, c) {
+      communityModule.addMembershipRequest(community, user, '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -996,18 +1005,20 @@ describe('The communities module', function() {
           return callback(null, community);
         }
       };
+      var workflow = 'request';
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
         expect(u).to.deep.equal(user);
         callback(null, false);
       };
-      communityModule.addMembershipRequest(community, user, function(err, c) {
+      communityModule.addMembershipRequest(community, user, workflow, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(2);
         var newRequest = c.membershipRequests[1];
         expect(newRequest.user).to.deep.equal(user._id);
+        expect(newRequest.workflow).to.deep.equal(workflow);
       });
     });
 
