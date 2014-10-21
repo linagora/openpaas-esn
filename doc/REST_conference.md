@@ -400,7 +400,7 @@ No response.
 
 ## PUT /conferences/{id}/attendees/{user_id}
 
-Add an attendee to the conference. The caller must write access to the conference to perform this action (creator or moderator).
+Add an attendee to the conference. The caller must be creator/administrator or attendee of the conference to perform this action.
 
 **Request Headers:**
 

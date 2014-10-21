@@ -93,3 +93,68 @@ module.exports.isAdmin = function(req, res, next) {
   });
 };
 
+
+module.exports.canAddAttendee = function(req, res, next) {
+  if (!req.user) {
+    return res.json(400, {
+      error: {
+        code: 400,
+        message: 'Bad request',
+        details: 'User is required'
+      }
+    });
+  }
+
+  if (!req.conference) {
+    return res.json(400, {
+      error: {
+        code: 400,
+        message: 'Bad request',
+        details: 'Conference is required'
+      }
+    });
+  }
+
+  conference.userIsConferenceCreator(req.conference, req.user, function(err, isCreator) {
+    if (err) {
+      return res.json(500, {
+        error: {
+          code: 500,
+          message: 'Server error',
+          details: err.message
+        }
+      });
+    }
+
+    if (isCreator) {
+      return next();
+    }
+
+    conference.userIsConferenceAttendee(req.conference, req.user, function(err, isAttendee) {
+      if (err) {
+        return res.json(500, {
+          error: {
+            code: 500,
+            message: 'Server error',
+            details: err.message
+          }
+        });
+      }
+
+      if (!isAttendee) {
+        return res.json(403, {
+          error: {
+            code: 403,
+            message: 'Forbidden',
+            details: 'User cannot invite attendees into a conference in which he is not attendee himself.'
+          }
+        });
+      }
+
+      return next();
+    });
+
+  });
+
+};
+
