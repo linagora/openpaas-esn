@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
+var userNotification = require('../../core/notification/user');
 var logger = require('../logger');
 var domainModule = require('../domain');
 var async = require('async');
@@ -334,4 +335,33 @@ module.exports.removeMembershipRequest = function(community, userAuthor, userTar
       return callback(null, updated);
     });
   });
+};
+
+module.exports.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, callback) {
+  var userAuthorId = userAuthor._id || userAuthor;
+  var userTargetId = userTarget._id || userTarget;
+  var communityId = community._id || community;
+
+  var userNotificationObject = {
+    subject: {
+      objectType: 'user',
+      id: userAuthorId
+    },
+    verb: {
+      label: 'invites you to join',
+      text: 'invites you to join'
+    },
+    complement: {
+      objectType: 'community',
+      id: communityId
+    },
+    category: 'community:membership:invite',
+    interactive: true,
+    target: [{
+      objectType: 'user',
+      id: userTargetId
+    }]
+  };
+
+  userNotification.create(userNotificationObject, callback);
 };

@@ -1255,4 +1255,53 @@ describe('The communities module', function() {
       });
     });
   });
+
+  describe('The addMembershipInviteUserNotification fn', function() {
+    var userAuthor = {
+      _id: '123'
+    };
+    var userTarget = {
+      _id: '456'
+    };
+    var community = {
+      _id: '789'
+    };
+    var userNotificationMock = {
+      create: function(object, callback) {
+        return callback(null, object);
+      }
+    };
+
+    beforeEach(function() {
+      this.helpers.mock.models({});
+      userNotificationMock.create = function(object, callback) {
+        return callback(null, object);
+      };
+      mockery.registerMock('../../core/notification/user', userNotificationMock);
+    });
+
+    it('should return an error if userNotification.create() failed', function(done) {
+      userNotificationMock.create = function(object, callback) {
+        return callback(new Error('Fail'));
+      };
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.addMembershipInviteUserNotification(community, userAuthor, userTarget, function(err, result) {
+        expect(err).to.exist;
+        expect(result).to.not.exist;
+        done();
+      });
+    });
+
+    it('should return the userNotification object if userNotification.create() succeed', function(done) {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.addMembershipInviteUserNotification(community, userAuthor, userTarget, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.exist;
+        expect(result.subject).to.exist;
+        expect(result.verb).to.exist;
+        done();
+      });
+    });
+  });
+
 });
