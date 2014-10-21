@@ -112,7 +112,7 @@ exports = module.exports = function(application) {
   application.post('/api/conferences', authorize.requiresAPILogin, conferenceController.create);
   application.get('/api/conferences/:id/attendees', authorize.requiresAPILogin, conferenceController.loadWithAttendees, conferenceMiddleware.canJoin, conferenceController.getAttendees);
   application.put('/api/conferences/:id/attendees', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.canJoin, conferenceController.updateAttendee);
-  application.put('/api/conferences/:id/attendees/:user_id', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.isAdmin, conferenceController.addAttendee);
+  application.put('/api/conferences/:id/attendees/:user_id', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.canAddAttendee, conferenceController.addAttendee);
 
   var contactsController = require('./controllers/contacts');
   var googleImportController = require('./controllers/import/google');

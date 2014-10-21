@@ -135,7 +135,7 @@ module.exports.addAttendee = function(req, res) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
-    return res.json(204);
+    return res.send(204);
   });
 
 };
