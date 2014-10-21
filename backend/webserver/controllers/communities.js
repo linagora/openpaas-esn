@@ -345,12 +345,46 @@ module.exports.join = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.join(community, user, targetUser, function(err) {
-    if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+  if (req.isCommunityManager) {
+
+    if (req.user._id.equals(targetUser)) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Community Manager can not add himself to a community'});
     }
-    return res.send(204);
-  });
+
+    if (!communityModule.getMembershipRequest(community, {_id: targetUser})) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'User does not requested to join community'});
+    }
+
+    communityModule.removeMembershipRequest(community, targetUser, function(err) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      }
+
+      communityModule.join(community, user, targetUser, function(err) {
+        if (err) {
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+        }
+        return res.send(204);
+      });
+    });
+
+  } else {
+
+    if (!req.user._id.equals(targetUser)) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Current user is not the target user'});
+    }
+
+    if (req.community.type !== 'open') {
+      return res.json(403, {error: 403, message: 'Forbidden', details: 'Can not join community'});
+    }
+
+    communityModule.join(community, user, targetUser, function(err) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      }
+      return res.send(204);
+    });
+  }
 };
 
 module.exports.leave = function(req, res) {
