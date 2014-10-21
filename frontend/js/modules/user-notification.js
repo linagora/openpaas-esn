@@ -93,7 +93,15 @@ angular.module('esn.user-notification',
           if (items) {
             $scope.notifications = items;
             if(items.length) {
-              $scope.$emit('usernotifications:received', items);
+              var unreadItems = items.filter(function(item) {
+                return !item.read;
+              });
+              if (unreadItems.length) {
+                $scope.$emit('usernotifications:received', unreadItems);
+                $scope.notifications.forEach(function(notification) {
+                  notification.read = true;
+                });
+              }
             }
           }
           $scope.currentPageNb = page;
