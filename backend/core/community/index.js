@@ -13,6 +13,11 @@ var permission = require('./permission');
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
 
+var WORKFLOW_NOTIFICATIONS_TOPIC = {
+  request: 'community:membership:request',
+  invitation: 'community:membership:invite'
+};
+
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
@@ -237,11 +242,16 @@ module.exports.getUserCommunities = function(user, domainId, callback) {
   return query({'members.user': id}, callback);
 };
 
-module.exports.addMembershipRequest = function(community, user, workflow, callback) {
-  if (!user) {
-    return callback(new Error('User object is required'));
+module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, callback) {
+  if (!userAuthor) {
+    return callback(new Error('Author user object is required'));
   }
-  var userId = user._id || user;
+  var userAuthorId = userAuthor._id || userAuthor;
+
+  if (!userTarget) {
+    return callback(new Error('Target user object is required'));
+  }
+  var userTargetId = userTarget._id || userTarget;
 
   if (!community) {
     return callback(new Error('Community object is required'));
@@ -251,11 +261,29 @@ module.exports.addMembershipRequest = function(community, user, workflow, callba
     return callback(new Error('Workflow string is required'));
   }
 
+  var topic = WORKFLOW_NOTIFICATIONS_TOPIC[workflow];
+  if (!topic) {
+    var errorMessage = 'Invalid workflow, must be ';
+    var isFirstLoop = true;
+    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
+      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
+        if (isFirstLoop) {
+          errorMessage += '"' + key + '"';
+          isFirstLoop = false;
+        } else {
+          errorMessage += ' or "' + key + '"';
+        }
+      }
+    }
+    return callback(new Error(errorMessage));
+  }
+
   if (!permission.supportsMemberShipRequests(community)) {
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
-  this.isMember(community, user, function(err, isMember) {
+  var self = this;
+  this.isMember(community, userTargetId, function(err, isMember) {
     if (err) {
       return callback(err);
     }
@@ -265,14 +293,32 @@ module.exports.addMembershipRequest = function(community, user, workflow, callba
 
     var previousRequests = community.membershipRequests.filter(function(request) {
       var requestUserId = request.user._id || request.user;
-      return requestUserId.equals(userId);
+      return requestUserId.equals(userTargetId);
     });
     if (previousRequests.length > 0) {
       return callback(null, community);
     }
 
-    community.membershipRequests.push({user: userId, workflow: workflow});
-    community.save(callback);
+    community.membershipRequests.push({user: userTargetId, workflow: workflow});
+
+    community.save(function(err, communitySaved) {
+      if (err) {
+        return callback(err);
+      }
+
+      self.addMembershipInviteUserNotification(community, userAuthorId, userTargetId, function(err, userNotificationSaved) {
+        if (err) {
+          return callback(err);
+        }
+
+        localpubsub.topic(topic).forward(globalpubsub, {
+          author: userAuthorId,
+          target: userTargetId,
+          community: community._id
+        });
+        return callback(null, communitySaved);
+      });
+    });
   });
 };
 
