@@ -158,6 +158,18 @@ module.exports.join = function(community, userAuthor, userTarget, callback) {
   });
 };
 
+module.exports.isManager = function(community, user, callback) {
+  var id = community._id || community;
+  var user_id = user._id || user;
+
+  Community.findOne({_id: id, 'creator': user_id}, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, !!result);
+  });
+};
+
 module.exports.isMember = function(community, user, callback) {
   var id = community._id || community;
   var user_id = user._id || user;

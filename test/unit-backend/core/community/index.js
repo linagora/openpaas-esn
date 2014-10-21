@@ -600,6 +600,64 @@ describe('The communities module', function() {
     });
   });
 
+  describe('The isManager fn', function() {
+
+    it('should send back error when Community.findOne fails', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findOne: function(a, callback) {
+              return callback(new Error());
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.isManager(123, 456, function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+
+    it('should send back true when Community.findOne finds user', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findOne: function(a, callback) {
+              return callback(null, {});
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.isManager(123, 456, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        return done();
+      });
+    });
+
+    it('should send back false when Community.findOne does not find user', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findOne: function(a, callback) {
+              return callback();
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.isManager(123, 456, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        return done();
+      });
+    });
+  });
 
   describe('The isMember fn', function() {
 

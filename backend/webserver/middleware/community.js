@@ -131,3 +131,21 @@ module.exports.canRead = function(req, res, next) {
   }
   return isMember(req, res, next);
 };
+
+module.exports.flagCommunityManager = function(req, res, next) {
+  if (!req.community) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  communityModule.isManager(req.community, req.user, function(err, manager) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
+    }
+    req.isCommunityManager = manager;
+    next();
+  });
+};
