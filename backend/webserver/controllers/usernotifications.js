@@ -77,6 +77,36 @@ function load(req, res, next) {
 }
 module.exports.load = load;
 
+function loadAll(req, res, next) {
+  if (!req.query || !req.query.ids) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Missing ids in query'}});
+  }
+
+  notificationModule.getAll(req.query.ids, function(err, usernotifications) {
+    if (err) {
+      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot load user notifications: ' + err.message}});
+    }
+
+    usernotifications = usernotifications || [];
+    if (usernotifications.length === 0) {
+      return res.json(404, {error: { status: 404, message: 'Not found', details: 'No user notifications have not been found'}});
+    }
+
+    var foundIds = usernotifications.map(function(usernotification) {
+      return usernotification._id.toString();
+    });
+
+    req.query.ids.filter(function(id) {
+      return foundIds.indexOf(id) < 0;
+    }).forEach(function(id) {
+      logger.warn('The usernotification ' + id + ' can not be found');
+    });
+    req.usernotifications = usernotifications;
+    next();
+  });
+}
+module.exports.loadAll = loadAll;
+
 function setRead(req, res) {
 
   if (!req.body) {
@@ -96,6 +126,26 @@ function setRead(req, res) {
 }
 
 module.exports.setRead = setRead;
+
+function setAllRead(req, res) {
+
+  if (!req.body) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+  }
+
+  if (req.body.value !== true && req.body.value !== false) {
+    return res.json(400, {error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+  }
+
+  notificationModule.setAllRead(req.usernotifications, req.body.value, function(err) {
+    if (err) {
+      return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot set the user notifications as read: ' + err.message}});
+    }
+    return res.send(205);
+  });
+}
+
+module.exports.setAllRead = setAllRead;
 
 function setAcknowledged(req, res) {
 

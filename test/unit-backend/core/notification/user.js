@@ -164,7 +164,7 @@ describe('The core user notifications module', function() {
       });
     });
 
-    it('should findByIdThen exec callback', function(done) {
+    it('should findById then exec callback', function(done) {
       var models = {
         'Usernotification': {
           findById: function() {
@@ -180,6 +180,36 @@ describe('The core user notifications module', function() {
       var module = require(this.testEnv.basePath + '/backend/core/notification/user');
 
       module.get(123456, done);
+    });
+
+  });
+
+  describe('getAll method', function() {
+    it('should return an error if id is not defined', function(done) {
+      this.helpers.mock.models({});
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.getAll(null, function(err) {
+        expect(err).to.exists;
+        done();
+      });
+    });
+
+    it('should find then exec callback', function(done) {
+      var models = {
+        'Usernotification': {
+          find: function() {
+            return {
+              exec: function(callback) {
+                callback();
+              }
+            };
+          }
+        }
+      };
+      this.helpers.mock.models(models);
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+
+      module.getAll([123, 456], done);
     });
 
   });
@@ -204,6 +234,37 @@ describe('The core user notifications module', function() {
       var module = require(this.testEnv.basePath + '/backend/core/notification/user');
       module.setRead(usernotification, true, function() {
         expect(usernotification.read).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('setAllRead method', function() {
+    it('should return an error if usernotification is no defined', function(done) {
+      this.helpers.mock.models({});
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.setAllRead(null, false, function(err) {
+        expect(err).to.exists;
+        done();
+      });
+    });
+
+    it('should update all usernotifications by setting read to true', function(done) {
+      var usernotification1 = {
+        save: function(callback) {
+          callback();
+        }
+      };
+      var usernotification2 = {
+        save: function(callback) {
+          callback();
+        }
+      };
+      this.helpers.mock.models({});
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.setAllRead([usernotification1, usernotification2], true, function() {
+        expect(usernotification1.read).to.be.true;
+        expect(usernotification2.read).to.be.true;
         done();
       });
     });

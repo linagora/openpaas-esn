@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var UserNotification = mongoose.model('Usernotification');
+var async = require('async');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -42,6 +43,19 @@ function get(id, callback) {
 }
 module.exports.get = get;
 
+function getAll(ids, callback) {
+  if (!ids) {
+    return callback(new Error('id is not defined'));
+  }
+  var formattedIds = ids.map(function(id) {
+    return mongoose.Types.ObjectId(id);
+  });
+  var query = { _id: { $in: formattedIds } };
+
+  return UserNotification.find(query).exec(callback);
+}
+module.exports.getAll = getAll;
+
 function setRead(usernotification, read, callback) {
   if (!usernotification) {
     return callback(new Error('usernotification is required'));
@@ -50,6 +64,18 @@ function setRead(usernotification, read, callback) {
   usernotification.save(callback);
 }
 module.exports.setRead = setRead;
+
+function setAllRead(usernotifications, read, callback) {
+  if (!usernotifications) {
+    return callback(new Error('usernotification is required'));
+  }
+  function setRead(usernotification, cb) {
+    usernotification.read = read;
+    usernotification.save(cb);
+  }
+  async.each(usernotifications, setRead, callback);
+}
+module.exports.setAllRead = setAllRead;
 
 function setAcknowledged(usernotification, acknowledged, callback) {
   if (!usernotification) {

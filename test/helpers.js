@@ -39,6 +39,11 @@ function mockEsnConfig(get) {
  */
 function mockModels(mockedModels) {
   var mongooseMock = {
+    Types: {
+      ObjectId: function(id) {
+        return id;
+      }
+    },
     model: function(model) {
       return mockedModels[model];
     }
