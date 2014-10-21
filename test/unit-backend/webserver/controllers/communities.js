@@ -1991,9 +1991,10 @@ describe('The communities controller', function() {
 
     it('should send back 500 if communityModule#addMembershipRequest fails', function(done) {
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, user, workflow, callback) {
+        addMembershipRequest: function(community, userAuthor, userTarget, workflow, callback) {
           expect(community).to.deep.equal(req.community);
-          expect(user).to.deep.equal(req.params.user_id);
+          expect(userAuthor).to.deep.equal(req.user);
+          expect(userTarget).to.deep.equal(req.params.user_id);
           callback(new Error('community module error'));
         }
       });
@@ -2031,9 +2032,11 @@ describe('The communities controller', function() {
         ]
       };
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, user, workflow, callback) {
+        addMembershipRequest: function(community, userAuthor, userTarget, workflow, callback) {
           expect(community).to.deep.equal(req.community);
-          expect(user).to.deep.equal(req.params.user_id);
+          expect(userAuthor).to.deep.equal(req.user);
+          expect(userTarget).to.deep.equal(req.params.user_id);
+          expect(workflow).to.equal('request');
           callback(null, modifiedCommunity);
         },
         getMembershipRequest: function() {
@@ -2061,6 +2064,59 @@ describe('The communities controller', function() {
         params: {
           user_id: this.helpers.objectIdMock('2')
         }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.addMembershipRequest(req, res);
+    });
+
+    it('should send back the community modified by communityModule#addMembershipRequest ' +
+      'and the workflow must be "invitation" if the logged user is a manager', function(done) {
+      var modifiedCommunity = {
+        _id: '1',
+        membershipRequests: [
+          {
+            user: this.helpers.objectIdMock('2'),
+            timestamp: {
+              creation: new Date()
+            }
+          }
+        ]
+      };
+      mockery.registerMock('../../core/community', {
+        addMembershipRequest: function(community, userAuthor, userTarget, workflow, callback) {
+          expect(community).to.deep.equal(req.community);
+          expect(userAuthor).to.deep.equal(req.user);
+          expect(userTarget).to.deep.equal(req.params.user_id);
+          expect(workflow).to.equal('invitation');
+          callback(null, modifiedCommunity);
+        },
+        getMembershipRequest: function() {
+          return modifiedCommunity.membershipRequests[0];
+        },
+        isMember: function(community, user, callback) {
+          callback(null, false);
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code, content) {
+          expect(code).to.equal(200);
+          expect(content).to.deep.equal(modifiedCommunity);
+          done();
+        }
+      };
+
+      var req = {
+        community: {
+          _id: '1',
+          membershipRequests: [{user: this.helpers.objectIdMock('anotherUserrequest')}]},
+        user: {_id: this.helpers.objectIdMock('2')},
+        params: {
+          user_id: this.helpers.objectIdMock('2')
+        },
+        isCommunityManager: true
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');

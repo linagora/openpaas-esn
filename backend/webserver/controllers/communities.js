@@ -414,29 +414,37 @@ module.exports.leave = function(req, res) {
 
 module.exports.addMembershipRequest = function(req, res) {
   var community = req.community;
-  var user = req.user;
+  var userAuthor = req.user;
 
-  if (!user) {
+  if (!userAuthor) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
 
   if (!req.params || !req.params.user_id) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
   }
-  var targetUser = req.params.user_id;
+  var userTargetId = req.params.user_id;
 
   if (!community) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.addMembershipRequest(community, targetUser, 'request', function(err, community) {
-    if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
-    }
-    return transform(community, user, function(transformed) {
-      return res.json(200, transformed);
+  function addMembership(community, userAuthor, userTarget, workflow) {
+    communityModule.addMembershipRequest(community, userAuthor, userTarget, workflow, function(err, community) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+      }
+      return transform(community, userAuthor, function(transformed) {
+        return res.json(200, transformed);
+      });
     });
-  });
+  }
+
+  if (req.isCommunityManager) {
+    addMembership(community, userAuthor, userTargetId, 'invitation');
+  } else {
+    addMembership(community, userAuthor, userTargetId, 'request');
+  }
 };
 
 module.exports.removeMembershipRequest = function(req, res) {
