@@ -85,3 +85,12 @@ function setAcknowledged(usernotification, acknowledged, callback) {
   usernotification.save(callback);
 }
 module.exports.setAcknowledged = setAcknowledged;
+
+function create(usernotification, callback) {
+  if (!usernotification) {
+    return callback(new Error('usernotification is required'));
+  }
+  var userNotificationInstance = new UserNotification(usernotification);
+  userNotificationInstance.save(callback);
+}
+module.exports.create = create;
