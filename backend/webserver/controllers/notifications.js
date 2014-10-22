@@ -1,6 +1,6 @@
 'use strict';
 
-var notificationModule = require('../../core/notification');
+var notificationModule = require('../../core/notification/notification');
 
 module.exports.create = function(req, res) {
   var n = req.body;

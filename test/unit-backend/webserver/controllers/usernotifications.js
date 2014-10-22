@@ -10,7 +10,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser with the limit query parameter', function(done) {
 
       var limit = 15;
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.limit).to.equal(limit);
@@ -35,7 +35,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser without limit if query parameter is a not number', function(done) {
 
       var limit = 'ABC';
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.limit).to.not.exist;
@@ -60,7 +60,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser with the offset query parameter', function(done) {
 
       var offset = 10;
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.offset).to.equal(offset);
@@ -85,7 +85,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser without the offset parameter if the query parameter is not a number', function(done) {
 
       var offset = 'AZE';
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.offset).to.not.exist;
@@ -109,7 +109,7 @@ describe('The user notifications controller', function() {
 
     it('should call notification#getForUser with read=true query parameter', function(done) {
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.read).to.be.true;
@@ -133,7 +133,7 @@ describe('The user notifications controller', function() {
 
     it('should call notification#getForUser with read=false query parameter', function(done) {
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.read).to.be.false;
@@ -157,7 +157,7 @@ describe('The user notifications controller', function() {
 
     it('should call notification#getForUser with read=undefined query parameter', function(done) {
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           expect(query).to.exist;
           expect(query.read).to.be.undefined;
@@ -181,7 +181,7 @@ describe('The user notifications controller', function() {
 
     it('should send back HTTP 500 if notification#getForUser sends back error', function(done) {
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           return callback(new Error());
         }
@@ -208,7 +208,7 @@ describe('The user notifications controller', function() {
 
     it('should call notification#countForUser when notifications are found', function(done) {
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           return callback(null, [1, 2, 3]);
         },
@@ -233,7 +233,7 @@ describe('The user notifications controller', function() {
 
       var notifications = [1, 2, 3];
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           return callback(null, notifications);
         },
@@ -268,7 +268,7 @@ describe('The user notifications controller', function() {
 
       var notifications = null;
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           return callback(null, notifications);
         },
@@ -306,7 +306,7 @@ describe('The user notifications controller', function() {
       var notifications = [1, 2, 3, 4];
       var total = 20;
 
-      mockery.registerMock('../../core/notification/user', {
+      mockery.registerMock('../../core/notification/usernotification', {
         getForUser: function(user, query, callback) {
           return callback(null, notifications);
         },
@@ -358,7 +358,7 @@ describe('The user notifications controller', function() {
         }
       };
       var userNotificationModuleMocked = {};
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       controller.load(req, res, {});
     });
@@ -369,7 +369,7 @@ describe('The user notifications controller', function() {
           callback(null, null);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         params: {
@@ -394,7 +394,7 @@ describe('The user notifications controller', function() {
           callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         params: {
@@ -419,7 +419,7 @@ describe('The user notifications controller', function() {
           callback(null, 'usernotification');
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         params: {
@@ -448,7 +448,7 @@ describe('The user notifications controller', function() {
         }
       };
       var userNotificationModuleMocked = {};
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       controller.loadAll(req, res, {});
     });
@@ -467,7 +467,7 @@ describe('The user notifications controller', function() {
         }
       };
       var userNotificationModuleMocked = {};
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       controller.loadAll(req, res, {});
     });
@@ -478,7 +478,7 @@ describe('The user notifications controller', function() {
           callback(null, null);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         query: {
@@ -503,7 +503,7 @@ describe('The user notifications controller', function() {
           callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         query: {
@@ -531,7 +531,7 @@ describe('The user notifications controller', function() {
           ]);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         query: {
@@ -549,7 +549,7 @@ describe('The user notifications controller', function() {
   describe('setRead method', function() {
 
     it('should return 400 if req.body is undefined', function(done) {
-      mockery.registerMock('../../core/notification/user', {});
+      mockery.registerMock('../../core/notification/usernotification', {});
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification'
@@ -567,7 +567,7 @@ describe('The user notifications controller', function() {
     });
 
     it('should return 400 if req.body.value is undefined', function(done) {
-      mockery.registerMock('../../core/notification/user', {});
+      mockery.registerMock('../../core/notification/usernotification', {});
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
@@ -591,7 +591,7 @@ describe('The user notifications controller', function() {
           callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
@@ -619,7 +619,7 @@ describe('The user notifications controller', function() {
           callback(null);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
@@ -641,7 +641,7 @@ describe('The user notifications controller', function() {
   describe('setAllRead method', function() {
 
     it('should return 400 if req.body is undefined', function(done) {
-      mockery.registerMock('../../core/notification/user', {});
+      mockery.registerMock('../../core/notification/usernotification', {});
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications'
@@ -659,7 +659,7 @@ describe('The user notifications controller', function() {
     });
 
     it('should return 400 if req.body.value is undefined', function(done) {
-      mockery.registerMock('../../core/notification/user', {});
+      mockery.registerMock('../../core/notification/usernotification', {});
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications',
@@ -683,7 +683,7 @@ describe('The user notifications controller', function() {
           callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications',
@@ -711,7 +711,7 @@ describe('The user notifications controller', function() {
           callback(null);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications',
@@ -733,7 +733,7 @@ describe('The user notifications controller', function() {
   describe('setAcknowledged method', function() {
 
     it('should return 400 if req.body is undefined', function(done) {
-      mockery.registerMock('../../core/notification/user', {});
+      mockery.registerMock('../../core/notification/usernotification', {});
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification'
@@ -751,7 +751,7 @@ describe('The user notifications controller', function() {
     });
 
     it('should return 400 if req.body.value is undefined', function(done) {
-      mockery.registerMock('../../core/notification/user', {});
+      mockery.registerMock('../../core/notification/usernotification', {});
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
@@ -775,7 +775,7 @@ describe('The user notifications controller', function() {
           callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
@@ -803,7 +803,7 @@ describe('The user notifications controller', function() {
           callback(null);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
@@ -830,7 +830,7 @@ describe('The user notifications controller', function() {
           callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var res = {
         json: function(code, message) {
@@ -850,7 +850,7 @@ describe('The user notifications controller', function() {
           callback(null, 42);
         }
       };
-      mockery.registerMock('../../core/notification/user', userNotificationModuleMocked);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
       var res = {
         json: function(code, body) {

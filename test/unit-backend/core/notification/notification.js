@@ -15,7 +15,7 @@ describe('The notification module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.get(null, function(err) {
         expect(err).to.exist;
         done();
@@ -38,7 +38,7 @@ describe('The notification module', function() {
         }
       };
       mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.get(1);
     });
   });
@@ -59,7 +59,7 @@ describe('The notification module', function() {
         }
       };
       mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.find();
     });
 
@@ -78,7 +78,7 @@ describe('The notification module', function() {
         }
       };
       mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.find({foo: 'bar'}, function(err, result) {
         expect(err).to.not.exist;
         done();
@@ -95,7 +95,7 @@ describe('The notification module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.setAsRead(null, function(err) {
         expect(err).to.exist;
         done();
@@ -117,7 +117,7 @@ describe('The notification module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.setAsRead(notification, function() {
         expect(saved).to.be.true;
         expect(notification.read).to.be.true;
@@ -134,7 +134,7 @@ describe('The notification module', function() {
         }
       };
       mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.saveOne(null, null, function(err) {
         expect(err).to.exist;
         done();
@@ -154,7 +154,7 @@ describe('The notification module', function() {
         }
       };
       mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.saveOne({}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -189,7 +189,7 @@ describe('The notification module', function() {
 
       mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.saveOne({}, null, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;
@@ -226,7 +226,7 @@ describe('The notification module', function() {
 
       mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.saveOne({}, null, function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
@@ -267,7 +267,7 @@ describe('The notification module', function() {
 
       mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.saveOne({}, null, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;
@@ -294,7 +294,7 @@ describe('The notification module', function() {
       };
 
       mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.save(null, function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
@@ -331,7 +331,7 @@ describe('The notification module', function() {
 
       mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
 
       var notification = {_id: 123, target: []};
       module.save(notification, function() {
@@ -369,7 +369,7 @@ describe('The notification module', function() {
 
       mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
 
       var notification = {_id: 123, target: [1, 2, 3], timestamps: []};
       module.save(notification, function() {
@@ -405,7 +405,7 @@ describe('The notification module', function() {
 
       mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
 
       var notification = {_id: 123, target: [1, 2, 3], timestamps: []};
       module.save(notification, function(err, results) {
