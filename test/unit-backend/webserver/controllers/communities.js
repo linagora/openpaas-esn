@@ -1554,7 +1554,7 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, callback) {
+          removeMembershipRequest: function(community, user, target, type, callback) {
             return callback(new Error());
           }
         });
@@ -1591,7 +1591,7 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, callback) {
+          removeMembershipRequest: function(community, user, target, type, callback) {
             return callback();
           },
           join: function(community, user, target, callback) {
@@ -1631,7 +1631,7 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, callback) {
+          removeMembershipRequest: function(community, user, target, type, callback) {
             return callback();
           },
           join: function(community, user, target, callback) {
