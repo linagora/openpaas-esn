@@ -220,6 +220,22 @@ module.exports.getMembers = function(community, query, callback) {
   });
 };
 
+module.exports.getManagers = function(community, query, callback) {
+  var id = community._id || community;
+
+  var q = Community.findById(id);
+  // TODO Right now creator is the only manager. It will change in the futur.
+  // query = query ||  {};
+  // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
+  q.populate('creator');
+  q.exec(function(err, community) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, community ? [ community.creator ] : []);
+  });
+};
+
 module.exports.getUserCommunities = function(user, domainId, callback) {
   if (typeof(domainId) === 'function') {
     callback = domainId;
