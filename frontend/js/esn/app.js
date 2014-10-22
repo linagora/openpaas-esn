@@ -27,7 +27,8 @@ angular.module('esnApp', [
   'esn.community-as-tracker',
   'esn.conference-notification',
   'esn.api-notification',
-  'esn.user-notification'
+  'esn.user-notification',
+  'esn.object-type'
 ]).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
