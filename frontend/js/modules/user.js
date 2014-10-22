@@ -11,7 +11,7 @@ angular.module('esn.user', ['restangular', 'esn.object-type'])
     }
 
     function user(uuid) {
-      return Restangular.one('user', uuid).get();
+      return Restangular.one('users', uuid).get();
     }
 
     function getCommunities() {
