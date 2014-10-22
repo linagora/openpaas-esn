@@ -355,7 +355,7 @@ module.exports.join = function(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User did not request to join community'}});
     }
 
-    communityModule.removeMembershipRequest(community, targetUser, function(err) {
+    communityModule.removeMembershipRequest(community, req.user, targetUser, 'manager', function(err) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
       }
