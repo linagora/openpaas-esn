@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.user', ['restangular'])
+angular.module('esn.user', ['restangular', 'esn.object-type'])
+  .run(['objectTypeResolver', 'userAPI', function(objectTypeResolver, userAPI) {
+    objectTypeResolver.register('user', userAPI.user);
+  }])
   .factory('userAPI', ['Restangular', function(Restangular) {
 
     function currentUser() {

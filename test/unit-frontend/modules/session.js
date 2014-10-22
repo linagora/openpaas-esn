@@ -74,6 +74,10 @@ describe('The esn.session Angular module', function() {
         currentUser: function() {
           userdefer = $q.defer();
           return userdefer.promise;
+        },
+        user: function() {
+          userdefer = $q.defer();
+          return userdefer.promise;
         }
       };
 
