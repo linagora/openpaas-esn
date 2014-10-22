@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo'])
+angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type'])
+  .run(['objectTypeResolver', 'communityAPI', function(objectTypeResolver, communityAPI) {
+    objectTypeResolver.register('community', communityAPI.get);
+  }])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {

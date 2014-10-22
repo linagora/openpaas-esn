@@ -2112,7 +2112,9 @@ describe('The Community Angular module', function() {
   describe('The communityMembersWidget directive', function() {
     beforeEach(function() {
       var self = this;
-      this.communityAPI = {};
+      this.communityAPI = {
+        get: function() {}
+      };
       angular.mock.module(function($provide) {
         $provide.value('communityAPI', self.communityAPI);
       });
