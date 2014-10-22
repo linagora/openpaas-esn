@@ -1490,7 +1490,7 @@ describe('The communities controller', function() {
         var res = {
           json: function(code, err) {
             expect(code).to.equal(400);
-            expect(err.details).to.match(/Community Manager can not add himself to a community/);
+            expect(err.error.details).to.match(/Community Manager can not add himself to a community/);
             done();
           }
         };
@@ -1525,7 +1525,7 @@ describe('The communities controller', function() {
         var res = {
           json: function(code, err) {
             expect(code).to.equal(400);
-            expect(err.details).to.match(/User does not requested to join community/);
+            expect(err.error.details).to.match(/User did not request to join community/);
             done();
           }
         };
@@ -1676,7 +1676,7 @@ describe('The communities controller', function() {
         var res = {
           json: function(code, err) {
             expect(code).to.equal(400);
-            expect(err.details).to.match(/Current user is not the target user/);
+            expect(err.error.details).to.match(/Current user is not the target user/);
             done();
           }
         };
@@ -1706,7 +1706,7 @@ describe('The communities controller', function() {
         var res = {
           json: function(code, err) {
             expect(code).to.equal(403);
-            expect(err.details).to.match(/Can not join community/);
+            expect(err.error.details).to.match(/Can not join community/);
             done();
           }
         };
