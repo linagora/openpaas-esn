@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-describe.only('The websockets usernotification module', function() {
+describe('The websockets usernotification module', function() {
   var moduleToTest, localstub, globalstub, io;
 
   before(function() {
@@ -124,7 +124,7 @@ describe.only('The websockets usernotification module', function() {
       expect(emittedEvents3[0]).to.deep.equal(notif);
     });
 
-    it('should emit to all community members', function() {
+    it('should emit to all community members if category is external', function() {
 
       var emittedEvents1 = [];
       var emittedEvents2 = [];
@@ -166,7 +166,62 @@ describe.only('The websockets usernotification module', function() {
       var notif = {
         target: [
           { objectType: 'community', id: 'community1' }
-        ]
+        ],
+        category: 'external'
+      };
+
+      globalstub.topics['usernotification:created'].handler(notif);
+
+      expect(emittedEvents1.length).to.equal(1);
+      expect(emittedEvents1[0]).to.deep.equal(notif);
+      expect(emittedEvents2.length).to.equal(1);
+      expect(emittedEvents2[0]).to.deep.equal(notif);
+    });
+
+    it('should emit to all managers if category is community:membership:request', function() {
+
+      var emittedEvents1 = [];
+      var emittedEvents2 = [];
+      var socketHelper = {
+        getUserSocketsFromNamespace: function(user) {
+          if (user === 'user1') {
+            var socket1 = {
+              emit: function(event, payload) {
+                expect(event).to.equal('created');
+                emittedEvents1.push(payload);
+              }
+            };
+            return [socket1];
+          } else if (user === 'user2') {
+            var socket2 = {
+              emit: function(event, payload) {
+                expect(event).to.equal('created');
+                emittedEvents2.push(payload);
+              }
+            };
+            return [socket2];
+          }
+          return [];
+        }
+      };
+      mockery.registerMock('../helper/socketio', socketHelper);
+
+      var communityMock = {
+        getManagers: function(communityId, query, callback) {
+          return callback(null, [
+            {user: 'user1'}, {user: 'user2'}
+          ]);
+        }
+      };
+      mockery.registerMock('../../core/community', communityMock);
+
+      require(moduleToTest).init(io);
+
+      var notif = {
+        target: [
+          { objectType: 'community', id: 'community1' }
+        ],
+        category: 'community:membership:request'
       };
 
       globalstub.topics['usernotification:created'].handler(notif);
@@ -221,7 +276,8 @@ describe.only('The websockets usernotification module', function() {
           { objectType: 'user', id: 'user1' },
           { objectType: 'community', id: 'community1' },
           { objectType: 'user', id: 'user2' }
-        ]
+        ],
+        category: 'external'
       };
       globalstub.topics['usernotification:created'].handler(notif);
 

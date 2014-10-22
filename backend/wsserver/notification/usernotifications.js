@@ -16,6 +16,13 @@ var TOPIC_UPDATED = 'usernotification:updated';
 var NOTIFICATION_EVENT_CREATED = 'created';
 var NOTIFICATION_EVENT_UPDATED = 'updated';
 
+var NOTIFICATION_CATEGORIES_FOR_ALL = [
+  'external'
+];
+var NOTIFICATION_CATEGORIES_FOR_MANAGERS = [
+  'community:membership:request'
+];
+
 function notify(io, user, event, usernotification) {
   var clientSockets = helper.getUserSocketsFromNamespace(user, io.of(NAMESPACE).sockets);
   if (!clientSockets) {
@@ -25,6 +32,24 @@ function notify(io, user, event, usernotification) {
   clientSockets.forEach(function(socket) {
     socket.emit(event, usernotification);
   });
+}
+
+function isForAll(usernotification) {
+  return NOTIFICATION_CATEGORIES_FOR_ALL.indexOf(usernotification.category) >= 0;
+}
+
+function isForManagers(usernotification) {
+  return NOTIFICATION_CATEGORIES_FOR_MANAGERS.indexOf(usernotification.category) >= 0;
+}
+
+function addUsersToCache(err, users, finds, callback) {
+  if (err) {
+    return callback(err);
+  }
+  finds.forEach(function(member) {
+    users[member.user] = true;
+  });
+  return callback();
 }
 
 function handler(io, event, usernotification) {
@@ -38,19 +63,19 @@ function handler(io, event, usernotification) {
       users[target.id] = true;
       callback();
     } else if (target.objectType === 'community') {
-      community.getMembers(target.id, null, function(err, members) {
-        if (err) {
-          return callback(err);
-        }
-        members.forEach(function(member) {
-          users[member.user] = true;
+      if (isForAll(usernotification)) {
+        community.getMembers(target.id, null, function(err, members) {
+          addUsersToCache(err, users, members, callback);
         });
-        callback();
-      });
+      } else if (isForManagers(usernotification)) {
+        community.getManagers(target.id, null, function(err, managers) {
+          addUsersToCache(err, users, managers, callback);
+        });
+      }
     }
   }
 
-  function callback(err) {
+  function onEndOfSeries(err) {
     if (err) {
       return;
     }
@@ -61,7 +86,7 @@ function handler(io, event, usernotification) {
     }
   }
 
-  async.eachSeries(usernotification.target, filterByUserAndCommunity, callback);
+  async.eachSeries(usernotification.target, filterByUserAndCommunity, onEndOfSeries);
 }
 
 function init(io) {

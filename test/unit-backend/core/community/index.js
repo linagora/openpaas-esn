@@ -933,7 +933,7 @@ describe('The communities module', function() {
       community.getManagers({_id: 123}, null, function(err, managers) {
         expect(err).to.not.exist;
         expect(managers).to.be.an.array;
-        expect(managers).to.deep.equal( [ result ]);
+        expect(managers).to.deep.equal([result]);
         return done();
       });
     });

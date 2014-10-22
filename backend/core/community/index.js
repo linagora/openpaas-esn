@@ -232,7 +232,7 @@ module.exports.getManagers = function(community, query, callback) {
     if (err) {
       return callback(err);
     }
-    return callback(null, community ? [ community.creator ] : []);
+    return callback(null, community ? [community.creator] : []);
   });
 };
 
