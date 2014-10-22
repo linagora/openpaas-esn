@@ -117,6 +117,14 @@ module.exports.checkUserIdParameterIsCurrentUser = function(req, res, next) {
   return next();
 };
 
+module.exports.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser = function(req, res, next) {
+  if (req.isCommunityManager) {
+    return next();
+  }
+
+  module.exports.checkUserIdParameterIsCurrentUser(req, res, next);
+};
+
 module.exports.canRead = function(req, res, next) {
   if (!req.community) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});

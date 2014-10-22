@@ -408,6 +408,56 @@ describe('The community middleware', function() {
     });
   });
 
+  describe('the ifNotCommunityManagerCheckUserIdParameterIsCurrentUser fn', function() {
+    it('should call next if req.isCommunityManager is true', function(done) {
+      var ObjectId = require('bson').ObjectId;
+      var id = new ObjectId();
+
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').ifNotCommunityManagerCheckUserIdParameterIsCurrentUser;
+      var req = {
+        user: {_id: id},
+        param: function() {
+          return '' + id;
+        },
+        isCommunityManager: true
+      };
+      var res = {
+        json: function(code) {
+          done(new Error('Should not called res.json()'));
+        }
+      };
+      middleware(req, res, done);
+    });
+
+    it('should call checkUserIdParameterIsCurrentUser if req.isCommunityManager is false', function(done) {
+      var ObjectId = require('bson').ObjectId;
+      var id = new ObjectId();
+
+      mockery.registerMock('../../core/community', {});
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community');
+      var req = {
+        user: {_id: id},
+        param: function() {
+          return '' + id;
+        },
+        isCommunityManager: false
+      };
+      var res = {
+        json: function(code) {
+          done(new Error('Should not called res.json()'));
+        }
+      };
+      var next = function() {
+        done(new Error('Should not called next'));
+      };
+      middleware.checkUserIdParameterIsCurrentUser = function() {
+        done();
+      };
+      middleware.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser(req, res, next);
+    });
+  });
+
   describe('the checkUserParamIsNotMember fn', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
