@@ -1877,7 +1877,7 @@ describe('The communities controller', function() {
         var res = {
           json: function(code, err) {
             expect(code).to.equal(400);
-            expect(err.details).to.match(/Current user is not the target user/);
+            expect(err.error.details).to.match(/Current user is not the target user/);
             done();
           }
         };
@@ -1980,7 +1980,7 @@ describe('The communities controller', function() {
         var res = {
           json: function(code, err) {
             expect(code).to.equal(400);
-            expect(err.details).to.match(/Community Manager can not remove himself from membership request/);
+            expect(err.error.details).to.match(/Community Manager can not remove himself from membership request/);
             done();
           }
         };

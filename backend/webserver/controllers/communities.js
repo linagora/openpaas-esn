@@ -425,7 +425,7 @@ module.exports.removeMembershipRequest = function(req, res) {
   if (req.isCommunityManager) {
 
     if (req.user._id.equals(targetUser)) {
-      return res.json(400, {error: 400, message: 'Bad request', details: 'Community Manager can not remove himself from membership request'});
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not remove himself from membership request'}});
     }
 
     communityModule.removeMembershipRequest(community, req.user, targetUser, 'manager', function(err) {
@@ -439,7 +439,7 @@ module.exports.removeMembershipRequest = function(req, res) {
   } else {
 
     if (!req.user._id.equals(targetUser)) {
-      return res.json(400, {error: 400, message: 'Bad request', details: 'Current user is not the target user'});
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
     communityModule.removeMembershipRequest(community, req.user, targetUser, 'user', function(err) {
