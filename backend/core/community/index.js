@@ -285,11 +285,17 @@ module.exports.getMembershipRequest = function(community, user) {
   return mr.pop();
 };
 
-module.exports.removeMembershipRequest = function(community, user, callback) {
-  if (!user) {
-    return callback(new Error('User object is required'));
+module.exports.removeMembershipRequest = function(community, userAuthor, userTarget, actor, callback) {
+  if (!userAuthor) {
+    return callback(new Error('User author object is required'));
   }
-  var userId = user._id || user;
+
+  if (!userTarget) {
+    return callback(new Error('User target object is required'));
+  }
+
+  var userAuthorId = userAuthor._id || userAuthor;
+  var userTargetId = userTarget._id || userTarget;
 
   if (!community) {
     return callback(new Error('Community object is required'));
@@ -299,7 +305,7 @@ module.exports.removeMembershipRequest = function(community, user, callback) {
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
-  this.isMember(community, user, function(err, isMember) {
+  this.isMember(community, userTargetId, function(err, isMember) {
     if (err) {
       return callback(err);
     }
@@ -309,10 +315,23 @@ module.exports.removeMembershipRequest = function(community, user, callback) {
 
     var otherUserRequests = community.membershipRequests.filter(function(request) {
       var requestUserId = request.user._id || request.user;
-      return !requestUserId.equals(userId);
+      return !requestUserId.equals(userTargetId);
     });
 
     community.membershipRequests = otherUserRequests;
-    community.save(callback);
+    community.save(function(err, updated) {
+      if (err) {
+        return callback(err);
+      }
+
+      localpubsub.topic('community:membership:remove').forward(globalpubsub, {
+        author: userAuthorId,
+        target: userTargetId,
+        actor: actor || 'user',
+        community: community._id || community
+      });
+
+      return callback(null, updated);
+    });
   });
 };

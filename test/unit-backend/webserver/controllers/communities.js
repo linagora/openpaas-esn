@@ -2134,65 +2134,209 @@ describe('The communities controller', function() {
       communities.removeMembershipRequest(req, res);
     });
 
-    it('should send back 500 if communityModule#removeMembershipRequest fails', function(done) {
-      mockery.registerMock('../../core/community', {
-        removeMembershipRequest: function(community, user, callback) {
-          expect(community).to.deep.equal(req.community);
-          expect(user).to.deep.equal(req.params.user_id);
-          callback(new Error('community module error'));
-        }
+    describe('When current user is not community manager', function() {
+
+      it('should send back 400 when req.params.user_id is not the current user id', function(done) {
+        mockery.registerMock('../../core/community', {});
+        mockery.registerMock('../../core/community/permission', {});
+
+        var res = {
+          json: function(code, err) {
+            expect(code).to.equal(400);
+            expect(err.error.details).to.match(/Current user is not the target user/);
+            done();
+          }
+        };
+
+        var req = {
+          community: {_id: '1'},
+          user: {
+            _id: {
+              equals: function() {
+                return false;
+              }
+            }
+          },
+          params: {
+            user_id: '2'
+          }
+        };
+
+        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        communities.removeMembershipRequest(req, res);
       });
-      mockery.registerMock('../../core/community/permission', {});
 
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      };
+      it('should send back 500 if communityModule#removeMembershipRequest fails', function(done) {
+        mockery.registerMock('../../core/community', {
+          removeMembershipRequest: function(community, user, target, actor, callback) {
+            callback(new Error('community module error'));
+          }
+        });
+        mockery.registerMock('../../core/community/permission', {});
 
-      var req = {
-        community: {_id: '1'},
-        user: {_id: '2'},
-        params: {
-          user_id: '2'
-        }
-      };
+        var res = {
+          json: function(code) {
+            expect(code).to.equal(500);
+            done();
+          }
+        };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.removeMembershipRequest(req, res);
+        var req = {
+          community: {_id: '1'},
+          user: {
+            _id: {
+              equals: function() {
+                return true;
+              }
+            }
+          },
+          params: {
+            user_id: '2'
+          }
+        };
+
+        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        communities.removeMembershipRequest(req, res);
+      });
+
+      it('should send 204 if communityModule#removeMembershipRequest succeeds', function(done) {
+        mockery.registerMock('../../core/community', {
+          removeMembershipRequest: function(community, user, target, actor, callback) {
+            callback(null, {});
+          }
+        });
+        mockery.registerMock('../../core/community/permission', {});
+
+        var res = {
+          send: function(code) {
+            expect(code).to.equal(204);
+            done();
+          }
+        };
+
+        var req = {
+          community: {
+            _id: '1',
+            membershipRequests: [
+              {user: this.helpers.objectIdMock('anotherUserrequest')}
+            ]},
+          user: {
+            _id: {
+              equals: function() {
+                return true;
+              }
+            }
+          },
+          params: {
+            user_id: this.helpers.objectIdMock('2')
+          }
+        };
+
+        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        communities.removeMembershipRequest(req, res);
+      });
     });
 
-    it('should send 204 if communityModule#removeMembershipRequest succeeds', function(done) {
-      mockery.registerMock('../../core/community', {
-        removeMembershipRequest: function(community, user, callback) {
-          expect(community).to.deep.equal(req.community);
-          expect(user).to.deep.equal(req.params.user_id);
-          callback(null, {});
-        }
+    describe('when current user is community manager', function() {
+
+      it('should send back 400 when req.params.user_id is the current user id', function(done) {
+        mockery.registerMock('../../core/community', {});
+        mockery.registerMock('../../core/community/permission', {});
+
+        var res = {
+          json: function(code, err) {
+            expect(code).to.equal(400);
+            expect(err.error.details).to.match(/Community Manager can not remove himself from membership request/);
+            done();
+          }
+        };
+
+        var req = {
+          isCommunityManager: true,
+          community: {_id: '1'},
+          user: {
+            _id: {
+              equals: function() {
+                return true;
+              }
+            }
+          },
+          params: {
+            user_id: '2'
+          }
+        };
+
+        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        communities.removeMembershipRequest(req, res);
       });
-      mockery.registerMock('../../core/community/permission', {});
 
-      var res = {
-        send: function(code) {
-          expect(code).to.equal(204);
-          done();
-        }
-      };
+      it('should send back 500 when removeMembershipRequest fails', function(done) {
+        mockery.registerMock('../../core/community', {
+          removeMembershipRequest: function(community, user, target, actor, callback) {
+            return callback(new Error());
+          }
+        });
+        mockery.registerMock('../../core/community/permission', {});
 
-      var req = {
-        community: {
-          _id: '1',
-          membershipRequests: [{user: this.helpers.objectIdMock('anotherUserrequest')}]},
-        user: {_id: this.helpers.objectIdMock('2')},
-        params: {
-          user_id: this.helpers.objectIdMock('2')
-        }
-      };
+        var res = {
+          json: function(code) {
+            expect(code).to.equal(500);
+            done();
+          }
+        };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.removeMembershipRequest(req, res);
+        var req = {
+          isCommunityManager: true,
+          community: {_id: '1'},
+          user: {
+            _id: {
+              equals: function() {
+                return false;
+              }
+            }
+          },
+          params: {
+            user_id: '2'
+          }
+        };
+
+        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        communities.removeMembershipRequest(req, res);
+      });
+
+      it('should send back 204 when removeMembershipRequest is ok', function(done) {
+        mockery.registerMock('../../core/community', {
+          removeMembershipRequest: function(community, user, target, actor, callback) {
+            return callback();
+          }
+        });
+        mockery.registerMock('../../core/community/permission', {});
+
+        var res = {
+          send: function(code) {
+            expect(code).to.equal(204);
+            done();
+          }
+        };
+
+        var req = {
+          isCommunityManager: true,
+          community: {_id: '1'},
+          user: {
+            _id: {
+              equals: function() {
+                return false;
+              }
+            }
+          },
+          params: {
+            user_id: '2'
+          }
+        };
+
+        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        communities.removeMembershipRequest(req, res);
+      });
     });
   });
-
 });

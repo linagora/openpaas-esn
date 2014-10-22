@@ -2020,7 +2020,6 @@ describe('The communities API', function() {
 
   });
 
-
   describe('DELETE /api/communities/:id/membership/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
@@ -2030,140 +2029,328 @@ describe('The communities API', function() {
       });
     });
 
-    it('should return 400 if user is already member of the community', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        members: [],
-        type: 'private'
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
+    describe('when current user is not community manager', function() {
 
-      async.series([
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.members.push({user: user._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
-            req.end(function(err, res) {
-              expect(res.status).to.equal(400);
-              expect(res.text).to.contain('already member');
-              done();
+      it('should return 400 if current user is not the target user', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private'
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+        var user1 = new User({password: 'pwd', emails: ['user1@linagora.com']});
+        var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+
+        async.series([
+          function(callback) {
+            saveUser(user1, callback);
+          },
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user2._id;
+            community.domain_ids = [domain._id];
+            community.members.push({user: user._id});
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user1._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(400);
+                expect(res.text).to.match(/Current user is not the target user/);
+                done();
+              });
             });
-          });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+
+      it('should return 204 with the community having no more membership requests', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private'
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+        var user1 = new User({password: 'pwd', emails: ['user1@linagora.com']});
+        var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+
+        async.series([
+          function(callback) {
+            saveUser(user1, callback);
+          },
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user1._id;
+            community.domain_ids = [domain._id];
+            community.membershipRequests = [
+              {user: user._id}
+            ];
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(204);
+                done();
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+
+      it('should return 204 even if the community had no membership request for this user', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private'
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+        var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+
+        async.series([
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user2._id;
+            community.domain_ids = [domain._id];
+            community.membershipRequests = [
+              {user: user2._id, workflow: 'request'}
+            ];
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(204);
+                done();
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
       });
     });
 
+    describe('when current user is community manager', function() {
+      it('should return 400 if current user is the target user', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private'
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
 
-    it('should return 204 with the community having no more membership requests', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        members: [],
-        type: 'private'
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-
-      async.series([
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.membershipRequests = [{user: user._id}];
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
-            req.end(function(err, res) {
-              expect(res.status).to.equal(204);
-              done();
+        async.series([
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user._id;
+            community.domain_ids = [domain._id];
+            community.members.push({user: user._id});
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(400);
+                expect(res.text).to.match(/Community Manager can not remove himself from membership request/);
+                done();
+              });
             });
-          });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+
+      it('should update the community membership request array and return 204', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private'
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+
+        var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+
+        async.series([
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user._id;
+            community.domain_ids = [domain._id];
+            community.membershipRequests = [
+              {user: user2._id}
+            ];
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user2._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(204);
+
+                Community.findById(community._id, function(err, com) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(com).to.exist;
+                  expect(com.membershipRequests.length).to.equal(0);
+                  done();
+                });
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+
+      it('should not update the community membership request array and return 204 when user is not in array', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private'
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+
+        var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
+        var user3 = new User({password: 'pwd', emails: ['user3@linagora.com']});
+
+        async.series([
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            saveUser(user3, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user._id;
+            community.domain_ids = [domain._id];
+            community.membershipRequests = [
+              {user: user2._id, workflow: 'request'}
+            ];
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user3._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(204);
+
+                Community.findById(community._id, function(err, com) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(com).to.exist;
+                  expect(com.membershipRequests.length).to.equal(1);
+                  expect(com.membershipRequests[0].user + '').to.equal(user2._id + '');
+                  done();
+                });
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
       });
     });
-
-    it('should return 204 even if the community had no membership request for this user', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        members: [],
-        type: 'private'
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var user2 = new User({password: 'pwd', emails: ['user2@linagora.com']});
-
-      async.series([
-        function(callback) {
-          saveUser(user2, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.membershipRequests = [{user: user2._id, workflow: 'request'}];
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/membership/' + user._id));
-            req.end(function(err, res) {
-              expect(res.status).to.equal(204);
-              done();
-            });
-          });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
-      });
-    });
-
   });
 });

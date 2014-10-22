@@ -456,10 +456,31 @@ module.exports.removeMembershipRequest = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.removeMembershipRequest(community, targetUser, function(err, community) {
-    if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+  if (req.isCommunityManager) {
+
+    if (req.user._id.equals(targetUser)) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not remove himself from membership request'}});
     }
-    return res.send(204);
-  });
+
+    communityModule.removeMembershipRequest(community, req.user, targetUser, 'manager', function(err) {
+      console.log(err);
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+      }
+      return res.send(204);
+    });
+
+  } else {
+
+    if (!req.user._id.equals(targetUser)) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
+    }
+
+    communityModule.removeMembershipRequest(community, req.user, targetUser, 'user', function(err) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+      }
+      return res.send(204);
+    });
+  }
 };
