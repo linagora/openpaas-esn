@@ -1432,4 +1432,144 @@ describe('The communities module', function() {
     });
   });
 
+  describe('The getMembershipRequests fn', function() {
+
+    it('should send back error when Community.exec fails', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function(id) {
+              return {
+                slice: function() {},
+                populate: function() {},
+                exec: function(callback) {
+                  return callback(new Error());
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getMembershipRequests({_id: 123}, null, function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+
+    it('should send back [] when Community.exec does not find requests', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function() {
+              return {
+                slice: function() {},
+                populate: function() {},
+                exec: function(callback) {
+                  return callback();
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getMembershipRequests({_id: 123}, null, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.an.array;
+        expect(result.length).to.equal(0);
+        return done();
+      });
+    });
+
+    it('should send back result requests', function(done) {
+      var result = [{user: 1}, {user: 2}];
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function(a) {
+              return {
+                slice: function() {},
+                populate: function() {},
+                exec: function(callback) {
+                  return callback(null, {membershipRequests: result});
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getMembershipRequests({_id: 123}, null, function(err, requests) {
+        expect(err).to.not.exist;
+        expect(requests).to.be.an.array;
+        expect(requests).to.deep.equal(result);
+        return done();
+      });
+    });
+
+    it('should slice members when query is defined', function(done) {
+      var query = {
+        limit: 2,
+        offset: 10
+      };
+
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function(a) {
+              return {
+                populate: function() {},
+                slice: function(field, array) {
+                  expect(field).to.equal('membershipRequests');
+                  expect(array).to.exist;
+                  expect(array[0]).to.equal(query.offset);
+                  expect(array[1]).to.equal(query.limit);
+                },
+                exec: function(callback) {
+                  return callback(null, {members: []});
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getMembershipRequests({_id: 123}, query, function() {
+        done();
+      });
+    });
+
+    it('should slice members even if query is not defined', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function(a) {
+              return {
+                slice: function(field, array) {
+                  expect(field).to.equal('membershipRequests');
+                  expect(array).to.exist;
+                  expect(array[0]).to.exist;
+                  expect(array[1]).to.exist;
+                },
+                populate: function() {},
+                exec: function(callback) {
+                  return callback(null, {members: []});
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getMembershipRequests({_id: 123}, null, function() {
+        done();
+      }
+    });
+  });
 });

@@ -412,6 +412,44 @@ module.exports.leave = function(req, res) {
   });
 };
 
+module.exports.getMembershipRequests = function(req, res) {
+  var community = req.community;
+
+  if (!community) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+  }
+
+  if (!req.isCommunityManager) {
+    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Only community managers can get requests'}});
+  }
+
+  var query = {};
+  if (req.param('limit')) {
+    var limit = parseInt(req.param('limit'));
+    if (!isNaN(limit)) {
+      query.limit = limit;
+    }
+  }
+
+  if (req.param('offset')) {
+    var offset = parseInt(req.param('offset'));
+    if (!isNaN(offset)) {
+      query.offset = offset;
+    }
+  }
+
+  communityModule.getMembershipRequests(community, query, function(err, membershipRequests) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    res.header('X-ESN-Items-Count', req.community.membershipRequests ? req.community.membershipRequests.length : 0);
+    var result = membershipRequests.map(function(request) {
+      return communityModule.userToMember(request);
+    });
+    return res.json(200, result || []);
+  });
+};
+
 module.exports.addMembershipRequest = function(req, res) {
   var community = req.community;
   var userAuthor = req.user;
