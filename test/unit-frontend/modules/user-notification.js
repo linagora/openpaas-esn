@@ -323,4 +323,290 @@ describe('The esn.user-notification Angular module', function() {
       });
     });
   });
+
+  describe('communityMembershipInvitationNotification directive', function() {
+
+    beforeEach(function() {
+      var communityAPI = {
+        get: function() {},
+        join: function() {}
+      };
+
+      var userAPI = {
+        user: function() {}
+      };
+
+      var objectTypeResolver = {
+        resolve: function() {},
+        register: function() {}
+      };
+
+      angular.mock.module('esn.community');
+      angular.mock.module('esn.user');
+      angular.mock.module('esn.object-type');
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', communityAPI);
+        $provide.value('userAPI', userAPI);
+        $provide.value('objectTypeResolver', objectTypeResolver);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, objectTypeResolver, userAPI) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.communityAPI = communityAPI;
+      this.userNotificationAPI = userNotificationAPI;
+      this.objectTypeResolver = objectTypeResolver;
+      this.userAPI = userAPI;
+      this.scope.notification = {
+        _id: '123',
+        subject: {
+          id: '1',
+          objectType: 'user'
+        },
+        complement: {
+          id: '2',
+          objectType: 'community'
+        }
+      };
+      this.html = '<community-membership-invitation-notification notification="notification"/>';
+    }));
+
+    describe('The controller', function() {
+      it('should resolve notification data', function() {
+        var userDefer = this.$q.defer();
+        var communityDefer = this.$q.defer();
+        this.objectTypeResolver.resolve = function(type) {
+          if (type === 'user') {
+            return userDefer.promise;
+          }
+
+          if (type === 'community') {
+            return communityDefer.promise;
+          }
+        };
+        userDefer.resolve({data: {_id: this.scope.notification.subject.id}});
+        communityDefer.resolve({data: {_id: this.scope.notification.complement.id}});
+        this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var eltScope = element.isolateScope();
+
+        expect(eltScope.invitationSender).to.exist;
+        expect(eltScope.invitationSender._id).to.equal(this.scope.notification.subject.id);
+        expect(eltScope.invitationCommunity).to.exist;
+        expect(eltScope.invitationCommunity._id).to.equal(this.scope.notification.complement.id);
+        expect(eltScope.error).to.be.false;
+        expect(eltScope.loading).to.be.false;
+      });
+
+      it('should set scope.error if community fetch fails', function() {
+        var userDefer = this.$q.defer();
+        var communityDefer = this.$q.defer();
+        this.objectTypeResolver.resolve = function(type) {
+          if (type === 'user') {
+            return userDefer.promise;
+          }
+
+          if (type === 'community') {
+            return communityDefer.promise;
+          }
+        };
+        userDefer.resolve({data: {_id: this.scope.notification.subject.id}});
+        communityDefer.reject();
+        this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var eltScope = element.isolateScope();
+
+        expect(eltScope.invitationSender).to.not.exist;
+        expect(eltScope.invitationCommunity).to.not.exist;
+        expect(eltScope.error).to.be.true;
+        expect(eltScope.loading).to.be.false;
+      });
+
+      it('should set scope.error if user fetch fails', function() {
+        var userDefer = this.$q.defer();
+        var communityDefer = this.$q.defer();
+        this.objectTypeResolver.resolve = function(type) {
+          if (type === 'user') {
+            return userDefer.promise;
+          }
+
+          if (type === 'community') {
+            return communityDefer.promise;
+          }
+        };
+        userDefer.reject({});
+        communityDefer.resolve({data: {_id: this.scope.notification.complement.id}});
+        this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var eltScope = element.isolateScope();
+
+        expect(eltScope.invitationSender).to.not.exist;
+        expect(eltScope.invitationCommunity).to.not.exist;
+        expect(eltScope.error).to.be.true;
+        expect(eltScope.loading).to.be.false;
+      });
+    });
+  });
+
+  describe('communityInvitationAcceptButton directive', function() {
+
+    beforeEach(function() {
+      var communityAPI = {
+        join: function() {
+        }
+      };
+
+      var userNotificationAPI = {
+        setAcknowledged: function() {
+        }
+      };
+
+      var objectTypeResolver = {
+        resolve: function() {},
+        register: function() {}
+      };
+
+      angular.mock.module('esn.community');
+      angular.mock.module('esn.user-notification');
+      angular.mock.module('esn.object-type');
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', communityAPI);
+        $provide.value('userNotificationAPI', userNotificationAPI);
+        $provide.value('objectTypeResolver', objectTypeResolver);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.communityAPI = communityAPI;
+      this.userNotificationAPI = userNotificationAPI;
+      this.scope.invitedUser = {
+        _id: '123'
+      };
+      this.scope.invitationCommunity = {
+        _id: '456'
+      };
+      this.scope.notification = {
+        _id: '789'
+      };
+      this.html = '<community-invitation-accept-button/>';
+    }));
+
+    it('should call communityAPI#join', function(done) {
+      this.communityAPI.join = function(communityId, userId) {
+        return done();
+      };
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      this.scope.accept();
+    });
+
+    it('should call userNotificationAPI#setAck(true)', function(done) {
+      var joinDefer = this.$q.defer();
+      this.communityAPI.join = function() {
+        joinDefer.resolve({data: {_id: 123}});
+        return joinDefer.promise;
+      };
+      this.userNotificationAPI.setAcknowledged = function() {
+        return done();
+      };
+
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      this.scope.accept();
+      this.scope.$digest();
+    });
+
+  });
+
+  describe('communityInvitationDeclineButton directive', function() {
+    beforeEach(function() {
+      var communityAPI = {
+        cancelRequestMembership: function() {
+        }
+      };
+
+      var userNotificationAPI = {
+        setAcknowledged: function() {
+        }
+      };
+
+      var objectTypeResolver = {
+        resolve: function() {},
+        register: function() {}
+      };
+
+      angular.mock.module('esn.community');
+      angular.mock.module('esn.user-notification');
+      angular.mock.module('esn.object-type');
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', communityAPI);
+        $provide.value('userNotificationAPI', userNotificationAPI);
+        $provide.value('objectTypeResolver', objectTypeResolver);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.communityAPI = communityAPI;
+      this.userNotificationAPI = userNotificationAPI;
+      this.scope.invitedUser = {
+        _id: '123'
+      };
+      this.scope.invitationCommunity = {
+        _id: '456'
+      };
+      this.scope.notification = {
+        _id: '789'
+      };
+      this.html = '<community-invitation-decline-button/>';
+    }));
+
+    it('should call communityAPI#cancelRequestMemberShip', function(done) {
+      this.communityAPI.cancelRequestMembership = function() {
+        return done();
+      };
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      this.scope.decline();
+    });
+
+    it('should call userNotificationAPI#setAck(true)', function(done) {
+      var cancelRequestMemberShipDefer = this.$q.defer();
+      this.communityAPI.cancelRequestMembership = function() {
+        cancelRequestMemberShipDefer.resolve();
+        return cancelRequestMemberShipDefer.promise;
+      };
+      this.userNotificationAPI.setAcknowledged = function() {
+        return done();
+      };
+
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      this.scope.decline();
+      this.scope.$digest();
+    });
+
+  });
 });
