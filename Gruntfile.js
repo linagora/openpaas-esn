@@ -132,8 +132,8 @@ module.exports = function(grunt) {
         script: 'server.js',
         options: {
           env: {NODE_ENV: 'dev'},
-          ignore: ['.git', 'README.md', 'node_modules/**', 'test/**', 'doc/**', 'fixtures/**', 'log/**'],
-          watchedExtensions: ['js', 'jade'],
+          ignore: ['frontend/**', '.git', 'README.md', 'node_modules/**', 'test/**', 'doc/**', 'fixtures/**', 'log/**'],
+          watchedExtensions: ['js'],
           callback: function (nodemon) {
             nodemon.on('log', function (event) {
               console.log(event.colour);
