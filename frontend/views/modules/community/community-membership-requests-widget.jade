@@ -1,0 +1,20 @@
+.community-membership-requests-widget
+  .title
+    i.fa.fa-users
+    | #{__('Membership requests')}
+  hr
+
+  .row.alert.alert-danger(ng-show="error", role="alert")
+    p #{__('Error while getting memberships')}.
+
+  .row(ng-show="loading")
+    i.fa.fa-cog.fa-spin
+    | #{__("Loading membership requests")}
+
+  .row(ng-show="requests && !error")
+    .row(ng-repeat="request in requests")
+      .col-xs-3.nopadding
+        community-member-avatar(member="request", community="community")
+      .col-xs-9.noppadding
+        span
+         a(href='#') Actions
