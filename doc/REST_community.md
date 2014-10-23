@@ -504,6 +504,80 @@ No response.
 
     HTTP/1.1 204 No Content
 
+## GET /api/communities/{community_id}/membership
+
+Get the membership requests for the given community.
+
+Notes:
+
+- Only private and restricted communities support membership requests
+- Only community manager/creator can issue this type of request
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- community_id: The community id
+
+**Query Parameters:**
+
+- limit (int): The number of request to return. This will only keep the N first requests (where N=limit). Default value is 50.
+- offset (int): Start the list of requests after skipping N requests (where N=offset). For example, if the size of the request list is 100 and the offset is 50, the result list will contain only requests from 50 to 99 (list index starts at index 0).
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+Array of membership requests with user information.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad request
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden. The user does not have read rights for the community: User may not belong to the community managers.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    GET /api/communities/538e3bd6654d7c3307f990fa/membership
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+      [
+        {
+          "user": {
+            "_id": "5375de9fd684db7f6fbd5010",
+            "currentAvatar": "5f9cef20-494c-11e4-a670-e32f9c5817b5",
+            "firstname": "Bruce",
+            "lastname": "Willis",
+            "job_title": "Die Harder",
+            "domains": [
+              {
+                "domain_id": "5375de4bd684db7f6fbd4f98",
+                "joined_at": "2014-05-16T09:47:11.732Z"
+              }
+            ],
+            "timestamps": {
+              "creation": "2014-05-16T09:47:11.703Z"
+            },
+            "emails": [
+              "bruce@willis.name"
+            ]
+          },
+          "metadata": {
+            membershipRequest: "2014-05-16T09:47:11.704Z"
+          }
+        }
+      ]
+
 ## PUT /api/communities/{community_id}/membership/{user_id}
 
 Adds an item in the community membership requests list i.e. the user request to be part of the community.
