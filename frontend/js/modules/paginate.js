@@ -31,8 +31,15 @@ angular.module('esn.paginate', [])
         nextPage: function(callback) {
           currentPage++;
           this.offset += this.limit;
+          var self = this;
           loader.getItems(this.cache.items, this.offset, this.limit, function (err, items) {
-            return callback(err, items, currentPage);
+            if (self.lastPageInCache !== self.lastPage && currentPage === self.lastPageInCache) {
+              self.loadNextItems(function(err) {
+                return callback(err, items, currentPage);
+              });
+            } else {
+              return callback(err, items, currentPage);
+            }
           });
         },
         previousPage: function(callback) {

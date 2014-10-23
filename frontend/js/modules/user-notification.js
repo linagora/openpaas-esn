@@ -11,7 +11,7 @@ angular.module('esn.user-notification',
   .constant('BOTTOM_PADDING', 5)
   .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
   .constant('OFFSET_START', 0)
-  .constant('LIMIT_PAGER', 10)
+  .constant('LIMIT_PAGER', 25)
   .controller('userNotificationController', [
     '$scope',
     '$log',
@@ -110,15 +110,16 @@ angular.module('esn.user-notification',
 
       $scope.initPager = function(nbItemsPerPage) {
         (function(offset, limit, callback) {
-          var options = {limit: limit, offset: offset, read: false};
+          var options = {limit: limit, offset: offset};
           var loader = {
             getItems: function(items, offset, limit, callback) {
               return callback(null, items.slice(offset, offset + limit));
             },
             loadNextItems: function(callback) {
               $scope.loading = true;
+              offset += limit;
 
-              var newOptions = {limit: limit, offset: offset, read: false};
+              var newOptions = {limit: limit, offset: offset};
               userNotificationAPI.list(newOptions).then(function(response) {
                 return callback(null, response.data);
               }, function(err) {
