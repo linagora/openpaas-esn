@@ -157,7 +157,6 @@ exports = module.exports = function(application) {
   application.delete('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
   application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.canRead, communities.getMember);
   application.get('/api/communities/:id/membership', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.getMembershipRequests);
-  application.put('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserParamIsNotMember, communityMiddleware.flagCommunityManager, communities.addMembershipRequest);
   application.delete('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.removeMembershipRequest);
   application.put('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserParamIsNotMember, communityMiddleware.flagCommunityManager, communityMiddleware.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser, communities.addMembershipRequest);
 

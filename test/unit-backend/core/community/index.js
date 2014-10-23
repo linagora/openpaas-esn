@@ -1569,7 +1569,7 @@ describe('The communities module', function() {
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembershipRequests({_id: 123}, null, function() {
         done();
-      }
+      });
     });
   });
 });
