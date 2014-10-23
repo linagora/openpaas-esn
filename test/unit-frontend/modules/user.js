@@ -16,9 +16,9 @@ describe('The User Angular module', function() {
         this.userAPI = userAPI;
       }));
 
-      it('should send a request to /user/:uuid', function() {
+      it('should send a request to /users/:uuid', function() {
         var uuid = 123456789;
-        this.$httpBackend.expectGET('/user/' + uuid).respond(this.response);
+        this.$httpBackend.expectGET('/users/' + uuid).respond(this.response);
         this.userAPI.user(uuid);
         this.$httpBackend.flush();
       });
