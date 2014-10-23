@@ -900,6 +900,47 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       }
     };
   }])
+  .directive('communityMembershipRequestsActions', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        community: '=',
+        user: '='
+      },
+      templateUrl: '/views/modules/community/community-membership-requests-actions.html',
+      controller: function($scope) {
+
+        $scope.error = false;
+        $scope.sending = false;
+        $scope.done = false;
+
+        $scope.accept = function() {
+          $scope.sending = true;
+          $scope.error = false;
+          communityAPI.join($scope.community._id, $scope.user._id).then(function() {
+            $scope.done = true;
+          }, function() {
+            $scope.error = true;
+          }).finally (function() {
+            $scope.sending = false;
+          });
+        };
+
+        $scope.decline = function() {
+          $scope.sending = true;
+          $scope.error = false;
+          communityAPI.cancelRequestMembership($scope.community._id, $scope.user._id).then(function() {
+            $scope.done = true;
+          }, function() {
+            $scope.error = true;
+          }).finally (function() {
+            $scope.sending = false;
+          });
+        };
+      }
+    };
+  }])
   .directive('communityMemberAvatar', function() {
     return {
       restrict: 'E',
