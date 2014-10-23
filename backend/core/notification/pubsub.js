@@ -12,7 +12,7 @@ function createUserNotification(data, callback) {
     logger.warn('Can not create usernotification from null data');
     return;
   }
-  usernotification.addUserNotification(data, callback);
+  usernotification.create(data, callback);
 }
 
 function onSuccessPublishIntoGlobal(callback) {

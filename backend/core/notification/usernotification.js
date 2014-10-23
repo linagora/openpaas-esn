@@ -7,14 +7,6 @@ var async = require('async');
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
 
-module.exports.addUserNotification = function(data, callback) {
-  if (!data) {
-    return callback(new Error('Cannot create a UserNotification from null data'));
-  }
-  var userNotification = new UserNotification(data);
-  userNotification.save(callback);
-};
-
 module.exports.getForUser = function(user, query, callback) {
   query = query || {};
   var id = user._id || user;

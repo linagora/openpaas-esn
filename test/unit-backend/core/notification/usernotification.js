@@ -298,7 +298,7 @@ describe('The core user notifications module', function() {
   describe('create method', function() {
     it('should return an error if usernotification is not defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
       module.create(null, function(err) {
         expect(err).to.exists;
         done();
@@ -320,7 +320,7 @@ describe('The core user notifications module', function() {
           return object;
         }
       });
-      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
       module.create(usernotification, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;

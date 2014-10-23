@@ -27,7 +27,7 @@ describe('The notification pubsub module', function() {
         community: '789'
       };
       var usernotificationMocked = {
-        addUserNotification: function(data, callback) {
+        create: function(data, callback) {
           datastub = data;
           callback(null, 'saved');
         }
@@ -69,7 +69,7 @@ describe('The notification pubsub module', function() {
         community: '789'
       };
       var usernotificationMocked = {
-        addUserNotification: function(data, callback) {
+        create: function(data, callback) {
           datastub = data;
           callback(null, 'saved');
         }
@@ -112,7 +112,7 @@ describe('The notification pubsub module', function() {
         community: '789'
       };
       var usernotificationMocked = {
-        addUserNotification: function(data, callback) {
+        create: function(data, callback) {
           datastub = data;
           callback(null, 'saved');
         }
