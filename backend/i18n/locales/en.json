@@ -189,5 +189,9 @@
   "Cancel request": "Cancel request",
   "Your membership request is pending": "Your membership request is pending",
   "Loading notifications": "Loading notifications",
-  "Error while getting notifications": "Error while getting notifications"
+  "Error while getting notifications": "Error while getting notifications",
+  "Membership requests": "Membership requests",
+  "Error while getting memberships": "Error while getting memberships",
+  "Loading membership requests": "Loading membership requests"
+
 }
