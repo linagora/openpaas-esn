@@ -12,7 +12,7 @@
     | #{__("Loading membership requests")}
 
   .row(ng-show="requests && !error")
-    .row(ng-repeat="request in requests")
+    .row(ng-repeat="request in requests | filter: {workflow: 'request'}")
       .col-xs-3.nopadding
         community-member-avatar(member="request", community="community")
       .col-xs-9.noppadding

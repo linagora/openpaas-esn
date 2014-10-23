@@ -444,7 +444,10 @@ module.exports.getMembershipRequests = function(req, res) {
     }
     res.header('X-ESN-Items-Count', req.community.membershipRequests ? req.community.membershipRequests.length : 0);
     var result = membershipRequests.map(function(request) {
-      return communityModule.userToMember(request);
+      var result = communityModule.userToMember(request);
+      result.workflow = request.workflow;
+      result.timestamp = request.timestamp;
+      return result;
     });
     return res.json(200, result || []);
   });
