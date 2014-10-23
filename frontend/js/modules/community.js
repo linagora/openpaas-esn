@@ -664,7 +664,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     };
     $scope.isCommunityManager = function() {
       return communityService.isManager(community, session.user);
-    }
+    };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
     return {
@@ -891,7 +891,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
             $scope.requests = response.data || [];
           }, function() {
             $scope.error = true;
-          }).finally(function() {
+          }).finally (function() {
             $scope.loading = false;
           });
         };

@@ -572,8 +572,9 @@ Array of membership requests with user information.
               "bruce@willis.name"
             ]
           },
-          "metadata": {
-            membershipRequest: "2014-05-16T09:47:11.704Z"
+          "workflow": "request",
+          "timestamps": {
+            creation: "2014-05-16T09:47:11.704Z"
           }
         }
       ]

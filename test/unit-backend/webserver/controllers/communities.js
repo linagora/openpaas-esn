@@ -2432,7 +2432,8 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        param: function() {}
+        param: function() {},
+        isCommunityManager: true
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -2457,7 +2458,8 @@ describe('The communities controller', function() {
 
       var req = {
         community: {},
-        param: function() {}
+        param: function() {},
+        isCommunityManager: true
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -2488,7 +2490,8 @@ describe('The communities controller', function() {
         community: {
           membershipRequests: requests
         },
-        param: function() {}
+        param: function() {},
+        isCommunityManager: true
       };
 
       var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
@@ -2522,6 +2525,7 @@ describe('The communities controller', function() {
       };
 
       var req = {
+        isCommunityManager: true,
         community: {
           membershipRequests: requests
         },
