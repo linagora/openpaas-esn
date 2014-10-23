@@ -45,6 +45,7 @@ describe('The activitystreams core module', function() {
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
+      require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
       this.testEnv.writeDBConfigFile();
       Domain = this.mongoose.model('Domain');
       TimelineEntry = this.mongoose.model('TimelineEntry');

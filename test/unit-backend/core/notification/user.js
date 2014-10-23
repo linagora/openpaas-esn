@@ -215,7 +215,7 @@ describe('The core user notifications module', function() {
   });
 
   describe('setRead method', function() {
-    it('should return an error if usernotification is no defined', function(done) {
+    it('should return an error if usernotification is not defined', function(done) {
       this.helpers.mock.models({});
       var module = require(this.testEnv.basePath + '/backend/core/notification/user');
       module.setRead(null, false, function(err) {
@@ -271,7 +271,7 @@ describe('The core user notifications module', function() {
   });
 
   describe('setAcknowledged method', function() {
-    it('should return an error if usernotification is no defined', function(done) {
+    it('should return an error if usernotification is not defined', function(done) {
       this.helpers.mock.models({});
       var module = require(this.testEnv.basePath + '/backend/core/notification/user');
       module.setAcknowledged(null, false, function(err) {
@@ -290,6 +290,41 @@ describe('The core user notifications module', function() {
       var module = require(this.testEnv.basePath + '/backend/core/notification/user');
       module.setAcknowledged(usernotification, true, function() {
         expect(usernotification.acknowledged).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('create method', function() {
+    it('should return an error if usernotification is not defined', function(done) {
+      this.helpers.mock.models({});
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.create(null, function(err) {
+        expect(err).to.exists;
+        done();
+      });
+    });
+
+    it('should create a usernotification', function(done) {
+      var usernotification = {
+        subject: 'test'
+      };
+
+      this.helpers.mock.models({
+        Usernotification: function(object) {
+          object.save = function(callback) {
+            expect(object).to.exist;
+            expect(object.subject).to.equal('test');
+            return callback(null, object);
+          };
+          return object;
+        }
+      });
+      var module = require(this.testEnv.basePath + '/backend/core/notification/user');
+      module.create(usernotification, function(err, saved) {
+        expect(err).to.not.exist;
+        expect(saved).to.exist;
+        expect(saved.subject).to.equal('test');
         done();
       });
     });

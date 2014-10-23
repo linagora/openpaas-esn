@@ -4,47 +4,34 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('The message core module', function() {
-  it('should expose get() method', function() {
+  beforeEach(function() {
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
+  });
+  it('should expose get() method', function() {
     var messageModule = require(this.testEnv.basePath + '/backend/core/message');
     expect(messageModule).to.have.property('get');
     expect(messageModule.get).to.be.a('function');
   });
   it('should expose getModel() method', function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     var messageModule = require(this.testEnv.basePath + '/backend/core/message');
     expect(messageModule).to.have.property('getModel');
     expect(messageModule.getModel).to.be.a('function');
   });
   it('should expose getInstance() method', function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     var messageModule = require(this.testEnv.basePath + '/backend/core/message');
     expect(messageModule).to.have.property('getInstance');
     expect(messageModule.getInstance).to.be.a('function');
   });
   it('should expose addNewComment() method', function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     var messageModule = require(this.testEnv.basePath + '/backend/core/message');
     expect(messageModule).to.have.property('addNewComment');
     expect(messageModule.addNewComment).to.be.a('function');
   });
   it('should expose type.whatsup & type.email sub-modules', function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     var messageModule = require(this.testEnv.basePath + '/backend/core/message');
     expect(messageModule).to.have.property('type');
     expect(messageModule.type).to.be.a('object');
@@ -52,10 +39,6 @@ describe('The message core module', function() {
     expect(messageModule.type).to.have.property('email');
   });
   it('should expose permission sub-module', function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     var messageModule = require(this.testEnv.basePath + '/backend/core/message');
     expect(messageModule).to.have.property('permission');
     expect(messageModule.permission).to.be.a('object');
