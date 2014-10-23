@@ -859,6 +859,87 @@ describe('The communities module', function() {
     });
   });
 
+  describe('The getManagers fn', function() {
+
+    it('should send back error when Community.exec fails', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function(id) {
+              return {
+                slice: function() {},
+                populate: function() {},
+                exec: function(callback) {
+                  return callback(new Error());
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getManagers({_id: 123}, null, function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+
+    it('should send back [] when Community.exec does not find members', function(done) {
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function() {
+              return {
+                slice: function() {},
+                populate: function() {},
+                exec: function(callback) {
+                  return callback();
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getManagers({_id: 123}, null, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.an.array;
+        expect(result.length).to.equal(0);
+        return done();
+      });
+    });
+
+    it('should send back result members', function(done) {
+      var result = { user: 1 };
+      var mongoose = {
+        model: function() {
+          return {
+            findById: function(a) {
+              return {
+                slice: function() {},
+                populate: function() {},
+                exec: function(callback) {
+                  return callback(null, {creator: result});
+                }
+              };
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      community.getManagers({_id: 123}, null, function(err, managers) {
+        expect(err).to.not.exist;
+        expect(managers).to.be.an.array;
+        expect(managers).to.deep.equal([result]);
+        return done();
+      });
+    });
+
+  });
+
   describe('The getUserCommunities fn', function() {
     it('should send back error when user is null', function(done) {
       var mongoose = {
