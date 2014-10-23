@@ -13,6 +13,7 @@ describe('The websockets usernotification module', function() {
   beforeEach(function() {
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
 
     localstub = {};
     globalstub = {};
