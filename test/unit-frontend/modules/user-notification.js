@@ -280,7 +280,7 @@ describe('The esn.user-notification Angular module', function() {
           return size;
         }});
 
-        this.scope.initPager();
+        this.scope.initPager(3);
         this.scope.$digest();
         expect(this.scope.notifications).to.deep.equal(array);
         expect(this.scope.totalNotifications).to.equal(size);

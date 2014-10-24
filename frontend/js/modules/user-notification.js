@@ -131,15 +131,16 @@ angular.module('esn.user-notification',
           $scope.loading = true;
           userNotificationAPI.list(options).then(function(response) {
             $scope.pager = paginator(response.data, nbItemsPerPage, response.headers('X-ESN-Items-Count'), loader);
+            return callback(null);
           }, function(err) {
             return callback(err);
           }).finally (function() {
             $scope.loading = false;
-            return callback(null);
           });
         }) (OFFSET_START, LIMIT_PAGER, function(err) {
           if (err) {
             $scope.error = true;
+            return;
           }
           $scope.totalNotifications = $scope.pager.getTotalItems();
           $scope.lastPageNb = $scope.pager.getLastPage();
