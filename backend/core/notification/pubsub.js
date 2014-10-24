@@ -16,6 +16,7 @@ function createUserNotification(data, callback) {
 }
 
 function onSuccessPublishIntoGlobal(callback) {
+  callback = callback || function() {};
   return function(err, result) {
     if (err) {
       logger.warn('Error while adding a usernotification : ', + err.message);
