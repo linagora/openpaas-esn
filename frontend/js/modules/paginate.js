@@ -3,41 +3,73 @@
 angular.module('esn.paginate', [])
   .factory('paginator', function() {
 
-    return function(itemsPerPage, loader) {
+    return function(items, itemsPerPage, totalItems, loader) {
 
       if (!loader) {
         throw new Error('Loader is required');
       }
 
-      var currentPage = 0;
-      var cache = {
-        items: []
-      };
       itemsPerPage = itemsPerPage || 1;
+      totalItems = totalItems || 1;
+
+      var currentPage = 1;
+      var cache = { items: items };
+
+      var lastPage = Math.ceil(totalItems / itemsPerPage);
+      var lastPageInCache = Math.ceil(items.length / itemsPerPage);
+
+      var offset = 0;
+      var limit = itemsPerPage;
+      var total = totalItems;
 
       return {
         currentPage: function(callback) {
-          loader.getItems(currentPage * itemsPerPage, itemsPerPage, function(err, items, size) {
-            cache.items = items || [];
-            return callback(err, items, size, currentPage);
+          loader.getItems(cache.items, offset, limit, function(err, items) {
+            return callback(err, items, currentPage);
           });
         },
         nextPage: function(callback) {
-          var page = ++currentPage;
-          loader.getItems(page * itemsPerPage, itemsPerPage, function(err, items, size) {
-            cache.items = items || [];
-            return callback(err, items, size, page);
+          currentPage++;
+          offset += limit;
+          var self = this;
+          loader.getItems(cache.items, offset, limit, function(err, items) {
+            if (lastPageInCache !== lastPage && currentPage === lastPageInCache) {
+              self.loadNextItems(function(err) {
+                return callback(err, items, currentPage);
+              });
+            } else {
+              return callback(err, items, currentPage);
+            }
           });
         },
         previousPage: function(callback) {
-          var page = --currentPage;
-          loader.getItems(page * itemsPerPage, itemsPerPage, function(err, items, size) {
-            cache.items = items || [];
-            return callback(err, items, size, page);
+          currentPage--;
+          offset -= limit;
+          loader.getItems(cache.items, offset, limit, function(err, items) {
+            return callback(err, items, currentPage);
+          });
+        },
+        loadNextItems: function(callback) {
+          loader.loadNextItems(function(err, items) {
+            if (!items || items && !items.length) {
+              return callback(err);
+            }
+            cache.items = cache.items.concat(items);
+            lastPageInCache += Math.ceil(items.length / limit);
+            callback(err);
           });
         },
         getItems: function() {
           return cache.items;
+        },
+        getTotalItems: function() {
+          return total;
+        },
+        getLastPage: function() {
+          return lastPage;
+        },
+        getLastPageInCache: function() {
+          return lastPageInCache;
         }
       };
     };

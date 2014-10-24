@@ -472,6 +472,23 @@ describe('The user notifications controller', function() {
       controller.loadAll(req, res, {});
     });
 
+    it('should change req.query.ids to array if it is not', function(done) {
+      var userNotificationModuleMocked = {
+        getAll: function() {
+          expect(req.query.ids).to.deep.equal(['123']);
+          done();
+        }
+      };
+      mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
+      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var req = {
+        query: {
+          ids: '123'
+        }
+      };
+      controller.loadAll(req, {}, {});
+    });
+
     it('should return 404 if usernotifications is empty', function(done) {
       var userNotificationModuleMocked = {
         getAll: function(id, callback) {

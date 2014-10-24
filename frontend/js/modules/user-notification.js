@@ -10,6 +10,8 @@ angular.module('esn.user-notification',
   .constant('POPOVER_PAGER_BUTTONS_HEIGHT', 30)
   .constant('BOTTOM_PADDING', 5)
   .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
+  .constant('OFFSET_START', 0)
+  .constant('LIMIT_PAGER', 25)
   .controller('userNotificationController', [
     '$scope',
     '$log',
@@ -35,68 +37,126 @@ angular.module('esn.user-notification',
           });
       };
 
+      $scope.setAllAsRead = function(ids) {
+        $scope.unreadCount.decreaseBy(ids.length);
+        userNotificationAPI
+          .setAllRead(ids, true)
+          .then(function() {
+            $log.debug('Successfully setting ' + ids.toString() + ' as read');
+          }, function(err) {
+            $log.error('Error setting ' + ids.toString() + ' as read: ' + err);
+          })
+          .finally (function() {
+          $scope.unreadCount.refresh();
+        });
+      };
+
+      $scope.$on('usernotifications:received', function(event, usernotifications) {
+        var ids = usernotifications.map(function(usernotification) {
+          return usernotification._id;
+        });
+        $scope.setAllAsRead(ids);
+      });
+
       livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
       $scope.$on('$destroy', function() {
         livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
       });
     }
   ])
-  .controller('userNotificationPopoverController', ['$scope', 'userNotificationAPI', 'paginator', function($scope, userNotificationAPI, paginator) {
+  .controller('userNotificationPopoverController', [
+    '$scope',
+    'userNotificationAPI',
+    'paginator',
+    'OFFSET_START',
+    'LIMIT_PAGER',
+    function($scope, userNotificationAPI, paginator, OFFSET_START, LIMIT_PAGER) {
 
-    $scope.loading = false;
-    $scope.error = false;
-    $scope.notifications = [];
-    $scope.totalNotifications = 0;
-    $scope.display = false;
-    $scope.popoverObject = {
-      open: false
-    };
+      $scope.loading = false;
+      $scope.error = false;
+      $scope.notificationsCache = [];
+      $scope.notifications = [];
+      $scope.totalNotifications = 0;
+      $scope.display = false;
+      $scope.popoverObject = {
+        open: false
+      };
 
-    $scope.togglePopover = function() {
-      $scope.popoverObject.open = !$scope.popoverObject.open;
-    };
+      $scope.togglePopover = function() {
+        $scope.popoverObject.open = !$scope.popoverObject.open;
+      };
 
-    $scope.updateData = function(err, items, total, page) {
-      if (err) {
-        $scope.error = true;
-      } else {
-        if (items) {
-          $scope.notifications = items;
+      function updateData(err, items, page) {
+        if (err) {
+          $scope.error = true;
+        } else {
+          if (items) {
+            $scope.notifications = items;
+            var unreadItems = items.filter(function(item) {
+              return !item.read;
+            });
+            if (unreadItems.length) {
+              $scope.$emit('usernotifications:received', unreadItems);
+              $scope.notifications.forEach(function(notification) {
+                notification.read = true;
+              });
+            }
+          }
+          $scope.currentPageNb = page;
         }
-        if (total) {
-          $scope.totalNotifications = total;
-        }
-        $scope.currentPageNb = page + 1;
-        $scope.lastPageNb = Math.ceil($scope.totalNotifications / (items.length || 1));
       }
-    };
 
-    $scope.initPager = function(nbItemsPerPage) {
-      $scope.pager = paginator(nbItemsPerPage, {
-        getItems: function(offset, limit, callback) {
+      $scope.initPager = function(nbItemsPerPage) {
+        (function(offset, limit, callback) {
+          var options = {limit: limit, offset: offset};
+          var loader = {
+            getItems: function(items, offset, limit, callback) {
+              return callback(null, items.slice(offset, offset + limit));
+            },
+            loadNextItems: function(callback) {
+              $scope.loading = true;
+              offset += limit;
+
+              var newOptions = {limit: limit, offset: offset};
+              userNotificationAPI.list(newOptions).then(function(response) {
+                return callback(null, response.data);
+              }, function(err) {
+                return callback(err);
+              }).finally (function() {
+                $scope.loading = false;
+              });
+            }
+          };
           $scope.error = false;
-          var options = {limit: limit, offset: offset, read: false};
           $scope.loading = true;
           userNotificationAPI.list(options).then(function(response) {
-            return callback(null, response.data, response.headers('X-ESN-Items-Count'));
+            $scope.pager = paginator(response.data, nbItemsPerPage, response.headers('X-ESN-Items-Count'), loader);
+            return callback(null);
           }, function(err) {
             return callback(err);
           }).finally (function() {
             $scope.loading = false;
           });
-        }
-      });
-      $scope.pager.currentPage($scope.updateData);
-    };
+        }) (OFFSET_START, LIMIT_PAGER, function(err) {
+          if (err) {
+            $scope.error = true;
+            return;
+          }
+          $scope.totalNotifications = $scope.pager.getTotalItems();
+          $scope.lastPageNb = $scope.pager.getLastPage();
+          $scope.pager.currentPage(updateData);
+        });
+      };
 
-    $scope.nextPage = function() {
-      return $scope.pager.nextPage($scope.updateData);
-    };
+      $scope.nextPage = function() {
+        return $scope.pager.nextPage(updateData);
+      };
 
-    $scope.previousPage = function() {
-      return $scope.pager.previousPage($scope.updateData);
-    };
-  }])
+      $scope.previousPage = function() {
+        return $scope.pager.previousPage(updateData);
+      };
+    }
+  ])
   .directive('notificationTemplateDisplayer', function() {
     return {
       restrict: 'E',
@@ -301,6 +361,12 @@ angular.module('esn.user-notification',
       return Restangular.one('user').one('notifications', id).one('read').customPUT({value: read});
     }
 
+    function setAllRead(ids, read) {
+      var request = Restangular.one('user').one('notifications').one('read');
+      request.value = read;
+      return request.put({ ids: ids });
+    }
+
     function setAcknowledged(id, acknowledged) {
       return Restangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
     }
@@ -312,6 +378,7 @@ angular.module('esn.user-notification',
     return {
       list: list,
       setRead: setRead,
+      setAllRead: setAllRead,
       setAcknowledged: setAcknowledged,
       getUnreadCount: getUnreadCount
     };

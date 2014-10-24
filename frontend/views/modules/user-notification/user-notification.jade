@@ -4,7 +4,7 @@
     a.pull-right(href="", ng-show="false") #{__('Mark as read')}
   .popover-content
     ul.nav.nav-pills.nav-stacked
-      li.popover-item.read.text-center(ng-show="!notifications.length && !loading") #{__('You have no notification.')}
+      li.popover-item.read.text-center(ng-show="!notifications.length && !loading") #{__('You have no notifications.')}
       li.popover-item.read.text-center(ng-show="error && !loading") #{__('Error while getting notifications')}.
       li.popover-item.read.text-center(ng-show="!notifications.length && loading")
         i.fa.fa-cog.fa-spin
