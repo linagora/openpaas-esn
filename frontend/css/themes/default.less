@@ -74,6 +74,13 @@ body {
   }
 }
 
+.esn-widget {
+  background: @widget-background;
+  border: @defaultBorder;
+  .RoundedShape();
+  .ShadowedShape();
+}
+
 .widget {
   padding-bottom: 10px;
   text-align: left;
@@ -525,6 +532,13 @@ body {
 
 .community-membership-requests-widget {
   .community-members-widget();
+  .btn-primary {
+    background: @btn-primary-bg;
+    border-color: @btn-primary-color;
+    color: @btn-primary-color;
+    .RoundedShape();
+    .ShadowedShape();
+  }
 }
 
 .community-member-avatar {
