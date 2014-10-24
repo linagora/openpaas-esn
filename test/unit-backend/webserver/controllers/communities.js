@@ -1699,106 +1699,243 @@ describe('The communities controller', function() {
         communities.join(req, res);
       });
 
-      it('should send back 403 when current community is not open', function(done) {
-        mockery.registerMock('../../core/community', {});
-        mockery.registerMock('../../core/community/permission', {});
-
-        var res = {
-          json: function(code, err) {
-            expect(code).to.equal(403);
-            expect(err.error.details).to.match(/Can not join community/);
-            done();
-          }
-        };
-
-        var req = {
-          user: {
-            _id: {
-              equals: function() {
-                return true;
-              }
+      describe('when community is not open', function() {
+        it('should send back 400 when user did not make a membership request', function(done) {
+          mockery.registerMock('../../core/community/permission', {});
+          var communityModuleMock = {
+            getMembershipRequest: function() {
+              return null;
             }
-          },
-          community: {
-            type: 'private'
-          },
-          params: {
-            user_id: 123
-          }
-        };
+          };
+          mockery.registerMock('../../core/community', communityModuleMock);
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-        communities.join(req, res);
+          var res = {
+            json: function(code, err) {
+              expect(code).to.equal(400);
+              expect(err.error.details).to.exist;
+              done();
+            }
+          };
+
+          var req = {
+            user: {
+              _id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            },
+            community: {
+              type: 'private'
+            },
+            params: {
+              user_id: 123
+            }
+          };
+
+          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          communities.join(req, res);
+        });
+
+        it('should send back 500 if erasing the membership requests fails', function(done) {
+          var userId = 123;
+          mockery.registerMock('../../core/community/permission', {});
+          var communityModuleMock = {
+            getMembershipRequest: function() {
+              return {user: userId, workflow: 'invitation'};
+            },
+            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+              callback(new Error());
+            }
+          };
+          mockery.registerMock('../../core/community', communityModuleMock);
+
+          var res = {
+            json: function(code, err) {
+              expect(code).to.equal(500);
+              expect(err).to.exist;
+              done();
+            }
+          };
+
+          var req = {
+            user: {
+              _id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            },
+            community: {
+              type: 'private'
+            },
+            params: {
+              user_id: userId
+            }
+          };
+
+          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          communities.join(req, res);
+        });
+
+        it('should send back 500 if adding the user to the community fails', function(done) {
+          var userId = 123;
+          mockery.registerMock('../../core/community/permission', {});
+          var communityModuleMock = {
+            getMembershipRequest: function() {
+              return {user: userId, workflow: 'invitation'};
+            },
+            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+              callback(null);
+            },
+            join: function(community, userAuthor, userTarget, callback) {
+              callback(new Error());
+            }
+          };
+          mockery.registerMock('../../core/community', communityModuleMock);
+
+          var res = {
+            json: function(code, err) {
+              expect(code).to.equal(500);
+              expect(err).to.exist;
+              done();
+            }
+          };
+
+          var req = {
+            user: {
+              _id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            },
+            community: {
+              type: 'private'
+            },
+            params: {
+              user_id: userId
+            }
+          };
+
+          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          communities.join(req, res);
+        });
+
+        it('should send back 204 if the user has been added to the community', function(done) {
+          var userId = 123;
+          mockery.registerMock('../../core/community/permission', {});
+          var communityModuleMock = {
+            getMembershipRequest: function() {
+              return {user: userId, workflow: 'invitation'};
+            },
+            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+              callback(null);
+            },
+            join: function(community, userAuthor, userTarget, callback) {
+              callback(null);
+            }
+          };
+          mockery.registerMock('../../core/community', communityModuleMock);
+
+          var res = {
+            send: function(code) {
+              expect(code).to.equal(204);
+              done();
+            }
+          };
+
+          var req = {
+            user: {
+              _id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            },
+            community: {
+              type: 'private'
+            },
+            params: {
+              user_id: userId
+            }
+          };
+
+          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          communities.join(req, res);
+        });
       });
 
-      it('should send back 500 if community module fails', function(done) {
-        mockery.registerMock('../../core/community', {
-          join: function(community, userAuthor, userTarget, cb) {
-            return cb(new Error());
-          }
-        });
-        mockery.registerMock('../../core/community/permission', {});
-
-        var res = {
-          json: function(code) {
-            expect(code).to.equal(500);
-            done();
-          }
-        };
-
-        var req = {
-          community: {
-            type: 'open'
-          },
-          user: {
-            _id: {
-              equals: function() {
-                return true;
-              }
+      describe('when community is open', function() {
+        it('should send back 500 if community module fails', function(done) {
+          mockery.registerMock('../../core/community', {
+            join: function(community, userAuthor, userTarget, cb) {
+              return cb(new Error());
             }
-          },
-          params: {
-            user_id: {}
-          }
-        };
+          });
+          mockery.registerMock('../../core/community/permission', {});
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-        communities.join(req, res);
-      });
-
-      it('should send back 204 if community module succeed', function(done) {
-        mockery.registerMock('../../core/community', {
-          join: function(community, userAuthor, userTarget, cb) {
-            return cb();
-          }
-        });
-        mockery.registerMock('../../core/community/permission', {});
-
-        var res = {
-          send: function(code) {
-            expect(code).to.equal(204);
-            done();
-          }
-        };
-
-        var req = {
-          community: {
-            type: 'open'
-          },
-          user: {
-            _id: {
-              equals: function() {
-                return true;
-              }
+          var res = {
+            json: function(code) {
+              expect(code).to.equal(500);
+              done();
             }
-          },
-          params: {
-            user_id: {}
-          }
-        };
+          };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-        communities.join(req, res);
+          var req = {
+            community: {
+              type: 'open'
+            },
+            user: {
+              _id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            },
+            params: {
+              user_id: {}
+            }
+          };
+
+          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          communities.join(req, res);
+        });
+
+        it('should send back 204 if community module succeed', function(done) {
+          mockery.registerMock('../../core/community', {
+            join: function(community, userAuthor, userTarget, cb) {
+              return cb();
+            }
+          });
+          mockery.registerMock('../../core/community/permission', {});
+
+          var res = {
+            send: function(code) {
+              expect(code).to.equal(204);
+              done();
+            }
+          };
+
+          var req = {
+            community: {
+              type: 'open'
+            },
+            user: {
+              _id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            },
+            params: {
+              user_id: {}
+            }
+          };
+
+          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          communities.join(req, res);
+        });
       });
     });
   });
