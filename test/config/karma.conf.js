@@ -30,6 +30,7 @@ module.exports = function(config) {
       'frontend/components/angular-truncate/src/truncate.js',
       'frontend/components/angular-sanitize/angular-sanitize.min.js',
       'node_modules/easyrtc/api/easyrtc.js',
+      'node_modules/async/lib/async.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/member/**/*.jade',

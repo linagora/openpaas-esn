@@ -92,16 +92,14 @@ angular.module('esn.user-notification',
         } else {
           if (items) {
             $scope.notifications = items;
-            if(items.length) {
-              var unreadItems = items.filter(function(item) {
-                return !item.read;
+            var unreadItems = items.filter(function(item) {
+              return !item.read;
+            });
+            if (unreadItems.length) {
+              $scope.$emit('usernotifications:received', unreadItems);
+              $scope.notifications.forEach(function(notification) {
+                notification.read = true;
               });
-              if (unreadItems.length) {
-                $scope.$emit('usernotifications:received', unreadItems);
-                $scope.notifications.forEach(function(notification) {
-                  notification.read = true;
-                });
-              }
             }
           }
           $scope.currentPageNb = page;
@@ -143,8 +141,8 @@ angular.module('esn.user-notification',
           if (err) {
             $scope.error = true;
           }
-          $scope.totalNotifications = $scope.pager.totalItems;
-          $scope.lastPageNb = $scope.pager.lastPage;
+          $scope.totalNotifications = $scope.pager.getTotalItems();
+          $scope.lastPageNb = $scope.pager.getLastPage();
           $scope.pager.currentPage(updateData);
         });
       };
