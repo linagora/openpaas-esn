@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core'])
+angular.module('esn.user-notification',
+  ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core', 'esn.object-type', 'esn.session', 'esn.community'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 75)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -116,16 +117,94 @@ angular.module('esn.user-notification', ['restangular', 'esn.paginate', 'esn.web
       templateUrl: '/views/modules/user-notification/templates/external-notification.html'
     };
   })
-  .directive('communitySubscriptionRequestUserNotification', function() {
+  .directive('communityMembershipInvitationNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/community-subscription-request-notification.html'
+      templateUrl: '/views/modules/user-notification/templates/community-membership-invitation-notification.html',
+      controller: function($scope) {
+        var userResolver = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
+        var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
+
+        $scope.invitedUser = session.user;
+        $scope.error = false;
+
+        $q.all({user: userResolver, community: communityResolver}).then(function(result) {
+          $scope.invitationSender = result.user.data;
+          $scope.invitationCommunity = result.community.data;
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.loading = false;
+        });
+      }
     };
-  })
+  }])
+  .directive('communityInvitationAcceptButton', ['communityAPI', 'userNotificationAPI',
+    function(communityAPI, userNotificationAPI) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/user-notification/community-invitation/community-invitation-accept-button.html',
+      controller: function($scope) {
+        $scope.restActive = false;
+        $scope.accept = function() {
+          $scope.restActive = true;
+          communityAPI.join($scope.invitationCommunity._id, $scope.invitedUser._id).then(
+            function() {
+              userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
+                function() {
+                  $scope.notification.acknowledged = true;
+                },
+                function(error) {
+                  $scope.error = error;
+                }
+              ).finally (function() {
+                $scope.restActive = false;
+              });
+            },
+            function(error) {
+              $scope.error = error;
+              $scope.restActive = false;
+            }
+          );
+        };
+      }
+    };
+  }])
+  .directive('communityInvitationDeclineButton', ['communityAPI', 'session', 'userNotificationAPI',
+    function(communityAPI, session, userNotificationAPI) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/user-notification/community-invitation/community-invitation-decline-button.html',
+      controller: function($scope) {
+        $scope.restActive = false;
+        $scope.decline = function() {
+          $scope.restActive = true;
+          communityAPI.cancelRequestMembership($scope.invitationCommunity._id, session.user._id).then(
+            function() {
+              userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
+                function() {
+                  $scope.notification.acknowledged = true;
+                },
+                function(error) {
+                  $scope.error = error;
+                }
+              ).finally (function() {
+                $scope.restActive = false;
+              });
+            },
+            function(error) {
+              $scope.error = error;
+              $scope.restActive = false;
+            }
+          );
+        };
+      }
+    };
+  }])
   .factory('userNotificationCounter', ['$log', 'CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function($log, CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
     return new CounterFactory.newCounter(0, UNREAD_REFRESH_TIMER, userNotificationAPI.getUnreadCount);
   }])
