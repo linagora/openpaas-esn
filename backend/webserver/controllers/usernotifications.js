@@ -82,6 +82,10 @@ function loadAll(req, res, next) {
     return res.json(400, {error: { status: 400, message: 'Bad request', details: 'Missing ids in query'}});
   }
 
+  if (!(req.query.ids instanceof Array)) {
+    req.query.ids = [req.query.ids];
+  }
+
   notificationModule.getAll(req.query.ids, function(err, usernotifications) {
     if (err) {
       return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot load user notifications: ' + err.message}});
