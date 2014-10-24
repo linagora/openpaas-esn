@@ -157,16 +157,16 @@ angular.module('esn.user-notification',
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
                   $scope.notification.acknowledged = true;
-                  $scope.restActive = false;
                 },
                 function(error) {
-                  console.log(error);
-                  $scope.restActive = false;
+                  $scope.error = error;
                 }
-              );
+              ).finally (function() {
+                $scope.restActive = false;
+              });
             },
             function(error) {
-              console.log(error);
+              $scope.error = error;
               $scope.restActive = false;
             }
           );
@@ -188,16 +188,16 @@ angular.module('esn.user-notification',
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
                   $scope.notification.acknowledged = true;
-                  $scope.restActive = false;
                 },
                 function(error) {
-                  console.log(error);
-                  $scope.restActive = false;
+                  $scope.error = error;
                 }
-              );
+              ).finally (function() {
+                $scope.restActive = false;
+              });
             },
             function(error) {
-              console.log(error);
+              $scope.error = error;
               $scope.restActive = false;
             }
           );
