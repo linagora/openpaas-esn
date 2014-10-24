@@ -11,30 +11,51 @@ var CommunitySchema = new Schema({
   status: String,
   avatar: String,
   creator: {type: Schema.ObjectId, ref: 'User'},
-  domain_ids: [{type: Schema.ObjectId, ref: 'Domain'}],
+  domain_ids: [
+    {type: Schema.ObjectId, ref: 'Domain'}
+  ],
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
-  members: [{
-    user: {type: mongoose.Schema.ObjectId, ref: 'User'},
-    status: {type: String},
-    timestamps: {
-      creation: {type: Date, default: Date.now}
+  members: [
+    {
+      user: {type: mongoose.Schema.ObjectId, ref: 'User'},
+      status: {type: String},
+      timestamps: {
+        creation: {type: Date, default: Date.now}
+      }
     }
-  }],
+  ],
   activity_stream: {
     uuid: {type: String},
     timestamps: {
       creation: {type: Date, default: Date.now}
     }
   },
-  membershipRequests: [{
-    user: {type: Schema.ObjectId, ref: 'User'},
-    workflow: {type: String, required: true},
-    timestamp: {
-      creation: {type: Date, default: Date.now}
+  membershipRequests: [
+    {
+      user: {type: Schema.ObjectId, ref: 'User'},
+      workflow: {type: String, required: true},
+      timestamp: {
+        creation: {type: Date, default: Date.now}
+      }
     }
-  }],
+  ],
+  injections: [
+    {
+      key: {type: String, required: true},
+      values: [
+        {
+          directive: {type: String, required: true},
+          attributes:
+            [{
+              name: {type: String, required: true},
+              value: {type: String, required: true}
+            }]
+        }
+      ]
+    }
+  ],
   schemaVersion: {type: Number, default: 1}
 });
 
