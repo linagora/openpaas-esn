@@ -897,6 +897,18 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         };
 
         $scope.updateRequests();
+
+        var removeRequestEntry = function(event, data) {
+          if (!data.community || data.community !== $scope.community._id) {
+            return;
+          }
+          $scope.requests = $scope.requests.filter(function(request) {
+            return request.user._id !== data.user;
+          });
+        };
+
+        $rootScope.$on('community:request:declined', removeRequestEntry);
+        $rootScope.$on('community:request:accepted', removeRequestEntry);
       }
     };
   }])
@@ -920,6 +932,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
           $scope.error = false;
           communityAPI.join($scope.community._id, $scope.user._id).then(function() {
             $scope.done = true;
+            $rootScope.$emit('community:request:accepted', {community: $scope.community._id, user: $scope.user._id});
           }, function() {
             $scope.error = true;
           }).finally (function() {
@@ -932,6 +945,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
           $scope.error = false;
           communityAPI.cancelRequestMembership($scope.community._id, $scope.user._id).then(function() {
             $scope.done = true;
+            $rootScope.$emit('community:request:declined', {community: $scope.community._id, user: $scope.user._id});
           }, function() {
             $scope.error = true;
           }).finally (function() {
