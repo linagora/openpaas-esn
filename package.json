@@ -5,6 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "async": "~0.8.0",
+    "awesome-module": "^0.1.0",
+    "awesome-module-manager": "^0.1.1",
     "awesome-node-redis-pubsub": "git+https://ci.open-paas.org/stash/scm/or/awesome-node-redis-pubsub.git",
     "awesome-sessionstore": "git+https://ci.open-paas.org/stash/scm/or/awesome-sessionstore.git",
     "bcrypt-nodejs": "~0.0.3",
