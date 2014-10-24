@@ -2386,4 +2386,128 @@ describe('The Community Angular module', function() {
       done();
     });
   });
+
+  describe('The communityMembershipRequestsActions directive', function() {
+    beforeEach(function() {
+      var communityAPI = {
+        get: function() {},
+        join: function() {}
+      };
+
+      var userAPI = {
+        user: function() {}
+      };
+
+      angular.mock.module('esn.community');
+      angular.mock.module('esn.user');
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', communityAPI);
+        $provide.value('userAPI', userAPI);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.communityAPI = communityAPI;
+      this.scope.community = {
+        _id: '123'
+      };
+      this.scope.user = {
+        _id: 234
+      };
+      this.html = '<community-membership-requests-actions community="community" user="user"/>';
+    }));
+
+    describe('The directive controller', function() {
+      describe('The accept function', function() {
+        it('should call communityAPI#join', function(done) {
+          var self = this;
+          this.communityAPI.join = function(community, user) {
+            expect(community).to.equal(self.scope.community._id);
+            expect(user).to.equal(self.scope.user._id);
+            return done();
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.accept();
+        });
+
+        it('should set $scope.done on communityAPI#join success', function() {
+          var defer = this.$q.defer();
+          this.communityAPI.join = function() {
+            defer.resolve();
+            return defer.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.accept();
+          this.scope.$digest();
+          expect(iscope.done).to.be.true;
+        });
+
+        it('should set $scope.error on communityAPI#join failure', function() {
+          var defer = this.$q.defer();
+          this.communityAPI.join = function() {
+            defer.reject();
+            return defer.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.accept();
+          this.scope.$digest();
+          expect(iscope.error).to.be.true;
+        });
+      });
+
+      describe('The decline function', function() {
+        it('should call communityAPI#cancelRequestMembership', function(done) {
+          var self = this;
+          this.communityAPI.cancelRequestMembership = function(community, user) {
+            expect(community).to.equal(self.scope.community._id);
+            expect(user).to.equal(self.scope.user._id);
+            return done();
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.decline();
+        });
+
+        it('should set $scope.error on communityAPI#cancelRequestMembership failure', function() {
+          var defer = this.$q.defer();
+          this.communityAPI.cancelRequestMembership = function() {
+            defer.reject();
+            return defer.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.decline();
+          this.scope.$digest();
+          expect(iscope.error).to.be.true;
+        });
+
+        it('should set $scope.done on communityAPI#cancelRequestMembership success', function() {
+          var defer = this.$q.defer();
+          this.communityAPI.cancelRequestMembership = function() {
+            defer.resolve();
+            return defer.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.decline();
+          this.scope.$digest();
+          expect(iscope.done).to.be.true;
+        });
+      });
+    });
+  });
 });
