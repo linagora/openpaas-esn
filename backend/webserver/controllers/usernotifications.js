@@ -1,6 +1,6 @@
 'use strict';
 
-var notificationModule = require('../../core/notification/user');
+var notificationModule = require('../../core/notification/usernotification');
 var logger = require('../../core/logger');
 
 function getUnreadCount(req, res) {

@@ -14,7 +14,7 @@ describe('The notification controller', function() {
           return callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
 
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
@@ -38,7 +38,7 @@ describe('The notification controller', function() {
           return callback(null, {});
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
 
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
@@ -61,7 +61,7 @@ describe('The notification controller', function() {
     it('should call next when req.params.id is not set', function(done) {
       var mock = {
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
 
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
@@ -85,7 +85,7 @@ describe('The notification controller', function() {
           return callback(null, notification);
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
 
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
@@ -111,7 +111,7 @@ describe('The notification controller', function() {
     it('should send back 200 if notification is in request', function(done) {
       var notification = {_id: 1234};
       var mock = {};
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -130,7 +130,7 @@ describe('The notification controller', function() {
 
     it('should send back 404 if notification is not in request', function(done) {
       var mock = {};
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -153,7 +153,7 @@ describe('The notification controller', function() {
           return callback(null, []);
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -177,7 +177,7 @@ describe('The notification controller', function() {
           return callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -203,7 +203,7 @@ describe('The notification controller', function() {
           return callback(null, []);
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -230,7 +230,7 @@ describe('The notification controller', function() {
           return callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -256,7 +256,7 @@ describe('The notification controller', function() {
     it('should send back 404 if notification is not in request', function(done) {
       var mock = {
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -277,7 +277,7 @@ describe('The notification controller', function() {
           return callback();
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {
@@ -299,7 +299,7 @@ describe('The notification controller', function() {
           return callback(new Error());
         }
       };
-      mockery.registerMock('../../core/notification', mock);
+      mockery.registerMock('../../core/notification/notification', mock);
       var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
 
       var req = {

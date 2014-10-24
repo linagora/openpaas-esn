@@ -1405,7 +1405,7 @@ describe('The communities module', function() {
       userNotificationMock.create = function(object, callback) {
         return callback(null, object);
       };
-      mockery.registerMock('../../core/notification/user', userNotificationMock);
+      mockery.registerMock('../../core/notification/usernotification', userNotificationMock);
     });
 
     it('should return an error if userNotification.create() failed', function(done) {

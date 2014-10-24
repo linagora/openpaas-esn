@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
-var userNotification = require('../../core/notification/user');
+var userNotification = require('../../core/notification/usernotification');
 var logger = require('../logger');
 var domainModule = require('../domain');
 var async = require('async');
