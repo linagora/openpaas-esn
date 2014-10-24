@@ -1,12 +1,13 @@
 var async = require('async');
+var moduleManagerModule = require('./backend/module-manager');
 
 function startWebServer(callback) {
   if ( !config.webserver.enabled ) {
     return callback();
   }
-  
-  var webserver = require('./backend/webserver');
 
+  var webserver = require('./backend/webserver');
+  moduleManagerModule.mockModule('webserver', webserver);
   webserver.virtualhosts = config.webserver.virtualhosts;
   webserver.port = config.webserver.port;
   webserver.ip = config.webserver.ip;
@@ -30,9 +31,10 @@ function startWsServer(callback) {
   if ( !config.wsserver.enabled ) {
     return callback();
   }
-  
+
   var server = require('./backend/wsserver');
-   
+  moduleManagerModule.mockModule('wsserver', server);
+
   server.start(config.wsserver.port, config.wsserver.options, function(err) {
     if ( err ) {
       logger.error('websocket server failed to start', err);
@@ -59,6 +61,7 @@ function startWebRTCServer(callback) {
   }
 
   var server = require('./backend/webrtc');
+  moduleManagerModule.mockModule('webrtcserver', server);
   server.start(webserver, wsserver, function(err) {
     if ( err ) {
       logger.warn('webrtc server failed to start', err);
@@ -68,6 +71,7 @@ function startWebRTCServer(callback) {
 };
 
 var core = require('./backend/core');
+moduleManagerModule.setupManager();
 core.init();
 var config = core.config('default');
 var logger = core.logger;
