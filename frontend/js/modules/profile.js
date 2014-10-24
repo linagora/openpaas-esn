@@ -23,6 +23,26 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
     };
   })
 
+  .directive('userProfileLink', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        user: '='
+      },
+      templateUrl: '/views/modules/profile/user-profile-link.html',
+      link: function($scope) {
+        if (!$scope.user) {
+          $scope.name = '';
+        }
+        if ($scope.user.firstname || $scope.user.lastname) {
+          $scope.name = ($scope.user.firstname || '') + ' ' + ($scope.user.lastname || '');
+        } else {
+          $scope.name = $scope.user.emails[0];
+        }
+      }
+    };
+  })
+
   .controller('profileEditionController', ['$scope', 'profileAPI', 'editableOptions', function($scope, profileAPI, editableOptions) {
     //theming for yes/no buttons in field modification confirmation
     editableOptions.theme = 'bs3';

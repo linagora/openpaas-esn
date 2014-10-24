@@ -1,5 +1,5 @@
 .community-membership-requests-widget
-  .title #{__('Membership requests')}
+  .title.ellipsis #{__('Membership requests')}
   hr
 
   .row.alert.alert-danger(ng-show="error", role="alert")
@@ -10,9 +10,12 @@
     | #{__("Loading membership requests")}
 
   .row(ng-show="requests && !error")
-    ul.nav.nav-pills.nav-stacked(ng-repeat="request in requests | filter: {workflow: 'request'}")
-      li
+    .row(ng-repeat="request in requests | filter: {workflow: 'request'}")
+      .col-xs-12.nopadding
         .col-xs-3.nopadding
           community-member-avatar(member="request", community="community")
         .col-xs-9.nopadding.text-center
-          community-membership-requests-actions(user='request.user', community='community')
+          h5.media-heading.ellipsis
+            user-profile-link(user="request.user")
+          span
+            community-membership-requests-actions(user='request.user', community='community')
