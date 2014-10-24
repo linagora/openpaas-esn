@@ -258,6 +258,21 @@ module.exports.getUserCommunities = function(user, domainId, callback) {
   return query({'members.user': id}, callback);
 };
 
+module.exports.getMembershipRequests = function(community, query, callback) {
+  query = query || {};
+  var id = community._id || community;
+
+  var q = Community.findById(id);
+  q.slice('membershipRequests', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
+  q.populate('membershipRequests.user');
+  q.exec(function(err, community) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, community ? community.membershipRequests : []);
+  });
+};
+
 module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, callback) {
   if (!userAuthor) {
     return callback(new Error('Author user object is required'));

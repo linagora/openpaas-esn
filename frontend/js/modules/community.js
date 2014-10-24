@@ -51,6 +51,11 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return Restangular.one('communities', id).one('members', member).remove();
     }
 
+    function getRequestMemberships(id, options) {
+      var query = options || {};
+      return Restangular.one('communities', id).all('membership').getList(query);
+    }
+
     function requestMembership(id, member) {
       return Restangular.one('communities', id).one('membership', member).put();
     }
@@ -70,7 +75,8 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       join: join,
       leave: leave,
       requestMembership: requestMembership,
-      cancelRequestMembership: cancelRequestMembership
+      cancelRequestMembership: cancelRequestMembership,
+      getRequestMemberships: getRequestMemberships
     };
   }])
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
@@ -656,6 +662,9 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     $scope.isCommunityMember = function() {
       return communityService.isMember(community);
     };
+    $scope.isCommunityManager = function() {
+      return communityService.isManager(community, session.user);
+    };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
     return {
@@ -718,6 +727,11 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
     };
   }])
   .factory('communityService', ['communityAPI', '$q', function(communityAPI, $q) {
+
+    function isManager(community, user) {
+      return community.creator === user._id;
+    }
+
     function isMember(community) {
       if (!community || !community.member_status) {
         return false;
@@ -794,6 +808,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
 
     return {
       isMember: isMember,
+      isManager: isManager,
       join: join,
       leave: leave,
       canJoin: canJoin,
@@ -853,6 +868,35 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         $rootScope.$on('community:join', $scope.updateMembers);
         $rootScope.$on('community:leave', $scope.updateMembers);
         $scope.updateMembers();
+      }
+    };
+  }])
+  .directive('communityMembershipRequestsWidget', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-membership-requests-widget.html',
+      controller: function($scope) {
+
+        $scope.error = false;
+        $scope.loading = false;
+
+        $scope.updateRequests = function() {
+          $scope.loading = true;
+          $scope.error = false;
+          communityAPI.getRequestMemberships($scope.community._id).then(function(response) {
+            $scope.requests = response.data || [];
+          }, function() {
+            $scope.error = true;
+          }).finally (function() {
+            $scope.loading = false;
+          });
+        };
+
+        $scope.updateRequests();
       }
     };
   }])

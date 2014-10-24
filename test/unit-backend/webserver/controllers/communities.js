@@ -2395,4 +2395,152 @@ describe('The communities controller', function() {
       });
     });
   });
+
+  describe('The getMembershipRequests fn', function() {
+    it('should send back 400 is req.community is undefined', function(done) {
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      };
+
+      var req = {
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembershipRequests(req, res);
+    });
+
+    it('should send back 500 is community.getMembershipRequests returns error', function(done) {
+      mockery.registerMock('../../core/community', {
+        getMembershipRequests: function(com, query, callback) {
+          return callback(new Error());
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        community: {},
+        param: function() {},
+        isCommunityManager: true
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembershipRequests(req, res);
+    });
+
+    it('should send back 200 is community.getMembershipRequests returns result', function(done) {
+      mockery.registerMock('../../core/community', {
+        getMembershipRequests: function(com, query, callback) {
+          return callback(null, []);
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        },
+        header: function() {}
+      };
+
+      var req = {
+        community: {},
+        param: function() {},
+        isCommunityManager: true
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembershipRequests(req, res);
+    });
+
+    it('should set the header with the members size', function(done) {
+      var requests = [1, 2, 3];
+      mockery.registerMock('../../core/community', {
+        getMembershipRequests: function(com, query, callback) {
+          return callback(null, []);
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        },
+        header: function(name, value) {
+          expect(name).to.equal('X-ESN-Items-Count');
+          expect(value).to.equal(requests.length);
+        }
+      };
+
+      var req = {
+        community: {
+          membershipRequests: requests
+        },
+        param: function() {},
+        isCommunityManager: true
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembershipRequests(req, res);
+    });
+
+    it('should query user with request query parameters', function(done) {
+      var requests = [1, 2, 3];
+      var limit = 23;
+      var offset = 45;
+      mockery.registerMock('../../core/community', {
+        getMembershipRequests: function(com, query, callback) {
+          expect(query).to.exist;
+          expect(query.limit).to.equal(limit);
+          expect(query.offset).to.equal(offset);
+
+          return callback(null, []);
+        }
+      });
+      mockery.registerMock('../../core/community/permission', {});
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(200);
+          done();
+        },
+        header: function(name, value) {
+          expect(name).to.equal('X-ESN-Items-Count');
+          expect(value).to.equal(requests.length);
+        }
+      };
+
+      var req = {
+        isCommunityManager: true,
+        community: {
+          membershipRequests: requests
+        },
+        param: function(name) {
+          if (name === 'limit') {
+            return limit;
+          }
+          if (name === 'offset') {
+            return offset;
+          }
+        }
+      };
+
+      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      communities.getMembershipRequests(req, res);
+    });
+  });
 });

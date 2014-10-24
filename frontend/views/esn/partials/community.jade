@@ -7,5 +7,8 @@
   .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane()
     .esn-panel
       community-members-widget(community='community')
+    .vertiz-space
+    .esn-panel(ng-if='isCommunityManager()')
+      community-membership-requests-widget(community='community')
 .col-xs-12.esn-panel(ng-if='!canRead()')
   p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}

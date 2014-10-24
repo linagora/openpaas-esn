@@ -342,6 +342,33 @@ describe('The Community Angular module', function() {
         expect(promise.then).to.be.a.function;
       });
     });
+
+    describe('getRequestMemberships() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a GET request to /communities/:id/membership', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/membership').respond(200, []);
+        this.communityAPI.getRequestMemberships(this.communityId);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a GET request to /communities/:id/membership?limit=X&offset=Y', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/membership?limit=10&offset=2').respond(200, []);
+        this.communityAPI.getRequestMemberships(this.communityId, {limit: 10, offset: 2});
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.getRequestMemberships(123);
+        expect(promise.then).to.be.a.function;
+      });
+    });
   });
 
   describe('communityCreateController controller', function() {
@@ -2211,6 +2238,82 @@ describe('The Community Angular module', function() {
       this.$compile(this.html)(this.scope);
       this.scope.$digest();
       this.$rootScope.$emit('community:leave', {data: 'fake'});
+    });
+  });
+
+  describe('The communityMembershipRequestsWidget directive', function() {
+    beforeEach(function() {
+      var self = this;
+      this.communityAPI = {
+        get: function() {},
+        getRequestMemberships: function() {}
+      };
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', self.communityAPI);
+      });
+      module('jadeTemplates');
+      module('esn.core');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.community = {
+        _id: 'community1',
+        creator: 'user1',
+        membershipRequests: [
+          {
+            user: '123'
+          },
+          {
+            user: '456'
+          }
+        ]
+      };
+      this.html = '<community-membership-requests-widget community="community"/>';
+    }));
+
+    it('should call communityAPI#getRequestMemberships', function(done) {
+      this.communityAPI.getRequestMemberships = function() {
+        return done();
+      };
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+    });
+
+    it('should set error when call the API fails', function(done) {
+      var defer = this.$q.defer();
+      this.communityAPI.getRequestMemberships = function() {
+        return defer.promise;
+      };
+      defer.reject();
+
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+
+      var iscope = element.isolateScope();
+      expect(iscope.error).to.exist;
+      expect(iscope.error).to.be.true;
+      done();
+    });
+
+    it('should set requests in the scope when API call succeeds', function(done) {
+      var result = [{user: {_id: 1, emails: ['foo@bar.com']}}, {user: {_id: 2, emails: ['baz@bar.com']}}];
+      var defer = this.$q.defer();
+      this.communityAPI.getRequestMemberships = function() {
+        return defer.promise;
+      };
+      defer.resolve({data: result});
+
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+
+      var iscope = element.isolateScope();
+      expect(iscope.requests).to.exist;
+      expect(iscope.requests).to.deep.equal(result);
+      done();
     });
   });
 

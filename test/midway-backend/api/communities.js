@@ -2460,4 +2460,336 @@ describe('The communities API', function() {
       });
     });
   });
+
+  describe('GET /api/communities/:id/membership', function() {
+
+    it('should return 401 is user is not authenticated', function(done) {
+      request(webserver.application).get('/api/communities/123/membership').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should return 404 if community does not exist', function(done) {
+      var ObjectId = require('bson').ObjectId;
+      var id = new ObjectId();
+
+      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + id + '/membership'));
+        req.expect(404);
+        req.end(function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+    });
+
+    describe('When not community manager', function() {
+
+      it('should return HTTP 403', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          membershipRequests: []
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+        async.series([
+          function(callback) {
+            saveUser(foouser, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = foouser._id;
+            community.domain_ids = [domain._id];
+            community.type = 'restricted';
+            community.membershipRequests.push({user: user._id, workflow: 'request'});
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
+              req.expect(403);
+              req.end(done);
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+    });
+
+    describe('When community manager', function() {
+
+      it('should return the membership request list', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          status: 'open',
+          members: [],
+          membershipRequests: []
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+        async.series([
+          function(callback) {
+            saveUser(foouser, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user._id;
+            community.domain_ids = [domain._id];
+            community.type = 'restricted';
+            community.members.push({user: user._id});
+            community.membershipRequests.push({user: foouser._id, workflow: 'request'});
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(1);
+                expect(res.body[0].user).to.exist;
+                expect(res.body[0].user._id).to.exist;
+                expect(res.body[0].user.password).to.not.exist;
+                expect(res.body[0].metadata).to.exist;
+                done();
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+
+      it('should return number of community membership requests in the header', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          status: 'open',
+          members: [],
+          membershipRequests: []
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+        var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
+        var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
+        var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
+        var userD = {emails: ['foo.d@bar.com'], password: 'secret'};
+        var userE = {emails: ['foo.e@bar.com'], password: 'secret'};
+        var userF = {emails: ['foo.f@bar.com'], password: 'secret'};
+        var userG = {emails: ['foo.g@bar.com'], password: 'secret'};
+        var userH = {emails: ['foo.h@bar.com'], password: 'secret'};
+        var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
+        var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
+
+        async.series([
+          function(callback) {
+            saveUser(userA, callback);
+          },
+          function(callback) {
+            saveUser(userB, callback);
+          },
+          function(callback) {
+            saveUser(userC, callback);
+          },
+          function(callback) {
+            saveUser(userD, callback);
+          },
+          function(callback) {
+            saveUser(userE, callback);
+          },
+          function(callback) {
+            saveUser(userF, callback);
+          },
+          function(callback) {
+            saveUser(userG, callback);
+          },
+          function(callback) {
+            saveUser(userH, callback);
+          },
+          function(callback) {
+            saveUser(userI, callback);
+          },
+          function(callback) {
+            saveUser(userJ, callback);
+          },
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user._id;
+            community.domain_ids = [domain._id];
+            community.type = 'restricted';
+            community.members.push({user: user._id}),
+            community.membershipRequests.push({user: userA._id, workflow: 'request'});
+            community.membershipRequests.push({user: userB._id, workflow: 'request'});
+            community.membershipRequests.push({user: userC._id, workflow: 'request'});
+            community.membershipRequests.push({user: userD._id, workflow: 'request'});
+            community.membershipRequests.push({user: userE._id, workflow: 'request'});
+            community.membershipRequests.push({user: userF._id, workflow: 'request'});
+            community.membershipRequests.push({user: userG._id, workflow: 'request'});
+            community.membershipRequests.push({user: userH._id, workflow: 'request'});
+            community.membershipRequests.push({user: userI._id, workflow: 'request'});
+            community.membershipRequests.push({user: userJ._id, workflow: 'request'});
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.headers['x-esn-items-count']).to.equal('10');
+                done();
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+    });
+
+    it('should return sliced community membership requests', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        members: [],
+        membershipRequests: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
+      var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
+      var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
+      var userD = {emails: ['foo.d@bar.com'], password: 'secret'};
+      var userE = {emails: ['foo.e@bar.com'], password: 'secret'};
+      var userF = {emails: ['foo.f@bar.com'], password: 'secret'};
+      var userG = {emails: ['foo.g@bar.com'], password: 'secret'};
+      var userH = {emails: ['foo.h@bar.com'], password: 'secret'};
+      var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
+      var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          saveUser(userA, callback);
+        },
+        function(callback) {
+          saveUser(userB, callback);
+        },
+        function(callback) {
+          saveUser(userC, callback);
+        },
+        function(callback) {
+          saveUser(userD, callback);
+        },
+        function(callback) {
+          saveUser(userE, callback);
+        },
+        function(callback) {
+          saveUser(userF, callback);
+        },
+        function(callback) {
+          saveUser(userG, callback);
+        },
+        function(callback) {
+          saveUser(userH, callback);
+        },
+        function(callback) {
+          saveUser(userI, callback);
+        },
+        function(callback) {
+          saveUser(userJ, callback);
+        },
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = user._id;
+          community.domain_ids = [domain._id];
+          community.type = 'restricted';
+          community.members.push({user: user._id}),
+          community.membershipRequests.push({user: userA._id, workflow: 'request'});
+          community.membershipRequests.push({user: userB._id, workflow: 'request'});
+          community.membershipRequests.push({user: userC._id, workflow: 'request'});
+          community.membershipRequests.push({user: userD._id, workflow: 'request'});
+          community.membershipRequests.push({user: userE._id, workflow: 'request'});
+          community.membershipRequests.push({user: userF._id, workflow: 'request'});
+          community.membershipRequests.push({user: userG._id, workflow: 'request'});
+          community.membershipRequests.push({user: userH._id, workflow: 'request'});
+          community.membershipRequests.push({user: userI._id, workflow: 'request'});
+          community.membershipRequests.push({user: userJ._id, workflow: 'request'});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
+            req.query({limit: 3, offset: 1});
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(3);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+  });
 });
