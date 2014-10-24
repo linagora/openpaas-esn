@@ -144,7 +144,7 @@ module.exports.leave = function(community, userAuthor, userTarget, callback) {
   });
 };
 
-module.exports.join = function(community, userAuthor, userTarget, callback) {
+module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
   var id = community._id || community;
   var userAuthor_id = userAuthor._id || userAuthor;
   var userTarget_id = userTarget._id || userTarget;
@@ -157,6 +157,7 @@ module.exports.join = function(community, userAuthor, userTarget, callback) {
     localpubsub.topic('community:join').forward(globalpubsub, {
       author: userAuthor_id,
       target: userTarget_id,
+      actor: actor || 'user',
       community: id
     });
 

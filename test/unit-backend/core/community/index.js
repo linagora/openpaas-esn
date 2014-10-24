@@ -517,7 +517,7 @@ describe('The communities module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, 456, function(err) {
+      community.join(123, 456, 456, 'user', function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -556,7 +556,7 @@ describe('The communities module', function() {
       });
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, 456, function(err, update) {
+      community.join(123, 456, 456, 'user', function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
         return done();
@@ -580,18 +580,20 @@ describe('The communities module', function() {
       this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, 789, function(err, update) {
+      community.join(123, 456, 789, 'user', function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
 
         expect(localstub.topics['community:join'].data[0]).to.deep.equal({
           author: 456,
           target: 789,
+          actor: 'user',
           community: 123
         });
         expect(globalstub.topics['community:join'].data[0]).to.deep.equal({
           author: 456,
           target: 789,
+          actor: 'user',
           community: 123
         });
 

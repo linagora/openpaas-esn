@@ -360,7 +360,7 @@ module.exports.join = function(req, res) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
-      communityModule.join(community, user, targetUser, function(err) {
+      communityModule.join(community, user, targetUser, 'manager', function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
@@ -385,7 +385,7 @@ module.exports.join = function(req, res) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        communityModule.join(community, user, user, function(err) {
+        communityModule.join(community, user, user, 'user', function(err) {
           if (err) {
             return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
           }
@@ -394,14 +394,13 @@ module.exports.join = function(req, res) {
       });
     }
     else {
-      communityModule.join(community, user, targetUser, function(err) {
+      communityModule.join(community, user, targetUser, 'user', function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
         return res.send(204);
       });
     }
-
   }
 };
 
