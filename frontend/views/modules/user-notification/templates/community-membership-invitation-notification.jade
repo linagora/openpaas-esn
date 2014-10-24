@@ -4,7 +4,7 @@
   div(ng-show='loading && !error')
     p
       i.fa.fa-cog.fa-spin
-      | Loading notification
+      | #{__('Loading notifications')}
   div(ng-hide='loading || error')
     a.pull-left(ng-href='/#/communities/{{invitationCommunity._id}}')
       img.media-object(ng-src='/api/avatars?objectType=community&id={{invitationCommunity._id}}', src='/images/community.png')
