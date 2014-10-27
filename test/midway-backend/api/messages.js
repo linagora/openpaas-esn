@@ -585,7 +585,6 @@ describe('The messages API', function() {
       req.expect(200);
       req.end(function(err, res) {
         expect(err).to.be.null;
-        console.log(res.body);
         expect(res.body).to.be.an.array;
         expect(res.body.length).to.equal(2);
         expect(res.body[0].author).to.be.an('object');
