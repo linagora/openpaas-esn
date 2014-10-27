@@ -883,8 +883,12 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
           });
         };
 
-        $rootScope.$on('community:join', $scope.updateMembers);
-        $rootScope.$on('community:leave', $scope.updateMembers);
+        var communityJoinRemover = $rootScope.$on('community:join', $scope.updateMembers);
+        var communityLeaveRemover = $rootScope.$on('community:leave', $scope.updateMembers);
+        element.on('$destroy', function() {
+          communityJoinRemover();
+          communityLeaveRemover();
+        });
         $scope.updateMembers();
       }
     };

@@ -2239,12 +2239,9 @@ describe('The Community Angular module', function() {
       done();
     });
 
-    it('should call the API when community:join event is received', function(done) {
+    it('should call the API when community:join event is received', function() {
       var call = 0;
       this.communityAPI.getMembers = function() {
-        if (call === 1) {
-          return done();
-        }
         call++;
         return {
           then: function() {}
@@ -2253,15 +2250,14 @@ describe('The Community Angular module', function() {
 
       this.$compile(this.html)(this.scope);
       this.scope.$digest();
+      expect(call).to.equal(1);
       this.$rootScope.$emit('community:join', {data: 'fake'});
+      expect(call).to.equal(2);
     });
 
-    it('should call the API when community:leave event is received', function(done) {
+    it('should call the API when community:leave event is received', function() {
       var call = 0;
       this.communityAPI.getMembers = function() {
-        if (call === 1) {
-          return done();
-        }
         call++;
         return {
           then: function() {}
@@ -2270,7 +2266,9 @@ describe('The Community Angular module', function() {
 
       this.$compile(this.html)(this.scope);
       this.scope.$digest();
+      expect(call).to.equal(1);
       this.$rootScope.$emit('community:leave', {data: 'fake'});
+      expect(call).to.equal(2);
     });
 
     describe('members slicing', function() {
@@ -2396,6 +2394,49 @@ describe('The Community Angular module', function() {
       });
 
     });
+    describe('on scope destroy', function() {
+
+      it('should remove community:join event listener', function() {
+        var call = 0;
+        this.communityAPI.getMembers = function() {
+          call++;
+          return {
+            then: function() {}
+          };
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(call).to.equal(1);
+        this.$rootScope.$emit('community:join', {data: 'fake'});
+        expect(call).to.equal(2);
+        element.remove();
+        this.$rootScope.$digest();
+        this.$rootScope.$emit('community:join', {data: 'fake'});
+        expect(call).to.equal(2);
+      });
+
+      it('should remove community:leave event listener', function() {
+        var call = 0;
+        this.communityAPI.getMembers = function() {
+          call++;
+          return {
+            then: function() {}
+          };
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        expect(call).to.equal(1);
+        this.$rootScope.$emit('community:leave', {data: 'fake'});
+        expect(call).to.equal(2);
+        element.remove();
+        this.$rootScope.$digest();
+        this.$rootScope.$emit('community:leave', {data: 'fake'});
+        expect(call).to.equal(2);
+      });
+    });
+
   });
 
   describe('The communityMembershipRequestsWidget directive', function() {
