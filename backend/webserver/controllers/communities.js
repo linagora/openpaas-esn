@@ -487,8 +487,8 @@ module.exports.addMembershipRequest = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  function addMembership(community, userAuthor, userTarget, workflow) {
-    communityModule.addMembershipRequest(community, userAuthor, userTarget, workflow, function(err, community) {
+  function addMembership(community, userAuthor, userTarget, workflow, actor) {
+    communityModule.addMembershipRequest(community, userAuthor, userTarget, workflow, actor, function(err, community) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
       }
@@ -499,9 +499,9 @@ module.exports.addMembershipRequest = function(req, res) {
   }
 
   if (req.isCommunityManager) {
-    addMembership(community, userAuthor, userTargetId, 'invitation');
+    addMembership(community, userAuthor, userTargetId, 'invitation', 'manager');
   } else {
-    addMembership(community, userAuthor, userTargetId, 'request');
+    addMembership(community, userAuthor, userTargetId, 'request', 'user');
   }
 };
 

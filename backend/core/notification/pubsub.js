@@ -159,7 +159,7 @@ module.exports.membershipDeclinedHandler = membershipDeclinedHandler;
 
 function init() {
   if (initialized) {
-    logger.warn('Activity Stream Pubsub is already initialized');
+    logger.warn('Notification Pubsub is already initialized');
     return;
   }
   localpubsub.topic('community:join').subscribe(communityJoinHandler);

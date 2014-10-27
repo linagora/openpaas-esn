@@ -2,7 +2,6 @@
 
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
-var userNotification = require('../../core/notification/usernotification');
 var logger = require('../logger');
 var domainModule = require('../domain');
 var async = require('async');
@@ -283,7 +282,7 @@ module.exports.getMembershipRequests = function(community, query, callback) {
   });
 };
 
-module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, callback) {
+module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
   if (!userAuthor) {
     return callback(new Error('Author user object is required'));
   }
@@ -323,7 +322,6 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
-  var self = this;
   this.isMember(community, userTargetId, function(err, isMember) {
     if (err) {
       return callback(err);
@@ -347,18 +345,15 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
         return callback(err);
       }
 
-      self.addMembershipInviteUserNotification(community, userAuthorId, userTargetId, function(err, userNotificationSaved) {
-        if (err) {
-          return callback(err);
-        }
-
-        localpubsub.topic(topic).forward(globalpubsub, {
-          author: userAuthorId,
-          target: userTargetId,
-          community: community._id
-        });
-        return callback(null, communitySaved);
+      localpubsub.topic(topic).forward(globalpubsub, {
+        author: userAuthorId,
+        target: userTargetId,
+        community: community._id,
+        workflow: workflow,
+        actor: actor || 'user'
       });
+
+      return callback(null, communitySaved);
     });
   });
 };
@@ -424,31 +419,3 @@ module.exports.removeMembershipRequest = function(community, userAuthor, userTar
   });
 };
 
-module.exports.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, callback) {
-  var userAuthorId = userAuthor._id || userAuthor;
-  var userTargetId = userTarget._id || userTarget;
-  var communityId = community._id || community;
-
-  var userNotificationObject = {
-    subject: {
-      objectType: 'user',
-      id: userAuthorId
-    },
-    verb: {
-      label: 'invites you to join',
-      text: 'invites you to join'
-    },
-    complement: {
-      objectType: 'community',
-      id: communityId
-    },
-    category: 'community:membership:invite',
-    interactive: true,
-    target: [{
-      objectType: 'user',
-      id: userTargetId
-    }]
-  };
-
-  userNotification.create(userNotificationObject, callback);
-};

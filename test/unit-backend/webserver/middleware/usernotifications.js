@@ -40,7 +40,7 @@ describe('The usernotification middleware', function() {
         },
         usernotification: {
           author: mongoose.Types.ObjectId(),
-          target: [{objectType: 'user', id: id}]
+          target: [{objectType: 'user', id: '' + id}]
         }
       };
 

@@ -1023,7 +1023,7 @@ describe('The communities module', function() {
 
     it('should send back error when userAuthor is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({}, null, {}, 'request', function(err, c) {
+      communityModule.addMembershipRequest({}, null, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1031,7 +1031,7 @@ describe('The communities module', function() {
 
     it('should send back error when userTarget is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({}, {}, null, 'request', function(err, c) {
+      communityModule.addMembershipRequest({}, {}, null, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1039,7 +1039,7 @@ describe('The communities module', function() {
 
     it('should send back error when community is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest(null, {}, {}, 'request', function(err, c) {
+      communityModule.addMembershipRequest(null, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1047,7 +1047,7 @@ describe('The communities module', function() {
 
     it('should send back error when workflow is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({}, {}, {}, null, function(err, c) {
+      communityModule.addMembershipRequest({}, {}, {}, null, null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1055,7 +1055,7 @@ describe('The communities module', function() {
 
     it('should send back error when workflow is not "request" or "invitation"', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({}, {}, {}, 'test', function(err, c) {
+      communityModule.addMembershipRequest({}, {}, {}, 'test', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1063,11 +1063,11 @@ describe('The communities module', function() {
 
     it('should send back error if community type is not restricted or private', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipRequest({type: 'open'}, {}, {}, 'request', function(err, c) {
+      communityModule.addMembershipRequest({type: 'open'}, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
-      communityModule.addMembershipRequest({type: 'confidential'}, {}, {}, 'request', function(err, c) {
+      communityModule.addMembershipRequest({type: 'confidential'}, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1085,7 +1085,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, true);
       };
-      communityModule.addMembershipRequest(community, {}, user, 'request', function(err, c) {
+      communityModule.addMembershipRequest(community, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1103,7 +1103,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(new Error('isMember fail'));
       };
-      communityModule.addMembershipRequest(community, {}, user, 'request', function(err, c) {
+      communityModule.addMembershipRequest(community, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1123,35 +1123,10 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.addMembershipRequest(community, {}, user, workflow, function(err, c) {
+      communityModule.addMembershipRequest(community, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests).to.deep.equal(community.membershipRequests);
-      });
-    });
-
-    it('should fail if the addMembershipInviteUserNotification() fails', function() {
-      var user = { _id: this.helpers.objectIdMock('uid') };
-      var community = {
-        _id: 'cid',
-        type: 'restricted',
-        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
-        save: function(callback) {
-          return callback(null, community);
-        }
-      };
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.isMember = function(c, u, callback) {
-        expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
-        callback(null, false);
-      };
-      communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, callback) {
-        return callback(new Error('Fail'));
-      };
-      communityModule.addMembershipRequest(community, {}, user, 'request', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
       });
     });
 
@@ -1171,10 +1146,10 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, callback) {
+      communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
-      communityModule.addMembershipRequest(community, {}, user, 'request', function(err, c) {
+      communityModule.addMembershipRequest(community, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1197,10 +1172,10 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, callback) {
+      communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
-      communityModule.addMembershipRequest(community, {}, user, workflow, function(err, c) {
+      communityModule.addMembershipRequest(community, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(2);
@@ -1382,54 +1357,6 @@ describe('The communities module', function() {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(0);
-      });
-    });
-  });
-
-  describe('The addMembershipInviteUserNotification fn', function() {
-    var userAuthor = {
-      _id: '123'
-    };
-    var userTarget = {
-      _id: '456'
-    };
-    var community = {
-      _id: '789'
-    };
-    var userNotificationMock = {
-      create: function(object, callback) {
-        return callback(null, object);
-      }
-    };
-
-    beforeEach(function() {
-      this.helpers.mock.models({});
-      userNotificationMock.create = function(object, callback) {
-        return callback(null, object);
-      };
-      mockery.registerMock('../../core/notification/usernotification', userNotificationMock);
-    });
-
-    it('should return an error if userNotification.create() failed', function(done) {
-      userNotificationMock.create = function(object, callback) {
-        return callback(new Error('Fail'));
-      };
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipInviteUserNotification(community, userAuthor, userTarget, function(err, result) {
-        expect(err).to.exist;
-        expect(result).to.not.exist;
-        done();
-      });
-    });
-
-    it('should return the userNotification object if userNotification.create() succeed', function(done) {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.addMembershipInviteUserNotification(community, userAuthor, userTarget, function(err, result) {
-        expect(err).to.not.exist;
-        expect(result).to.exist;
-        expect(result.subject).to.exist;
-        expect(result.verb).to.exist;
-        done();
       });
     });
   });
