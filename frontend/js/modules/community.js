@@ -981,4 +981,45 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         }
       }
     };
+  })
+  .directive('communityInjectionsWidget', function($compile) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        var buildHtmlFromInjectionData = function(injectionData) {
+          var attributes = {};
+          if (injectionData.attributes) {
+            injectionData.attributes.forEach(function(attribute) {
+              attributes[attribute.name] = attribute.value;
+            });
+          }
+          var e = $('<' + injectionData.directive + '/>');
+          e.attr(attributes);
+          return e;
+        };
+
+        element.hide();
+        var anchorId = attrs.communityInjectionsWidget;
+        if (!anchorId || !scope.community || !scope.community.injections) {
+          return;
+        }
+        var thisAnchorInjections = scope.community.injections.filter(function(injection) {
+          return injection.key === anchorId;
+        });
+        if (thisAnchorInjections.length === 0) {
+          return;
+        }
+        else {
+          thisAnchorInjections.forEach(function(injection) {
+            injection.values.forEach(function(injectionData) {
+              var template = angular.element(buildHtmlFromInjectionData(injectionData));
+              var newElt = $compile(template)(scope);
+              element.append(newElt);
+              element.append(angular.element('<div class="vertiz-space"></div>'));
+            });
+          });
+          element.show();
+        }
+      }
+    };
   });
