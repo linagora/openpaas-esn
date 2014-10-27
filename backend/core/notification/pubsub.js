@@ -110,6 +110,23 @@ function augmentToMembershipAccepted(data, callback) {
   return callback(null, notification);
 }
 
+function augmentToMembershipDeclined(data, callback) {
+
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: 'ESN_MEMBERSHIP_DECLINED', text: 'declined your request to join'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:membership:declined',
+    read: false,
+    interactive: false,
+    target: [{objectType: 'user', id: data.target + ''}]
+  };
+  return callback(null, notification);
+}
+
 function membershipRequestHandler(data, callback) {
   async.waterfall([
       augmentToMembershipRequest.bind(null, data),
@@ -128,6 +145,18 @@ function membershipAcceptedHandler(data, callback) {
 }
 module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
 
+function membershipDeclinedHandler(data, callback) {
+  if (data.actor !== 'manager') {
+    return;
+  }
+  async.waterfall([
+      augmentToMembershipDeclined.bind(null, data),
+      createUserNotification
+    ],
+    onSuccessPublishIntoGlobal(callback));
+}
+module.exports.membershipDeclinedHandler = membershipDeclinedHandler;
+
 function init() {
   if (initialized) {
     logger.warn('Activity Stream Pubsub is already initialized');
@@ -137,6 +166,7 @@ function init() {
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
   localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
   localpubsub.topic('community:membership:accepted').subscribe(membershipAcceptedHandler);
+  localpubsub.topic('community:membership:remove').subscribe(membershipDeclinedHandler);
   initialized = true;
 }
 module.exports.init = init;

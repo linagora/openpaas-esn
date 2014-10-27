@@ -195,5 +195,6 @@
   "Loading membership requests": "Loading membership requests",
   "Accept": "Accept",
   "Decline": "Decline",
-  "Your request has been accepted, welcome to the community": "Your request has been accepted, welcome to the community"
+  "Your request has been accepted, welcome to the community": "Your request has been accepted, welcome to the community",
+  "Your request to join the community has been declined": "Your request to join the community has been declined"
 }

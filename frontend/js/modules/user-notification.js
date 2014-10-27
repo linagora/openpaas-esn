@@ -157,6 +157,18 @@ angular.module('esn.user-notification',
       };
     }
   ])
+  .controller('requestMembershipActionNotificationController', ['$scope', 'objectTypeResolver', function($scope, objectTypeResolver) {
+    $scope.error = false;
+    $scope.loading = true;
+    objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id)
+      .then(function(result) {
+        $scope.community = result.data;
+      }, function() {
+        $scope.error = true;
+      }).finally (function() {
+      $scope.loading = false;
+    });
+  }])
   .directive('notificationTemplateDisplayer', function() {
     return {
       restrict: 'E',
@@ -211,18 +223,18 @@ angular.module('esn.user-notification',
         notification: '='
       },
       templateUrl: '/views/modules/user-notification/templates/community-membership-request-accepted-notification.html',
-      controller: function($scope) {
-        $scope.error = false;
-        $scope.loading = true;
-        objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id)
-          .then(function(result) {
-            $scope.community = result.data;
-          }, function() {
-            $scope.error = true;
-          }).finally (function() {
-            $scope.loading = false;
-          });
-      }
+      controller: 'requestMembershipActionNotificationController'
+    };
+  }])
+  .directive('communityMembershipRequestDeclinedNotification', ['objectTypeResolver', function(objectTypeResolver) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/templates/community-membership-request-declined-notification.html',
+      controller: 'requestMembershipActionNotificationController'
     };
   }])
   .directive('communityInvitationAcceptButton', ['communityAPI', 'userNotificationAPI',
