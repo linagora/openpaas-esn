@@ -37,12 +37,8 @@ application.use(lessMiddleware(
   FRONTEND_PATH,
   process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production.options : lessMiddlewareConfig.dev.options));
 application.use('/css', express.static(CSS_PATH));
-
-if (process.env.NODE_ENV !== 'test') {
-  var morgan = require('morgan');
-  application.use(morgan());
-}
-
+var morgan = require('morgan');
+application.use(morgan());
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
 application.use('/images', express.static(FRONTEND_PATH + '/images'));
 application.use('/js', express.static(FRONTEND_PATH + '/js'));

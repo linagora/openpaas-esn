@@ -4,7 +4,6 @@ var passport = require('passport');
 var config = require('../core').config('default');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var logger = require('../core/logger');
 
 passport.serializeUser(function(user, done) {
   if (user && user.emails && user.emails.length && user.emails[0]) {
@@ -24,7 +23,7 @@ try {
   passport.use('basic', require('./auth/basic').strategy);
   passport.use('oauth2-client-password', require('./auth/oauth2-client-password').strategy);
 } catch (err) {
-  logger.error('Can not load the client strategies', err.message);
+  console.log('Can not load the client strategies:', err);
 }
 
 if (config.auth && config.auth.strategies) {
@@ -32,7 +31,7 @@ if (config.auth && config.auth.strategies) {
     try {
       passport.use(auth, require('./auth/' + auth).strategy);
     } catch (err) {
-      logger.error('Can not load the ' + auth + ' strategy', err.message);
+      console.log('Can not load the ' + auth + ' strategy:', err);
     }
   });
 }

@@ -2,8 +2,7 @@
 
 var core = require('..'),
     mongo = core.db.mongo,
-    pubsub = core.pubsub.local,
-    logger = require('../logger');
+    pubsub = core.pubsub.local;
 
 var user = require('./user');
 module.exports.user = user;
@@ -11,7 +10,7 @@ module.exports.user = user;
 function injectTemplates() {
   user.store(function(err) {
     if (err) {
-      logger.error('user template cannot be injected into database', err.message);
+      console.log('user template cannot be injected into database', err);
     }
   });
 }

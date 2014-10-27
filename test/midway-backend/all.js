@@ -316,12 +316,6 @@ after(function() {
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
-  mockery.registerMock('./logger', require(this.testEnv.fixtures + '/logger-noop')());
-  mockery.registerMock('../logger', require(this.testEnv.fixtures + '/logger-noop')());
-  mockery.registerMock('../../logger', require(this.testEnv.fixtures + '/logger-noop')());
-  mockery.registerMock('../core/logger', require(this.testEnv.fixtures + '/logger-noop')());
-  mockery.registerMock('../../core/logger', require(this.testEnv.fixtures + '/logger-noop')());
-  mockery.registerMock('../../../core/logger', require(this.testEnv.fixtures + '/logger-noop')());
   this.testEnv.writeDBConfigFile();
 });
 
