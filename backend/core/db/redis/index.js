@@ -1,6 +1,6 @@
 'use strict';
 
-var logger = require('../../../core').logger;
+var logger = require('../../../core/logger');
 var esnconfig = require('../../../core/esn-config');
 var pubsub = require('../../../core/pubsub').local;
 
@@ -60,7 +60,6 @@ var createClient = function(options, callback) {
   }
 
   client.on('error', function(err) {
-    console.log(err);
     logger.error('Redis connection error', err);
   });
 
