@@ -23,7 +23,6 @@ module.exports.isStillValid = function(invitation, done) {
     var handler = getHandler(invitation.type);
     return handler.isStillValid(invitation, done);
   } catch (err) {
-    console.log(err);
     return done(new Error('Can not find invitation handler for ' + invitation.type));
   }
 };
