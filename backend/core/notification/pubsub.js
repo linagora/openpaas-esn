@@ -45,6 +45,23 @@ function augmentToCommunityJoin(data, callback) {
   return callback(null, notification);
 }
 
+function augmentToMembershipAccepted(data, callback) {
+
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:membership:accepted',
+    read: false,
+    interactive: false,
+    target: [{objectType: 'user', id: data.target + ''}]
+  };
+  return callback(null, notification);
+}
+
 function communityJoinHandler(data, callback) {
   if (data.actor === 'manager') {
     async.waterfall([
@@ -97,23 +114,6 @@ function augmentToMembershipRequest(data, callback) {
     category: 'community:membership:request',
     interactive: true,
     target: [{objectType: 'community', id: data.community}]
-  };
-  return callback(null, notification);
-}
-
-function augmentToMembershipAccepted(data, callback) {
-
-  var notification = {
-    subject: {objectType: 'user', id: data.author},
-    verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
-    complement: {objectType: 'community', id: data.community},
-    context: null,
-    description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:membership:accepted',
-    read: false,
-    interactive: false,
-    target: [{objectType: 'user', id: data.target + ''}]
   };
   return callback(null, notification);
 }
