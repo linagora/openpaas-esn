@@ -728,7 +728,7 @@ describe('The communities API', function() {
 
   describe('GET /api/communities/:id/members', function() {
 
-    it('should return 401 is user is not authenticated', function(done) {
+    it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).get('/api/communities/123/members').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
@@ -1082,7 +1082,7 @@ describe('The communities API', function() {
 
   describe('PUT /api/communities/:id/members/:user_id', function() {
 
-    it('should return 401 is user is not authenticated', function(done) {
+    it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).put('/api/communities/123/members/456').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
@@ -1669,7 +1669,7 @@ describe('The communities API', function() {
 
   describe('GET /api/communities/:id/members/:user_id', function() {
 
-    it('should return 401 is user is not authenticated', function(done) {
+    it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).get('/api/communities/123/members/456').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
@@ -2514,7 +2514,7 @@ describe('The communities API', function() {
 
   describe('GET /api/communities/:id/membership', function() {
 
-    it('should return 401 is user is not authenticated', function(done) {
+    it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).get('/api/communities/123/membership').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
@@ -2840,6 +2840,165 @@ describe('The communities API', function() {
         if (err) {
           return done(err);
         }
+      });
+    });
+  });
+
+  describe('GET /api/communities/:id/invitablepeople', function() {
+    it('should return 401 if user is not authenticated', function(done) {
+      request(webserver.application).get('/api/communities/123/invitablepeople').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should return 404 if community does not exist', function(done) {
+      var ObjectId = require('bson').ObjectId;
+      var id = new ObjectId();
+
+      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + id + '/invitablepeople'));
+        req.expect(404);
+        req.end(function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+    });
+
+    describe('tests cases', function() {
+      var domain, domain2;
+      var community;
+      var user1, user2, user3, user4;
+      var user12, user22, user32, user42;
+
+      beforeEach(function(done) {
+        var self = this;
+
+        this.helpers.mongo.saveDoc('configuration', {
+          _id: 'elasticsearch',
+          host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
+        }, function(err) {
+          if (err) {
+            done(err);
+          }
+
+          self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+            if (err) { return done(err); }
+
+            domain = models.domain;
+            user1 = models.users[0];
+            user2 = models.users[1];
+            user3 = models.users[2];
+            user4 = models.users[3];
+
+            self.helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
+              if (err) { return done(err); }
+
+              domain2 = models2.domain;
+              user12 = models2.users[0];
+              user22 = models2.users[1];
+              user32 = models2.users[2];
+              user42 = models2.users[3];
+
+              self.helpers.api.createCommunity('Community', user1, domain, function(err, communitySaved) {
+                if (err) { return done(err); }
+
+                Community.update({_id: communitySaved._id}, {$push: {domain_ids: domain2._id}}, function(err, updated) {
+                  if (err) { return done(err); }
+
+                  self.helpers.api.addUsersInCommunity(communitySaved, [user2, user3, user22], function(err, communityUpdated) {
+                    if (err) { return done(err); }
+
+                    community = communityUpdated;
+                    var ids = models.users.map(function(element) {
+                      return element._id;
+                    });
+                    models2.users.forEach(function(user) {
+                      ids.push(user._id);
+                    });
+                    self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+                      if (err) { return done(err); }
+                      done();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('should return all users who are not in the community', function(done) {
+        this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/invitablepeople'));
+          req.expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.body.length).to.equal(4);
+            expect(res.body[0]._id).to.equal(user12._id.toString());
+            expect(res.body[1]._id).to.equal(user32._id.toString());
+            expect(res.body[2]._id).to.equal(user4._id.toString());
+            expect(res.body[3]._id).to.equal(user42._id.toString());
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('4');
+            done();
+          });
+        });
+      });
+
+      it('should return all users who are not in the community and no membership request/invitation', function(done) {
+        this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+
+          Community.update({_id: community._id}, {$push: {membershipRequests: {user: user32, workflow: 'request'}}}, function(err, updated) {
+            if (err) {
+              return done(err);
+            }
+
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/invitablepeople'));
+            req.expect(200).end(function(err, res) {
+              expect(err).to.be.null;
+              expect(res.body).to.be.not.null;
+              expect(res.body.length).to.equal(3);
+              expect(res.body[0]._id).to.equal(user12._id.toString());
+              expect(res.body[1]._id).to.equal(user4._id.toString());
+              expect(res.body[2]._id).to.equal(user42._id.toString());
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('3');
+              done();
+            });
+          });
+        });
+      });
+
+      it('should return search users who are not in the community', function(done) {
+        this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/invitablepeople'));
+          req.send({search: 'linagora'}).expect(200).end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res.body).to.be.not.null;
+            expect(res.body.length).to.equal(2);
+            expect(res.body[0]._id).to.equal(user4._id.toString());
+            expect(res.body[1]._id).to.equal(user42._id.toString());
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal('2');
+            done();
+          });
+        });
       });
     });
   });
