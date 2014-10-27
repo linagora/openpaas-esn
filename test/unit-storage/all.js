@@ -147,6 +147,24 @@ before(function() {
       var community = new Community(json);
       return community.save(done);
     },
+    addUsersInCommunity: function(community, users, done) {
+      var Community = require('mongoose').model('Community');
+      var async = require('async');
+      async.each(users, function(user, callback) {
+        Community.update({
+          _id: community._id || community,
+          'members.user': {$ne: user._id || user}
+        }, {
+          $push: {members: {user: user._id || user, status: 'joined'}}
+        }, callback);
+      }, function(err) {
+        if (err) { return done(err); }
+        Community.findOne({_id: community._id || community}, function(err, result) {
+          if (err) { return done(err); }
+          return done(null, result);
+        });
+      });
+    },
     /*
      * returns a function that adds authentication bits
      * for "email" user to the request.

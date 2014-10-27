@@ -34,43 +34,107 @@ function getUserDomains(user, callback) {
 module.exports.getUserDomains = getUserDomains;
 
 /**
+ * Return an array of users who are not in the community AND
+ *  who have no pending membership request/invitation.
+ *
+ * @param {User[]} users array of user
+ * @param {Community} community the community
+ * @param {function} callback fn like callback(err, users) (users is an array of users)
+ */
+function filterByNotInCommunity(users, community, callback) {
+  if (!users) {
+    return callback(new Error('Users is mandatory'));
+  }
+  if (!community) {
+    return callback(new Error('Community is mandatory'));
+  }
+
+  var results = [];
+
+  var memberHash = {};
+  if (community.members) {
+    community.members.forEach(function(member) {
+      memberHash[member.user] = true;
+    });
+  }
+  if (community.membershipRequests) {
+    community.membershipRequests.forEach(function(membershipRequest) {
+      memberHash[membershipRequest.user] = true;
+    });
+  }
+
+  users.forEach(function(user) {
+    if (!memberHash[user._id]) {
+      results.push(user);
+    }
+  });
+  return callback(null, results);
+}
+
+/**
  * Get all users in a domain.
  *
- * @param {Domain, ObjectId} domain
+ * @param {Domain[], ObjectId[]} domains array of domain where search users
  * @param {object} query - Hash with 'limit' and 'offset' for pagination.
+ *  'not_in_community' for return only members who are not in this community and no pending request with it.
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
-function getUsersList(domain, query, cb) {
-  if (!domain) {
-    return cb(new Error('Domain is mandatory'));
+function getUsersList(domains, query, cb) {
+  if (!domains) {
+    return cb(new Error('Domains is mandatory'));
   }
-  var domainId = domain._id || domain;
+  if (!(domains instanceof Array)) {
+    return cb(new Error('Domains must be an array'));
+  }
+  if (domains.length === 0) {
+    return cb(new Error('At least one domain is mandatory'));
+  }
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
-  var userQuery = User.find().where('domains').elemMatch({domain_id: domainId});
+  var community = query.not_in_community;
+  var limit = query.limit;
+  if (community) {
+    query.limit = null;
+  }
+
+  var domainIds = domains.map(function(domain) {
+    return domain._id || domain;
+  });
+  var userQuery = User.find().where('domains.domain_id'). in (domainIds);
   var totalCountQuery = require('extend')(true, {}, userQuery);
   totalCountQuery.count();
 
   userQuery.skip(query.offset).limit(query.limit).sort({'firstname': 'asc'});
 
   return totalCountQuery.exec(function(err, count) {
-    if (!err) {
-      userQuery.exec(function(err, list) {
-        if (!err) {
-          var result = {
-            total_count: count,
-            list: list
-          };
-          cb(null, result);
-        }
-        else {
-          return cb(new Error('Cannot execute find request correctly on domains collection'));
-        }
-      });
-    }
-    else {
+    if (err) {
       return cb(new Error('Cannot count users of domain'));
     }
+    userQuery.exec(function(err, list) {
+      if (err) {
+        return cb(new Error('Cannot execute find request correctly on domains collection'));
+      }
+      if (community) {
+        filterByNotInCommunity(list, community, function(err, results) {
+          if (err) {
+            return cb(err);
+          }
+          var filterCount = results.length;
+          if (filterCount > limit) {
+            results = results.slice(0, limit);
+          }
+          return cb(null, {
+            total_count: filterCount,
+            list: results
+          });
+        });
+      } else {
+        return cb(null, {
+          total_count: count,
+          list: list
+        });
+      }
+    });
   });
 }
 
@@ -79,21 +143,40 @@ module.exports.getUsersList = getUsersList;
 /**
  * Get users in a domain by using a filter.
  *
- * @param {Domain, ObjectId} domain
- * @param {object} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering.
+ * @param {Domain[], ObjectId[]} domains array of domain where search users
+ * @param {object} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering terms,
+ *  'not_in_community' for return only members who are not in this community and no pending request with it.
  *  Search can be a single string, an array of strings which will be joined, or a space separated string list.
  *  In the case of array or space separated string, a AND search will be performed with the input terms.
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
-function getUsersSearch(domain, query, cb) {
-  if (!domain) {
-    return cb(new Error('Domain is mandatory'));
+function getUsersSearch(domains, query, cb) {
+  if (!domains) {
+    return cb(new Error('Domains is mandatory'));
+  }
+  if (!(domains instanceof Array)) {
+    return cb(new Error('Domains must be an array'));
+  }
+  if (domains.length === 0) {
+    return cb(new Error('At least one domain is mandatory'));
   }
   if (!query.search) {
     return cb(new Error('query.search is mandatory, use getUsersList to list users'));
   }
-  var domainId = domain._id || domain;
+  var elasticsearchOrFilters = domains.map(function(domain) {
+    return {
+      term: {
+        'domains.domain_id': domain._id || domain
+      }
+    };
+  });
   query = query || {limit: defaultLimit, offset: defaultOffset};
+
+  var community = query.not_in_community;
+  var limit = query.limit;
+  if (community) {
+    query.limit = null;
+  }
 
   var elasticsearch = require('../elasticsearch');
   elasticsearch.client(function(err, elascticsearchClient) {
@@ -110,9 +193,7 @@ function getUsersSearch(domain, query, cb) {
       query: {
         filtered: {
           filter: {
-            term: {
-              'domains.domain_id': domainId
-            }
+            or: elasticsearchOrFilters
           },
           query: {
             multi_match: {
@@ -137,11 +218,30 @@ function getUsersSearch(domain, query, cb) {
         return cb(err);
       }
 
-      var result = {
-        total_count: response.hits.total,
-        list: response.hits.hits.map(function(hit) { return hit._source; })
-      };
-      return cb(null, result);
+      var list = response.hits.hits;
+      var users = list.map(function(hit) { return hit._source; });
+      var community = query.not_in_community;
+
+      if (community) {
+        filterByNotInCommunity(users, community, function(err, results) {
+          if (err) {
+            return cb(err);
+          }
+          var filterCount = results.length;
+          if (filterCount > limit) {
+            results = results.slice(0, limit);
+          }
+          return cb(null, {
+            total_count: filterCount,
+            list: results
+          });
+        });
+      } else {
+        return cb(null, {
+          total_count: response.hits.total,
+          list: users
+        });
+      }
     });
   });
 }
