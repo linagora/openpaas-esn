@@ -355,12 +355,12 @@ module.exports.join = function(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User did not request to join community'}});
     }
 
-    communityModule.removeMembershipRequest(community, user, targetUser, 'manager', function(err) {
+    communityModule.join(community, user, targetUser, 'manager', function(err) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
-      communityModule.join(community, user, targetUser, 'manager', function(err) {
+      communityModule.cleanMembershipRequest(community, targetUser, function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
@@ -380,12 +380,12 @@ module.exports.join = function(req, res) {
         return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User was not invited to join community'}});
       }
 
-      communityModule.removeMembershipRequest(community, user, user, null, function(err) {
+      communityModule.join(community, user, user, null, function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        communityModule.join(community, user, user, 'user', function(err) {
+        communityModule.cleanMembershipRequest(community, user, function(err) {
           if (err) {
             return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
           }

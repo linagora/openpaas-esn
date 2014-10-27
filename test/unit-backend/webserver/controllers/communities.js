@@ -1554,8 +1554,11 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, target, type, callback) {
+          cleanMembershipRequest: function(community, user, callback) {
             return callback(new Error());
+          },
+          join: function(community, user, target, actor, callback) {
+            return callback();
           }
         });
         mockery.registerMock('../../core/community/permission', {});
@@ -1631,7 +1634,7 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, target, type, callback) {
+          cleanMembershipRequest: function(community, user, callback) {
             return callback();
           },
           join: function(community, user, target, actor, callback) {
@@ -1744,8 +1747,11 @@ describe('The communities controller', function() {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
             },
-            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+            cleanMembershipRequest: function(community, user, callback) {
               callback(new Error());
+            },
+            join: function(community, user, target, actor, callback) {
+              return callback();
             }
           };
           mockery.registerMock('../../core/community', communityModuleMock);
@@ -1829,7 +1835,7 @@ describe('The communities controller', function() {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
             },
-            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+            cleanMembershipRequest: function(community, user, callback) {
               callback(null);
             },
             join: function(community, userAuthor, userTarget, actor, callback) {

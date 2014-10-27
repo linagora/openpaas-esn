@@ -153,21 +153,12 @@ module.exports.join = function(community, userAuthor, userTarget, actor, callbac
       return callback(err);
     }
 
-    if (actor === 'manager') {
-      localpubsub.topic('community:membership:accepted').forward(globalpubsub, {
-        author: userAuthor_id,
-        target: userTarget_id,
-        actor: actor,
-        community: id
-      });
-    } else {
-      localpubsub.topic('community:join').forward(globalpubsub, {
-        author: userAuthor_id,
-        target: userTarget_id,
-        actor: actor || 'user',
-        community: id
-      });
-    }
+    localpubsub.topic('community:join').forward(globalpubsub, {
+      author: userAuthor_id,
+      target: userTarget_id,
+      actor: actor || 'user',
+      community: id
+    });
 
     return callback(null, updated);
   });
@@ -417,5 +408,26 @@ module.exports.removeMembershipRequest = function(community, userAuthor, userTar
       return callback(null, updated);
     });
   });
+};
+
+module.exports.cleanMembershipRequest = function(community, user, callback) {
+  if (!user) {
+    return callback(new Error('User author object is required'));
+  }
+
+  if (!community) {
+    return callback(new Error('Community object is required'));
+  }
+
+  var userId = user._id || user;
+
+
+  var otherUserRequests = community.membershipRequests.filter(function(request) {
+    var requestUserId = request.user._id || request.user;
+    return !requestUserId.equals(userId);
+  });
+
+  community.membershipRequests = otherUserRequests;
+  community.save(callback);
 };
 

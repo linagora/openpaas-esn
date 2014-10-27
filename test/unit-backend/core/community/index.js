@@ -1501,4 +1501,31 @@ describe('The communities module', function() {
       });
     });
   });
+
+  describe('The cleanMembershipRequest fn', function() {
+
+    beforeEach(function() {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+    });
+
+    it('should send back error when user is not defined', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.cleanMembershipRequest({}, null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when community is not defined', function() {
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.cleanMembershipRequest(null, {}, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+  });
 });

@@ -46,11 +46,19 @@ function augmentToCommunityJoin(data, callback) {
 }
 
 function communityJoinHandler(data, callback) {
-  async.waterfall([
-    augmentToCommunityJoin.bind(null, data),
-    createUserNotification
-  ],
-    onSuccessPublishIntoGlobal(callback));
+  if (data.actor === 'manager') {
+    async.waterfall([
+        augmentToMembershipAccepted.bind(null, data),
+        createUserNotification
+      ],
+      onSuccessPublishIntoGlobal(callback));
+  } else {
+    async.waterfall([
+        augmentToCommunityJoin.bind(null, data),
+        createUserNotification
+      ],
+      onSuccessPublishIntoGlobal(callback));
+  }
 }
 module.exports.communityJoinHandler = communityJoinHandler;
 
@@ -145,7 +153,7 @@ function membershipAcceptedHandler(data, callback) {
 }
 module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
 
-function membershipDeclinedHandler(data, callback) {
+function membershipRemoveHandler(data, callback) {
   if (data.actor !== 'manager') {
     return;
   }
@@ -155,7 +163,7 @@ function membershipDeclinedHandler(data, callback) {
     ],
     onSuccessPublishIntoGlobal(callback));
 }
-module.exports.membershipDeclinedHandler = membershipDeclinedHandler;
+module.exports.membershipRemoveHandler = membershipRemoveHandler;
 
 function init() {
   if (initialized) {
@@ -165,8 +173,7 @@ function init() {
   localpubsub.topic('community:join').subscribe(communityJoinHandler);
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
   localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
-  localpubsub.topic('community:membership:accepted').subscribe(membershipAcceptedHandler);
-  localpubsub.topic('community:membership:remove').subscribe(membershipDeclinedHandler);
+  localpubsub.topic('community:membership:remove').subscribe(membershipRemoveHandler);
   initialized = true;
 }
 module.exports.init = init;
