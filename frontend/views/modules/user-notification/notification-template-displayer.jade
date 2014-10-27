@@ -1,5 +1,6 @@
 div(ng-switch='notification.category')
   community-membership-invitation-notification(ng-switch-when='community:membership:invite', notification='notification')
+  community-membership-request-accepted-notification(ng-switch-when='community:membership:accepted', notification='notification')
   external-user-notification(ng-switch-when='external', notification='notification')
   external-user-notification(ng-switch-default, notification='notification')
 

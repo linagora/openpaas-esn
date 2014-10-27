@@ -154,12 +154,21 @@ module.exports.join = function(community, userAuthor, userTarget, actor, callbac
       return callback(err);
     }
 
-    localpubsub.topic('community:join').forward(globalpubsub, {
-      author: userAuthor_id,
-      target: userTarget_id,
-      actor: actor || 'user',
-      community: id
-    });
+    if (actor === 'manager') {
+      localpubsub.topic('community:membership:accepted').forward(globalpubsub, {
+        author: userAuthor_id,
+        target: userTarget_id,
+        actor: actor,
+        community: id
+      });
+    } else {
+      localpubsub.topic('community:join').forward(globalpubsub, {
+        author: userAuthor_id,
+        target: userTarget_id,
+        actor: actor || 'user',
+        community: id
+      });
+    }
 
     return callback(null, updated);
   });

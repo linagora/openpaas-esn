@@ -461,6 +461,100 @@ describe('The esn.user-notification Angular module', function() {
     });
   });
 
+  describe('communityMembershipInvitationNotification directive', function() {
+
+    beforeEach(function() {
+      var communityAPI = {
+        get: function() {},
+        join: function() {}
+      };
+
+      var userAPI = {
+        user: function() {}
+      };
+
+      var objectTypeResolver = {
+        resolve: function() {},
+        register: function() {}
+      };
+
+      angular.mock.module('esn.community');
+      angular.mock.module('esn.user');
+      angular.mock.module('esn.object-type');
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', communityAPI);
+        $provide.value('userAPI', userAPI);
+        $provide.value('objectTypeResolver', objectTypeResolver);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, objectTypeResolver, userAPI) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.communityAPI = communityAPI;
+      this.userNotificationAPI = userNotificationAPI;
+      this.objectTypeResolver = objectTypeResolver;
+      this.userAPI = userAPI;
+      this.scope.notification = {
+        _id: '123',
+        subject: {
+          id: '1',
+          objectType: 'user'
+        },
+        complement: {
+          id: '2',
+          objectType: 'community'
+        }
+      };
+      this.html = '<community-membership-request-accepted-notification notification="notification"/>';
+    }));
+
+    describe('The controller', function() {
+      it('should resolve community data', function() {
+        var communityDefer = this.$q.defer();
+        this.objectTypeResolver.resolve = function(type) {
+          if (type === 'community') {
+            return communityDefer.promise;
+          }
+        };
+        communityDefer.resolve({data: {_id: this.scope.notification.complement.id}});
+        this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var eltScope = element.isolateScope();
+
+        expect(eltScope.community._id).to.equal(this.scope.notification.complement.id);
+        expect(eltScope.error).to.be.false;
+        expect(eltScope.loading).to.be.false;
+      });
+
+      it('should set scope.error if community fetch fails', function() {
+        var communityDefer = this.$q.defer();
+        this.objectTypeResolver.resolve = function(type) {
+          if (type === 'community') {
+            return communityDefer.promise;
+          }
+        };
+        communityDefer.reject();
+        this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var eltScope = element.isolateScope();
+
+        expect(eltScope.community).to.not.exist;
+        expect(eltScope.error).to.be.true;
+        expect(eltScope.loading).to.be.false;
+      });
+    });
+  });
+
   describe('communityInvitationAcceptButton directive', function() {
 
     beforeEach(function() {

@@ -93,6 +93,23 @@ function augmentToMembershipRequest(data, callback) {
   return callback(null, notification);
 }
 
+function augmentToMembershipAccepted(data, callback) {
+
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:membership:accepted',
+    read: false,
+    interactive: false,
+    target: [{objectType: 'user', id: data.target + ''}]
+  };
+  return callback(null, notification);
+}
+
 function membershipRequestHandler(data, callback) {
   async.waterfall([
       augmentToMembershipRequest.bind(null, data),
@@ -102,6 +119,15 @@ function membershipRequestHandler(data, callback) {
 }
 module.exports.membershipRequestHandler = membershipRequestHandler;
 
+function membershipAcceptedHandler(data, callback) {
+  async.waterfall([
+      augmentToMembershipAccepted.bind(null, data),
+      createUserNotification
+    ],
+    onSuccessPublishIntoGlobal(callback));
+}
+module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
+
 function init() {
   if (initialized) {
     logger.warn('Activity Stream Pubsub is already initialized');
@@ -110,6 +136,7 @@ function init() {
   localpubsub.topic('community:join').subscribe(communityJoinHandler);
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
   localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
+  localpubsub.topic('community:membership:accepted').subscribe(membershipAcceptedHandler);
   initialized = true;
 }
 module.exports.init = init;
