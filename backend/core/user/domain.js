@@ -41,7 +41,7 @@ module.exports.getUserDomains = getUserDomains;
  * @param {Community} community the community
  * @param {function} callback fn like callback(err, users) (users is an array of users)
  */
-function filterByNotInCommunity(users, community, callback) {
+function filterByNotInCommunityAndNoMembershipRequest(users, community, callback) {
   if (!users) {
     return callback(new Error('Users is mandatory'));
   }
@@ -76,7 +76,7 @@ function filterByNotInCommunity(users, community, callback) {
  *
  * @param {Domain[], ObjectId[]} domains array of domain where search users
  * @param {object} query - Hash with 'limit' and 'offset' for pagination.
- *  'not_in_community' for return only members who are not in this community and no pending request with it.
+ *  'not_in_community' to return only members who are not in this community and no pending request with it.
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
 function getUsersList(domains, query, cb) {
@@ -115,7 +115,7 @@ function getUsersList(domains, query, cb) {
         return cb(new Error('Cannot execute find request correctly on domains collection'));
       }
       if (community) {
-        filterByNotInCommunity(list, community, function(err, results) {
+        filterByNotInCommunityAndNoMembershipRequest(list, community, function(err, results) {
           if (err) {
             return cb(err);
           }
@@ -145,7 +145,7 @@ module.exports.getUsersList = getUsersList;
  *
  * @param {Domain[], ObjectId[]} domains array of domain where search users
  * @param {object} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering terms,
- *  'not_in_community' for return only members who are not in this community and no pending request with it.
+ *  'not_in_community' to return only members who are not in this community and no pending request with it.
  *  Search can be a single string, an array of strings which will be joined, or a space separated string list.
  *  In the case of array or space separated string, a AND search will be performed with the input terms.
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
@@ -223,7 +223,7 @@ function getUsersSearch(domains, query, cb) {
       var community = query.not_in_community;
 
       if (community) {
-        filterByNotInCommunity(users, community, function(err, results) {
+        filterByNotInCommunityAndNoMembershipRequest(users, community, function(err, results) {
           if (err) {
             return cb(err);
           }
