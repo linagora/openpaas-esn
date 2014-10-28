@@ -38,6 +38,27 @@ function transform(community, user, callback) {
   });
 }
 
+function ensureLoginCommunityAndUserId(req, res) {
+  var community = req.community;
+  var user = req.user;
+
+  if (!user) {
+    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+    return false;
+  }
+
+  if (!req.params || !req.params.user_id) {
+    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
+    return false;
+  }
+
+  if (!community) {
+    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+    return false;
+  }
+  return true;
+}
+
 module.exports.loadDomainForCreate = function(req, res, next) {
   var domains = req.body.domain_ids;
   if (!domains) {
@@ -329,21 +350,12 @@ module.exports.getMember = function(req, res) {
 };
 
 module.exports.join = function(req, res) {
+  if (!ensureLoginCommunityAndUserId(req, res)) {
+    return false;
+  }
   var community = req.community;
   var user = req.user;
-
-  if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!req.params || !req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
-  }
   var targetUser = req.params.user_id;
-
-  if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-  }
 
   if (req.isCommunityManager) {
 
@@ -405,21 +417,12 @@ module.exports.join = function(req, res) {
 };
 
 module.exports.leave = function(req, res) {
+  if (!ensureLoginCommunityAndUserId(req, res)) {
+    return false;
+  }
   var community = req.community;
   var user = req.user;
-
-  if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!req.params || !req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
-  }
   var targetUser = req.params.user_id;
-
-  if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-  }
 
   communityModule.leave(community, user, targetUser, function(err) {
     if (err) {
@@ -471,21 +474,12 @@ module.exports.getMembershipRequests = function(req, res) {
 };
 
 module.exports.addMembershipRequest = function(req, res) {
+  if (!ensureLoginCommunityAndUserId(req, res)) {
+    return false;
+  }
   var community = req.community;
   var userAuthor = req.user;
-
-  if (!userAuthor) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!req.params || !req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
-  }
   var userTargetId = req.params.user_id;
-
-  if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-  }
 
   function addMembership(community, userAuthor, userTarget, workflow, actor) {
     communityModule.addMembershipRequest(community, userAuthor, userTarget, workflow, actor, function(err, community) {
@@ -506,21 +500,11 @@ module.exports.addMembershipRequest = function(req, res) {
 };
 
 module.exports.removeMembershipRequest = function(req, res) {
+  if (!ensureLoginCommunityAndUserId(req, res)) {
+    return false;
+  }
   var community = req.community;
-  var user = req.user;
-
-  if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!req.params || !req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
-  }
   var targetUser = req.params.user_id;
-
-  if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-  }
 
   if (req.isCommunityManager) {
 
