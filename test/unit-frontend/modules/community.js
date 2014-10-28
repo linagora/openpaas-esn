@@ -2577,24 +2577,16 @@ describe('The Community Angular module', function() {
       expect(element[0].getAttribute('style')).to.not.contain('display: none');
 
       var generatedHtml = element.children();
-      expect(generatedHtml.length).to.equal(4);
+      expect(generatedHtml.length).to.equal(2);
 
       var directive1 = generatedHtml[0];
       expect(directive1.nodeName.toLowerCase()).to.equal('directive1');
       expect(directive1.getAttribute('att1')).to.equal('value1');
 
-      var firstSpace = generatedHtml[1];
-      expect(firstSpace.nodeName.toLowerCase()).to.equal('div');
-      expect(firstSpace.getAttribute('class')).to.equal('vertiz-space');
-
-      var directive2 = generatedHtml[2];
+      var directive2 = generatedHtml[1];
       expect(directive2.nodeName.toLowerCase()).to.equal('directive2');
       expect(directive2.getAttribute('att2')).to.equal('value2');
       expect(directive2.getAttribute('att3')).to.equal('value3');
-
-      var secondSpace = generatedHtml[3];
-      expect(secondSpace.nodeName.toLowerCase()).to.equal('div');
-      expect(secondSpace.getAttribute('class')).to.equal('vertiz-space');
 
       expect(element.html()).to.not.contain('directive3');
       expect(element.html()).to.not.contain('att4');
