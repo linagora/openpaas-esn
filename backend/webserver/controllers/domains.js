@@ -73,7 +73,7 @@ function getMembers(req, res) {
     }
 
     if (query.search) {
-      userDomain.getUsersSearch(domain, query, function(err, result) {
+      userDomain.getUsersSearch([domain], query, function(err, result) {
         if (err) {
           return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
         }
@@ -83,8 +83,9 @@ function getMembers(req, res) {
       });
     }
     else {
-      userDomain.getUsersList(domain, query, function(err, result) {
+      userDomain.getUsersList([domain], query, function(err, result) {
         if (err) {
+          console.log(err);
           return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
         }
 
