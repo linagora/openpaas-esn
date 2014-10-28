@@ -987,7 +987,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       restrict: 'A',
       link: function(scope, element, attrs) {
         var buildHtmlFromInjectionData = function(injectionData) {
-          var attributes = {};
+          var attributes = {class: 'community-injection'};
           if (injectionData.attributes) {
             injectionData.attributes.forEach(function(attribute) {
               attributes[attribute.name] = attribute.value;
@@ -1015,7 +1015,6 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
               var template = angular.element(buildHtmlFromInjectionData(injectionData));
               var newElt = $compile(template)(scope);
               element.append(newElt);
-              element.append(angular.element('<div class="vertiz-space"></div>'));
             });
           });
           element.show();
