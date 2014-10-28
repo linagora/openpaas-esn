@@ -41,14 +41,14 @@ module.exports.list = function(req, res) {
     query.read = false;
   }
 
-  notificationModule.getForUser(user, query, function(err, notifications) {
+  notificationModule.getForUser(user._id.toString(), query, function(err, notifications) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
 
     notifications = notifications || [];
 
-    notificationModule.countForUser(user, query, function(err, count) {
+    notificationModule.countForUser(user._id.toString(), query, function(err, count) {
       if (err) {
         logger.warn('Can not count user notification : ' + err.message);
         count = notifications.length;

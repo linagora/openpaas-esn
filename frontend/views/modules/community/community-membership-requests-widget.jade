@@ -11,11 +11,14 @@
 
   .row(ng-show="requests && !error")
     .row(ng-repeat="request in requests | filter: {workflow: 'request'}")
+      .vertiz-space
       .col-xs-12.nopadding
         .col-xs-3.nopadding
           community-member-avatar(member="request", community="community")
-        .col-xs-9.nopadding.text-center
-          h5.media-heading.ellipsis
-            user-profile-link(user="request.user")
-          span
-            community-membership-requests-actions(user='request.user', community='community')
+        .col-xs-9.nopadding
+          .col-xs-12.nopadding
+            h5.media-heading.ellipsis
+              user-profile-link(user="request.user")
+          .col-xs-12.nopadding
+            span
+              community-membership-requests-actions(user='request.user', community='community')

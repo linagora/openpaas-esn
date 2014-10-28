@@ -1554,8 +1554,11 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, target, type, callback) {
+          cleanMembershipRequest: function(community, user, callback) {
             return callback(new Error());
+          },
+          join: function(community, user, target, actor, callback) {
+            return callback();
           }
         });
         mockery.registerMock('../../core/community/permission', {});
@@ -1594,7 +1597,7 @@ describe('The communities controller', function() {
           removeMembershipRequest: function(community, user, target, type, callback) {
             return callback();
           },
-          join: function(community, user, target, callback) {
+          join: function(community, user, target, actor, callback) {
             return callback(new Error());
           }
         });
@@ -1631,10 +1634,10 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, target, type, callback) {
+          cleanMembershipRequest: function(community, user, callback) {
             return callback();
           },
-          join: function(community, user, target, callback) {
+          join: function(community, user, target, actor, callback) {
             return callback();
           }
         });
@@ -1744,8 +1747,11 @@ describe('The communities controller', function() {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
             },
-            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+            cleanMembershipRequest: function(community, user, callback) {
               callback(new Error());
+            },
+            join: function(community, user, target, actor, callback) {
+              return callback();
             }
           };
           mockery.registerMock('../../core/community', communityModuleMock);
@@ -1788,7 +1794,7 @@ describe('The communities controller', function() {
             removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
               callback(null);
             },
-            join: function(community, userAuthor, userTarget, callback) {
+            join: function(community, userAuthor, userTarget, actor, callback) {
               callback(new Error());
             }
           };
@@ -1829,10 +1835,10 @@ describe('The communities controller', function() {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
             },
-            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+            cleanMembershipRequest: function(community, user, callback) {
               callback(null);
             },
-            join: function(community, userAuthor, userTarget, callback) {
+            join: function(community, userAuthor, userTarget, actor, callback) {
               callback(null);
             }
           };
@@ -1869,7 +1875,7 @@ describe('The communities controller', function() {
       describe('when community is open', function() {
         it('should send back 500 if community module fails', function(done) {
           mockery.registerMock('../../core/community', {
-            join: function(community, userAuthor, userTarget, cb) {
+            join: function(community, userAuthor, userTarget, actor, cb) {
               return cb(new Error());
             }
           });
@@ -1904,7 +1910,7 @@ describe('The communities controller', function() {
 
         it('should send back 204 if community module succeed', function(done) {
           mockery.registerMock('../../core/community', {
-            join: function(community, userAuthor, userTarget, cb) {
+            join: function(community, userAuthor, userTarget, actor, cb) {
               return cb();
             }
           });
@@ -2128,7 +2134,7 @@ describe('The communities controller', function() {
 
     it('should send back 500 if communityModule#addMembershipRequest fails', function(done) {
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, userAuthor, userTarget, workflow, callback) {
+        addMembershipRequest: function(community, userAuthor, userTarget, workflow, actor, callback) {
           expect(community).to.deep.equal(req.community);
           expect(userAuthor).to.deep.equal(req.user);
           expect(userTarget).to.deep.equal(req.params.user_id);
@@ -2169,7 +2175,7 @@ describe('The communities controller', function() {
         ]
       };
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, userAuthor, userTarget, workflow, callback) {
+        addMembershipRequest: function(community, userAuthor, userTarget, workflow, actor, callback) {
           expect(community).to.deep.equal(req.community);
           expect(userAuthor).to.deep.equal(req.user);
           expect(userTarget).to.deep.equal(req.params.user_id);
@@ -2221,7 +2227,7 @@ describe('The communities controller', function() {
         ]
       };
       mockery.registerMock('../../core/community', {
-        addMembershipRequest: function(community, userAuthor, userTarget, workflow, callback) {
+        addMembershipRequest: function(community, userAuthor, userTarget, workflow, actor, callback) {
           expect(community).to.deep.equal(req.community);
           expect(userAuthor).to.deep.equal(req.user);
           expect(userTarget).to.deep.equal(req.params.user_id);

@@ -2,7 +2,6 @@
 
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
-var userNotification = require('../../core/notification/usernotification');
 var logger = require('../logger');
 var domainModule = require('../domain');
 var async = require('async');
@@ -144,7 +143,7 @@ module.exports.leave = function(community, userAuthor, userTarget, callback) {
   });
 };
 
-module.exports.join = function(community, userAuthor, userTarget, callback) {
+module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
   var id = community._id || community;
   var userAuthor_id = userAuthor._id || userAuthor;
   var userTarget_id = userTarget._id || userTarget;
@@ -157,6 +156,7 @@ module.exports.join = function(community, userAuthor, userTarget, callback) {
     localpubsub.topic('community:join').forward(globalpubsub, {
       author: userAuthor_id,
       target: userTarget_id,
+      actor: actor || 'user',
       community: id
     });
 
@@ -273,7 +273,7 @@ module.exports.getMembershipRequests = function(community, query, callback) {
   });
 };
 
-module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, callback) {
+module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
   if (!userAuthor) {
     return callback(new Error('Author user object is required'));
   }
@@ -313,7 +313,6 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
-  var self = this;
   this.isMember(community, userTargetId, function(err, isMember) {
     if (err) {
       return callback(err);
@@ -337,18 +336,15 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
         return callback(err);
       }
 
-      self.addMembershipInviteUserNotification(community, userAuthorId, userTargetId, function(err, userNotificationSaved) {
-        if (err) {
-          return callback(err);
-        }
-
-        localpubsub.topic(topic).forward(globalpubsub, {
-          author: userAuthorId,
-          target: userTargetId,
-          community: community._id
-        });
-        return callback(null, communitySaved);
+      localpubsub.topic(topic).forward(globalpubsub, {
+        author: userAuthorId,
+        target: userTargetId,
+        community: community._id,
+        workflow: workflow,
+        actor: actor || 'user'
       });
+
+      return callback(null, communitySaved);
     });
   });
 };
@@ -414,31 +410,24 @@ module.exports.removeMembershipRequest = function(community, userAuthor, userTar
   });
 };
 
-module.exports.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, callback) {
-  var userAuthorId = userAuthor._id || userAuthor;
-  var userTargetId = userTarget._id || userTarget;
-  var communityId = community._id || community;
+module.exports.cleanMembershipRequest = function(community, user, callback) {
+  if (!user) {
+    return callback(new Error('User author object is required'));
+  }
 
-  var userNotificationObject = {
-    subject: {
-      objectType: 'user',
-      id: userAuthorId
-    },
-    verb: {
-      label: 'invites you to join',
-      text: 'invites you to join'
-    },
-    complement: {
-      objectType: 'community',
-      id: communityId
-    },
-    category: 'community:membership:invite',
-    interactive: true,
-    target: [{
-      objectType: 'user',
-      id: userTargetId
-    }]
-  };
+  if (!community) {
+    return callback(new Error('Community object is required'));
+  }
 
-  userNotification.create(userNotificationObject, callback);
+  var userId = user._id || user;
+
+
+  var otherUserRequests = community.membershipRequests.filter(function(request) {
+    var requestUserId = request.user._id || request.user;
+    return !requestUserId.equals(userId);
+  });
+
+  community.membershipRequests = otherUserRequests;
+  community.save(callback);
 };
+

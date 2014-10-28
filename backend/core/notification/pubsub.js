@@ -45,12 +45,37 @@ function augmentToCommunityJoin(data, callback) {
   return callback(null, notification);
 }
 
+function augmentToMembershipAccepted(data, callback) {
+
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:membership:accepted',
+    read: false,
+    interactive: false,
+    target: [{objectType: 'user', id: data.target + ''}]
+  };
+  return callback(null, notification);
+}
+
 function communityJoinHandler(data, callback) {
-  async.waterfall([
-    augmentToCommunityJoin.bind(null, data),
-    createUserNotification
-  ],
-    onSuccessPublishIntoGlobal(callback));
+  if (data.actor === 'manager') {
+    async.waterfall([
+        augmentToMembershipAccepted.bind(null, data),
+        createUserNotification
+      ],
+      onSuccessPublishIntoGlobal(callback));
+  } else {
+    async.waterfall([
+        augmentToCommunityJoin.bind(null, data),
+        createUserNotification
+      ],
+      onSuccessPublishIntoGlobal(callback));
+  }
 }
 module.exports.communityJoinHandler = communityJoinHandler;
 
@@ -93,6 +118,23 @@ function augmentToMembershipRequest(data, callback) {
   return callback(null, notification);
 }
 
+function augmentToMembershipDeclined(data, callback) {
+
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: 'ESN_MEMBERSHIP_DECLINED', text: 'declined your request to join'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:membership:declined',
+    read: false,
+    interactive: false,
+    target: [{objectType: 'user', id: data.target + ''}]
+  };
+  return callback(null, notification);
+}
+
 function membershipRequestHandler(data, callback) {
   async.waterfall([
       augmentToMembershipRequest.bind(null, data),
@@ -102,14 +144,36 @@ function membershipRequestHandler(data, callback) {
 }
 module.exports.membershipRequestHandler = membershipRequestHandler;
 
+function membershipAcceptedHandler(data, callback) {
+  async.waterfall([
+      augmentToMembershipAccepted.bind(null, data),
+      createUserNotification
+    ],
+    onSuccessPublishIntoGlobal(callback));
+}
+module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
+
+function membershipRemoveHandler(data, callback) {
+  if (data.actor !== 'manager') {
+    return;
+  }
+  async.waterfall([
+      augmentToMembershipDeclined.bind(null, data),
+      createUserNotification
+    ],
+    onSuccessPublishIntoGlobal(callback));
+}
+module.exports.membershipRemoveHandler = membershipRemoveHandler;
+
 function init() {
   if (initialized) {
-    logger.warn('Activity Stream Pubsub is already initialized');
+    logger.warn('Notification Pubsub is already initialized');
     return;
   }
   localpubsub.topic('community:join').subscribe(communityJoinHandler);
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
   localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
+  localpubsub.topic('community:membership:remove').subscribe(membershipRemoveHandler);
   initialized = true;
 }
 module.exports.init = init;

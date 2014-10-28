@@ -37,14 +37,14 @@
                   input(type="radio", ng-model="community.type", value="open", ng-checked="true")
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="open"}')  #{__('Open')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="open"}') #{__('Publish content from and for everyone. Each user can freely read, join and participate to the community')}.
-              .radio.disabled
+              .radio
                 label
-                  input(type="radio", ng-model="community.type", value="restricted" disabled)
+                  input(type="radio", ng-model="community.type", value="restricted")
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="restricted"}') #{__('Restricted')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="restricted"}') #{__('Content is freely accessible to all users, but only members can participate')}.
-              .radio.disabled
+              .radio
                 label
-                  input(type="radio", ng-model="community.type", value="private" disabled)
+                  input(type="radio", ng-model="community.type", value="private")
                   span.label.label-default(ng-class='{"community-highlight-label" : community.type==="private"}') #{__('Private')}
                   span.help-block(ng-class='{"community-highlight-help" : community.type==="private"}') #{__('Only members can read and publish contents in this community. Each user can request membership')}.
               .radio.disabled
