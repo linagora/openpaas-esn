@@ -313,7 +313,7 @@ describe('The activitystreams routes', function() {
             if (err) { done(err); }
 
             // Add the second user to the community
-            communityCore.join(community, user2, user2, function(err, updated) {
+            communityCore.join(community, user2, user2, 'user', function(err, updated) {
               if (err) { done(err); }
 
               self.helpers.api.loginAsUser(webserver.application, user2.emails[0], password, function(err, loggedInAsUser2) {
