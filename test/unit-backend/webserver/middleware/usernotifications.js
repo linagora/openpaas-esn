@@ -58,8 +58,8 @@ describe('The usernotification middleware', function() {
       var req = {
         user: { _id: id },
         usernotifications: [
-          { author: mongoose.Types.ObjectId(), target: [{ objectType: 'user', id: id }] },
-          { author: mongoose.Types.ObjectId(), target: [{ objectType: 'user', id: mongoose.Types.ObjectId() }] }
+          { author: mongoose.Types.ObjectId(), target: [{ objectType: 'user', id: id.toString() }] },
+          { author: mongoose.Types.ObjectId(), target: [{ objectType: 'user', id: mongoose.Types.ObjectId().toString() }] }
         ]
       };
 
@@ -82,9 +82,9 @@ describe('The usernotification middleware', function() {
       var req = {
         user: { _id: id },
         usernotifications: [
-          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id}] },
-          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id}] },
-          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id}] }
+          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id.toString()}] },
+          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id.toString()}] },
+          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id.toString()}] }
         ]
       };
 

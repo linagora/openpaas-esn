@@ -858,7 +858,13 @@ describe('The user notifications controller', function() {
           done();
         }
       };
-      controller.getUnreadCount({}, res);
+      controller.getUnreadCount({
+        user: {
+          _id: {
+            toString: function() {}
+          }
+        }
+      }, res);
     });
 
     it('should return 200 and unread_count if module.countForUser is a success', function(done) {
@@ -876,7 +882,13 @@ describe('The user notifications controller', function() {
           done();
         }
       };
-      controller.getUnreadCount({}, res);
+      controller.getUnreadCount({
+        user: {
+          _id: {
+            toString: function() {}
+          }
+        }
+      }, res);
     });
   });
 

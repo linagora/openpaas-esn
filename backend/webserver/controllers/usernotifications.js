@@ -7,7 +7,7 @@ function getUnreadCount(req, res) {
   var query = {
     read: false
   };
-  notificationModule.countForUser(req.user, query, function(err, count) {
+  notificationModule.countForUser(req.user._id.toString(), query, function(err, count) {
     if (err) {
       return res.json(500, {error: {status: 500, message: 'Server Error', details: 'Cannot get unread notification for current user: ' + err.message}});
     }
