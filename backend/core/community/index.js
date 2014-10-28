@@ -17,6 +17,12 @@ var WORKFLOW_NOTIFICATIONS_TOPIC = {
   invitation: 'community:membership:invite'
 };
 
+var MEMBERSHIP_TYPE_REQUEST = 'request';
+var MEMBERSHIP_TYPE_INVITATION = 'invitation';
+
+module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
+module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
+
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
     return callback(new Error('Community is required'));

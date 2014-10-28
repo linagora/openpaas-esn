@@ -499,9 +499,9 @@ module.exports.addMembershipRequest = function(req, res) {
   }
 
   if (req.isCommunityManager) {
-    addMembership(community, userAuthor, userTargetId, 'invitation', 'manager');
+    addMembership(community, userAuthor, userTargetId, communityModule.MEMBERSHIP_TYPE_INVITATION, 'manager');
   } else {
-    addMembership(community, userAuthor, userTargetId, 'request', 'user');
+    addMembership(community, userAuthor, userTargetId, communityModule.MEMBERSHIP_TYPE_REQUEST, 'user');
   }
 };
 
