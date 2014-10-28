@@ -18,7 +18,7 @@ module.exports.userCanReadNotification = userCanReadNotification;
 
 var userCanReadAllNotifications = function(req, res, next) {
   function checkUserNotifications(usernotification, callback) {
-    return callback(checkIsInTarget(req.user._id, usernotification));
+    return callback(checkIsInTarget(req.user._id.toString(), usernotification));
   }
   async.every(req.usernotifications, checkUserNotifications, function(result) {
     if (!result) {
