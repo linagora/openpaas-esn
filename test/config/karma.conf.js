@@ -6,7 +6,7 @@ module.exports = function(config) {
 
     files: [
       'test/frontend/karma-include/*.js',
-      'frontend/components/jquery/jquery.js',
+      'frontend/components/jquery/dist/jquery.js',
       'frontend/components/angular/angular.js',
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-mocks/angular-mocks.js',
