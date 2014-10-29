@@ -3,7 +3,6 @@
 var fs = require('fs-extra');
 
 var conf_path = './test/config/';
-var tmp_path = './tmp';
 var servers = require( conf_path + 'servers-conf');
 var config = require('./config/default.json');
 
@@ -309,16 +308,36 @@ module.exports = function(grunt) {
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
     try {
       fs.mkdirsSync(servers.mongodb.dbpath);
-      fs.mkdirsSync(tmp_path);
+      fs.mkdirsSync(servers.tmp);
     } catch (err) {
       throw err;
     }
   });
 
   grunt.registerTask('clean-environment', 'remove temp folder for tests', function(){
+
+    function removeAllFilesInDirectory(directory) {
+      var files;
+      try {
+        files = fs.readdirSync(directory);
+      } catch (e) { return; }
+      if (files.length > 0) {
+        for (var i = 0; i < files.length; i++) {
+          var filePath = directory + '/' + files[i];
+          if (fs.statSync(filePath).isFile()) {
+            fs.unlinkSync(filePath);
+          } else {
+            removeAllFilesInDirectory(filePath);
+          }
+        }
+      }
+      try {
+        fs.rmdirSync(directory);
+      } catch (e) {}
+    }
+
     try {
-      fs.removeSync(servers.mongodb.dbpath);
-      fs.removeSync(tmp_path);
+      removeAllFilesInDirectory(servers.tmp);
     } catch (err) {
       throw err;
     }

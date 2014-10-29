@@ -1,6 +1,10 @@
 'use strict';
 
+var tmp = 'tmp';
+
 module.exports = {
+  tmp: tmp,
+
   mongodb: {
     'cmd' : process.env.CMD_MONGODB || 'mongod',
     'port' : process.env.PORT_MONGODB || 23456,
@@ -8,7 +12,7 @@ module.exports = {
     'tries_replica_set': process.env.MONGODB_TRIES_REPLICA_SET || 20,
     'replicat_set_name' : 'rs',
     'dbname': 'tests',
-    'dbpath' : 'tmp/mongo/',
+    'dbpath' : tmp + '/mongo/',
     'logpath' : '',
     'elasticsearch': {
       'rivers': ['users', 'domains', 'messages']
@@ -38,8 +42,8 @@ module.exports = {
     'interval_index': process.env.ELASTICSEARCH_INTERVAL_INDEX || 1000,
     'tries_index': process.env.ELASTICSEARCH_TRIES_INDEX || 20,
     'cluster_name': 'elasticsearch',
-    'data_path': 'tmp/elasticsearch/data',
-    'work_path': 'tmp/elasticsearch/work',
-    'logs_path': 'tmp/elasticsearch/logs'
+    'data_path': tmp + '/elasticsearch/data',
+    'work_path': tmp + '/elasticsearch/work',
+    'logs_path': tmp + '/elasticsearch/logs'
   }
 };

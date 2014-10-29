@@ -10,7 +10,7 @@ var testConfig = require('../config/servers-conf.js');
 before(function() {
   var self = this;
   var basePath = path.resolve(__dirname + '/../..');
-  var tmpPath = path.resolve(basePath, 'tmp');
+  var tmpPath = path.resolve(basePath, testConfig.tmp);
   this.testEnv = {
     serversConfig: testConfig,
     basePath: basePath,
