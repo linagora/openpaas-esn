@@ -7,7 +7,8 @@ var pubsub = require('../').pubsub.local;
 
 var objectTypeToSchemaName = {
   email: 'EmailMessage',
-  whatsup: 'Whatsup'
+  whatsup: 'Whatsup',
+  event: 'EventMessage'
 };
 
 function getModel(objectType) {
