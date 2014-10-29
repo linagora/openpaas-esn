@@ -2596,4 +2596,114 @@ describe('The Community Angular module', function() {
       expect(element.html()).to.not.contain('value4');
     });
   });
+
+  describe('The communityPendingMembershipRequestsController controller', function() {
+    beforeEach(inject(function($rootScope, $controller, $q) {
+      this.communityAPI = {
+        getRequestMemberships: function() {
+          var defer = $q.defer();
+          return defer.promise;
+        }
+      };
+      this.scope = $rootScope.$new();
+      this.$q = $q;
+      this.scope.loading = true;
+      this.scope.community = {
+        _id: 123
+      };
+
+      $controller('communityPendingMembershipRequestsController', {
+        $rootScope: this.$rootScope,
+        $scope: this.scope,
+        communityAPI: this.communityAPI
+      });
+    }));
+
+    it('should call communityAPI.getRequestMemberships', function(done) {
+      this.communityAPI.getRequestMemberships = function() {
+        return done();
+      };
+
+      this.scope.loading = false;
+      this.scope.updatePendingRequestsList();
+    });
+
+    it('should set the communityAPI.getRequestMemberships result in the scope', function(done) {
+      var result = [1, 2, 3];
+      var defer = this.$q.defer();
+      this.communityAPI.getRequestMemberships = function() {
+        return defer.promise;
+      };
+
+      this.scope.loading = false;
+      this.scope.updatePendingRequestsList();
+      defer.resolve({
+        data: result
+      });
+      this.scope.$digest();
+      expect(this.scope.requests).to.deep.equal(result);
+      done();
+    });
+
+    it('should set error when communityAPI.getRequestMemberships fails', function(done) {
+      var defer = this.$q.defer();
+      this.communityAPI.getRequestMemberships = function() {
+        return defer.promise;
+      };
+
+      this.scope.loading = false;
+      this.scope.updatePendingRequestsList();
+      defer.reject();
+      this.scope.$digest();
+      expect(this.scope.error).to.be.true;
+      done();
+    });
+  });
+
+  describe('communityPendingInvitationDisplay directive', function() {
+
+    beforeEach(function() {
+      var self = this;
+      this.communityAPI = {
+        cancelRequestMembership: function() {},
+        get: function() {}
+      };
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', self.communityAPI);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.community = {
+        _id: 'community1',
+        creator: 'user1'
+      };
+      this.scope.request = {
+        user: {
+          _id: 'user1',
+          emails: ['a@b.com']
+        }
+      };
+
+      this.html = '<community-pending-invitation-display community="community" request="request"></community-pending-invitation-display>';
+    }));
+
+    describe('The cancel button', function() {
+      describe('on click', function() {
+        it('should call the cancelRequestMembership', function(done) {
+          this.communityAPI.cancelRequestMembership = function() {
+            done();
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          element.find('.btn').click();
+        });
+      });
+    });
+  });
 });

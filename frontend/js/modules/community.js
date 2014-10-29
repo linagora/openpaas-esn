@@ -458,6 +458,53 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       templateUrl: '/views/modules/community/community-display.html'
     };
   })
+  .controller('communityPendingMembershipRequestsController', ['$rootScope', '$scope', 'communityAPI', function($rootScope, $scope, communityAPI) {
+
+    $scope.loading = false;
+    $scope.error = false;
+    var community_id = $scope.community._id;
+
+    $scope.updatePendingRequestsList = function() {
+      $scope.error = false;
+      if ($scope.loading) {
+        return;
+      } else {
+        $scope.loading = true;
+        communityAPI.getRequestMemberships(community_id, {}).then(function(response) {
+          $scope.requests = response.data;
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.loading = false;
+        });
+      }
+    };
+
+    $scope.updatePendingRequestsList();
+  }])
+  .directive('communityPendingInvitationDisplay', ['communityAPI', function(communityAPI) {
+    return {
+      restrict: 'E',
+      scope: {
+        request: '=',
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-pending-invitation-display.html',
+      link: function($scope) {
+        $scope.sending = false;
+        $scope.done = false;
+
+        $scope.cancel = function() {
+          $scope.sending = true;
+          communityAPI.cancelRequestMembership($scope.community._id, $scope.request.user._id).then(function() {
+            $scope.done = true;
+          }).finally (function() {
+            $scope.sending = false;
+          });
+        };
+      }
+    };
+  }])
   .directive('communityDescription', function() {
     return {
       restrict: 'E',
