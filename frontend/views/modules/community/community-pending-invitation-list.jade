@@ -1,20 +1,19 @@
 .row
   .col-xs-12.esn-panel(ng-if='!isCommunityManager()')
-    p.text-center.community-not-allowed #{__('You are not allowed to see the pending invitations of this community')}
+    p.text-center.community-not-allowed #{__('You are not allowed to see the sent invitations of this community')}
 
 .row(ng-if="isCommunityManager()", ng-controller="communityPendingMembershipRequestsController")
 
   .col-xs-12.alert.alert-info(ng-show="loading", role="alert")
-      p #{__('Loading pending invitations')}...
+      p #{__('Loading sent invitations')}...
   .col-xs-12.alert.alert-danger(ng-show="error", role="alert")
-    p #{__('Error while loading invitations')}.
+    p #{__('Error while loading sent invitations')}.
 
-  .col-xs-12.esn-panel(ng-show="!error")
+  .col-xs-12(ng-show="!error")
     .row(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
       community-pending-invitation-display(request="request", community="community")
       .vertiz-space
     .row(ng-show="invitationRequests.length === 0")
       .vertiz-space
       .col-xs-12.alert.alert-info(role="alert")
-        p #{__('No pending invitations')}
-    .vertiz-space
+        p #{__('No invitations sent')}

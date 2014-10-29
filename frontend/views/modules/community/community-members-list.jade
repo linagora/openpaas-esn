@@ -1,11 +1,11 @@
 .row
-  .col-xs-12.esn-panel(ng-if='!canRead()')
+  .col-xs-12(ng-if='!canRead()')
     p.text-center.community-not-allowed #{__('You are no allowed to see the members of this community')}
 
 .row(ng-if="canRead()", ng-controller="communityMembersController")
   .col-xs-12.alert-danger(ng-show="error", role="alert")
     p #{__('Error while getting community members')}.
-  .col-xs-12.esn-panel
+  .col-xs-12
     .members-infinite-list
       infinite-list
         .row(ng-repeat="member in members")

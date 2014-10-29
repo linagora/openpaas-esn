@@ -1,20 +1,22 @@
 .row
-  .col-xs-12.esn-panel.community-summary
-    community-description(community="community")
+  .row
+    .col-xs-12.esn-panel.community-summary
+      community-description(community="community")
 
   .vertiz-space
 
-  .row
+  .row.esn-panel.members-list
+    .col-xs-12
 
-    .row(ng-show='isCommunityManager()')
-      ul.nav.nav-pills.nav-justified
-        li(ng-class="{active: selected === 'members' || selected === undefined}")
-          a(ng-click="selected = 'members'", href="") #{__('Members')}
-        li(ng-class="{active: selected === 'membership'}")
-          a(ng-click="selected = 'membership'", href="") #{__('Pending')}
+      .row(ng-show='isCommunityManager()')
+        ul.nav.nav-pills.nav-justified
+          li(ng-class="{active: selected === 'members' || selected === undefined}")
+            a(ng-click="selected = 'members'", href="") #{__('Members')}
+          li(ng-class="{active: selected === 'membership'}")
+            a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
 
-    .row(ng-if='selected === "members" || selected === undefined')
-      include ./community-members-list
+      .row(ng-if='selected === "members" || selected === undefined')
+        include ./community-members-list
 
-    .row(ng-if='selected === "membership"')
-      include ./community-pending-invitation-list
+      .row(ng-if='selected === "membership"')
+        include ./community-pending-invitation-list

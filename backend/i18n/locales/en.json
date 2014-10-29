@@ -197,9 +197,10 @@
   "Decline": "Decline",
   "Your request has been accepted, welcome to the community": "Your request has been accepted, welcome to the community",
   "Your request to join the community has been declined": "Your request to join the community has been declined",
-  "Loading pending invitations": "Loading pending invitations",
-  "Error while loading invitations": "Error while loading invitations",
-  "No pending invitations": "No pending invitations",
-  "You are not allowed to see the pending invitations of this community": "You are not allowed to see the pending invitations of this community",
-  "Pending": "Pending"
+  "Loading sent invitations": "Loading sent invitations",
+  "Error while loading sent invitations": "Error while loading sent invitations",
+  "No invitations sent": "No invitations sent",
+  "You are not allowed to see the sent invitations of this community": "You are not allowed to see the sent invitations of this community",
+  "Invitations sent": "Invitations sent",
+  "Cancel invitation": "Cancel invitation"
 }
