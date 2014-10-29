@@ -138,7 +138,8 @@ describe('The esn.conference-notification Angular module', function() {
       var as$window = {
         open: function() {
           callbackWindowOpen();
-        }
+        },
+        document: [{}]
       };
 
       var as$timeout = function(fn) {

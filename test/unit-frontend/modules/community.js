@@ -1242,6 +1242,9 @@ describe('The Community Angular module', function() {
         callback();
       };
 
+      timeoutMock.cancel = function(promise) {
+      };
+
       angular.mock.module(function($provide) {
         $provide.value('$timeout', timeoutMock);
       });
@@ -1289,11 +1292,11 @@ describe('The Community Angular module', function() {
       input.trigger('change');
       this.$httpBackend.flush();
       scope.$digest();
-      expect(scope.form.communityTitle.$error.ajax).to.be.false;
+      expect(scope.form.communityTitle.$error.ajax).to.be.undefined;
       expect(scope.form.communityTitle.$error.unique).to.be.true;
     });
 
-    it('should remove the ajax error and set a unique=false error when the community does not exist', function() {
+    it('should remove the ajax error and set a unique=undefined error when the community does not exist', function() {
       this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
@@ -1302,8 +1305,8 @@ describe('The Community Angular module', function() {
       input.trigger('change');
       this.$httpBackend.flush();
       scope.$digest();
-      expect(scope.form.communityTitle.$error.ajax).to.be.false;
-      expect(scope.form.communityTitle.$error.unique).to.be.false;
+      expect(scope.form.communityTitle.$error.ajax).to.be.undefined;
+      expect(scope.form.communityTitle.$error.unique).to.be.undefined;
     });
   });
 

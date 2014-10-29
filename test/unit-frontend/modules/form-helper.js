@@ -37,7 +37,7 @@ describe('The esn.form.helper Angular module', function() {
       };
       this.$rootScope.$digest();
       expect(scope.form.$invalid).to.be.false;
-      expect(scope.form.password1.$error.unique).to.be.false;
+      expect(scope.form.password1.$error.unique).to.be.undefined;
     });
   });
 

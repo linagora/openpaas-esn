@@ -72,7 +72,8 @@ describe('The esn.user-notification Angular module', function() {
       screen: {
         availWidth: portraitWidth,
         availHeight: portraitScreenHeight
-      }
+      },
+      document: [{}]
     };
 
     var userNotificationAPI = {

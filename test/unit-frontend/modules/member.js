@@ -19,6 +19,13 @@ describe('The Member Angular module', function() {
     }]));
 
     beforeEach(function() {
+      this.defaultHtml = '<div class="col-xs-12 nopadding esn-member">' +
+        '<div class="col-xs-12"><hr></div><div class="col-lg-2 col-sm-3 col-xs-4">' +
+        '<img src="/images/user.png" class="thumbnail"></div>' +
+        '<div class="col-lg-7 col-sm-5 col-xs-8"><h4 class="media-heading ng-binding"> </h4><span>' +
+        '<a href="mailto:" class="ng-binding"></a></span></div><div class="col-lg-3 col-sm-4 col-xs-12">' +
+        '<div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Contact</button>' +
+        '</div><div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Add</button></div></div></div>';
       this.getExpectedHtmlForUser = function(firstName, lastName, email, id) {
       var templateAsHtmlString = '<div class="col-xs-12 nopadding esn-member">' +
           '<div class="col-xs-12"><hr></div><div class="col-lg-2 col-sm-3 col-xs-4">' +
@@ -54,7 +61,7 @@ describe('The Member Angular module', function() {
       var html = '<member-display member="ghostuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
       this.$rootScope.$digest();
-      expect(element.html()).to.equal(this.getExpectedHtmlForUser('', '', '', ''));
+      expect(element.html()).to.equal(this.defaultHtml);
     });
   });
 

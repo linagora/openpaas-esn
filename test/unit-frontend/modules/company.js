@@ -72,11 +72,11 @@ describe('The Company Angular module', function() {
       input.trigger('change');
       this.$httpBackend.flush();
       scope.$digest();
-      expect(scope.form.company.$error.ajax).to.be.false;
+      expect(scope.form.company.$error.ajax).to.be.undefined;
       expect(scope.form.company.$error.unique).to.be.true;
     });
 
-    it('should remove the ajax error and set a unique=false error when the company does not exist', function() {
+    it('should remove the ajax error and set a unique=undefined error when the company does not exist', function() {
       this.$httpBackend.expectGET('/companies?name=' + this.companyName).respond(404, this.response);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
@@ -85,8 +85,8 @@ describe('The Company Angular module', function() {
       input.trigger('change');
       this.$httpBackend.flush();
       scope.$digest();
-      expect(scope.form.company.$error.ajax).to.be.false;
-      expect(scope.form.company.$error.unique).to.be.false;
+      expect(scope.form.company.$error.ajax).to.be.undefined;
+      expect(scope.form.company.$error.unique).to.be.undefined;
     });
   });
 
