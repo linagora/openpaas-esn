@@ -16,8 +16,6 @@ var wsserver = {
   namespaces: WEBSOCKETS_NAMESPACES
 };
 
-exports = module.exports = wsserver;
-
 /*
  * options should be {'match origin protocol' : true, 'transports' : ['websocket']}
  * for ssl transport.
@@ -41,7 +39,7 @@ function start(port, options, callback) {
   }
   wsserver.started = true;
 
-  var webserver = require('../webserver/webserver').webserver;
+  var webserver = require('../webserver').webserver;
   wsserver.port = port;
   var realCallback = callback;
   if (webserver && webserver.sslserver && webserver.ssl_port === wsserver.port) {

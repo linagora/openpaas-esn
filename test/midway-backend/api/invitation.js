@@ -35,7 +35,7 @@ describe('The invitation controller', function() {
       this.mongoose = require('mongoose');
       this.testEnv.initCore();
       mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
+      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
       Invitation = this.mongoose.model('Invitation');
     });
@@ -96,7 +96,7 @@ describe('The invitation controller', function() {
       this.testEnv.initCore();
       this.mongoose = require('mongoose');
       mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
+      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
       require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
       Invitation = this.mongoose.model('Invitation');
     });
@@ -137,7 +137,7 @@ describe('The invitation controller', function() {
       this.testEnv.initCore(function() {
         this.mongoose = require('mongoose');
         Invitation = this.mongoose.model('Invitation');
-        webserver = require(this.testEnv.basePath + '/backend/webserver');
+        webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
         done();
       }.bind(this));
     });

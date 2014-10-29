@@ -32,7 +32,7 @@ describe('The companies routes', function() {
       User = this.mongoose.model('User');
       emails = ['foo@linagora.com', 'bar@linagora.com'];
 
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
+      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
     });
 
     it('should return a JSON with 404 result when company does not exist', function(done) {
@@ -71,7 +71,7 @@ describe('The companies routes', function() {
       User = this.mongoose.model('User');
       emails = ['foo@linagora.com', 'bar@linagora.com'];
 
-      webserver = require(this.testEnv.basePath + '/backend/webserver');
+      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
     });
 
     it('should return a JSON with 404 result when company does not exist', function(done) {

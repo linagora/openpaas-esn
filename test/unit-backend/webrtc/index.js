@@ -8,7 +8,7 @@ describe('The webrtc server module', function() {
   it('should contains all needed properties.', function() {
     mockery.registerMock('../core/conference', {});
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     expect(server).to.exist;
     expect(server).to.be.an.Object;
     expect(server).to.have.property('pub');
@@ -28,7 +28,7 @@ describe('The webrtc server module', function() {
 
     mockery.registerMock('../core/conference', {});
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     server.started = true;
     server.start(null, null, function() {
       done();
@@ -43,7 +43,7 @@ describe('The webrtc server module', function() {
     });
     mockery.registerMock('../core/conference', {});
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     server.started = true;
     server.start(null, {}, function(err) {
       expect(err).to.be.defined;
@@ -59,7 +59,7 @@ describe('The webrtc server module', function() {
     });
     mockery.registerMock('../core/conference', {});
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     server.started = true;
     server.start(null, {}, function(err) {
       expect(err).to.be.defined;
@@ -75,7 +75,7 @@ describe('The webrtc server module', function() {
     });
     mockery.registerMock('../core/conference', {});
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     server.started = true;
     server.start({}, {}, function(err) {
       expect(err).to.be.defined;
@@ -91,7 +91,7 @@ describe('The webrtc server module', function() {
     });
     mockery.registerMock('../core/conference', {});
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     server.started = true;
     server.start({}, {}, function(err) {
       expect(err).to.be.undefined;
@@ -128,7 +128,7 @@ describe('The webrtc server module', function() {
       }
     });
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     //server.started = true;
     server.start({}, {}, function(err) {
       expect(err).to.not.exist;
@@ -165,7 +165,7 @@ describe('The webrtc server module', function() {
       }
     });
 
-    var server = require(this.testEnv.basePath + '/backend/webrtc');
+    var server = require(this.testEnv.basePath + '/backend/webrtc').webrtcserver;
     //server.started = true;
     server.start({}, {}, function(err) {
       expect(err).to.not.exist;

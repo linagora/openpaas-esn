@@ -30,7 +30,7 @@ describe('The activitystreams routes', function() {
       var self = this;
       this.testEnv.initCore(function(err) {
         if (err) { done(err); }
-        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
         done();
       });
     });
@@ -404,7 +404,7 @@ describe('The activitystreams routes', function() {
       var self = this;
       this.testEnv.initCore(function(err) {
         if (err) { done(err); }
-        webserver = require(self.testEnv.basePath + '/backend/webserver');
+        webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
 
         self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           if (err) { done(err); }

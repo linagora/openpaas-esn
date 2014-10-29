@@ -34,7 +34,7 @@ describe('The email API', function() {
       EMailMsg = require(self.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
       Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
       TimelineEntry = require(self.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
-      webserver = require(self.testEnv.basePath + '/backend/webserver');
+      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
       user = new User({password: password, emails: [email]});
       user.save(function(err, saved) {
         if (err) {

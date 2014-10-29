@@ -23,7 +23,7 @@ describe('The contacts controller', function() {
     this.mongoose = require('mongoose');
     var self = this;
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver');
+      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
 
       User = self.mongoose.model('User');
       Contact = self.mongoose.model('Contact');

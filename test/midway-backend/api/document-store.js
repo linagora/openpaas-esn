@@ -30,7 +30,7 @@ describe('The document store routes resource', function() {
 
     beforeEach(function(done) {
       this.testEnv.initCore(function() {
-        webserver = require(this.testEnv.basePath + '/backend/webserver');
+        webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
         done();
       }.bind(this));
     });
@@ -216,7 +216,7 @@ describe('The document store routes resource', function() {
       config.core.config = config.core.config || {};
       config.core.config.db = 'somewhere/not/writable';
 
-      var webserver = require(this.testEnv.basePath + '/backend/webserver');
+      var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
       var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
       webserver.port = port;
       webserver.start();
@@ -243,7 +243,7 @@ describe('The document store routes resource', function() {
     it('should call the mongo init() method after the file is written', function(done) {
       var mongoModule = require(this.testEnv.basePath + '/backend/core').db.mongo;
 
-      var webserver = require(this.testEnv.basePath + '/backend/webserver');
+      var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
       var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
       webserver.port = port;
       webserver.start();
@@ -260,7 +260,7 @@ describe('The document store routes resource', function() {
 
     it('should be successful with test database parameters', function(done) {
       this.testEnv.initCore(function() {
-        var webserver = require(this.testEnv.basePath + '/backend/webserver');
+        var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
         var uri = '/api/document-store/connection/localhost/' +
             this.testEnv.serversConfig.mongodb.port + '/' +
             this.testEnv.serversConfig.mongodb.dbname;
@@ -275,7 +275,7 @@ describe('The document store routes resource', function() {
       this.testEnv.initCore(function() {
         // set higher timeout than the mongo one so we can catch error
         this.timeout(30000);
-        var webserver = require(this.testEnv.basePath + '/backend/webserver');
+        var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
         var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
         webserver.port = port;
         webserver.start();
