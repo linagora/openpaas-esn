@@ -108,7 +108,7 @@ webserver.addCSSInjection = addCSSInjection;
 
 var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.config', 'conf')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.servers.config', 'conf')
   ],
   lib: function(dependencies, callback) {
     var api = webserver;

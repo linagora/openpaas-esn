@@ -84,7 +84,7 @@ wsserver.start = start;
 
 var awesomeWsServer = new AwesomeModule('linagora.esn.core.wsserver', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.config', 'conf'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.servers.config', 'conf'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver')
   ],
   lib: function(dependencies, callback) {

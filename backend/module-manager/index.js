@@ -5,9 +5,8 @@ var fs = require('fs');
 var core = require('../core');
 var AwesomeModuleManager = require('awesome-module-manager');
 var AwesomeModule = require('awesome-module');
+var Dependency = AwesomeModule.AwesomeModuleDependency;
 var ESN_MODULE_PREFIX = 'linagora.esn.core.';
-
-
 
 var manager = new AwesomeModuleManager(core.logger);
 
@@ -41,8 +40,49 @@ function mockCore() {
   });
 }
 
-function setupManager() {
+function mockConfiguration(config) {
+  mockModule('servers.config', {
+    webserver: {
+      virtualhosts: config.webserver.virtualhosts,
+      port: config.webserver.port,
+      ip: config.webserver.ip,
+      ssl_port: config.webserver.ssl_port,
+      ssl_ip: config.webserver.ssl_ip,
+      ssl_key: config.webserver.ssl_key,
+      ssl_cert: config.webserver.ssl_cert
+    },
+    wsserver: {
+      port: config.wsserver.port,
+      options: config.wsserver.options
+    }
+  });
+}
+
+function mockESNApplication() {
+  var application = new AwesomeModule(ESN_MODULE_PREFIX + 'esn', {
+    dependencies: [
+      new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.servers.config', 'conf'),
+      new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver'),
+      new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
+      new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webrtcserver', 'webrtcserver')
+    ],
+    lib: function(dependencies, callback) {
+      return callback(null, { started: false });
+    },
+    start: function(dependencies, callback) {
+      this.started = true;
+      core.logger.info('OpenPaas ESN is now started on node %s', process.version);
+      callback();
+    }
+  });
+  var loader = manager.loaders.code(application);
+  manager.appendLoader(loader);
+}
+
+function setupManager(config) {
   mockCore();
+  mockConfiguration(config);
+  mockESNApplication();
   core.moduleManager = manager;
   return manager;
 }
