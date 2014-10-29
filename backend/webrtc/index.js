@@ -4,16 +4,17 @@ var easyrtc = require('easyrtc');
 var config = require('../core').config('default');
 var conference = require('../core/conference');
 var logger = require('../core/logger');
+var AwesomeModule = require('awesome-module');
+var Dependency = AwesomeModule.AwesomeModuleDependency;
 
-var server = {
+var webrtcserver = {
   started: false,
   pub: null
 };
-exports = module.exports = server;
 
 var start = function(webserver, wsserver, callback) {
 
-  if (server.started) {
+  if (webrtcserver.started) {
     return callback();
   }
 
@@ -38,8 +39,8 @@ var start = function(webserver, wsserver, callback) {
     if (err) {
       return callback(err);
     }
-    server.pub = pub;
-    server.started = true;
+    webrtcserver.pub = pub;
+    webrtcserver.started = true;
 
     var connect = pub.events.defaultListeners.connection;
     var disconnect = pub.events.defaultListeners.disconnect;
@@ -84,4 +85,29 @@ var start = function(webserver, wsserver, callback) {
     return callback();
   });
 };
-server.start = start;
+
+webrtcserver.start = start;
+
+var awesomeWebRTCServer = new AwesomeModule('linagora.esn.core.webrtcserver', {
+  dependencies: [
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
+  ],
+  lib: function(dependencies, callback) {
+    var api = webrtcserver;
+    return callback(null, api);
+  },
+  start: function(dependencies, callback) {
+    var wsserver = dependencies('wsserver').io;
+    var webserver = dependencies('webserver').application;
+    webrtcserver.start(webserver, wsserver, function(err) {
+      if ( err ) {
+        logger.warn('webrtc server failed to start', err);
+      }
+      callback.apply(this, arguments);
+    });
+  }
+});
+
+module.exports.webrtcserver = webrtcserver;
+module.exports.awesomeWebRTCServer = awesomeWebRTCServer;

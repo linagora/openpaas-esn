@@ -4,6 +4,8 @@ var logger = require('../core/logger');
 var io = require('socket.io');
 var express = require('express');
 var store = require('./socketstore');
+var AwesomeModule = require('awesome-module');
+var Dependency = AwesomeModule.AwesomeModuleDependency;
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -39,7 +41,7 @@ function start(port, options, callback) {
   }
   wsserver.started = true;
 
-  var webserver = require('../webserver');
+  var webserver = require('../webserver/webserver').webserver;
   wsserver.port = port;
   var realCallback = callback;
   if (webserver && webserver.sslserver && webserver.ssl_port === wsserver.port) {
@@ -79,3 +81,26 @@ function start(port, options, callback) {
 }
 
 wsserver.start = start;
+
+var awesomeWsServer = new AwesomeModule('linagora.esn.core.wsserver', {
+  dependencies: [
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.config', 'conf'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver')
+  ],
+  lib: function(dependencies, callback) {
+    var api = wsserver;
+    return callback(null, api);
+  },
+  start: function(dependencies, callback) {
+    var config = dependencies('conf');
+    wsserver.start(config.wsserver.port, config.wsserver.options, function(err) {
+      if ( err ) {
+        logger.error('websocket server failed to start', err);
+      }
+      callback.apply(this, arguments);
+    });
+  }
+});
+
+module.exports.wsserver = wsserver;
+module.exports.awesomeWsServer = awesomeWsServer;
