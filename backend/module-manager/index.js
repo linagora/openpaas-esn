@@ -43,6 +43,7 @@ function mockCore() {
 function mockConfiguration(config) {
   mockModule('servers.config', {
     webserver: {
+      enabled: config.webserver.enabled,
       virtualhosts: config.webserver.virtualhosts,
       port: config.webserver.port,
       ip: config.webserver.ip,
@@ -52,8 +53,12 @@ function mockConfiguration(config) {
       ssl_cert: config.webserver.ssl_cert
     },
     wsserver: {
+      enabled: config.wsserver.enabled,
       port: config.wsserver.port,
       options: config.wsserver.options
+    },
+    webrtc: {
+      enabled: config.webrtc.enabled
     }
   });
 }

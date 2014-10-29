@@ -117,7 +117,11 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
   start: function(dependencies, callback) {
     var config = dependencies('conf');
 
-    // TODO do index.jade processing here.
+    if ( !config.webserver.enabled ) {
+      logger.warn('The webserver will not start as expected by the configuration.')
+      return callback();
+    }
+
     console.log(jsInjections);
     console.log(cssInjections);
 

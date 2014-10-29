@@ -93,6 +93,12 @@ var awesomeWsServer = new AwesomeModule('linagora.esn.core.wsserver', {
   },
   start: function(dependencies, callback) {
     var config = dependencies('conf');
+
+    if ( !config.wsserver.enabled ) {
+      logger.warn('The websocket server will not start as expected by the configuration.');
+      return callback();
+    }
+
     wsserver.start(config.wsserver.port, config.wsserver.options, function(err) {
       if ( err ) {
         logger.error('websocket server failed to start', err);

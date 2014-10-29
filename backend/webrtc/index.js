@@ -90,6 +90,7 @@ webrtcserver.start = start;
 
 var awesomeWebRTCServer = new AwesomeModule('linagora.esn.core.webrtcserver', {
   dependencies: [
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.servers.config', 'conf'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
   ],
@@ -98,6 +99,18 @@ var awesomeWebRTCServer = new AwesomeModule('linagora.esn.core.webrtcserver', {
     return callback(null, api);
   },
   start: function(dependencies, callback) {
+    var config = dependencies('conf');
+
+    if (!config.webrtc.enabled) {
+      logger.warn('The webrtc server will not start as expected by the configuration.');
+      return callback();
+    }
+
+    if (!config.wsserver.enabled || !config.webserver.enabled) {
+      logger.warn('The webrtc server can not be started when Websocket and Web server are not activated');
+      return callback();
+    }
+
     var wsserver = dependencies('wsserver').io;
     var webserver = dependencies('webserver').application;
     webrtcserver.start(webserver, wsserver, function(err) {
