@@ -164,7 +164,10 @@ before(function() {
         });
       });
     },
-
+    getCommunity: function(id, done) {
+      var Community = require('mongoose').model('Community');
+      Community.findOne({_id: id}, done);
+    },
     createCommunity: function(title, creator, domain, opts, done) {
       if (opts && !done) {
         done = opts;
@@ -328,4 +331,3 @@ afterEach(function() {
   mockery.deregisterAll();
   mockery.disable();
 });
-

@@ -365,54 +365,55 @@ module.exports.getMembershipRequest = function(community, user) {
   return mr.pop();
 };
 
-module.exports.removeMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
-  if (!userAuthor) {
-    return callback(new Error('User author object is required'));
-  }
-
-  if (!userTarget) {
-    return callback(new Error('User target object is required'));
-  }
-
-  var userAuthorId = userAuthor._id || userAuthor;
-  var userTargetId = userTarget._id || userTarget;
-
-  if (!community) {
-    return callback(new Error('Community object is required'));
-  }
-
-  if (!permission.supportsMemberShipRequests(community)) {
-    return callback(new Error('Only Restricted and Private communities allow membership requests.'));
-  }
-
-  this.isMember(community, userTargetId, function(err, isMember) {
-    if (err) {
-      return callback(err);
-    }
-    if (isMember) {
-      return callback(new Error('User already member of the community.'));
-    }
-
-    var otherUserRequests = community.membershipRequests.filter(function(request) {
-      var requestUserId = request.user._id || request.user;
-      return !requestUserId.equals(userTargetId);
+module.exports.cancelMembershipInvitation = function(community, membership, manager, onResponse) {
+  this.cleanMembershipRequest(community, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('community:membership:invitation:cancel').forward(globalpubsub, {
+      author: manager._id,
+      target: membership.user,
+      membership: membership,
+      community: community._id
     });
+    onResponse(err, community);
+  });
+};
 
-    community.membershipRequests = otherUserRequests;
-    community.save(function(err, updated) {
-      if (err) {
-        return callback(err);
-      }
-
-      localpubsub.topic('community:membership:remove').forward(globalpubsub, {
-        author: userAuthorId,
-        target: userTargetId,
-        actor: actor || 'user',
-        community: community._id || community
-      });
-
-      return callback(null, updated);
+module.exports.refuseMembershipRequest = function(community, membership, manager, onResponse) {
+  this.cleanMembershipRequest(community, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('community:membership:request:refuse').forward(globalpubsub, {
+      author: manager._id,
+      target: membership.user,
+      membership: membership,
+      community: community._id
     });
+    onResponse(err, community);
+  });
+};
+
+module.exports.declineMembershipInvitation = function(community, membership, user, onResponse) {
+  this.cleanMembershipRequest(community, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('community:membership:invitation:decline').forward(globalpubsub, {
+      author: user._id,
+      target: community._id,
+      membership: membership,
+      community: community._id
+    });
+    onResponse(err, community);
+  });
+};
+
+module.exports.cancelMembershipRequest = function(community, membership, user, onResponse) {
+  this.cleanMembershipRequest(community, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('community:membership:request:cancel').forward(globalpubsub, {
+      author: user._id,
+      target: community._id,
+      membership: membership,
+      community: community._id
+    });
+    onResponse(err, community);
   });
 };
 

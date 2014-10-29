@@ -118,11 +118,28 @@ function augmentToMembershipRequest(data, callback) {
   return callback(null, notification);
 }
 
-function augmentToMembershipDeclined(data, callback) {
+function augmentToMembershipRefused(data, callback) {
 
   var notification = {
     subject: {objectType: 'user', id: data.author},
-    verb: {label: 'ESN_MEMBERSHIP_DECLINED', text: 'declined your request to join'},
+    verb: {label: 'ESN_MEMBERSHIP_REFUSED', text: 'declined your request to join'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:membership:refused',
+    read: false,
+    interactive: false,
+    target: [{objectType: 'user', id: data.target + ''}]
+  };
+  return callback(null, notification);
+}
+/*
+function augmentToMembershipDeclined(data, callback) {
+
+  var notification = {
+    subject: {objectType: 'user', id: data.target + ''},
+    verb: {label: 'ESN_MEMBERSHIP_DECLINED', text: 'declined your invitation to join'},
     complement: {objectType: 'community', id: data.community},
     context: null,
     description: null,
@@ -130,10 +147,11 @@ function augmentToMembershipDeclined(data, callback) {
     category: 'community:membership:declined',
     read: false,
     interactive: false,
-    target: [{objectType: 'user', id: data.target + ''}]
+    target: [{objectType: 'user', id: data.author + ''}]
   };
   return callback(null, notification);
 }
+*/
 
 function membershipRequestHandler(data, callback) {
   async.waterfall([
@@ -158,7 +176,7 @@ function membershipRemoveHandler(data, callback) {
     return;
   }
   async.waterfall([
-      augmentToMembershipDeclined.bind(null, data),
+      augmentToMembershipRefused.bind(null, data),
       createUserNotification
     ],
     onSuccessPublishIntoGlobal(callback));

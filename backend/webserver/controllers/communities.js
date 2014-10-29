@@ -503,33 +503,50 @@ module.exports.removeMembershipRequest = function(req, res) {
   if (!ensureLoginCommunityAndUserId(req, res)) {
     return false;
   }
-  var community = req.community;
-  var targetUser = req.params.user_id;
+  if (!req.isCommunityManager && !req.user._id.equals(req.params.user_id)) {
+    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
+  }
+
+  if (!req.community.membershipRequests || ! ('filter' in req.community.membershipRequests)) {
+    return res.send(204);
+  }
+
+  var memberships = req.community.membershipRequests.filter(function(mr) {
+    return mr.user.equals(req.params.user_id);
+  });
+
+  if (!memberships.length) {
+    return res.send(204);
+  }
+  var membership = memberships[0];
+
+  function onResponse(err, resp) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+    }
+    res.send(204);
+  }
+
+  /*
+  *      workflow   |   isCommunityManager   |  What does it mean ?
+  *      -----------------------------------------------------------
+  *      INVITATION |           yes          | manager cancel the invitation of the user
+  *      INVITATION |            no          | attendee declines the invitation
+  *      REQUEST    |           yes          | manager refuses the user's request to enter the community
+  *      REQUEST    |            no          | user cancels her request to enter the commity
+  */
 
   if (req.isCommunityManager) {
-
-    if (req.user._id.equals(targetUser)) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not remove himself from membership request'}});
+    if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
+      communityModule.cancelMembershipInvitation(req.community, membership, req.user, onResponse);
+    } else {
+      communityModule.refuseMembershipRequest(req.community, membership, req.user, onResponse);
     }
-
-    communityModule.removeMembershipRequest(community, req.user, targetUser, communityModule.MEMBERSHIP_TYPE_INVITATION, 'manager', function(err) {
-      if (err) {
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
-      }
-      return res.send(204);
-    });
-
   } else {
-
-    if (!req.user._id.equals(targetUser)) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
+    if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
+      communityModule.declineMembershipInvitation(req.community, membership, req.user, onResponse);
+    } else {
+      communityModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
     }
-
-    communityModule.removeMembershipRequest(community, req.user, targetUser, communityModule.MEMBERSHIP_TYPE_REQUEST, 'user', function(err) {
-      if (err) {
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
-      }
-      return res.send(204);
-    });
   }
 };

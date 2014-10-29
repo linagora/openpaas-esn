@@ -25,6 +25,18 @@ module.exports.linagora_IT = function() {
         firstname: 'Jane',
         lastname: 'Dee',
         emails: ['jdee@lng.net']
+      },
+      {
+        password: 'secret',
+        firstname: 'Kurt',
+        lastname: 'Cobain',
+        emails: ['kcobain@lng.net']
+      },
+      {
+        password: 'secret',
+        firstname: 'Jimmy',
+        lastname: 'Hendrix',
+        emails: ['jhendrix@lng.net']
       }
     ]
   };
