@@ -5,6 +5,12 @@ var expect = require('chai').expect;
 
 describe('The communities controller', function() {
 
+  beforeEach(function() {
+    this.helpers.mock.models({
+      User: function() {}
+    });
+  });
+
   describe('The create fn', function() {
     it('should send back 400 if community title is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
