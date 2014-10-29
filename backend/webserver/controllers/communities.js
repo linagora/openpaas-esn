@@ -512,7 +512,7 @@ module.exports.removeMembershipRequest = function(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not remove himself from membership request'}});
     }
 
-    communityModule.removeMembershipRequest(community, req.user, targetUser, 'manager', function(err) {
+    communityModule.removeMembershipRequest(community, req.user, targetUser, communityModule.MEMBERSHIP_TYPE_INVITATION, 'manager', function(err) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
       }
@@ -525,7 +525,7 @@ module.exports.removeMembershipRequest = function(req, res) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
-    communityModule.removeMembershipRequest(community, req.user, targetUser, 'user', function(err) {
+    communityModule.removeMembershipRequest(community, req.user, targetUser, communityModule.MEMBERSHIP_TYPE_REQUEST, 'user', function(err) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
       }

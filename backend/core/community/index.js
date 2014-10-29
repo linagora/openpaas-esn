@@ -365,7 +365,7 @@ module.exports.getMembershipRequest = function(community, user) {
   return mr.pop();
 };
 
-module.exports.removeMembershipRequest = function(community, userAuthor, userTarget, actor, callback) {
+module.exports.removeMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
   if (!userAuthor) {
     return callback(new Error('User author object is required'));
   }
@@ -436,4 +436,3 @@ module.exports.cleanMembershipRequest = function(community, user, callback) {
   community.membershipRequests = otherUserRequests;
   community.save(callback);
 };
-

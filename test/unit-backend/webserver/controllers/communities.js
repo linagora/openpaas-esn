@@ -1594,7 +1594,7 @@ describe('The communities controller', function() {
           getMembershipRequest: function() {
             return true;
           },
-          removeMembershipRequest: function(community, user, target, type, callback) {
+          removeMembershipRequest: function(community, user, target, workflow, type, callback) {
             return callback();
           },
           join: function(community, user, target, actor, callback) {
@@ -1791,7 +1791,7 @@ describe('The communities controller', function() {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
             },
-            removeMembershipRequest: function(community, userAuthor, userTarget, actor, callback) {
+            removeMembershipRequest: function(community, userAuthor, userTarget, workflow, actor, callback) {
               callback(null);
             },
             join: function(community, userAuthor, userTarget, actor, callback) {
@@ -2374,7 +2374,7 @@ describe('The communities controller', function() {
 
       it('should send back 500 if communityModule#removeMembershipRequest fails', function(done) {
         mockery.registerMock('../../core/community', {
-          removeMembershipRequest: function(community, user, target, actor, callback) {
+          removeMembershipRequest: function(community, user, target, workflow, actor, callback) {
             callback(new Error('community module error'));
           }
         });
@@ -2407,7 +2407,7 @@ describe('The communities controller', function() {
 
       it('should send 204 if communityModule#removeMembershipRequest succeeds', function(done) {
         mockery.registerMock('../../core/community', {
-          removeMembershipRequest: function(community, user, target, actor, callback) {
+          removeMembershipRequest: function(community, user, target, workflow, actor, callback) {
             callback(null, {});
           }
         });
@@ -2478,7 +2478,7 @@ describe('The communities controller', function() {
 
       it('should send back 500 when removeMembershipRequest fails', function(done) {
         mockery.registerMock('../../core/community', {
-          removeMembershipRequest: function(community, user, target, actor, callback) {
+          removeMembershipRequest: function(community, user, target, workflow, actor, callback) {
             return callback(new Error());
           }
         });
@@ -2512,7 +2512,7 @@ describe('The communities controller', function() {
 
       it('should send back 204 when removeMembershipRequest is ok', function(done) {
         mockery.registerMock('../../core/community', {
-          removeMembershipRequest: function(community, user, target, actor, callback) {
+          removeMembershipRequest: function(community, user, target, workflow, actor, callback) {
             return callback();
           }
         });

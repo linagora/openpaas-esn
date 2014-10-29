@@ -1237,7 +1237,7 @@ describe('The communities module', function() {
 
     it('should send back error when author is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({}, null, {}, '', function(err, c) {
+      communityModule.removeMembershipRequest({}, null, {}, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1245,7 +1245,7 @@ describe('The communities module', function() {
 
     it('should send back error when target is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({}, {}, null, '', function(err, c) {
+      communityModule.removeMembershipRequest({}, {}, null, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1253,7 +1253,7 @@ describe('The communities module', function() {
 
     it('should send back error when community is null', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest(null, {}, {}, '', function(err, c) {
+      communityModule.removeMembershipRequest(null, {}, {}, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1261,11 +1261,11 @@ describe('The communities module', function() {
 
     it('should send back error if community type is not restricted or private', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({type: 'open'}, {}, {}, '', function(err, c) {
+      communityModule.removeMembershipRequest({type: 'open'}, {}, {}, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
-      communityModule.removeMembershipRequest({type: 'confidential'}, {}, {}, '', function(err, c) {
+      communityModule.removeMembershipRequest({type: 'confidential'}, {}, {}, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1284,7 +1284,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, true);
       };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1303,7 +1303,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(new Error('isMember fail'));
       };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1328,7 +1328,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, 'invitation', '', function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1353,7 +1353,7 @@ describe('The communities module', function() {
         expect(u).to.deep.equal(user._id);
         callback(null, false);
       };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
+      communityModule.removeMembershipRequest(community, author, user, 'invitation', '', function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(0);
