@@ -10,6 +10,7 @@ moduleManager.manager.registerState('deploy', ['lib']);
 moduleManager.manager.registerState('start', ['lib', 'deploy']);
 
 moduleManager.setupManager(config);
+moduleManager.manager.registerModule(require('./backend/webserver/webserver-wrapper'));
 moduleManager.manager.registerModule(require('./backend/webserver/webserver').awesomeWebServer);
 moduleManager.manager.registerModule(require('./backend/wsserver').awesomeWsServer);
 moduleManager.manager.registerModule(require('./backend/webrtc').awesomeWebRTCServer);
