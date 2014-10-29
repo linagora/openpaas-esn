@@ -122,8 +122,8 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
       return callback();
     }
 
-    console.log(jsInjections);
-    console.log(cssInjections);
+    webserver.application.locals.jsInjections = jsInjections;
+    webserver.application.locals.cssInjections = cssInjections;
 
     webserver.virtualhosts = config.webserver.virtualhosts;
     webserver.port = config.webserver.port;
