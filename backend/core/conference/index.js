@@ -152,22 +152,44 @@ module.exports.join = function(conference, user, callback) {
     return callback(new Error('Undefined conference'));
   }
 
-  var id = user._id || user;
-  var conference_id = conference._id || conference;
+  var conferenceId = conference._id || conference;
+  var userId = user._id || user;
 
-  Conference.update({_id: conference_id, attendees: {$elemMatch: {user: id}}}, {$set: {'attendees.$': {user: id, status: 'online'}}}, {upsert: true}, function(err, updated) {
+  Conference.findById(conferenceId, function(err, conf) {
     if (err) {
       return callback(err);
     }
 
-    localpubsub.topic('conference:join')
-               .forward(globalpubsub, { conference_id: conference_id, user_id: id });
+    if (!conf) {
+      return callback(new Error('No such conference'));
+    }
 
-    addHistory(conference_id, id, 'join', function(err, history) {
-      if (err) {
-        logger.warn('Error while pushing new history element ' + err.message);
+    var found = false;
+    conf.attendees.forEach(function(attendee) {
+      if (attendee.user.toString() === userId + '') {
+        found = true;
+        attendee.status = 'online';
       }
-      return callback(null, updated);
+    });
+
+    if (!found) {
+      conf.attendees.push({user: new mongoose.Types.ObjectId(userId + ''), status: 'online'});
+    }
+
+    conf.save(function(err, updated) {
+      if (err) {
+        return callback(err);
+      }
+
+      localpubsub.topic('conference:join')
+        .forward(globalpubsub, {conference_id: conf._id, user_id: userId});
+
+      addHistory(conf._id, userId, 'join', function(err, history) {
+        if (err) {
+          logger.warn('Error while pushing new history element ' + err.message);
+        }
+        return callback(null, conf);
+      });
     });
   });
 };

@@ -561,9 +561,8 @@ describe('The conference module', function() {
     });
   });
 
-  it('join should call update in Conference two times', function(done) {
+  it('join should load the conference and update the attendees', function(done) {
 
-    var call = 0;
     var user = {
       _id: 123
     };
@@ -574,6 +573,7 @@ describe('The conference module', function() {
       history: [],
       save: function(callback) {
         var self = this;
+        expect(self.attendees.length === 1);
         return callback(null, {attendees: self.attendees});
       }
     };
@@ -581,19 +581,18 @@ describe('The conference module', function() {
     var mongoose = {
       model: function() {
         return {
-          update: function(value, options, upsert, callback) {
-            call++;
+          findById: function(id, callback) {
             return callback(null, conf);
           }
         };
       }
     };
+    mongoose.Types = { ObjectId: function() {} };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
     conference.join(conf, user, function(err, updated) {
       expect(err).to.not.exist;
-      expect(call).to.equal(2);
       done();
     });
   });
@@ -695,15 +694,27 @@ describe('The conference module', function() {
   });
 
   it('join should forward invitation into conference:join', function(done) {
-    this.mongoose = mockery.registerMock('mongoose', {
+    var mongoose = {
       model: function() {
         return {
-          update: function(value, options, upsert, callback) {
-            return callback(null, { _id: 12345 });
+          update: function(a, b, c, callback) {
+            return callback();
+          },
+          findById: function(id, callback) {
+            return callback(null, {
+              _id: 12345,
+              attendees: [],
+              save: function(callback) {
+                return callback(null, this);
+              }
+            });
           }
         };
       }
-    });
+    };
+    mongoose.Types = { ObjectId: function() {} };
+
+    this.mongoose = mockery.registerMock('mongoose', mongoose);
 
     var localstub = {}, globalstub = {};
     this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
