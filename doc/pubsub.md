@@ -104,36 +104,39 @@ For example, when a user 123 has sent a message 456 to the user 789:
 
 ### Summary
 
-|                 | Local                       |                             | Global  |           | Notes |
-|-----------------|-----------------------------|-----------------------------|---------|-----------|-------|
-|                 | Publish                     | Subscribe                   | Publish | Subscribe |       |
-| Modules         |                             |                             |         |           |       |
-| activitystreams |                             | message:activity            |         |           |       |
-|                 |                             | community:join              |         |           |       |
-| conference      | conference:join             |                             |         |           |       |
-|                 | conference:leave            |                             |         |           |       |
-| community       | community:join              |                             |         |           |       |
-|                 | community:leave             |                             |         |           |       |
-|                 | community:membership:remove |                             |         |           |       |
-|                 | community:membership:invite |                             |         |           |       |
-|                 | community:membership:request|                             |         |           |       |
-| user/login      | login:success               |                             |         |           |       |
-|                 | login:failure               |                             |         |           |       |
-| invitation      | invitation:init:failure     |                             |         |           |       |
-|                 | invitation:init:success     |                             |         |           |       |
-|                 | invitation:finalize:failure |                             |         |           |       |
-|                 | invitation:finalize:success |                             |         |           |       |
-|                 | invitation:process:failure  |                             |         |           |       |
-|                 | invitation:process:success  |                             |         |           |       |
-| db/redis        |                             | mongodb:connectionAvailable |         |           |       |
-| db/mongo        | mongodb:connectionAvailable |                             |         |           |       |
-| configured      | mongodb:connectionAvailable |                             |         |           |       |
-| templates       |                             | mongodb:connectionAvailable |         |           |       |
-| pubsub/global   |                             | globalpubsub:config         |         |           |       |
-|                 |                             |                             |         |           |       |
-| Controllers     |                             |                             |         |           |       |
-| domains         | domain:invitations:sent     |                             |         |           |       |
-| messages        | message:activity            | message:activity            |         |           |       |
-|                 |                             |                             |         |           |       |
-| Middleware      |                             |                             |         |           |       |
-| setup-sessions  |                             | mongodb:connectionAvailable |         |           |       |
+|                 | Local                                   |                             | Global  |           | Notes |
+|-----------------|-----------------------------------------|-----------------------------|---------|-----------|-------|
+|                 | Publish                                 | Subscribe                   | Publish | Subscribe |       |
+| Modules         |                                         |                             |         |           |       |
+| activitystreams |                                         | message:activity            |         |           |       |
+|                 |                                         | community:join              |         |           |       |
+| conference      | conference:join                         |                             |         |           |       |
+|                 | conference:leave                        |                             |         |           |       |
+| community       | community:join                          |                             |         |           |       |
+|                 | community:leave                         |                             |         |           |       |
+|                 | community:membership:invitation:cancel  |                             |         |           |       |
+|                 | community:membership:invitation:decline |                             |         |           |       |
+|                 | community:membership:request:refuse     |                             |         |           |       |
+|                 | community:membership:request:cancel     |                             |         |           |       |
+|                 | community:membership:invite             |                             |         |           |       |
+|                 | community:membership:request            |                             |         |           |       |
+| user/login      | login:success                           |                             |         |           |       |
+|                 | login:failure                           |                             |         |           |       |
+| invitation      | invitation:init:failure                 |                             |         |           |       |
+|                 | invitation:init:success                 |                             |         |           |       |
+|                 | invitation:finalize:failure             |                             |         |           |       |
+|                 | invitation:finalize:success             |                             |         |           |       |
+|                 | invitation:process:failure              |                             |         |           |       |
+|                 | invitation:process:success              |                             |         |           |       |
+| db/redis        |                                         | mongodb:connectionAvailable |         |           |       |
+| db/mongo        | mongodb:connectionAvailable             |                             |         |           |       |
+| configured      | mongodb:connectionAvailable             |                             |         |           |       |
+| templates       |                                         | mongodb:connectionAvailable |         |           |       |
+| pubsub/global   |                                         | globalpubsub:config         |         |           |       |
+|                 |                                         |                             |         |           |       |
+| Controllers     |                                         |                             |         |           |       |
+| domains         | domain:invitations:sent                 |                             |         |           |       |
+| messages        | message:activity                        | message:activity            |         |           |       |
+|                 |                                         |                             |         |           |       |
+| Middleware      |                                         |                             |         |           |       |
+| setup-sessions  |                                         | mongodb:connectionAvailable |         |           |       |

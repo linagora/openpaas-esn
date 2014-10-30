@@ -2365,10 +2365,7 @@ describe('The communities API', function() {
             });
           });
         });
-
       });
-
-
 
     });
 

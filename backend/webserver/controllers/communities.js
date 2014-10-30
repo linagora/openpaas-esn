@@ -351,7 +351,7 @@ module.exports.getMember = function(req, res) {
 
 module.exports.join = function(req, res) {
   if (!ensureLoginCommunityAndUserId(req, res)) {
-    return false;
+    return;
   }
   var community = req.community;
   var user = req.user;
@@ -418,7 +418,7 @@ module.exports.join = function(req, res) {
 
 module.exports.leave = function(req, res) {
   if (!ensureLoginCommunityAndUserId(req, res)) {
-    return false;
+    return;
   }
   var community = req.community;
   var user = req.user;
@@ -475,7 +475,7 @@ module.exports.getMembershipRequests = function(req, res) {
 
 module.exports.addMembershipRequest = function(req, res) {
   if (!ensureLoginCommunityAndUserId(req, res)) {
-    return false;
+    return;
   }
   var community = req.community;
   var userAuthor = req.user;
@@ -501,7 +501,7 @@ module.exports.addMembershipRequest = function(req, res) {
 
 module.exports.removeMembershipRequest = function(req, res) {
   if (!ensureLoginCommunityAndUserId(req, res)) {
-    return false;
+    return;
   }
   if (!req.isCommunityManager && !req.user._id.equals(req.params.user_id)) {
     return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
