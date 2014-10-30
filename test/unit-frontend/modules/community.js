@@ -2657,7 +2657,7 @@ describe('The Community Angular module', function() {
       };
       defer.reject();
       this.scope.$digest();
-      var error = element.find('#error');
+      var error = $(element.find('[error-container]')[0]);
       expect(error).to.not.have.class('hidden');
       done();
     });

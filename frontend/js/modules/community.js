@@ -465,20 +465,31 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       link: function($scope, $element) {
         var calling = false;
 
+        function getErrorElement() {
+          return $($element.find('[error-container]')[0]);
+
+        }
+
+        function getLoadingElement() {
+          return $($element.find('[loading-container]')[0]);
+        }
+
         $scope.updatePendingRequestsList = function() {
           if (calling) {
             return;
           }
-          $element.find('#loading').removeClass('hidden');
+
+          getLoadingElement().removeClass('hidden');
+          getErrorElement().addClass('hidden');
           calling = true;
 
           communityAPI.getRequestMemberships($scope.community._id, {}).then(function(response) {
             $scope.requests = response.data;
           }, function() {
-            $element.find('#error').removeClass('hidden');
+            getErrorElement().removeClass('hidden');
           }).finally (function() {
             calling = false;
-            $element.find('#loading').addClass('hidden');
+            getLoadingElement().addClass('hidden');
           });
         };
 

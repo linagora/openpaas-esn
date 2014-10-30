@@ -2,17 +2,15 @@
   .col-xs-12.esn-panel(ng-if='!isCommunityManager()')
     p.text-center.community-not-allowed #{__('You are not allowed to see the sent invitations of this community')}
 
-.row(ng-if="isCommunityManager()", ng-controller="communityPendingMembershipRequestsController")
+.row(ng-if="isCommunityManager()")
 
-  #loading
-    .col-xs-12.alert.alert-info(role="alert")
-        p #{__('Loading sent invitations')}...
+  .col-xs-12.alert.alert-info(role="alert", loading-container)
+    p #{__('Loading sent invitations')}...
 
-  #error.hidden
-    .col-xs-12.alert.alert-danger(role="alert")
-      p #{__('Error while loading sent invitations')}.
+  .col-xs-12.alert.alert-danger.hidden(role="alert", error-container)
+    p #{__('Error while loading sent invitations')}.
 
-  .col-xs-12#list
+  .col-xs-12
     .row(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
       community-pending-invitation-display(request="request", community="community")
       .vertiz-space
