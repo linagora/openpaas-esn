@@ -2,13 +2,13 @@ div.col-xs-12.nopadding.esn-member
   .col-xs-12
     hr
   .col-lg-2.col-sm-3.col-xs-4
-    img.thumbnail(src='/images/user.png', ng-src='/api/users/{{request.user._id}}/profile/avatar')
+    img.thumbnail(src='/images/user.png', ng-src='/api/users/{{::request.user._id}}/profile/avatar')
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading
-      a(ng-href="#/profile/{{request.user._id}}") {{request.user.firstname}} {{request.user.lastname}}
+      a(ng-href="#/profile/{{::request.user._id}}") {{::request.user.firstname}} {{::request.user.lastname}}
     span
       i.fa.fa-clock-o
-      span.date(am-time-ago="request.timestamp.creation")
+      span.date(am-time-ago="::request.timestamp.creation")
   .col-lg-3.col-sm-4.col-xs-12
     .col-sm-12.col-xs-12
       button.btn.btn-default(type='submit', ng-click='cancel()', ng-disabled='sending || done')
