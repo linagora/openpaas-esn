@@ -2205,12 +2205,17 @@ describe('The communities API', function() {
           }
         }];
 
-        self.helpers.api.createCommunity('Node', self.admin, self.domain, {membershipRequests: self.membershipRequests},
-                                         function(err, saved) {
-          if (err) { return done(err); }
-          self.community = saved;
-          done();
-        });
+        self.helpers.api.createCommunity(
+          'Node',
+          self.admin,
+          self.domain,
+          {membershipRequests: self.membershipRequests, type: 'restricted'},
+          function(err, saved) {
+            if (err) { return done(err); }
+            self.community = saved;
+            done();
+          }
+        );
       });
     });
 
@@ -2484,6 +2489,147 @@ describe('The communities API', function() {
       });
 
     });
+
+    describe('pubsub events', function() {
+      beforeEach(function(done) {
+        var self = this;
+        self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
+          self.loggedInAsManager = loggedInAsUser;
+          self.helpers.api.loginAsUser(webserver.application, self.jhendrix.emails[0], 'secret', function(err, loggedInAsUser) {
+            self.loggedInAsUser = loggedInAsUser;
+            done();
+          });
+        });
+      });
+      describe('when admin refuses a join request', function() {
+        it('should add a usernotification for the user', function(done) {
+          var self = this;
+          var mongoose = require('mongoose');
+          var maxtries = 10, currenttry = 0;
+
+          function checkusernotificationexists() {
+            if (currenttry === maxtries) {
+              return done(new Error('Unable to find user notification after 10 tries'));
+            }
+            currenttry++;
+
+            var UN = mongoose.model('Usernotification');
+            UN.find(
+              {
+                category: 'community:membership:refused',
+                target: {
+                  $elemMatch: { objectType: 'user', id: self.jhendrix._id + '' }
+                }
+              },
+              function(err, notifs) {
+                if (err) { return done(err); }
+                if (!notifs.length) {
+                  checkusernotificationexists();
+                  return;
+                }
+                return done(null, notifs[0]);
+              }
+            );
+          }
+
+
+          var req = self.loggedInAsUser(
+            request(webserver.application)
+              .put('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
+          );
+          req.end(function(err, res) {
+            expect(res.status).to.equal(200);
+            var req = self.loggedInAsManager(
+              request(webserver.application)
+                . delete('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
+            );
+            req.end(function(err, res) {
+              expect(res.status).to.equal(204);
+              checkusernotificationexists();
+            });
+          });
+        });
+      });
+      describe('when manager cancels an invitation', function() {
+
+        it('should remove the attendee usernotification', function(done) {
+          var self = this;
+          var mongoose = require('mongoose');
+          var maxtries = 10, currenttry = 0;
+
+          function checkusernotificationexists(callback) {
+            if (currenttry === maxtries) {
+              return callback(new Error('Unable to find user notification after 10 tries'));
+            }
+            currenttry++;
+
+            var UN = mongoose.model('Usernotification');
+            UN.find(
+              {
+                category: 'community:membership:invite',
+                target: {
+                  $elemMatch: { objectType: 'user', id: self.jhendrix._id + '' }
+                }
+              },
+              function(err, notifs) {
+                if (err) { return callback(err); }
+                if (!notifs.length) {
+                  checkusernotificationexists(callback);
+                  return;
+                }
+                return callback(null, notifs[0]);
+              }
+            );
+          }
+
+          function checkusernotificationdisappear() {
+            if (currenttry === maxtries) {
+              return done(new Error('Still finding user notification after 10 tries'));
+            }
+            currenttry++;
+
+            var UN = mongoose.model('Usernotification');
+            UN.find(
+              {
+                category: 'community:membership:invite',
+                target: {
+                  $elemMatch: { objectType: 'user', id: self.jhendrix._id + '' }
+                }
+              },
+              function(err, notifs) {
+                if (err) { return done(err); }
+                if (notifs.length) {
+                  checkusernotificationdisappear();
+                  return;
+                }
+                return done();
+              }
+            );
+          }
+
+          var req = self.loggedInAsManager(
+            request(webserver.application)
+              .put('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
+          );
+          req.end(function(err, res) {
+            expect(res.status).to.equal(200);
+            checkusernotificationexists(function(err, notif) {
+              if (err) { return done(err); }
+              var req = self.loggedInAsManager(
+                request(webserver.application)
+                  . delete('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
+              );
+              req.end(function(err, res) {
+                expect(res.status).to.equal(204);
+                currenttry = 0;
+                checkusernotificationdisappear();
+              });
+            });
+          });
+        });
+      });
+    });
+
   });
 
   describe('GET /api/communities/:id/membership', function() {
