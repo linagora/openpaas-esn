@@ -40,29 +40,6 @@ function mockCore() {
   });
 }
 
-function mockConfiguration(config) {
-  mockModule('servers.config', {
-    webserver: {
-      enabled: config.webserver.enabled,
-      virtualhosts: config.webserver.virtualhosts,
-      port: config.webserver.port,
-      ip: config.webserver.ip,
-      ssl_port: config.webserver.ssl_port,
-      ssl_ip: config.webserver.ssl_ip,
-      ssl_key: config.webserver.ssl_key,
-      ssl_cert: config.webserver.ssl_cert
-    },
-    wsserver: {
-      enabled: config.wsserver.enabled,
-      port: config.wsserver.port,
-      options: config.wsserver.options
-    },
-    webrtc: {
-      enabled: config.webrtc.enabled
-    }
-  });
-}
-
 function mockESNApplication() {
   var application = new AwesomeModule(ESN_MODULE_PREFIX + 'esn', {
     dependencies: [
@@ -84,9 +61,8 @@ function mockESNApplication() {
   manager.appendLoader(loader);
 }
 
-function setupManager(config) {
+function setupManager() {
   mockCore();
-  mockConfiguration(config);
   mockESNApplication();
   core.moduleManager = manager;
   return manager;

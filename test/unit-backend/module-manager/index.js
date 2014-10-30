@@ -83,11 +83,7 @@ describe('The module manager', function() {
         'linagora.esn.core.user'
       ];
       var mm = require(this.testEnv.basePath + '/backend/module-manager');
-      mm.setupManager({
-        webserver: {},
-        wsserver: {},
-        webrtc: {}
-      });
+      mm.setupManager();
       var registeredModules = this.registeredMocks.map(function(m) { return m.name;});
       registeredModules.sort();
       expect(registeredModules).to.deep.equal(coreModules);
@@ -96,11 +92,7 @@ describe('The module manager', function() {
     it('should add itself to the core object', function() {
       mockery.registerMock('awesome-module-manager', this.mmMock);
       var mm = require(this.testEnv.basePath + '/backend/module-manager');
-      mm.setupManager({
-        webserver: {},
-        wsserver: {},
-        webrtc: {}
-      });
+      mm.setupManager();
       expect(this.core).to.have.property('moduleManager');
       expect(this.core.moduleManager).to.be.an('object');
       expect(this.core.moduleManager).to.have.property('appendLoader');
@@ -126,6 +118,7 @@ describe('The module manager', function() {
         };
       };
     });
+
     it('should create a code loader with the module as a parameter', function() {
       mockery.registerMock('awesome-module-manager', this.mmMock);
       var mm = require(this.testEnv.basePath + '/backend/module-manager');
@@ -134,6 +127,7 @@ describe('The module manager', function() {
       expect(this.registeredMocks[0]).to.have.property('name');
       expect(this.registeredMocks[0].name).to.equal('linagora.esn.core.test');
     });
+
     it('should append the code loader', function() {
       mockery.registerMock('awesome-module-manager', this.mmMock);
       var mm = require(this.testEnv.basePath + '/backend/module-manager');

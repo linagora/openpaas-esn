@@ -82,7 +82,7 @@ wsserver.start = start;
 
 var awesomeWsServer = new AwesomeModule('linagora.esn.core.wsserver', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.servers.config', 'conf'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'conf'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver')
   ],
   lib: function(dependencies, callback) {
@@ -90,7 +90,7 @@ var awesomeWsServer = new AwesomeModule('linagora.esn.core.wsserver', {
     return callback(null, api);
   },
   start: function(dependencies, callback) {
-    var config = dependencies('conf');
+    var config = dependencies('conf')('default');
 
     if ( !config.wsserver.enabled ) {
       logger.warn('The websocket server will not start as expected by the configuration.');
