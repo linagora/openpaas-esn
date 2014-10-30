@@ -6,6 +6,7 @@ var express = require('express');
 var store = require('./socketstore');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var ESN_MODULE_PREFIX = require('../module-manager').ESN_MODULE_PREFIX;
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -80,10 +81,10 @@ function start(port, options, callback) {
 
 wsserver.start = start;
 
-var awesomeWsServer = new AwesomeModule('linagora.esn.core.wsserver', {
+var awesomeWsServer = new AwesomeModule(ESN_MODULE_PREFIX + 'wsserver', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'conf'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver')
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf'),
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'webserver', 'webserver')
   ],
   lib: function(dependencies, callback) {
     var api = wsserver;

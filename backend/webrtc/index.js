@@ -6,6 +6,7 @@ var conference = require('../core/conference');
 var logger = require('../core/logger');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var ESN_MODULE_PREFIX = require('../module-manager').ESN_MODULE_PREFIX;
 
 var webrtcserver = {
   started: false,
@@ -88,11 +89,11 @@ var start = function(webserver, wsserver, callback) {
 
 webrtcserver.start = start;
 
-var awesomeWebRTCServer = new AwesomeModule('linagora.esn.core.webrtcserver', {
+var awesomeWebRTCServer = new AwesomeModule(ESN_MODULE_PREFIX + 'webrtcserver', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'conf'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver', 'webserver'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf'),
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'webserver', 'webserver'),
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'wsserver', 'wsserver')
   ],
   lib: function(dependencies, callback) {
     var api = webrtcserver;
