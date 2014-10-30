@@ -851,22 +851,44 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         community: '='
       },
       templateUrl: '/views/modules/community/community-members-widget.html',
-      controller: function($scope) {
-
+      link: function($scope, element, attrs) {
+        $scope.inSlicesOf = attrs.inSlicesOf && angular.isNumber(parseInt(attrs.inSlicesOf, 10)) ?
+          parseInt(attrs.inSlicesOf, 10) : 3;
         $scope.error = false;
+
+        function sliceMembers(members) {
+          if ($scope.inSlicesOf < 1 || !angular.isArray(members)) {
+            return members;
+          }
+          var array = [];
+          for (var i = 0; i < members.length; i++) {
+            var chunkIndex = parseInt(i / $scope.inSlicesOf, 10);
+            var isFirst = (i % $scope.inSlicesOf === 0);
+            if (isFirst) {
+              array[chunkIndex] = [];
+            }
+            array[chunkIndex].push(members[i]);
+          }
+          return array;
+        }
 
         $scope.updateMembers = function() {
           communityAPI.getMembers($scope.community._id, {limit: 16}).then(function(result) {
-            $scope.members = result.data;
             var total = parseInt(result.headers('X-ESN-Items-Count'));
-            $scope.more = total - $scope.members.length;
+            var members = result.data;
+            $scope.more = total - members.length;
+            $scope.members = sliceMembers(members);
           }, function() {
             $scope.error = true;
           });
         };
 
-        $rootScope.$on('community:join', $scope.updateMembers);
-        $rootScope.$on('community:leave', $scope.updateMembers);
+        var communityJoinRemover = $rootScope.$on('community:join', $scope.updateMembers);
+        var communityLeaveRemover = $rootScope.$on('community:leave', $scope.updateMembers);
+        element.on('$destroy', function() {
+          communityJoinRemover();
+          communityLeaveRemover();
+        });
         $scope.updateMembers();
       }
     };
