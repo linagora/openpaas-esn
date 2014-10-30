@@ -114,7 +114,7 @@ var awesomeWebRTCServer = new AwesomeModule('linagora.esn.core.webrtcserver', {
     var wsserver = dependencies('wsserver').io;
     var webserver = dependencies('webserver').application;
     webrtcserver.start(webserver, wsserver, function(err) {
-      if ( err ) {
+      if (err) {
         logger.warn('webrtc server failed to start', err);
       }
       callback.apply(this, arguments);

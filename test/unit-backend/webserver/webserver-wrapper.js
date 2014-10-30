@@ -30,7 +30,7 @@ describe('the webserver-wrapper', function() {
       webserver: {
         addJSInjection: function(namespace, injection) {
           expect(namespace).to.equal('myModule');
-          expect(injection).to.deep.equal({ 'mymodule.js': [ 'esn', 'welcome' ] });
+          expect(injection).to.deep.equal({ 'mymodule.js': ['esn', 'welcome'] });
           done();
         }
       }
@@ -47,7 +47,7 @@ describe('the webserver-wrapper', function() {
       webserver: {
         addCSSInjection: function(namespace, injection) {
           expect(namespace).to.equal('myModule');
-          expect(injection).to.deep.equal({ 'mymodule.css': [ 'esn', 'welcome' ] });
+          expect(injection).to.deep.equal({ 'mymodule.css': ['esn', 'welcome'] });
           done();
         }
       }

@@ -6,8 +6,8 @@ function WebServerWrapper(server) {
   var webserver = server;
 
   function buildInjection(files, innerApps) {
-    files = files instanceof Array ? files: [files];
-    innerApps = innerApps instanceof Array ? innerApps: [innerApps];
+    files = files instanceof Array ? files : [files];
+    innerApps = innerApps instanceof Array ? innerApps : [innerApps];
 
     var injection = {};
     files.forEach(function(file) {

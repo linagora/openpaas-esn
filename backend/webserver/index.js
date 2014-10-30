@@ -117,8 +117,8 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
   start: function(dependencies, callback) {
     var config = dependencies('conf')('default');
 
-    if ( !config.webserver.enabled ) {
-      logger.warn('The webserver will not start as expected by the configuration.')
+    if (!config.webserver.enabled) {
+      logger.warn('The webserver will not start as expected by the configuration.');
       return callback();
     }
 
@@ -133,9 +133,9 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
     webserver.ssl_key = config.webserver.ssl_key;
     webserver.ssl_cert = config.webserver.ssl_cert;
     webserver.start(function(err) {
-      if ( err ) {
+      if (err) {
         logger.error('Web server failed to start', err);
-        if ( err.syscall === 'listen' && err.code === 'EADDRINUSE' ) {
+        if (err.syscall === 'listen' && err.code === 'EADDRINUSE') {
           logger.info('Something is already listening on the Web server port', config.webserver.port);
         }
       }
