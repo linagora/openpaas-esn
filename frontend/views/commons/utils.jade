@@ -1,0 +1,12 @@
+mixin injectJSFromModules(module, injections)
+   each files, key in injections
+      each modules, file in files
+         if (modules.indexOf(module) !== -1)
+            script(src='/' + key + '/js/' + file)
+
+mixin injectCSSFromModules(module, injections)
+   each files, key in injections
+      each modules, file in files
+         if (modules.indexOf(module) !== -1)
+            link(rel='stylesheet', href='/' + key + '/css/' + file)
+
