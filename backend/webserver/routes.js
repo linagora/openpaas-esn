@@ -76,6 +76,9 @@ exports = module.exports = function(application) {
 
   application.get('/api/monitoring', require('./controllers/monitoring'));
 
+  var caldav = require('./controllers/caldavserver');
+  application.get('/api/caldavserver', authorize.requiresAPILogin, caldav.getCaldavUrl);
+
   var documentstore = require('./controllers/document-store');
   application.put('/api/document-store/connection', documentstore.store);
   application.put('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
