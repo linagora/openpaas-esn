@@ -65,7 +65,6 @@ describe('The module manager', function() {
         'linagora.esn.core.domain',
         'linagora.esn.core.elasticsearch',
         'linagora.esn.core.email',
-        'linagora.esn.core.esn',
         'linagora.esn.core.esn-config',
         'linagora.esn.core.feedback',
         'linagora.esn.core.filestore',
@@ -78,7 +77,6 @@ describe('The module manager', function() {
         'linagora.esn.core.notification',
         'linagora.esn.core.passport',
         'linagora.esn.core.pubsub',
-        'linagora.esn.core.servers.config',
         'linagora.esn.core.templates',
         'linagora.esn.core.user'
       ];

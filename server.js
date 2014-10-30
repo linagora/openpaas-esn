@@ -19,7 +19,12 @@ core.init();
 logger.info('OpenPaaS Core bootstraped, configured in %s mode', process.env.NODE_ENV);
 
 function startESN(callback) {
-  moduleManager.manager.fire('start', 'linagora.esn.core.esn');
+  moduleManager.manager.fire('start', [
+    'myModule',
+    'linagora.esn.core.webserver',
+    'linagora.esn.core.wsserver',
+    'linagora.esn.core.webrtcserver'
+  ]);
   callback();
 }
 
