@@ -490,16 +490,14 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         community: '='
       },
       templateUrl: '/views/modules/community/community-pending-invitation-display.html',
-      link: function($scope) {
-        $scope.sending = false;
-        $scope.done = false;
-
+      link: function($scope, $element) {
+        var button = $element.find('.btn');
         $scope.cancel = function() {
-          $scope.sending = true;
+          button.attr('disabled', 'disabled');
           communityAPI.cancelRequestMembership($scope.community._id, $scope.request.user._id).then(function() {
-            $scope.done = true;
-          }).finally (function() {
-            $scope.sending = false;
+            button.hide();
+          }, function() {
+            button.removeAttr('disabled');
           });
         };
       }

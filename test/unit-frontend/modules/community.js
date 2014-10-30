@@ -2703,6 +2703,34 @@ describe('The Community Angular module', function() {
           this.scope.$digest();
           element.find('.btn').click();
         });
+
+        it('should hide the button on success', function() {
+          var defer = this.$q.defer();
+          this.communityAPI.cancelRequestMembership = function() {
+            return defer.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          defer.resolve();
+          var button = element.find('.btn');
+          button.click();
+          this.scope.$digest();
+          expect(button).to.be.hidden;
+        });
+
+        it('should enable the button on failure', function() {
+          var defer = this.$q.defer();
+          this.communityAPI.cancelRequestMembership = function() {
+            return defer.promise;
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          defer.reject();
+          var button = element.find('.btn');
+          button.click();
+          this.scope.$digest();
+          expect(button).to.be.enabled;
+        });
       });
     });
   });

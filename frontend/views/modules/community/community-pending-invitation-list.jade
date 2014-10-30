@@ -4,12 +4,12 @@
 
 .row(ng-if="isCommunityManager()", ng-controller="communityPendingMembershipRequestsController")
 
-  .col-xs-12.alert.alert-info(ng-show="loading", role="alert")
+  .col-xs-12.alert.alert-info#loading(ng-show="loading", role="alert")
       p #{__('Loading sent invitations')}...
-  .col-xs-12.alert.alert-danger(ng-show="error", role="alert")
+  .col-xs-12.alert.alert-danger#error(ng-show="error", role="alert")
     p #{__('Error while loading sent invitations')}.
 
-  .col-xs-12(ng-show="!error")
+  .col-xs-12#list(ng-show="!error")
     .row(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
       community-pending-invitation-display(request="request", community="community")
       .vertiz-space
