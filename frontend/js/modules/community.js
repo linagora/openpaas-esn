@@ -458,6 +458,66 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       templateUrl: '/views/modules/community/community-display.html'
     };
   })
+  .directive('communityPendingInvitationList', ['communityAPI', '$animate', function(communityAPI, $animate) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-pending-invitation-list.html',
+      link: function($scope, $element) {
+        var calling = false;
+
+        function getErrorElement() {
+          return $($element.find('[error-container]')[0]);
+
+        }
+
+        function getLoadingElement() {
+          return $($element.find('[loading-container]')[0]);
+        }
+
+        $scope.updatePendingRequestsList = function() {
+          if (calling) {
+            return;
+          }
+
+          getLoadingElement().removeClass('hidden');
+          getErrorElement().addClass('hidden');
+          calling = true;
+
+          communityAPI.getRequestMemberships($scope.community._id, {}).then(function(response) {
+            $scope.requests = response.data;
+          }, function() {
+            getErrorElement().removeClass('hidden');
+          }).finally (function() {
+            calling = false;
+            getLoadingElement().addClass('hidden');
+          });
+        };
+
+        $scope.updatePendingRequestsList();
+      }
+    };
+  }])
+  .directive('communityPendingInvitationDisplay', ['communityAPI', function(communityAPI) {
+    return {
+      restrict: 'E',
+      scope: {
+        request: '=',
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-pending-invitation-display.html',
+      link: function($scope, $element) {
+        var button = $element.find('.btn');
+        $scope.cancel = function() {
+          button.attr('disabled', 'disabled');
+          communityAPI.cancelRequestMembership($scope.community._id, $scope.request.user._id).then(function() {
+            button.hide();
+          }, function() {
+            button.removeAttr('disabled');
+          });
+        };
+      }
+    };
+  }])
   .directive('communityDescription', function() {
     return {
       restrict: 'E',

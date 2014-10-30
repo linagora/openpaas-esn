@@ -1,18 +1,22 @@
 .row
-  .col-xs-12.esn-panel.community-summary
-    community-description(community="community")
+  .row
+    .col-xs-12.esn-panel.community-summary
+      community-description(community="community")
 
-  .col-xs-12.esn-panel(ng-if='!canRead()')
-    p.text-center.community-not-allowed #{__('You are no allowed to see the members of this community')}
+  .vertiz-space
 
-.row(ng-if="canRead()", ng-controller="communityMembersController")
-  .col-xs-12.alert-danger(ng-show="error", role="alert")
-    p #{__('Error while getting community members')}.
-  .col-xs-12.esn-panel
-    .members-infinite-list
-      infinite-list
-        .row(ng-repeat="member in members")
-          member-display(member="member.user", community="community")
-        .vertiz-space
-    .throbber-container.text-center
-      div.throbber(openpaas-logo-spinner, spinner-key='membersSpinner')
+  .row.esn-panel.members-list
+    .col-xs-12
+
+      .row(ng-show='isCommunityManager()')
+        ul.nav.nav-pills.nav-justified
+          li(ng-class="{active: selected === 'members' || selected === undefined}")
+            a(ng-click="selected = 'members'", href="") #{__('Members')}
+          li(ng-class="{active: selected === 'membership'}")
+            a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
+
+      .row(ng-if='selected === "members" || selected === undefined')
+        include ./community-members-list
+
+      .row(ng-if='selected === "membership"')
+        community-pending-invitation-list
