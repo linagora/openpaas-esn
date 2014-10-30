@@ -49,6 +49,7 @@ describe('The module manager', function() {
       var coreModules = ['linagora.esn.core.activitystreams',
         'linagora.esn.core.addressbook',
         'linagora.esn.core.auth',
+        'linagora.esn.core.caldav',
         'linagora.esn.core.community',
         'linagora.esn.core.conference',
         'linagora.esn.core.config',

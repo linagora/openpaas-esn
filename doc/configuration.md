@@ -73,6 +73,23 @@ Defines the Redis configuration using the standard Redis options defined in the 
       "port": 6379
     }
 
+## CalDAV
+
+Defines the CalDAV server configuration:
+
+    {
+      "_id": "caldav",
+      "backend": {
+        "url": "http://localhost:80"
+      },
+      "frontend": {
+        "url": "http://localhost:80"
+      }
+    }
+
+- backend.url: URL use by the ESN to send request to the CalDAV server
+- frontend.url: URL use by the browser (client) to send request to the CalDAV server
+
 ## Web
 
 Defines the general Web settings for the ESN deployment.
