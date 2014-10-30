@@ -1,5 +1,6 @@
 doctype html
 html
+  include ../commons/utils
   head
     meta(charset='utf8')
     base(href='/')
@@ -8,6 +9,7 @@ html
     link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
     link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
     link(rel='stylesheet', href='/css/themes/default.css')
+    +injectCSSFromModules('welcome', cssInjections)
     script(src='/components/jquery/dist/jquery.min.js')
     script(src='/components/underscore/underscore.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')
@@ -22,6 +24,7 @@ html
     script(src='js/modules/login.js')
     script(src='js/modules/form-helper.js')
     script(src='js/modules/modernizr.js')
+    +injectJSFromModules('welcome', jsInjections)
 
   body.esn-welcome-app(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     #wrap
