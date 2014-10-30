@@ -2597,46 +2597,50 @@ describe('The Community Angular module', function() {
     });
   });
 
-  describe('The communityPendingMembershipRequestsController controller', function() {
-    beforeEach(inject(function($rootScope, $controller, $q) {
+  describe('The communityPendingInvitationList directive', function() {
+
+    beforeEach(function() {
+      var self = this;
       this.communityAPI = {
-        getRequestMemberships: function() {
-          var defer = $q.defer();
-          return defer.promise;
-        }
+        cancelRequestMembership: function() {},
+        get: function() {}
       };
-      this.scope = $rootScope.$new();
+      angular.mock.module(function($provide) {
+        $provide.value('communityAPI', self.communityAPI);
+      });
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
       this.$q = $q;
-      this.scope.loading = true;
+      this.scope = $rootScope.$new();
       this.scope.community = {
-        _id: 123
+        _id: 'community1',
+        creator: 'user1'
       };
 
-      $controller('communityPendingMembershipRequestsController', {
-        $rootScope: this.$rootScope,
-        $scope: this.scope,
-        communityAPI: this.communityAPI
-      });
+      this.html = '<community-pending-invitation-list community="community"></community-pending-invitation-list>';
     }));
 
     it('should call communityAPI.getRequestMemberships', function(done) {
+
       this.communityAPI.getRequestMemberships = function() {
         return done();
       };
-
-      this.scope.loading = false;
-      this.scope.updatePendingRequestsList();
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
     });
 
     it('should set the communityAPI.getRequestMemberships result in the scope', function(done) {
+      this.$compile(this.html)(this.scope);
+
       var result = [1, 2, 3];
       var defer = this.$q.defer();
       this.communityAPI.getRequestMemberships = function() {
         return defer.promise;
       };
-
-      this.scope.loading = false;
-      this.scope.updatePendingRequestsList();
       defer.resolve({
         data: result
       });
@@ -2645,17 +2649,16 @@ describe('The Community Angular module', function() {
       done();
     });
 
-    it('should set error when communityAPI.getRequestMemberships fails', function(done) {
+    it('should display error when communityAPI.getRequestMemberships fails', function(done) {
+      var element = this.$compile(this.html)(this.scope);
       var defer = this.$q.defer();
       this.communityAPI.getRequestMemberships = function() {
         return defer.promise;
       };
-
-      this.scope.loading = false;
-      this.scope.updatePendingRequestsList();
       defer.reject();
       this.scope.$digest();
-      expect(this.scope.error).to.be.true;
+      var error = element.find('#error');
+      expect(error).to.not.have.class('hidden');
       done();
     });
   });
