@@ -20,18 +20,20 @@ logger.info('OpenPaaS Core bootstraped, configured in %s mode', process.env.NODE
 
 function startESN(callback) {
   moduleManager.manager.fire('start', [
-    'myModule',
     'linagora.esn.core.webserver',
     'linagora.esn.core.wsserver',
     'linagora.esn.core.webrtcserver'
-  ]);
-  callback();
+  ]).then(function() {
+    callback(null);
+  }, function(err) {
+    callback(err);
+  });
 }
 
 async.series([core.templates.inject, startESN], function(err) {
-  if ( err ) {
+  if (err) {
     logger.error('Fatal error:', err);
-    if ( err.stack ) {
+    if (err.stack) {
       logger.error(err.stack);
     }
     process.exit(1);
