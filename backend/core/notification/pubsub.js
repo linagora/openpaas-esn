@@ -118,16 +118,16 @@ function augmentToMembershipRequest(data, callback) {
   return callback(null, notification);
 }
 
-function augmentToMembershipDeclined(data, callback) {
+function augmentToMembershipRefused(data, callback) {
 
   var notification = {
     subject: {objectType: 'user', id: data.author},
-    verb: {label: 'ESN_MEMBERSHIP_DECLINED', text: 'declined your request to join'},
+    verb: {label: 'ESN_MEMBERSHIP_REFUSED', text: 'declined your request to join'},
     complement: {objectType: 'community', id: data.community},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:membership:declined',
+    category: 'community:membership:refused',
     read: false,
     interactive: false,
     target: [{objectType: 'user', id: data.target + ''}]
@@ -153,17 +153,30 @@ function membershipAcceptedHandler(data, callback) {
 }
 module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
 
-function membershipRemoveHandler(data, callback) {
-  if (data.actor !== 'manager') {
-    return;
-  }
+function membershipRequestRefuseHandler(data, callback) {
   async.waterfall([
-      augmentToMembershipDeclined.bind(null, data),
+      augmentToMembershipRefused.bind(null, data),
       createUserNotification
     ],
     onSuccessPublishIntoGlobal(callback));
 }
-module.exports.membershipRemoveHandler = membershipRemoveHandler;
+module.exports.membershipRequestRefuseHandler = membershipRequestRefuseHandler;
+
+function membershipInvitationCancelHandler(data) {
+  var query = {
+    category: 'community:membership:invite',
+    'complement.objectType': 'community',
+    'complement.id': data.community,
+    target: {
+      $elemMatch: { objectType: 'user', id: data.target + '' }
+    }
+  };
+  usernotification.remove(query, function(err) {
+    if (err) {
+      logger.err('Unable to remove community invitation usernotification: ' + err.message);
+    }
+  });
+}
 
 function init() {
   if (initialized) {
@@ -173,7 +186,8 @@ function init() {
   localpubsub.topic('community:join').subscribe(communityJoinHandler);
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
   localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
-  localpubsub.topic('community:membership:remove').subscribe(membershipRemoveHandler);
+  localpubsub.topic('community:membership:invitation:cancel').subscribe(membershipInvitationCancelHandler);
+  localpubsub.topic('community:membership:request:refuse').subscribe(membershipRequestRefuseHandler);
   initialized = true;
 }
 module.exports.init = init;

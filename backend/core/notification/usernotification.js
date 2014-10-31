@@ -94,3 +94,9 @@ function create(usernotification, callback) {
   userNotificationInstance.save(callback);
 }
 module.exports.create = create;
+
+function remove(query, callback) {
+  UserNotification.remove(query, callback);
+}
+
+module.exports.remove = remove;

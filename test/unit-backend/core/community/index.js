@@ -1226,139 +1226,337 @@ describe('The communities module', function() {
     });
   });
 
-  describe('The removeMembershipRequest fn', function() {
+  describe('cancelMembershipInvitation() method', function() {
     beforeEach(function() {
-      var mongoose = {
-        model: function() {
-        }
-      };
+      var mongoose = { model: function() { } };
       mockery.registerMock('mongoose', mongoose);
-    });
 
-    it('should send back error when author is null', function() {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({}, null, {}, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
-    });
-
-    it('should send back error when target is null', function() {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({}, {}, null, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
-    });
-
-    it('should send back error when community is null', function() {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest(null, {}, {}, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
-    });
-
-    it('should send back error if community type is not restricted or private', function() {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.removeMembershipRequest({type: 'open'}, {}, {}, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
-      communityModule.removeMembershipRequest({type: 'confidential'}, {}, {}, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
-    });
-
-    it('should send back error if user is already member of the community', function() {
-      var user = { _id: 'uid' };
-      var author = { _id: 'uuid' };
-      var community = {
-        _id: 'cid',
-        type: 'restricted'
+      this.membership = {
+        user: 'user1',
+        workflow: 'invitation'
       };
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.isMember = function(c, u, callback) {
-        expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
-        callback(null, true);
-      };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
+      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.user = {_id: 'user1'};
+      this.manager = {_id: 'manager1'};
     });
 
-    it('should send back error if the check if the user is member of the community fails', function() {
-      var user = { _id: 'uid' };
-      var author = { _id: 'uuid' };
-      var community = {
-        _id: 'cid',
-        type: 'restricted'
+    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+      var self = this;
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+      communityModule.cleanMembershipRequest = function(community, userid, callback) {
+        expect(community).to.deep.equal(self.community);
+        expect(userid).to.equal('user1');
+        expect(callback).to.be.a('function');
       };
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.isMember = function(c, u, callback) {
-        expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
-        callback(new Error('isMember fail'));
-      };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
-      });
+      communityModule.cancelMembershipInvitation(this.community, this.membership, this.manager, function() {});
     });
 
-    it('should fail if the updated community save fails', function() {
-      var user = { _id: this.helpers.objectIdMock('uid') };
-      var author = { _id: this.helpers.objectIdMock('uuid') };
-      var community = {
-        _id: 'cid',
-        type: 'restricted',
-        membershipRequests: [
-          {user: this.helpers.objectIdMock('otherUser')}
-        ],
-        save: function(callback) {
-          return callback(new Error('save fail'));
+    describe('cleanMembershipRequest callback', function() {
+      var localstub = {}, globalstub = {};
+      beforeEach(function() {
+        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+      });
+
+      it('should fire callback with an error in case of an error', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(new Error('test error'));
+        };
+        function onResponse(err, resp) {
+          expect(err).to.be.ok;
+          expect(err.message).to.equal('test error');
+          done();
         }
-      };
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.isMember = function(c, u, callback) {
-        expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
-        callback(null, false);
-      };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
-        expect(err).to.exist;
-        expect(c).to.not.exist;
+        communityModule.cancelMembershipInvitation(this.community, this.membership, this.manager, onResponse);
       });
+
+      it('should fire a community:membership:invitation:cancel topic message', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+          expect(localstub.topics).to.have.property('community:membership:invitation:cancel');
+          expect(localstub.topics['community:membership:invitation:cancel'].data).to.have.length(1);
+          expect(localstub.topics['community:membership:invitation:cancel'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'user1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          expect(globalstub.topics).to.have.property('community:membership:invitation:cancel');
+          expect(globalstub.topics['community:membership:invitation:cancel'].data).to.have.length(1);
+          expect(globalstub.topics['community:membership:invitation:cancel'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'user1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          done();
+        };
+        function onResponse(err, resp) {
+        }
+        communityModule.cancelMembershipInvitation(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire the callback', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+        };
+        communityModule.cancelMembershipInvitation(this.community, this.membership, this.manager, done);
+      });
+
     });
 
-    it('should remove the request and return the updated community', function() {
-      var user = { _id: this.helpers.objectIdMock('uid') };
-      var author = { _id: this.helpers.objectIdMock('uuid') };
-      var community = {
-        _id: 'cid',
-        type: 'restricted',
-        membershipRequests: [
-          {user: this.helpers.objectIdMock('uid')}
-        ],
-        save: function(callback) {
-          return callback(null, community);
-        }
+  });
+
+  describe('refuseMembershipRequest() method', function() {
+    beforeEach(function() {
+      var mongoose = { model: function() { } };
+      mockery.registerMock('mongoose', mongoose);
+
+      this.membership = {
+        user: 'user1',
+        workflow: 'invitation'
       };
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
-      communityModule.isMember = function(c, u, callback) {
-        expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
-        callback(null, false);
-      };
-      communityModule.removeMembershipRequest(community, author, user, '', function(err, c) {
-        expect(err).to.not.exist;
-        expect(c).to.exist;
-        expect(c.membershipRequests.length).to.equal(0);
-      });
+      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.user = {_id: 'user1'};
+      this.manager = {_id: 'manager1'};
     });
+
+    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+      var self = this;
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+      communityModule.cleanMembershipRequest = function(community, userid, callback) {
+        expect(community).to.deep.equal(self.community);
+        expect(userid).to.equal('user1');
+        expect(callback).to.be.a('function');
+      };
+      communityModule.refuseMembershipRequest(this.community, this.membership, this.manager, function() {});
+    });
+
+    describe('cleanMembershipRequest callback', function() {
+      var localstub = {}, globalstub = {};
+      beforeEach(function() {
+        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+      });
+
+      it('should fire callback with an error in case of an error', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(new Error('test error'));
+        };
+        function onResponse(err, resp) {
+          expect(err).to.be.ok;
+          expect(err.message).to.equal('test error');
+          done();
+        }
+        communityModule.refuseMembershipRequest(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire a community:membership:request:refuse topic message', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+          expect(localstub.topics).to.have.property('community:membership:request:refuse');
+          expect(localstub.topics['community:membership:request:refuse'].data).to.have.length(1);
+          expect(localstub.topics['community:membership:request:refuse'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'user1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          expect(globalstub.topics).to.have.property('community:membership:request:refuse');
+          expect(globalstub.topics['community:membership:request:refuse'].data).to.have.length(1);
+          expect(globalstub.topics['community:membership:request:refuse'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'user1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          done();
+        };
+        function onResponse(err, resp) {
+        }
+        communityModule.refuseMembershipRequest(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire the callback', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+        };
+        communityModule.refuseMembershipRequest(this.community, this.membership, this.manager, done);
+      });
+
+    });
+
+  });
+
+  describe('declineMembershipInvitation() method', function() {
+    beforeEach(function() {
+      var mongoose = { model: function() { } };
+      mockery.registerMock('mongoose', mongoose);
+
+      this.membership = {
+        user: 'user1',
+        workflow: 'invitation'
+      };
+      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.user = {_id: 'user1'};
+      this.manager = {_id: 'manager1'};
+    });
+
+    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+      var self = this;
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+      communityModule.cleanMembershipRequest = function(community, userid, callback) {
+        expect(community).to.deep.equal(self.community);
+        expect(userid).to.equal('user1');
+        expect(callback).to.be.a('function');
+      };
+      communityModule.declineMembershipInvitation(this.community, this.membership, this.manager, function() {});
+    });
+
+    describe('cleanMembershipRequest callback', function() {
+      var localstub = {}, globalstub = {};
+      beforeEach(function() {
+        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+      });
+
+      it('should fire callback with an error in case of an error', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(new Error('test error'));
+        };
+        function onResponse(err, resp) {
+          expect(err).to.be.ok;
+          expect(err.message).to.equal('test error');
+          done();
+        }
+        communityModule.declineMembershipInvitation(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire a community:membership:invitation:decline topic message', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+          expect(localstub.topics).to.have.property('community:membership:invitation:decline');
+          expect(localstub.topics['community:membership:invitation:decline'].data).to.have.length(1);
+          expect(localstub.topics['community:membership:invitation:decline'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'community1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          expect(globalstub.topics).to.have.property('community:membership:invitation:decline');
+          expect(globalstub.topics['community:membership:invitation:decline'].data).to.have.length(1);
+          expect(globalstub.topics['community:membership:invitation:decline'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'community1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          done();
+        };
+        function onResponse(err, resp) {
+        }
+        communityModule.declineMembershipInvitation(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire the callback', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+        };
+        communityModule.declineMembershipInvitation(this.community, this.membership, this.manager, done);
+      });
+
+    });
+
+  });
+
+
+  describe('cancelMembershipRequest() method', function() {
+    beforeEach(function() {
+      var mongoose = { model: function() { } };
+      mockery.registerMock('mongoose', mongoose);
+
+      this.membership = {
+        user: 'user1',
+        workflow: 'invitation'
+      };
+      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.user = {_id: 'user1'};
+      this.manager = {_id: 'manager1'};
+    });
+
+    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+      var self = this;
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+      communityModule.cleanMembershipRequest = function(community, userid, callback) {
+        expect(community).to.deep.equal(self.community);
+        expect(userid).to.equal('user1');
+        expect(callback).to.be.a('function');
+      };
+      communityModule.cancelMembershipRequest(this.community, this.membership, this.manager, function() {});
+    });
+
+    describe('cleanMembershipRequest callback', function() {
+      var localstub = {}, globalstub = {};
+      beforeEach(function() {
+        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+      });
+
+      it('should fire callback with an error in case of an error', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(new Error('test error'));
+        };
+        function onResponse(err, resp) {
+          expect(err).to.be.ok;
+          expect(err.message).to.equal('test error');
+          done();
+        }
+        communityModule.declineMembershipInvitation(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire a community:membership:request:cancel topic message', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+          expect(localstub.topics).to.have.property('community:membership:request:cancel');
+          expect(localstub.topics['community:membership:request:cancel'].data).to.have.length(1);
+          expect(localstub.topics['community:membership:request:cancel'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'community1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          expect(globalstub.topics).to.have.property('community:membership:request:cancel');
+          expect(globalstub.topics['community:membership:request:cancel'].data).to.have.length(1);
+          expect(globalstub.topics['community:membership:request:cancel'].data[0]).to.deep.equal({
+            author: 'manager1',
+            target: 'community1',
+            membership: { user: 'user1', workflow: 'invitation' },
+            community: 'community1'
+          });
+          done();
+        };
+        function onResponse(err, resp) {
+        }
+        communityModule.cancelMembershipRequest(this.community, this.membership, this.manager, onResponse);
+      });
+
+      it('should fire the callback', function(done) {
+        var communityModule = require(this.testEnv.basePath + '/backend/core/community');
+        communityModule.cleanMembershipRequest = function(community, userid, callback) {
+          callback(null, community);
+        };
+        communityModule.cancelMembershipRequest(this.community, this.membership, this.manager, done);
+      });
+
+    });
+
   });
 
   describe('The getMembershipRequests fn', function() {
