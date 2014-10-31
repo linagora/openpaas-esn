@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type'])
+angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput'])
   .run(['objectTypeResolver', 'communityAPI', function(objectTypeResolver, communityAPI) {
     objectTypeResolver.register('community', communityAPI.get);
   }])
@@ -64,6 +64,11 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return Restangular.one('communities', id).one('membership', member).remove();
     }
 
+    function getInvitableUsers(id, options) {
+      var query = options || {};
+      return Restangular.one('communities', id).all('invitablepeople').getList(query);
+    }
+
     return {
       list: list,
       get: get,
@@ -76,7 +81,8 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       leave: leave,
       requestMembership: requestMembership,
       cancelRequestMembership: cancelRequestMembership,
-      getRequestMemberships: getRequestMemberships
+      getRequestMemberships: getRequestMemberships,
+      getInvitableUsers: getInvitableUsers
     };
   }])
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
@@ -1103,4 +1109,119 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         }
       }
     };
-  });
+  })
+  .directive('communityInviteUsers', ['$q', 'communityAPI', 'communityService', 'session',
+    function($q, communityAPI, communityService, session) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        community: '='
+      },
+      templateUrl: '/views/modules/community/community-invite-users.html',
+      link: function($scope, $element) {
+        $scope.placeholder = 'Enter a user name or email';
+        $scope.displayProperty = 'displayName';
+        $scope.running = false;
+
+        $scope.getErrorDiv = function() {
+          return $element.children('[error-container]');
+        };
+        $scope.getRunningDiv = function() {
+          return $element.children('.form-container').children('form').children('fieldset').find('[running-container]');
+        };
+        $scope.getButtonContent = function() {
+          return $element.children('.form-container').children('form').children('fieldset').find('[button-content]');
+        };
+        $scope.getSuccessDiv = function() {
+          return $element.children('.form-container').children('form').children('fieldset').find('[success-container]');
+        };
+
+        $scope.showErrorMessage = function() {
+          $scope.getErrorDiv().removeClass('hidden');
+        };
+        $scope.hideErrorMessage = function() {
+          $scope.getErrorDiv().addClass('hidden');
+        };
+
+        $scope.showRunning = function() {
+          $scope.getRunningDiv().removeClass('hidden');
+          $scope.getButtonContent().addClass('hidden');
+        };
+        $scope.hideRunning = function() {
+          $scope.getRunningDiv().addClass('hidden');
+          $scope.getButtonContent().removeClass('hidden');
+        };
+
+        $scope.showSuccessMessage = function() {
+          $scope.getSuccessDiv().removeClass('hidden');
+        };
+        $scope.hideSuccessMessage = function() {
+          $scope.getSuccessDiv().addClass('hidden');
+        };
+
+        $scope.resetMessages = function() {
+          $scope.hideErrorMessage();
+          $scope.hideSuccessMessage();
+        };
+
+        $scope.getInvitableUsers = function(query) {
+          var deferred = $q.defer();
+          communityAPI.getInvitableUsers($scope.community._id, {search: query, limit: 5}).then(
+            function(response) {
+              response.data.forEach(function(user) {
+                if (user.firstname && user.lastname) {
+                  user.displayName = user.firstname + ' ' + user.lastname;
+                }
+                else {
+                  user.displayName = user.emails[0];
+                }
+              });
+              deferred.resolve(response);
+            },
+            function(error) {
+              deferred.resolve(error);
+            }
+          );
+          return deferred.promise;
+        };
+
+        $scope.inviteUsers = function() {
+          if(!$scope.users || $scope.users.length === 0) {
+            return;
+          }
+          if ($scope.running) {
+            return;
+          }
+          $scope.resetMessages();
+          $scope.running = true;
+          $scope.showRunning();
+
+          var promises = [];
+          $scope.users.forEach(function(user) {
+            promises.push(communityAPI.requestMembership($scope.community._id, user._id));
+          });
+
+          $q.all(promises).then(
+            function() {
+              $scope.users = [];
+              $scope.running = false;
+              $scope.hideRunning();
+              $scope.showSuccessMessage();
+            },
+            function(error) {
+              $scope.users = [];
+              $scope.error = error.data;
+              $scope.running = false;
+              $scope.hideRunning();
+              $scope.showErrorMessage();
+            }
+          );
+        };
+
+        if (communityService.isManager($scope.community, session.user)) {
+          $element.removeClass('hidden');
+        }
+      }
+    };
+  }]);
