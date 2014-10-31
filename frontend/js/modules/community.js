@@ -64,7 +64,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       return Restangular.one('communities', id).one('membership', member).remove();
     }
 
-    function getInvitableUsers(id, options) {
+    function getInvitablePeople(id, options) {
       var query = options || {};
       return Restangular.one('communities', id).all('invitablepeople').getList(query);
     }
@@ -82,7 +82,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       requestMembership: requestMembership,
       cancelRequestMembership: cancelRequestMembership,
       getRequestMemberships: getRequestMemberships,
-      getInvitableUsers: getInvitableUsers
+      getInvitablePeople: getInvitablePeople
     };
   }])
   .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
@@ -1165,9 +1165,9 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
           $scope.hideSuccessMessage();
         };
 
-        $scope.getInvitableUsers = function(query) {
+        $scope.getInvitablePeople = function(query) {
           var deferred = $q.defer();
-          communityAPI.getInvitableUsers($scope.community._id, {search: query, limit: 5}).then(
+          communityAPI.getInvitablePeople($scope.community._id, {search: query, limit: 5}).then(
             function(response) {
               response.data.forEach(function(user) {
                 if (user.firstname && user.lastname) {
