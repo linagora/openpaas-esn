@@ -369,6 +369,33 @@ describe('The Community Angular module', function() {
         expect(promise.then).to.be.a.function;
       });
     });
+
+    describe('getInvitablePeople() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend, Restangular) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        Restangular.setFullResponse(true);
+      }));
+
+      it('should send a GET request to /communities/:id/invitablepeople', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/invitablepeople').respond(200, []);
+        this.communityAPI.getInvitablePeople(this.communityId);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a GET request to /communities/:id/membership?limit=X&offset=Y', function() {
+        this.$httpBackend.expectGET('/communities/' + this.communityId + '/invitablepeople?limit=5&search=query').respond(200, []);
+        this.communityAPI.getInvitablePeople(this.communityId, {limit: 5, search: 'query'});
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.getInvitablePeople(123);
+        expect(promise.then).to.be.a.function;
+      });
+    });
   });
 
   describe('communityCreateController controller', function() {
@@ -2860,19 +2887,21 @@ describe('The Community Angular module', function() {
 
   describe('communityPendingInvitationDisplay directive', function() {
 
-    beforeEach(function() {
+    beforeEach(function () {
       var self = this;
       this.communityAPI = {
-        cancelRequestMembership: function() {},
-        get: function() {}
+        cancelRequestMembership: function () {
+        },
+        get: function () {
+        }
       };
-      angular.mock.module(function($provide) {
+      angular.mock.module(function ($provide) {
         $provide.value('communityAPI', self.communityAPI);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function ($rootScope, $compile, $q) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
@@ -2891,10 +2920,10 @@ describe('The Community Angular module', function() {
       this.html = '<community-pending-invitation-display community="community" request="request"></community-pending-invitation-display>';
     }));
 
-    describe('The cancel button', function() {
-      describe('on click', function() {
-        it('should call the cancelRequestMembership', function(done) {
-          this.communityAPI.cancelRequestMembership = function() {
+    describe('The cancel button', function () {
+      describe('on click', function () {
+        it('should call the cancelRequestMembership', function (done) {
+          this.communityAPI.cancelRequestMembership = function () {
             done();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2902,9 +2931,9 @@ describe('The Community Angular module', function() {
           element.find('.btn').click();
         });
 
-        it('should hide the button on success', function() {
+        it('should hide the button on success', function () {
           var defer = this.$q.defer();
-          this.communityAPI.cancelRequestMembership = function() {
+          this.communityAPI.cancelRequestMembership = function () {
             return defer.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2916,9 +2945,9 @@ describe('The Community Angular module', function() {
           expect(button).to.be.hidden;
         });
 
-        it('should enable the button on failure', function() {
+        it('should enable the button on failure', function () {
           var defer = this.$q.defer();
-          this.communityAPI.cancelRequestMembership = function() {
+          this.communityAPI.cancelRequestMembership = function () {
             return defer.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2928,6 +2957,231 @@ describe('The Community Angular module', function() {
           button.click();
           this.scope.$digest();
           expect(button).to.be.enabled;
+        });
+      });
+    });
+  });
+
+  describe('The communityInviteUsers directive', function() {
+    beforeEach(function() {
+      var communityAPI = {
+        get: function () {
+        },
+        join: function () {
+        }
+      };
+
+      var communityService = {
+        isManager: function () {
+          return false;
+        }
+      };
+
+      angular.mock.module('esn.community');
+      angular.mock.module(function ($provide) {
+        $provide.value('communityAPI', communityAPI);
+        $provide.value('communityService', communityService);
+      });
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, communityService) {
+      this.communityAPI = communityAPI;
+      this.communityService = communityService;
+      this.scope.community = {
+        _id: '123'
+      };
+      this.html = '<community-invite-users community="community"/>';
+    }));
+
+    it('should be hidden if current user is not a community manager', function() {
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      expect(element.hasClass('hidden')).to.be.true;
+    });
+
+    it('should not be hidden if current user is a community manager', function() {
+      this.communityService = {
+        isManager: function() {
+          return true;
+        }
+      };
+      var element = this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+      expect(element.hasClass('hidden')).to.be.true;
+    });
+
+    describe('The directive controller', function () {
+      describe('The getInvitablePeople function', function () {
+        it('should call communityAPI#getInvitablePeople', function(done) {
+          var query = 'testquery';
+          var self = this;
+          this.communityAPI.getInvitablePeople = function(communityId, options) {
+            expect(communityId).to.equal(self.scope.community._id);
+            expect(options.search).to.equal(query);
+            expect(options.limit).to.equal(5);
+            return done();
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.getInvitablePeople(query);
+        });
+
+        it('should set displaynames on users if communityAPI#getInvitablePeople works', function() {
+          var query = 'testquery';
+          var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
+          var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
+          var res = {
+            data: [ user1, user2 ]
+          };
+          this.communityAPI.getInvitablePeople = function() {
+            return {
+              then: function(successfunction) {
+                successfunction(res);
+              }
+            };
+          };
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.getInvitablePeople(query);
+
+          expect(res.data).to.have.length(2);
+          expect(res.data[0].displayName).to.equal('pipo1 pipo1');
+          expect(res.data[1].displayName).to.equal(user2.emails[0]);
+        });
+      });
+
+      describe('The inviteUsers function', function () {
+        it('should call communityAPI#requestMembership for each user in the scope', function() {
+          var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
+          var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
+          var users = [user1, user2];
+          var self = this;
+          var call = 0;
+          this.communityAPI.requestMembership = function(communityId, userId) {
+            expect(communityId).to.equal(self.scope.community._id);
+            expect(userId).to.exist;
+            expect(userId).to.equal(users[call]._id);
+            call++;
+            return {};
+          };
+
+          this.$q.all = function(promises) {
+            expect(promises).to.have.length(2);
+            return {
+              then: function() {}
+            };
+          };
+
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.users = users;
+          iscope.inviteUsers();
+        });
+
+        it('should not call communityAPI#requestMembership if there are no user in the scope', function(done) {
+          this.communityAPI.requestMembership = function(communityId, userId) {
+            done(new Error('unexpected call'));
+          };
+
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.users = [];
+          iscope.inviteUsers();
+          done();
+        });
+
+        it('should not call communityAPI#requestMembership if there already is a running call', function(done) {
+          this.communityAPI.requestMembership = function(communityId, userId) {
+            done(new Error('unexpected call'));
+          };
+
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.users = [{_id: '123'}];
+          iscope.running = true;
+          iscope.inviteUsers();
+          done();
+        });
+
+        it('should show success message if rest calls are OK', function() {
+          var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
+          var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
+          var users = [user1, user2];
+          var self = this;
+          var call = 0;
+          this.communityAPI.requestMembership = function(communityId, userId) {
+            expect(communityId).to.equal(self.scope.community._id);
+            expect(userId).to.exist;
+            expect(userId).to.equal(users[call]._id);
+            call++;
+            return {};
+          };
+
+          this.$q.all = function(promises) {
+            expect(promises).to.have.length(2);
+            return {
+              then: function(successCB) {
+                successCB();
+              }
+            };
+          };
+
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.users = users;
+          iscope.inviteUsers();
+
+          expect(iscope.users).to.have.length(0);
+          expect(iscope.running).to.be.false;
+          expect(iscope.getRunningDiv().hasClass('hidden')).to.be.true;
+          expect(iscope.getButtonContent().hasClass('hidden')).to.be.false;
+          expect(iscope.getErrorDiv().hasClass('hidden')).to.be.true;
+          expect(iscope.getSuccessDiv().hasClass('hidden')).to.be.false;
+        });
+
+        it('should show success message if rest calls are OK', function() {
+          var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
+          var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
+          var users = [user1, user2];
+          var self = this;
+          var call = 0;
+          this.communityAPI.requestMembership = function(communityId, userId) {
+            expect(communityId).to.equal(self.scope.community._id);
+            expect(userId).to.exist;
+            expect(userId).to.equal(users[call]._id);
+            call++;
+            return {};
+          };
+
+          var restError = new Error({details: 'oups'});
+          this.$q.all = function(promises) {
+            expect(promises).to.have.length(2);
+            return {
+              then: function(successCB, errorCB) {
+                errorCB({data: restError});
+              }
+            };
+          };
+
+          var element = this.$compile(this.html)(this.scope);
+          this.scope.$digest();
+          var iscope = element.isolateScope();
+          iscope.users = users;
+          iscope.inviteUsers();
+
+          expect(iscope.users).to.have.length(0);
+          expect(iscope.running).to.be.false;
+          expect(iscope.getRunningDiv().hasClass('hidden')).to.be.true;
+          expect(iscope.getButtonContent().hasClass('hidden')).to.be.false;
+          expect(iscope.getErrorDiv().hasClass('hidden')).to.be.false;
+          expect(iscope.getSuccessDiv().hasClass('hidden')).to.be.true;
+          expect(iscope.error).to.equal(restError);
         });
       });
     });
