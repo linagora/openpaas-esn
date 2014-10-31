@@ -1187,7 +1187,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
         };
 
         $scope.inviteUsers = function() {
-          if(!$scope.users || $scope.users.length === 0) {
+          if (!$scope.users || $scope.users.length === 0) {
             return;
           }
           if ($scope.running) {

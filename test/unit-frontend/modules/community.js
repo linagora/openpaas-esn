@@ -2887,21 +2887,21 @@ describe('The Community Angular module', function() {
 
   describe('communityPendingInvitationDisplay directive', function() {
 
-    beforeEach(function () {
+    beforeEach(function() {
       var self = this;
       this.communityAPI = {
-        cancelRequestMembership: function () {
+        cancelRequestMembership: function() {
         },
-        get: function () {
+        get: function() {
         }
       };
-      angular.mock.module(function ($provide) {
+      angular.mock.module(function($provide) {
         $provide.value('communityAPI', self.communityAPI);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function ($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
@@ -2920,10 +2920,10 @@ describe('The Community Angular module', function() {
       this.html = '<community-pending-invitation-display community="community" request="request"></community-pending-invitation-display>';
     }));
 
-    describe('The cancel button', function () {
-      describe('on click', function () {
-        it('should call the cancelRequestMembership', function (done) {
-          this.communityAPI.cancelRequestMembership = function () {
+    describe('The cancel button', function() {
+      describe('on click', function() {
+        it('should call the cancelRequestMembership', function(done) {
+          this.communityAPI.cancelRequestMembership = function() {
             done();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2931,9 +2931,9 @@ describe('The Community Angular module', function() {
           element.find('.btn').click();
         });
 
-        it('should hide the button on success', function () {
+        it('should hide the button on success', function() {
           var defer = this.$q.defer();
-          this.communityAPI.cancelRequestMembership = function () {
+          this.communityAPI.cancelRequestMembership = function() {
             return defer.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2945,9 +2945,9 @@ describe('The Community Angular module', function() {
           expect(button).to.be.hidden;
         });
 
-        it('should enable the button on failure', function () {
+        it('should enable the button on failure', function() {
           var defer = this.$q.defer();
-          this.communityAPI.cancelRequestMembership = function () {
+          this.communityAPI.cancelRequestMembership = function() {
             return defer.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -2965,26 +2965,31 @@ describe('The Community Angular module', function() {
   describe('The communityInviteUsers directive', function() {
     beforeEach(function() {
       var communityAPI = {
-        get: function () {
+        get: function() {
         },
-        join: function () {
+        join: function() {
         }
       };
 
       var communityService = {
-        isManager: function () {
+        isManager: function() {
           return false;
         }
       };
 
       angular.mock.module('esn.community');
-      angular.mock.module(function ($provide) {
+      angular.mock.module(function($provide) {
         $provide.value('communityAPI', communityAPI);
         $provide.value('communityService', communityService);
       });
+      module('jadeTemplates');
     });
 
     beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, communityService) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
       this.communityAPI = communityAPI;
       this.communityService = communityService;
       this.scope.community = {
@@ -3010,8 +3015,8 @@ describe('The Community Angular module', function() {
       expect(element.hasClass('hidden')).to.be.true;
     });
 
-    describe('The directive controller', function () {
-      describe('The getInvitablePeople function', function () {
+    describe('The directive controller', function() {
+      describe('The getInvitablePeople function', function() {
         it('should call communityAPI#getInvitablePeople', function(done) {
           var query = 'testquery';
           var self = this;
@@ -3032,7 +3037,7 @@ describe('The Community Angular module', function() {
           var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
           var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
           var res = {
-            data: [ user1, user2 ]
+            data: [user1, user2]
           };
           this.communityAPI.getInvitablePeople = function() {
             return {
@@ -3052,7 +3057,7 @@ describe('The Community Angular module', function() {
         });
       });
 
-      describe('The inviteUsers function', function () {
+      describe('The inviteUsers function', function() {
         it('should call communityAPI#requestMembership for each user in the scope', function() {
           var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
           var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
