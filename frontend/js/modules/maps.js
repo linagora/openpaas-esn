@@ -1,9 +1,5 @@
 angular.module('esn.maps', ['ngGeolocation'])
-  .factory('geoAPI', ['$http', '$geolocation', function($http, $geolocation) {
-
-    function getCurrentPosition() {
-      return $geolocation.getCurrentPosition();
-    }
+  .factory('osmAPI', ['$http', function($http) {
 
     function reverse(latitude, longitude, config) {
       config = config || {};
@@ -20,6 +16,25 @@ angular.module('esn.maps', ['ngGeolocation'])
     }
 
     return {
+      reverse: reverse
+    };
+  }])
+  .factory('geoAPI', ['$geolocation', 'osmAPI', function($geolocation, osmAPI) {
+
+    function supported() {
+      return 'geolocation' in $window.navigator;
+    }
+
+    function getCurrentPosition() {
+      return $geolocation.getCurrentPosition();
+    }
+
+    function reverse(latitude, longitude, config) {
+      return osmAPI.reverse(latitude, longitude, config);
+    }
+
+    return {
+      supported: supported,
       reverse: reverse,
       getCurrentPosition: getCurrentPosition
     };
@@ -39,9 +54,45 @@ angular.module('esn.maps', ['ngGeolocation'])
         position: '='
       },
       templateUrl: '/views/modules/maps/displayPosition.html',
-      controller: function(scope) {
-        console.log('Position to display', scope.position);
-      }
+      controller: 'mapDisplayController'
     }
+  })
+  .controller('mapDisplayController', function($scope) {
+
+    angular.extend($scope, {
+      defaults: {
+        scrollWheelZoom: false
+      }, center: {
+        lat: 48.8534100,
+        lng: 2.3488000,
+        zoom: 10
+      }
+    });
+
+    $scope.showMeMap = false;
+
+    $scope.toggleMapDisplay = function(position) {
+      if (!position) {
+        return;
+      }
+
+      $scope.showMeMap = !$scope.showMeMap;
+
+      $scope.markers = {
+        me: {
+          focus: true,
+          draggable: false,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+      };
+
+      $scope.center = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        zoom: 16
+      };
+
+    };
   })
 ;

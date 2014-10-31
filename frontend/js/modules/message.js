@@ -26,13 +26,20 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
           $scope.position.message = data.data.display_name;
           $scope.position.display_name = data.data.display_name;
-          $scope.position.load = false;
         }, function(err) {
           console.log(err);
+        }).finally(function() {
           $scope.position.load = false;
         });
       }, function(err) {
-        console.log('Error while getting position', err);
+        $scope.position.error = true;
+        if (err.error.message.match(/denied/)) {
+          $scope.position.denied = true;
+        }
+        if (err.error.code === 2) {
+          $scope.position.unsupported = true;
+        }
+      }).finally(function() {
         $scope.position.load = false;
       });
     };
@@ -248,44 +255,6 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/templates/emailMessage.html'
-    };
-  })
-  .controller('whatsupMapController', function($scope) {
-
-    angular.extend($scope, {
-      defaults: {
-        scrollWheelZoom: false
-      }, center: {
-        lat: 48.8534100,
-        lng: 2.3488000,
-        zoom: 10
-      }
-    });
-
-    $scope.showMeMap = false;
-
-    $scope.toggleMapDisplay = function(position) {
-      if (!position) {
-        return;
-      }
-
-      $scope.showMeMap = !$scope.showMeMap;
-
-      $scope.markers = {
-        me: {
-          focus: true,
-          draggable: false,
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        }
-      };
-
-      $scope.center = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        zoom: 16
-      };
-
     };
   })
   .directive('whatsupEdition', function() {
