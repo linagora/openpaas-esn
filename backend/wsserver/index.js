@@ -4,6 +4,9 @@ var logger = require('../core/logger');
 var io = require('socket.io');
 var express = require('express');
 var store = require('./socketstore');
+var AwesomeModule = require('awesome-module');
+var Dependency = AwesomeModule.AwesomeModuleDependency;
+var ESN_MODULE_PREFIX = require('../module-manager').ESN_MODULE_PREFIX;
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -13,8 +16,6 @@ var wsserver = {
   started: false,
   namespaces: WEBSOCKETS_NAMESPACES
 };
-
-exports = module.exports = wsserver;
 
 /*
  * options should be {'match origin protocol' : true, 'transports' : ['websocket']}
@@ -39,7 +40,7 @@ function start(port, options, callback) {
   }
   wsserver.started = true;
 
-  var webserver = require('../webserver');
+  var webserver = require('../webserver').webserver;
   wsserver.port = port;
   var realCallback = callback;
   if (webserver && webserver.sslserver && webserver.ssl_port === wsserver.port) {
@@ -79,3 +80,32 @@ function start(port, options, callback) {
 }
 
 wsserver.start = start;
+
+var awesomeWsServer = new AwesomeModule(ESN_MODULE_PREFIX + 'wsserver', {
+  dependencies: [
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf'),
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'webserver', 'webserver')
+  ],
+  lib: function(dependencies, callback) {
+    var api = wsserver;
+    return callback(null, api);
+  },
+  start: function(dependencies, callback) {
+    var config = dependencies('conf')('default');
+
+    if (!config.wsserver.enabled) {
+      logger.warn('The websocket server will not start as expected by the configuration.');
+      return callback();
+    }
+
+    wsserver.start(config.wsserver.port, config.wsserver.options, function(err) {
+      if (err) {
+        logger.error('websocket server failed to start', err);
+      }
+      callback.apply(this, arguments);
+    });
+  }
+});
+
+module.exports.wsserver = wsserver;
+module.exports.awesomeWsServer = awesomeWsServer;

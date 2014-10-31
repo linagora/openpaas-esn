@@ -6,6 +6,8 @@ var serverApplication = require('./application');
 var https = require('https');
 var http = require('http');
 var fs = require('fs');
+var AwesomeModule = require('awesome-module');
+var Dependency = AwesomeModule.AwesomeModuleDependency;
 
 var webserver = {
   application: serverApplication,
@@ -20,8 +22,8 @@ var webserver = {
   started: false
 };
 
-exports = module.exports = webserver;
-
+var jsInjections = {};
+var cssInjections = {};
 
 function start(callback) {
   if (!webserver.port && !webserver.ssl_port) {
@@ -91,3 +93,56 @@ function start(callback) {
 }
 
 webserver.start = start;
+
+function addJSInjection(moduleName, injection) {
+  jsInjections[moduleName] = injection;
+}
+
+webserver.addJSInjection = addJSInjection;
+
+function addCSSInjection(moduleName, injection) {
+  cssInjections[moduleName] = injection;
+}
+
+webserver.addCSSInjection = addCSSInjection;
+
+var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
+  dependencies: [
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'conf')
+  ],
+  lib: function(dependencies, callback) {
+    var api = webserver;
+    return callback(null, api);
+  },
+  start: function(dependencies, callback) {
+    var config = dependencies('conf')('default');
+
+    if (!config.webserver.enabled) {
+      logger.warn('The webserver will not start as expected by the configuration.');
+      return callback();
+    }
+
+    webserver.application.locals.jsInjections = jsInjections;
+    webserver.application.locals.cssInjections = cssInjections;
+
+    webserver.virtualhosts = config.webserver.virtualhosts;
+    webserver.port = config.webserver.port;
+    webserver.ip = config.webserver.ip;
+    webserver.ssl_port = config.webserver.ssl_port;
+    webserver.ssl_ip = config.webserver.ssl_ip;
+    webserver.ssl_key = config.webserver.ssl_key;
+    webserver.ssl_cert = config.webserver.ssl_cert;
+    webserver.start(function(err) {
+      if (err) {
+        logger.error('Web server failed to start', err);
+        if (err.syscall === 'listen' && err.code === 'EADDRINUSE') {
+          logger.info('Something is already listening on the Web server port', config.webserver.port);
+        }
+      }
+      callback.apply(this, arguments);
+    });
+  }
+});
+
+module.exports.webserver = webserver;
+module.exports.awesomeWebServer = awesomeWebServer;

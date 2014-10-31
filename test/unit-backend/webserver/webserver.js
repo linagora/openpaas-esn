@@ -26,7 +26,7 @@ describe('The Webserver module', function() {
     mockery.registerMock('https', httpsMock);
     mockery.registerMock('express', expressMock);
 
-    var webserver = require(basePath + '/backend/webserver');
+    var webserver = require(basePath + '/backend/webserver').webserver;
 
     var returnData = {
       webserver: webserver,
@@ -37,7 +37,7 @@ describe('The Webserver module', function() {
   }
 
   it('should contains all needed properties', function() {
-    var webserver = require(this.testEnv.basePath + '/backend/webserver');
+    var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
     expect(webserver).to.exist;
     expect(webserver).to.be.an.Object;
     expect(webserver.application).to.exist;
@@ -131,6 +131,14 @@ describe('The Webserver module', function() {
         expect(sslserverInstance === serverMock.webserver.sslserver).to.be.true;
         done();
       });
+    });
+  });
+
+  describe('The AwesomeWebServer', function() {
+    it('should provide a start state', function() {
+      var module = require(this.testEnv.basePath + '/backend/webserver').awesomeWebServer;
+      expect(module.settings.start).to.exist;
+      expect(module.settings.start).to.be.a('function');
     });
   });
 });

@@ -15,7 +15,7 @@ describe('The conference API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver');
+      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
       self.mongoose = require('mongoose');
       done();
     });

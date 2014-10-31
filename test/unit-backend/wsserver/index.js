@@ -11,7 +11,7 @@ describe('The WebSockets server module', function() {
   });
 
   it('should contains all needed properties.', function() {
-    var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+    var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
     expect(wsserver).to.exist;
     expect(wsserver).to.be.an.Object;
     expect(wsserver.namespaces).to.exist;
@@ -33,7 +33,9 @@ describe('The WebSockets server module', function() {
       it('should call socket.io listen with a new express server', function(done) {
 
         var webserverMock = {
-          port: 8080
+          webserver: {
+            port: 8080
+          }
         };
 
         var ioMock = {
@@ -58,7 +60,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('../webserver', webserverMock);
         mockery.registerMock('express', expressMock);
 
-        var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+        var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
 
         wsserver.start(1234, function() {});
       });
@@ -69,14 +71,16 @@ describe('The WebSockets server module', function() {
       it('should call socket.io listen with the express server as an argument', function(done) {
 
         var webserverMock = {
-          port: 8080,
-          server: 'sslserver'
+          webserver: {
+            port: 8080,
+            server: 'sslserver'
+          }
         };
 
         var ioMock = {
           listen: function(target) {
-            expect(wsserver.server).to.equal(webserverMock.server);
-            expect(target).to.equal(webserverMock.server);
+            expect(wsserver.server).to.equal(webserverMock.webserver.server);
+            expect(target).to.equal(webserverMock.webserver.server);
             return done();
           }
         };
@@ -84,7 +88,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('../webserver', webserverMock);
 
-        var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+        var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
 
         wsserver.start(8080, function() {});
       });
@@ -95,14 +99,16 @@ describe('The WebSockets server module', function() {
       it('should call socket.io listen with the express sslserver as an argument', function(done) {
 
         var webserverMock = {
-          ssl_port: 443,
-          sslserver: 'sslserver'
+          webserver: {
+            ssl_port: 443,
+            sslserver: 'sslserver'
+          }
         };
 
         var ioMock = {
           listen: function(target) {
-            expect(wsserver.server).to.equal(webserverMock.sslserver);
-            expect(target).to.equal(webserverMock.sslserver);
+            expect(wsserver.server).to.equal(webserverMock.webserver.sslserver);
+            expect(target).to.equal(webserverMock.webserver.sslserver);
             return done();
           }
         };
@@ -110,7 +116,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('../webserver', webserverMock);
 
-        var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+        var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
 
         wsserver.start(443, function() {});
       });
@@ -125,7 +131,7 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
-      var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
 
       wsserver.start(function() {done();});
     });
@@ -152,7 +158,7 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
-      var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
       var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
       wsserver.start(function() {
         var socket = {
@@ -200,7 +206,7 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
-      var wsserver = require(this.testEnv.basePath + '/backend/wsserver');
+      var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
       var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
       wsserver.start(function() {
         var socket = new Socket({user: '123'});
@@ -217,4 +223,15 @@ describe('The WebSockets server module', function() {
       });
     });
   });
+
+  describe('The AwesomeWsServer', function() {
+    it('should provide a start state', function() {
+      mockery.registerMock('./middleware/setup-sessions', function() {});
+      mockery.registerMock('socket.io', {});
+      var module = require(this.testEnv.basePath + '/backend/wsserver').awesomeWsServer;
+      expect(module.settings.start).to.exist;
+      expect(module.settings.start).to.be.a('function');
+    });
+  });
+
 });

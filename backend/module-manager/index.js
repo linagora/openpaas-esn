@@ -7,8 +7,6 @@ var AwesomeModuleManager = require('awesome-module-manager');
 var AwesomeModule = require('awesome-module');
 var ESN_MODULE_PREFIX = 'linagora.esn.core.';
 
-
-
 var manager = new AwesomeModuleManager(core.logger);
 
 function mockModule(name, lib) {

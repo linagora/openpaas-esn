@@ -51,7 +51,7 @@ describe('User API', function() {
       Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
       User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
       Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      webserver = require(self.testEnv.basePath + '/backend/webserver');
+      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
 
       user = new User({password: password, emails: [email]});
       user.save(function(err, saved) {
