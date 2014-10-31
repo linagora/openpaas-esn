@@ -3,17 +3,17 @@
     img.media-object(src='/images/user.png')
   .media-body
     .notification-body
-      a(ng-href="/#/profile/{{user._id}}") {{notification.user.firstname}} {{notification.user.lastname}}
-      span &nbsp;{{notification._id}}&nbsp;
-      span &nbsp;{{notification.verb.text}}&nbsp;
-      a.complement(href="#") {{notification.complement.id}}
+      a(ng-href="/#/profile/{{user._id}}") {{::notification.user.firstname}} {{::notification.user.lastname}}
+      span &nbsp;{{::notification._id}}&nbsp;
+      span &nbsp;{{::notification.verb.text}}&nbsp;
+      a.complement(href="#") {{::notification.complement.id}}
       span &nbsp;
       strong {{ notification.read }}
-      span.pull-right.date.hidden-xs(am-time-ago="notification.timestamps.creation")
+      span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
     .notification-description(ng-show='notification.description')
-      span {{notification.description}}
+      span {{::notification.description}}
     .notification-actions
       span.pull-left
         span(ng-repeat='action in notification.action')
-          button.btn.btn-info(type="submit") {{action.display.text}}
+          button.btn.btn-info(type="submit") {{::action.display.text}}
           &nbsp;
