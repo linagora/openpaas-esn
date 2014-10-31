@@ -3,6 +3,7 @@
 var mockery = require('mockery'),
     path = require('path'),
     fs = require('fs-extra'),
+    extend = require('extend'),
     helpers = require('../helpers');
 var testConfig = require('../config/servers-conf.js');
 
@@ -136,17 +137,30 @@ before(function() {
       });
     },
 
-    createCommunity: function(title, creator, domain, done) {
+    createCommunity: function(title, creator, domain, opts, done) {
+      if (opts && !done) {
+        done = opts;
+        opts = null;
+      }
       var Community = require('mongoose').model('Community');
       var json = {
         title: title,
+        type: 'open',
         creator: creator._id || creator,
         domain_ids: [domain._id || domain],
         members: [{user: creator._id}]
       };
+      if (opts) {
+        if (typeof opts === 'function') {
+          json = opts(json);
+        } else {
+          extend(true, json, opts);
+        }
+      }
       var community = new Community(json);
       return community.save(done);
     },
+
     addUsersInCommunity: function(community, users, done) {
       var Community = require('mongoose').model('Community');
       var async = require('async');
