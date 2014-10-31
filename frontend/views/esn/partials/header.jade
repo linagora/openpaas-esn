@@ -28,8 +28,7 @@ div(ng-controller='selectActiveItem')
             div.esn-navbar-side
               div.esn-item.esn-user-notification(ng-controller="userNotificationController")
                 span
-                  button.btn-link.noborder(ng-controller="userNotificationPopoverController" type="button" data-template="/views/modules/user-notification/user-notification.html" data-placement="bottom-left" ng-click='togglePopover()' bs-popover)
-                    i.fa.fa-bell-o(ng-class="{'animated swing open': popoverObject.open}")
+                  user-notification-button
                   span.badge(data-ng-hide="!unreadCount.count") {{ unreadCount.count }}
             div.esn-navbar-main
               .esn-item(ng-class='{active: selected === 1}')

@@ -1,4 +1,4 @@
-.popover(tabindex="-1" user-notification-popover)
+.popover(ng-controller='userNotificationPopoverController', tabindex="-1" user-notification-popover)
   .arrow
   .popover-title #{__('Notifications')}
     a.pull-right(href="", ng-show="false") #{__('Mark as read')}

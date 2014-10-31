@@ -64,6 +64,33 @@ angular.module('esn.user-notification',
       });
     }
   ])
+  .directive('userNotificationButton', ['$popover', function($popover) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/user-notification/user-notification-button.html',
+      scope: true,
+      link: function($scope, $element) {
+
+        $scope.togglePopover = function() {
+          if (!$scope.popover) {
+            $scope.popover = $popover($element, {
+                scope: $scope,
+                trigger: 'manual',
+                placement: 'bottom-left',
+                template: '/views/modules/user-notification/user-notification.html'
+              }
+            );
+            $scope.popover.$promise.then($scope.popover.show);
+
+          } else {
+            $scope.popover.hide();
+            $scope.popover.destroy();
+            $scope.popover = null;
+          }
+        };
+      }
+    };
+  }])
   .controller('userNotificationPopoverController', [
     '$scope',
     'userNotificationAPI',
@@ -78,13 +105,6 @@ angular.module('esn.user-notification',
       $scope.notifications = [];
       $scope.totalNotifications = 0;
       $scope.display = false;
-      $scope.popoverObject = {
-        open: false
-      };
-
-      $scope.togglePopover = function() {
-        $scope.popoverObject.open = !$scope.popoverObject.open;
-      };
 
       function updateData(err, items, page) {
         if (err) {
@@ -313,7 +333,7 @@ angular.module('esn.user-notification',
           function hidePopover() {
             if (scope.$hide) {
               loaded = false;
-              scope.popoverObject.open = false;
+              scope.togglePopover();
               scope.$hide();
               scope.$apply();
             }
@@ -326,7 +346,6 @@ angular.module('esn.user-notification',
 
             angular.element('body').on('click', hidePopover);
           }, 0);
-
           // page height - url bar (mobile browser) - 1er topbar - 2e topbar - padding arrow - popover title - button next previous - bottom padding
           var popoverMaxHeight = $window.innerHeight - MOBILE_BROWSER_URL_BAR -
             angular.element('.topbar').height() - angular.element('.esn-navbar-wrapper').height() -
