@@ -10,3 +10,5 @@ tmp/
 db.json
 *.css
 *.css.map
+gjslint.xml
+jshint.xml

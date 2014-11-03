@@ -1,12 +1,15 @@
 'use strict';
 
 var fs = require('fs-extra');
+var gjslint = require('closure-linter-wrapper').gjslint;
 
 var conf_path = './test/config/';
 var servers = require( conf_path + 'servers-conf');
 var config = require('./config/default.json');
 
 module.exports = function(grunt) {
+  var CI = grunt.option('ci');
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
@@ -15,11 +18,13 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
-      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js'],
       options: {
         jshintrc: '.jshintrc',
-        ignores: ['test/frontend/karma-include/*', 'frontend/js/modules/modernizr.js']
-      }
+        ignores: ['test/frontend/karma-include/*', 'frontend/js/modules/modernizr.js'],
+        reporter: CI && 'checkstyle',
+        reporterOutput: CI && 'jshint.xml'
+      },
+      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js'],
     },
     shell: {
       redis: {
@@ -372,27 +377,33 @@ module.exports = function(grunt) {
 
   grunt.registerTask('gjslint', 'run the closure linter', function() {
     var done = this.async();
-
-    var child = require('child_process').spawn('python', [
-      './scripts/gjslint.py',
-      '--disable',
-      '0110',
+    var flagsArray = [
+      '--disable 0110',
       '--nojsdoc',
-      '-r',
-      'test',
-      '-r',
-      'backend',
-      '-r',
-      'frontend/js',
-      '-e',
-      'test/frontend/karma-include',
-      '-x',
-      'frontend/js/modules/modernizr.js'
-    ]);
+      '-r test',
+      '-r backend',
+      '-r frontend/js',
+      '-e test/frontend/karma-include',
+      '-x frontend/js/modules/modernizr.js'
+    ];
 
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close',function(code) { done(code ? false : true); });
+    var reporter;
+    if (CI) {
+      reporter = { name: 'gjslint_xml', dest: 'gjslint.xml' };
+    } else {
+      reporter = { name: 'console' };
+    }
+
+    gjslint({
+      flags: flagsArray,
+      reporter: reporter
+    }, function(err, result) {
+      if (CI && !err) {
+        grunt.log.ok('Report "gjslint.xml" created.');
+      }
+
+      done(!err);
+    });
   });
 
   grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', function() {
