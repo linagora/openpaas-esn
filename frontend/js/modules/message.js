@@ -33,11 +33,11 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         });
       }, function(err) {
         $scope.position.error = true;
-        if (err.error.message.match(/denied/)) {
+        if (err.error.code === 1) {
           $scope.position.denied = true;
         }
         if (err.error.code === 2) {
-          $scope.position.unsupported = true;
+          $scope.position.unavailable = true;
         }
       }).finally(function() {
         $scope.position.load = false;
