@@ -140,13 +140,20 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
           $scope.position.message = data.data.display_name;
           $scope.position.display_name = data.data.display_name;
-          $scope.position.load = false;
         }, function(err) {
           console.log(err);
+        }).finally(function() {
           $scope.position.load = false;
         });
       }, function(err) {
-        console.log('Error while getting position', err);
+        $scope.position.error = true;
+        if (err.error.code === 1) {
+          $scope.position.denied = true;
+        }
+        if (err.error.code === 2) {
+          $scope.position.unavailable = true;
+        }
+      }).finally(function() {
         $scope.position.load = false;
       });
     };
