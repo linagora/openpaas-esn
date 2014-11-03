@@ -24,7 +24,7 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         $scope.position.coords = data.coords;
         $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
-          $scope.position.message = data.data.display_name;
+          $scope.position.message = data.data.display_name || $scope.position.message;
           $scope.position.display_name = data.data.display_name;
         }, function(err) {
           console.log(err);
@@ -138,7 +138,7 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         $scope.position.coords = data.coords;
         $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
-          $scope.position.message = data.data.display_name;
+          $scope.position.message = data.data.display_name || $scope.position.message;
           $scope.position.display_name = data.data.display_name;
         }, function(err) {
           console.log(err);
