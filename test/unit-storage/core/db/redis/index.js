@@ -31,14 +31,19 @@ describe('The redis module', function() {
     var logger = {
       error: function() {
         done(new Error());
-      }
+      },
+      info: function() {}
     };
     mockery.registerMock('../../../core/logger', logger);
 
+    var self = this;
     var esnconfig = function() {
       return {
         get: function(callback) {
-          return callback(null, {});
+          return callback(null, {
+            host: 'localhost',
+            port: self.testEnv.serversConfig.redis.port
+          });
         }
       };
     };
