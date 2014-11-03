@@ -5,6 +5,7 @@ var Notification = mongoose.model('Notification');
 var pubsub = require('../pubsub').global;
 var async = require('async');
 var topic = pubsub.topic('notification:api');
+var logger = require('../logger');
 
 var saveOne = function(notification, parent, callback) {
   if (!notification) {
@@ -68,7 +69,7 @@ module.exports.save = function(notification, callback) {
       });
     }, function(err) {
       if (err) {
-        console.log('Fail to save notification');
+        logger.error('Fail to save notification', err.message);
       }
       return callback(err, result);
     });

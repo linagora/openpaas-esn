@@ -7,7 +7,7 @@ var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
-var logger = require('../../core').logger;
+var logger = require('../../core/logger');
 var async = require('async');
 
 function transform(community, user, callback) {
