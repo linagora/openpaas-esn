@@ -283,6 +283,28 @@ module.exports = function(grunt) {
           task: ['test-unit-storage']
         },
         src: ['Gruntfile-tests.js']
+      },
+      all_with_storage: {
+        options: {
+          log: true,
+          stdout: function(data) {
+            grunt.log.write(data);
+          },
+          stderr: function(data) {
+            grunt.log.error(data);
+          },
+          process: function(res){
+            if (res.fail){
+              grunt.config.set('esn.tests.success',false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success',true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-unit-storage', 'test-midway-backend-split']
+        },
+        src: ['Gruntfile-tests.js']
       }
     },
     watch: {
@@ -591,7 +613,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('test-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
-  grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend', 'setup-mongo-es', 'run_grunt:unit_storage', 'run_grunt:midway_backend_split', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('linters', ['jshint', 'gjslint']);
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
