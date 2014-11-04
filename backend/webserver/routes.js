@@ -170,4 +170,7 @@ exports = module.exports = function(application) {
   var feedback = require('./controllers/feedback');
   var feedbackMiddleware = require('./middleware/feedback');
   application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);
+
+  var calendars = require('./controllers/calendars');
+  application.post('/api/calendars/:id/events', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityMember, calendars.createEvent);
 };
