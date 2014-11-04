@@ -11,8 +11,11 @@
     .esn-panel(ng-if='isCommunityManager()')
       community-membership-requests-widget(community='community')
     .vertiz-space
-    community-invite-users(community="community")
+    .esn-panel
+      community-invite-users(community="community")
     .vertiz-space
-    .esn-panel(community-injections-widget='communityPageRightPanel')
+    .esn-panel
+      div(community-injections-widget='communityPageRightPanel')
+    .vertiz-space
 .col-xs-12.esn-panel(ng-if='!canRead()')
   p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}

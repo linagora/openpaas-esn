@@ -1,5 +1,7 @@
-.col-xs-12.esn-panel.hidden
-    h4 #{__('Invite people to join the community')}
+.community-membership-invite-widget.hidden
+    .title.ellipsis
+      | #{__('Invite people to join the community')}
+    hr
     .hidden.bg-danger(error-container)
         p {{error.details || error}}
     div.form-container
@@ -13,7 +15,7 @@
                     .hidden(success-container)
                         p #{__('Invitations have been sent. You will be notified when new users join the platform')}.
                 .form-group
-                    button.btn.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
+                    button.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
                         i.fa.fa-sign-in(button-content) &nbsp;
                             | #{__('Send invitations')}
                         span.hidden(running-container)
