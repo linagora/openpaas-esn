@@ -22,8 +22,7 @@ var webserver = {
   started: false
 };
 
-var jsInjections = {};
-var cssInjections = {};
+var injections = {};
 
 function start(callback) {
   if (!webserver.port && !webserver.ssl_port) {
@@ -94,17 +93,45 @@ function start(callback) {
 
 webserver.start = start;
 
-function addJSInjection(moduleName, injection) {
-  jsInjections[moduleName] = injection;
+function addJSInjection(moduleName, files, innerApps) {
+  injections[moduleName] = injections[moduleName] || {};
+  innerApps.forEach(function(innerApp) {
+    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
+    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js || [];
+    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js.concat(files);
+  });
 }
 
 webserver.addJSInjection = addJSInjection;
 
-function addCSSInjection(moduleName, injection) {
-  cssInjections[moduleName] = injection;
+function addCSSInjection(moduleName, files, innerApps) {
+  injections[moduleName] = injections[moduleName] || {};
+  innerApps.forEach(function(innerApp) {
+    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
+    injections[moduleName][innerApp].css = files;
+  });
 }
 
 webserver.addCSSInjection = addCSSInjection;
+
+function addAngularModulesInjection(moduleName, files, angularModulesNames, innerApps) {
+  injections[moduleName] = injections[moduleName] || {};
+  innerApps.forEach(function(innerApp) {
+    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
+    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js || [];
+    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js.concat(files);
+    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
+    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+  });
+}
+
+webserver.addAngularModulesInjection = addAngularModulesInjection;
+
+function getInjections() {
+  return injections;
+}
+
+webserver.getInjections = getInjections;
 
 var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
   dependencies: [
@@ -122,8 +149,7 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
       return callback();
     }
 
-    webserver.application.locals.jsInjections = jsInjections;
-    webserver.application.locals.cssInjections = cssInjections;
+    webserver.application.locals.injections = injections;
 
     webserver.virtualhosts = config.webserver.virtualhosts;
     webserver.port = config.webserver.port;

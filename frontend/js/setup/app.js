@@ -1,6 +1,8 @@
 'use strict';
 
-angular.module('setupApp', []).controller('wizardController', ['$scope', 'setupAPI', function($scope, setupAPI) {
+var angularInjections = angularInjections || [];
+
+angular.module('setupApp', [].concat(angularInjections)).controller('wizardController', ['$scope', 'setupAPI', function($scope, setupAPI) {
   $scope.settings = {};
   $scope.settings.hostname = null;
   $scope.settings.port = null;

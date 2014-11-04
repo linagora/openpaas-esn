@@ -9,7 +9,7 @@ html
     link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
     link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
     link(rel='stylesheet', href='/css/themes/default.css')
-    +injectCSSFromModules('welcome', cssInjections)
+    +injectCSSFromModules('welcome', injections)
     script(src='/components/jquery/dist/jquery.min.js')
     script(src='/components/underscore/underscore.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')
@@ -18,22 +18,23 @@ html
     script(src='/components/restangular/dist/restangular.min.js')
     script(src="/components/recaptcha_ajax/index.js")
     script(src='/components/angular-recaptcha/release/angular-recaptcha.js')
+    +injectJSFromModules('welcome', injections)
+    +injectAngularFromModules('welcome', injections)
     script(src='js/welcome/app.js')
     script(src='js/modules/invitation.js')
     script(src='js/modules/company.js')
     script(src='js/modules/login.js')
     script(src='js/modules/form-helper.js')
     script(src='js/modules/modernizr.js')
-    +injectJSFromModules('welcome', jsInjections)
 
   body.esn-welcome-app(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     #wrap
       include ./partials/header
       div(ng-view ng-cloak)
-    
+
     #unsupported.text-center
       .sorry
         a(href='http://open-paas.org/')
           img(src="/images/logo.png")
         p Sorry, your browser is not supported :-(
-        p Please upgrade to a <a href="https://www.getfirefox.com/">modern</a> <a href="https://www.google.com/chrome/browser/">browser</a>. 
+        p Please upgrade to a <a href="https://www.getfirefox.com/">modern</a> <a href="https://www.google.com/chrome/browser/">browser</a>.

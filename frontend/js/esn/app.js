@@ -1,5 +1,7 @@
 'use strict';
 
+var angularInjections = angularInjections || [];
+
 angular.module('esnApp', [
   'restangular',
   'ngRoute',
@@ -29,7 +31,7 @@ angular.module('esnApp', [
   'esn.api-notification',
   'esn.user-notification',
   'esn.object-type'
-]).config(function($routeProvider, RestangularProvider) {
+].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
       templateUrl: '/views/esn/partials/home'

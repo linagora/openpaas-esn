@@ -82,7 +82,7 @@ describe('The Webserver module', function() {
     this.testEnv.initCore(done);
   });
 
-  describe('the start property', function() {
+  describe('the start method', function() {
     it('should start the web server (http only)', function(done) {
       var serverMock = mockServer(this.testEnv.basePath);
       serverMock.webserver.port = config.webserver.port;
@@ -116,6 +116,39 @@ describe('The Webserver module', function() {
         expect(serverMock.serverHttpPort).to.be.equal(config.webserver.port);
         done();
       });
+    });
+  });
+
+  describe('The injections methods', function() {
+    it('should populate injections with a formatted data', function() {
+      var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.addJSInjection('myModule', ['myModule.js'], ['esn']);
+      serverMock.webserver.addCSSInjection('myModule', ['myModule.css'], ['esn']);
+      serverMock.webserver.addAngularModulesInjection('myModule2', ['myModule2.js'], ['esn.plugin.myModule2'], ['esn', 'welcome']);
+      serverMock.webserver.addCSSInjection('myModule2', ['myModule2.css'], ['esn', 'welcome']);
+
+      expect(serverMock.webserver.getInjections()).to.deep.equal(
+        {
+          'myModule': {
+            'esn': {
+              'js': ['myModule.js'],
+              'css': ['myModule.css']
+            }
+          },
+          'myModule2': {
+            'esn': {
+              'js': ['myModule2.js'],
+              'css': ['myModule2.css'],
+              'angular': ['esn.plugin.myModule2']
+            },
+            'welcome': {
+              'js': ['myModule2.js'],
+              'css': ['myModule2.css'],
+              'angular': ['esn.plugin.myModule2']
+            }
+          }
+        }
+      );
     });
   });
 

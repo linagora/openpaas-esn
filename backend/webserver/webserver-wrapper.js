@@ -1,27 +1,26 @@
 'use strict';
 
 var AwesomeModule = require('awesome-module');
+var util = require('util');
 
 function WebServerWrapper(server) {
   var webserver = server;
 
-  function buildInjection(files, innerApps) {
-    files = files instanceof Array ? files : [files];
-    innerApps = innerApps instanceof Array ? innerApps : [innerApps];
-
-    var injection = {};
-    files.forEach(function(file) {
-      injection[file] = innerApps;
-    });
-    return injection;
+  function asArray(values) {
+    var array = util.isArray(values) ? values : [values];
+    return array;
   }
 
   this.injectJS = function injectJS(namespace, js, innerApps) {
-    webserver.addJSInjection(namespace, buildInjection(js, innerApps));
+    webserver.addJSInjection(namespace, asArray(js), asArray(innerApps));
   };
 
   this.injectCSS = function injectCSS(namespace, css, innerApps) {
-    webserver.addCSSInjection(namespace, buildInjection(css, innerApps));
+    webserver.addCSSInjection(namespace, asArray(css), asArray(innerApps));
+  };
+
+  this.injectAngularModules = function injectAngularModules(namespace, js, moduleNames, innerApps) {
+    webserver.addAngularModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps));
   };
 
   this.addApp = function addApp(namespace, awesomeModule) {
