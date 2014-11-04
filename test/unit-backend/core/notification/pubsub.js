@@ -49,7 +49,7 @@ describe('The notification pubsub module', function() {
           description: null,
           icon: {objectType: 'icon', id: 'fa-users'},
           category: 'community:join',
-          target: [{objectType: 'community', id: '789'}]
+          target: data.target
         });
         expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
@@ -92,7 +92,7 @@ describe('The notification pubsub module', function() {
           icon: {objectType: 'icon', id: 'fa-users'},
           category: 'community:membership:invite',
           interactive: true,
-          target: [{objectType: 'user', id: '456'}]
+          target: data.target
         });
         expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
@@ -135,7 +135,7 @@ describe('The notification pubsub module', function() {
           icon: {objectType: 'icon', id: 'fa-users'},
           category: 'community:membership:request',
           interactive: true,
-          target: [{objectType: 'community', id: '789'}]
+          target: data.target
         });
         expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();

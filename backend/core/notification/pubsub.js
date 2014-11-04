@@ -40,7 +40,7 @@ function augmentToCommunityJoin(data, callback) {
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
     category: 'community:join',
-    target: [{objectType: 'community', id: data.community}]
+    target: data.target
   };
   return callback(null, notification);
 }
@@ -57,7 +57,7 @@ function augmentToMembershipAccepted(data, callback) {
     category: 'community:membership:accepted',
     read: false,
     interactive: false,
-    target: [{objectType: 'user', id: data.target + ''}]
+    target: data.target
   };
   return callback(null, notification);
 }
@@ -89,7 +89,7 @@ function augmentToMembershipInvite(data, callback) {
     icon: {objectType: 'icon', id: 'fa-users'},
     category: 'community:membership:invite',
     interactive: true,
-    target: [{objectType: 'user', id: data.target}]
+    target: data.target
   };
   return callback(null, notification);
 }
@@ -113,7 +113,7 @@ function augmentToMembershipRequest(data, callback) {
     icon: {objectType: 'icon', id: 'fa-users'},
     category: 'community:membership:request',
     interactive: true,
-    target: [{objectType: 'community', id: data.community}]
+    target: data.target
   };
   return callback(null, notification);
 }
@@ -130,7 +130,7 @@ function augmentToMembershipRefused(data, callback) {
     category: 'community:membership:refused',
     read: false,
     interactive: false,
-    target: [{objectType: 'user', id: data.target + ''}]
+    target: data.target
   };
   return callback(null, notification);
 }
@@ -167,9 +167,7 @@ function membershipInvitationCancelHandler(data) {
     category: 'community:membership:invite',
     'complement.objectType': 'community',
     'complement.id': data.community,
-    target: {
-      $elemMatch: { objectType: 'user', id: data.target + '' }
-    }
+    target: data.target
   };
   usernotification.remove(query, function(err) {
     if (err) {
