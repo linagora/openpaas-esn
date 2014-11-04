@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 describe('The usernotification middleware', function() {
 
   describe('userCanReadNotification method', function() {
-    it('should send back 403 if current user is not in target', function(done) {
+    it('should send back 403 if current user is not the target', function(done) {
       var id = mongoose.Types.ObjectId();
       var req = {
         user: {
@@ -14,7 +14,7 @@ describe('The usernotification middleware', function() {
         },
         usernotification: {
           author: mongoose.Types.ObjectId(),
-          target: []
+          target: null
         }
       };
 
@@ -32,7 +32,7 @@ describe('The usernotification middleware', function() {
       middleware(req, res, function() {});
     });
 
-    it('should call next if current user is in target', function(done) {
+    it('should call next if current user is target', function(done) {
       var id = mongoose.Types.ObjectId();
       var req = {
         user: {
@@ -40,7 +40,7 @@ describe('The usernotification middleware', function() {
         },
         usernotification: {
           author: mongoose.Types.ObjectId(),
-          target: [{objectType: 'user', id: '' + id}]
+          target: id
         }
       };
 
@@ -58,8 +58,8 @@ describe('The usernotification middleware', function() {
       var req = {
         user: { _id: id },
         usernotifications: [
-          { author: mongoose.Types.ObjectId(), target: [{ objectType: 'user', id: id.toString() }] },
-          { author: mongoose.Types.ObjectId(), target: [{ objectType: 'user', id: mongoose.Types.ObjectId().toString() }] }
+          { author: mongoose.Types.ObjectId(), target: mongoose.Types.ObjectId() },
+          { author: mongoose.Types.ObjectId(), target: id }
         ]
       };
 
@@ -82,9 +82,9 @@ describe('The usernotification middleware', function() {
       var req = {
         user: { _id: id },
         usernotifications: [
-          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id.toString()}] },
-          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id.toString()}] },
-          { author: mongoose.Types.ObjectId(), target: [{objectType: 'user', id: id.toString()}] }
+          { author: mongoose.Types.ObjectId(), target: id },
+          { author: mongoose.Types.ObjectId(), target: id },
+          { author: mongoose.Types.ObjectId(), target: id }
         ]
       };
 

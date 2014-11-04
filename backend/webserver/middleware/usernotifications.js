@@ -2,14 +2,15 @@
 
 var async = require('async');
 
-function checkIsInTarget(userId, usernotification) {
-  return usernotification.target.some(function(item) {
-    return item.id === userId;
-  });
+function checkIsTarget(userId, usernotification) {
+  if (usernotification && usernotification.target) {
+      return usernotification.target + '' === userId + '';
+  }
+  return false;
 }
 
 var userCanReadNotification = function(req, res, next) {
-  if (!checkIsInTarget(req.user._id.toString(), req.usernotification)) {
+  if (!checkIsTarget(req.user._id, req.usernotification)) {
     return res.json(403, {error: {status: 403, message: 'Forbidden', details: 'User is not the notification target'}});
   }
   next();
@@ -18,7 +19,7 @@ module.exports.userCanReadNotification = userCanReadNotification;
 
 var userCanReadAllNotifications = function(req, res, next) {
   function checkUserNotifications(usernotification, callback) {
-    return callback(checkIsInTarget(req.user._id.toString(), usernotification));
+    return callback(checkIsTarget(req.user._id, usernotification));
   }
   async.every(req.usernotifications, checkUserNotifications, function(result) {
     if (!result) {
