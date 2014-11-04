@@ -19,10 +19,7 @@ describe('The core user notifications module', function() {
 
               expect(q).to.exist;
               expect(q.target).to.exist;
-              expect(q.target.objectType).to.exist;
-              expect(q.target.objectType).to.equal('user');
-              expect(q.target.id).to.exist;
-              expect(q.target.id).to.equal(user._id);
+              expect(q.target).to.equal(user._id);
               expect(q.read).to.be.true;
 
               return {
@@ -59,10 +56,7 @@ describe('The core user notifications module', function() {
             find: function(q) {
 
               expect(q).to.exist;
-              expect(q.target.objectType).to.exist;
-              expect(q.target.objectType).to.equal('user');
-              expect(q.target.id).to.exist;
-              expect(q.target.id).to.equal(user._id);
+              expect(q.target).to.equal(user._id);
               expect(q.read).to.be.undefined;
 
               return {
@@ -102,10 +96,7 @@ describe('The core user notifications module', function() {
 
               expect(q).to.exist;
               expect(q.target).to.exist;
-              expect(q.target.objectType).to.exist;
-              expect(q.target.objectType).to.equal('user');
-              expect(q.target.id).to.exist;
-              expect(q.target.id).to.equal(user._id);
+              expect(q.target).to.equal(user._id);
               expect(q.read).to.be.true;
 
               return {
@@ -133,10 +124,7 @@ describe('The core user notifications module', function() {
 
               expect(q).to.exist;
               expect(q.target).to.exist;
-              expect(q.target.objectType).to.exist;
-              expect(q.target.objectType).to.equal('user');
-              expect(q.target.id).to.exist;
-              expect(q.target.id).to.equal(user._id);
+              expect(q.target).to.equal(user._id);
               expect(q.read).to.be.undefined;
 
               return {
