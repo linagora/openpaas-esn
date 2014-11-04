@@ -1,4 +1,4 @@
-angular.module('esn.maps', ['ngGeolocation'])
+angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
   .factory('osmAPI', ['$http', function($http) {
 
     function reverse(latitude, longitude, config) {

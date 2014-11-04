@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'ngGeolocation', 'esn.maps', 'leaflet-directive'])
-  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', '$geolocation', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, $geolocation, geoAPI) {
+angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
+  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, geoAPI) {
 
     $scope.rows = 1;
     $scope.position = {};
@@ -10,11 +10,8 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       $scope.rows = 5;
     };
 
-    $scope.shrink = function(event) {
+    $scope.shrink = function() {
       return;
-      if (!$scope.whatsupmessage) {
-        $scope.rows = 1;
-      }
     };
 
     $scope.fillPosition = function() {
@@ -27,7 +24,6 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
           $scope.position.message = data.data.display_name || $scope.position.message;
           $scope.position.display_name = data.data.display_name;
         }, function(err) {
-          console.log(err);
         }).finally(function() {
           $scope.position.load = false;
         });
@@ -104,9 +100,9 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
     };
 
     $scope.resetMessage = function() {
-      $scope.rows = 3;
+      $scope.rows = 1;
       $scope.whatsupmessage = '';
-      $scope.position = {};
+      $scope.removePosition();
     };
 
     $scope.displayError = function(err) {
@@ -141,7 +137,6 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
           $scope.position.message = data.data.display_name || $scope.position.message;
           $scope.position.display_name = data.data.display_name;
         }, function(err) {
-          console.log(err);
         }).finally(function() {
           $scope.position.load = false;
         });
@@ -162,12 +157,8 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       $scope.position = {};
     };
 
-    $scope.shrink = function(event) {
+    $scope.shrink = function() {
       return;
-
-      if (!$scope.whatsupcomment) {
-        $scope.rows = 1;
-      }
     };
 
     $scope.addComment = function() {
@@ -232,6 +223,7 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
     $scope.resetComment = function() {
       $scope.whatsupcomment = '';
       $scope.rows = 1;
+      $scope.removePosition();
     };
 
     $scope.displayError = function(err) {
