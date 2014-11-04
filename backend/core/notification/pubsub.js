@@ -173,7 +173,7 @@ function membershipInvitationCancelHandler(data) {
   };
   usernotification.remove(query, function(err) {
     if (err) {
-      logger.err('Unable to remove community invitation usernotification: ' + err.message);
+      logger.error('Unable to remove community invitation usernotification: ' + err.message);
     }
   });
 }
