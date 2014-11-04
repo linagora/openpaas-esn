@@ -43,7 +43,8 @@ module.exports = function(config) {
       'frontend/views/modules/message/**/*.jade',
       'frontend/views/modules/community/**/*.jade',
       'frontend/views/modules/profile/**/*.jade',
-      'frontend/views/modules/user-notification/**/*.jade'
+      'frontend/views/modules/user-notification/**/*.jade',
+      'frontend/views/modules/maps/**/*.jade'
     ],
 
     frameworks: ['mocha'],
