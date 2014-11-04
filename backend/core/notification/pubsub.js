@@ -178,6 +178,38 @@ function membershipInvitationCancelHandler(data) {
   });
 }
 
+function augmentToExternalNotification(data, callback) {
+  var context = data.context;
+  if (context) {
+    context = {objectType: 'community', id: context};
+  }
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: data.action, text: data.action},
+    complement: {objectType: 'string', id: data.object},
+    context: context,
+    description: null,
+    icon: null,
+    category: 'external',
+    read: false,
+    interactive: false,
+    target: data.target,
+    action: [{
+      url: data.link,
+      display: {label: 'ESN_LINK', text: 'link'}
+    }]
+  };
+  return callback(null, notification);
+}
+
+function externalNotificationHandler(data) {
+  async.waterfall([
+      augmentToExternalNotification.bind(null, data),
+      createUserNotification
+    ],
+    onSuccessPublishIntoGlobal());
+}
+
 function init() {
   if (initialized) {
     logger.warn('Notification Pubsub is already initialized');
@@ -188,6 +220,7 @@ function init() {
   localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
   localpubsub.topic('community:membership:invitation:cancel').subscribe(membershipInvitationCancelHandler);
   localpubsub.topic('community:membership:request:refuse').subscribe(membershipRequestRefuseHandler);
+  localpubsub.topic('notification:external').subscribe(externalNotificationHandler);
   initialized = true;
 }
 module.exports.init = init;

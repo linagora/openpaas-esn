@@ -2,78 +2,41 @@
 
 var mongoose = require('mongoose');
 var Notification = mongoose.model('Notification');
-var pubsub = require('../pubsub').global;
-var async = require('async');
-var topic = pubsub.topic('notification:api');
-var logger = require('../logger');
+var pubsub = require('../pubsub').local;
+var topic = pubsub.topic('notification:external');
+var helpersTargets = require('../../helpers/targets');
 
-var saveOne = function(notification, parent, callback) {
+module.exports.save = function(notification, callback) {
   if (!notification) {
     return callback(new Error('Notification can not be null'));
   }
 
-  var n = new Notification(notification);
-  if (parent) {
-    n.parent = parent._id || parent;
-  }
-  n.save(function(err, saved) {
+  helpersTargets.getUserIds(notification.target, function(err, users) {
     if (err) {
       return callback(err);
     }
-    topic.publish(saved);
-    return callback(null, saved);
-  });
-};
-module.exports.saveOne = saveOne;
 
-module.exports.save = function(notification, callback) {
-  function sendCallback(err, children, parent) {
-    if (parent) {
-      topic.publish(parent);
-    }
-    callback(err, children);
-  }
+    users.forEach(function(user) {
+      var userId = user._id;
+      var context = user.context;
 
-  if (!notification) {
-    return callback(new Error('Notification can not be null'));
-  }
-
-  this.saveOne(notification, null, function(err, parent) {
-    if (err) {
-      return sendCallback(err);
-    }
-
-    if (notification.target.length === 1) {
-      return sendCallback(err, [parent], parent);
-    }
-
-    var result = [parent];
-    async.eachLimit(notification.target, 10, function(target, callback) {
-      var n = {
+      var data = {
         title: notification.title,
         author: notification.author,
         action: notification.action,
         object: notification.object,
         link: notification.link,
         level: notification.level,
-        timestamps: parent.timestamps,
-        target: [target],
-        data: notification.data || {}
+        timestamps: notification.timestamps,
+        target: userId,
+        data: notification.data || {},
+        context: context
       };
-      return saveOne(n, parent, function(err, _n) {
-        if (_n) {
-          result.push(_n);
-        }
-        // never fails
-        return callback();
-      });
-    }, function(err) {
-      if (err) {
-        logger.error('Fail to save notification', err.message);
-      }
-      return callback(err, result);
+      topic.publish(data);
     });
+    return callback(null, notification);
   });
+
 };
 
 module.exports.get = function(id, callback) {
