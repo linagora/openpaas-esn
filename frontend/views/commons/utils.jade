@@ -1,12 +1,20 @@
 mixin injectJSFromModules(module, injections)
-   each files, key in injections
-      each modules, file in files
-         if (modules.indexOf(module) !== -1)
-            script(src='/' + key + '/js/' + file)
+  each injection, key in injections
+    - var moduleInjections = injection[module]
+    if (moduleInjections && moduleInjections.js)
+      each file in moduleInjections.js
+        script(src='/' + key + '/js/' + file)
+
+mixin injectAngularFromModules(module, injections)
+  each injection, key in injections
+    - var moduleInjections = injection[module]
+    if (moduleInjections)
+      script(type='text/javascript').
+        var angularInjections = "#{moduleInjections.angular}".split(',');
 
 mixin injectCSSFromModules(module, injections)
-   each files, key in injections
-      each modules, file in files
-         if (modules.indexOf(module) !== -1)
-            link(rel='stylesheet', href='/' + key + '/css/' + file)
-
+  each injection, key in injections
+    - var moduleInjections = injection[module]
+    if (moduleInjections && moduleInjections.css)
+      each file in moduleInjections.css
+        link(rel='stylesheet', href='/' + key + '/css/' + file)

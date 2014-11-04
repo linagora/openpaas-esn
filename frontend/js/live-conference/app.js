@@ -1,5 +1,7 @@
 'use strict';
 
+var angularInjections = angularInjections || [];
+
 angular.module('liveConferenceApp', [
   'restangular',
   'ngRoute',
@@ -16,7 +18,7 @@ angular.module('liveConferenceApp', [
   'esn.authentication',
   'esn.live-conference',
   'esn.conference-notification'
-]).config(function($routeProvider, RestangularProvider) {
+].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
   $routeProvider.when('/', {
     templateUrl: '/views/live-conference/partials/live',

@@ -9,12 +9,13 @@ html
         link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
         link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
         link(rel='stylesheet', href='/css/style-setup-wizard.css')
-        +injectCSSFromModules('setup', cssInjections)
+        +injectCSSFromModules('setup', injections)
         script(src='/components/jquery/dist/jquery.js')
         script(src='/components/bootstrap/dist/js/bootstrap.js')
         script(src='/components/angular/angular.js')
+        +injectJSFromModules('setup', injections)
+        +injectAngularFromModules('setup', injections)
         script(src='/js/setup/app.js')
-        +injectJSFromModules('setup', jsInjections)
 
     body
 

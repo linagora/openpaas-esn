@@ -1,6 +1,12 @@
 'use strict';
 
-angular.module('signupApp', ['esn.invitation', 'restangular', 'ngRoute'])
+var angularInjections = angularInjections || [];
+
+angular.module('signupApp', [
+  'esn.invitation',
+  'restangular',
+  'ngRoute'
+  ].concat(angularInjections))
   .config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
