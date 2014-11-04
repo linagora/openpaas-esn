@@ -26,11 +26,11 @@ function validateI18n(value) {
 }
 
 function validateAction(value) {
-  if (!value.label) { return false; }
+  if (!value.url) { return false; }
   if (!value.display) { return false; }
   if (!value.display.label) { return false; }
   if (!value.display.text) { return false; }
-  if (typeof value.label !== 'string') { return false; }
+  if (typeof value.url !== 'string') { return false; }
   if (typeof value.display.label !== 'string') { return false; }
   if (typeof value.display.text !== 'string') { return false; }
   return true;
@@ -83,8 +83,8 @@ var NotificationSchema = new mongoose.Schema({
   category: {type: String, required: true},
   interactive: {type: Boolean, required: true, default: false},
   action: {type: [Action], validate: [validateActions, 'bad action']},
-  target: {type: [Tuple], required: true, validate: [validateTargetTuples, 'bad target tuple objectType']},
-  parentId: {type: mongoose.Schema.Types.ObjectId},
+  target: {type: mongoose.Schema.ObjectId, required: true, ref: 'User'},
+  parentTarget: {type: [Tuple], validate: [validateTargetTuples, 'bad parent target tuple objectType']},
   read: {type: Boolean, default: false},
   acknowledged: {type: Boolean, default: false}
 });

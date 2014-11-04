@@ -5,11 +5,12 @@ var expect = require('chai').expect;
 describe('the Usernotification mongoose model', function() {
   var moduleFile;
   var Model;
+  var mongoose;
   before(function() {
     moduleFile = this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification';
   });
   beforeEach(function() {
-    var mongoose = require('mongoose');
+    mongoose = require('mongoose');
     Model = require(moduleFile);
     mongoose.connect(this.testEnv.mongoUrl);
   });
@@ -21,7 +22,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {objectType: 'email', id: 'test@linagora.com'},
         context: null,
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -38,7 +39,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {objectType: 'email', id: 'test@linagora.com'},
         context: null,
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -55,7 +56,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {objectType: 'email', id: 'test@linagora.com'},
         context: null,
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -72,7 +73,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {objectType: 'email', id: 'test@linagora.com'},
         context: null,
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -89,7 +90,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         context: null,
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -106,7 +107,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {bad: 'yes'},
         context: null,
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -124,7 +125,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {objectType: 'email', id: 'test@linagora.com'},
         context: {badTuple: true, id: 'bad'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -140,7 +141,7 @@ describe('the Usernotification mongoose model', function() {
         subject: {objectType: 'user', id: 'user1'},
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
-        target: [{objectType: 'community', id: 'community1'}]
+        target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -151,19 +152,19 @@ describe('the Usernotification mongoose model', function() {
       });
     });
   });
-  describe('target field', function() {
-    it('should not validate if empty', function(done) {
+  describe('parent target field', function() {
+    it('should  validate if empty', function(done) {
       var data = {
         subject: {objectType: 'user', id: 'user1'},
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: []
+        target: mongoose.Types.ObjectId(),
+        parentTarget: []
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
-        expect(err).to.be.ok;
-        expect(err.errors).to.have.property('target');
+        expect(err).to.be.null;
         done();
       });
     });
@@ -173,7 +174,8 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: ['some', true, 123]
+        target: mongoose.Types.ObjectId(),
+        parentTarget: ['some', true, 123]
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
@@ -187,7 +189,8 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [
+        target: mongoose.Types.ObjectId(),
+        parentTarget: [
           {bad: 'tuple'},
           {badTuple: 'too'}
         ]
@@ -204,7 +207,8 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [
+        target: mongoose.Types.ObjectId(),
+        parentTarget: [
           {objectType: 'idontexist', id: 'null'}
         ]
       };
@@ -220,7 +224,8 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [
+        target: mongoose.Types.ObjectId(),
+        parentTarget: [
           {objectType: 'user', id: 'user1'},
           {objectType: 'community', id: 'community1'}
         ]
@@ -228,7 +233,7 @@ describe('the Usernotification mongoose model', function() {
       var notif = new Model(data);
       notif.save(function(err, data) {
         expect(err).to.be.null;
-        expect(data.target).to.have.length(2);
+        expect(data.parentTarget).to.have.length(2);
         done();
       });
     });
@@ -240,7 +245,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         icon: {garbage: true}
       };
       var notif = new Model(data);
@@ -255,7 +260,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         icon: {objectType: 'user', id: 'user1'}
       };
       var notif = new Model(data);
@@ -270,7 +275,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         icon: {objectType: 'icon', id: 'fa-bell'}
       };
       var notif = new Model(data);
@@ -285,7 +290,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         icon: {objectType: 'url', id: 'http://test.com/image.png'}
       };
       var notif = new Model(data);
@@ -302,7 +307,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         action: {notAnArray: true}
       };
       var notif = new Model(data);
@@ -320,7 +325,7 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         action: ['yep', 'nope', null]
       };
       var notif = new Model(data);
@@ -335,12 +340,27 @@ describe('the Usernotification mongoose model', function() {
         verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
-        target: [{objectType: 'community', id: 'community1'}],
+        target: mongoose.Types.ObjectId(),
         action: [{url: 'http', display: 'none'}]
       };
       var notif = new Model(data);
       notif.save(function(err, data) {
         expect(err).to.be.ok;
+        done();
+      });
+    });
+    it('should validate a valid action', function(done) {
+      var data = {
+        subject: {objectType: 'user', id: 'user1'},
+        verb: {label: 'ESN_LABEL_FOLLOW', text: 'followed'},
+        complement: {objectType: 'email', id: 'test@linagora.com'},
+        category: 'link:follow',
+        target: mongoose.Types.ObjectId(),
+        action: [{url: 'http', display: {text: 'text', label: 'label'}}]
+      };
+      var notif = new Model(data);
+      notif.save(function(err) {
+        expect(err).to.be.null;
         done();
       });
     });
