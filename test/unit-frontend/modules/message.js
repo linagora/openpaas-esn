@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The esn.message Angular module', function() {
+describe.only('The esn.message Angular module', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.message');
@@ -300,6 +300,7 @@ describe('The esn.message Angular module', function() {
   });
 
   describe('messageController', function() {
+
     beforeEach(inject(function($rootScope, $controller, $q) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
@@ -308,14 +309,57 @@ describe('The esn.message Angular module', function() {
       this.session = {};
       this.alert = function() {
       };
+      this.geoAPI = {};
+      this.geoAPI.getCurrentPosition = function() {};
+      this.geoAPI.reverse = function() {};
 
       $controller('messageController', {
         $scope: this.scope,
         messageAPI: this.messageAPI,
         $alert: this.alert,
-        $rootScope: $rootScope
+        $rootScope: this.rootScope,
+        geoAPI: this.geoAPI
       });
     }));
+
+    describe('fillPosition() function', function() {
+      it('should call the geoAPI#getCurrentPosition', function(done) {
+        this.geoAPI.getCurrentPosition = done;
+        this.scope.fillPosition();
+      });
+
+      it('should set the position with the geoAPI#getCurrentPosition result', function(done) {
+        var result = {coords: {latitude: 1, longitude: 2}};
+        var defer = this.$q.defer();
+        this.geoAPI.getCurrentPosition = function() {
+          defer.resolve(result);
+          return defer.promise;
+        };
+        this.geoAPI.reverse = function(lat, long) {
+          expect(lat).to.equal(1);
+          expect(long).to.equal(2);
+          done();
+        };
+
+        this.scope.fillPosition();
+        this.scope.$digest();
+        expect(this.scope.position.coords).to.deep.equal(result.coords);
+
+      });
+
+      it('should set the error when the geoAPI#getCurrentPosition fails', function(done) {
+        var defer = this.$q.defer();
+        this.geoAPI.getCurrentPosition = function() {
+          defer.reject({error: {code: 1}});
+          return defer.promise;
+        };
+
+        this.scope.fillPosition();
+        this.scope.$digest();
+        expect(this.scope.position.error).to.be.true;
+        done();
+      });
+    });
 
     describe('sendMessage() method', function() {
 
@@ -358,6 +402,21 @@ describe('The esn.message Angular module', function() {
         };
         this.scope.displayError = function() {
           done(new Error());
+        };
+        this.scope.activitystreamUuid = '0987654321';
+        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.sendMessage();
+      });
+
+      it('should call $messageAPI.post with position when set', function(done) {
+        var coords = 123;
+        this.messageAPI.post = function(type, data, target) {
+          expect(data.position).to.exist;
+          expect(data.position.coords).to.deep.equal(coords);
+          done();
+        };
+        this.scope.position = {
+          coords: coords
         };
         this.scope.activitystreamUuid = '0987654321';
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
@@ -420,14 +479,58 @@ describe('The esn.message Angular module', function() {
       this.scope = $rootScope.$new();
       this.alert = function() {
       };
+      this.geoAPI = {};
+      this.geoAPI.getCurrentPosition = function() {};
+      this.geoAPI.reverse = function() {};
 
       $controller('messageCommentController', {
         $scope: this.scope,
         messageAPI: this.messageAPI,
         $alert: this.alert,
-        $rootScope: this.rootScope
+        $rootScope: this.rootScope,
+        geoAPI: this.geoAPI
       });
     }));
+
+    describe('fillPosition() function', function() {
+      it('should call the geoAPI#getCurrentPosition', function(done) {
+        this.geoAPI.getCurrentPosition = done;
+        this.scope.fillPosition();
+      });
+
+      it('should set the position with the geoAPI#getCurrentPosition result', function(done) {
+        var result = {coords: {latitude: 1, longitude: 2}};
+        var defer = this.$q.defer();
+        this.geoAPI.getCurrentPosition = function() {
+          defer.resolve(result);
+          return defer.promise;
+        };
+        this.geoAPI.reverse = function(lat, long) {
+          expect(lat).to.equal(1);
+          expect(long).to.equal(2);
+          done();
+        };
+
+        this.scope.fillPosition();
+        this.scope.$digest();
+        expect(this.scope.position.coords).to.deep.equal(result.coords);
+
+      });
+
+      it('should set the error when the geoAPI#getCurrentPosition fails', function(done) {
+        var defer = this.$q.defer();
+        this.geoAPI.getCurrentPosition = function() {
+          defer.reject({error: {code: 1}});
+          return defer.promise;
+        };
+
+        this.scope.fillPosition();
+        this.scope.$digest();
+        expect(this.scope.position.error).to.be.true;
+        done();
+      });
+    });
+
 
     describe('addComment() directive', function() {
       it('should not call the addComment API when $scope.message is undefined', function(done) {
@@ -497,6 +600,26 @@ describe('The esn.message Angular module', function() {
         };
         this.scope.displayError = function() {
           done(new Error());
+        };
+        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
+
+      it('should call the addComment API with position when set', function(done) {
+        var coords = 123;
+
+        this.messageAPI.addComment = function(type, data, reply) {
+          expect(data.position).to.exist;
+          expect(data.position.coords).to.deep.equal(coords);
+
+          done();
+        };
+        this.scope.position = {
+          coords: coords
         };
         this.scope.whatsupcomment = 'Hey Oh, let\'s go';
         this.scope.message = {

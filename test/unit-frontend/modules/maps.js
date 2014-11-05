@@ -46,6 +46,6 @@ describe('The Maps Angular module', function() {
         this.osmAPI.reverse(lat, lon);
         this.$httpBackend.flush();
       });
-    })
+    });
   });
 });

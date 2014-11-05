@@ -21,10 +21,10 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
         $scope.position.coords = data.coords;
         $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
-          $scope.position.message = data.data.display_name || $scope.position.message;
+          $scope.position.message = data.data.display_name ||  $scope.position.message;
           $scope.position.display_name = data.data.display_name;
         }, function(err) {
-        }).finally(function() {
+        }).finally (function() {
           $scope.position.load = false;
         });
       }, function(err) {
@@ -35,7 +35,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
         if (err.error.code === 2) {
           $scope.position.unavailable = true;
         }
-      }).finally(function() {
+      }).finally (function() {
         $scope.position.load = false;
       });
     };
@@ -63,7 +63,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
       if ($scope.position.coords) {
         data.position = {
           coords: $scope.position.coords
-        }
+        };
       }
 
       if ($scope.position.display_name) {
@@ -91,7 +91,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
             $scope.displayError('Error while sharing your whatsup message');
           }
         }
-      ).finally(function() {
+      ).finally (function() {
           if ($scope.position.coords) {
             $scope.position = {};
           }
@@ -134,10 +134,10 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
         $scope.position.coords = data.coords;
         $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
         geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
-          $scope.position.message = data.data.display_name || $scope.position.message;
+          $scope.position.message = data.data.display_name ||  $scope.position.message;
           $scope.position.display_name = data.data.display_name;
         }, function(err) {
-        }).finally(function() {
+        }).finally (function() {
           $scope.position.load = false;
         });
       }, function(err) {
@@ -148,7 +148,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
         if (err.error.code === 2) {
           $scope.position.unavailable = true;
         }
-      }).finally(function() {
+      }).finally (function() {
         $scope.position.load = false;
       });
     };
@@ -189,7 +189,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
       if ($scope.position.coords) {
         data.position = {
           coords: $scope.position.coords
-        }
+        };
       }
 
       if ($scope.position.display_name) {
@@ -215,7 +215,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
             $scope.displayError('Error while adding comment');
           }
         }
-      ).finally(function() {
+      ).finally (function() {
         $scope.position = {};
       });
     };

@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
   .factory('osmAPI', ['$http', function($http) {
 
@@ -19,7 +21,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       reverse: reverse
     };
   }])
-  .factory('geoAPI', ['$geolocation', 'osmAPI', function($geolocation, osmAPI) {
+  .factory('geoAPI', ['$window', '$geolocation', 'osmAPI', function($window, $geolocation, osmAPI) {
 
     function supported() {
       return 'geolocation' in $window.navigator;
@@ -44,7 +46,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/maps/getDisplayCurrentPosition.html'
-    }
+    };
   })
   .directive('displayPosition', function() {
     return {
@@ -55,7 +57,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       },
       templateUrl: '/views/modules/maps/displayPosition.html',
       controller: 'mapDisplayController'
-    }
+    };
   })
   .controller('mapDisplayController', function($scope) {
 
@@ -94,5 +96,4 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       };
 
     };
-  })
-;
+  });
