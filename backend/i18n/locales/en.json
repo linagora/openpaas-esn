@@ -204,8 +204,8 @@
   "Invitations sent": "Invitations sent",
   "Cancel invitation": "Cancel invitation",
   "Invite people to join the community": "Invite people to join the community",
-  "Getting position": "Getting position",
-  "You denied to share your geolocation or not connected to the Internet": "You denied to share your geolocation or not connected to the Internet",
-  "You must use a decent browser to share your geolocation or be connected to the Internet": "You must use a decent browser to share your geolocation or be connected to the Internet",
+  "Retrieving location": "Retrieving location",
+  "You denied sharing your location or are not connected to the Internet": "You denied sharing your location or are not connected to the Internet",
+  "Your browser either does not support geolocation or you are not connected to the internet": "Your browser either does not support geolocation or you are not connected to the internet",
   "Near": "Near"
 }

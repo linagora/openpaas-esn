@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.only('The esn.message Angular module', function() {
+describe('The esn.message Angular module', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.message');
