@@ -51,7 +51,11 @@ describe('The targets helpers module', function() {
     });
 
     it('should send back an array of users with no duplicate and correct context', function(done) {
-      var users = ['user1', 'user2', 'user3'];
+      var users = [
+        {_id: 'user1'},
+        {_id: 'user2'},
+        {_id: 'user3'}
+      ];
 
       communityMock.getMembers = function(community, query, callback) {
         return callback(null, [{user: users[0]}]);
@@ -62,22 +66,22 @@ describe('The targets helpers module', function() {
         id: '123'
       }, {
         objectType: 'user',
-        id: users[0]
+        id: users[0]._id
       }, {
         objectType: 'user',
-        id: users[1]
+        id: users[1]._id
       }, {
         objectType: 'user',
-        id: users[2]
+        id: users[2]._id
       }];
 
       require(this.testEnv.basePath + '/backend/helpers/targets').getUserIds(targets, function(err, usersResult) {
         expect(err).to.not.exist;
         expect(usersResult).to.exist;
         expect(usersResult).to.have.length(3);
-        expect(usersResult[0]).to.deep.equal({ _id: users[0], context: '123' });
-        expect(usersResult[1]).to.deep.equal({ _id: users[1], context: undefined});
-        expect(usersResult[2]).to.deep.equal({ _id: users[2], context: undefined});
+        expect(usersResult[0]).to.deep.equal({ _id: users[0]._id, context: '123' });
+        expect(usersResult[1]).to.deep.equal({ _id: users[1]._id, context: undefined});
+        expect(usersResult[2]).to.deep.equal({ _id: users[2]._id, context: undefined});
         done();
       });
     });

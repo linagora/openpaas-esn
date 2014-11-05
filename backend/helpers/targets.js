@@ -2,6 +2,7 @@
 
 var async = require('async');
 var community = require('../core/community');
+var logger = require('../core/logger');
 
 /**
  * Get an array of user ids with the community context if exist by expanding the targets array.
@@ -19,7 +20,7 @@ module.exports.getUserIds = function(targets, callback) {
   if (!targets) {
     return callback(new Error('Targets can not be null'));
   }
-  if (!require('util').isArray(targets)) {
+  if (!Array.isArray(targets)) {
     return callback(new Error('Targets must be an array'));
   }
 
@@ -41,10 +42,13 @@ module.exports.getUserIds = function(targets, callback) {
           return callback(err);
         }
         members.forEach(function(member) {
-          addUsersIfNotFoundOrContextUndefined(member.user.toString(), target.id);
+          addUsersIfNotFoundOrContextUndefined(member.user._id.toString(), target.id);
         });
         callback();
       });
+    } else {
+      logger.warn('Unsupported objectType has been ignored.');
+      callback();
     }
   }, function(err) {
     if (err) {
