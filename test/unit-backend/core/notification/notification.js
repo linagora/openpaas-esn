@@ -126,173 +126,12 @@ describe('The notification module', function() {
     });
   });
 
-  describe('saveOne fn', function() {
-    it('should send back error if notification is not defined', function(done) {
-      var mongoose = {
-        model: function() {
-          return function() {};
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
-      module.saveOne(null, null, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back error if notification.save fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return function() {
-            return {
-              save: function(callback) {
-                return callback(new Error());
-              }
-            };
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
-      module.saveOne({}, null, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should publish a notification when notification.save is ok', function(done) {
-      var mongoose = {
-        model: function() {
-          return function() {
-            return {
-              save: function(callback) {
-                return callback(null, {});
-              }
-            };
-          };
-        }
-      };
-
-      var called = false;
-      var pubsub = {
-        global: {
-          topic: function() {
-            return {
-              publish: function() {
-                called = true;
-              }
-            };
-          }
-        }
-      };
-
-      mockery.registerMock('mongoose', mongoose);
-      mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
-      module.saveOne({}, null, function(err, saved) {
-        expect(err).to.not.exist;
-        expect(saved).to.exist;
-        expect(called).to.be.true;
-        done();
-      });
-    });
-
-    it('should not publish a notification when notification.save is not ok', function(done) {
-      var mongoose = {
-        model: function() {
-          return function() {
-            return {
-              save: function(callback) {
-                return callback(new Error());
-              }
-            };
-          };
-        }
-      };
-
-      var called = false;
-      var pubsub = {
-        global: {
-          topic: function() {
-            return {
-              publish: function() {
-                called = true;
-              }
-            };
-          }
-        }
-      };
-
-      mockery.registerMock('mongoose', mongoose);
-      mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
-      module.saveOne({}, null, function(err, saved) {
-        expect(err).to.exist;
-        expect(saved).to.not.exist;
-        expect(called).to.be.false;
-        done();
-      });
-    });
-
-    it('should return the saved notification when notification.save is ok', function(done) {
-      var notification = {
-        _id: 123
-      };
-
-      var mongoose = {
-        model: function() {
-          return function() {
-            return {
-              save: function(callback) {
-                return callback(null, notification);
-              }
-            };
-          };
-        }
-      };
-
-      var called = false;
-      var pubsub = {
-        global: {
-          topic: function() {
-            return {
-              publish: function() {
-                called = true;
-              }
-            };
-          }
-        }
-      };
-
-      mockery.registerMock('mongoose', mongoose);
-      mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
-      module.saveOne({}, null, function(err, saved) {
-        expect(err).to.not.exist;
-        expect(saved).to.exist;
-        expect(saved).to.deep.equal(notification);
-        expect(called).to.be.true;
-        done();
-      });
-    });
-  });
-
   describe('save fn', function() {
 
     it('should send back error if notification is not defined', function(done) {
       var mongoose = {
-        model: function() {
-          return function(notification) {
-            return {
-              save: function(callback) {
-                return callback(null, notification);
-              }
-            };
-          };
-        }
+        model: function() {}
       };
-
       mockery.registerMock('mongoose', mongoose);
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.save(null, function(err, saved) {
@@ -302,22 +141,14 @@ describe('The notification module', function() {
       });
     });
 
-    it('should call save one time if the notification is the parent with no targets', function(done) {
+    it('should not publish if notification has no targets', function(done) {
       var mongoose = {
-        model: function() {
-          return function(notification) {
-            return {
-              save: function(callback) {
-                return callback(null, notification);
-              }
-            };
-          };
-        }
+        model: function() {}
       };
-
+      mockery.registerMock('mongoose', mongoose);
       var called = 0;
       var pubsub = {
-        global: {
+        local: {
           topic: function() {
             return {
               publish: function() {
@@ -328,34 +159,24 @@ describe('The notification module', function() {
           }
         }
       };
-
-      mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
 
       var notification = {_id: 123, target: []};
       module.save(notification, function() {
-        expect(called).to.equal(1);
+        expect(called).to.equal(0);
         done();
       });
     });
 
-    it('should publish N notifications in the pubsub where N = notification parent + targets', function(done) {
+    it('should publish N notifications if targets are N users', function(done) {
       var mongoose = {
-        model: function() {
-          return function(notification) {
-            return {
-              save: function(callback) {
-                return callback(null, notification);
-              }
-            };
-          };
-        }
+        model: function() {}
       };
-
+      mockery.registerMock('mongoose', mongoose);
       var called = 0;
       var pubsub = {
-        global: {
+        local: {
           topic: function() {
             return {
               publish: function() {
@@ -366,54 +187,29 @@ describe('The notification module', function() {
           }
         }
       };
-
-      mockery.registerMock('mongoose', mongoose);
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
 
-      var notification = {_id: 123, target: [1, 2, 3], timestamps: []};
+      var helperMock = {
+        getUserIds: function(targets, callback) {
+          return callback(null, ['1', '2', '3']);
+        }
+      };
+      mockery.registerMock('../../helpers/targets', helperMock);
+
+      var notification = {
+        _id: 123,
+        target: [
+          {objectType: 'user', id: '1'},
+          {objectType: 'user', id: '2'},
+          {objectType: 'user', id: '3'}
+        ],
+        timestamps: []};
+      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.save(notification, function() {
-        expect(called).to.equal(4);
+        expect(called).to.equal(3);
         done();
       });
     });
 
-    it('should send back all the saved notifications as result', function(done) {
-      var mongoose = {
-        model: function() {
-          return function(notification) {
-            return {
-              save: function(callback) {
-                return callback(null, notification);
-              }
-            };
-          };
-        }
-      };
-
-      var pubsub = {
-        global: {
-          topic: function() {
-            return {
-              publish: function() {
-                return;
-              }
-            };
-          }
-        }
-      };
-
-      mockery.registerMock('mongoose', mongoose);
-      mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
-
-      var notification = {_id: 123, target: [1, 2, 3], timestamps: []};
-      module.save(notification, function(err, results) {
-        expect(err).to.not.exist;
-        expect(results).to.exist;
-        expect(results.length).to.equal(4);
-        done();
-      });
-    });
   });
 });
