@@ -7,7 +7,7 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
       .form-group
         map-get-display-current-position
       .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
-        a(href='', ng-click='fillPosition()', ng-disabled='sending')
+        a(href='', ng-click='fillPosition()', ng-disabled='sending', fill-position)
           i.fa.fa-map-marker
         &nbsp;
         button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}

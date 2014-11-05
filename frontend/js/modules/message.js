@@ -14,36 +14,6 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
       return;
     };
 
-    $scope.fillPosition = function() {
-      $scope.position.load = true;
-      $scope.position.show = true;
-      geoAPI.getCurrentPosition().then(function(data) {
-        $scope.position.coords = data.coords;
-        $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
-        geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
-          $scope.position.message = data.data.display_name ||  $scope.position.message;
-          $scope.position.display_name = data.data.display_name;
-        }, function(err) {
-        }).finally (function() {
-          $scope.position.load = false;
-        });
-      }, function(err) {
-        $scope.position.error = true;
-        if (err.error.code === 1) {
-          $scope.position.denied = true;
-        }
-        if (err.error.code === 2) {
-          $scope.position.unavailable = true;
-        }
-      }).finally (function() {
-        $scope.position.load = false;
-      });
-    };
-
-    $scope.removePosition = function() {
-      $scope.position = {};
-    };
-
     $scope.sendMessage = function() {
       if (!$scope.whatsupmessage || $scope.whatsupmessage.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
@@ -121,40 +91,10 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
     $scope.whatsupcomment = '';
     $scope.sending = false;
     $scope.rows = 1;
-    $scope.expand = function() {
-      $scope.rows = 4;
-    };
-
     $scope.position = {};
 
-    $scope.fillPosition = function() {
-      $scope.position.load = true;
-      $scope.position.show = true;
-      geoAPI.getCurrentPosition().then(function(data) {
-        $scope.position.coords = data.coords;
-        $scope.position.message = 'Latitude: ' + data.coords.latitude + ', Longitude: ' + data.coords.longitude;
-        geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
-          $scope.position.message = data.data.display_name ||  $scope.position.message;
-          $scope.position.display_name = data.data.display_name;
-        }, function(err) {
-        }).finally (function() {
-          $scope.position.load = false;
-        });
-      }, function(err) {
-        $scope.position.error = true;
-        if (err.error.code === 1) {
-          $scope.position.denied = true;
-        }
-        if (err.error.code === 2) {
-          $scope.position.unavailable = true;
-        }
-      }).finally (function() {
-        $scope.position.load = false;
-      });
-    };
-
-    $scope.removePosition = function() {
-      $scope.position = {};
+    $scope.expand = function() {
+      $scope.rows = 4;
     };
 
     $scope.shrink = function() {
