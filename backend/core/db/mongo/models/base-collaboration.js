@@ -2,16 +2,9 @@
 
 var extend = require('extend');
 var Schema = require('mongoose').Schema;
-var Tuple = require('./tuple-schema');
+var Tuple = require('../common').Tuple;
+var Validation = require('../validation');
 var uuid = require('node-uuid');
-
-function validateTuple(tuple) {
-  if (!tuple) { return false; }
-  if (! ('objectType' in tuple)) { return false; }
-  if (! ('id' in tuple)) { return false; }
-  if (typeof tuple.objectType !== 'string') { return false; }
-  return true;
-}
 
 var collaborationBaseSchema = {
   creator: {type: Schema.ObjectId, ref: 'User'},
@@ -23,7 +16,7 @@ var collaborationBaseSchema = {
   },
   members: [
   {
-    member: {type: Tuple.tree, required: true, validate: [validateTuple, 'Bad subject tuple']},
+    member: {type: Tuple.tree, required: true, validate: [Validation.validateTuple, 'Bad subject tuple']},
     status: {type: String},
     timestamps: {
       creation: {type: Date, default: Date.now}

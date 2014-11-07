@@ -246,7 +246,6 @@ module.exports.isConnected = function() {
   return connected;
 };
 
-
 // load models
 module.exports.models = {};
 fs.readdirSync(__dirname + '/models').forEach(function(filename) {
@@ -254,3 +253,7 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   if (!stat.isFile()) { return; }
   require('./models/' + filename);
 });
+
+// load common and validation
+module.exports.common = require('./common');
+module.exports.validation = require('./validation');
