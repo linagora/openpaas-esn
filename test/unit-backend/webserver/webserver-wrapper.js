@@ -99,4 +99,71 @@ describe('the webserver-wrapper', function() {
       api.addApp('myModule', 'module');
     });
   });
+
+  describe('proxy method', function() {
+    beforeEach(function() {
+      module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+      this.proxy = module.settings.proxy;
+    });
+
+    describe('when requester is trusted', function() {
+      it('should return the lib', function() {
+        var lib = {test: true};
+        var response = this.proxy.call(lib, 'module1', true);
+        expect(response).to.deep.equal(lib);
+      });
+    });
+
+    describe('when requester is untrusted', function() {
+      it('should return a proxy object', function() {
+        var lib = {test: true};
+        var response = this.proxy.call(lib, 'module1', false);
+        expect(response).to.not.have.property('test');
+        expect(response).to.have.property('injectJS');
+        expect(response).to.have.property('injectCSS');
+        expect(response).to.have.property('injectAngularModules');
+        expect(response).to.have.property('addApp');
+      });
+      it('injectCSS() should force the namespace on proxied methods', function(done) {
+        var lib = {
+          injectCSS: function(namespace) {
+            expect(namespace).to.equal('module1');
+            done();
+          }
+        };
+        var response = this.proxy.call(lib, 'module1', false);
+        response.injectCSS('some', 'cool', 'params');
+      });
+      it('injectJS() should force the namespace on proxied methods', function(done) {
+        var lib = {
+          injectJS: function(namespace) {
+            expect(namespace).to.equal('module1');
+            done();
+          }
+        };
+        var response = this.proxy.call(lib, 'module1', false);
+        response.injectJS('some', 'cool', 'params');
+      });
+      it('addApp() should force the namespace on proxied methods', function(done) {
+        var lib = {
+          addApp: function(namespace) {
+            expect(namespace).to.equal('module1');
+            done();
+          }
+        };
+        var response = this.proxy.call(lib, 'module1', false);
+        response.addApp('some', 'cool', 'params');
+      });
+      it('injectAngularModules() should force the namespace on proxied methods', function(done) {
+        var lib = {
+          injectAngularModules: function(namespace) {
+            expect(namespace).to.equal('module1');
+            done();
+          }
+        };
+        var response = this.proxy.call(lib, 'module1', false);
+        response.injectAngularModules('some', 'cool', 'params');
+      });
+    });
+  });
 });

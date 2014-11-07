@@ -36,6 +36,27 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
       var api = new WebServerWrapper(server);
       return callback(null, api);
     }
+  },
+  proxy: function(moduleName, trusted) {
+    if ( trusted ) {
+      return this;
+    }
+    var lib = this;
+    var proxyLib = {
+      injectJS: function(js, innerApps) {
+        return lib.injectJS(moduleName, js, innerApps);
+      },
+      injectCSS: function(css, innerApps) {
+        return lib.injectCSS(moduleName, css, innerApps);
+      },
+      injectAngularModules: function(js, moduleNames, innerApps) {
+        return lib.injectAngularModules(moduleName, js, moduleNames, innerApps);
+      },
+      addApp: function(awesomeModule) {
+        return lib.addApp(moduleName, AwesomeModule);
+      }
+    };
+    return proxyLib;
   }
 });
 
