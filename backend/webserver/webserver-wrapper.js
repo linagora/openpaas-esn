@@ -31,9 +31,11 @@ function WebServerWrapper(server) {
 
 var server = require('./').webserver;
 var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN_MODULE_PREFIX + 'webserver.wrapper', {
-  lib: function(dependencies, callback) {
-    var api = new WebServerWrapper(server);
-    return callback(null, api);
+  states: {
+    lib: function(dependencies, callback) {
+      var api = new WebServerWrapper(server);
+      return callback(null, api);
+    }
   }
 });
 

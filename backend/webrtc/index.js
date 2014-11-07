@@ -95,31 +95,33 @@ var awesomeWebRTCServer = new AwesomeModule(ESN_MODULE_PREFIX + 'webrtcserver', 
     new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'webserver', 'webserver'),
     new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'wsserver', 'wsserver')
   ],
-  lib: function(dependencies, callback) {
-    var api = webrtcserver;
-    return callback(null, api);
-  },
-  start: function(dependencies, callback) {
-    var config = dependencies('conf')('default');
+  states: {
+    lib: function(dependencies, callback) {
+      var api = webrtcserver;
+      return callback(null, api);
+    },
+    start: function(dependencies, callback) {
+      var config = dependencies('conf')('default');
 
-    if (!config.webrtc.enabled) {
-      logger.warn('The webrtc server will not start as expected by the configuration.');
-      return callback();
-    }
-
-    if (!config.wsserver.enabled || !config.webserver.enabled) {
-      logger.warn('The webrtc server can not be started when Websocket and Web server are not activated');
-      return callback();
-    }
-
-    var wsserver = dependencies('wsserver').io;
-    var webserver = dependencies('webserver').application;
-    webrtcserver.start(webserver, wsserver, function(err) {
-      if (err) {
-        logger.warn('webrtc server failed to start', err);
+      if (!config.webrtc.enabled) {
+        logger.warn('The webrtc server will not start as expected by the configuration.');
+        return callback();
       }
-      callback.apply(this, arguments);
-    });
+
+      if (!config.wsserver.enabled || !config.webserver.enabled) {
+        logger.warn('The webrtc server can not be started when Websocket and Web server are not activated');
+        return callback();
+      }
+
+      var wsserver = dependencies('wsserver').io;
+      var webserver = dependencies('webserver').application;
+      webrtcserver.start(webserver, wsserver, function(err) {
+        if (err) {
+          logger.warn('webrtc server failed to start', err);
+        }
+        callback.apply(this, arguments);
+      });
+    }
   }
 });
 

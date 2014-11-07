@@ -137,36 +137,38 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'conf')
   ],
-  lib: function(dependencies, callback) {
-    var api = webserver;
-    return callback(null, api);
-  },
-  start: function(dependencies, callback) {
-    var config = dependencies('conf')('default');
+  states: {
+    lib: function(dependencies, callback) {
+      var api = webserver;
+      return callback(null, api);
+    },
+    start: function(dependencies, callback) {
+      var config = dependencies('conf')('default');
 
-    if (!config.webserver.enabled) {
-      logger.warn('The webserver will not start as expected by the configuration.');
-      return callback();
-    }
-
-    webserver.application.locals.injections = injections;
-
-    webserver.virtualhosts = config.webserver.virtualhosts;
-    webserver.port = config.webserver.port;
-    webserver.ip = config.webserver.ip;
-    webserver.ssl_port = config.webserver.ssl_port;
-    webserver.ssl_ip = config.webserver.ssl_ip;
-    webserver.ssl_key = config.webserver.ssl_key;
-    webserver.ssl_cert = config.webserver.ssl_cert;
-    webserver.start(function(err) {
-      if (err) {
-        logger.error('Web server failed to start', err);
-        if (err.syscall === 'listen' && err.code === 'EADDRINUSE') {
-          logger.info('Something is already listening on the Web server port', config.webserver.port);
-        }
+      if (!config.webserver.enabled) {
+        logger.warn('The webserver will not start as expected by the configuration.');
+        return callback();
       }
-      callback.apply(this, arguments);
-    });
+
+      webserver.application.locals.injections = injections;
+
+      webserver.virtualhosts = config.webserver.virtualhosts;
+      webserver.port = config.webserver.port;
+      webserver.ip = config.webserver.ip;
+      webserver.ssl_port = config.webserver.ssl_port;
+      webserver.ssl_ip = config.webserver.ssl_ip;
+      webserver.ssl_key = config.webserver.ssl_key;
+      webserver.ssl_cert = config.webserver.ssl_cert;
+      webserver.start(function(err) {
+        if (err) {
+          logger.error('Web server failed to start', err);
+          if (err.syscall === 'listen' && err.code === 'EADDRINUSE') {
+            logger.info('Something is already listening on the Web server port', config.webserver.port);
+          }
+        }
+        callback.apply(this, arguments);
+      });
+    }
   }
 });
 

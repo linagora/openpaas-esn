@@ -224,13 +224,13 @@ describe('The WebSockets server module', function() {
     });
   });
 
-  describe('The AwesomeWsServer', function() {
+  describe('AwesomeWsServer', function() {
     it('should provide a start state', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', {});
       var module = require(this.testEnv.basePath + '/backend/wsserver').awesomeWsServer;
-      expect(module.settings.start).to.exist;
-      expect(module.settings.start).to.be.a('function');
+      expect(module.settings.states.start).to.exist;
+      expect(module.settings.states.start).to.be.a('function');
     });
   });
 

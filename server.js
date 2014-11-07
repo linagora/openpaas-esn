@@ -9,10 +9,10 @@ moduleManager.manager.registerState('deploy', ['lib']);
 moduleManager.manager.registerState('start', ['lib', 'deploy']);
 
 moduleManager.setupManager();
-moduleManager.manager.registerModule(require('./backend/webserver/webserver-wrapper'));
-moduleManager.manager.registerModule(require('./backend/webserver').awesomeWebServer);
-moduleManager.manager.registerModule(require('./backend/wsserver').awesomeWsServer);
-moduleManager.manager.registerModule(require('./backend/webrtc').awesomeWebRTCServer);
+moduleManager.manager.registerModule(require('./backend/webserver/webserver-wrapper'), true);
+moduleManager.manager.registerModule(require('./backend/webserver').awesomeWebServer, true);
+moduleManager.manager.registerModule(require('./backend/wsserver').awesomeWsServer, true);
+moduleManager.manager.registerModule(require('./backend/webrtc').awesomeWebRTCServer, true);
 
 core.init();
 

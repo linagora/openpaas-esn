@@ -167,11 +167,11 @@ describe('The Webserver module', function() {
     });
   });
 
-  describe('The AwesomeWebServer', function() {
+  describe('AwesomeWebServer', function() {
     it('should provide a start state', function() {
       var module = require(this.testEnv.basePath + '/backend/webserver').awesomeWebServer;
-      expect(module.settings.start).to.exist;
-      expect(module.settings.start).to.be.a('function');
+      expect(module.settings.states.start).to.exist;
+      expect(module.settings.states.start).to.be.a('function');
     });
   });
 });

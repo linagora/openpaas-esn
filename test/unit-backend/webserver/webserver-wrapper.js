@@ -7,7 +7,7 @@ describe('the webserver-wrapper', function() {
   var module;
 
   function getApi(module, callback) {
-    module.settings.lib([], function(err, api) {
+    module.settings.states.lib([], function(err, api) {
       return callback(err, api);
     });
   }
