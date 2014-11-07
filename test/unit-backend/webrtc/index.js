@@ -174,12 +174,12 @@ describe('The webrtc server module', function() {
     });
   });
 
-  describe('The AwesomeWebRTCServer', function() {
+  describe('AwesomeWebRTCServer', function() {
     it('should provide a start state', function() {
       mockery.registerMock('../core/conference', {});
       var module = require(this.testEnv.basePath + '/backend/webrtc').awesomeWebRTCServer;
-      expect(module.settings.start).to.exist;
-      expect(module.settings.start).to.be.a('function');
+      expect(module.settings.states.start).to.exist;
+      expect(module.settings.states.start).to.be.a('function');
     });
   });
 });

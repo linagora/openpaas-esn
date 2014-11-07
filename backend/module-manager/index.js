@@ -11,21 +11,25 @@ var manager = new AwesomeModuleManager(core.logger);
 
 function mockModule(name, lib) {
   var mock = new AwesomeModule(ESN_MODULE_PREFIX + name, {
-    lib: function(deps, callback) {
-      return callback(null, lib);
+    states: {
+      lib: function(deps, callback) {
+        return callback(null, lib);
+      }
     }
   });
-  var loader = manager.loaders.code(mock);
+  var loader = manager.loaders.code(mock, true);
   manager.appendLoader(loader);
 }
 
 function mockCoreModule(name) {
   var mock = new AwesomeModule(ESN_MODULE_PREFIX + name, {
-    lib: function(deps, callback) {
-      return callback(null, core[name]);
+    states: {
+      lib: function(deps, callback) {
+        return callback(null, core[name]);
+      }
     }
   });
-  var loader = manager.loaders.code(mock);
+  var loader = manager.loaders.code(mock, true);
   manager.appendLoader(loader);
 }
 

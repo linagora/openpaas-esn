@@ -86,24 +86,26 @@ var awesomeWsServer = new AwesomeModule(ESN_MODULE_PREFIX + 'wsserver', {
     new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf'),
     new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'webserver', 'webserver')
   ],
-  lib: function(dependencies, callback) {
-    var api = wsserver;
-    return callback(null, api);
-  },
-  start: function(dependencies, callback) {
-    var config = dependencies('conf')('default');
+  states: {
+    lib: function(dependencies, callback) {
+      var api = wsserver;
+      return callback(null, api);
+    },
+    start: function(dependencies, callback) {
+      var config = dependencies('conf')('default');
 
-    if (!config.wsserver.enabled) {
-      logger.warn('The websocket server will not start as expected by the configuration.');
-      return callback();
-    }
-
-    wsserver.start(config.wsserver.port, config.wsserver.options, function(err) {
-      if (err) {
-        logger.error('websocket server failed to start', err);
+      if (!config.wsserver.enabled) {
+        logger.warn('The websocket server will not start as expected by the configuration.');
+        return callback();
       }
-      callback.apply(this, arguments);
-    });
+
+      wsserver.start(config.wsserver.port, config.wsserver.options, function(err) {
+        if (err) {
+          logger.error('websocket server failed to start', err);
+        }
+        callback.apply(this, arguments);
+      });
+    }
   }
 });
 
