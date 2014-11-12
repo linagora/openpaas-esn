@@ -5,6 +5,8 @@ var async = require('async'),
     globalpubsub = require('../pubsub').global,
     logger = require('../logger'),
     usernotification = require('./usernotification'),
+    communityModule = require('../community'),
+    extend = require('extend'),
     initialized = false;
 
 function createUserNotification(data, callback) {
@@ -19,7 +21,7 @@ function onSuccessPublishIntoGlobal(callback) {
   callback = callback || function() {};
   return function(err, result) {
     if (err) {
-      logger.warn('Error while adding a usernotification : ', + err.message);
+      logger.warn('Error while adding a usernotification : ', err.message);
       callback(err);
     } else {
       if (result) {
@@ -31,22 +33,7 @@ function onSuccessPublishIntoGlobal(callback) {
   };
 }
 
-function augmentToCommunityJoin(data, callback) {
-  var notification = {
-    subject: {objectType: 'user', id: data.author},
-    verb: {label: 'ESN_COMMUNITY_JOIN', text: 'has joined'},
-    complement: {objectType: 'community', id: data.community},
-    context: null,
-    description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:join',
-    target: data.target
-  };
-  return callback(null, notification);
-}
-
 function augmentToMembershipAccepted(data, callback) {
-
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
@@ -62,6 +49,20 @@ function augmentToMembershipAccepted(data, callback) {
   return callback(null, notification);
 }
 
+function augmentToCommunityJoin(data, callback) {
+  var notification = {
+    subject: {objectType: 'user', id: data.author},
+    verb: {label: 'ESN_COMMUNITY_JOIN', text: 'has joined'},
+    complement: {objectType: 'community', id: data.community},
+    context: null,
+    description: null,
+    icon: {objectType: 'icon', id: 'fa-users'},
+    category: 'community:join',
+    target: data.manager
+  };
+  return callback(null, notification);
+}
+
 function communityJoinHandler(data, callback) {
   if (data.actor === 'manager') {
     async.waterfall([
@@ -70,11 +71,24 @@ function communityJoinHandler(data, callback) {
       ],
       onSuccessPublishIntoGlobal(callback));
   } else {
-    async.waterfall([
-        augmentToCommunityJoin.bind(null, data),
-        createUserNotification
-      ],
-      onSuccessPublishIntoGlobal(callback));
+
+    communityModule.getManagers(data.community, {}, function(err, managers) {
+      if (err || !managers || managers.legnth === 0) {
+        logger.warn('Notification could not be created : no target user found.');
+        return;
+      }
+      managers.forEach(function(manager) {
+        var notifData = {
+          manager: manager._id
+        };
+        extend(notifData, data);
+        async.waterfall([
+            augmentToCommunityJoin.bind(null, notifData),
+            createUserNotification
+          ],
+          onSuccessPublishIntoGlobal(callback));
+      });
+    });
   }
 }
 module.exports.communityJoinHandler = communityJoinHandler;
@@ -104,22 +118,53 @@ function membershipInviteHandler(data, callback) {
 module.exports.membershipInviteHandler = membershipInviteHandler;
 
 function augmentToMembershipRequest(data, callback) {
+  var authorId = data.author._id || data.author;
+  var communityId = data.community._id || data.community;
   var notification = {
-    subject: {objectType: 'user', id: data.author},
+    subject: {objectType: 'user', id: authorId},
     verb: {label: 'ESN_MEMBERSHIP_REQUEST', text: 'requested membership on'},
-    complement: {objectType: 'community', id: data.community},
+    complement: {objectType: 'community', id: communityId},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
     category: 'community:membership:request',
     interactive: true,
-    target: data.target
+    target: data.manager
   };
   return callback(null, notification);
 }
 
-function augmentToMembershipRefused(data, callback) {
+function membershipRequestHandler(data, callback) {
+  communityModule.getManagers(data.community, {}, function(err, managers) {
+    if (err || !managers || managers.legnth === 0) {
+      logger.warn('Notification could not be created : no target user found.');
+      return;
+    }
+    managers.forEach(function(manager) {
+      var notifData = {
+        manager: manager._id
+      };
+      extend(notifData, data);
+      async.waterfall([
+          augmentToMembershipRequest.bind(null, notifData),
+          createUserNotification
+        ],
+        onSuccessPublishIntoGlobal(callback));
+    });
+  });
+}
+module.exports.membershipRequestHandler = membershipRequestHandler;
 
+function membershipAcceptedHandler(data, callback) {
+  async.waterfall([
+      augmentToMembershipAccepted.bind(null, data),
+      createUserNotification
+    ],
+    onSuccessPublishIntoGlobal(callback));
+}
+module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
+
+function augmentToMembershipRefused(data, callback) {
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_MEMBERSHIP_REFUSED', text: 'declined your request to join'},
@@ -134,24 +179,6 @@ function augmentToMembershipRefused(data, callback) {
   };
   return callback(null, notification);
 }
-
-function membershipRequestHandler(data, callback) {
-  async.waterfall([
-      augmentToMembershipRequest.bind(null, data),
-      createUserNotification
-    ],
-    onSuccessPublishIntoGlobal(callback));
-}
-module.exports.membershipRequestHandler = membershipRequestHandler;
-
-function membershipAcceptedHandler(data, callback) {
-  async.waterfall([
-      augmentToMembershipAccepted.bind(null, data),
-      createUserNotification
-    ],
-    onSuccessPublishIntoGlobal(callback));
-}
-module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
 
 function membershipRequestRefuseHandler(data, callback) {
   async.waterfall([
