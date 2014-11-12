@@ -23,8 +23,8 @@ function WebServerWrapper(server) {
     webserver.addAngularModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps));
   };
 
-  this.addApp = function addApp(namespace, awesomeModule) {
-    webserver.application.use('/' + namespace, awesomeModule);
+  this.addApp = function addApp(namespace, expressApp) {
+    webserver.application.use('/' + namespace, expressApp);
   };
 
 }
@@ -38,7 +38,7 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
     }
   },
   proxy: function(moduleName, trusted) {
-    if ( trusted ) {
+    if (trusted) {
       return this;
     }
     var lib = this;
@@ -52,8 +52,8 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
       injectAngularModules: function(js, moduleNames, innerApps) {
         return lib.injectAngularModules(moduleName, js, moduleNames, innerApps);
       },
-      addApp: function(awesomeModule) {
-        return lib.addApp(moduleName, AwesomeModule);
+      addApp: function(expressApp) {
+        return lib.addApp(moduleName, expressApp);
       }
     };
     return proxyLib;
