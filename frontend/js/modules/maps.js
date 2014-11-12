@@ -62,7 +62,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
   .directive('fillPosition', ['geoAPI', function(geoAPI) {
     return {
       restrict: 'A',
-      link: function($scope) {
+      link: function($scope, elem) {
 
         $scope.fillPosition = function() {
           $scope.position.load = true;
@@ -93,6 +93,10 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
         $scope.removePosition = function() {
           $scope.position = {};
         };
+
+        elem.bind('click', function() {
+          $scope.fillPosition();
+        });
       }
     };
   }])
