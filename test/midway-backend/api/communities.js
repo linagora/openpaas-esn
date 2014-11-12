@@ -2514,9 +2514,7 @@ describe('The communities API', function() {
             UN.find(
               {
                 category: 'community:membership:refused',
-                target: {
-                  $elemMatch: { objectType: 'user', id: self.jhendrix._id + '' }
-                }
+                target: self.jhendrix._id
               },
               function(err, notifs) {
                 if (err) { return done(err); }
@@ -2564,9 +2562,7 @@ describe('The communities API', function() {
             UN.find(
               {
                 category: 'community:membership:invite',
-                target: {
-                  $elemMatch: { objectType: 'user', id: self.jhendrix._id + '' }
-                }
+                target: self.jhendrix._id
               },
               function(err, notifs) {
                 if (err) { return callback(err); }
@@ -2589,9 +2585,7 @@ describe('The communities API', function() {
             UN.find(
               {
                 category: 'community:membership:invite',
-                target: {
-                  $elemMatch: { objectType: 'user', id: self.jhendrix._id + '' }
-                }
+                target: self.jhendrix._id
               },
               function(err, notifs) {
                 if (err) { return done(err); }
