@@ -135,7 +135,17 @@ describe('The notification API', function() {
       });
   });
 
-  it('should return HTTP 201 and create N+1 notifications is notification input target is array with N elements on POST /api/notifications', function(done) {
+  it('should return HTTP 201 and publish N times in the ', function(done) {
+    var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
+    var topic = pubsub.topic('notification:external');
+    var calls = 0;
+    topic.subscribe(function() {
+      calls++;
+      if (calls === 2) {
+        return done();
+      }
+    });
+
     request(app)
       .post('/api/login')
       .send({username: email, password: password, rememberme: true})
@@ -150,18 +160,11 @@ describe('The notification API', function() {
           action: 'create',
           object: 'form',
           link: 'http://localhost:8888',
-          target: [{objectType: 'user', id: testuser1._id}, {objectType: 'user', id: testuser2._id},
-            {objectType: 'community', id: community._id}]
+          target: [{objectType: 'user', id: testuser1._id}, {objectType: 'user', id: testuser2._id}]
         });
         req.expect(201)
-          .end(function(err, res) {
+          .end(function(err) {
             expect(err).to.not.exist;
-            Notification.find(function(err, found) {
-              expect(err).to.not.exist;
-              expect(found).to.exist;
-              expect(found.length).to.equal(4);
-              done();
-            });
           });
       });
   });
