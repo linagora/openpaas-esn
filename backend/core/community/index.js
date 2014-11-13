@@ -315,7 +315,7 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
     return callback(new Error(errorMessage));
   }
 
-  if (!permission.supportsMemberShipRequests(community)) {
+  if (workflow !== 'invitation' && !permission.supportsMemberShipRequests(community)) {
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
