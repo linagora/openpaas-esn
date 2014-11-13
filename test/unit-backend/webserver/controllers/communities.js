@@ -1918,6 +1918,9 @@ describe('The communities controller', function() {
           mockery.registerMock('../../core/community', {
             join: function(community, userAuthor, userTarget, actor, cb) {
               return cb();
+            },
+            cleanMembershipRequest: function(community, user, cb) {
+              return cb(null, community);
             }
           });
           mockery.registerMock('../../core/community/permission', {});
