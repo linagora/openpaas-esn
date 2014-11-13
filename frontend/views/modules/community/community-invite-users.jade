@@ -13,7 +13,7 @@
                     on-tag-added='resetView()', replace-spaces-with-dashes='false')
                         auto-complete(source='getInvitablePeople($query)', min-length='1', debounce-delay='200')
                     .hidden(success-container)
-                        p #{__('Invitations have been sent. You will be notified when new users join the platform')}.
+                        p #{__('Invitations have been sent. You will be notified when new users join the community')}.
                 .form-group
                     button.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
                         i.fa.fa-sign-in(button-content) &nbsp;
