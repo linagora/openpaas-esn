@@ -4,7 +4,12 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
     form(name='whatsupcommentform')
       .form-group(ng-class='{nopadding: rows !== 4}')
         textarea.whatsupcomment-input.form-control(ng-model='whatsupcomment', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}")
+      .form-group
+        map-get-display-current-position
       .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
+        a(href='', ng-disabled='sending', fill-position)
+          i.fa.fa-map-marker
+        &nbsp;
         button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
         &nbsp;
         button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}

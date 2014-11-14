@@ -29,6 +29,8 @@ module.exports = function(config) {
       'frontend/components/angular-file-upload/dist/angular-file-upload.min.js',
       'frontend/components/angular-truncate/src/truncate.js',
       'frontend/components/angular-sanitize/angular-sanitize.min.js',
+      'frontend/components/angular-leaflet-directive/dist/angular-leaflet-directive.js',
+      'frontend/components/ngGeolocation/ngGeolocation.min.js',
       'node_modules/easyrtc/api/easyrtc.js',
       'node_modules/async/lib/async.js',
       'node_modules/chai-jquery/chai-jquery.js',
@@ -41,7 +43,8 @@ module.exports = function(config) {
       'frontend/views/modules/message/**/*.jade',
       'frontend/views/modules/community/**/*.jade',
       'frontend/views/modules/profile/**/*.jade',
-      'frontend/views/modules/user-notification/**/*.jade'
+      'frontend/views/modules/user-notification/**/*.jade',
+      'frontend/views/modules/maps/**/*.jade'
     ],
 
     frameworks: ['mocha'],

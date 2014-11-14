@@ -1,0 +1,18 @@
+div(ng-show='position.show')
+  div(ng-show='position.load')
+    i.fa.fa-spinner.fa-spin
+    small #{__('Retrieving location')}...
+  div(ng-show='position.error && position.denied')
+    i.fa.fa-warning
+    small #{__('You denied sharing your location or are not connected to the Internet')}
+  div(ng-show='position.error && position.unavailable')
+    i.fa.fa-html5
+    small #{__('Your browser either does not support geolocation or you are not connected to the internet')}
+  div.ellipsis(ng-controller='mapDisplayController' ng-hide='position.load || position.error')
+    a.map(href='', ng-click='removePosition()')
+      i.fa.fa-remove
+    a.map(href='', ng-show='position', ng-click='toggleMapDisplay(position)')
+      i.fa.fa-map-marker
+      span(ng-show="position.message") #{__('Near')} {{position.message}}
+      span(ng-show="!position.message") #{__('Near')} {{position.coords | json}}
+    leaflet(ng-if="showMeMap", markers="markers", center="center", height="200px", width="100%")

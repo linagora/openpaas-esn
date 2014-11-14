@@ -5,4 +5,7 @@ div
       | &nbsp;-&nbsp;
       a(href="/#messages/{{message._id}}")
         span(am-time-ago="message.published")
+
+  display-position(position='message.position')
+
   p.multilines {{message.content}}

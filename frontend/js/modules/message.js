@@ -1,18 +1,17 @@
 'use strict';
 
-angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
-  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
+angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
+  .controller('messageController', ['$scope', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, geoAPI) {
 
     $scope.rows = 1;
+    $scope.position = {};
 
     $scope.expand = function(event) {
       $scope.rows = 5;
     };
 
-    $scope.shrink = function(event) {
-      if (!$scope.whatsupmessage) {
-        $scope.rows = 1;
-      }
+    $scope.shrink = function() {
+      return;
     };
 
     $scope.sendMessage = function() {
@@ -30,6 +29,17 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       var data = {
         description: $scope.whatsupmessage
       };
+
+      if ($scope.position.coords) {
+        data.position = {
+          coords: $scope.position.coords
+        };
+      }
+
+      if ($scope.position.display_name) {
+        data.position.display_name = $scope.position.display_name;
+      }
+
       var target = {
         objectType: 'activitystream',
         id: $scope.activitystreamUuid
@@ -51,12 +61,18 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
             $scope.displayError('Error while sharing your whatsup message');
           }
         }
+      ).finally (function() {
+          if ($scope.position.coords) {
+            $scope.position = {};
+          }
+        }
       );
     };
 
     $scope.resetMessage = function() {
-      $scope.rows = 3;
+      $scope.rows = 1;
       $scope.whatsupmessage = '';
+      $scope.removePosition();
     };
 
     $scope.displayError = function(err) {
@@ -71,18 +87,18 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
       });
     };
   }])
-  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', function($scope, messageAPI, $alert, $rootScope) {
+  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, geoAPI) {
     $scope.whatsupcomment = '';
     $scope.sending = false;
     $scope.rows = 1;
+    $scope.position = {};
+
     $scope.expand = function() {
       $scope.rows = 4;
     };
 
-    $scope.shrink = function(event) {
-      if (!$scope.whatsupcomment) {
-        $scope.rows = 1;
-      }
+    $scope.shrink = function() {
+      return;
     };
 
     $scope.addComment = function() {
@@ -110,6 +126,16 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
         _id: $scope.message._id
       };
 
+      if ($scope.position.coords) {
+        data.position = {
+          coords: $scope.position.coords
+        };
+      }
+
+      if ($scope.position.display_name) {
+        data.position.display_name = $scope.position.display_name;
+      }
+
       $scope.sending = true;
       messageAPI.addComment(objectType, data, inReplyTo).then(
         function(response) {
@@ -129,12 +155,15 @@ angular.module('esn.message', ['esn.file', 'restangular', 'mgcrea.ngStrap', 'ngA
             $scope.displayError('Error while adding comment');
           }
         }
-      );
+      ).finally (function() {
+        $scope.position = {};
+      });
     };
 
     $scope.resetComment = function() {
       $scope.whatsupcomment = '';
       $scope.rows = 1;
+      $scope.removePosition();
     };
 
     $scope.displayError = function(err) {

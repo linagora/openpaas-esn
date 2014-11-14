@@ -6,10 +6,16 @@ module.exports.postToModelMessage = function(message, user) {
       author = user._id,
       shares = message.targets;
 
-  return {
+  var result = {
     objectType: objectType,
     content: content,
     author: author,
     shares: shares
   };
+
+  if (message.object.position) {
+    result.position = message.object.position;
+  }
+
+  return result;
 };

@@ -300,6 +300,7 @@ describe('The esn.message Angular module', function() {
   });
 
   describe('messageController', function() {
+
     beforeEach(inject(function($rootScope, $controller, $q) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
@@ -308,12 +309,16 @@ describe('The esn.message Angular module', function() {
       this.session = {};
       this.alert = function() {
       };
+      this.geoAPI = {};
+      this.geoAPI.getCurrentPosition = function() {};
+      this.geoAPI.reverse = function() {};
 
       $controller('messageController', {
         $scope: this.scope,
         messageAPI: this.messageAPI,
         $alert: this.alert,
-        $rootScope: $rootScope
+        $rootScope: this.rootScope,
+        geoAPI: this.geoAPI
       });
     }));
 
@@ -358,6 +363,21 @@ describe('The esn.message Angular module', function() {
         };
         this.scope.displayError = function() {
           done(new Error());
+        };
+        this.scope.activitystreamUuid = '0987654321';
+        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.sendMessage();
+      });
+
+      it('should call $messageAPI.post with position when set', function(done) {
+        var coords = 123;
+        this.messageAPI.post = function(type, data, target) {
+          expect(data.position).to.exist;
+          expect(data.position.coords).to.deep.equal(coords);
+          done();
+        };
+        this.scope.position = {
+          coords: coords
         };
         this.scope.activitystreamUuid = '0987654321';
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
@@ -420,12 +440,16 @@ describe('The esn.message Angular module', function() {
       this.scope = $rootScope.$new();
       this.alert = function() {
       };
+      this.geoAPI = {};
+      this.geoAPI.getCurrentPosition = function() {};
+      this.geoAPI.reverse = function() {};
 
       $controller('messageCommentController', {
         $scope: this.scope,
         messageAPI: this.messageAPI,
         $alert: this.alert,
-        $rootScope: this.rootScope
+        $rootScope: this.rootScope,
+        geoAPI: this.geoAPI
       });
     }));
 
@@ -497,6 +521,26 @@ describe('The esn.message Angular module', function() {
         };
         this.scope.displayError = function() {
           done(new Error());
+        };
+        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.addComment();
+      });
+
+      it('should call the addComment API with position when set', function(done) {
+        var coords = 123;
+
+        this.messageAPI.addComment = function(type, data, reply) {
+          expect(data.position).to.exist;
+          expect(data.position.coords).to.deep.equal(coords);
+
+          done();
+        };
+        this.scope.position = {
+          coords: coords
         };
         this.scope.whatsupcomment = 'Hey Oh, let\'s go';
         this.scope.message = {
