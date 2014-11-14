@@ -1061,7 +1061,7 @@ describe('The communities module', function() {
       });
     });
 
-    it('should send back error if community type is not restricted or private', function() {
+    it('should send back error if community type is not restricted or private for membership request', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.addMembershipRequest({type: 'open'}, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
@@ -1166,6 +1166,36 @@ describe('The communities module', function() {
         }
       };
       var workflow = 'request';
+      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      communityModule.isMember = function(c, u, callback) {
+        expect(c).to.deep.equal(community);
+        expect(u).to.deep.equal(user._id);
+        callback(null, false);
+      };
+      communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, actor, callback) {
+        return callback(null, {});
+      };
+      communityModule.addMembershipRequest(community, {}, user, workflow, null, function(err, c) {
+        expect(err).to.not.exist;
+        expect(c).to.exist;
+        expect(c.membershipRequests.length).to.equal(2);
+        var newRequest = c.membershipRequests[1];
+        expect(newRequest.user).to.deep.equal(user._id);
+        expect(newRequest.workflow).to.deep.equal(workflow);
+      });
+    });
+
+    it('should add a new invitation and return the updated community with open type', function() {
+      var user = { _id: this.helpers.objectIdMock('uid') };
+      var community = {
+        _id: 'cid',
+        type: 'open',
+        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
+        save: function(callback) {
+          return callback(null, community);
+        }
+      };
+      var workflow = 'invitation';
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);

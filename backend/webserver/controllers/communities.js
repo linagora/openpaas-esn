@@ -411,7 +411,13 @@ module.exports.join = function(req, res) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
-        return res.send(204);
+
+        communityModule.cleanMembershipRequest(community, user, function(err) {
+          if (err) {
+            return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+          }
+          return res.send(204);
+        });
       });
     }
   }
