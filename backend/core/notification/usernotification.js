@@ -11,7 +11,7 @@ module.exports.getForUser = function(user, query, callback) {
   query = query || {};
   var id = user._id || user;
 
-  var q = {target: id};
+  var q = {target: id, acknowledged: false};
   if (query.read !== undefined) {
     q.read = query.read;
   }
@@ -27,7 +27,7 @@ module.exports.countForUser = function(user, query, callback) {
   query = query || {};
   var id = user._id || user;
 
-  var q = {target: id};
+  var q = {target: id, acknowledged: false};
   if (query.read !== undefined) {
     q.read = query.read;
   }
