@@ -1,6 +1,12 @@
 'use strict';
 
 angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput'])
+  .config(['tagsInputConfigProvider', function(tagsInputConfigProvider){
+    tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
+      placeholder: true,
+      displayProperty: true
+    });
+  }])
   .run(['objectTypeResolver', 'communityAPI', function(objectTypeResolver, communityAPI) {
     objectTypeResolver.register('community', communityAPI.get);
   }])
