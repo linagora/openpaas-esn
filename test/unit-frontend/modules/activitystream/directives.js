@@ -90,7 +90,7 @@ describe('The esn.activitystream Angular module', function() {
         done();
       };
 
-      var html = '<activity-stream-notification activitystream-uuid="0987654321"></activity-stream-notification>';
+      var html = '<div activity-stream-notification activitystream-uuid="0987654321"></div>';
       this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
@@ -110,7 +110,7 @@ describe('The esn.activitystream Angular module', function() {
         done(new Error('Should not pass here'));
       };
 
-      var html = '<activity-stream-notification activitystream-uuid="0987654321"></activity-stream-notification>';
+      var html = '<div activity-stream-notification activitystream-uuid="0987654321"></div>';
       this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
@@ -134,7 +134,7 @@ describe('The esn.activitystream Angular module', function() {
         done(new Error('Should not pass here'));
       };
 
-      var html = '<activity-stream-notification activitystream-uuid="0987654321"></activity-stream-notification>';
+      var html = '<div activity-stream-notification activitystream-uuid="0987654321"></div>';
       this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       expect(callbackOnNotification).to.be.a('function');
@@ -171,41 +171,46 @@ describe('The esn.activitystream Angular module', function() {
     }]));
     it('should get the activitystream UUID from the HTML attribute and put it into the scope', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      expect(this.$scope.activitystreamUuid).to.equal('0987654321');
+      var scope = element.isolateScope();
+      expect(scope.activitystreamUuid).to.equal('0987654321');
     });
     it('should call scope.loadElement() method', function(done) {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      this.$scope.loadMoreElements = done;
+      var scope = element.isolateScope();
+      scope.loadMoreElements = done;
       this.$timeout.flush();
     });
     it('should call scope.getStreamUpdates() method when a "message:posted" event is emitted with this activitystream uuid', function(done) {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      this.$scope.loadMoreElements = function() {};
-      this.$scope.getStreamUpdates = done;
+      var scope = element.isolateScope();
+      scope.loadMoreElements = function() {};
+      scope.getStreamUpdates = done;
       this.$timeout.flush();
       this.$rootScope.$emit('message:posted', {activitystreamUuid: '0987654321'});
     });
     it('should update scope.lastPost.messageId when a "message:posted" event is emitted with this activitystream uuid', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      this.$scope.loadMoreElements = function() {};
-      this.$scope.getStreamUpdates = function() {};
+      var scope = element.isolateScope();
+      scope.loadMoreElements = function() {};
+      scope.getStreamUpdates = function() {};
       this.$timeout.flush();
       this.$rootScope.$emit('message:posted', {activitystreamUuid: '0987654321', id: 'msg42'});
-      expect(this.$scope.lastPost.messageId).to.equal('msg42');
+      expect(scope.lastPost.messageId).to.equal('msg42');
     });
     it('should update the thread comments method when a "message:comment" event is emitted', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      this.$scope.loadMoreElements = function() {};
+      var scope = element.isolateScope();
+      scope.loadMoreElements = function() {};
       this.$timeout.flush();
 
       this.$httpBackend.expectGET('/messages/msg2').respond({
@@ -216,21 +221,22 @@ describe('The esn.activitystream Angular module', function() {
         ]
       });
 
-      this.$scope.threads.push(
+      scope.threads.push(
         {_id: 'msg1', responses: [{_id: 'cmt1'}] },
         {_id: 'msg2', responses: [{_id: 'cmt2'}] },
         {_id: 'msg3', responses: [{_id: 'cmt3'}] }
       );
       this.$rootScope.$emit('message:comment', {parent: {_id: 'msg2'}});
       this.$httpBackend.flush();
-      expect(this.$scope.threads[1].responses).to.have.length(2);
+      expect(scope.threads[1].responses).to.have.length(2);
     });
 
     it('should update scope.lastPost.comment when a "message:comment" event is emitted', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      this.$scope.loadMoreElements = function() {};
+      var scope = element.isolateScope();
+      scope.loadMoreElements = function() {};
       this.$timeout.flush();
 
       this.$httpBackend.expectGET('/messages/msg2').respond({
@@ -241,24 +247,25 @@ describe('The esn.activitystream Angular module', function() {
         ]
       });
 
-      this.$scope.threads.push(
+      scope.threads.push(
         {_id: 'msg1', responses: [{_id: 'cmt1'}] },
         {_id: 'msg2', responses: [{_id: 'cmt2'}] },
         {_id: 'msg3', responses: [{_id: 'cmt3'}] }
       );
       this.$rootScope.$emit('message:comment', {parent: {_id: 'msg2'}, id: 'cmt1'});
       this.$httpBackend.flush();
-      expect(this.$scope.lastPost.comment).to.deep.equal({id: 'cmt1', parentId: 'msg2'});
+      expect(scope.lastPost.comment).to.deep.equal({id: 'cmt1', parentId: 'msg2'});
     });
 
     it('should ignore "message:comment" events when the comment parent is not in the threads', function() {
       var html = '<activity-stream activitystream-uuid="0987654321"></activity-stream>';
-      this.$compile(html)(this.$scope);
+      var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
-      this.$scope.loadMoreElements = function() {};
+      var scope = element.isolateScope();
+      scope.loadMoreElements = function() {};
       this.$timeout.flush();
 
-      this.$scope.threads.push(
+      scope.threads.push(
         {_id: 'msg1', responses: [{_id: 'cmt1'}] },
         {_id: 'msg2', responses: [{_id: 'cmt2'}] },
         {_id: 'msg3', responses: [{_id: 'cmt3'}] }

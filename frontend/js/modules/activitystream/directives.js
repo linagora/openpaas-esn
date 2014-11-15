@@ -11,7 +11,7 @@ angular.module('esn.activitystream')
 .directive('activityStreamNotification', ['moment', 'session', 'livenotification', 'notificationFactory',
   function(moment, session, livenotification, notificationFactory) {
   return {
-    restrict: 'E',
+    restrict: 'A',
     link: function(scope, element, attrs) {
       function liveNotificationHandler(msg) {
         if (msg.actor && msg.actor._id !== session.user._id) {
@@ -36,8 +36,12 @@ angular.module('esn.activitystream')
 .directive('activityStream', ['messageAPI', '$rootScope', '$timeout', function(messageAPI, $rootScope, $timeout) {
     return {
       restrict: 'E',
+      scope: {
+        writable: '='
+      },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
+      controller: 'activitystreamController',
       link: function(scope, element, attrs) {
         scope.activitystreamUuid = attrs.activitystreamUuid;
         var currentActivitystreamUuid = scope.activitystreamUuid;
