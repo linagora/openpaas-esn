@@ -58,9 +58,14 @@ angular.module('esn.user-notification',
         $scope.setAllAsRead(ids);
       });
 
-      livenotification('/usernotification').on('usernotification:created', $scope.unreadCount.refresh);
+      function onUserNotificationCreated() {
+        $scope.unreadCount.increaseBy(1);
+        $scope.unreadCount.refresh();
+      }
+
+      livenotification('/usernotification').on('usernotification:created', onUserNotificationCreated);
       $scope.$on('$destroy', function() {
-        livenotification('/usernotification').removeListener('usernotification:created', $scope.unreadCount.refresh);
+        livenotification('/usernotification').removeListener('usernotification:created', onUserNotificationCreated);
       });
     }
   ])
