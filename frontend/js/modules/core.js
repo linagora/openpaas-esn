@@ -41,6 +41,9 @@ angular.module('esn.core', [])
 
     Counter.prototype.decreaseBy = function decreaseBy(number) {
       this.count -= number;
+      if (this.count < 0) {
+        this.count = 0;
+      }
     };
 
     Counter.prototype.increaseBy = function increaseBy(number) {
