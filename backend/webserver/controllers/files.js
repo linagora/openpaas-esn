@@ -100,7 +100,65 @@ function get(req, res) {
   });
 }
 
+function remove(req, res) {
+  if (!req.params.id) {
+    return res.json(400, {
+      error: 400,
+      message: 'Bad Request',
+      details: 'Missing id parameter'
+    });
+  }
+
+  filestore.getMeta(req.params.id, function(err, meta) {
+    if (err) {
+      return res.json(500, {
+        error: 500,
+        message: 'Server Error',
+        details: 'Error while getting file metadata'
+      });
+    }
+
+    if (!meta || !meta.metadata) {
+      return res.json(400, {
+        error: 400,
+        message: 'Bad request',
+        details: 'Can not find file metadata'
+      });
+    }
+
+    var metadata = meta.metadata;
+
+    if (metadata.creator && metadata.creator.objectType === 'user' && !metadata.creator.id.equals(req.user._id)) {
+      return res.json(403, {
+        error: 403,
+        message: 'Forbidden',
+        details: 'Can not delete this file, current user is not a file owner'
+      });
+    }
+
+    if (metadata.referenced) {
+      return res.json(409, {
+        error: 409,
+        message: 'Conflict',
+        details: 'File is used and can not be deleted'
+      });
+    }
+
+    filestore.delete(req.params.id, function(err) {
+      if (err) {
+        return res.json(500, {
+          error: 500,
+          message: 'Server error',
+          details: err.message || err
+        });
+      }
+      return res.send(204);
+    });
+  });
+}
+
 module.exports = {
   create: create,
-  get: get
+  get: get,
+  remove: remove
 };

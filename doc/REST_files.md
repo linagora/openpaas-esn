@@ -77,3 +77,29 @@ Retrieve the raw file data with the given id.
     Last-Modified: Wed, 18 Dec 2013 14:51:51 GMT
 
     hello world
+
+# DELETE /api/files/{id}
+
+Delete a given file.
+
+**Parameters**
+
+- id: The file id
+
+**Status Codes:**
+
+- 204 No Content. The file has been deleted.
+- 400 Bad Request. The id parameters is missing.
+- 401 Unauthorized. The user is not authenticated
+- 403 Forbidden. The current user is not the file owner.
+- 404 Not Found.
+- 409 Conflict. File is used and can not be deleted.
+
+**Request:**
+
+    DELETE /api/files/e0bbd496-9ca9-4c2d-8312-a13e837e0b60
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 204 No content

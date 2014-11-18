@@ -64,6 +64,7 @@ exports = module.exports = function(application) {
                    requestMW.requireQueryParams('mimetype', 'size'),
                    files.create);
   application.get('/api/files/:id', authorize.requiresAPILogin, files.get);
+  application.delete('/api/files/:id', authorize.requiresAPILogin, files.remove);
 
   var views = require('./controllers/views');
   var templates = require('./middleware/templates');
