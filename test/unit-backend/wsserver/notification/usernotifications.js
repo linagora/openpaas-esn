@@ -17,7 +17,10 @@ describe('The websockets usernotification module', function() {
 
     localstub = {};
     globalstub = {};
-    io = { of: function() { return this; } };
+    io = {
+      of: function() { return this; },
+      on: function() {}
+    };
     this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
   });
 
@@ -31,14 +34,14 @@ describe('The websockets usernotification module', function() {
     mockery.registerMock('../../core/logger', loggerMocked);
 
     var module = require(moduleToTest);
-    module.init({});
-    module.init({});
+    module.init(io);
+    module.init(io);
     expect(messageWarn).to.equal('The user notifications event service is already initialized');
   });
 
   it('should subscribe to usernotification:created and usernotification:updated topic', function() {
 
-    require(moduleToTest).init({});
+    require(moduleToTest).init(io);
     expect(globalstub.topics.length).to.equal(2);
     expect(globalstub.topics[0]).to.equal('usernotification:created');
     expect(globalstub.topics['usernotification:created'].handler).to.be.a.function;
@@ -61,40 +64,38 @@ describe('The websockets usernotification module', function() {
       require(moduleToTest).init(io);
 
       var notif = {
-        target: [
-          { objectType: 'user', id: 1 },
-          { objectType: 'user', id: 2 }
-        ]
+        target: '123'
       };
       globalstub.topics['usernotification:created'].handler(notif);
 
-      expect(call).to.equal(2);
+      expect(call).to.equal(1);
     });
 
-    it('should emit the proper notification on the retrieved sockets', function() {
+    it('should emit the proper notification on the retrieved socket', function() {
       var emittedEvents1 = [];
       var emittedEvents2 = [];
       var emittedEvents3 = [];
+      var testUserId = '123';
       var socketHelper = {
-        getUserSocketsFromNamespace: function(user) {
-          if (user === 'user1') {
+        getUserSocketsFromNamespace: function(userId) {
+          if (userId === testUserId) {
             var socket1 = {
               emit: function(event, payload) {
-                expect(event).to.equal('created');
+                expect(event).to.equal('usernotification:created');
                 emittedEvents1.push(payload);
               }
             };
             var socket2 = {
               emit: function(event, payload) {
-                expect(event).to.equal('created');
+                expect(event).to.equal('usernotification:created');
                 emittedEvents2.push(payload);
               }
             };
             return [socket1, socket2];
-          } else if (user === 'user2') {
+          } else {
             var socket3 = {
               emit: function(event, payload) {
-                expect(event).to.equal('created');
+                expect(event).to.equal('usernotification:created');
                 emittedEvents3.push(payload);
               }
             };
@@ -108,11 +109,7 @@ describe('The websockets usernotification module', function() {
       require(moduleToTest).init(io);
 
       var notif = {
-        target: [
-          { objectType: 'user', id: 'user1' },
-          { objectType: 'user', id: 'user2' },
-          { objectType: 'user', id: 'user3' }
-        ]
+        target: testUserId
       };
 
       globalstub.topics['usernotification:created'].handler(notif);
@@ -121,171 +118,7 @@ describe('The websockets usernotification module', function() {
       expect(emittedEvents1[0]).to.deep.equal(notif);
       expect(emittedEvents2.length).to.equal(1);
       expect(emittedEvents2[0]).to.deep.equal(notif);
-      expect(emittedEvents3.length).to.equal(1);
-      expect(emittedEvents3[0]).to.deep.equal(notif);
-    });
-
-    it('should emit to all community members if category is external', function() {
-
-      var emittedEvents1 = [];
-      var emittedEvents2 = [];
-      var socketHelper = {
-        getUserSocketsFromNamespace: function(user) {
-          if (user === 'user1') {
-            var socket1 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('created');
-                emittedEvents1.push(payload);
-              }
-            };
-            return [socket1];
-          } else if (user === 'user2') {
-            var socket2 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('created');
-                emittedEvents2.push(payload);
-              }
-            };
-            return [socket2];
-          }
-          return [];
-        }
-      };
-      mockery.registerMock('../helper/socketio', socketHelper);
-
-      var communityMock = {
-        getMembers: function(communityId, query, callback) {
-          return callback(null, [
-            {user: 'user1'}, {user: 'user2'}
-          ]);
-        }
-      };
-      mockery.registerMock('../../core/community', communityMock);
-
-      require(moduleToTest).init(io);
-
-      var notif = {
-        target: [
-          { objectType: 'community', id: 'community1' }
-        ],
-        category: 'external'
-      };
-
-      globalstub.topics['usernotification:created'].handler(notif);
-
-      expect(emittedEvents1.length).to.equal(1);
-      expect(emittedEvents1[0]).to.deep.equal(notif);
-      expect(emittedEvents2.length).to.equal(1);
-      expect(emittedEvents2[0]).to.deep.equal(notif);
-    });
-
-    it('should emit to all managers if category is community:membership:request', function() {
-
-      var emittedEvents1 = [];
-      var emittedEvents2 = [];
-      var socketHelper = {
-        getUserSocketsFromNamespace: function(user) {
-          if (user === 'user1') {
-            var socket1 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('created');
-                emittedEvents1.push(payload);
-              }
-            };
-            return [socket1];
-          } else if (user === 'user2') {
-            var socket2 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('created');
-                emittedEvents2.push(payload);
-              }
-            };
-            return [socket2];
-          }
-          return [];
-        }
-      };
-      mockery.registerMock('../helper/socketio', socketHelper);
-
-      var communityMock = {
-        getManagers: function(communityId, query, callback) {
-          return callback(null, [
-            {user: 'user1'}, {user: 'user2'}
-          ]);
-        }
-      };
-      mockery.registerMock('../../core/community', communityMock);
-
-      require(moduleToTest).init(io);
-
-      var notif = {
-        target: [
-          { objectType: 'community', id: 'community1' }
-        ],
-        category: 'community:membership:request'
-      };
-
-      globalstub.topics['usernotification:created'].handler(notif);
-
-      expect(emittedEvents1.length).to.equal(1);
-      expect(emittedEvents1[0]).to.deep.equal(notif);
-      expect(emittedEvents2.length).to.equal(1);
-      expect(emittedEvents2[0]).to.deep.equal(notif);
-    });
-
-    it('should emit once per sockets', function() {
-
-      var emittedEvents1 = [];
-      var emittedEvents2 = [];
-      var socketHelper = {
-        getUserSocketsFromNamespace: function(user) {
-          if (user === 'user1') {
-            var socket1 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('created');
-                emittedEvents1.push(payload);
-              }
-            };
-            return [socket1];
-          } else if (user === 'user2') {
-            var socket2 = {
-              emit: function(event, payload) {
-                expect(event).to.equal('created');
-                emittedEvents2.push(payload);
-              }
-            };
-            return [socket2];
-          }
-          return [];
-        }
-      };
-      mockery.registerMock('../helper/socketio', socketHelper);
-
-      var communityMock = {
-        getMembers: function(communityId, query, callback) {
-          return callback(null, [
-            {user: 'user1'}
-          ]);
-        }
-      };
-      mockery.registerMock('../../core/community', communityMock);
-
-      require(moduleToTest).init(io);
-
-      var notif = {
-        target: [
-          { objectType: 'user', id: 'user1' },
-          { objectType: 'community', id: 'community1' },
-          { objectType: 'user', id: 'user2' }
-        ],
-        category: 'external'
-      };
-      globalstub.topics['usernotification:created'].handler(notif);
-
-      expect(emittedEvents1.length).to.equal(1);
-      expect(emittedEvents1[0]).to.deep.equal(notif);
-      expect(emittedEvents2.length).to.equal(1);
-      expect(emittedEvents2[0]).to.deep.equal(notif);
+      expect(emittedEvents3.length).to.equal(0);
     });
 
   });

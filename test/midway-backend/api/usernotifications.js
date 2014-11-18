@@ -36,7 +36,7 @@ describe('The user notification API', function() {
     });
 
     if (target) {
-      notification.target = [{objectType: 'user', id: '' + target._id}];
+      notification.target = target._id;
     }
     notification.save(cb);
   }

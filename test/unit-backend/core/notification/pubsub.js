@@ -6,6 +6,14 @@ var mockery = require('mockery');
 
 describe('The notification pubsub module', function() {
 
+  beforeEach(function() {
+    var mongoose = {
+      model: function() {
+      }
+    };
+    mockery.registerMock('mongoose', mongoose);
+  });
+
   it('should subscribe to community:join', function() {
     var localstub = {};
     this.helpers.mock.pubsub('../pubsub', localstub, {});
@@ -18,13 +26,14 @@ describe('The notification pubsub module', function() {
 
   describe('communityJoinHandler method', function() {
 
-    it('should subscribe to community:join, save a augmented usernotification then forward it into global usernotification:created', function(done) {
+    it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
       var globalstub = {};
       var datastub = {};
       var data = {
         author: '123',
         target: '456',
-        community: '789'
+        community: '789',
+        actor: 'manager'
       };
       var usernotificationMocked = {
         create: function(data, callback) {
@@ -43,13 +52,15 @@ describe('The notification pubsub module', function() {
         }
         expect(datastub).to.deep.equal({
           subject: {objectType: 'user', id: '123'},
-          verb: {label: 'ESN_COMMUNITY_JOIN', text: 'has joined'},
+          verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
           complement: {objectType: 'community', id: '789'},
           context: null,
           description: null,
           icon: {objectType: 'icon', id: 'fa-users'},
-          category: 'community:join',
-          target: [{objectType: 'community', id: '789'}]
+          category: 'community:membership:accepted',
+          read: false,
+          interactive: false,
+          target: data.target
         });
         expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
@@ -60,7 +71,7 @@ describe('The notification pubsub module', function() {
 
   describe('membershipInviteHandler method', function() {
 
-    it('should subscribe to community:join, save a augmented usernotification then forward it into global usernotification:created', function(done) {
+    it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
       var globalstub = {};
       var datastub = {};
       var data = {
@@ -92,7 +103,7 @@ describe('The notification pubsub module', function() {
           icon: {objectType: 'icon', id: 'fa-users'},
           category: 'community:membership:invite',
           interactive: true,
-          target: [{objectType: 'user', id: '456'}]
+          target: data.target
         });
         expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
@@ -103,13 +114,13 @@ describe('The notification pubsub module', function() {
 
   describe('membershipRequestHandler method', function() {
 
-    it('should subscribe to community:join, save a augmented usernotification then forward it into global usernotification:created', function(done) {
+    it('should save an augmented usernotification then forward it into global usernotification:created', function(done) {
       var globalstub = {};
       var datastub = {};
       var data = {
         author: '123',
         target: '456',
-        community: '789'
+        community: {_id: '789'}
       };
       var usernotificationMocked = {
         create: function(data, callback) {
@@ -117,9 +128,18 @@ describe('The notification pubsub module', function() {
           callback(null, 'saved');
         }
       };
+      mockery.registerMock('./usernotification', usernotificationMocked);
 
       this.helpers.mock.pubsub('../pubsub', {}, globalstub);
-      mockery.registerMock('./usernotification', usernotificationMocked);
+
+      var managerId = 'managerId';
+      var communityModuleMock = {
+        getManagers: function(community, opts, callback) {
+          expect(community).to.deep.equal(data.community);
+          callback(null, [{_id: managerId}]);
+        }
+      };
+      mockery.registerMock('../community', communityModuleMock);
 
       var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
       module.membershipRequestHandler(data, function(err) {
@@ -135,7 +155,7 @@ describe('The notification pubsub module', function() {
           icon: {objectType: 'icon', id: 'fa-users'},
           category: 'community:membership:request',
           interactive: true,
-          target: [{objectType: 'community', id: '789'}]
+          target: managerId
         });
         expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
