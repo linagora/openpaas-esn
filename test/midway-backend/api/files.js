@@ -286,6 +286,23 @@ describe('The files API', function() {
       });
     });
 
+    it('should 404 when not exists', function(done) {
+
+      function deleteFile(req, callback) {
+        req.expect(404).end(function(err, res) {
+          expect(err).to.not.exist;
+          return callback();
+        });
+      }
+
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var req = loggedInAsUser(request(webserver.application).del('/api/files/123456789'));
+        deleteFile(req, done);
+      });
+    });
+
     it('should 403 when current user is not the file owner', function(done) {
 
       function createFile(req, callback) {
