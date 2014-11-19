@@ -3,6 +3,7 @@
 
 var Grid = require('gridfs-stream');
 var mongoose = require('mongoose');
+var extend = require('extend');
 var chunk_size = 1024;
 
 module.exports.getAsFileStoreMeta = function(gridfsMeta) {
@@ -85,6 +86,30 @@ module.exports.getMeta = function(id, callback) {
     }
     if (meta) {
       return callback(null, self.getAsFileStoreMeta(meta));
+    }
+    return callback();
+  });
+};
+
+module.exports.addMeta = function(id, data, callback) {
+  if (!id) {
+    return callback(new Error('ID is mandatory'));
+  }
+
+  if (!data) {
+    return callback(new Error('Metadata value is mandatory'));
+  }
+
+  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
+  gfs.files.findOne({filename: id}, function(err, file) {
+
+    if (err) {
+      return callback(err);
+    }
+    if (file) {
+      file.metadata = file.metadata || {};
+      file.metadata = extend(true, file.metadata, data);
+      return gfs.files.save(file, callback);
     }
     return callback();
   });

@@ -611,4 +611,120 @@ describe('The messages API', function() {
       });
     });
   });
+
+  it('should save the attachments reference when posting a message', function(done) {
+    var Whatsup = this.mongoose.model('Whatsup');
+    var message = 'Hey, check out these files!';
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+    var attachment = {_id: '9829892-9982982-87222-238388', name: 'chuck.png', contentType: 'image/png', length: 988288};
+
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) {
+        return done(err);
+      }
+
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'whatsup',
+          attachments: [attachment]
+        },
+        targets: [target]
+      });
+      req.expect(201).end(function(err, res) {
+        expect(err).to.not.exist;
+        expect(res.body).to.exist;
+        expect(res.body._id).to.exist;
+
+        process.nextTick(function() {
+          Whatsup.findOne({_id: res.body._id}, function(err, message) {
+            expect(message).to.exist;
+            expect(message.attachments).to.exist;
+            expect(message.attachments.length).to.equal(1);
+            expect(message.attachments[0]._id).to.equal(attachment._id);
+            expect(message.attachments[0].name).to.equal(attachment.name);
+            expect(message.attachments[0].contentType).to.equal(attachment.contentType);
+            expect(message.attachments[0].length).to.equal(attachment.length);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('should update the attachment references when posting a message with existing attachments', function(done) {
+    var Whatsup = this.mongoose.model('Whatsup');
+    var filestore = require(this.testEnv.basePath + '/backend/core/filestore');
+    var self = this;
+
+    var message = 'Hey, check out these files!';
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+
+    var text = 'hello world';
+    var name = 'hello.txt';
+    var mime = 'text/plain';
+
+    var stream = require('stream');
+    var s = new stream.Readable();
+    s._read = function noop() {};
+    s.push(text);
+    s.push(null);
+
+    filestore.store('123456789', mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+
+      var attachment = {_id: '123456789', name: name, contentType: mime, length: 11};
+
+      self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages'));
+        req.send({
+          object: {
+            description: message,
+            objectType: 'whatsup',
+            attachments: [attachment]
+          },
+          targets: [target]
+        });
+        req.expect(201).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body._id).to.exist;
+
+          process.nextTick(function() {
+            Whatsup.findOne({_id: res.body._id}, function(err, message) {
+              expect(message).to.exist;
+              expect(message.attachments).to.exist;
+              expect(message.attachments.length).to.equal(1);
+              filestore.getMeta(saved.filename, function(err, meta) {
+                if (err) {
+                  return done(err);
+                }
+                expect(meta).to.exist;
+                expect(meta.metadata).to.exist;
+                expect(meta.metadata.referenced).to.exist;
+                expect(meta.metadata.referenced.length).to.equal(1);
+                expect(meta.metadata.referenced[0].objectType).to.exist;
+                expect(meta.metadata.referenced[0].objectType).to.equal('message');
+                expect(meta.metadata.referenced[0].id + '').to.equal(message._id + '');
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });

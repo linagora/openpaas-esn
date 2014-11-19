@@ -17,5 +17,9 @@ module.exports.postToModelMessage = function(message, user) {
     result.position = message.object.position;
   }
 
+  if (message.object.attachments) {
+    result.attachments = message.object.attachments;
+  }
+
   return result;
 };
