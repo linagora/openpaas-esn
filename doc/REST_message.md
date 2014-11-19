@@ -78,8 +78,12 @@ Post a new message by the currently logged in user.
 
 ```
     object: {
-      objectType: "whatsup",             # Type of the message
-      content: whatsup message content,  # Content of the message
+      objectType: "whatsup",               # Type of the message
+      content: "whatsup message content",  # Content of the message
+      attachments: [                       # Message attachments
+        {_id: "9829892-9982982-87222-238388", name: "chuck.png", contentType: "image/png", length: 988288},
+        {_id: "9829892-9982982-87222-238388", name: "bruce.png", contentType: "image/png", length: 67392}
+      ]
     }
 ```
 
@@ -108,7 +112,11 @@ Post a new message by the currently logged in user.
     {
         "object": {
             "objectType": "whatsup",
-            "description": "whatsup message content"
+            "description": "whatsup message content",
+            "attachments": [
+                {"_id": "9829892-9982982-87222-238388", "name": "chuck.png", "contentType": "image/png", "length": 988288},
+                {"_id": "9829892-9982982-87222-238388", "name": "bruce.png", "contentType": "image/png", "length": 67392}
+            ]
         },
         "targets": [
             {
