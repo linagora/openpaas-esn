@@ -46,4 +46,16 @@ function getAttachmentFile(attachment, callback) {
 }
 module.exports.getAttachmentFile = getAttachmentFile;
 
+function setMessageReference(attachment, message, callback) {
+  if (!attachment) {
+    return callback(new Error('Attachment parameter is missing.'));
+  }
+
+  if (!message) {
+    return callback(new Error('Message parameter is missing.'));
+  }
+  return filestore.addMeta(attachment._id, {referenced: [{objectType: 'message', id: message._id}]}, callback);
+}
+module.exports.setMessageReference = setMessageReference;
+
 

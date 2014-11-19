@@ -3,6 +3,7 @@
 var messageModule = require('../../core/message'),
   emailModule = require('../../core/message/email'),
   postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
+  logger = require('../../core/logger'),
   localpubsub = require('../../core/pubsub').local,
   globalpubsub = require('../../core/pubsub').global;
 
@@ -16,6 +17,14 @@ function messageSharesToTimelineTarget(shares) {
 }
 
 function createNewMessage(message, req, res) {
+
+  var publishMessageActivity = function(message) {
+    var targets = messageSharesToTimelineTarget(req.body.targets);
+    var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(message, 'post', req.user, targets);
+    localpubsub.topic('message:activity').publish(activity);
+    globalpubsub.topic('message:activity').publish(activity);
+  };
+
   messageModule.getInstance(message.objectType, message).save(function(err, saved) {
     if (err) {
       return res.send(
@@ -24,11 +33,18 @@ function createNewMessage(message, req, res) {
     }
 
     if (saved) {
-      var targets = messageSharesToTimelineTarget(req.body.targets);
-      var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(saved, 'post', req.user, targets);
-      localpubsub.topic('message:activity').publish(activity);
-      globalpubsub.topic('message:activity').publish(activity);
-      return res.send(201, { _id: saved._id});
+      if (message.attachments && message.attachments.length > 0) {
+        return messageModule.setAttachmentsReferences(saved, function(err) {
+          if (err) {
+            logger.warn('Can not set attachment references', err);
+          }
+          publishMessageActivity(saved);
+          return res.send(201, { _id: saved._id});
+        });
+      } else {
+        publishMessageActivity(saved);
+        return res.send(201, { _id: saved._id});
+      }
     }
 
     return res.send(404);
@@ -36,6 +52,14 @@ function createNewMessage(message, req, res) {
 }
 
 function commentMessage(message, inReplyTo, req, res) {
+
+  var publishCommentActivity = function(parentMessage, childMessage) {
+    var targets = messageSharesToTimelineTarget(parentMessage.shares);
+    var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, targets, inReplyTo, new Date());
+    localpubsub.topic('message:activity').publish(activity);
+    globalpubsub.topic('message:activity').publish(activity);
+  };
+
   var comment;
   if (!inReplyTo._id) {
     return res.send(400, { error: { status: 400, message: 'Bad parameter', details: 'Missing inReplyTo _id in body'}});
@@ -52,11 +76,18 @@ function commentMessage(message, inReplyTo, req, res) {
         { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message }});
     }
 
-    var targets = messageSharesToTimelineTarget(parentMessage.shares);
-    var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, targets, inReplyTo, new Date());
-    localpubsub.topic('message:activity').publish(activity);
-    globalpubsub.topic('message:activity').publish(activity);
-    return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
+    if (message.attachments && message.attachments.length > 0) {
+      return messageModule.setAttachmentsReferences(message, function(err) {
+        if (err) {
+          logger.warn('Can not set attachment references', err);
+        }
+        publishCommentActivity(parentMessage, childMessage);
+        return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
+      });
+    } else {
+      publishCommentActivity(parentMessage, childMessage);
+      return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
+    }
   });
 }
 

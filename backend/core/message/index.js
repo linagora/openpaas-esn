@@ -1,6 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var async = require('async');
+var attachments = require('./attachments');
 var emailMessageModule = require('./email');
 var whatsupMessageModule = require('./whatsup');
 var pubsub = require('../').pubsub.local;
@@ -140,6 +142,30 @@ function addNewComment(message, inReplyTo, callback) {
   });
 }
 
+function setAttachmentsReferences(message, callback) {
+  if (!message) {
+    return callback(new Error('Message is required'));
+  }
+
+  if (!message.attachments || message.attachments.length === 0) {
+    return callback();
+  }
+
+  var failures = [];
+  async.each(message.attachments, function(attachment, done) {
+    attachments.setMessageReference(attachment, message, function(err) {
+      if (err) {
+        failures.push(attachment);
+      }
+      return done();
+    });
+  }, function() {
+    if (failures.length > 1) {
+      return callback(new Error('Fail to set references for attachments', failures));
+    }
+    return callback();
+  });
+}
 
 module.exports = {
   type: {
@@ -151,5 +177,6 @@ module.exports = {
   getModel: getModel,
   getInstance: getInstance,
   addNewComment: addNewComment,
-  findByIds: findByIds
+  findByIds: findByIds,
+  setAttachmentsReferences: setAttachmentsReferences
 };
