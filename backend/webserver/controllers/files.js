@@ -102,29 +102,17 @@ function get(req, res) {
 
 function remove(req, res) {
   if (!req.params.id) {
-    return res.json(400, {
-      error: 400,
-      message: 'Bad Request',
-      details: 'Missing id parameter'
-    });
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Missing id parameter'}});
   }
   var meta = req.fileMeta;
 
   if (meta.metadata.referenced) {
-    return res.json(409, {
-      error: 409,
-      message: 'Conflict',
-      details: 'File is used and can not be deleted'
-    });
+    return res.json(409, {error: {code: 409, message: 'Conflict', details: 'File is used and can not be deleted'}});
   }
 
   filestore.delete(req.params.id, function(err) {
     if (err) {
-      return res.json(500, {
-        error: 500,
-        message: 'Server error',
-        details: err.message || err
-      });
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message || err}});
     }
     return res.send(204);
   });

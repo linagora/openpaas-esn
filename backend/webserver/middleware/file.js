@@ -7,27 +7,15 @@ module.exports.loadMeta = function(req, res, next) {
 
   fileModule.getMeta(id, function(err, meta) {
     if (err) {
-      return res.json(500, {
-        error: 500,
-        message: 'Server Error',
-        details: 'Error while getting file metadata'
-      });
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting file'}});
     }
 
     if (!meta) {
-      return res.json(404, {
-        error: 404,
-        message: 'Not found',
-        details: 'File not found'
-      });
+      return res.json(404, {error: {code: 404, message: 'Not found', details: 'File not found'}});
     }
 
     if (!meta.metadata) {
-      return res.json(400, {
-        error: 400,
-        message: 'Bad request',
-        details: 'Can not find file metadata'
-      });
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not find file metadata'}});
     }
 
     req.fileMeta = meta;
@@ -39,11 +27,7 @@ module.exports.isOwner = function(req, res, next) {
   var meta = req.fileMeta;
 
   if (meta.metadata.creator && meta.metadata.creator.objectType === 'user' && !meta.metadata.creator.id.equals(req.user._id)) {
-    return res.json(403, {
-      error: 403,
-      message: 'Forbidden',
-      details: 'Current user is not a file owner'
-    });
+    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not a file owner'}});
   }
 
   return next();
