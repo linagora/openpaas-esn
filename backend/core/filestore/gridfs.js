@@ -169,5 +169,5 @@ module.exports.delete = function(id, callback) {
     return callback(new Error('ID is mandatory'));
   }
   var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-  gfs.remove({filename: id}, callback);
+  return gfs.remove({filename: id}, callback);
 };

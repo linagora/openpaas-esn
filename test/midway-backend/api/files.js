@@ -5,7 +5,7 @@ var request = require('supertest');
 
 describe('The files API', function() {
   var webserver, filestore;
-  var domain, user;
+  var domain, user, user2;
   var password = 'secret';
 
   beforeEach(function() {
@@ -28,6 +28,7 @@ describe('The files API', function() {
       if (err) { return done(err); }
       domain = models.domain;
       user = models.users[0];
+      user2 = models.users[1];
       done();
     });
   });
@@ -239,6 +240,101 @@ describe('The files API', function() {
         createFile(req, function(id, lastModified) {
           req = loggedInAsUser(request(webserver.application).get('/api/files/' + id));
           getFile(req, lastModified, done);
+        });
+      });
+    });
+  });
+
+  describe('DELETE /api/files/:id', function() {
+    it('should 401 when not logged', function(done) {
+      request(webserver.application). delete('/api/files/123').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should 204 when deleted', function(done) {
+
+      function createFile(req, callback) {
+        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+          .set('Content-Type', 'text/plain')
+          .send('hello world')
+          .expect(201)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+            callback(res.body._id);
+          });
+      }
+
+      function deleteFile(req, callback) {
+        req.expect(204).end(function(err, res) {
+          expect(err).to.not.exist;
+          return callback();
+        });
+      }
+
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        createFile(req, function(id) {
+          req = loggedInAsUser(request(webserver.application).del('/api/files/' + id));
+          deleteFile(req, done);
+        });
+      });
+    });
+
+    it('should 404 when not exists', function(done) {
+
+      function deleteFile(req, callback) {
+        req.expect(404).end(function(err, res) {
+          expect(err).to.not.exist;
+          return callback();
+        });
+      }
+
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var req = loggedInAsUser(request(webserver.application).del('/api/files/123456789'));
+        deleteFile(req, done);
+      });
+    });
+
+    it('should 403 when current user is not the file owner', function(done) {
+
+      function createFile(req, callback) {
+        req.query({ 'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+          .set('Content-Type', 'text/plain')
+          .send('hello world')
+          .expect(201)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+            callback(res.body._id);
+          });
+      }
+
+      function deleteFile(req, callback) {
+        req.expect(403).end(function(err, res) {
+          expect(err).to.not.exist;
+          return callback();
+        });
+      }
+
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        createFile(req, function(id) {
+          self.helpers.api.loginAsUser(webserver.application, user2.emails[0], password, function(err, loggedInAsUser2) {
+            var req = loggedInAsUser2(request(webserver.application).del('/api/files/' + id));
+            deleteFile(req, done);
+          });
         });
       });
     });
