@@ -284,21 +284,29 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'restangular', 'mgcrea.ng
       return Restangular.all('messages').getList(options);
     }
 
-    function post(objectType, data, targets) {
+    function post(objectType, data, targets, attachments) {
       var payload = {};
 
       payload.object = angular.copy(data);
       payload.object.objectType = objectType;
       payload.targets = targets;
 
+      if (attachments && angular.isArray(attachments)) {
+        payload.object.attachments = attachments;
+      }
+
       return Restangular.all('messages').post(payload);
     }
 
-    function addComment(objectType, data, inReplyTo) {
+    function addComment(objectType, data, inReplyTo, attachments) {
       var payload = {};
       payload.object = angular.copy(data);
       payload.object.objectType = objectType;
       payload.inReplyTo = inReplyTo;
+
+      if (attachments && angular.isArray(attachments)) {
+        payload.object.attachments = attachments;
+      }
 
       return Restangular.all('messages').post(payload);
     }
