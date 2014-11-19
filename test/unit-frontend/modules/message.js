@@ -741,6 +741,53 @@ describe('The esn.message Angular module', function() {
         this.api.post(message.object.objectType, message.object, message.targets);
         this.$httpBackend.flush();
       });
+
+      it('should send a POST request to /messages with attachments', function() {
+        var attachments = [{id: 1}, {id: 2}];
+        var object = {
+          objectType: 'whatsup',
+          description: 'whatsup message content'
+        };
+        var targets = [
+          {
+            'objectType': 'wall',
+            'id': 'urn:linagora:esn:wall:<wall uuid>'
+          }
+        ];
+
+        var message = {
+          object: object,
+          targets: targets
+        };
+        message.object.attachments = attachments;
+
+        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.api.post(object.objectType, object, targets, attachments);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a POST request to /messages without attachments when format is wrong', function() {
+        var attachments = {id: 1};
+        var object = {
+          objectType: 'whatsup',
+          description: 'whatsup message content'
+        };
+        var targets = [
+          {
+            'objectType': 'wall',
+            'id': 'urn:linagora:esn:wall:<wall uuid>'
+          }
+        ];
+
+        var message = {
+          object: object,
+          targets: targets
+        };
+
+        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.api.post(object.objectType, object, targets, attachments);
+        this.$httpBackend.flush();
+      });
     });
 
     describe('addComment method', function() {
@@ -763,6 +810,53 @@ describe('The esn.message Angular module', function() {
         this.api.addComment(message.object.objectType, message.object, message.inReplyTo);
         this.$httpBackend.flush();
       });
+
+      it('should send a POST request to /messages with attachments', function() {
+        var attachments = [{id: 1}, {id: 2}];
+        var object = {
+          objectType: 'whatsup',
+          description: 'whatsup response content'
+        };
+        var inReplyTo = [
+          {
+            'objectType': 'wall',
+            'id': 'urn:linagora:esn:wall:<message uuid>'
+          }
+        ];
+
+        var message = {
+          object: object,
+          inReplyTo: inReplyTo
+        };
+        message.object.attachments = attachments;
+
+        this.$httpBackend.expectPOST('/messages', message).respond();
+        this.api.addComment(object.objectType, object, inReplyTo, attachments);
+        this.$httpBackend.flush();
+      });
+    });
+
+    it('should send a POST request to /messages without attachments when format is wrong', function() {
+      var attachments = {id: 1};
+      var object = {
+        objectType: 'whatsup',
+        description: 'whatsup response content'
+      };
+      var inReplyTo = [
+        {
+          'objectType': 'wall',
+          'id': 'urn:linagora:esn:wall:<message uuid>'
+        }
+      ];
+
+      var message = {
+        object: object,
+        inReplyTo: inReplyTo
+      };
+
+      this.$httpBackend.expectPOST('/messages', message).respond();
+      this.api.addComment(object.objectType, object, inReplyTo, attachments);
+      this.$httpBackend.flush();
     });
   });
 });
