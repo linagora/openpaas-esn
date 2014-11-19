@@ -58,13 +58,14 @@ exports = module.exports = function(application) {
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
 
   var files = require('./controllers/files');
+  var fileMiddleware = require('./middleware/file');
   application.post('/api/files',
                    authorize.requiresAPILogin,
                    requestMW.requireBody,
                    requestMW.requireQueryParams('mimetype', 'size'),
                    files.create);
   application.get('/api/files/:id', authorize.requiresAPILogin, files.get);
-  application.delete('/api/files/:id', authorize.requiresAPILogin, files.remove);
+  application.delete('/api/files/:id', authorize.requiresAPILogin, fileMiddleware.loadMeta, fileMiddleware.isOwner, files.remove);
 
   var views = require('./controllers/views');
   var templates = require('./middleware/templates');
