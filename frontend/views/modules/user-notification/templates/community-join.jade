@@ -1,0 +1,18 @@
+.media.notification-content.esn-panel
+  div(ng-show='error')
+    p #{__('Error while getting notifications')}
+  div(ng-show='loading && !error')
+    p
+      i.fa.fa-cog.fa-spin
+      | #{__('Loading notifications')}
+  div(ng-hide='loading || error')
+    a.pull-left(ng-href='/#/communities/{{::communityJoined._id}}')
+      img.media-object(ng-src='/api/avatars?objectType=community&id={{::communityJoined._id}}', src='/images/community.png')
+    .media-body
+      .notification-head.ellipsis
+        a(ng-href="/#/communities/{{::communityJoined._id}}") {{::communityJoined.title}}
+        span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
+      .notification-body
+        span
+          a(ng-href="/#/profile/{{::joiner._id}}") {{::joiner.firstname}} {{::joiner.lastname}}
+          | &nbsp;#{__('joined this community')}

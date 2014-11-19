@@ -202,7 +202,9 @@ angular.module('esn.user-notification',
 
       }, function() {
         $scope.error = true;
-      });
+      }).finally (function() {
+      $scope.loading = false;
+    });
   }])
   .directive('notificationTemplateDisplayer', function() {
     return {
@@ -339,6 +341,39 @@ angular.module('esn.user-notification',
             }
           );
         };
+      }
+    };
+  }])
+  .directive('communityJoinNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        notification: '='
+      },
+      templateUrl: '/views/modules/user-notification/templates/community-join.html',
+      controller: function($scope) {
+        var userResolver = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
+        var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
+
+        $scope.error = false;
+
+        $q.all({user: userResolver, community: communityResolver}).then(function(result) {
+          $scope.joiner = result.user.data;
+          $scope.communityJoined = result.community.data;
+          userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
+            function() {
+              $scope.notification.acknowledged = true;
+            },
+            function(error) {
+              $scope.error = error;
+            }
+          );
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.loading = false;
+        });
       }
     };
   }])
