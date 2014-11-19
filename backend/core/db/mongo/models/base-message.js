@@ -9,6 +9,24 @@ var AttachmentSchema = new mongoose.Schema({
   length: {type: Number, required: true}
 });
 
+var CopyOf = new mongoose.Schema({
+  origin: {
+    resource: {
+      objectType: {type: String, required: true},
+      id: {type: mongoose.Schema.Types.Mixed, required: true}
+    },
+    message: {type: mongoose.Schema.ObjectId, required: true},
+    sharer: {type: mongoose.Schema.ObjectId, required: true, ref: 'User'},
+    timestamps: {
+      creation: {type: Date, default: Date.now}
+    }
+  },
+  target: [{
+    objectType: {type: String, required: true},
+    id: {type: mongoose.Schema.Types.Mixed, required: true}
+  }]
+}, {_id: false});
+
 module.exports = {
   timestamps: {
     creation: {type: Date, default: Date.now}
@@ -20,5 +38,6 @@ module.exports = {
     objectType: {type: String},
     id: {type: String}
   }],
-  responses: [mongoose.Schema.Mixed]
+  responses: [mongoose.Schema.Mixed],
+  copyOf: {type: CopyOf.tree, required: false}
 };
