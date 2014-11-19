@@ -236,6 +236,10 @@ angular.module('esn.user-notification',
         var userResolver = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
         var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
 
+        this.actionDone = function(action) {
+          $scope.actionDone = action;
+        };
+
         $scope.invitedUser = session.user;
         $scope.error = false;
 
@@ -276,8 +280,9 @@ angular.module('esn.user-notification',
     function(communityAPI, userNotificationAPI) {
     return {
       restrict: 'E',
+      require: '^communityMembershipInvitationNotification',
       templateUrl: '/views/modules/user-notification/community-invitation/community-invitation-accept-button.html',
-      controller: function($scope) {
+      link: function($scope, element, attrs, invitationController) {
         $scope.restActive = false;
         $scope.accept = function() {
           $scope.restActive = true;
@@ -286,6 +291,7 @@ angular.module('esn.user-notification',
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
                   $scope.notification.acknowledged = true;
+                  invitationController.actionDone('accept');
                 },
                 function(error) {
                   $scope.error = error;
@@ -307,8 +313,9 @@ angular.module('esn.user-notification',
     function(communityAPI, session, userNotificationAPI) {
     return {
       restrict: 'E',
+      require: '^communityMembershipInvitationNotification',
       templateUrl: '/views/modules/user-notification/community-invitation/community-invitation-decline-button.html',
-      controller: function($scope) {
+      link: function($scope, element, attrs, invitationController) {
         $scope.restActive = false;
         $scope.decline = function() {
           $scope.restActive = true;
@@ -317,6 +324,7 @@ angular.module('esn.user-notification',
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
                   $scope.notification.acknowledged = true;
+                  invitationController.actionDone('decline');
                 },
                 function(error) {
                   $scope.error = error;

@@ -16,7 +16,10 @@
         span
           a(ng-href="/#/profile/{{::invitationSender._id}}") {{::invitationSender.firstname}} {{::invitationSender.lastname}}
           | &nbsp;#{__('invites you to join this community')}
-      .notification-actions
-        community-invitation-accept-button
-        &nbsp;
-        community-invitation-decline-button
+      div(ng-switch='actionDone')
+        .notification-actions(ng-switch-default)
+          community-invitation-accept-button
+          &nbsp;
+          community-invitation-decline-button
+        .notification-actions(ng-switch-when='accept') #{__('You have been added to the community, welcome')} !
+        .notification-actions(ng-switch-when='decline') #{__('You have declined the invitation')}
