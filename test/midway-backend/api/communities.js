@@ -275,7 +275,8 @@ describe('The communities API', function() {
             user: self.user2._id,
             timestamp: {
               creation: new Date(1419509532000)
-            }
+            },
+            workflow: 'workflow'
           };
 
           self.helpers.api.createCommunity('Node', self.user, self.domain, {membershipRequests: [self.membershipRequest]},
@@ -1996,7 +1997,7 @@ describe('The communities API', function() {
         function(callback) {
           community.creator = user._id;
           community.domain_ids = [domain._id];
-          community.membershipRequests.push({user: user._id});
+          community.membershipRequests.push({user: user._id, workflow: 'workflow'});
           saveCommunity(community, callback);
         },
         function() {
