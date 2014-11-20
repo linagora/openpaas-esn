@@ -2,6 +2,7 @@
 
 var uuid = require('node-uuid');
 var filestore = require('../../core/filestore');
+var Busboy = require('busboy');
 
 function create(req, res) {
   var size = parseInt(req.query.size, 10);
@@ -23,29 +24,41 @@ function create(req, res) {
     metadata.creator = {objectType: 'user', id: req.user._id};
   }
 
-  filestore.store(fileId, req.query.mimetype, metadata, req, {}, function(err, file) {
-    if (err) {
-      return res.json(500, {
-        error: 500,
-        message: 'Server error',
-        details: err.message || err
-      });
-    }
-
-    if (file.length !== size) {
-      return filestore.delete(fileId, function(err) {
-        res.json(412, {
-          error: 412,
-          message: 'File size mismatch',
-          details: 'File size given by user agent is ' + size +
-                   ' and file size returned by storage system is ' +
-                   file.length
+  var saveStream = function(stream) {
+    return filestore.store(fileId, req.query.mimetype, metadata, stream, {}, function(err, saved) {
+      if (err) {
+        return res.json(500, {
+          error: 500,
+          message: 'Server error',
+          details: err.message || err
         });
-      });
-    }
+      }
 
-    return res.json(201, { _id: fileId });
-  });
+      if (saved.length !== size) {
+        return filestore.delete(fileId, function(err) {
+          res.json(412, {
+            error: 412,
+            message: 'File size mismatch',
+            details: 'File size given by user agent is ' + size +
+            ' and file size returned by storage system is ' +
+            saved.length
+          });
+        });
+      }
+      return res.json(201, {_id: fileId});
+    });
+  };
+
+  if (req.headers['content-type'].indexOf('multipart/form-data') === 0) {
+    var busboy = new Busboy({ headers: req.headers });
+    busboy.once('file', function(fieldname, file) {
+      return saveStream(file);
+    });
+    req.pipe(busboy);
+
+  } else {
+    return saveStream(req);
+  }
 }
 
 function get(req, res) {
@@ -91,7 +104,7 @@ function get(req, res) {
 
       if (fileMeta.metadata.name) {
         res.set('Content-Disposition', 'inline; filename="' +
-                fileMeta.metadata.name.replace(/"/g, '') + '"');
+        fileMeta.metadata.name.replace(/"/g, '') + '"');
       }
     }
 
