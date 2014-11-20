@@ -6,7 +6,7 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
         textarea.whatsupcomment-input.form-control(ng-model='whatsupcomment', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
       .form-group
         map-get-display-current-position
-      .form-group
+      .form-group(ng-show='attachments && attachments.length > 0')
         message-edition-attachments
       .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
         button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')

@@ -5,7 +5,7 @@ div.esn-panel.whatsup-form.form-container(ng-controller='messageController', nv-
       textarea.whatsup-input.form-control(ng-model='whatsupmessage', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
     .form-group
       map-get-display-current-position
-    .form-group
+    .form-group(ng-show='attachments && attachments.length > 0')
       message-edition-attachments
 
     .form-group(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')

@@ -2,3 +2,7 @@ div(data-ng-switch='message.objectType')
   whatsup-message(data-ng-switch-when='whatsup', message='message')
   email-message(data-ng-switch-when='email', message='message')
   event-message(data-ng-switch-when='event', message='message')
+
+  message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+
+  include ./messagesBottomLinks
