@@ -106,6 +106,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
             $scope.rows = 1;
             $scope.attachments = [];
             $scope.uploads = [];
+            $scope.complete = 0;
             $rootScope.$emit('message:posted', {
               activitystreamUuid: $scope.activitystreamUuid,
               id: response.data._id
@@ -148,7 +149,10 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       });
     };
   }])
-  .controller('messageCommentController', ['$scope', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, messageAPI, $alert, $rootScope, geoAPI) {
+  .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI) {
+    $scope.attachments = [];
+    $scope.uploads = [];
+    $scope.complete = 0;
     $scope.whatsupcomment = '';
     $scope.sending = false;
     $scope.rows = 1;
@@ -160,6 +164,30 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
 
     $scope.shrink = function() {
       return;
+    };
+
+    $scope.onFileSelect = function($files) {
+      $scope.attachments = [];
+      var done = function() {
+        $scope.complete++;
+      };
+
+      for (var i = 0; i < $files.length; i++) {
+        var defer = $q.defer();
+        $scope.uploads.push(defer.promise.then(done));
+        $scope.attachments.push({
+          progress: 0,
+          file: $files[i],
+          defer: defer,
+          index: i
+        });
+      }
+    };
+
+    $scope.removeFile = function(file) {
+      $scope.attachments = $scope.attachments.filter(function(attachment) {
+        return attachment.file !== file;
+      });
     };
 
     $scope.addComment = function() {
@@ -197,27 +225,46 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
         data.position.display_name = $scope.position.display_name;
       }
 
-      $scope.sending = true;
-      messageAPI.addComment(objectType, data, inReplyTo).then(
-        function(response) {
-          $scope.sending = false;
-          $scope.whatsupcomment = '';
-          $scope.shrink();
-          $rootScope.$emit('message:comment', {
-            id: response.data._id,
-            parent: $scope.message
-          });
-        },
-        function(err) {
-          $scope.sending = false;
-          if (err.data.status === 403) {
-            $scope.displayError('You do not have enough rights to write a response here');
-          } else {
-            $scope.displayError('Error while adding comment');
+      $q.all($scope.uploads).then(function() {
+
+        var attachments = $scope.attachments.map(function(attachment) {
+          var type = attachment.file.type;
+          if (!type || type.length === 0) {
+            type = 'application/octet-stream';
           }
-        }
-      ).finally (function() {
-        $scope.position = {};
+          return {
+            _id: attachment.stored._id,
+            name: attachment.file.name,
+            contentType: type,
+            length: attachment.file.size
+          };
+        });
+
+        $scope.sending = true;
+        messageAPI.addComment(objectType, data, inReplyTo, attachments).then(
+          function(response) {
+            $scope.sending = false;
+            $scope.whatsupcomment = '';
+            $scope.shrink();
+            $scope.attachments = [];
+            $scope.uploads = [];
+            $scope.complete = 0;
+            $rootScope.$emit('message:comment', {
+              id: response.data._id,
+              parent: $scope.message
+            });
+          },
+          function(err) {
+            $scope.sending = false;
+            if (err.data.status === 403) {
+              $scope.displayError('You do not have enough rights to write a response here');
+            } else {
+              $scope.displayError('Error while adding comment');
+            }
+          }
+        ).finally(function() {
+          $scope.position = {};
+        });
       });
     };
 
@@ -225,6 +272,9 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       $scope.whatsupcomment = '';
       $scope.rows = 1;
       $scope.removePosition();
+      $scope.attachments = [];
+      $scope.uploads = [];
+      $scope.complete = 0;
     };
 
     $scope.displayError = function(err) {
@@ -409,7 +459,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
             .progress(function(evt) {
               $scope.attachment.progress = parseInt(100.0 * evt.loaded / evt.total);
             })
-            .finally(function() {
+            .finally (function() {
               $timeout(function() {
                 $scope.uploading = false;
               }, 2000);
