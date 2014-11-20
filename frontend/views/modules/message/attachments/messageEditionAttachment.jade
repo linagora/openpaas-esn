@@ -1,0 +1,13 @@
+.attachment-widget
+  a.cancel(href="", ng-click='cancel()')
+    i.nomargin.remove.fa.fa-remove
+  attachment-icon(type='{{attachment.file.type}}')
+  div.ellipsis
+    a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{attachment.stored._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}
+    span(ng-if='!attachment.uploaded') {{::attachment.file.name}}
+  span.meta.ellipsis
+    {{attachment.file.size | bytes}} {{attachment.file.type | extension | uppercase}} file
+  div
+    div.progress(ng-show='uploading')
+      .progress-bar.progress-bar-success.progress-bar-striped(role="progressbar", aria-valuenow="{{attachment.progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{attachment.progress}}%")
+        span.sr-only {{attachment.progress}} % #{__('Complete')}
