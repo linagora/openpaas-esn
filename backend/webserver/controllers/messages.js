@@ -1,11 +1,11 @@
 'use strict';
 
 var messageModule = require('../../core/message'),
-  emailModule = require('../../core/message/email'),
-  postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
-  logger = require('../../core/logger'),
-  localpubsub = require('../../core/pubsub').local,
-  globalpubsub = require('../../core/pubsub').global;
+    emailModule = require('../../core/message/email'),
+    postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
+    logger = require('../../core/logger'),
+    localpubsub = require('../../core/pubsub').local,
+    globalpubsub = require('../../core/pubsub').global;
 
 function messageSharesToTimelineTarget(shares) {
   return shares.map(function(e) {
@@ -163,6 +163,32 @@ function getOne(req, res) {
   });
 }
 
+function copy(req, res) {
+  if (!req.body.resource) {
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'resource is required'}});
+  }
+
+  if (!req.body.target || req.body.target && !req.body.target.length) {
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'target body is required'}});
+  }
+
+  var id = req.param('id');
+  var resource = req.body.resource;
+  var target = req.body.target;
+
+  messageModule.copy(id, req.user._id, resource, target, function(err, copy) {
+    if (err) {
+      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot copy message. ' + err.message}});
+    }
+
+    if (!copy) {
+      return res.json(404, { error: { code: 404, message: 'Message not found', details: 'Message has not been found ' + id}});
+    }
+
+    res.json(201, { _id: copy._id});
+  });
+}
+
 function createMessageFromEmail(req, res) {
 
   var objectType = req.query.objectType ||  req.query.objectType;
@@ -196,5 +222,6 @@ module.exports = {
   createOrReplyToMessage: create,
   getMessages: get,
   getMessage: getOne,
+  copy: copy,
   createMessageFromEmail: createMessageFromEmail
 };
