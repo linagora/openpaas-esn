@@ -471,8 +471,12 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
           }
 
           if ($scope.attachment.uploaded) {
-            console.log('Need to delete the file');
             $scope.$parent.removeFile($scope.attachment.file);
+            fileAPIService.remove($scope.attachment.stored._id).then(function() {
+              $scope.attachment.defer.resolve({status: 'canceled'});
+            }, function() {
+              $scope.attachment.defer.resolve({status: 'can not delete file'});
+            });
           }
         };
 
