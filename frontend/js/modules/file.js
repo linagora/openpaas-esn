@@ -1,6 +1,34 @@
 'use strict';
 
-angular.module('esn.file', [])
+angular.module('esn.file', ['angularFileUpload'])
+
+  .factory('fileAPIService', ['$upload', function($upload) {
+    function upload(blob, mime, size) {
+      return $upload.http({
+        method: 'POST',
+        url: '/api/files',
+        headers: {'Content-Type': mime},
+        data: blob,
+        params: {mimetype: mime, size: size},
+        withCredentials: true
+      });
+    }
+
+    function uploadFile(file, mime, size) {
+      return $upload.upload({
+        method: 'POST',
+        url: '/api/files',
+        file: file,
+        params: {mimetype: mime, size: size},
+        withCredentials: true
+      });
+    }
+
+    return {
+      upload: upload,
+      uploadFile: uploadFile
+    };
+  }])
   .factory('contentTypeService', function() {
 
     var extensions = {
