@@ -1,8 +1,23 @@
 'use strict';
 
 angular.module('esn.user', ['restangular', 'esn.object-type'])
-  .run(['objectTypeResolver', 'userAPI', function(objectTypeResolver, userAPI) {
+  .run(['objectTypeResolver', 'userAPI', 'Restangular', function(objectTypeResolver, userAPI, Restangular) {
     objectTypeResolver.register('user', userAPI.user);
+    Restangular.extendModel('users', function(model) {
+      model.url = function(user) {
+        return '/#/profile/' + user._id || user;
+      };
+      model.avatarUrl = function(user) {
+        return '/api/avatars?objectType=user&email=' + user.emails[0] || user;
+      };
+      model.displayName = function(user) {
+        if (user.firstname && user.lastname) {
+          return user.firstname + ' ' + user.lastname;
+        }
+        return user;
+      };
+      return model;
+    });
   }])
   .factory('userAPI', ['Restangular', function(Restangular) {
 

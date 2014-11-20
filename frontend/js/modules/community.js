@@ -7,8 +7,20 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'resta
       displayProperty: true
     });
   }])
-  .run(['objectTypeResolver', 'communityAPI', function(objectTypeResolver, communityAPI) {
+  .run(['objectTypeResolver', 'communityAPI', 'Restangular', function(objectTypeResolver, communityAPI, Restangular) {
     objectTypeResolver.register('community', communityAPI.get);
+    Restangular.extendModel('communities', function(model) {
+      model.url = function(community) {
+        return '/#/communities/' + community._id || community;
+      };
+      model.avatarUrl = function(community) {
+        return '/api/avatars?objectType=community&id=' + community._id || community;
+      };
+      model.displayName = function(community) {
+        return community.title || community;
+      };
+      return model;
+    });
   }])
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
