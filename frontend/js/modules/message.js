@@ -36,7 +36,6 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
     };
 
     $scope.onFileSelect = function($files) {
-      $scope.attachments = [];
       var done = function() {
         $scope.complete++;
       };
@@ -167,7 +166,6 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
     };
 
     $scope.onFileSelect = function($files) {
-      $scope.attachments = [];
       var done = function() {
         $scope.complete++;
       };
