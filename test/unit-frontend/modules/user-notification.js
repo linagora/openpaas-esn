@@ -491,32 +491,36 @@ describe('The esn.user-notification Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, communityMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
       this.scope = $rootScope.$new();
       this.communityAPI = communityAPI;
       this.userNotificationAPI = userNotificationAPI;
-      this.scope.invitedUser = {
-        _id: '123'
+      communityMembershipInvitationNotificationDirective[0].controller = function($scope) {
+        this.actionDone = function() {};
+        $scope.invitedUser = {
+          _id: '123'
+        };
+        $scope.invitationCommunity = {
+          _id: '456'
+        };
+        $scope.notification = {
+          _id: '789'
+        };
       };
-      this.scope.invitationCommunity = {
-        _id: '456'
-      };
-      this.scope.notification = {
-        _id: '789'
-      };
-      this.html = '<community-invitation-accept-button/>';
+
+      this.html = '<community-membership-invitation-notification notification="notification"><community-invitation-accept-button/></community-membership-invitation-notification>';
     }));
 
     it('should call communityAPI#join', function(done) {
       this.communityAPI.join = function(communityId, userId) {
         return done();
       };
-      this.$compile(this.html)(this.scope);
+      var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      this.scope.accept();
+      element.find('community-invitation-accept-button').scope().accept();
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
@@ -529,9 +533,9 @@ describe('The esn.user-notification Angular module', function() {
         return done();
       };
 
-      this.$compile(this.html)(this.scope);
+      var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      this.scope.accept();
+      element.find('community-invitation-accept-button').scope().accept();
       this.scope.$digest();
     });
 
@@ -565,32 +569,36 @@ describe('The esn.user-notification Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, communityMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
       this.scope = $rootScope.$new();
       this.communityAPI = communityAPI;
       this.userNotificationAPI = userNotificationAPI;
-      this.scope.invitedUser = {
-        _id: '123'
+      communityMembershipInvitationNotificationDirective[0].controller = function($scope) {
+        this.actionDone = function() {};
+        $scope.invitedUser = {
+          _id: '123'
+        };
+        $scope.invitationCommunity = {
+          _id: '456'
+        };
+        $scope.notification = {
+          _id: '789'
+        };
       };
-      this.scope.invitationCommunity = {
-        _id: '456'
-      };
-      this.scope.notification = {
-        _id: '789'
-      };
-      this.html = '<community-invitation-decline-button/>';
+
+      this.html = '<community-membership-invitation-notification notification="notification"><community-invitation-decline-button/></community-membership-invitation-notification>';
     }));
 
     it('should call communityAPI#cancelRequestMemberShip', function(done) {
       this.communityAPI.cancelRequestMembership = function() {
         return done();
       };
-      this.$compile(this.html)(this.scope);
+      var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      this.scope.decline();
+      element.find('community-invitation-decline-button').scope().decline();
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
@@ -603,9 +611,9 @@ describe('The esn.user-notification Angular module', function() {
         return done();
       };
 
-      this.$compile(this.html)(this.scope);
+      var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      this.scope.decline();
+      element.find('community-invitation-decline-button').scope().decline();
       this.scope.$digest();
     });
 
