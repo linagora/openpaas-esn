@@ -9,5 +9,5 @@
     {{attachment.file.size | bytes}} {{attachment.file.type | extension | uppercase}} file
   div
     div.progress(ng-show='uploading')
-      .progress-bar.progress-bar-success.progress-bar-striped(role="progressbar", aria-valuenow="{{attachment.progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{attachment.progress}}%")
+      .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{attachment.progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{attachment.progress}}%")
         span.sr-only {{attachment.progress}} % #{__('Complete')}
