@@ -32,7 +32,9 @@ angular.module('esnApp', [
   'esn.user-notification',
   'esn.calendar',
   'esn.ical',
-  'esn.object-type'
+  'esn.object-type',
+  'esn.file',
+  'esn.background'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
