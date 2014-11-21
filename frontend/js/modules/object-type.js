@@ -1,6 +1,13 @@
 'use strict';
 
 angular.module('esn.object-type', [])
+  .run(['objectTypeResolver', '$q', function(objectTypeResolver, $q) {
+    objectTypeResolver.register('string', function(id) {
+      var defer = $q.defer();
+      defer.resolve(id);
+      return defer.promise;
+    });
+  }])
   .factory('objectTypeResolver', ['$q', function($q) {
 
     var resolvers = {};
