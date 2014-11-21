@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper'])
+angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper'])
   .controller('messageEditionController', ['$scope', function($scope) {
     var types = ['whatsup', 'event'];
     $scope.type = types[0];
@@ -19,7 +19,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       templateUrl: '/views/modules/message/messageEdition.html'
     };
   })
-  .controller('messageController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'fileAPIService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, fileAPIService) {
+  .controller('messageController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'fileAPIService', 'messageAttachmentHelper', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, fileAPIService, messageAttachmentHelper) {
 
     $scope.rows = 1;
     $scope.position = {};
@@ -28,7 +28,9 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
     $scope.complete = 0;
 
     $scope.expand = function(event) {
-      $scope.rows = 5;
+      if ($scope.rows === 1) {
+        $scope.rows = 5;
+      }
     };
 
     $scope.shrink = function() {
@@ -36,10 +38,10 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
     };
 
     $scope.onFileSelect = function($files) {
+      $scope.expand();
       var done = function() {
         $scope.complete++;
       };
-
       for (var i = 0; i < $files.length; i++) {
         var defer = $q.defer();
         $scope.uploads.push(defer.promise.then(done));
@@ -123,8 +125,6 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
             }
           }
         );
-      }, function(err) {
-        console.log('ERR', err);
       });
     };
 
@@ -132,9 +132,11 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       $scope.rows = 1;
       $scope.whatsupmessage = '';
       $scope.removePosition();
-      $scope.attachments = [];
-      $scope.uploads = [];
-      $scope.complete = 0;
+      $q.all(messageAttachmentHelper.deleteAttachments($scope.attachments)).then(function() {
+        $scope.attachments = [];
+        $scope.uploads = [];
+        $scope.complete = 0;
+      });
     };
 
     $scope.displayError = function(err) {
@@ -149,7 +151,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       });
     };
   }])
-  .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI) {
+  .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper) {
     $scope.attachments = [];
     $scope.uploads = [];
     $scope.complete = 0;
@@ -159,7 +161,9 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
     $scope.position = {};
 
     $scope.expand = function() {
-      $scope.rows = 4;
+      if ($scope.rows === 1) {
+        $scope.rows = 4;
+      }
     };
 
     $scope.shrink = function() {
@@ -167,6 +171,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
     };
 
     $scope.onFileSelect = function($files) {
+      $scope.expand();
       var done = function() {
         $scope.complete++;
       };
@@ -271,9 +276,11 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       $scope.whatsupcomment = '';
       $scope.rows = 1;
       $scope.removePosition();
-      $scope.attachments = [];
-      $scope.uploads = [];
-      $scope.complete = 0;
+      $q.all(messageAttachmentHelper.deleteAttachments($scope.attachments)).then(function() {
+        $scope.attachments = [];
+        $scope.uploads = [];
+        $scope.complete = 0;
+      });
     };
 
     $scope.displayError = function(err) {
@@ -467,9 +474,6 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
 
         $scope.cancel = function() {
           $scope.uploading = false;
-          if ($scope.uploader) {
-            //$scope.uploader.abort();
-          }
 
           if ($scope.attachment.uploaded) {
             $scope.$parent.removeFile($scope.attachment.file);
@@ -491,6 +495,31 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       templateUrl: '/views/modules/message/attachments/messageEditionAttachments.html'
     };
   })
+  .factory('messageAttachmentHelper', ['$q', 'fileAPIService', function($q, fileAPIService) {
+
+    function deleteAttachments(attachments) {
+      var calls = [];
+      if (!attachments || attachments.length === 0) {
+        return;
+      }
+      angular.forEach(attachments, function(attachment) {
+        if (attachment.stored && attachment.stored._id) {
+          var defer = $q.defer();
+          fileAPIService.remove(attachment.stored._id).then(function() {
+            defer.resolve({status: 'success', _id: attachment.stored._id});
+          }, function() {
+            defer.resolve({status: 'error', _id: attachment.stored._id});
+          });
+          calls.push(defer.promise);
+        }
+      });
+      return calls;
+    }
+
+    return {
+      deleteAttachments: deleteAttachments
+    };
+  }])
   .factory('messageAPI', ['Restangular', function(Restangular) {
 
     function get(options) {

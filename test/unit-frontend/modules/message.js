@@ -360,7 +360,7 @@ describe('The esn.message Angular module', function() {
         this.scope.$digest();
       });
 
-      it.only('should call $messageAPI.post when all data is set', function(done) {
+      it('should call $messageAPI.post when all data is set', function(done) {
         this.messageAPI.post = function() {
           done();
         };
