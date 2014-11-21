@@ -256,6 +256,11 @@ header.topbar {
       padding-top: 0px;
       padding-bottom: 0px;
     }
+    .cancel {
+      i {
+        font-size: 1em;
+      }
+    }
   }
   .badge {
     position: absolute;
@@ -852,4 +857,17 @@ ul.emails-list {
 
 a.map {
   font-size: 90%;
+}
+
+a.cancel {
+  display:block;
+  float:right;
+  font-weight: bold;
+  line-height: 1;
+  color: @esn-primary-middle;
+  opacity: .3;
+}
+
+a.cancel:hover {
+  opacity: 1;
 }

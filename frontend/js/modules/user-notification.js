@@ -216,7 +216,7 @@ angular.module('esn.user-notification',
       templateUrl: '/views/modules/user-notification/notification-template-displayer.html'
     };
   })
-  .directive('externalUserNotification', ['objectTypeResolver', '$q', function(objectTypeResolver, $q) {
+  .directive('externalUserNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -225,6 +225,23 @@ angular.module('esn.user-notification',
       },
       templateUrl: '/views/modules/user-notification/templates/external-notification.html',
       controller: function($scope) {
+        var acknowledging = false;
+
+        $scope.acknowledge = function() {
+          if (acknowledging) {
+            return;
+          }
+          acknowledging = true;
+          userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
+            function() {
+              $scope.notification.acknowledged = true;
+            },
+            function(error) {
+              $scope.error = error;
+            }
+          );
+        };
+
         var resolvers = {};
 
         resolvers.subject = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
