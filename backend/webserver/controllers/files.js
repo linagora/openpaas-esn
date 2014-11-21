@@ -49,7 +49,7 @@ function create(req, res) {
     });
   };
 
-  if (req.headers['content-type'].indexOf('multipart/form-data') === 0) {
+  if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
     var busboy = new Busboy({ headers: req.headers });
     busboy.once('file', function(fieldname, file) {
       return saveStream(file);
