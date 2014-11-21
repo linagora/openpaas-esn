@@ -261,7 +261,7 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
               $scope.displayError('Error while adding comment');
             }
           }
-        ).finally(function() {
+        ).finally (function() {
           $scope.position = {};
         });
       });

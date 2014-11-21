@@ -50,9 +50,21 @@ function create(req, res) {
   };
 
   if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
+    var nb = 0;
     var busboy = new Busboy({ headers: req.headers });
     busboy.once('file', function(fieldname, file) {
+      nb++;
       return saveStream(file);
+    });
+
+    busboy.on('finish', function() {
+      if (nb === 0) {
+        res.json(400, {
+          error: 400,
+          message: 'Bad request',
+          details: 'The form data must contain an attachment'}
+        );
+      }
     });
     req.pipe(busboy);
 

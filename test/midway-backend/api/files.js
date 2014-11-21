@@ -165,6 +165,55 @@ describe('The files API', function() {
           });
       });
     });
+
+    describe('When posting form-data', function() {
+
+      it('should save the file and send back 201', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        req.query({'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+          .attach('file', self.testEnv.fixtures + '/hello.txt')
+          .send()
+          .expect(201)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+
+            filestore.get(res.body._id, function(err, meta, readStream) {
+              if (err) {
+                return done(err);
+              }
+              self.helpers.api.getStreamData(readStream, function(data) {
+                expect(data).to.equal('hello world');
+                expect(meta.contentType).to.equal('text/plain');
+                expect(meta.length).to.equal(11);
+                expect(meta.metadata.name).to.equal('fname');
+                done();
+              });
+            });
+          });
+        });
+      });
+
+      it('should send 400 when the form does not contain attachment', function(done) {
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(webserver.application).post('/api/files'));
+        req.query({'size': 11, 'mimetype': 'text/plain', 'name': 'fname'})
+          .field('username', 'Awesome')
+          .send()
+          .expect(400)
+          .end(done);
+        });
+      });
+    });
   });
 
   describe('GET /api/files/:id', function() {
