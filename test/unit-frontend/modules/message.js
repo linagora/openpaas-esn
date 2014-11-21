@@ -315,6 +315,7 @@ describe('The esn.message Angular module', function() {
 
       $controller('messageController', {
         $scope: this.scope,
+        $q: this.$q,
         messageAPI: this.messageAPI,
         $alert: this.alert,
         $rootScope: this.rootScope,
@@ -344,6 +345,7 @@ describe('The esn.message Angular module', function() {
         };
         this.scope.whatsupmessage = '';
         this.scope.sendMessage();
+        this.scope.$digest();
       });
 
       it('should not call $messageAPI.post when $scope.activitystreamUuid is not set', function(done) {
@@ -355,9 +357,10 @@ describe('The esn.message Angular module', function() {
         };
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
+        this.scope.$digest();
       });
 
-      it('should call $messageAPI.post when all data is set', function(done) {
+      it.only('should call $messageAPI.post when all data is set', function(done) {
         this.messageAPI.post = function() {
           done();
         };
@@ -367,6 +370,7 @@ describe('The esn.message Angular module', function() {
         this.scope.activitystreamUuid = '0987654321';
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
+        this.scope.$digest();
       });
 
       it('should call $messageAPI.post with position when set', function(done) {
@@ -382,6 +386,7 @@ describe('The esn.message Angular module', function() {
         this.scope.activitystreamUuid = '0987654321';
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
+        this.scope.$digest();
       });
 
       it('should display a warning when user is not authorized to post message', function(done) {
@@ -446,6 +451,7 @@ describe('The esn.message Angular module', function() {
 
       $controller('messageCommentController', {
         $scope: this.scope,
+        $q: this.$q,
         messageAPI: this.messageAPI,
         $alert: this.alert,
         $rootScope: this.rootScope,
@@ -513,6 +519,7 @@ describe('The esn.message Angular module', function() {
           objectType: 'whatsup'
         };
         this.scope.addComment();
+        this.scope.$digest();
       });
 
       it('should call the addComment API when all data is set', function(done) {
@@ -528,6 +535,7 @@ describe('The esn.message Angular module', function() {
           objectType: 'whatsup'
         };
         this.scope.addComment();
+        this.scope.$digest();
       });
 
       it('should call the addComment API with position when set', function(done) {
@@ -548,6 +556,7 @@ describe('The esn.message Angular module', function() {
           objectType: 'whatsup'
         };
         this.scope.addComment();
+        this.scope.$digest();
       });
 
       it('should not call the addComment API when $scope.sending is true', function(done) {
@@ -585,6 +594,7 @@ describe('The esn.message Angular module', function() {
             objectType: 'whatsup'
           };
           this.scope.addComment();
+          this.scope.$digest();
         });
 
         it('should set scope.sending to false', function(done) {
@@ -608,6 +618,7 @@ describe('The esn.message Angular module', function() {
             objectType: 'whatsup'
           };
           this.scope.addComment();
+          this.scope.$digest();
         });
 
         it('should set scope.whatsupcomment to an empty string', function(done) {
@@ -632,6 +643,7 @@ describe('The esn.message Angular module', function() {
             objectType: 'whatsup'
           };
           this.scope.addComment();
+          this.scope.$digest();
         });
 
         it('should emit a message:comment event on rootScope', function(done) {
@@ -658,6 +670,7 @@ describe('The esn.message Angular module', function() {
             done();
           });
           this.scope.addComment();
+          this.scope.$digest();
         });
 
         it('should display warning if user does not have rights to comment message', function(done) {

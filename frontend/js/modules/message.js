@@ -90,7 +90,6 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
       };
 
       $q.all($scope.uploads).then(function() {
-
         var attachments = $scope.attachments.map(function(attachment) {
           var type = attachment.file.type;
           if (!type || type.length === 0) {
@@ -124,6 +123,8 @@ angular.module('esn.message', ['esn.file', 'esn.maps', 'esn.file', 'esn.caldav',
             }
           }
         );
+      }, function(err) {
+        console.log('ERR', err);
       });
     };
 
