@@ -209,5 +209,15 @@
   "Your browser either does not support geolocation or you are not connected to the internet": "Your browser either does not support geolocation or you are not connected to the internet",
   "Near": "Near",
   "You have been added to the community, welcome": "You have been added to the community, welcome",
-  "You have declined the invitation": "You have declined the invitation"
+  "You have declined the invitation": "You have declined the invitation",
+  "Calendar": "Calendar",
+  "Create Event": "Create Event",
+  "Event Title": "Event Title",
+  "Event Location": "Event Location",
+  "All day": "All day",
+  "Start date": "Start date",
+  "Start of Event": "Start of Event",
+  "End date": "End date",
+  "End of Event": "End of Event",
+  "Time": "Time"
 }

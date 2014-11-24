@@ -1,20 +1,24 @@
 .col-xs-12.esn-panel.community-summary
     community-description(community="community")
 .row(ng-if='canRead()')
-  .col-lg-9.col-md-9.col-sm-9.col-xs-12.esn-component-container
-    activity-stream(activitystream-uuid='{{community.activity_stream.uuid}}', writable='writable')
-  .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane()
-    .esn-panel
-      community-members-widget(community='community' in-slices-of='4')
-    .vertiz-space
-    .esn-panel(ng-if='isCommunityManager()')
-      community-membership-requests-widget(community='community')
-    .vertiz-space
-    .esn-panel
-      community-invite-users(community="community")
-    .vertiz-space
-    .esn-panel
-      div(community-injections-widget='communityPageRightPanel')
-    .vertiz-space
+  .row
+    .col-xs-12.esn-panel.community-summary
+      community-actions-toolbar(community="community")
+  .row
+    .col-lg-9.col-md-9.col-sm-9.col-xs-12.esn-component-container
+      activity-stream(activitystream-uuid='{{community.activity_stream.uuid}}', writable='writable')
+    .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane()
+      .esn-panel
+        community-members-widget(community='community' in-slices-of='4')
+      .vertiz-space
+      .esn-panel(ng-if='isCommunityManager()')
+        community-membership-requests-widget(community='community')
+      .vertiz-space
+      .esn-panel
+        community-invite-users(community="community")
+      .vertiz-space
+      .esn-panel
+        div(community-injections-widget='communityPageRightPanel')
+      .vertiz-space
 .col-xs-12.esn-panel(ng-if='!canRead()')
   p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}

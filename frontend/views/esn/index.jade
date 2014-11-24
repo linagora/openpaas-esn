@@ -21,6 +21,7 @@ html
     link(rel='stylesheet', href='/components/font-awesome-animation/dist/font-awesome-animation.css')
     link(rel='stylesheet', href='/components/leaflet/dist/leaflet.css')
     link(rel='stylesheet', href='/css/styles.css')
+    link(rel='stylesheet', href='/components/fullcalendar/dist/fullcalendar.min.css')
     link(rel='stylesheet', href='/css/themes/default.css')
     +injectCSSFromModules('esn', injections)
     script(src='/components/jquery/dist/jquery.min.js')
@@ -59,6 +60,10 @@ html
     +injectJSFromModules('esn', injections)
     +injectAngularFromModules('esn', injections)
     script(src='js/esn/app.js')
+    script(src='/components/angular-ui-calendar/src/calendar.js')
+    script(src='/components/fullcalendar/dist/fullcalendar.min.js')
+    script(src='/components/ical.js/build/ical.js')
+    script(src='/components/angular-recursion/angular-recursion.min.js')
     script(src='js/modules/core.js')
     script(src='js/modules/socketio.js')
     script(src='js/modules/domain.js')
@@ -91,6 +96,9 @@ html
     script(src='js/modules/user-notification.js')
     script(src='js/modules/paginate.js')
     script(src='js/modules/object-type.js')
+    script(src='js/modules/calendar.js')
+    script(src='js/modules/ical.js')
+    script(src='js/modules/caldav.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
       button(type='button' class='btn btn-lg btn-primary feedback button-popup' data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body') #{__('Feedback')}

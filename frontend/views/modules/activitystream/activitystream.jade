@@ -1,13 +1,13 @@
 div(activity-stream-notification)
   div
-    whatsup-edition(ng-show="writable")
+    message-edition(ng-show="writable")
   activity-stream-updates-notifier
   div
       div#activitystreamerror
       div.text-center.bg-info(ng-show="threads.length===0 && !restActive") #{__('There are no messages on this activity stream yet. Be the first to post !')}
       infinite-list
           ul.media-list
-            li.media(ng-repeat="thread in threads")
-              messages-thread(message='thread' activitystream-uuid='activitystreamUuid' last-post='lastPost' writable='writable')
+            li.media(ng-repeat="thread in threads" ng-init='parentMessage=true')
+              message-template-displayer(message='thread' activitystream-uuid='activitystreamUuid' last-post='lastPost' writable='writable' parent-message='parentMessage')
       .throbber-container.text-center
         div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner')

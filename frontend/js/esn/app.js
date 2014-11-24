@@ -30,6 +30,8 @@ angular.module('esnApp', [
   'esn.conference-notification',
   'esn.api-notification',
   'esn.user-notification',
+  'esn.calendar',
+  'esn.ical',
   'esn.object-type'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
@@ -54,7 +56,7 @@ angular.module('esnApp', [
       }
     });
 
-    $routeProvider.when('/messages/:id', {
+    $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
       templateUrl: '/views/esn/partials/message',
       controller: 'whatsupMessageDisplayController',
       resolve: {
@@ -183,6 +185,10 @@ angular.module('esnApp', [
           );
         }
       }
+    });
+
+    $routeProvider.when('/communities/:community_id/calendar', {
+      templateUrl: '/views/modules/community/community-calendar'
     });
 
     $routeProvider.otherwise({redirectTo: '/'});
