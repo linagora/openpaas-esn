@@ -28,20 +28,24 @@ function create(req, res) {
     return filestore.store(fileId, req.query.mimetype, metadata, stream, {}, function(err, saved) {
       if (err) {
         return res.json(500, {
-          error: 500,
-          message: 'Server error',
-          details: err.message || err
+          error: {
+            code: 500,
+            message: 'Server error',
+            details: err.message || err
+          }
         });
       }
 
       if (saved.length !== size) {
         return filestore.delete(fileId, function(err) {
           res.json(412, {
-            error: 412,
-            message: 'File size mismatch',
-            details: 'File size given by user agent is ' + size +
-            ' and file size returned by storage system is ' +
-            saved.length
+            error: {
+              code: 412,
+              message: 'File size mismatch',
+              details: 'File size given by user agent is ' + size +
+              ' and file size returned by storage system is ' +
+              saved.length
+            }
           });
         });
       }
@@ -60,10 +64,12 @@ function create(req, res) {
     busboy.on('finish', function() {
       if (nb === 0) {
         res.json(400, {
-          error: 400,
-          message: 'Bad request',
-          details: 'The form data must contain an attachment'}
-        );
+          error: {
+            code: 400,
+            message: 'Bad request',
+            details: 'The form data must contain an attachment'
+          }
+        });
       }
     });
     req.pipe(busboy);
