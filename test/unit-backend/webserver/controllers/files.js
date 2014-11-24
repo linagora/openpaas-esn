@@ -139,7 +139,8 @@ describe('The files controller', function() {
           expect(code).to.equal(412);
           expect(detail).to.be.an('object');
           expect(detail).to.not.have.ownProperty('_id');
-          expect(detail.message).to.equal('File size mismatch');
+          expect(detail.error).to.exist;
+          expect(detail.error.message).to.equal('File size mismatch');
           done();
         }
       };
@@ -174,7 +175,8 @@ describe('The files controller', function() {
           expect(code).to.equal(500);
           expect(detail).to.be.an('object');
           expect(detail).to.not.have.ownProperty('_id');
-          expect(detail.details).to.be.equal('fooled by a test');
+          expect(detail.error).to.exist;
+          expect(detail.error.details).to.be.equal('fooled by a test');
           done();
         }
       };
