@@ -208,7 +208,7 @@ describe('The activitystreams controller module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongooseMock);
 
     mockery.registerMock('../../core/activitystreams', {
-      getUserStreams: function(user, cb) {
+      getUserStreams: function(user, options, cb) {
         return cb(new Error());
       }
     });
@@ -236,7 +236,7 @@ describe('The activitystreams controller module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongooseMock);
 
     mockery.registerMock('../../core/activitystreams', {
-      getUserStreams: function(user, cb) {
+      getUserStreams: function(user, options, cb) {
         return cb(null, [{_id: 123}]);
       }
     });
@@ -266,7 +266,7 @@ describe('The activitystreams controller module', function() {
     this.mongoose = mockery.registerMock('mongoose', mongooseMock);
 
     mockery.registerMock('../../core/activitystreams', {
-      getUserStreams: function(user, cb) {
+      getUserStreams: function(user, options, cb) {
         return cb();
       }
     });

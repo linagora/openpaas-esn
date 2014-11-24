@@ -64,6 +64,194 @@ describe('User API', function() {
       });
     });
 
+    it('should return 200 with an array of writable community streams', function(done) {
+      var self = this;
+      var uuid = '123-456-789';
+      var uuid2 = '123-456-999';
+      var uuid3 = '123-456-123';
+      var uuid4 = '123-456-124';
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany',
+        activity_stream: {
+          uuid: uuid
+        }
+      };
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        activity_stream: {
+          uuid: uuid2
+        },
+        members: []
+      };
+      var community2 = {
+        title: 'Community2',
+        description: 'This is the community description',
+        status: 'open',
+        activity_stream: {
+          uuid: uuid3
+        },
+        members: []
+      };
+      var community3 = {
+        title: 'Community3',
+        description: 'This is a restricted community',
+        status: 'restricted',
+        activity_stream: {
+          uuid: uuid4
+        },
+        members: []
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          foouser.domains = [{domain_id: domain._id}];
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community, callback);
+        },
+        function(callback) {
+          community2.creator = foouser._id;
+          community2.type = 'open';
+          community2.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community2, callback);
+        },
+        function(callback) {
+          community3.creator = foouser._id;
+          community3.type = 'restricted';
+          community3.members.push({user: foouser._id});
+          saveCommunity(community3, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams?writable=true'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(2);
+              expect(res.body[0].uuid).to.not.equal(uuid4);
+              expect(res.body[1].uuid).to.not.equal(uuid4);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should return 200 with an array or community streams filtered by name', function(done) {
+      var self = this;
+      var uuid = '123-456-789';
+      var uuid2 = '123-456-999';
+      var uuid3 = '123-456-123';
+      var uuid4 = '123-456-124';
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany',
+        activity_stream: {
+          uuid: uuid
+        }
+      };
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        status: 'open',
+        activity_stream: {
+          uuid: uuid2
+        },
+        members: []
+      };
+      var community2 = {
+        title: 'Community2',
+        description: 'This is the community description',
+        status: 'open',
+        activity_stream: {
+          uuid: uuid3
+        },
+        members: []
+      };
+      var community3 = {
+        title: 'Community3',
+        description: 'This is a restricted community',
+        status: 'open',
+        activity_stream: {
+          uuid: uuid4
+        },
+        members: []
+      };
+      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          foouser.domains = [{domain_id: domain._id}];
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          community.creator = foouser._id;
+          community.domain_ids = [domain._id];
+          community.type = 'open';
+          community.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community, callback);
+        },
+        function(callback) {
+          community2.creator = foouser._id;
+          community2.type = 'open';
+          community2.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community2, callback);
+        },
+        function(callback) {
+          community3.creator = foouser._id;
+          community3.type = 'open';
+          community3.members.push({user: foouser._id}, {user: user._id});
+          saveCommunity(community3, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams?name=community'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(2);
+              expect(res.body[0].uuid).to.not.equal(uuid2);
+              expect(res.body[1].uuid).to.not.equal(uuid2);
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
     it('should return 200 with an array of community streams with only the community streams in specific domain', function(done) {
       var self = this;
 

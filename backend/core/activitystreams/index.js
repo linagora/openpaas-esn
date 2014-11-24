@@ -25,7 +25,7 @@ function getUserStreams(user, options, callback) {
   }
 
   var id = user._id || user;
-  community.getUserCommunities(id, options || {}, function(err, communities) {
+  community.getUserCommunities(id, options || {}, function(err, communities) {
 
     if (err) {
       logger.warn('Problem while getting user communities : ' + err.message);

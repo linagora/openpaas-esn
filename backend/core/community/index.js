@@ -298,13 +298,17 @@ module.exports.getUserCommunities = function(user, options, callback) {
     return callback(new Error('User is required'));
   }
 
-  var id = user._id ||  user;
+  var id = user._id || user;
   var params = {
     members: {$elemMatch: { 'member.objectType': 'user', 'member.id': id}}
   };
 
   if (q.domainid) {
     params.domain_ids = q.domainid;
+  }
+
+  if (q.name) {
+    params.title = q.name;
   }
 
   return query(params, done);

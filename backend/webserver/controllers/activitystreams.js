@@ -3,6 +3,7 @@
 var activitystreams = require('../../core/activitystreams');
 var tracker = require('../../core/activitystreams/tracker');
 var mongoose = require('mongoose');
+var escapeStringRegexp = require('escape-string-regexp');
 
 var isLimitvalid = function(limit) {
   return limit > 0;
@@ -37,6 +38,11 @@ function getMine(req, res) {
 
   if (req.query && req.query.writable) {
     options.writable = req.query.writable;
+  }
+
+  if (req.query && req.query.name) {
+    var escapedString = escapeStringRegexp(req.query.name);
+    options.name = new RegExp(escapedString, 'i');
   }
 
   return activitystreams.getUserStreams(req.user, options, streamsCallback);
