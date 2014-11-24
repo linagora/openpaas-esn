@@ -17,7 +17,7 @@ describe('The Caldav Angular module', function() {
 
     describe('The getCaldavServerURL fn', function() {
       it('should GET /api/caldavserver', function(done) {
-        this.$httpBackend.expectGET('/caldavserver').respond({data: 'http://localhost'});
+        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: 'http://localhost'}});
         this.caldavAPI.getCaldavServerURL().then(function(url) {
             expect(url).to.equal('http://localhost');
         }).finally (done);
