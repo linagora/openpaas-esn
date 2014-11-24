@@ -15,7 +15,7 @@ describe('The messages API', function() {
   var password = 'secret';
   var email = 'foo@bar.com';
   var restrictedEmail = 'restricted@bar.com';
-  var message1, message2;
+  var message1, message2, message3;
 
   beforeEach(function(done) {
     var self = this;
@@ -60,6 +60,11 @@ describe('The messages API', function() {
 
       message2 = new Whatsup({
         content: 'message 2'
+      });
+
+      message3 = new Whatsup({
+        content: 'message 3',
+        responses: 'responses'
       });
 
       function saveUser(user, cb) {
@@ -116,6 +121,10 @@ describe('The messages API', function() {
         function(callback) {
           message2.author = restrictedUser._id;
           saveMessage(message2, callback);
+        },
+        function(callback) {
+          message3.author = testuser._id;
+          saveMessage(message3, callback);
         },
         function(callback) {
           restrictedCommunity.members = [
@@ -608,6 +617,87 @@ describe('The messages API', function() {
         expect(res.body.author).to.be.an('object');
         expect(res.body.author._id).to.equal(testuser._id.toString());
         done();
+      });
+    });
+  });
+
+  describe('COPY /api/messages/:id', function() {
+    it('should return 400 if target is missing', function(done) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).copy('/api/messages/' + message1._id));
+        req.send({
+          'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' }
+        });
+        req.expect(400);
+        req.end(done);
+      });
+    });
+
+    it('should return 400 if resource is missing', function(done) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).copy('/api/messages/' + message1._id));
+        req.send({
+          'target': [
+            {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
+          ]
+        });
+        req.expect(400);
+        req.end(done);
+      });
+    });
+
+    it('should return 404 the message does not exists', function(done) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).copy('/api/messages' + message2._id));
+        req.send({
+          'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
+          'target': [
+            {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
+          ]
+        });
+        req.expect(404);
+        req.end(done);
+      });
+    });
+
+    it('should duplicate message3, reset responses and return the new _id', function(done) {
+      var Whatsup = this.mongoose.model('Whatsup');
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).copy('/api/messages/' + message3._id));
+        req.send({
+          'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
+          'target': [
+            {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
+          ]
+        });
+        req.expect(201);
+        req.end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res.body._id).to.exist;
+          process.nextTick(function() {
+            Whatsup.findOne({_id: res.body._id}, function(err, message) {
+              expect(message).to.exist;
+              expect(message.responses).to.be.empty;
+              done();
+            });
+          });
+        });
       });
     });
   });

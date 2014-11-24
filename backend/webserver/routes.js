@@ -55,6 +55,7 @@ exports = module.exports = function(application) {
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
   application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterWritableTargets, messages.createOrReplyToMessage);
   application.get('/api/messages/:uuid', authorize.requiresAPILogin, messages.getMessage);
+  application.copy('/api/messages/:id', authorize.requiresAPILogin, messages.copy);
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
 
   var files = require('./controllers/files');

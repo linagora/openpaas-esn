@@ -64,6 +64,73 @@ If a message is not found from the input ID, the result array will contain an er
         },
     ]
 
+## COPY /api/messages
+
+Copy a message from a resource (community, project, ...) to another (or several others).
+
+**Query Parameters:**
+
+- id : Identifiers of the message to copy.
+
+**Request Headers:**
+
+- Content-Type: application/json
+
+**Request JSON Object:**
+
+- resource: identify the source community/project of the original message
+
+```
+  resource: {
+    objectType: "activitystream",           # Type of the resource
+    id: 123456798,                     # The id of the resource
+  }
+```
+
+- targets: An array of targets where the message will be copied
+
+```
+  targets: [{
+    objectType: "activitystream",           # Type of the target
+    id: "123456798",
+  }]
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Response JSON Object:**
+
+The id of the new message in the '_id' property.
+
+**Status Codes:**
+
+- 201 Created. With the _id of the new message.
+- 400 Bad request. The current request is missing mandatory parameters
+- 403 Unauthorized. The current user is not authorized to copy message to the specified target(s)
+- 404 Not found. The message related to the request parameter id does not exist
+- 500 Internal server error: there was a problem.
+
+**Request:**
+
+    COPY /api/messages/53581bb1cca7800000522731
+    Content-Type: application/json
+    Host: localhost:8080
+    {
+      "resource": { "objecType": "activitystream", "id": "7fd3e254-394f-46eb-994d-a2ec23e7cf27" },
+      "targets": [
+        {"objectType": "activitystream", "id": "976f55e7-b72f-4ac0-afb2-400a85c50951" }
+      ]
+    }
+
+**Response:**
+
+    HTTP/1.1 201 Created
+    {
+        _id: '53581bb1cca7800000522852'
+    }
+
 ## POST /api/messages
 
 Post a new message by the currently logged in user.

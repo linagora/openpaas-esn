@@ -7,6 +7,8 @@ var emailMessageModule = require('./email');
 var whatsupMessageModule = require('./whatsup');
 var pubsub = require('../').pubsub.local;
 
+var MESSAGES_COLLECTION = 'messages';
+
 var objectTypeToSchemaName = {
   email: 'EmailMessage',
   whatsup: 'Whatsup',
@@ -38,7 +40,7 @@ function collectAuthors(messages, authorsMap) {
     }
 
     if (message.responses) {
-        collectAuthors(message.responses, authors);
+      collectAuthors(message.responses, authors);
     }
   });
 
@@ -84,7 +86,7 @@ function getWithAuthors(uuid, callback) {
 
     var authorsMap = collectAuthors([doc]);
     var ids = Object.keys(authorsMap).map(function(id) {
-        return mongoose.Types.ObjectId(id);
+      return mongoose.Types.ObjectId(id);
     });
 
     return userModel.find({ _id: { '$in': ids } }).exec(function(err, authors) {
@@ -92,6 +94,67 @@ function getWithAuthors(uuid, callback) {
 
       applyAuthors(authorsMap, authors);
       return callback(null, doc);
+    });
+  });
+}
+
+function copy(id, sharerId, resource, target, callback) {
+
+  function getOriginal(callback) {
+    mongoose.connection.db.collection(MESSAGES_COLLECTION, function(err, collection) {
+      collection.find({_id: mongoose.Types.ObjectId(id)}).toArray(function(err, messages) {
+        if (!messages.length) {
+          return callback(null, null);
+        }
+        return callback(null, messages[0]);
+      });
+    });
+  }
+
+  function update(original, callback) {
+    var copyOf = original.copyOf || {};
+    copyOf.target = original.copyOf ? original.copyOf.target || [] : [];
+    copyOf.target = copyOf.target.concat(target);
+    getModel(original.objectType).update({_id: original._id}, {$set: {copyOf: copyOf} }, function(err) { return callback(err); });
+  }
+
+  function doCopy(original, callback) {
+    var copy = original;
+    copy._id = new mongoose.Types.ObjectId();
+    copy.copyOf = {
+      origin: {
+        resource: resource,
+        message: mongoose.Types.ObjectId(id),
+        sharer: mongoose.Types.ObjectId(sharerId),
+        timestamps: {
+          creation: new Date()
+        }
+      }
+    };
+    copy.shares = target;
+    delete copy.responses;
+    var instance = getInstance(copy.objectType, copy);
+    instance.save(callback);
+  }
+
+  getOriginal(function(err, original) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (!original) {
+      return callback(null, null);
+    }
+
+    async.parallel([
+      update.bind(null, original),
+      doCopy.bind(null, original)
+    ], function(err, result) {
+      if (err) {
+        return callback(err);
+      }
+
+      return callback(err, result[1][0]);
     });
   });
 }
@@ -110,7 +173,7 @@ function findByIds(ids, callback) {
 
     var authorsMap = collectAuthors(foundMessages);
     var ids = Object.keys(authorsMap).map(function(id) {
-        return mongoose.Types.ObjectId(id);
+      return mongoose.Types.ObjectId(id);
     });
 
     var userModel = mongoose.model('User');
@@ -174,6 +237,7 @@ module.exports = {
   },
   permission: require('./permission'),
   get: getWithAuthors,
+  copy: copy,
   getModel: getModel,
   getInstance: getInstance,
   addNewComment: addNewComment,
