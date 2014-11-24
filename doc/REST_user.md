@@ -254,6 +254,7 @@ Get all the activity streams of the current user.
 **Request Query Strings Parameters:**
 
 - domainid : Optional identifier of the domain in which to get the communities activity streams.
+- writable : Boolean, optional. Get only activitystreams where the use can publish into when set to true.
 
 **Response Headers:**
 

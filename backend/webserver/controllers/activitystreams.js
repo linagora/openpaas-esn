@@ -30,11 +30,16 @@ function getMine(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User missing'}});
   }
 
+  var options = {};
   if (req.query && req.query.domainid) {
-    activitystreams.getUserStreamsForDomain(req.user, req.query.domainid, streamsCallback);
-  } else {
-    activitystreams.getUserStreams(req.user, streamsCallback);
+    options.domainid = req.query.domainid;
   }
+
+  if (req.query && req.query.writable) {
+    options.writable = req.query.writable;
+  }
+
+  return activitystreams.getUserStreams(req.user, options, streamsCallback);
 }
 module.exports.getMine = getMine;
 
