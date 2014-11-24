@@ -216,7 +216,7 @@ angular.module('esn.user-notification',
       templateUrl: '/views/modules/user-notification/notification-template-displayer.html'
     };
   })
-  .directive('externalUserNotification', ['objectTypeResolver', '$q', function(objectTypeResolver, $q) {
+  .directive('externalUserNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -225,6 +225,23 @@ angular.module('esn.user-notification',
       },
       templateUrl: '/views/modules/user-notification/templates/external-notification.html',
       controller: function($scope) {
+        var acknowledging = false;
+
+        $scope.acknowledge = function() {
+          if (acknowledging) {
+            return;
+          }
+          acknowledging = true;
+          userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
+            function() {
+              $scope.notification.acknowledged = true;
+            },
+            function(error) {
+              $scope.error = error;
+            }
+          );
+        };
+
         var resolvers = {};
 
         resolvers.subject = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
@@ -433,8 +450,8 @@ angular.module('esn.user-notification',
     return new CounterFactory.newCounter(0, UNREAD_REFRESH_TIMER, userNotificationAPI.getUnreadCount);
   }])
   .directive('userNotificationPopover',
-  ['$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
-    function($timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
+  ['$rootScope', '$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
+    function($rootScope, $timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
       return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -445,7 +462,7 @@ angular.module('esn.user-notification',
               loaded = false;
               scope.togglePopover();
               scope.$hide();
-              scope.$apply();
+              $rootScope.$apply();
             }
           }
 

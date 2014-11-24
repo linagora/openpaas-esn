@@ -10,6 +10,8 @@
       img.media-object(ng-src='{{::context.avatarUrl}}')
     a.pull-left(ng-hide='context', ng-href='{{::subject.url}}')
       img.media-object(ng-src='{{::subject.avatarUrl}}')
+    a.cancel(href="", ng-click='acknowledge()')
+      i.nomargin.remove.fa.fa-remove
     .media-body
       .notification-head.ellipsis
         a(ng-show='context', ng-href="{{::context.url}}") {{::context.displayName}}
@@ -23,8 +25,9 @@
           span {{::complement}}
       .notification-description(ng-show='notification.description')
         span {{::notification.description}}
-      .notification-actions
+      .notification-actions(ng-hide='notification.acknowledged')
         span(ng-repeat='action in notification.action')
           a(ng-href='{{::action.url}}', target='_blank')
             button.btn.btn-info(type="submit") {{::action.display.text}}
         &nbsp;
+      .notification-actions(ng-show='notification.acknowledged') #{__('This notification is processed')}

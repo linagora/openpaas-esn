@@ -233,6 +233,9 @@ header.topbar {
   .open i {
     color: @esn-highlight;
   }
+  button {
+    padding: 0px 2px 0px 2px;
+  }
   .popover {
     color: @esn-primary-middle;
     max-width: none;
@@ -255,6 +258,11 @@ header.topbar {
     .popover-pager {
       padding-top: 0px;
       padding-bottom: 0px;
+    }
+    .cancel {
+      i {
+        font-size: 1em;
+      }
     }
   }
   .badge {
@@ -870,4 +878,17 @@ ul.emails-list {
 
 a.map {
   font-size: 90%;
+}
+
+a.cancel {
+  display:block;
+  float:right;
+  font-weight: bold;
+  line-height: 1;
+  color: @esn-primary-middle;
+  opacity: .3;
+}
+
+a.cancel:hover {
+  opacity: 1;
 }
