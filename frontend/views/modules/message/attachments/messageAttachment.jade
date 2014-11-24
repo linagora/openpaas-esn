@@ -1,6 +1,6 @@
 .attachment-widget
-  i.icon.fa.fa-4x(ng-class='getClass(attachment.contentType)')
+  attachment-icon(type='{{::attachment.contentType}}')
   div.ellipsis
-    a.download(target='_blank', ng-href='/api/files/{{attachment._id}}' title='Download {{attachment.name}}') {{attachment.name}}
+    a.download(target='_blank', ng-href='/api/files/{{::attachment._id}}' title='Download {{::attachment.name}}') {{::attachment.name}}
   span.meta.ellipsis
-    {{attachment.length | bytes}} {{attachment.contentType | extension | uppercase}} file
+    {{::attachment.length | bytes}} {{::attachment.contentType | extension | uppercase}} file

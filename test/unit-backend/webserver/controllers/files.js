@@ -58,7 +58,10 @@ describe('The files controller', function() {
 
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 4 },
-        body: 'yeah'
+        body: 'yeah',
+        headers: {
+          'content-type': 'text/plain'
+        }
       };
       var res = {
         json: function(code, detail) {
@@ -90,7 +93,10 @@ describe('The files controller', function() {
 
       var req = {
         query: { mimetype: 'text/plain', size: 4 },
-        body: 'yeah'
+        body: 'yeah',
+        headers: {
+          'content-type': 'text/plain'
+        }
       };
       var res = {
         json: function(code, detail) {
@@ -122,7 +128,10 @@ describe('The files controller', function() {
 
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 4 },
-        body: 'yeah'
+        body: 'yeah',
+        headers: {
+          'content-type': 'text/plain'
+        }
       };
       var res = {
         json: function(code, detail) {
@@ -155,7 +164,10 @@ describe('The files controller', function() {
 
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 2 },
-        body: 'yeah'
+        body: 'yeah',
+        headers: {
+          'content-type': 'text/plain'
+        }
       };
       var res = {
         json: function(code, detail) {
@@ -174,7 +186,10 @@ describe('The files controller', function() {
       var req = {
         query: { name: 'filename', mimetype: 'text/plain', size: 2 },
         body: 'yeah',
-        user: { _id: 123 }
+        user: { _id: 123 },
+        headers: {
+          'content-type': 'text/plain'
+        }
       };
 
       mockery.registerMock('../../core/filestore', {
