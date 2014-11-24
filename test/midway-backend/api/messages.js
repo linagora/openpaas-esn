@@ -817,4 +817,46 @@ describe('The messages API', function() {
       });
     });
   });
+
+  it('should be able to post a whatsup message with a parser', function(done) {
+    var Whatsup = this.mongoose.model('Whatsup');
+
+    var message = 'Hey Oh, let\'s go!';
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) {
+        return done(err);
+      }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'whatsup',
+          parsers: [{
+            name: 'markdown'
+          }]
+        },
+        targets: [target]
+      });
+      req.expect(201).end(function(err, res) {
+        expect(err).to.not.exist;
+        expect(res.body).to.exist;
+        expect(res.body._id).to.exist;
+
+        process.nextTick(function() {
+          Whatsup.findOne({_id: res.body._id}, function(err, message) {
+            expect(message).to.exist;
+            expect(message.parsers).to.exist;
+            expect(message.parsers).to.have.length(1);
+            expect(message.parsers[0].name).to.equal('markdown');
+            done();
+          });
+        });
+      });
+    });
+  });
 });

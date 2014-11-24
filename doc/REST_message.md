@@ -94,6 +94,7 @@ Copy a message from a resource (community, project, ...) to another (or several 
     objectType: "activitystream",           # Type of the target
     id: "123456798",
   }]
+```
 
 **Response Headers:**
 
@@ -150,6 +151,9 @@ Post a new message by the currently logged in user.
       attachments: [                       # Message attachments
         {_id: "9829892-9982982-87222-238388", name: "chuck.png", contentType: "image/png", length: 988288},
         {_id: "9829892-9982982-87222-238388", name: "bruce.png", contentType: "image/png", length: 67392}
+      ],
+      parsers: [
+        {name: "markdown"}
       ]
     }
 ```
@@ -183,6 +187,9 @@ Post a new message by the currently logged in user.
             "attachments": [
                 {"_id": "9829892-9982982-87222-238388", "name": "chuck.png", "contentType": "image/png", "length": 988288},
                 {"_id": "9829892-9982982-87222-238388", "name": "bruce.png", "contentType": "image/png", "length": 67392}
+            ],
+            parsers: [
+                {name: "markdown"}
             ]
         },
         "targets": [

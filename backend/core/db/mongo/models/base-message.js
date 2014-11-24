@@ -39,5 +39,8 @@ module.exports = {
     id: {type: String}
   }],
   responses: [mongoose.Schema.Mixed],
-  copyOf: {type: CopyOf.tree, required: false}
+  copyOf: {type: CopyOf.tree, required: false},
+  parsers: [
+    {name: {type: String, required: true}}
+  ]
 };
