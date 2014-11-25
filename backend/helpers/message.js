@@ -21,5 +21,9 @@ module.exports.postToModelMessage = function(message, user) {
     result.attachments = message.object.attachments;
   }
 
+  if (message.object.parsers) {
+    result.parsers = message.object.parsers;
+  }
+
   return result;
 };
