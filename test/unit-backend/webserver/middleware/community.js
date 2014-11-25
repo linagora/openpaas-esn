@@ -171,11 +171,11 @@ describe('The community middleware', function() {
     });
   });
 
-  describe('the isMember fn', function() {
+  describe('requiresCommunityMember fn', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isMember;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
       var req = {
         user: {}
       };
@@ -190,7 +190,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isMember;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {}
       };
@@ -209,7 +209,7 @@ describe('The community middleware', function() {
           return callback(new Error());
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isMember;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {},
         user: {}
@@ -229,7 +229,7 @@ describe('The community middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isMember;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {},
         user: {}
@@ -249,7 +249,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isMember;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {},
         user: {}
