@@ -16,8 +16,10 @@ describe('The companies routes', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    var mongoose = this.mongoose;
+    mongoose.connection.db.dropDatabase(function() {
+      mongoose.disconnect(done);
+    });
   });
 
 

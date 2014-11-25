@@ -3,7 +3,7 @@
 var mockery = require('mockery');
 var expect = require('chai').expect;
 
-describe('The communities module', function() {
+describe('The community module', function() {
   describe('The save fn', function() {
     it('should send back error if community is undefined', function(done) {
       var mongoose = {
@@ -503,7 +503,7 @@ describe('The communities module', function() {
     });
   });
 
-  describe('The join fn', function() {
+  describe('join fn', function() {
 
     it('should send back error when Community.update fails', function(done) {
       var mongoose = {
@@ -516,29 +516,24 @@ describe('The communities module', function() {
         }
       };
       mockery.registerMock('mongoose', mongoose);
+      var comMock = {
+        members: [],
+        _id: 'community1',
+        save: function(callback) {
+          return callback(new Error());
+        }
+      };
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, 456, 'user', function(err) {
+      community.join(comMock, 456, 456, 'user', function(err) {
         expect(err).to.exist;
         return done();
       });
     });
 
     it('should send back updated document when Community.update is ok', function(done) {
-      var result = {_id: 123};
       var mongoose = {
         model: function() {
-          return {
-            update: function(a, b, callback) {
-              return callback(null, result);
-            },
-            findOne: function(query, callback) {
-              callback(null, {
-                activity_stream: {
-                  uuid: '123'
-                }
-              });
-            }
-          };
+          return { };
         }
       };
       mockery.registerMock('mongoose', mongoose);
@@ -554,11 +549,19 @@ describe('The communities module', function() {
           ]);
         }
       });
+      var comMock = {
+        members: [],
+        _id: 'community1',
+        save: function(callback) {
+          this.updated = true;
+          return callback(null, this);
+        }
+      };
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, 456, 'user', function(err, update) {
+      community.join(comMock, 456, 456, 'user', function(err, update) {
         expect(err).to.not.exist;
-        expect(update).to.deep.equal(result);
+        expect(update.updated).to.be.true;
         return done();
       });
     });
@@ -580,21 +583,28 @@ describe('The communities module', function() {
       this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.join(123, 456, 789, 'user', function(err, update) {
+      var comMock = {
+        members: [],
+        _id: 'community1',
+        save: function(callback) {
+          this.updated = true;
+          return callback(null, this);
+        }
+      };
+      community.join(comMock, 456, 789, 'user', function(err, update) {
         expect(err).to.not.exist;
-        expect(update).to.deep.equal(result);
 
         expect(localstub.topics['community:join'].data[0]).to.deep.equal({
           author: 456,
           target: 789,
           actor: 'user',
-          community: 123
+          community: 'community1'
         });
         expect(globalstub.topics['community:join'].data[0]).to.deep.equal({
           author: 456,
           target: 789,
           actor: 'user',
-          community: 123
+          community: 'community1'
         });
 
         return done();
@@ -722,18 +732,12 @@ describe('The communities module', function() {
 
   describe('The getMembers fn', function() {
 
-    it('should send back error when Community.exec fails', function(done) {
+    it('should send back error when Community.findById fails', function(done) {
       var mongoose = {
         model: function() {
           return {
-            findById: function(id) {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(new Error());
-                }
-              };
+            findById: function(id, callback) {
+              return callback(new Error());
             }
           };
         }
@@ -750,14 +754,11 @@ describe('The communities module', function() {
       var mongoose = {
         model: function() {
           return {
-            findById: function() {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback();
-                }
-              };
+            findById: function(id, callback) {
+              return callback(null, {members: []});
+            },
+            find: function(query, callback) {
+              return callback(null, []);
             }
           };
         }
@@ -773,18 +774,25 @@ describe('The communities module', function() {
     });
 
     it('should send back result members', function(done) {
-      var result = [{user: 1}, {user: 2}];
+      var result = [{member: {_id: 'id1', firstname: 'user1'}}, {member: {_id: 'id2', firstname: 'user2'}}];
       var mongoose = {
         model: function() {
           return {
-            findById: function(a) {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(null, {members: result});
-                }
-              };
+            findById: function(id, callback) {
+              return callback(null, {members: [
+                {member: {id: 'id1', objectType: 'user'}},
+                {member: {id: 'id2', objectType: 'user'}}
+              ]});
+            },
+            find: function(query, callback) {
+              expect(query._id.$in).to.be.an('array');
+              expect(query._id.$in).to.have.length(2);
+              expect(query._id.$in).to.contain('id1');
+              expect(query._id.$in).to.contain('id2');
+              return callback(null, [
+                {_id: 'id1', firstname: 'user1'},
+                {_id: 'id2', firstname: 'user2'}
+              ]);
             }
           };
         }
@@ -802,33 +810,36 @@ describe('The communities module', function() {
     it('should slice members when query is defined', function(done) {
       var query = {
         limit: 2,
-        offset: 10
+        offset: 3
       };
 
       var mongoose = {
         model: function() {
           return {
-            findById: function(a) {
-              return {
-                populate: function() {},
-                slice: function(field, array) {
-                  expect(field).to.equal('members');
-                  expect(array).to.exist;
-                  expect(array[0]).to.equal(query.offset);
-                  expect(array[1]).to.equal(query.limit);
-                },
-                exec: function(callback) {
-                  return callback(null, {members: []});
-                }
-              };
+            findById: function(id, callback) {
+              return callback(null, {members: [
+                {member: {id: 'id1', objectType: 'user'}},
+                {member: {id: 'id2', objectType: 'user'}},
+                {member: {id: 'id3', objectType: 'user'}},
+                {member: {id: 'id4', objectType: 'user'}},
+                {member: {id: 'id5', objectType: 'user'}},
+                {member: {id: 'id6', objectType: 'user'}}
+              ]});
+            },
+            find: function(query, callback) {
+              expect(query._id.$in).to.be.an('array');
+              expect(query._id.$in).to.have.length(2);
+              expect(query._id.$in).to.contain('id4');
+              expect(query._id.$in).to.contain('id5');
+              return done();
             }
           };
         }
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
+
       community.getMembers({_id: 123}, query, function() {
-        done();
       });
     });
 
@@ -836,20 +847,26 @@ describe('The communities module', function() {
       var mongoose = {
         model: function() {
           return {
-            findById: function(a) {
-              return {
-                slice: function(field, array) {
-                  expect(field).to.equal('members');
-                  expect(array).to.exist;
-                  expect(array[0]).to.exist;
-                  expect(array[1]).to.exist;
-                },
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(null, {members: []});
+            findById: function(a, callback) {
+              return callback(
+                null,
+                {
+                  members: {
+                    slice: function() {
+                      return {
+                        splice: function(offset, limit) {
+                          expect(offset).to.equal(0);
+                          expect(limit).to.equal(50);
+                          done();
+                          return [];
+                        }
+                      };
+                    }
+                  }
                 }
-              };
-            }
+              );
+            },
+            find: function() {}
           };
         }
       };
@@ -957,7 +974,7 @@ describe('The communities module', function() {
     });
   });
 
-  describe('The userToMember fn', function() {
+  describe('userToMember fn', function() {
     it('should send back result even if user is null', function(done) {
       var mongoose = {
         model: function() {
@@ -998,7 +1015,7 @@ describe('The communities module', function() {
       };
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      var member = community.userToMember({user: user});
+      var member = community.userToMember({member: user});
       expect(member).to.exist;
       expect(member.user).to.exist;
       expect(member.user._id).to.exist;

@@ -5,6 +5,7 @@ var mockery = require('mockery');
 
 describe('The message core module', function() {
   beforeEach(function() {
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');

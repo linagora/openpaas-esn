@@ -16,7 +16,12 @@ describe('The email API', function() {
 
   var saveCommunity = function(community, done) {
     var c = new Community(community);
-    c.members = [{user: user._id}];
+    c.members = [{
+      member: {
+        id: user._id,
+        objectType: 'user'
+      }
+    }];
     return c.save(function(err, saved) {
       if (err) {
         return done(err);

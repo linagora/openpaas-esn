@@ -38,76 +38,34 @@ describe('The activitystreams routes', function() {
     describe('Activity Stream tests', function() {
       var Domain, User, TimelineEntry, Community;
       var activitystreamId, savedTimelineEntry;
-      var email = 'foo@bar.com';
+      var email = 'itadmin@lng.net';
+      password = 'secret';
 
       beforeEach(function(done) {
         Domain = this.mongoose.model('Domain');
         User = this.mongoose.model('User');
         TimelineEntry = this.mongoose.model('TimelineEntry');
         Community = this.mongoose.model('Community');
-
-        var user = new User({
-          username: 'Foo',
-          password: password,
-          emails: [email]
-        });
-        var domainJSON = {
-          name: 'Marketing',
-          company_name: 'Corporate',
-          administrator: user
-        };
-        var communityJSON = {
-          title: 'Node'
-        };
-        var domain = new Domain(domainJSON);
-
-        user.save(function(err, u) {
-          if (err) {
-            return done(err);
-          }
-          else {
-            domain.save(function(err, d) {
-              if (err) {
-                return done(err);
-              }
-
-              communityJSON.domain_ids = [d._id];
-              communityJSON.creator = u._id;
-              communityJSON.members = [
-                {user: u._id}
-              ];
-
-              var community = new Community(communityJSON);
-
-              community.save(function(err, c) {
-                if (err) {
-                  return done(err);
-                }
-
-                activitystreamId = c.activity_stream.uuid;
-                var timelinentryJSON = {
-                  actor: {
-                    objectType: 'user',
-                    _id: u._id
-                  },
-                  object: {
-                    _id: u._id
-                  },
-                  target: [
-                    {objectType: 'activitystream', _id: activitystreamId}
-                  ]
-                };
-                var timelineEntry = new TimelineEntry(timelinentryJSON);
-                timelineEntry.save(function(err, saved) {
-                  if (err) {
-                    done(err);
-                  }
-                  savedTimelineEntry = saved;
-                  done();
-                });
-              });
-            });
-          }
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          activitystreamId = models.communities[0].activity_stream.uuid;
+          var timelineentryJSON = {
+            actor: {
+              objectType: 'user',
+              _id: models.users[0]._id
+            },
+            object: {
+              _id: models.users[0]._id
+            },
+            target: [
+              {objectType: 'activitystream', _id: activitystreamId}
+            ]
+          };
+          var timelineEntry = new TimelineEntry(timelineentryJSON);
+          timelineEntry.save(function(err, saved) {
+            if (err) { done(err); }
+            savedTimelineEntry = saved;
+            done();
+          });
         });
       });
 

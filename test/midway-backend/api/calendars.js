@@ -5,7 +5,7 @@ var request = require('supertest');
 
 describe('The calendars API', function() {
   var app;
-  var user, user2, domain, community;
+  var user, user2, user3, domain, community;
   var password = 'secret';
 
   beforeEach(function(done) {
@@ -25,20 +25,10 @@ describe('The calendars API', function() {
         }
         user = models.users[0];
         user2 = models.users[1];
+        user3 = models.users[2];
         domain = models.domain;
-
-        function changeCommunityTypeToPrivate(community) {
-          community.type = 'private';
-          return community;
-        }
-
-        self.helpers.api.createCommunity('Community', user, domain, changeCommunityTypeToPrivate, function(err, saved) {
-          if (err) {
-            return done(err);
-          }
-          community = saved;
-          done();
-        });
+        community = models.communities[1];
+        done();
       });
     });
   });
@@ -74,7 +64,7 @@ describe('The calendars API', function() {
   });
 
   it('POST /api/calendars/:id/events should return 403 if the user have not write permission in the community', function(done) {
-    this.helpers.api.loginAsUser(app, user2.emails[0], password, function(err, requestAsMember) {
+    this.helpers.api.loginAsUser(app, user3.emails[0], password, function(err, requestAsMember) {
       if (err) {
         return done(err);
       }

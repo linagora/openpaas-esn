@@ -9,6 +9,7 @@ var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core/logger');
 var async = require('async');
+var mongoose = require('mongoose');
 
 function transform(community, user, callback) {
   if (!community) {
@@ -79,7 +80,9 @@ module.exports.create = function(req, res) {
     title: req.body.title,
     creator: req.user._id,
     type: 'open',
-    members: [{user: req.user._id}]
+    members: [
+      {member: {id: req.user._id, objectType: 'user'}}
+    ]
   };
 
   if (!community.title) {
@@ -278,7 +281,7 @@ module.exports.getMine = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
   }
 
-  communityModule.query({'members.user': user._id}, function(err, communities) {
+  communityModule.getUserCommunities(user._id, null, function(err, communities) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -328,7 +331,18 @@ module.exports.getMembers = function(req, res) {
 
 module.exports.getMember = function(req, res) {
   var community = req.community;
-  var user = req.params.user_id;
+  var user;
+
+  if (!req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
+  }
+
+  try {
+    user = new mongoose.Types.ObjectId(req.params.user_id);
+  } catch (err) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
+  }
+
 
   if (!user) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User id is missing'}});
@@ -357,23 +371,29 @@ module.exports.join = function(req, res) {
   var community = req.community;
   var user = req.user;
   var targetUser = req.params.user_id;
+  var targetUserId;
+  try {
+    targetUserId = new mongoose.Types.ObjectId(targetUser);
+  } catch (err) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
+  }
 
   if (req.isCommunityManager) {
 
-    if (user._id.equals(targetUser)) {
+    if (user._id.equals(targetUserId)) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a community'}});
     }
 
-    if (!communityModule.getMembershipRequest(community, {_id: targetUser})) {
+    if (!communityModule.getMembershipRequest(community, {_id: targetUserId})) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User did not request to join community'}});
     }
 
-    communityModule.join(community, user, targetUser, 'manager', function(err) {
+    communityModule.join(community, user, targetUserId, 'manager', function(err) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
-      communityModule.cleanMembershipRequest(community, targetUser, function(err) {
+      communityModule.cleanMembershipRequest(community, targetUserId, function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
@@ -383,7 +403,7 @@ module.exports.join = function(req, res) {
 
   } else {
 
-    if (!user._id.equals(targetUser)) {
+    if (!user._id.equals(targetUserId)) {
       return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
@@ -407,7 +427,7 @@ module.exports.join = function(req, res) {
       });
     }
     else {
-      communityModule.join(community, user, targetUser, 'user', function(err) {
+      communityModule.join(community, user, targetUserId, 'user', function(err) {
         if (err) {
           return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
         }
@@ -430,8 +450,14 @@ module.exports.leave = function(req, res) {
   var community = req.community;
   var user = req.user;
   var targetUser = req.params.user_id;
+  var targetUserId;
+  try {
+    targetUserId = new mongoose.Types.ObjectId(targetUser);
+  } catch (err) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
+  }
 
-  communityModule.leave(community, user, targetUser, function(err) {
+  communityModule.leave(community, user, targetUserId, function(err) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -471,7 +497,7 @@ module.exports.getMembershipRequests = function(req, res) {
     }
     res.header('X-ESN-Items-Count', req.community.membershipRequests ? req.community.membershipRequests.length : 0);
     var result = membershipRequests.map(function(request) {
-      var result = communityModule.userToMember(request);
+      var result = communityModule.userToMember({member: request.user, timestamp: request.timestamp});
       result.workflow = request.workflow;
       result.timestamp = request.timestamp;
       return result;
@@ -486,7 +512,25 @@ module.exports.addMembershipRequest = function(req, res) {
   }
   var community = req.community;
   var userAuthor = req.user;
-  var userTargetId = req.params.user_id;
+  var userTargetId;
+
+  if (!req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
+  }
+
+  try {
+    userTargetId = new mongoose.Types.ObjectId(req.params.user_id);
+  } catch (err) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
+  }
+
+  var member = community.members.filter(function(m) {
+    return m.member.objectType === 'user' && m.member.id.equals(userTargetId);
+  });
+
+  if (member.length) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User is already member'}});
+  }
 
   function addMembership(community, userAuthor, userTarget, workflow, actor) {
     communityModule.addMembershipRequest(community, userAuthor, userTarget, workflow, actor, function(err, community) {

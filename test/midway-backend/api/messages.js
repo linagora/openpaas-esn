@@ -96,6 +96,9 @@ describe('The messages API', function() {
       function saveCommunity(community, domain, cb) {
         community.domain_ids.push(domain._id);
         community.save(function(err, saved) {
+          if (err) {
+            console.log(err, err.stack);
+          }
           community._id = saved._id;
           return cb(err, saved);
         });
@@ -127,9 +130,12 @@ describe('The messages API', function() {
           saveMessage(message3, callback);
         },
         function(callback) {
-          restrictedCommunity.members = [
-            {user: restrictedUser._id, status: 'joined'}
-          ];
+          restrictedCommunity.members.push(
+            {
+              member: {id: restrictedUser._id, objectType: 'user'},
+              status: 'joined'
+            }
+          );
           saveCommunity(restrictedCommunity, domain, callback);
         }
       ],

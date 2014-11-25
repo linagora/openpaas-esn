@@ -38,6 +38,26 @@ module.exports.linagora_IT = function() {
         lastname: 'Hendrix',
         emails: ['jhendrix@lng.net']
       }
+    ],
+    communities: [
+      {
+        title: 'OpenPaaS open',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS private',
+        type: 'private',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS restricted',
+        type: 'restricted',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+      }
     ]
   };
 

@@ -53,8 +53,8 @@ function filterByNotInCommunityAndNoMembershipRequest(users, community, callback
 
   var memberHash = {};
   if (community.members) {
-    community.members.forEach(function(member) {
-      memberHash[member.user] = true;
+    community.members.forEach(function(m) {
+      memberHash[m.member.id] = true;
     });
   }
   if (community.membershipRequests) {

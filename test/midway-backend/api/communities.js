@@ -262,7 +262,9 @@ describe('The communities API', function() {
         }
       );
     });
+
     describe('membershipRequests', function() {
+
       beforeEach(function(done) {
         var self = this;
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
@@ -287,23 +289,36 @@ describe('The communities API', function() {
           });
         });
       });
+
+
       it('should return the membershipRequest date', function(done) {
+
         var self = this;
         this.helpers.api.loginAsUser(webserver.application, this.user2.emails[0], 'secret', function(err, loggedInAsUser) {
+
           if (err) { return done(err); }
+
           var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + self.domain._id));
+
           req.expect(200);
+
           req.end(function(err, res) {
+
             expect(err).to.not.exist;
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
-            expect(res.body.length).to.equal(1);
-            expect(res.body[0]).to.have.property('membershipRequest');
-            expect(res.body[0].membershipRequest).to.equal(1419509532000);
+            var community = res.body.filter(function(c) {
+              return c.title === 'Node';
+            });
+
+            expect(community.length).to.equal(1);
+            expect(community[0]).to.have.property('membershipRequest');
+            expect(community[0].membershipRequest).to.equal(1419509532000);
             done();
           });
         });
       });
+
     });
   });
 
@@ -395,7 +410,7 @@ describe('The communities API', function() {
                 expect(result[0].title).to.equal(community.title);
                 expect(result[0].description).to.equal(community.description);
                 expect(result[0].creator + '').to.equal(user._id + '');
-                expect(result[0].members[0].user + '').to.equal(user._id + '');
+                expect(result[0].members[0].member.id + '').to.equal(user._id + '');
                 done();
               });
             });
@@ -457,6 +472,7 @@ describe('The communities API', function() {
   });
 
   describe('GET /api/communities/:id', function() {
+
     it('should send back 401 when not logged in', function(done) {
       var community = {_id: 123};
       request(webserver.application).get('/api/communities/' + community._id).expect(401).end(function(err, res) {
@@ -576,123 +592,47 @@ describe('The communities API', function() {
 
     it('should return the number of members and not the members list', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-      var baruser = {emails: ['bar@bar.com'], password: 'secret'};
-      var bazuser = {emails: ['baz@bar.com'], password: 'secret'};
-
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          saveUser(baruser, callback);
-        },
-        function(callback) {
-          saveUser(bazuser, callback);
-        },
-        function(callback) {
-          domain.administrator = foouser._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.type = 'open';
-          community.members.push({user: foouser._id});
-          community.members.push({user: baruser._id});
-          community.members.push({user: bazuser._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, foouser.emails[0], password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
-            req.expect(200);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              expect(res.body.exist);
-              expect(res.body.members_count).to.exist;
-              expect(res.body.members_count).to.equal(3);
-              done();
-            });
-          });
-        }
-      ], function(err) {
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
           return done(err);
         }
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + models.communities[0]._id));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body.members).to.not.exist;
+            expect(res.body.members_count).to.exist;
+            expect(res.body.members_count).to.equal(2);
+            done();
+          });
+        });
       });
     });
 
     it('should return "member" in member_status if current user is member of the community', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-      var baruser = {emails: ['bar@bar.com'], password: 'secret'};
-      var bazuser = {emails: ['baz@bar.com'], password: 'secret'};
-
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          saveUser(baruser, callback);
-        },
-        function(callback) {
-          saveUser(bazuser, callback);
-        },
-        function(callback) {
-          domain.administrator = foouser._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.type = 'open';
-          community.members.push({user: foouser._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, foouser.emails[0], password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
-            req.expect(200);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              expect(res.body.exist);
-              expect(res.body.member_status).to.exist;
-              expect(res.body.member_status).to.equal('member');
-              done();
-            });
-          });
-        }
-      ], function(err) {
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
           return done(err);
         }
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + models.communities[0]._id));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body.member_status).to.exist;
+            expect(res.body.member_status).to.equal('member');
+            done();
+          });
+        });
       });
     });
   });
@@ -745,7 +685,7 @@ describe('The communities API', function() {
           self.models = models;
           domain = models.domain;
           user = models.users[0];
-          var member = {user: models.users[1]._id};
+          var member = {member: {id: models.users[1]._id, objectType: 'user'}};
           function patchCommunity(type) {
             return function(json) {
               json.type = type;
@@ -925,94 +865,38 @@ describe('The communities API', function() {
 
     it('should return the members list', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.type = 'open';
-          community.members.push({user: foouser._id}, {user: user._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
-            req.expect(200);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              expect(res.body).to.be.an.array;
-              expect(res.body.length).to.equal(2);
-              expect(res.body[0].user).to.exist;
-              expect(res.body[0].user._id).to.exist;
-              expect(res.body[0].user.password).to.not.exist;
-              expect(res.body[0].metadata).to.exist;
-              done();
-            });
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) { return done(err); }
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + models.communities[0]._id + '/members'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(2);
+            expect(res.body[0].user).to.exist;
+            expect(res.body[0].user._id).to.exist;
+            expect(res.body[0].user.password).to.not.exist;
+            expect(res.body[0].metadata).to.exist;
+            done();
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
 
     it('should return the sliced members list', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.type = 'open';
-          community.members.push({user: foouser._id}, {user: user._id}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].save(function(err, community) {
+          self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + models.communities[0]._id + '/members'));
             req.query({limit: 3, offset: 1});
             req.expect(200);
             req.end(function(err, res) {
@@ -1022,61 +906,31 @@ describe('The communities API', function() {
               done();
             });
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
 
     it('should return number of community members in the header', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.type = 'open';
-          community.members.push({user: foouser._id}, {user: user._id}, {user: self.mongoose.Types.ObjectId()}, {user: self.mongoose.Types.ObjectId()});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members'));
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
+        models.communities[0].save(function(err, community) {
+          self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) { return done(err); }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + models.communities[0]._id + '/members'));
+            req.query({limit: 3, offset: 1});
             req.expect(200);
             req.end(function(err, res) {
               expect(err).to.not.exist;
-              expect(res.headers['x-esn-items-count']).to.equal('4');
+              expect(res.headers['x-esn-items-count']).to.equal('6');
               done();
             });
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
   });
@@ -1111,259 +965,108 @@ describe('The communities API', function() {
 
       it('should return 400 if community is not open and user was not invited into the community', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'restricted',
-          members: [],
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
-              req.expect(400);
-              req.end(function(err) {
-                expect(err).to.not.exist;
-                done();
-              });
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          user = models.users[3];
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + models.communities[1]._id + '/members/' + user._id));
+            req.expect(400);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              done();
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should return 400 if current user is not equal to :user_id param', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'restricted',
-          members: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var ObjectId = require('bson').ObjectId;
-              var id = new ObjectId();
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + id));
-              req.expect(400);
-              req.end(function(err) {
-                expect(err).to.not.exist;
-                done();
-              });
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          user = models.users[3];
+          self.helpers.api.loginAsUser(webserver.application, models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + models.communities[0]._id + '/members/' + user._id));
+            req.expect(400);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              done();
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should add the current user as member if community is open', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'open',
-          members: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
-              req.expect(204);
-              req.end(function(err) {
-                expect(err).to.not.exist;
-                Community.find({_id: community._id, 'members.user': user._id}, function(err, document) {
-                  if (err) {
-                    return done(err);
-                  }
-                  expect(document).to.exist;
-                  done();
-                });
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          user = models.users[3];
+          self.helpers.api.loginAsUser(webserver.application, models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + models.communities[0]._id + '/members/' + models.users[2]._id));
+            req.expect(204);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              Community.find({_id: models.communities[0]._id, 'members.member.id': models.users[2]._id}, function(err, document) {
+                if (err) { return done(err); }
+                expect(document).to.exist;
+                done();
               });
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should not add the current user as member if already in', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'open',
-          members: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            community.members.push({user: user._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
-              req.expect(204);
-              req.end(function(err, res) {
-
-                Community.find({_id: community._id}, function(err, document) {
-                  if (err) {
-                    return done(err);
-                  }
-                  expect(document[0].members.length).to.equal(2);
-                  done();
-                });
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          self.helpers.api.loginAsUser(webserver.application, models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + models.communities[0]._id + '/members/' + models.users[1]._id));
+            req.expect(204);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              Community.find({_id: models.communities[0]._id}, function(err, document) {
+                if (err) { return done(err); }
+                expect(document[0].members.length).to.equal(2);
+                done();
               });
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should add the user to community if the community is not open but the user was invited', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'restricted',
-          members: [],
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
+          community.membershipRequests.push({user: models.users[2]._id, workflow: 'invitation'});
+          community.save(function(err, community) {
+            if (err) {return done(err);}
 
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            community.membershipRequests.push({user: user._id, workflow: 'invitation'});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            self.helpers.api.loginAsUser(webserver.application, models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
               if (err) {
                 return done(err);
               }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + user._id));
+              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + models.users[2]._id));
               req.expect(204);
               req.end(function(err) {
                 expect(err).to.not.exist;
                 done();
               });
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
     });
@@ -1372,165 +1075,68 @@ describe('The communities API', function() {
 
       it('should send back 400 when trying to add himself', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'open',
-          members: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
+          var manager = models.users[0];
 
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + foouser._id));
-              req.expect(400);
-              req.end(function(err) {
-                expect(err).to.not.exist;
-                done();
-              });
+          self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + manager._id));
+            req.expect(400);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              done();
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should send back 400 when trying to add a user who does not asked for membership', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'restricted',
-          members: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
+          var manager = models.users[0];
 
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var ObjectId = require('bson').ObjectId;
-              var id = new ObjectId();
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + id));
-              req.expect(400);
-              req.end(function(err) {
-                expect(err).to.not.exist;
-                done();
-              });
+          self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + models.users[2]._id));
+            req.expect(400);
+            req.end(function(err) {
+              expect(err).to.not.exist;
+              done();
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should send back 204 when user is added to members', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'restricted',
-          members: [],
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-        var bazuser = {emails: ['baz@bar.com'], password: 'secret'};
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var manager = models.users[0];
+          var community = models.communities[1];
+          community.membershipRequests.push({user: models.users[2]._id, workflow: 'request'});
+          community.save(function(err, community) {
+            if (err) {return done(err);}
 
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            saveUser(bazuser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = user._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            community.membershipRequests.push({user: bazuser._id, workflow: 'request'});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
               if (err) {
                 return done(err);
               }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + bazuser._id));
+              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/members/' + models.users[2]._id));
               req.expect(204);
-              req.end(function(err, res) {
+              req.end(function(err) {
                 expect(err).to.not.exist;
-                Community.find({_id: community._id, 'members.user': bazuser._id}, function(err, document) {
-                  if (err) {
-                    return done(err);
-                  }
-                  expect(document).to.exist;
-                  Community.find({_id: community._id, 'membershipRequests.user': bazuser._id}, function(err, document) {
-                    if (err) {
-                      return done(err);
-                    }
-                    expect(document.length).to.equal(0);
-                    done();
-                  });
-                });
+                done();
               });
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
     });
@@ -1564,106 +1170,50 @@ describe('The communities API', function() {
 
     it('should return 403 if current user is the community creator', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        type: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var manager = models.users[0];
+        var community = models.communities[1];
 
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id});
-          community.members.push({user: user._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/members/' + user._id));
-            req.expect(403);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              done();
-            });
+        self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/members/' + manager._id));
+          req.expect(403);
+          req.end(function(err) {
+            expect(err).to.not.exist;
+            done();
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
 
     it('should remove the current user from members if already in', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        type: 'open',
-        members: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var manager = models.users[0];
+        var community = models.communities[1];
 
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id});
-          community.members.push({user: user._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/members/' + user._id));
-            req.expect(204);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              Community.find({_id: community._id}, function(err, document) {
-                if (err) {
-                  return done(err);
-                }
-                expect(document[0].members.length).to.equal(1);
-                expect(document[0].members[0].user + '').to.equal('' + foouser._id);
-                done();
-              });
+        self.helpers.api.loginAsUser(webserver.application, models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application). delete('/api/communities/' + community._id + '/members/' + models.users[1]._id));
+          req.expect(204);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            Community.find({_id: community._id}, function(err, document) {
+              if (err) {
+                return done(err);
+              }
+              expect(document[0].members.length).to.equal(1);
+              expect(document[0].members[0].member.id + '').to.equal('' + manager._id);
+              done();
             });
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
   });
@@ -1703,7 +1253,11 @@ describe('The communities API', function() {
           self.models = models;
           domain = models.domain;
           user = models.users[0];
-          var member = {user: models.users[1]._id};
+          var member = { member: {
+              id: models.users[1]._id,
+              objectType: 'user'
+            }
+          };
           function patchCommunity(type) {
             return function(json) {
               json.type = type;
@@ -1873,53 +1427,23 @@ describe('The communities API', function() {
 
     it('should return 200 if current user and input user is a community member', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        members: [],
-        type: 'open'
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var community = models.communities[0];
 
-      async.series([
-        function(callback) {
-          saveUser(foouser, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = foouser._id;
-          community.domain_ids = [domain._id];
-          community.members.push({user: foouser._id});
-          community.members.push({user: user._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members/' + foouser._id));
-            req.expect(200);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              done();
-            });
+        self.helpers.api.loginAsUser(webserver.application, models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/members/' + models.users[0]._id));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            done();
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
-
   });
 
   describe('PUT /api/communities/:id/membership/:user_id', function() {
@@ -1933,45 +1457,22 @@ describe('The communities API', function() {
 
     it('should return 400 if user is already member of the community', function(done) {
       var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        members: [],
-        type: 'private'
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var community = models.communities[1];
 
-      async.series([
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.members.push({user: user._id});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
-            req.end(function(err, res) {
-              expect(res.status).to.equal(400);
-              expect(res.text).to.contain('already member');
-              done();
-            });
+        self.helpers.api.loginAsUser(webserver.application, models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + models.users[1]._id));
+          req.expect(400);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.text).to.contain('already member');
+            done();
           });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+        });
       });
     });
 
@@ -2024,51 +1525,21 @@ describe('The communities API', function() {
     describe('when the current user is not a community manager', function() {
       it('should return 400 if current user is not equal to :user_id param', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          type: 'open',
-          members: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
 
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = foouser._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: foouser._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var ObjectId = require('bson').ObjectId;
-              var id = new ObjectId();
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + id));
-              req.expect(400);
-              req.end(function(err) {
-                expect(err).to.not.exist;
-                done();
-              });
+          self.helpers.api.loginAsUser(webserver.application, models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + models.users[3]._id));
+            req.expect(400);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
@@ -2125,55 +1596,27 @@ describe('The communities API', function() {
     describe('when the current user is a community manager', function() {
       it('should return 200 with the community containing a new invitation', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          members: [],
-          type: 'private',
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
-
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = user._id;
-            community.domain_ids = [domain._id];
-            community.members.push({user: user._id});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + foouser._id));
-              req.end(function(err, res) {
-                expect(res.status).to.equal(200);
-                expect(res.body).to.exist;
-                expect(res.body.title).to.equal(community.title);
-                expect(res.body.description).to.equal(community.description);
-                expect(res.body.type).to.equal(community.type);
-                expect(res.body.membershipRequest).to.not.exist;
-                expect(res.body.membershipRequests).to.not.exist;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
+          self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + models.users[2]._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              Community.findOne({_id: community._id}, function(err, document) {
+                expect(document.membershipRequests).to.exist;
+                expect(document.membershipRequests).to.be.an('array');
+                expect(document.membershipRequests).to.have.length(1);
+                expect(document.membershipRequests[0].user + '').to.equal(models.users[2]._id + '');
+                expect(document.membershipRequests[0].workflow).to.equal('invitation');
                 done();
               });
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
     });
@@ -2703,37 +2146,15 @@ describe('The communities API', function() {
 
       it('should return the membership request list', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          status: 'open',
-          members: [],
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-        var foouser = {emails: ['foo@bar.com'], password: 'secret'};
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var manager = models.users[0];
+          var community = models.communities[1];
+          community.membershipRequests.push({user: models.users[2]._id, workflow: 'request'});
+          community.save(function(err, community) {
+            if (err) {return done(err);}
 
-        async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = user._id;
-            community.domain_ids = [domain._id];
-            community.type = 'restricted';
-            community.members.push({user: user._id});
-            community.membershipRequests.push({user: foouser._id, workflow: 'request'});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
               if (err) {
                 return done(err);
               }
@@ -2741,7 +2162,7 @@ describe('The communities API', function() {
               req.expect(200);
               req.end(function(err, res) {
                 expect(err).to.not.exist;
-                expect(res.body).to.be.an.array;
+                expect(res.body).to.be.an('array');
                 expect(res.body.length).to.equal(1);
                 expect(res.body[0].user).to.exist;
                 expect(res.body[0].user._id).to.exist;
@@ -2750,27 +2171,100 @@ describe('The communities API', function() {
                 done();
               });
             });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
+          });
         });
       });
 
       it('should return number of community membership requests in the header', function(done) {
         var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          status: 'open',
-          members: [],
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
+        var models;
+
+        function launchTests(err, community) {
+          self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.headers['x-esn-items-count']).to.equal('10');
+              done();
+            });
+          });
+        }
+
+
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, m) {
+          if (err) { return done(err); }
+          models = m;
+          var community = models.communities[1];
+          var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
+          var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
+          var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
+          var userD = {emails: ['foo.d@bar.com'], password: 'secret'};
+          var userE = {emails: ['foo.e@bar.com'], password: 'secret'};
+          var userF = {emails: ['foo.f@bar.com'], password: 'secret'};
+          var userG = {emails: ['foo.g@bar.com'], password: 'secret'};
+          var userH = {emails: ['foo.h@bar.com'], password: 'secret'};
+          var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
+          var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
+
+          async.parallel([
+            function(callback) { saveUser(userA, callback); },
+            function(callback) { saveUser(userB, callback); },
+            function(callback) { saveUser(userC, callback); },
+            function(callback) { saveUser(userD, callback); },
+            function(callback) { saveUser(userE, callback); },
+            function(callback) { saveUser(userF, callback); },
+            function(callback) { saveUser(userG, callback); },
+            function(callback) { saveUser(userH, callback); },
+            function(callback) { saveUser(userI, callback); },
+            function(callback) { saveUser(userJ, callback); }
+          ], function(err) {
+            if (err) { return done(err); }
+            community.membershipRequests.push({user: userA._id, workflow: 'request'});
+            community.membershipRequests.push({user: userB._id, workflow: 'request'});
+            community.membershipRequests.push({user: userC._id, workflow: 'request'});
+            community.membershipRequests.push({user: userD._id, workflow: 'request'});
+            community.membershipRequests.push({user: userE._id, workflow: 'request'});
+            community.membershipRequests.push({user: userF._id, workflow: 'request'});
+            community.membershipRequests.push({user: userG._id, workflow: 'request'});
+            community.membershipRequests.push({user: userH._id, workflow: 'request'});
+            community.membershipRequests.push({user: userI._id, workflow: 'request'});
+            community.membershipRequests.push({user: userJ._id, workflow: 'request'});
+            community.save(launchTests);
+          });
+        });
+      });
+    });
+
+    it('should return sliced community membership requests', function(done) {
+      var self = this;
+      var models;
+
+      function launchTests(err, community) {
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
+          req.query({limit: 3, offset: 1});
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.be.an('array');
+            expect(res.body.length).to.equal(3);
+            done();
+          });
+        });
+      }
+
+
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, m) {
+        if (err) { return done(err); }
+        models = m;
+        var community = models.communities[1];
         var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
         var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
         var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
@@ -2782,144 +2276,19 @@ describe('The communities API', function() {
         var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
         var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
 
-        async.series([
-          function(callback) {
-            saveUser(userA, callback);
-          },
-          function(callback) {
-            saveUser(userB, callback);
-          },
-          function(callback) {
-            saveUser(userC, callback);
-          },
-          function(callback) {
-            saveUser(userD, callback);
-          },
-          function(callback) {
-            saveUser(userE, callback);
-          },
-          function(callback) {
-            saveUser(userF, callback);
-          },
-          function(callback) {
-            saveUser(userG, callback);
-          },
-          function(callback) {
-            saveUser(userH, callback);
-          },
-          function(callback) {
-            saveUser(userI, callback);
-          },
-          function(callback) {
-            saveUser(userJ, callback);
-          },
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = user._id;
-            community.domain_ids = [domain._id];
-            community.type = 'restricted';
-            community.members.push({user: user._id}),
-            community.membershipRequests.push({user: userA._id, workflow: 'request'});
-            community.membershipRequests.push({user: userB._id, workflow: 'request'});
-            community.membershipRequests.push({user: userC._id, workflow: 'request'});
-            community.membershipRequests.push({user: userD._id, workflow: 'request'});
-            community.membershipRequests.push({user: userE._id, workflow: 'request'});
-            community.membershipRequests.push({user: userF._id, workflow: 'request'});
-            community.membershipRequests.push({user: userG._id, workflow: 'request'});
-            community.membershipRequests.push({user: userH._id, workflow: 'request'});
-            community.membershipRequests.push({user: userI._id, workflow: 'request'});
-            community.membershipRequests.push({user: userJ._id, workflow: 'request'});
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
-              req.expect(200);
-              req.end(function(err, res) {
-                expect(err).to.not.exist;
-                expect(res.headers['x-esn-items-count']).to.equal('10');
-                done();
-              });
-            });
-          }
+        async.parallel([
+          function(callback) { saveUser(userA, callback); },
+          function(callback) { saveUser(userB, callback); },
+          function(callback) { saveUser(userC, callback); },
+          function(callback) { saveUser(userD, callback); },
+          function(callback) { saveUser(userE, callback); },
+          function(callback) { saveUser(userF, callback); },
+          function(callback) { saveUser(userG, callback); },
+          function(callback) { saveUser(userH, callback); },
+          function(callback) { saveUser(userI, callback); },
+          function(callback) { saveUser(userJ, callback); }
         ], function(err) {
-          if (err) {
-            return done(err);
-          }
-        });
-      });
-    });
-
-    it('should return sliced community membership requests', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        status: 'open',
-        members: [],
-        membershipRequests: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-      var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
-      var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
-      var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
-      var userD = {emails: ['foo.d@bar.com'], password: 'secret'};
-      var userE = {emails: ['foo.e@bar.com'], password: 'secret'};
-      var userF = {emails: ['foo.f@bar.com'], password: 'secret'};
-      var userG = {emails: ['foo.g@bar.com'], password: 'secret'};
-      var userH = {emails: ['foo.h@bar.com'], password: 'secret'};
-      var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
-      var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
-
-      async.series([
-        function(callback) {
-          saveUser(userA, callback);
-        },
-        function(callback) {
-          saveUser(userB, callback);
-        },
-        function(callback) {
-          saveUser(userC, callback);
-        },
-        function(callback) {
-          saveUser(userD, callback);
-        },
-        function(callback) {
-          saveUser(userE, callback);
-        },
-        function(callback) {
-          saveUser(userF, callback);
-        },
-        function(callback) {
-          saveUser(userG, callback);
-        },
-        function(callback) {
-          saveUser(userH, callback);
-        },
-        function(callback) {
-          saveUser(userI, callback);
-        },
-        function(callback) {
-          saveUser(userJ, callback);
-        },
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.type = 'restricted';
-          community.members.push({user: user._id}),
+          if (err) { return done(err); }
           community.membershipRequests.push({user: userA._id, workflow: 'request'});
           community.membershipRequests.push({user: userB._id, workflow: 'request'});
           community.membershipRequests.push({user: userC._id, workflow: 'request'});
@@ -2930,28 +2299,8 @@ describe('The communities API', function() {
           community.membershipRequests.push({user: userH._id, workflow: 'request'});
           community.membershipRequests.push({user: userI._id, workflow: 'request'});
           community.membershipRequests.push({user: userJ._id, workflow: 'request'});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/membership'));
-            req.query({limit: 3, offset: 1});
-            req.expect(200);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              expect(res.body).to.be.an.array;
-              expect(res.body.length).to.equal(3);
-              done();
-            });
-          });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
+          community.save(launchTests);
+        });
       });
     });
   });
