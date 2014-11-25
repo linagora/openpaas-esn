@@ -9,7 +9,6 @@ var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core/logger');
 var async = require('async');
-var mongoose = require('mongoose');
 
 function transform(community, user, callback) {
   if (!community) {
@@ -331,28 +330,12 @@ module.exports.getMembers = function(req, res) {
 
 module.exports.getMember = function(req, res) {
   var community = req.community;
-  var user;
-
-  if (!req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
-  }
-
-  try {
-    user = new mongoose.Types.ObjectId(req.params.user_id);
-  } catch (err) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
-  }
-
-
-  if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User id is missing'}});
-  }
 
   if (!community) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.isMember(community, user, function(err, result) {
+  communityModule.isMember(community, req.params.user_id, function(err, result) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -370,13 +353,7 @@ module.exports.join = function(req, res) {
   }
   var community = req.community;
   var user = req.user;
-  var targetUser = req.params.user_id;
-  var targetUserId;
-  try {
-    targetUserId = new mongoose.Types.ObjectId(targetUser);
-  } catch (err) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
-  }
+  var targetUserId = req.params.user_id;
 
   if (req.isCommunityManager) {
 
@@ -449,13 +426,7 @@ module.exports.leave = function(req, res) {
   }
   var community = req.community;
   var user = req.user;
-  var targetUser = req.params.user_id;
-  var targetUserId;
-  try {
-    targetUserId = new mongoose.Types.ObjectId(targetUser);
-  } catch (err) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
-  }
+  var targetUserId = req.params.user_id;
 
   communityModule.leave(community, user, targetUserId, function(err) {
     if (err) {
@@ -512,17 +483,7 @@ module.exports.addMembershipRequest = function(req, res) {
   }
   var community = req.community;
   var userAuthor = req.user;
-  var userTargetId;
-
-  if (!req.params.user_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
-  }
-
-  try {
-    userTargetId = new mongoose.Types.ObjectId(req.params.user_id);
-  } catch (err) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Target user is not a valid ObjectId'}});
-  }
+  var userTargetId = req.params.user_id;
 
   var member = community.members.filter(function(m) {
     return m.member.objectType === 'user' && m.member.id.equals(userTargetId);

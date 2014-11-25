@@ -159,12 +159,40 @@ exports = module.exports = function(application) {
 
   application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
   application.get('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.canRead, communities.getMembers);
-  application.put('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.join);
-  application.delete('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserIdParameterIsCurrentUser, communityMiddleware.isMember, communityMiddleware.canLeave, communities.leave);
-  application.get('/api/communities/:id/members/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.canRead, communities.getMember);
+  application.put('/api/communities/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    communities.load,
+    requestMW.castParamToObjectId('user_id'),
+    communityMiddleware.flagCommunityManager,
+    communities.join
+  );
+  application.delete('/api/communities/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    communities.load,
+    requestMW.castParamToObjectId('user_id'),
+    communityMiddleware.checkUserIdParameterIsCurrentUser,
+    communityMiddleware.isMember,
+    communityMiddleware.canLeave,
+    communities.leave
+  );
+  application.get('/api/communities/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    communities.load,
+    communityMiddleware.canRead,
+    requestMW.castParamToObjectId('user_id'),
+    communities.getMember
+  );
   application.get('/api/communities/:id/membership', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.getMembershipRequests);
   application.delete('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.removeMembershipRequest);
-  application.put('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.checkUserParamIsNotMember, communityMiddleware.flagCommunityManager, communityMiddleware.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser, communities.addMembershipRequest);
+  application.put('/api/communities/:id/membership/:user_id',
+    authorize.requiresAPILogin,
+    communities.load,
+    requestMW.castParamToObjectId('user_id'),
+    communityMiddleware.checkUserParamIsNotMember,
+    communityMiddleware.flagCommunityManager,
+    communityMiddleware.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser,
+    communities.addMembershipRequest
+  );
   application.get('/api/communities/:id/invitablepeople', authorize.requiresAPILogin, communities.load, communities.getInvitablePeople);
 
   var avatars = require('./controllers/avatars');

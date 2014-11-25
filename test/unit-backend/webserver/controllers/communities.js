@@ -1294,28 +1294,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The getMember fn', function() {
-    it('should send back 400 is req.params.user_id is undefined', function(done) {
-      mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
-
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      };
-
-      var req = {
-        community: {},
-        params: {
-        }
-      };
-
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.getMember(req, res);
-    });
-
+  describe('getMember fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/community/permission', {});
@@ -2151,7 +2130,7 @@ describe('The communities controller', function() {
       this.communityCore.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
         expect(community).to.deep.equal(req.community);
         expect(userAuthor).to.deep.equal(req.user);
-        expect(userTarget).to.deep.equal({id: req.params.user_id});
+        expect(userTarget).to.deep.equal(req.params.user_id);
         callback(new Error('community module error'));
       };
       mockery.registerMock('../../core/community', this.communityCore);
@@ -2192,7 +2171,7 @@ describe('The communities controller', function() {
       this.communityCore.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
         expect(community).to.deep.equal(req.community);
         expect(userAuthor).to.deep.equal(req.user);
-        expect(userTarget).to.deep.equal({id: req.params.user_id});
+        expect(userTarget).to.deep.equal(req.params.user_id);
         expect(workflow).to.equal('request');
         callback(null, modifiedCommunity);
       };
@@ -2246,7 +2225,7 @@ describe('The communities controller', function() {
         this.communityCore.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
           expect(community).to.deep.equal(req.community);
           expect(userAuthor).to.deep.equal(req.user);
-          expect(userTarget).to.deep.equal({id: req.params.user_id});
+          expect(userTarget).to.deep.equal(req.params.user_id);
           expect(workflow).to.equal('invitation');
           callback(null, modifiedCommunity);
         };
