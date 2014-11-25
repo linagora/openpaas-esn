@@ -41,7 +41,7 @@ function mockModels(mockedModels) {
   var mongooseMock = {
     Types: {
       ObjectId: function(id) {
-        return id;
+        return {id: id};
       }
     },
     model: function(model) {

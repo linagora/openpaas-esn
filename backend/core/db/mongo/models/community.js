@@ -4,6 +4,19 @@ var mongoose = require('mongoose');
 var uuid = require('node-uuid');
 var Schema = mongoose.Schema;
 
+function validateTuple(tuple) {
+  if (!tuple) { return false; }
+  if (! ('objectType' in tuple)) { return false; }
+  if (! ('id' in tuple)) { return false; }
+  if (typeof tuple.objectType !== 'string') { return false; }
+  return true;
+}
+
+var Tuple = new Schema({
+  objectType: {type: String, required: true},
+  id: {type: mongoose.Schema.Types.Mixed, required: true}
+}, {_id: false});
+
 var CommunitySchema = new Schema({
   title: {type: String, required: true, trim: true},
   description: {type: String, trim: true},
@@ -19,7 +32,7 @@ var CommunitySchema = new Schema({
   },
   members: [
     {
-      user: {type: mongoose.Schema.ObjectId, ref: 'User'},
+      member: {type: Tuple.tree, required: true, validate: [validateTuple, 'Bad subject tuple']},
       status: {type: String},
       timestamps: {
         creation: {type: Date, default: Date.now}

@@ -1003,7 +1003,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The getMine fn', function() {
+  describe('getMine fn', function() {
     it('should send back 400 is req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/community/permission', {});
@@ -1024,7 +1024,7 @@ describe('The communities controller', function() {
 
     it('should send back 500 is community module sends back error', function(done) {
       mockery.registerMock('../../core/community', {
-        query: function(q, callback) {
+        getUserCommunities: function(q, r, callback) {
           return callback(new Error());
         }
       });
@@ -1048,7 +1048,7 @@ describe('The communities controller', function() {
     it('should send back 200 with the communities', function(done) {
       var result = [{_id: 1}, {_id: 2}];
       mockery.registerMock('../../core/community', {
-        query: function(q, callback) {
+        getUserCommunities: function(q, r, callback) {
           return callback(null, result);
         },
         isMember: function(c, u , callback) {
@@ -1082,7 +1082,7 @@ describe('The communities controller', function() {
     it('should send back 200 with the communities(membershipRequest)', function(done) {
       var result = [{_id: 1}, {_id: 2}];
       mockery.registerMock('../../core/community', {
-        query: function(q, callback) {
+        getUserCommunities: function(q, r, callback) {
           return callback(null, result);
         },
         isMember: function(c, u , callback) {
@@ -1117,7 +1117,7 @@ describe('The communities controller', function() {
     it('should send the transformed community model', function(done) {
       var result = [{_id: 1, members: [{_id: 'user1'}, {_id: 'user2'}]}, {_id: 2, members: [{_id: 'user2'}]}];
       mockery.registerMock('../../core/community', {
-        query: function(q, callback) {
+        getUserCommunities: function(q, r, callback) {
           return callback(null, result);
         },
         isMember: function(c, u , callback) {
@@ -1150,7 +1150,7 @@ describe('The communities controller', function() {
 
   });
 
-  describe('The getMembers fn', function() {
+  describe('getMembers fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/community/permission', {});
@@ -1294,28 +1294,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The getMember fn', function() {
-    it('should send back 400 is req.params.user_id is undefined', function(done) {
-      mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
-
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      };
-
-      var req = {
-        community: {},
-        params: {
-        }
-      };
-
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
-      communities.getMember(req, res);
-    });
-
+  describe('getMember fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
       mockery.registerMock('../../core/community/permission', {});
@@ -2075,7 +2054,7 @@ describe('The communities controller', function() {
     });
   });
 
-  describe('The addMembershipRequest fn', function() {
+  describe('addMembershipRequest fn', function() {
     beforeEach(function() {
       this.communityCore = {
         MEMBERSHIP_TYPE_REQUEST: 'request',
@@ -2165,7 +2144,7 @@ describe('The communities controller', function() {
       };
 
       var req = {
-        community: {_id: '1'},
+        community: {_id: '1', members: []},
         user: {_id: '2'},
         params: {
           user_id: '2'
@@ -2186,7 +2165,8 @@ describe('The communities controller', function() {
               creation: new Date()
             }
           }
-        ]
+        ],
+        members: []
       };
       this.communityCore.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
         expect(community).to.deep.equal(req.community);
@@ -2215,6 +2195,7 @@ describe('The communities controller', function() {
       var req = {
         community: {
           _id: '1',
+          members: [],
           membershipRequests: [{user: this.helpers.objectIdMock('anotherUserrequest')}]},
         user: {_id: this.helpers.objectIdMock('2')},
         params: {
@@ -2269,6 +2250,7 @@ describe('The communities controller', function() {
         var req = {
           community: {
             _id: '1',
+            members: [],
             membershipRequests: [{user: this.helpers.objectIdMock('anotherUserrequest')}]},
           user: {_id: this.helpers.objectIdMock('2')},
           params: {

@@ -93,7 +93,7 @@ before(function() {
     *
     *
     */
-    applyDomainDeployment: function(name, callback) {
+applyDomainDeployment: function(name, callback) {
       var fixtures = require(self.testEnv.fixtures + '/deployments');
       if (! (name in fixtures)) {
         return callback(new Error('Unknown fixture name ' + name));
@@ -102,14 +102,14 @@ before(function() {
       require(self.testEnv.basePath + '/backend/core').db.mongo;
 
       var async = require('async'),
-          Domain = require('mongoose').model('Domain'),
-          User = require('mongoose').model('User');
+        Domain = require('mongoose').model('Domain'),
+        Community = require('mongoose').model('Community'),
+        User = require('mongoose').model('User');
 
       function createDomain(then) {
         var d = new Domain(deployment.domain);
         d.save(function(err, d) {
           if (err) {
-            console.log(err, err.stack);
             return then(err);
           } else {
             return then(null, d);
@@ -123,12 +123,10 @@ before(function() {
             var u = new User(user);
             u.save(function(err, u) {
               if (err) {
-                console.log(err, err.stack);
                 return then(err);
               } else {
                 u.joinDomain(domain, function(err) {
                   if (err) {
-                    console.log(err, err.stack);
                     return then(err);
                   }
                   return then(null, u);
@@ -138,6 +136,40 @@ before(function() {
           };
         });
         return jobs;
+      }
+
+      function createCommunityJob(c) {
+        return function(then) {
+          var community = extend(true, {}, c);
+          var creator = models.users.filter(function(u) { return u.emails.indexOf(community.creator) >= 0; });
+          if (!creator.length) {
+            return then(new Error('Creator ', community.creator, 'cannot be found in domain users'));
+          }
+          community.creator = creator[0]._id;
+          community.domain_ids = [models.domain._id];
+          community.members = [{member: {objectType: 'user', id: creator[0]._id}}];
+          c.members.forEach(function(m) {
+            if (m.objectType !== 'user') {
+              return;
+            }
+            var user = models.users.filter(function(u) { return u.emails.indexOf(m.id) >= 0; });
+            if (!user.length) {
+              return;
+            }
+            community.members.push({member: {objectType: 'user', id: user[0]._id}});
+          });
+          var communitymodel = new Community(community);
+          communitymodel.save(function(err, c) {
+            if (err) {
+              console.log('unable to save community', err);
+            }
+            then(err, c);
+          });
+        };
+      }
+
+      function createCommunityJobs(communities) {
+        return communities.map(function(c) { return createCommunityJob(c); });
       }
 
       var models = {};
@@ -153,12 +185,23 @@ before(function() {
 
           models.users = users;
           domain.administrator = users[0]._id;
+
           domain.save(function(err) {
             if (err) {
               return callback(err);
             }
+
             models.domain = domain;
-            return callback(null, models);
+            if (!deployment.communities || !deployment.communities.length) {
+              return callback(null, models);
+            }
+            async.parallel(createCommunityJobs(deployment.communities), function(err, communities) {
+              if (err) {
+                return callback(err);
+              }
+              models.communities = communities;
+              return callback(null, models);
+            });
 
           });
         });
@@ -169,17 +212,21 @@ before(function() {
       Community.findOne({_id: id}, done);
     },
     createCommunity: function(title, creator, domain, opts, done) {
+      require(basePath + '/backend/core/db/mongo/models/community');
       if (opts && !done) {
         done = opts;
         opts = null;
       }
       var Community = require('mongoose').model('Community');
+      var creatorId = creator._id || creator;
       var json = {
         title: title,
         type: 'open',
-        creator: creator._id || creator,
+        creator: creatorId,
         domain_ids: [domain._id || domain],
-        members: [{user: creator._id}]
+        members: [
+          {member: {id: creatorId, objectType: 'user'}}
+        ]
       };
       if (opts) {
         if (typeof opts === 'function') {
@@ -197,10 +244,17 @@ before(function() {
       var async = require('async');
       async.each(users, function(user, callback) {
         Community.update({
-          _id: community._id || community,
-          'members.user': {$ne: user._id || user}
+          _id: community._id || community
         }, {
-          $push: {members: {user: user._id || user, status: 'joined'}}
+          $push: {
+            members: {
+              member: {
+                id: user._id || user,
+                objectType: 'user',
+                status: 'joined'
+              }
+            }
+          }
         }, callback);
       }, function(err) {
         if (err) { return done(err); }

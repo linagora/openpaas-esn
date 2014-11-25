@@ -11,6 +11,7 @@ describe('The WebSockets notification module', function() {
   });
 
   beforeEach(function() {
+    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
     require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');

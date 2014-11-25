@@ -2,9 +2,8 @@
 
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
+var User = mongoose.model('User');
 var logger = require('../logger');
-var domainModule = require('../domain');
-var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var permission = require('./permission');
@@ -106,55 +105,61 @@ module.exports.userIsCommunityMember = function(user, community, callback) {
     return callback(new Error('Community object is required'));
   }
 
-  if (!community.domain_ids || community.domain_ids.length === 0) {
-    return callback(new Error('Community does not belong to any domain'));
-  }
-
-  var userInDomain = function(domain_id, callback) {
-    domainModule.load(domain_id, function(err, domain) {
-      if (err) {
-        return callback(false);
-      }
-      domainModule.userIsDomainMember(user, domain, function(err, isMember) {
-        if (err) {
-          return callback(false);
-        }
-        return callback(isMember);
-      });
-    });
-  };
-
-  async.some(community.domain_ids, userInDomain, function(result) {
-    return callback(null, result);
+  var isMember = community.members.some(function(m) {
+    return m.member.objectType === 'user' && m.member.id.equals(user._id);
   });
+  return callback(null, isMember);
 };
 
 module.exports.leave = function(community, userAuthor, userTarget, callback) {
   var id = community._id || community;
   var userAuthor_id = userAuthor._id || userAuthor;
   var userTarget_id = userTarget._id || userTarget;
+  var selection = { 'member.objectType': 'user', 'member.id': userTarget_id };
+  Community.update(
+    {_id: id, members: {$elemMatch: selection} },
+    {$pull: {members: selection} },
+    function(err, updated) {
+      if (err) {
+        return callback(err);
+      }
 
-  Community.update({_id: id, 'members.user': userTarget_id}, {$pull: {members: {user: userTarget_id}}}, function(err, updated) {
-    if (err) {
-      return callback(err);
+      localpubsub.topic('community:leave').forward(globalpubsub, {
+        author: userAuthor_id,
+        target: userTarget_id,
+        community: id
+      });
+
+      return callback(null, updated);
     }
-
-    localpubsub.topic('community:leave').forward(globalpubsub, {
-      author: userAuthor_id,
-      target: userTarget_id,
-      community: id
-    });
-
-    return callback(null, updated);
-  });
+  );
 };
 
 module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
-  var id = community._id || community;
+  if (!community.save) {
+    throw new Error('join(): first argument (community) must be a community mongoose model');
+  }
+  var id = community._id;
   var userAuthor_id = userAuthor._id || userAuthor;
   var userTarget_id = userTarget._id || userTarget;
 
-  Community.update({_id: id, 'members.user': {$ne: userTarget_id}}, {$push: {members: {user: userTarget_id, status: 'joined'}}}, function(err, updated) {
+  var member = community.members.filter(function(m) {
+    return m.member.id.equals(userTarget_id);
+  });
+
+  if (member.length) {
+    return callback(null, community);
+  }
+
+  community.members.push({
+    member: {
+      objectType: 'user',
+      id: userTarget_id
+    },
+    status: 'joined'
+  });
+
+  community.save(function(err, updated) {
     if (err) {
       return callback(err);
     }
@@ -185,8 +190,9 @@ module.exports.isManager = function(community, user, callback) {
 module.exports.isMember = function(community, user, callback) {
   var id = community._id || community;
   var user_id = user._id || user;
+  var $em = {$elemMatch: { 'member.objectType': 'user', 'member.id': user_id}};
 
-  Community.findOne({_id: id, 'members.user': user_id}, function(err, result) {
+  Community.findOne({_id: id, members: $em}, function(err, result) {
     if (err) {
       return callback(err);
     }
@@ -196,14 +202,14 @@ module.exports.isMember = function(community, user, callback) {
 
 module.exports.userToMember = function(document) {
   var result = {};
-  if (!document || !document.user) {
+  if (!document || !document.member) {
     return result;
   }
 
-  if (typeof(document.user.toObject) === 'function') {
-    result.user = document.user.toObject();
+  if (typeof(document.member.toObject) === 'function') {
+    result.user = document.member.toObject();
   } else {
-    result.user = document.user;
+    result.user = document.member;
   }
 
   delete result.user.password;
@@ -220,15 +226,20 @@ module.exports.userToMember = function(document) {
 module.exports.getMembers = function(community, query, callback) {
   query = query ||  {};
   var id = community._id || community;
+  Community.findById(id, function(err, community) {
+    if (err) { return callback(err); }
 
-  var q = Community.findById(id);
-  q.slice('members', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
-  q.populate('members.user');
-  q.exec(function(err, community) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, community ? community.members : []);
+    var members = community.members.slice().splice(query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT);
+    var memberIds = members.map(function(member) { return member.member.id; });
+    User.find({_id: {$in: memberIds}}, function(err, users) {
+      if (err) { return callback(err); }
+      var hash = {};
+      users.forEach(function(u) { hash[u._id] = u; });
+      members.forEach(function(m) {
+        m.member = hash[m.member.id];
+      });
+      return callback(null, members);
+    });
   });
 };
 
@@ -257,11 +268,17 @@ module.exports.getUserCommunities = function(user, domainId, callback) {
   if (!user) {
     return callback(new Error('User is required'));
   }
+
   var id = user._id ||  user;
+  var params = {
+    members: {$elemMatch: { 'member.objectType': 'user', 'member.id': id}}
+  };
+
   if (domainId) {
-    return query({'members.user': id, 'domain_ids': domainId}, callback);
+    params.domain_ids = domainId;
   }
-  return query({'members.user': id}, callback);
+
+  return query(params, callback);
 };
 
 module.exports.getMembershipRequests = function(community, query, callback) {
