@@ -96,21 +96,6 @@ module.exports.delete = function(community, callback) {
   return callback(new Error('Not implemented'));
 };
 
-module.exports.userIsCommunityMember = function(user, community, callback) {
-  if (!user || !user._id) {
-    return callback(new Error('User object is required'));
-  }
-
-  if (!community || !community._id) {
-    return callback(new Error('Community object is required'));
-  }
-
-  var isMember = community.members.some(function(m) {
-    return m.member.objectType === 'user' && m.member.id.equals(user._id);
-  });
-  return callback(null, isMember);
-};
-
 module.exports.leave = function(community, userAuthor, userTarget, callback) {
   var id = community._id || community;
   var userAuthor_id = userAuthor._id || userAuthor;
@@ -188,16 +173,16 @@ module.exports.isManager = function(community, user, callback) {
 };
 
 module.exports.isMember = function(community, user, callback) {
-  var id = community._id || community;
   var user_id = user._id || user;
-  var $em = {$elemMatch: { 'member.objectType': 'user', 'member.id': user_id}};
 
-  Community.findOne({_id: id, members: $em}, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, !!result);
+  if (!community || !community._id) {
+    return callback(new Error('Community object is required'));
+  }
+
+  var isMember = community.members.some(function(m) {
+    return m.member.objectType === 'user' && m.member.id.equals(user_id);
   });
+  return callback(null, isMember);
 };
 
 module.exports.userToMember = function(document) {

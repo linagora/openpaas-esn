@@ -227,165 +227,6 @@ describe('The community module', function() {
     });
   });
 
-  describe('userIsCommunityMember fn', function(done) {
-    it('should send back error when user is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.userIsCommunityMember(null, {_id: 123}, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back error when user._id is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.userIsCommunityMember({}, {_id: 123}, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back error when community is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.userIsCommunityMember({_id: 123}, null, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back error when community._id is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.userIsCommunityMember({_id: 123}, {}, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back false when member is not a user', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      var c = {
-        _id: 'community1',
-        members: [
-          {
-            member: {
-              objectType: 'unicorn',
-              id: {
-                equals: function() {
-                  return true;
-                }
-              }
-            }
-          }
-        ]
-      };
-      community.userIsCommunityMember({_id: 123}, c, function(err, isMember) {
-        expect(err).to.be.not.ok;
-        expect(isMember).to.be.false;
-        done();
-      });
-    });
-
-    it('should send back false when user is not a community member', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      var c = {
-        _id: 'community1',
-        members: [
-        {
-          member: {
-            objectType: 'user',
-            id: {
-              equals: function() {
-                return false;
-              }
-            }
-          }
-        }
-        ]
-      };
-      community.userIsCommunityMember({_id: 123}, c, function(err, isMember) {
-        expect(err).to.be.not.ok;
-        expect(isMember).to.be.false;
-        done();
-      });
-    });
-
-    it('should send back true when user is a community member', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      var c = {
-        _id: 'community1',
-        members: [
-          {
-            member: {
-              objectType: 'user',
-              id: {
-                equals: function() {
-                  return false;
-                }
-              }
-            }
-          },
-          {
-            member: {
-              objectType: 'user',
-              id: {
-                equals: function() {
-                  return true;
-                }
-              }
-            }
-          }
-        ]
-      };
-      community.userIsCommunityMember({_id: 123}, c, function(err, isMember) {
-        expect(err).to.be.not.ok;
-        expect(isMember).to.be.true;
-        done();
-      });
-    });
-
-  });
-
   describe('The leave fn', function() {
 
     it('should send back error when Community.update fails', function(done) {
@@ -633,13 +474,11 @@ describe('The community module', function() {
 
   describe('The isMember fn', function() {
 
-    it('should send back error when Community.findOne fails', function(done) {
+    it('should send back error when community is not a Mongo object', function(done) {
       var mongoose = {
         model: function() {
           return {
-            findOne: function(a, callback) {
-              return callback(new Error());
-            }
+            findOne: function() {}
           };
         }
       };
@@ -651,43 +490,141 @@ describe('The community module', function() {
       });
     });
 
-    it('should send back true when Community.findOne finds user', function(done) {
+    it('should send back true when user is part of the community', function(done) {
       var mongoose = {
         model: function() {
-          return {
-            findOne: function(a, callback) {
-              return callback(null, {});
-            }
-          };
         }
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.isMember(123, 456, function(err, result) {
+      var comMock = {
+        _id: 'community1',
+        members: [
+        {
+          member: {
+            objectType: 'user',
+            id: {
+              equals: function() {
+                return false;
+              }
+            }
+          }
+        },
+        {
+            member: {
+              objectType: 'user',
+              id: {
+                equals: function() {
+                  return true;
+                }
+              }
+            }
+          }
+        ]
+      };
+      community.isMember(comMock, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         return done();
       });
     });
 
-    it('should send back false when Community.findOne does not find user', function(done) {
+    it('should send back false when user is not part of the community', function(done) {
       var mongoose = {
         model: function() {
-          return {
-            findOne: function(a, callback) {
-              return callback();
-            }
-          };
         }
       };
       mockery.registerMock('mongoose', mongoose);
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.isMember(123, 456, function(err, result) {
+      var comMock = {
+        _id: 'community1',
+        members: [
+        {
+          member: {
+            objectType: 'user',
+            id: {
+              equals: function() {
+                return false;
+              }
+            }
+          }
+        },
+        {
+          member: {
+            objectType: 'user',
+            id: {
+              equals: function() {
+                return false;
+              }
+            }
+          }
+        }
+        ]
+      };
+      community.isMember(comMock, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
       });
     });
+
+    it('should send back false when tuple is invalid', function(done) {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var comMock = {
+        _id: 'community1',
+        members: [
+        {
+          member: {
+            id: {
+              equals: function() {
+                return false;
+              }
+            }
+          }
+        }
+        ]
+      };
+      community.isMember(comMock, 456, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        return done();
+      });
+    });
+
+    it('should send back false when tuple is not a user', function(done) {
+      var mongoose = {
+        model: function() {
+        }
+      };
+      mockery.registerMock('mongoose', mongoose);
+      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var comMock = {
+        _id: 'community1',
+        members: [
+        {
+          member: {
+            objectType: 'unicorn',
+            id: {
+              equals: function() {
+                return false;
+              }
+            }
+          }
+        }
+        ]
+      };
+      community.isMember(comMock, 456, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        return done();
+      });
+    });
+
   });
 
   describe('The getMembers fn', function() {

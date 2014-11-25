@@ -490,9 +490,9 @@ describe('The authorization middleware', function() {
       middleware(req, res);
     });
 
-    it('should send 400 when communityModule.userIsCommunityMember sends back error', function(done) {
+    it('should send 400 when communityModule.isMember sends back error', function(done) {
       var mock = {
-        userIsCommunityMember: function(user, community, callback) {
+        isMember: function(user, community, callback) {
           return callback(new Error());
         }
       };
@@ -512,9 +512,9 @@ describe('The authorization middleware', function() {
       middleware(req, res);
     });
 
-    it('should send 403 when communityModule.userIsCommunityMember sends back false', function(done) {
+    it('should send 403 when communityModule.isMember sends back false', function(done) {
       var mock = {
-        userIsCommunityMember: function(user, community, callback) {
+        isMember: function(user, community, callback) {
           return callback(null, false);
         }
       };
@@ -534,9 +534,9 @@ describe('The authorization middleware', function() {
       middleware(req, res);
     });
 
-    it('should call next when communityModule.userIsCommunityMember sends back true', function(done) {
+    it('should call next when communityModule.isMember sends back true', function(done) {
       var mock = {
-        userIsCommunityMember: function(user, community, callback) {
+        isMember: function(user, community, callback) {
           return callback(null, true);
         }
       };

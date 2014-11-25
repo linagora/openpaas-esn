@@ -22,19 +22,18 @@ function transform(community, user, callback) {
   }
 
   community.members_count = community.members ? community.members.length : 0;
-  delete community.members;
-
-  delete community.membershipRequests;
   if (membershipRequest) {
     community.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  communityModule.isMember(community._id, user._id, function(err, membership) {
+  communityModule.isMember(community, user._id, function(err, membership) {
     if (membership) {
       community.member_status = 'member';
     } else {
       community.member_status = 'none';
     }
+    delete community.members;
+    delete community.membershipRequests;
     return callback(community);
   });
 }
