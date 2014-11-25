@@ -4,8 +4,6 @@ var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var User = mongoose.model('User');
 var logger = require('../logger');
-var domainModule = require('../domain');
-var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var permission = require('./permission');
@@ -98,7 +96,7 @@ module.exports.delete = function(community, callback) {
   return callback(new Error('Not implemented'));
 };
 
-module.exports.userIsCommunityMember = function(user, community, callback) { // TODO update this method
+module.exports.userIsCommunityMember = function(user, community, callback) {
   if (!user || !user._id) {
     return callback(new Error('User object is required'));
   }
@@ -107,27 +105,10 @@ module.exports.userIsCommunityMember = function(user, community, callback) { // 
     return callback(new Error('Community object is required'));
   }
 
-  if (!community.domain_ids || community.domain_ids.length === 0) {
-    return callback(new Error('Community does not belong to any domain'));
-  }
-
-  var userInDomain = function(domain_id, callback) {
-    domainModule.load(domain_id, function(err, domain) {
-      if (err) {
-        return callback(false);
-      }
-      domainModule.userIsDomainMember(user, domain, function(err, isMember) {
-        if (err) {
-          return callback(false);
-        }
-        return callback(isMember);
-      });
-    });
-  };
-
-  async.some(community.domain_ids, userInDomain, function(result) {
-    return callback(null, result);
+  var isMember = community.members.some(function(m) {
+    return m.member.objectType === 'user' && m.member.id.equals(user._id);
   });
+  return callback(null, isMember);
 };
 
 module.exports.leave = function(community, userAuthor, userTarget, callback) {
