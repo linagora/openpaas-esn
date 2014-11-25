@@ -117,44 +117,6 @@ function membershipInviteHandler(data, callback) {
 }
 module.exports.membershipInviteHandler = membershipInviteHandler;
 
-function augmentToMembershipRequest(data, callback) {
-  var authorId = data.author._id || data.author;
-  var communityId = data.community._id || data.community;
-  var notification = {
-    subject: {objectType: 'user', id: authorId},
-    verb: {label: 'ESN_MEMBERSHIP_REQUEST', text: 'requested membership on'},
-    complement: {objectType: 'community', id: communityId},
-    context: null,
-    description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:membership:request',
-    interactive: true,
-    target: data.manager
-  };
-  return callback(null, notification);
-}
-
-function membershipRequestHandler(data, callback) {
-  communityModule.getManagers(data.community, {}, function(err, managers) {
-    if (err || !managers || managers.legnth === 0) {
-      logger.warn('Notification could not be created : no target user found.');
-      return;
-    }
-    managers.forEach(function(manager) {
-      var notifData = {
-        manager: manager._id
-      };
-      extend(notifData, data);
-      async.waterfall([
-          augmentToMembershipRequest.bind(null, notifData),
-          createUserNotification
-        ],
-        onSuccessPublishIntoGlobal(callback));
-    });
-  });
-}
-module.exports.membershipRequestHandler = membershipRequestHandler;
-
 function membershipAcceptedHandler(data, callback) {
   async.waterfall([
       augmentToMembershipAccepted.bind(null, data),
@@ -242,7 +204,6 @@ function init() {
   }
   localpubsub.topic('community:join').subscribe(communityJoinHandler);
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
-  localpubsub.topic('community:membership:request').subscribe(membershipRequestHandler);
   localpubsub.topic('community:membership:invitation:cancel').subscribe(membershipInvitationCancelHandler);
   localpubsub.topic('community:membership:request:refuse').subscribe(membershipRequestRefuseHandler);
   localpubsub.topic('notification:external').subscribe(externalNotificationHandler);
