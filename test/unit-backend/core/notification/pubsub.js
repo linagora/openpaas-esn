@@ -109,58 +109,5 @@ describe('The notification pubsub module', function() {
         done();
       });
     });
-
-  });
-
-  describe('membershipRequestHandler method', function() {
-
-    it('should save an augmented usernotification then forward it into global usernotification:created', function(done) {
-      var globalstub = {};
-      var datastub = {};
-      var data = {
-        author: '123',
-        target: '456',
-        community: {_id: '789'}
-      };
-      var usernotificationMocked = {
-        create: function(data, callback) {
-          datastub = data;
-          callback(null, 'saved');
-        }
-      };
-      mockery.registerMock('./usernotification', usernotificationMocked);
-
-      this.helpers.mock.pubsub('../pubsub', {}, globalstub);
-
-      var managerId = 'managerId';
-      var communityModuleMock = {
-        getManagers: function(community, opts, callback) {
-          expect(community).to.deep.equal(data.community);
-          callback(null, [{_id: managerId}]);
-        }
-      };
-      mockery.registerMock('../community', communityModuleMock);
-
-      var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
-      module.membershipRequestHandler(data, function(err) {
-        if (err) {
-          return done(err);
-        }
-        expect(datastub).to.deep.equal({
-          subject: {objectType: 'user', id: '123'},
-          verb: {label: 'ESN_MEMBERSHIP_REQUEST', text: 'requested membership on'},
-          complement: {objectType: 'community', id: '789'},
-          context: null,
-          description: null,
-          icon: {objectType: 'icon', id: 'fa-users'},
-          category: 'community:membership:request',
-          interactive: true,
-          target: managerId
-        });
-        expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
-        done();
-      });
-    });
-
   });
 });
