@@ -2,6 +2,121 @@
 
 angular.module('esn.file', ['angularFileUpload', 'restangular'])
 
+  .factory('fileUploadService', ['$q', '$timeout', '$log', 'fileAPIService', function($q, $timeout, $log, fileAPIService) {
+
+    function get() {
+      var date = Date.now();
+      var tracker = [];
+      var processed = 0;
+      var tasks = [];
+      var background = false;
+
+      function progress() {
+        return parseInt(100.0 * processed / tasks.length);
+      }
+
+      function isComplete() {
+        return processed === tasks.length;
+      }
+
+      function await(done, error, progress) {
+        done = done || function(result) {
+          $log.debug('Tasks are complete:', result);
+        };
+
+        error = error || function(err) {
+          $log.debug('Error while processing tasks:', err);
+        };
+
+        progress = progress || function(evt) {
+          $log.debug('Tasks progress:', evt);
+        };
+
+        return $q.all(tracker).then(done, error, progress);
+      }
+
+      function addFile(file, start) {
+        if (!file) {
+          return;
+        }
+
+        var done = function(result) {
+          processed++;
+          return result;
+        };
+
+        var fail = function(err) {
+          processed++;
+          return err;
+        };
+
+        var defer = $q.defer();
+        tracker.push(defer.promise.then(done, fail));
+        var task = {
+          uploading: false,
+          progress: 0,
+          file: file,
+          defer: defer
+        };
+        tasks.push(task);
+        if (start) {
+          upload(task);
+        }
+        return task;
+      }
+
+      function upload(task) {
+        if (!task) {
+          return;
+        }
+
+        task.uploading = true;
+        task.progress = 0;
+
+        task.uploader = fileAPIService.uploadFile(task.file, task.file.type, task.file.size)
+          .success(function(response) {
+            task.progress = 100;
+            task.uploaded = true;
+            task.response = response;
+            return task.defer.resolve(task);
+          })
+          .error(function(err) {
+            return task.defer.reject(err);
+          })
+          .progress(function(evt) {
+            task.progress = parseInt(100.0 * evt.loaded / evt.total);
+          })
+          .finally (function() {
+          $timeout(function() {
+            task.uploading = false;
+          }, 1500);
+        });
+
+        return task.uploader;
+      }
+
+      function start() {
+        angular.forEach(tasks, function(task) {
+          upload(task);
+        });
+        return tasks;
+      }
+
+      return {
+        await: await,
+        addFile: addFile,
+        isComplete: isComplete,
+        start: start,
+        background: background,
+        progress: progress,
+        date: date
+      };
+    }
+
+    return {
+      get: get
+    };
+  }])
   .factory('fileAPIService', ['$upload', 'Restangular', function($upload, Restangular) {
     function upload(blob, mime, size) {
       return $upload.http({

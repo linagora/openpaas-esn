@@ -599,14 +599,10 @@ describe('The esn.message Angular module', function() {
 
         it('should set scope.sending to false', function(done) {
           var scope = this.scope;
+          var defer = this.$q.defer();
+          defer.resolve({data: {_id: 1}});
           this.messageAPI.addComment = function() {
-            return {
-              then: function(callback) {
-                callback({data: {_id: 'comment1'}});
-                expect(scope.sending).to.be.false;
-                done();
-              }
-            };
+            return defer.promise;
           };
           this.scope.shrink = function() {};
           this.scope.displayError = function() {
@@ -619,19 +615,19 @@ describe('The esn.message Angular module', function() {
           };
           this.scope.addComment();
           this.scope.$digest();
+          this.$q.when(defer.promise).then(function() {
+            expect(scope.sending).to.be.false;
+            done();
+          });
+          this.scope.$digest();
         });
 
         it('should set scope.whatsupcomment to an empty string', function(done) {
+          var defer = this.$q.defer();
+          defer.resolve({data: {_id: 1}});
           var scope = this.scope;
           this.messageAPI.addComment = function() {
-            return {
-              then: function(callback) {
-                callback({data: {_id: 'comment1'}});
-                expect(scope.whatsupcomment).to.be.a.string;
-                expect(scope.whatsupcomment).to.have.length(0);
-                done();
-              }
-            };
+            return defer.promise;
           };
           this.scope.shrink = function() {};
           this.scope.displayError = function() {
@@ -643,6 +639,12 @@ describe('The esn.message Angular module', function() {
             objectType: 'whatsup'
           };
           this.scope.addComment();
+          this.scope.$digest();
+          this.$q.when(defer.promise).then(function() {
+            expect(scope.whatsupcomment).to.be.a.string;
+            expect(scope.whatsupcomment).to.have.length(0);
+            done();
+          });
           this.scope.$digest();
         });
 
