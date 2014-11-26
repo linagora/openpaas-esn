@@ -1,6 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var Tuple = require('./tuple-schema');
 
 var iconObjectType = ['icon', 'url'];
 var targetObjectType = ['user', 'community'];
@@ -55,11 +56,6 @@ function validateTargetTuples(value) {
   return true;
 }
 
-var Tuple = new mongoose.Schema({
-  objectType: {type: String, required: true},
-  id: {type: mongoose.Schema.Types.Mixed, required: true}
-}, {_id: false});
-
 var I18n = new mongoose.Schema({
   label: {type: String, required: true},
   text: {type: String, required: true}
@@ -90,4 +86,3 @@ var NotificationSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Usernotification', NotificationSchema);
-
