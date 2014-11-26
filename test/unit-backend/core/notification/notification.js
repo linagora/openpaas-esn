@@ -7,13 +7,7 @@ describe('The notification module', function() {
 
   describe('get fn', function() {
     it('get should send back error if ID is not defined', function(done) {
-
-      var mongoose = {
-        model: function() {
-          return function() {};
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.get(null, function(err) {
@@ -23,21 +17,18 @@ describe('The notification module', function() {
     });
 
     it('get should call mongoose findById when ID is defined', function(done) {
-
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function() {
-              return {
-                exec: function() {
-                  done();
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Notification: {
+          findById: function() {
+            return {
+              exec: function() {
+                done();
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.get(1);
     });
@@ -45,39 +36,35 @@ describe('The notification module', function() {
 
   describe('find fn', function() {
     it('should call mongoose.find even when options are not defined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            find: function() {
-              return {
-                exec: function() {
-                  done();
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Notification: {
+          find: function() {
+            return {
+              exec: function() {
+                done();
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.find();
     });
 
     it('should call mongoose.find with input options', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            find: function() {
-              return {
-                exec: function(cb) {
-                  return cb(null, []);
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Notification: {
+          find: function() {
+            return {
+              exec: function(cb) {
+                return cb(null, []);
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.find({foo: 'bar'}, function(err, result) {
         expect(err).to.not.exist;
@@ -88,12 +75,7 @@ describe('The notification module', function() {
 
   describe('setAsRead fn', function() {
     it('should send back error when notification is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-          return function() {};
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.setAsRead(null, function(err) {
@@ -103,12 +85,8 @@ describe('The notification module', function() {
     });
 
     it('should set notification.read to true and call notification.save', function(done) {
-      var mongoose = {
-        model: function() {
-          return function() {};
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var saved = false;
       var notification = {
         save: function(cb) {
@@ -129,10 +107,8 @@ describe('The notification module', function() {
   describe('save fn', function() {
 
     it('should send back error if notification is not defined', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
       module.save(null, function(err, saved) {
         expect(err).to.exist;
@@ -142,10 +118,8 @@ describe('The notification module', function() {
     });
 
     it('should not publish if notification has no targets', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var called = 0;
       var pubsub = {
         local: {
@@ -170,10 +144,8 @@ describe('The notification module', function() {
     });
 
     it('should publish N notifications if targets are N users', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var called = 0;
       var pubsub = {
         local: {

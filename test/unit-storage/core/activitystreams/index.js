@@ -2,18 +2,13 @@
 
 var chai = require('chai');
 var expect = chai.expect;
-var mockery = require('mockery');
 var async = require('async');
 
 describe('The activitystreams core module', function() {
 
   it('query should send back error when options is undefined', function(done) {
-    var mock = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mock);
+    this.helpers.mock.models({});
+
     var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
     timeline.query(null, function(err) {
       expect(err).to.exist;
@@ -22,12 +17,8 @@ describe('The activitystreams core module', function() {
   });
 
   it('query should send back error when options.target is undefined', function(done) {
-    var mock = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mock);
+    this.helpers.mock.models({});
+
     var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
     timeline.query({}, function(err) {
       expect(err).to.exist;
@@ -510,12 +501,8 @@ describe('The activitystreams core module', function() {
   describe('The addTimelineEntry fn', function() {
 
     it('should send back error when event is not set', function(done) {
-      var mock = {
-        model: function() {
-          return {};
-        }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      this.helpers.mock.models({});
+
       var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
       timeline.addTimelineEntry(null, function(err) {
         expect(err).to.exist;

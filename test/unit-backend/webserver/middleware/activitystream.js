@@ -7,16 +7,13 @@ describe('The activitystream middleware', function() {
 
   describe('The filterWritableTargets fn', function() {
     it('should send an error if targets is not set', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(new Error());
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
         var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
@@ -34,16 +31,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send an error if targets is empty', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(new Error());
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
@@ -62,16 +56,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send an error if targets is undefined', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(new Error());
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
@@ -90,16 +81,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should not filter valid and writable targets', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(null, {_id: uuid});
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, {_id: uuid});
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {
@@ -135,20 +123,18 @@ describe('The activitystream middleware', function() {
     });
 
     it('should filter invalid targets and keep writable targets', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              if (uuid === '1') {
-                return cb(null, {_id: uuid});
-              } else {
-                return cb();
-              }
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            if (uuid === '1') {
+              return cb(null, {_id: uuid});
+            } else {
+              return cb();
             }
-          };
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
+
       mockery.registerMock('../../core/activitystreams', {});
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {
@@ -184,16 +170,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should filter unwritable targets', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(null, {_id: uuid});
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, {_id: uuid});
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {
@@ -240,16 +223,17 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send 403 if no valid streams are set', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            if (uuid === '1') {
               return cb(null, {_id: uuid});
+            } else {
+              return cb();
             }
-          };
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       mockery.registerMock('../../core/community/permission', {
         canWrite: function(community, user, callback) {
@@ -297,12 +281,10 @@ describe('The activitystream middleware', function() {
     });
 
     it('should be passthrough if inReplyTo is in the body', function(done) {
-      var mock = {
-        model: function() {
-          return {};
+      this.helpers.mock.models({
+        Community: {
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
@@ -321,16 +303,13 @@ describe('The activitystream middleware', function() {
   describe('The findStreamResource fn', function() {
 
     it('should send an error if uuid is not set', function(done) {
-      var mock = {
-        model: function() {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(new Error());
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
       var req = {
@@ -348,21 +327,19 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send back an error if Communtity.getFromActivityStreamID send back error', function(done) {
-      var mock = {
-        model: function(modelName) {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              if (modelName === 'Domain') {
-                return cb(null, null);
-              }
-
-              expect(modelName).to.equal('Community');
-              return cb(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(new Error());
+          }
+        },
+        Domain: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
+
       mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
@@ -382,21 +359,18 @@ describe('The activitystream middleware', function() {
     });
 
     it('should call next when stream resource is found (Community)', function(done) {
-      var mock = {
-        model: function(modelName) {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              if (modelName === 'Domain') {
-                return cb(null, null);
-              }
-
-              expect(modelName).to.equal('Community');
-              return cb(null, {_id: 123});
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, {_id: 123});
+          }
+        },
+        Domain: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
@@ -417,16 +391,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send back an error if Community is not found', function(done) {
-      var mock = {
-        model: function(modelName) {
-          return {
-            getFromActivityStreamID: function(uuid, cb) {
-              return cb(null, null);
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
@@ -448,11 +419,13 @@ describe('The activitystream middleware', function() {
 
   describe('The isValidStream fn', function() {
     it('should send back 400 if req.query.objectType is not set', function(done) {
-      var mock = {
-        model: function() {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
@@ -472,11 +445,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send back 400 if req.query.id is not set', function(done) {
-      var mock = {
-        model: function() {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {});
 
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
@@ -496,11 +471,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send back 500 if as#getUserStreams fails', function(done) {
-      var mock = {
-        model: function() {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {
         getUserStreams: function(user, options, callback) {
           return callback(new Error());
@@ -525,11 +502,13 @@ describe('The activitystream middleware', function() {
     });
 
     it('should send back 400 if as#getUserStreams does not send back any stream', function(done) {
-      var mock = {
-        model: function() {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {
         getUserStreams: function(user, options, callback) {
           return callback();
@@ -559,11 +538,13 @@ describe('The activitystream middleware', function() {
         {uuid: 983983},
         {uuid: id}
       ];
-      var mock = {
-        model: function() {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {
         getUserStreams: function(user, options, callback) {
           return callback(null, streams);
@@ -591,11 +572,13 @@ describe('The activitystream middleware', function() {
         {uuid: 983983},
         {uuid: 345}
       ];
-      var mock = {
-        model: function() {
+      this.helpers.mock.models({
+        Community: {
+          getFromActivityStreamID: function(uuid, cb) {
+            return cb(null, null);
+          }
         }
-      };
-      this.mongoose = mockery.registerMock('mongoose', mock);
+      });
       mockery.registerMock('../../core/activitystreams', {
         getUserStreams: function(user, options, callback) {
           return callback(null, streams);

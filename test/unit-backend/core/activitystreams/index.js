@@ -7,7 +7,7 @@ describe('The activity streams core module', function() {
   describe('The getUserStreams fn', function() {
 
     it('should send back error when user is null', function(done) {
-      mockery.registerMock('mongoose', {model: function() {}});
+      this.helpers.mock.models({});
 
       var module = require(this.testEnv.basePath + '/backend/core/activitystreams/index');
       module.getUserStreams(null, {}, function(err) {
@@ -17,7 +17,7 @@ describe('The activity streams core module', function() {
     });
 
     it('should not fail when domain.getUserDomains and community.getUserCommunities fail', function(done) {
-      mockery.registerMock('mongoose', {model: function() {}});
+      this.helpers.mock.models({});
       mockery.registerMock('../user/domain', {
         getUserDomains: function(user, cb) {
           return cb(new Error());
@@ -55,7 +55,7 @@ describe('The activity streams core module', function() {
           }
         }
       ];
-      mockery.registerMock('mongoose', {model: function() {}});
+      this.helpers.mock.models({});
       mockery.registerMock('../user/domain', {
         getUserDomains: function(user, cb) {
           return cb();
@@ -93,7 +93,7 @@ describe('The activity streams core module', function() {
           }
         }
       ];
-      mockery.registerMock('mongoose', {model: function() {}});
+      this.helpers.mock.models({});
       mockery.registerMock('../community', {
         getUserCommunities: function(user, cb) {
           return cb(null, communities);

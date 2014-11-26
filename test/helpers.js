@@ -38,17 +38,28 @@ function mockEsnConfig(get) {
  *
  */
 function mockModels(mockedModels) {
-  var mongooseMock = {
-    Types: {
-      ObjectId: function(id) {
-        return {id: id};
-      }
+  var types = {
+    ObjectId: function(id) {
+      return {id: id};
     },
+    Mixed: ''
+  };
+
+  var schema = function() {};
+  schema.Types = types;
+
+  var mongooseMock = {
+    Types: types,
+    Schema: schema,
     model: function(model) {
       return mockedModels[model];
+    },
+    __replaceObjectId: function(newObjectId) {
+      types.ObjectId = newObjectId;
     }
   };
   mockery.registerMock('mongoose', mongooseMock);
+  return mongooseMock;
 }
 
 /*
