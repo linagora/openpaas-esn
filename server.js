@@ -8,7 +8,8 @@ var logger = core.logger;
 var modules = [
 'linagora.esn.core.webserver',
 'linagora.esn.core.wsserver',
-'linagora.esn.core.webrtcserver'
+'linagora.esn.core.webrtcserver',
+'linagora.esn.project'
 ];
 
 moduleManager.manager.registerState('deploy', ['lib']);

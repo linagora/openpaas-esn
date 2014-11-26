@@ -12,7 +12,6 @@ function createModels(dependencies) {
 function projectLib(dependencies) {
   var lib = {};
   lib.models = createModels(dependencies);
-
   return lib;
 }
 
