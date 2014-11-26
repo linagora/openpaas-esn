@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper'])
+angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead'])
   .controller('messageEditionController', ['$scope', function($scope) {
     var types = ['whatsup', 'event'];
     $scope.type = types[0];
@@ -402,6 +402,33 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       }
     };
   }])
+  .directive('messagePreviewDisplayer', ['RecursionHelper', function(RecursionHelper) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/messagesPreviewDisplayer.html',
+      compile: function(element) {
+        return RecursionHelper.compile(element, function() {});
+      }
+    };
+  }])
+  .directive('whatsupMessagePreview', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/previews/whatsupMessage.html'
+    };
+  })
+  .directive('emailMessagePreview', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/previews/emailMessage.html'
+    };
+  })
   .directive('messagesThread', function() {
     return {
       restrict: 'E',
@@ -488,6 +515,94 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       templateUrl: '/views/modules/message/attachments/messageEditionAttachments.html'
     };
   })
+  .directive('shareMessageButton', ['$modal', function($modal) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/message/share/share-message-button.html',
+      scope: true,
+      link: function($scope) {
+        $scope.$on('modal.hide', function(evt, modal) {
+          $scope.shareModal = null;
+          modal.destroy();
+        });
+        $scope.showShareModal = function() {
+          $scope.shareModal = $modal({scope: $scope, template: '/views/modules/message/share/share-message-modal.html'});
+        };
+      }
+    };
+  }])
+  .directive('shareList', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/message/share/share-list.html'
+    };
+  })
+  .directive('shareTag', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/message/share/share-tag.html'
+    };
+  })
+  .controller('messageShareController', ['$scope', '$q', '$log', 'messageAPI', 'userAPI', function($scope, $q, $log, messageAPI, userAPI) {
+
+    $scope.sending = false;
+
+    $scope.share = function() {
+
+      if (!$scope.activitystreamUuid) {
+        $log.debug('Current activitystreamUuid is required');
+        return;
+      }
+
+      if ($scope.shares.length === 0) {
+        $log.debug('At least one share is required');
+        return;
+      }
+
+      var targets = $scope.shares.map(function(share) {
+        return {
+          objectType: 'activitystream',
+          id: share.uuid
+        };
+      });
+
+      var resource = {
+        objectType: 'activitystream',
+        id: $scope.activitystreamUuid
+      };
+
+      $scope.sending = true;
+
+      messageAPI.share($scope.message._id, resource, targets).then(function(result) {
+        $log.debug('Message has been shared', result.data._id);
+        if ($scope.shareModal) {
+          $scope.shareModal.hide();
+        }
+      }, function(err) {
+        $log.error('Can not share message', err.data);
+      }).finally (function() {
+        $scope.sending = false;
+      });
+    };
+
+    $scope.selected = '';
+    $scope.shares = [];
+
+    $scope.$on('$typeahead.select', function(value, index) {
+      $scope.addTarget(index);
+    });
+
+    $scope.getTargets = function(str) {
+      return userAPI.getActivityStreams({name: str, writable: true}).then(function(response) {
+        return response.data;
+      });
+    };
+
+    $scope.addTarget = function(selected) {
+      $scope.shares.push(selected);
+    };
+
+  }])
   .factory('messageAttachmentHelper', ['$q', 'fileAPIService', function($q, fileAPIService) {
 
     function deleteAttachments(attachments) {
@@ -549,10 +664,19 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       return Restangular.all('messages').post(payload);
     }
 
+    function share(id, resource, targets) {
+      var payload = {
+        resource: resource,
+        target: targets
+      };
+      return Restangular.one('messages', id).all('shares').post(payload);
+    }
+
     return {
       get: get,
       post: post,
-      addComment: addComment
+      addComment: addComment,
+      share: share
     };
 
   }]);

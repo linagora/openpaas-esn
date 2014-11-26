@@ -33,9 +33,15 @@ angular.module('esn.user', ['restangular', 'esn.object-type'])
       return Restangular.one('user').all('communities').getList();
     }
 
+    function getActivityStreams(options) {
+      options = options || {};
+      return Restangular.one('user').all('activitystreams').getList(options);
+    }
+
     return {
       currentUser: currentUser,
       user: user,
-      getCommunities: getCommunities
+      getCommunities: getCommunities,
+      getActivityStreams: getActivityStreams
     };
   }]);

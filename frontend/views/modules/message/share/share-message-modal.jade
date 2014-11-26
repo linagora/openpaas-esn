@@ -1,0 +1,25 @@
+.modal(ng-controller="messageShareController", tabindex="-1", role="dialog")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
+        h4.modal-title(ng-hide="sending") #{__('Share message')} #{__('from')} {{message.author.firstname}} {{message.author.lastname}}
+        h4.modal-title(ng-show="sending") #{__('Sharing message')}...
+      .modal-body
+
+        .row.alert.alert-info(ng-show="sending", role="alert")
+          p
+            i.fa.fa-cog.fa-spin
+            span #{__('Please wait')}...
+
+        .row
+          message-preview-displayer(message="message")
+
+        .row.share-dropdown
+          input(type="text" template="/views/modules/message/share/share-dropdown.html" html="1" delay="500" limit="100" class="form-control" ng-model="selected" ng-model-options="{ debounce: 500 }" ng-options="target as target for target in getTargets($viewValue)" placeholder="Share with..." bs-typeahead)
+
+        .row
+          share-list(shares='shares')
+      .modal-footer(ng-hide="sending")
+        button.btn.btn-secondary-dark(type="button", ng-disabled="sending", ng-click="share(message)") #{__('Share')}
+        button.btn.btn-default(type="button", ng-disabled="sending", ng-click="$hide()") #{__('Cancel')}
