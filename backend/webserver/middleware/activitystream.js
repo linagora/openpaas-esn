@@ -74,7 +74,7 @@ module.exports.isValidStream = function(req, res, next) {
     return res.json(400, { error: { status: 400, message: 'Bad request', details: 'ID is mandatory'}});
   }
 
-  activitystreams.getUserStreams(req.user, function(err, streams) {
+  activitystreams.getUserStreams(req.user, null, function(err, streams) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Bad request', details: err.message}});
     }
