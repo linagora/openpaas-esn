@@ -7,7 +7,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       config = config || {};
       config.method = config.method || 'GET';
       config.headers = config.headers || {};
-      config.url = 'http://nominatim.openstreetmap.org/reverse';
+      config.url = '//nominatim.openstreetmap.org/reverse';
       config.params = {
         lat: latitude,
         lon: longitude,
