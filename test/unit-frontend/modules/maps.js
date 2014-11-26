@@ -38,11 +38,11 @@ describe('The Maps Angular module', function() {
         expect(this.osmAPI.reverse).to.be.a.function;
       });
 
-      it('should HTTP GET http://nominatim.openstreetmap.org/reverse', function() {
+      it('should HTTP GET //nominatim.openstreetmap.org/reverse', function() {
         var lat = '123456789';
         var lon = '987654321';
 
-        this.$httpBackend.expectGET('http://nominatim.openstreetmap.org/reverse?addressdetails=1&format=json&lat=' + lat + '&lon=' + lon).respond({});
+        this.$httpBackend.expectGET('//nominatim.openstreetmap.org/reverse?addressdetails=1&format=json&lat=' + lat + '&lon=' + lon).respond({});
         this.osmAPI.reverse(lat, lon);
         this.$httpBackend.flush();
       });
