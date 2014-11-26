@@ -17,18 +17,20 @@ function messageSharesToTimelineTarget(shares) {
 }
 
 function createNewMessage(message, req, res) {
-  function publishMessageEvents(err, message) {
+  function finishMessageResponse(err, savedMessage) {
     if (err) {
       logger.warn('Can not set attachment references', err);
     }
 
     var targets = messageSharesToTimelineTarget(req.body.targets);
-    var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(message, 'post', req.user, targets);
+    var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(savedMessage, 'post', req.user, targets);
 
-    localpubsub.topic('message:stored').publish(message);
-    globalpubsub.topic('message:stored').publish(message);
+    localpubsub.topic('message:stored').publish(savedMessage);
+    globalpubsub.topic('message:stored').publish(savedMessage);
     localpubsub.topic('message:activity').publish(activity);
     globalpubsub.topic('message:activity').publish(activity);
+
+    res.send(201, { _id: savedMessage._id });
   }
 
   messageModule.getInstance(message.objectType, message).save(function(err, saved) {
@@ -42,13 +44,11 @@ function createNewMessage(message, req, res) {
     }
 
     if (message.attachments && message.attachments.length > 0) {
-      var attachCallback = function(err) { publishMessageEvents(err, saved); };
+      var attachCallback = function(err) { finishMessageResponse(err, saved); };
       return messageModule.setAttachmentsReferences(saved, attachCallback);
     } else {
-      publishMessageEvents(null, saved);
+      finishMessageResponse(null, saved);
     }
-
-    return res.send(201, { _id: saved._id});
   });
 }
 
