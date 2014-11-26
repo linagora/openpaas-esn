@@ -15,6 +15,10 @@ moduleManager.manager.registerState('deploy', ['lib']);
 moduleManager.manager.registerState('start', ['lib', 'deploy']);
 
 moduleManager.setupManager();
+
+var trustedModulesLoader = moduleManager.manager.loaders.filesystem(__dirname + '/modules', true);
+moduleManager.manager.appendLoader(trustedModulesLoader);
+
 moduleManager.manager.registerModule(require('./backend/webserver/webserver-wrapper'), true);
 moduleManager.manager.registerModule(require('./backend/webserver').awesomeWebServer, true);
 moduleManager.manager.registerModule(require('./backend/wsserver').awesomeWsServer, true);
