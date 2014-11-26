@@ -57,6 +57,7 @@ describe('The module manager', function() {
         'linagora.esn.core.auth',
         'linagora.esn.core.caldav',
         'linagora.esn.core.calendar',
+        'linagora.esn.core.collaboration',
         'linagora.esn.core.community',
         'linagora.esn.core.conference',
         'linagora.esn.core.config',

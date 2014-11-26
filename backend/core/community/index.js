@@ -8,6 +8,9 @@ var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var permission = require('./permission');
 var async = require('async');
+var collaboration = require('../collaboration');
+
+var communityObjectType = 'community';
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -85,8 +88,7 @@ module.exports.loadWithDomains = function(community, callback) {
 };
 
 function query(q, callback) {
-  q = q || {};
-  return Community.find(q, callback);
+  return collaboration.query(communityObjectType, q, callback);
 }
 module.exports.query = query;
 

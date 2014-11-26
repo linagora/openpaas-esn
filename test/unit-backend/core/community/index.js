@@ -117,38 +117,17 @@ describe('The community module', function() {
   });
 
   describe('The query fn', function() {
-    it('should call mongoose#find even when query is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            find: function() {
-              return done();
-            }
-          };
+    it('should call collaboration.query with the "community" objectType', function(done) {
+      var collaborationMock = {
+        query: function(objectType) {
+          expect(objectType).to.equal('community');
+          done();
         }
       };
-      mockery.registerMock('mongoose', mongoose);
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.query(null, function(err) {
-        expect(err).to.not.exist;
-      });
-    });
-
-    it('should call mongoose#find even when query is defined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            find: function() {
-              return done();
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.query({}, function(err) {
-        expect(err).to.not.exist;
-      });
+      mockery.registerMock('../collaboration', collaborationMock);
+      this.helpers.mock.models({});
+      var community = require(this.testEnv.basePath + '/backend/core/community');
+      community.query(null, function() {});
     });
   });
 
