@@ -17,37 +17,38 @@ function messageSharesToTimelineTarget(shares) {
 }
 
 function createNewMessage(message, req, res) {
+  function publishMessageEvents(err, message) {
+    if (err) {
+      logger.warn('Can not set attachment references', err);
+    }
 
-  var publishMessageActivity = function(message) {
     var targets = messageSharesToTimelineTarget(req.body.targets);
     var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(message, 'post', req.user, targets);
+
+    localpubsub.topic('message:stored').publish(message);
+    globalpubsub.topic('message:stored').publish(message);
     localpubsub.topic('message:activity').publish(activity);
     globalpubsub.topic('message:activity').publish(activity);
-  };
+  }
 
   messageModule.getInstance(message.objectType, message).save(function(err, saved) {
     if (err) {
-      return res.send(
-        500,
-        { error: { status: 500, message: 'Server Error', details: 'Cannot create message . ' + err.message}});
+      var errorData = { error: { status: 500, message: 'Server Error', details: 'Cannot create message . ' + err.message }};
+      return res.send(500, errorData);
     }
 
-    if (saved) {
-      if (message.attachments && message.attachments.length > 0) {
-        return messageModule.setAttachmentsReferences(saved, function(err) {
-          if (err) {
-            logger.warn('Can not set attachment references', err);
-          }
-          publishMessageActivity(saved);
-          return res.send(201, { _id: saved._id});
-        });
-      } else {
-        publishMessageActivity(saved);
-        return res.send(201, { _id: saved._id});
-      }
+    if (!saved) {
+      return res.send(404);
     }
 
-    return res.send(404);
+    if (message.attachments && message.attachments.length > 0) {
+      var attachCallback = function(err) { publishMessageEvents(err, saved); };
+      return messageModule.setAttachmentsReferences(saved, attachCallback);
+    } else {
+      publishMessageEvents(null, saved);
+    }
+
+    return res.send(201, { _id: saved._id});
   });
 }
 

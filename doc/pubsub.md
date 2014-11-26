@@ -101,6 +101,7 @@ For example, when a user 123 has sent a message 456 to the user 789:
 ### Global
 
 - message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message (create, comment, ...).
+- message:stored(message). Fired when a new message is stored in the datastore layer.
 
 ### Summary
 
@@ -144,7 +145,8 @@ For example, when a user 123 has sent a message 456 to the user 789:
 |                           |                                         |                                        |                          |           |       |
 | Controllers               |                                         |                                        |                          |           |       |
 | domains                   | domain:invitations:sent                 |                                        |                          |           |       |
-| messages                  | message:activity                        | message:activity                       |                          |           |       |
+| messages                  | message:activity                        |                                        |  message:activity        |           |       |
+|                           | message:stored                          |                                        |  message:stored          |           |       |
 |                           |                                         |                                        |                          |           |       |
 | Middleware                |                                         |                                        |                          |           |       |
 | setup-sessions            |                                         | mongodb:connectionAvailable            |                          |           |       |

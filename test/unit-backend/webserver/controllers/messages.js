@@ -132,8 +132,8 @@ describe('The messages controller', function() {
 
       var res = {
         send: function() {
-          expect(localstub.topics[0]).to.equal('message:activity');
-          expect(globalstub.topics[0]).to.equal('message:activity');
+          expect(localstub.topics['message:activity']).to.exist;
+          expect(globalstub.topics['message:activity']).to.exist;
           expect(localstub.topics['message:activity'].data).to.exist;
           expect(globalstub.topics['message:activity'].data).to.exist;
           done();
@@ -156,6 +156,42 @@ describe('The messages controller', function() {
         model: function() {}
       };
       mockery.registerMock('mongoose', mongooseMock);
+
+      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
+
+      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      messages.createOrReplyToMessage(validReq, res);
+    });
+
+    it('should publish message:stored in local and global pubsub on success', function(done) {
+      var localstub = {};
+      var globalstub = {};
+      var id = 234;
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(201);
+          expect(localstub.topics['message:stored']).to.exist;
+          expect(localstub.topics['message:stored'].data).to.be.an.array;
+          expect(localstub.topics['message:stored'].data[0]._id).to.equal(id);
+
+          expect(globalstub.topics['message:stored']).to.exist;
+          expect(globalstub.topics['message:stored'].data).to.be.an.array;
+          expect(globalstub.topics['message:stored'].data[0]._id).to.equal(id);
+          done();
+        }
+      };
+
+      mockery.registerMock('../../core/message/email', {});
+      mockery.registerMock('../../core/message', {
+        getInstance: function() {
+          return {
+            save: function(callback) {
+              callback(null, {_id: id});
+            }
+          };
+        }
+      });
 
       this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
