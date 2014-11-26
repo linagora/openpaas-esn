@@ -6,73 +6,41 @@ var helpers = require('./helpers');
 var community = require('../community');
 var logger = require('../logger');
 
-function getUserStreams(user, callback) {
+function communityToStream(community) {
+  return {
+    uuid: community.activity_stream.uuid,
+    target: {
+      objectType: 'community',
+      _id: community._id,
+      displayName: community.title,
+      id: 'urn:linagora.com:community:' + community._id,
+      image: community.avatar || ''
+    }
+  };
+}
+
+function getUserStreams(user, options, callback) {
   if (!user) {
     return callback(new Error('User is required'));
   }
 
   var id = user._id || user;
-  var result = [];
-
-  community.getUserCommunities(id, function(err, communities) {
+  community.getUserCommunities(id, options || {}, function(err, communities) {
 
     if (err) {
       logger.warn('Problem while getting user communities : ' + err.message);
     }
 
+    var result = [];
     if (!err && communities && communities.length) {
-      communities.forEach(function(c) {
-        var stream = {
-          uuid: c.activity_stream.uuid,
-          target: {
-            objectType: 'community',
-            displayName: c.title,
-            _id: c._id,
-            id: 'urn:linagora.com:community:' + c._id,
-            image: c.avatar || ''
-          }
-        };
-        result.push(stream);
+      communities.forEach(function(community) {
+        result.push(communityToStream(community));
       });
     }
     return callback(null, result);
   });
 }
 module.exports.getUserStreams = getUserStreams;
-
-function getUserStreamsForDomain(user, domainId, callback) {
-  if (!user) {
-    return callback(new Error('User is required'));
-  }
-  if (!domainId) {
-    return callback(new Error('Domain ID is required'));
-  }
-
-  var id = user._id || user;
-  domainId = domainId._id || domainId;
-  community.getUserCommunities(id, domainId, function(err, communities) {
-
-    if (err) {
-      logger.warn('Problem while getting user communities : ' + err.message);
-      return callback(err);
-    }
-
-    var result = communities.map(function(c) {
-      return {
-        uuid: c.activity_stream.uuid,
-        target: {
-          objectType: 'community',
-          displayName: c.title,
-          _id: c._id,
-          id: 'urn:linagora.com:community:' + c._id,
-          image: c.avatar || ''
-        }
-      };
-    });
-    return callback(null, result);
-  });
-}
-module.exports.getUserStreamsForDomain = getUserStreamsForDomain;
 
 /**
  * Query the timeline

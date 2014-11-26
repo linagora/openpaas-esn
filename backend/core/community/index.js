@@ -7,6 +7,7 @@ var logger = require('../logger');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var permission = require('./permission');
+var async = require('async');
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -244,26 +245,58 @@ module.exports.getManagers = function(community, query, callback) {
   });
 };
 
-module.exports.getUserCommunities = function(user, domainId, callback) {
-  if (typeof(domainId) === 'function') {
-    callback = domainId;
-    domainId = null;
+module.exports.getUserCommunities = function(user, options, callback) {
+  var q = options || {};
+  if (typeof(options) === 'function') {
+    callback = options;
+    q = {};
   }
+
+  var done = function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (!result || result.length === 0) {
+      return callback(null, []);
+    }
+
+    if (q.writable) {
+      async.filter(result, function(community, callback) {
+        permission.canWrite(community, user, function(err, writable) {
+          if (err) {
+            return callback(false);
+          }
+          if (writable) {
+            return callback(true);
+          }
+        });
+      }, function(results) {
+        return callback(null, results);
+      });
+    } else {
+      return callback(null, result);
+    }
+  };
 
   if (!user) {
     return callback(new Error('User is required'));
   }
 
-  var id = user._id ||  user;
+  var id = user._id || user;
   var params = {
     members: {$elemMatch: { 'member.objectType': 'user', 'member.id': id}}
   };
 
-  if (domainId) {
-    params.domain_ids = domainId;
+  if (q.domainid) {
+    params.domain_ids = q.domainid;
   }
 
-  return query(params, callback);
+  if (q.name) {
+    params.title = q.name;
+  }
+
+  return query(params, done);
 };
 
 module.exports.getMembershipRequests = function(community, query, callback) {

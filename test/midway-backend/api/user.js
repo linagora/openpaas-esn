@@ -64,6 +64,102 @@ describe('User API', function() {
       });
     });
 
+    it('should return 200 with an array of writable community streams', function(done) {
+
+      var self = this;
+
+      function createCommunity(name, type, creator, domain, member) {
+        return function(done) {
+          var opts = function(json) {
+            if (member) {
+              json.members.push({member: {id: member, objectType: 'user'}});
+            }
+            json.type = type || 'open';
+            return json;
+          };
+          self.helpers.api.createCommunity(name, creator, domain, opts, done);
+        };
+      }
+
+      async.parallel([
+        createCommunity('open domain1 A', 'open', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id),
+        createCommunity('open domain1 B', 'open', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id),
+        createCommunity('restricted domain1 not member', 'restricted', self.models1.users[0]._id, self.models1.domain._id),
+        createCommunity('restricted domain1 member', 'restricted', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id)
+      ], function(err, communities) {
+        if (err) {
+          return done(err);
+        }
+
+        var correctIds = [communities[0][0].activity_stream.uuid + '', communities[1][0].activity_stream.uuid, communities[3][0].activity_stream.uuid];
+
+        self.helpers.api.loginAsUser(webserver.application, self.models2.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams?writable=true'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(3);
+            expect(correctIds).to.contain(res.body[0].uuid);
+            expect(correctIds).to.contain(res.body[1].uuid);
+            expect(correctIds).to.contain(res.body[2].uuid);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return 200 with an array or community streams filtered by name', function(done) {
+
+      var self = this;
+
+      function createCommunity(name, type, creator, domain, member) {
+        return function(done) {
+          var opts = function(json) {
+            if (member) {
+              json.members.push({member: {id: member, objectType: 'user'}});
+            }
+            json.type = type || 'open';
+            return json;
+          };
+          self.helpers.api.createCommunity(name, creator, domain, opts, done);
+        };
+      }
+
+      async.parallel([
+        createCommunity('community1', 'open', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id),
+        createCommunity('COmmuniy2', 'open', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id),
+        createCommunity('Community3', 'open', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id),
+        createCommunity('node', 'open', self.models1.users[0]._id, self.models1.domain._id, self.models2.users[1]._id)
+      ], function(err, communities) {
+        if (err) {
+          return done(err);
+        }
+
+        var correctIds = [communities[0][0].activity_stream.uuid + '', communities[1][0].activity_stream.uuid, communities[2][0].activity_stream.uuid];
+
+        self.helpers.api.loginAsUser(webserver.application, self.models2.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/user/activitystreams?name=commu'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(3);
+            expect(correctIds).to.contain(res.body[0].uuid);
+            expect(correctIds).to.contain(res.body[1].uuid);
+            expect(correctIds).to.contain(res.body[2].uuid);
+            done();
+          });
+        });
+      });
+    });
+
     it('should return 200 with an array of community streams with only the community streams in specific domain', function(done) {
       var self = this;
 

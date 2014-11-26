@@ -3,6 +3,7 @@
 var activitystreams = require('../../core/activitystreams');
 var tracker = require('../../core/activitystreams/tracker');
 var mongoose = require('mongoose');
+var escapeStringRegexp = require('escape-string-regexp');
 
 var isLimitvalid = function(limit) {
   return limit > 0;
@@ -30,11 +31,21 @@ function getMine(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User missing'}});
   }
 
+  var options = {};
   if (req.query && req.query.domainid) {
-    activitystreams.getUserStreamsForDomain(req.user, req.query.domainid, streamsCallback);
-  } else {
-    activitystreams.getUserStreams(req.user, streamsCallback);
+    options.domainid = req.query.domainid;
   }
+
+  if (req.query && req.query.writable) {
+    options.writable = req.query.writable;
+  }
+
+  if (req.query && req.query.name) {
+    var escapedString = escapeStringRegexp(req.query.name);
+    options.name = new RegExp(escapedString, 'i');
+  }
+
+  return activitystreams.getUserStreams(req.user, options, streamsCallback);
 }
 module.exports.getMine = getMine;
 
