@@ -502,7 +502,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {
-        getUserStreams: function(user, callback) {
+        getUserStreams: function(user, options, callback) {
           return callback(new Error());
         }
       });
@@ -531,7 +531,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {
-        getUserStreams: function(user, callback) {
+        getUserStreams: function(user, options, callback) {
           return callback();
         }
       });
@@ -565,7 +565,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {
-        getUserStreams: function(user, callback) {
+        getUserStreams: function(user, options, callback) {
           return callback(null, streams);
         }
       });
@@ -597,7 +597,7 @@ describe('The activitystream middleware', function() {
       };
       this.mongoose = mockery.registerMock('mongoose', mock);
       mockery.registerMock('../../core/activitystreams', {
-        getUserStreams: function(user, callback) {
+        getUserStreams: function(user, options, callback) {
           return callback(null, streams);
         }
       });
