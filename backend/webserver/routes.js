@@ -25,6 +25,7 @@ exports = module.exports = function(application) {
 
   var companies = require('./controllers/companies');
   var domains = require('./controllers/domains');
+  var domainMiddleware = require('./middleware/domain');
   application.get('/api/companies', companies.search);
   application.get('/api/domains/:uuid/members', authorize.requiresAPILogin, domains.load, authorize.requiresDomainMember, domains.getMembers);
   application.get('/api/domains/:uuid', authorize.requiresAPILogin, domains.load, authorize.requiresDomainMember, domains.getDomain);
@@ -150,7 +151,7 @@ exports = module.exports = function(application) {
 
   var communities = require('./controllers/communities');
   var communityMiddleware = require('./middleware/community');
-  application.get('/api/communities', authorize.requiresAPILogin, domains.loadFromDomainIdParameter, authorize.requiresDomainMember, communities.list);
+  application.get('/api/communities', authorize.requiresAPILogin, domainMiddleware.loadFromDomainIdParameter, authorize.requiresDomainMember, communities.list);
   application.get('/api/communities/:id', authorize.requiresAPILogin, communities.load, communities.get);
   application.get('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, communities.getAvatar);
   application.post('/api/communities', authorize.requiresAPILogin, communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);

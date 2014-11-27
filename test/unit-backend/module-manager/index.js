@@ -89,6 +89,7 @@ describe('The module manager', function() {
         'linagora.esn.core.webserver.middleware.community',
         'linagora.esn.core.webserver.middleware.conference',
         'linagora.esn.core.webserver.middleware.cookie-lifetime',
+        'linagora.esn.core.webserver.middleware.domain',
         'linagora.esn.core.webserver.middleware.feedback',
         'linagora.esn.core.webserver.middleware.file',
         'linagora.esn.core.webserver.middleware.link',
