@@ -429,6 +429,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       templateUrl: '/views/modules/message/previews/emailMessage.html'
     };
   })
+  .directive('messagePreview', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/previews/defaultMessage.html'
+    };
+  })
   .directive('messagesThread', function() {
     return {
       restrict: 'E',
