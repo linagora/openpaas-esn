@@ -80,7 +80,27 @@ describe('The module manager', function() {
         'linagora.esn.core.passport',
         'linagora.esn.core.pubsub',
         'linagora.esn.core.templates',
-        'linagora.esn.core.user'
+        'linagora.esn.core.user',
+        'linagora.esn.core.webserver.middleware.activitystream',
+        'linagora.esn.core.webserver.middleware.authentication',
+        'linagora.esn.core.webserver.middleware.authorization',
+        'linagora.esn.core.webserver.middleware.community',
+        'linagora.esn.core.webserver.middleware.conference',
+        'linagora.esn.core.webserver.middleware.cookie-lifetime',
+        'linagora.esn.core.webserver.middleware.feedback',
+        'linagora.esn.core.webserver.middleware.file',
+        'linagora.esn.core.webserver.middleware.link',
+        'linagora.esn.core.webserver.middleware.login-rules',
+        'linagora.esn.core.webserver.middleware.message',
+        'linagora.esn.core.webserver.middleware.notification',
+        'linagora.esn.core.webserver.middleware.request',
+        'linagora.esn.core.webserver.middleware.setup-routes',
+        'linagora.esn.core.webserver.middleware.setup-sessions',
+        'linagora.esn.core.webserver.middleware.setup-settings',
+        'linagora.esn.core.webserver.middleware.startup-buffer',
+        'linagora.esn.core.webserver.middleware.templates',
+        'linagora.esn.core.webserver.middleware.usernotifications',
+        'linagora.esn.core.webserver.middleware.verify-recaptcha'
       ];
       var mm = require(this.testEnv.basePath + '/backend/module-manager');
       mm.setupManager();
