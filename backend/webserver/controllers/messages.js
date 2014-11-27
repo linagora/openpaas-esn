@@ -16,20 +16,23 @@ function messageSharesToTimelineTarget(shares) {
   });
 }
 
+function publishMessageEvents(message, targets, user) {
+  var timelineTargets = messageSharesToTimelineTarget(targets);
+  var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(message, 'post', user, timelineTargets);
+
+  localpubsub.topic('message:stored').publish(message);
+  globalpubsub.topic('message:stored').publish(message);
+  localpubsub.topic('message:activity').publish(activity);
+  globalpubsub.topic('message:activity').publish(activity);
+}
+
 function createNewMessage(message, req, res) {
   function finishMessageResponse(err, savedMessage) {
     if (err) {
       logger.warn('Can not set attachment references', err);
     }
 
-    var targets = messageSharesToTimelineTarget(req.body.targets);
-    var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(savedMessage, 'post', req.user, targets);
-
-    localpubsub.topic('message:stored').publish(savedMessage);
-    globalpubsub.topic('message:stored').publish(savedMessage);
-    localpubsub.topic('message:activity').publish(activity);
-    globalpubsub.topic('message:activity').publish(activity);
-
+    publishMessageEvents(savedMessage, req.body.targets, req.user);
     res.send(201, { _id: savedMessage._id });
   }
 
@@ -186,6 +189,7 @@ function copy(req, res) {
       return res.json(404, { error: { code: 404, message: 'Message not found', details: 'Message has not been found ' + id}});
     }
 
+    publishMessageEvents(copy, req.body.target, req.user);
     res.json(201, { _id: copy._id});
   });
 }
