@@ -706,6 +706,50 @@ describe('The messages API', function() {
         });
       });
     });
+
+    it('should create a new timelineentry when sharing a message to a community', function(done) {
+      var TimelineEntry = this.mongoose.model('TimelineEntry');
+      var target = {
+        objectType: 'activitystream',
+        id: community.activity_stream.uuid
+      };
+
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
+        req.send({
+          'resource': {'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27'},
+          'target': [target]
+        });
+        req.expect(201);
+        req.end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res.body._id).to.exist;
+          process.nextTick(function() {
+            TimelineEntry.find({}, function(err, results) {
+
+              expect(results).to.exist;
+              expect(results.length).to.equal(1);
+              expect(results[0].verb).to.equal('post');
+              expect(results[0].target).to.exist;
+              expect(results[0].target.length).to.equal(1);
+              expect(results[0].target[0].objectType).to.equal('activitystream');
+              expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
+              expect(results[0].object).to.exist;
+              expect(results[0].object.objectType).to.equal('whatsup');
+              expect(results[0].object._id + '').to.equal(res.body._id);
+              expect(results[0].actor).to.exist;
+              expect(results[0].actor.objectType).to.equal('user');
+              expect(results[0].actor._id + '').to.equal('' + testuser._id);
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   it('should save the attachments reference when posting a message', function(done) {
