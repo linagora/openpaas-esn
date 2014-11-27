@@ -7,11 +7,8 @@ var mockery = require('mockery');
 describe('The notification pubsub module', function() {
 
   beforeEach(function() {
-    var mongoose = {
-      model: function() {
-      }
-    };
-    mockery.registerMock('mongoose', mongoose);
+    this.helpers.mock.models({});
+
   });
 
   it('should subscribe to community:join', function() {

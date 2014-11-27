@@ -6,11 +6,8 @@ var expect = require('chai').expect;
 describe('The community module', function() {
   describe('The save fn', function() {
     it('should send back error if community is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.save(null, function(err) {
         expect(err).to.exist;
@@ -19,11 +16,8 @@ describe('The community module', function() {
     });
 
     it('should send back error if community.title is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.save({domain_id: 123}, function(err) {
         expect(err).to.exist;
@@ -32,11 +26,8 @@ describe('The community module', function() {
     });
 
     it('should send back error if community.domain_id is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.save({title: 'title'}, function(err) {
         expect(err).to.exist;
@@ -45,16 +36,8 @@ describe('The community module', function() {
     });
 
     it('should send back error if Community.testTitleDomain sends back error', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            testTitleDomain: function(title, domain, callback) {
-              return callback(new Error());
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.save({domain_id: 123, title: 'title'}, function(err) {
         expect(err).to.exist;
@@ -63,16 +46,8 @@ describe('The community module', function() {
     });
 
     it('should send back error if Community.testTitleDomain sends back result', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            testTitleDomain: function(title, domain, callback) {
-              return callback(null, {});
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.save({domain_id: 123, title: 'title'}, function(err) {
         expect(err).to.exist;
@@ -83,10 +58,8 @@ describe('The community module', function() {
 
   describe('The load fn', function() {
     it('should send back error if community is undefined', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.load(null, function(err) {
         expect(err).to.exist;
@@ -95,16 +68,12 @@ describe('The community module', function() {
     });
 
     it('should call mongoose#findOne', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findOne: function() {
-              return done();
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findOne: function() { return done(); }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.load(123, function(err) {
         expect(err).to.not.exist;
@@ -114,10 +83,8 @@ describe('The community module', function() {
 
   describe('The loadWithDomain fn', function() {
     it('should send back error if community is undefined', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.loadWithDomains(null, function(err) {
         expect(err).to.exist;
@@ -126,24 +93,22 @@ describe('The community module', function() {
     });
 
     it('should call mongoose#findOne', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findOne: function() {
-              return {
-                populate: function() {
-                  return {
-                    exec: function() {
-                      done();
-                    }
-                  };
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findOne: function() {
+            return {
+              populate: function() {
+                return {
+                  exec: function() {
+                    done();
+                  }
+                };
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.loadWithDomains(123, function(err) {
         expect(err).to.not.exist;
@@ -152,47 +117,24 @@ describe('The community module', function() {
   });
 
   describe('The query fn', function() {
-    it('should call mongoose#find even when query is undefined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            find: function() {
-              return done();
-            }
-          };
+    it('should call collaboration.query with the "community" objectType', function(done) {
+      var collaborationMock = {
+        query: function(objectType) {
+          expect(objectType).to.equal('community');
+          done();
         }
       };
-      mockery.registerMock('mongoose', mongoose);
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.query(null, function(err) {
-        expect(err).to.not.exist;
-      });
-    });
-
-    it('should call mongoose#find even when query is defined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            find: function() {
-              return done();
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.query({}, function(err) {
-        expect(err).to.not.exist;
-      });
+      mockery.registerMock('../collaboration', collaborationMock);
+      this.helpers.mock.models({});
+      var community = require(this.testEnv.basePath + '/backend/core/community');
+      community.query(null, function() {});
     });
   });
 
   describe('The delete fn', function() {
     it('should send back error if community is undefined', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.delete(null, function(err) {
         expect(err).to.exist;
@@ -203,10 +145,8 @@ describe('The community module', function() {
 
   describe('The updateAvatar fn', function() {
     it('should send back error when community is undefined', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.updateAvatar(null, 1, function(err) {
         expect(err).to.exist;
@@ -215,10 +155,8 @@ describe('The community module', function() {
     });
 
     it('should send back error when avatar id is undefined', function(done) {
-      var mongoose = {
-        model: function() {}
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.updateAvatar({}, null, function(err) {
         expect(err).to.exist;
@@ -230,16 +168,14 @@ describe('The community module', function() {
   describe('The leave fn', function() {
 
     it('should send back error when Community.update fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            update: function(a, b, callback) {
-              return callback(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(new Error());
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.leave(123, 456, 456, function(err) {
         expect(err).to.exist;
@@ -249,16 +185,14 @@ describe('The community module', function() {
 
     it('should send back updated document when Community.update is ok', function(done) {
       var result = {_id: 123};
-      var mongoose = {
-        model: function() {
-          return {
-            update: function(a, b, callback) {
-              return callback(null, result);
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(null, result);
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.leave(123, 456, 456, function(err, update) {
         expect(err).to.not.exist;
@@ -269,16 +203,13 @@ describe('The community module', function() {
 
     it('should forward message into community:leave', function(done) {
       var result = {_id: 123};
-      var mongoose = {
-        model: function() {
-          return {
-            update: function(a, b, callback) {
-              return callback(null, result);
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(null, result);
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
 
       var localstub = {}, globalstub = {};
       this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
@@ -307,16 +238,14 @@ describe('The community module', function() {
   describe('join fn', function() {
 
     it('should send back error when Community.update fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            update: function(a, b, callback) {
-              return callback(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(new Error());
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var comMock = {
         members: [],
         _id: 'community1',
@@ -332,12 +261,8 @@ describe('The community module', function() {
     });
 
     it('should send back updated document when Community.update is ok', function(done) {
-      var mongoose = {
-        model: function() {
-          return { };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       mockery.registerMock('../../core/activitystreams/tracker', {
         updateLastTimelineEntryRead: function(userId, activityStreamUuid, lastTimelineEntry, callback) {
           return callback(null, {});
@@ -369,16 +294,13 @@ describe('The community module', function() {
 
     it('should forward message into community:join', function(done) {
       var result = {_id: 123};
-      var mongoose = {
-        model: function() {
-          return {
-            update: function(a, b, callback) {
-              return callback(null, result);
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(null, result);
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
 
       var localstub = {}, globalstub = {};
       this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
@@ -416,16 +338,14 @@ describe('The community module', function() {
   describe('The isManager fn', function() {
 
     it('should send back error when Community.findOne fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findOne: function(a, callback) {
-              return callback(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findOne: function(a, callback) {
+            return callback(new Error());
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.isManager(123, 456, function(err) {
         expect(err).to.exist;
@@ -434,16 +354,14 @@ describe('The community module', function() {
     });
 
     it('should send back true when Community.findOne finds user', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findOne: function(a, callback) {
-              return callback(null, {});
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findOne: function(a, callback) {
+            return callback(null, {});
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.isManager(123, 456, function(err, result) {
         expect(err).to.not.exist;
@@ -453,16 +371,14 @@ describe('The community module', function() {
     });
 
     it('should send back false when Community.findOne does not find user', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findOne: function(a, callback) {
-              return callback();
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findOne: function(a, callback) {
+            return callback();
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.isManager(123, 456, function(err, result) {
         expect(err).to.not.exist;
@@ -475,14 +391,12 @@ describe('The community module', function() {
   describe('The isMember fn', function() {
 
     it('should send back error when community is not a Mongo object', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findOne: function() {}
-          };
+      this.helpers.mock.models({
+        Community: {
+          findOne: function() {}
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.isMember(123, 456, function(err) {
         expect(err).to.exist;
@@ -491,11 +405,8 @@ describe('The community module', function() {
     });
 
     it('should send back true when user is part of the community', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var comMock = {
         _id: 'community1',
@@ -530,11 +441,7 @@ describe('The community module', function() {
     });
 
     it('should send back false when user is not part of the community', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var comMock = {
         _id: 'community1',
@@ -569,11 +476,7 @@ describe('The community module', function() {
     });
 
     it('should send back false when tuple is invalid', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var comMock = {
         _id: 'community1',
@@ -597,11 +500,7 @@ describe('The community module', function() {
     });
 
     it('should send back false when tuple is not a user', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var comMock = {
         _id: 'community1',
@@ -630,16 +529,14 @@ describe('The community module', function() {
   describe('The getMembers fn', function() {
 
     it('should send back error when Community.findById fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(new Error());
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id, callback) {
+            return callback(new Error());
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembers({_id: 123}, null, function(err) {
         expect(err).to.exist;
@@ -648,19 +545,19 @@ describe('The community module', function() {
     });
 
     it('should send back [] when Community.exec does not find members', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(null, {members: []});
-            },
-            find: function(query, callback) {
-              return callback(null, []);
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id, callback) {
+            return callback(null, {members: []});
+          }
+        },
+        User: {
+          find: function(query, callback) {
+            return callback(null, []);
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembers({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
@@ -672,29 +569,29 @@ describe('The community module', function() {
 
     it('should send back result members', function(done) {
       var result = [{member: {_id: 'id1', firstname: 'user1'}}, {member: {_id: 'id2', firstname: 'user2'}}];
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(null, {members: [
-                {member: {id: 'id1', objectType: 'user'}},
-                {member: {id: 'id2', objectType: 'user'}}
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id, callback) {
+            return callback(null, {members: [
+              {member: {id: 'id1', objectType: 'user'}},
+              {member: {id: 'id2', objectType: 'user'}}
               ]});
-            },
-            find: function(query, callback) {
-              expect(query._id.$in).to.be.an('array');
-              expect(query._id.$in).to.have.length(2);
-              expect(query._id.$in).to.contain('id1');
-              expect(query._id.$in).to.contain('id2');
-              return callback(null, [
-                {_id: 'id1', firstname: 'user1'},
-                {_id: 'id2', firstname: 'user2'}
+          }
+        },
+        User: {
+          find: function(query, callback) {
+            expect(query._id.$in).to.be.an('array');
+            expect(query._id.$in).to.have.length(2);
+            expect(query._id.$in).to.contain('id1');
+            expect(query._id.$in).to.contain('id2');
+            return callback(null, [
+              {_id: 'id1', firstname: 'user1'},
+              {_id: 'id2', firstname: 'user2'}
               ]);
             }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+          }
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembers({_id: 123}, null, function(err, members) {
         expect(err).to.not.exist;
@@ -710,30 +607,30 @@ describe('The community module', function() {
         offset: 3
       };
 
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(null, {members: [
-                {member: {id: 'id1', objectType: 'user'}},
-                {member: {id: 'id2', objectType: 'user'}},
-                {member: {id: 'id3', objectType: 'user'}},
-                {member: {id: 'id4', objectType: 'user'}},
-                {member: {id: 'id5', objectType: 'user'}},
-                {member: {id: 'id6', objectType: 'user'}}
-              ]});
-            },
-            find: function(query, callback) {
-              expect(query._id.$in).to.be.an('array');
-              expect(query._id.$in).to.have.length(2);
-              expect(query._id.$in).to.contain('id4');
-              expect(query._id.$in).to.contain('id5');
-              return done();
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id, callback) {
+            return callback(null, {members: [
+            {member: {id: 'id1', objectType: 'user'}},
+            {member: {id: 'id2', objectType: 'user'}},
+            {member: {id: 'id3', objectType: 'user'}},
+            {member: {id: 'id4', objectType: 'user'}},
+            {member: {id: 'id5', objectType: 'user'}},
+            {member: {id: 'id6', objectType: 'user'}}
+            ]});
+          }
+        },
+        User: {
+          find: function(query, callback) {
+            expect(query._id.$in).to.be.an('array');
+            expect(query._id.$in).to.have.length(2);
+            expect(query._id.$in).to.contain('id4');
+            expect(query._id.$in).to.contain('id5');
+            return done();
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
 
       community.getMembers({_id: 123}, query, function() {
@@ -741,33 +638,33 @@ describe('The community module', function() {
     });
 
     it('should slice members even if query is not defined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(a, callback) {
-              return callback(
-                null,
-                {
-                  members: {
-                    slice: function() {
-                      return {
-                        splice: function(offset, limit) {
-                          expect(offset).to.equal(0);
-                          expect(limit).to.equal(50);
-                          done();
-                          return [];
-                        }
-                      };
-                    }
+      this.helpers.mock.models({
+        Community: {
+          findById: function(a, callback) {
+            return callback(
+              null,
+              {
+                members: {
+                  slice: function() {
+                    return {
+                      splice: function(offset, limit) {
+                        expect(offset).to.equal(0);
+                        expect(limit).to.equal(50);
+                        done();
+                        return [];
+                      }
+                    };
                   }
                 }
-              );
-            },
-            find: function() {}
-          };
+              }
+            );
+          }
+        },
+        User: {
+          find: function() {}
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembers({_id: 123}, null, function() {
         done();
@@ -778,22 +675,20 @@ describe('The community module', function() {
   describe('The getManagers fn', function() {
 
     it('should send back error when Community.exec fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(id) {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(new Error());
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id) {
+            return {
+              slice: function() {},
+              populate: function() {},
+              exec: function(callback) {
+                return callback(new Error());
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getManagers({_id: 123}, null, function(err) {
         expect(err).to.exist;
@@ -802,22 +697,20 @@ describe('The community module', function() {
     });
 
     it('should send back [] when Community.exec does not find members', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function() {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback();
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id) {
+            return {
+              slice: function() {},
+              populate: function() {},
+              exec: function(callback) {
+                return callback();
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getManagers({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
@@ -829,22 +722,20 @@ describe('The community module', function() {
 
     it('should send back result members', function(done) {
       var result = { user: 1 };
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(a) {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(null, {creator: result});
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id) {
+            return {
+              slice: function() {},
+              populate: function() {},
+              exec: function(callback) {
+                return callback(null, {creator: result});
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getManagers({_id: 123}, null, function(err, managers) {
         expect(err).to.not.exist;
@@ -858,11 +749,8 @@ describe('The community module', function() {
 
   describe('The getUserCommunities fn', function() {
     it('should send back error when user is null', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getUserCommunities(null, function(err) {
         expect(err).to.exist;
@@ -873,11 +761,8 @@ describe('The community module', function() {
 
   describe('userToMember fn', function() {
     it('should send back result even if user is null', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var member = community.userToMember(null);
       expect(member).to.exist;
@@ -885,11 +770,8 @@ describe('The community module', function() {
     });
 
     it('should send back result even if document.user is null', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var member = community.userToMember({});
       expect(member).to.exist;
@@ -897,11 +779,7 @@ describe('The community module', function() {
     });
 
     it('should filter document', function(done) {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       var user = {
         _id: 1,
@@ -928,11 +806,7 @@ describe('The community module', function() {
 
   describe('The addMembershipRequest fn', function() {
     beforeEach(function() {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
     });
 
     it('should send back error when userAuthor is null', function() {
@@ -1133,8 +1007,8 @@ describe('The community module', function() {
 
   describe('getMembershipRequest() method', function() {
     it('should support communities that have no membershipRequests array property', function() {
-      var mongoose = { model: function() {} };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var user = {_id: 'user1'};
       var community = {_id: 'community1'};
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
@@ -1142,8 +1016,8 @@ describe('The community module', function() {
       expect(mr).to.be.false;
     });
     it('should return nothing if user does not have a membership request', function() {
-      var mongoose = { model: function() {} };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var user = {_id: 'user1'};
       var community = {_id: 'community1', membershipRequests: [{
         user: { equals: function() { return false; } },
@@ -1154,8 +1028,8 @@ describe('The community module', function() {
       expect(mr).to.be.not.ok;
     });
     it('should return the membership object if user have a membership request', function() {
-      var mongoose = { model: function() {} };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
+
       var user = {_id: 'user1'};
       var community = {_id: 'community1', membershipRequests: [{
         user: { equals: function() { return true; } },
@@ -1172,8 +1046,7 @@ describe('The community module', function() {
 
   describe('cancelMembershipInvitation() method', function() {
     beforeEach(function() {
-      var mongoose = { model: function() { } };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       this.membership = {
         user: 'user1',
@@ -1255,8 +1128,7 @@ describe('The community module', function() {
 
   describe('refuseMembershipRequest() method', function() {
     beforeEach(function() {
-      var mongoose = { model: function() { } };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       this.membership = {
         user: 'user1',
@@ -1338,8 +1210,7 @@ describe('The community module', function() {
 
   describe('declineMembershipInvitation() method', function() {
     beforeEach(function() {
-      var mongoose = { model: function() { } };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       this.membership = {
         user: 'user1',
@@ -1422,8 +1293,7 @@ describe('The community module', function() {
 
   describe('cancelMembershipRequest() method', function() {
     beforeEach(function() {
-      var mongoose = { model: function() { } };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
 
       this.membership = {
         user: 'user1',
@@ -1506,22 +1376,20 @@ describe('The community module', function() {
   describe('The getMembershipRequests fn', function() {
 
     it('should send back error when Community.exec fails', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(id) {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(new Error());
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id) {
+            return {
+              slice: function() {},
+              populate: function() {},
+              exec: function(callback) {
+                return callback(new Error());
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembershipRequests({_id: 123}, null, function(err) {
         expect(err).to.exist;
@@ -1530,22 +1398,20 @@ describe('The community module', function() {
     });
 
     it('should send back [] when Community.exec does not find requests', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function() {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback();
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id) {
+            return {
+              slice: function() {},
+              populate: function() {},
+              exec: function(callback) {
+                return callback();
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembershipRequests({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
@@ -1557,22 +1423,20 @@ describe('The community module', function() {
 
     it('should send back result requests', function(done) {
       var result = [{user: 1}, {user: 2}];
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(a) {
-              return {
-                slice: function() {},
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(null, {membershipRequests: result});
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(id) {
+            return {
+              slice: function() {},
+              populate: function() {},
+              exec: function(callback) {
+                return callback(null, {membershipRequests: result});
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembershipRequests({_id: 123}, null, function(err, requests) {
         expect(err).to.not.exist;
@@ -1587,28 +1451,25 @@ describe('The community module', function() {
         limit: 2,
         offset: 10
       };
-
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(a) {
-              return {
-                populate: function() {},
-                slice: function(field, array) {
-                  expect(field).to.equal('membershipRequests');
-                  expect(array).to.exist;
-                  expect(array[0]).to.equal(query.offset);
-                  expect(array[1]).to.equal(query.limit);
-                },
-                exec: function(callback) {
-                  return callback(null, {members: []});
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(a) {
+            return {
+              populate: function() {},
+              slice: function(field, array) {
+                expect(field).to.equal('membershipRequests');
+                expect(array).to.exist;
+                expect(array[0]).to.equal(query.offset);
+                expect(array[1]).to.equal(query.limit);
+              },
+              exec: function(callback) {
+                return callback(null, {members: []});
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembershipRequests({_id: 123}, query, function() {
         done();
@@ -1616,27 +1477,25 @@ describe('The community module', function() {
     });
 
     it('should slice members even if query is not defined', function(done) {
-      var mongoose = {
-        model: function() {
-          return {
-            findById: function(a) {
-              return {
-                slice: function(field, array) {
-                  expect(field).to.equal('membershipRequests');
-                  expect(array).to.exist;
-                  expect(array[0]).to.exist;
-                  expect(array[1]).to.exist;
-                },
-                populate: function() {},
-                exec: function(callback) {
-                  return callback(null, {members: []});
-                }
-              };
-            }
-          };
+      this.helpers.mock.models({
+        Community: {
+          findById: function(a) {
+            return {
+              slice: function(field, array) {
+                expect(field).to.equal('membershipRequests');
+                expect(array).to.exist;
+                expect(array[0]).to.exist;
+                expect(array[1]).to.exist;
+              },
+              populate: function() {},
+              exec: function(callback) {
+                return callback(null, {members: []});
+              }
+            };
+          }
         }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      });
+
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       community.getMembershipRequests({_id: 123}, null, function() {
         done();
@@ -1647,11 +1506,7 @@ describe('The community module', function() {
   describe('The cleanMembershipRequest fn', function() {
 
     beforeEach(function() {
-      var mongoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mongoose);
+      this.helpers.mock.models({});
     });
 
     it('should send back error when user is not defined', function() {

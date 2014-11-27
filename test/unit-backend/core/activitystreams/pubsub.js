@@ -6,12 +6,7 @@ var mockery = require('mockery');
 describe('The activitystreams pubsub module', function() {
 
   beforeEach(function() {
-    var mock = {
-      model: function() {
-        return {};
-      }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mock);
+    this.helpers.mock.models({});
   });
 
   describe('createActivity fn', function() {

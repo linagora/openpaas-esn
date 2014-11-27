@@ -6,16 +6,13 @@ var mockery = require('mockery');
 describe('The activitystreams controller module', function() {
 
   it('get should return HTTP 400 when activity_stream is not set', function(done) {
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(null, {});
-          }
-        };
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
       }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    });
     var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
     var req = {
       params: {}
@@ -35,17 +32,14 @@ describe('The activitystreams controller module', function() {
     var domain = {
       _id: '123456789'
     };
-
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(null, domain);
-          }
-        };
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, domain);
+        }
       }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    });
+
 
     var timelineMock = {
       query: function(options, cb) {
@@ -82,16 +76,13 @@ describe('The activitystreams controller module', function() {
       {_id: 2}
     ];
 
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(null, domain);
-          }
-        };
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, domain);
+        }
       }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    });
 
     var timelineMock = {
       query: function(options, cb) {
@@ -120,16 +111,13 @@ describe('The activitystreams controller module', function() {
   });
 
   it('get should return HTTP 400 when limit parameter is negative', function(done) {
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(null, {});
-          }
-        };
+    this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
       }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    });
     var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
     var req = {
       params: {
@@ -150,16 +138,18 @@ describe('The activitystreams controller module', function() {
   });
 
   it('get should return HTTP 400 when before parameter is not an ObjectId as a String', function(done) {
-    var mongooseMock = {
-      model: function() {
-        return {
-          getFromActivityStreamID: function(uuid, cb) {
-            return cb(null, {});
-          }
-        };
+    var mongooseMock = this.helpers.mock.models({
+      Community: {
+        getFromActivityStreamID: function(uuid, cb) {
+          return cb(null, {});
+        }
       }
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    });
+
+    mongooseMock.__replaceObjectId(function() {
+      throw new Error('mock error');
+    });
+
     var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
     var req = {
       params: {
@@ -180,10 +170,8 @@ describe('The activitystreams controller module', function() {
   });
 
   it('getMine should return 400 when req.user is undefined', function(done) {
-    var mongooseMock = {
-      model: function() {}
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    this.helpers.mock.models({});
+
     var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
     var req = {
       params: {
@@ -202,10 +190,7 @@ describe('The activitystreams controller module', function() {
   });
 
   it('getMine should return 500 when activitystreams module sends back error', function(done) {
-    var mongooseMock = {
-      model: function() {}
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    this.helpers.mock.models({});
 
     mockery.registerMock('../../core/activitystreams', {
       getUserStreams: function(user, options, cb) {
@@ -230,10 +215,7 @@ describe('The activitystreams controller module', function() {
   });
 
   it('getMine should return 200 when activitystreams module sends back streams', function(done) {
-    var mongooseMock = {
-      model: function() {}
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    this.helpers.mock.models({});
 
     mockery.registerMock('../../core/activitystreams', {
       getUserStreams: function(user, options, cb) {
@@ -260,10 +242,7 @@ describe('The activitystreams controller module', function() {
   });
 
   it('getMine should return 200 when activitystreams module sends back nothing', function(done) {
-    var mongooseMock = {
-      model: function() {}
-    };
-    this.mongoose = mockery.registerMock('mongoose', mongooseMock);
+    this.helpers.mock.models({});
 
     mockery.registerMock('../../core/activitystreams', {
       getUserStreams: function(user, options, cb) {
