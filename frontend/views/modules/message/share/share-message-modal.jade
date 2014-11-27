@@ -3,14 +3,9 @@
     .modal-content
       .modal-header
         button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
-        h4.modal-title(ng-hide="sending") #{__('Share message')} #{__('from')} {{message.author.firstname}} {{message.author.lastname}}
+        h4.modal-title(ng-hide="sending") #{__('Share message')}
         h4.modal-title(ng-show="sending") #{__('Sharing message')}...
       .modal-body
-
-        .row.alert.alert-info(ng-show="sending", role="alert")
-          p
-            i.fa.fa-cog.fa-spin
-            span #{__('Please wait')}...
 
         .row
           message-preview-displayer(message="message")
