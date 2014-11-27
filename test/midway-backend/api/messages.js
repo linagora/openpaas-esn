@@ -627,14 +627,14 @@ describe('The messages API', function() {
     });
   });
 
-  describe('COPY /api/messages/:id', function() {
+  describe('POST /api/messages/:id/shares', function() {
     it('should return 400 if target is missing', function(done) {
       this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).copy('/api/messages/' + message1._id));
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
           'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' }
         });
@@ -649,7 +649,7 @@ describe('The messages API', function() {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).copy('/api/messages/' + message1._id));
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
           'target': [
             {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
@@ -666,7 +666,7 @@ describe('The messages API', function() {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).copy('/api/messages' + message2._id));
+        var req = loggedInAsUser(request(app).post('/api/messages' + message2._id + '/shares'));
         req.send({
           'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
           'target': [
@@ -685,7 +685,7 @@ describe('The messages API', function() {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).copy('/api/messages/' + message3._id));
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
           'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
           'target': [

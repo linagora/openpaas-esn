@@ -64,13 +64,13 @@ If a message is not found from the input ID, the result array will contain an er
         },
     ]
 
-## COPY /api/messages
+## POST /api/messages/{id}/shares
 
-Copy a message from a resource (community, project, ...) to another (or several others).
+Copy a message from a resource (community, project, ...) to another (or several others) i.e. share a message.
 
-**Query Parameters:**
+**Parameters:**
 
-- id : Identifiers of the message to copy.
+- id : Identifier of the message to copy.
 
 **Request Headers:**
 
@@ -115,7 +115,7 @@ The id of the new message in the '_id' property.
 
 **Request:**
 
-    COPY /api/messages/53581bb1cca7800000522731
+    POST /api/messages/53581bb1cca7800000522731/shares
     Content-Type: application/json
     Host: localhost:8080
     {
