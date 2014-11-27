@@ -4,7 +4,8 @@ var mockery = require('mockery'),
     path = require('path'),
     fs = require('fs-extra'),
     extend = require('extend'),
-    helpers = require('../helpers');
+    helpers = require('../helpers'),
+    moduleHelpers = require('../module-helpers');
 var testConfig = require('../config/servers-conf.js');
 
 before(function() {
@@ -26,10 +27,11 @@ before(function() {
     },
     initCore: function(callback) {
       var core = require(basePath + '/backend/core');
-      core.init();
-      if (callback) {
-        process.nextTick(callback);
-      }
+      core.init(function() {
+        if (callback) {
+          process.nextTick(callback);
+        }
+      });
       return core;
     },
     initRedisConfiguration: function(mongoose, callback) {
@@ -52,6 +54,7 @@ before(function() {
 
   this.helpers = {};
   helpers(this.helpers, this.testEnv);
+  moduleHelpers(this.helpers, this.testEnv);
 
   this.helpers.api = {
     getStreamData: function(stream, callback) {
