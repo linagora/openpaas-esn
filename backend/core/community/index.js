@@ -302,18 +302,7 @@ module.exports.getUserCommunities = function(user, options, callback) {
 };
 
 module.exports.getMembershipRequests = function(community, query, callback) {
-  query = query || {};
-  var id = community._id || community;
-
-  var q = Community.findById(id);
-  q.slice('membershipRequests', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
-  q.populate('membershipRequests.user');
-  q.exec(function(err, community) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, community ? community.membershipRequests : []);
-  });
+  return collaboration.getMembershipRequests(communityObjectType, community._id || community, query, callback);
 };
 
 module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
@@ -393,13 +382,7 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
 };
 
 module.exports.getMembershipRequest = function(community, user) {
-  if (!community.membershipRequests) {
-    return false;
-  }
-  var mr = community.membershipRequests.filter(function(mr) {
-    return mr.user.equals(user._id);
-  });
-  return mr.pop();
+  return collaboration.getMembershipRequest(community, user);
 };
 
 module.exports.cancelMembershipInvitation = function(community, membership, manager, onResponse) {
