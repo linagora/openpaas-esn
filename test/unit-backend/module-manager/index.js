@@ -79,6 +79,8 @@ describe('The module manager', function() {
         'linagora.esn.core.notification',
         'linagora.esn.core.passport',
         'linagora.esn.core.pubsub',
+        'linagora.esn.core.pubsub.global',
+        'linagora.esn.core.pubsub.local',
         'linagora.esn.core.templates',
         'linagora.esn.core.user',
         'linagora.esn.core.webserver.middleware.activitystream',
