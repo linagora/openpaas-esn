@@ -177,15 +177,7 @@ module.exports.isManager = function(community, user, callback) {
 
 module.exports.isMember = function(community, user, callback) {
   var user_id = user._id || user;
-
-  if (!community || !community._id) {
-    return callback(new Error('Community object is required'));
-  }
-
-  var isMember = community.members.some(function(m) {
-    return m.member.objectType === 'user' && m.member.id.equals(user_id);
-  });
-  return callback(null, isMember);
+  return collaboration.isMember(community, user_id, callback);
 };
 
 module.exports.userToMember = function(document) {

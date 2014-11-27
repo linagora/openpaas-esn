@@ -18,6 +18,17 @@ function getModel(objectType) {
   return Model;
 }
 
+function isMember(collaboration, userId, callback) {
+  if (!collaboration || !collaboration._id) {
+    return callback(new Error('Collaboration object is required'));
+  }
+
+  var isInMembersArray = collaboration.members.some(function(m) {
+    return m.member.objectType === 'user' && m.member.id.equals(userId);
+  });
+  return callback(null, isInMembersArray);
+}
+
 function getMembershipRequests(objectType, objetId, query, callback) {
   query = query || {};
 
@@ -72,3 +83,4 @@ module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
 module.exports.registerCollaborationModel = registerCollaborationModel;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
+module.exports.isMember = isMember;
