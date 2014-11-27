@@ -4,13 +4,9 @@ var async = require('async');
 var moduleManager = require('./backend/module-manager');
 var core = require('./backend/core');
 var logger = core.logger;
+var config = core.config('default');
 
-var modules = [
-'linagora.esn.core.webserver',
-'linagora.esn.core.wsserver',
-'linagora.esn.core.webrtcserver',
-'linagora.esn.project'
-];
+var modules = config.modules;
 
 moduleManager.manager.registerState('deploy', ['lib']);
 moduleManager.manager.registerState('start', ['lib', 'deploy']);
