@@ -24,7 +24,7 @@ module.exports = function(grunt) {
         reporter: CI && 'checkstyle',
         reporterOutput: CI && 'jshint.xml'
       },
-      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js'],
+      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js', 'modules/**/*.js'],
     },
     shell: {
       redis: {
@@ -383,6 +383,7 @@ module.exports = function(grunt) {
       '-r test',
       '-r backend',
       '-r frontend/js',
+      '-r modules',
       '-e test/frontend/karma-include',
       '-x frontend/js/modules/modernizr.js'
     ];
