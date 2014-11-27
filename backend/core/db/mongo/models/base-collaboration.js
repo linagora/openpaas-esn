@@ -4,6 +4,7 @@ var extend = require('extend');
 var Schema = require('mongoose').Schema;
 var Tuple = require('../common').Tuple;
 var Validation = require('../validation');
+var Injection = require('../common').Injection;
 var uuid = require('node-uuid');
 
 var collaborationBaseSchema = {
@@ -29,21 +30,7 @@ var collaborationBaseSchema = {
       creation: {type: Date, default: Date.now}
     }
   },
-  injections: [
-  {
-    key: {type: String, required: true},
-    values: [
-    {
-      directive: {type: String, required: true},
-      attributes:
-      [{
-        name: {type: String, required: true},
-        value: {type: String, required: true}
-      }]
-    }
-    ]
-  }
-  ],
+  injections: {type: [Injection], validate: [Validation.validateInjections, 'Bad injections']},
   schemaVersion: {type: Number, default: 1}
 };
 
