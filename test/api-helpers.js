@@ -46,8 +46,13 @@ module.exports = function(mixin, testEnv) {
   *
   *
   */
-  api.applyDomainDeployment = function(name, callback) {
-    var fixtures = require(testEnv.fixtures + '/deployments');
+  api.applyDomainDeployment = function(name, options, callback) {
+    if (!callback) {
+      callback = options;
+      options = {};
+    }
+    var fixturesPath = options.fixtures ? options.fixtures : testEnv.fixtures + '/deployments';
+    var fixtures = require(fixturesPath);
     if (! (name in fixtures)) {
       return callback(new Error('Unknown fixture name ' + name));
     }
