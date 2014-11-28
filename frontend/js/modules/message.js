@@ -550,7 +550,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       templateUrl: '/views/modules/message/share/share-tag.html'
     };
   })
-  .controller('messageShareController', ['$scope', '$q', '$log', 'notificationFactory', 'messageAPI', 'userAPI', function($scope, $q, $log, notificationFactory, messageAPI, userAPI) {
+  .controller('messageShareController', ['$scope', '$q', '$log', '$alert', 'notificationFactory', 'messageAPI', 'userAPI', function($scope, $q, $log, $alert, notificationFactory, messageAPI, userAPI) {
 
     $scope.sending = false;
 
