@@ -34,7 +34,9 @@ angular.module('esnApp', [
   'esn.ical',
   'esn.object-type',
   'esn.file',
-  'esn.background'
+  'esn.background',
+  'esn.parser',
+  'esn.markdown-parser'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
