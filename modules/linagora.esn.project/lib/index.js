@@ -19,8 +19,20 @@ function projectLib(dependencies) {
     return collaboration.query(projectObjectType, q, callback);
   }
 
+  function getMembershipRequests(project, query, callback) {
+    var projectId = project._id || project;
+    return collaboration.getMembershipRequests(projectObjectType, projectId, query, callback);
+  }
+
+  function getMembershipRequest(project, user) {
+    return collaboration.getMembershipRequest(project, user);
+  }
+
+
 
   lib.query = query;
+  lib.getMembershipRequests = getMembershipRequests;
+  lib.getMembershipRequest = getMembershipRequest;
   return lib;
 }
 
