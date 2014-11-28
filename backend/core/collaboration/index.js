@@ -1,6 +1,9 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var localpubsub = require('../pubsub').local;
+var globalpubsub = require('../pubsub').global;
+
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
 
@@ -58,6 +61,42 @@ function getMembershipRequest(collaboration, user) {
   return mr.pop();
 }
 
+function addMember(target, author, member, callback) {
+  if (!target || !member) {
+    return callback(new Error('Project and member are required'));
+  }
+
+  if (!target.save) {
+    return callback(new Error('addMember(): first argument (target) must be a project mongoose model'));
+  }
+
+  if (!member.id || !member.objectType) {
+    return callback(new Error('member must be {id, objectType}'));
+  }
+
+  var isMemberOf = target.members.filter(function(m) {
+    return m.member.id.equals(member.id) && m.member.objectType === member.objectType;
+  });
+
+  if (isMemberOf.length) {
+    return callback(null, target);
+  }
+
+  target.members.push({member: member});
+  return target.save(function(err, update) {
+    if (err) {
+      return callback(err);
+    }
+
+    localpubsub.topic(target.objectType + ':member:add').forward(globalpubsub, {
+      author: author,
+      target: target,
+      member: member
+    });
+
+    return callback(null, update);
+  });
+}
 
 function query(objectType, q, callback) {
   q = q || {};
@@ -95,3 +134,4 @@ module.exports.registerCollaborationModel = registerCollaborationModel;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
+module.exports.addMember = addMember;

@@ -70,7 +70,7 @@ describe('linagora.esn.project module', function() {
           expect(err).to.not.exist;
           expect(res.body).to.exist;
           expect(res.body).to.be.an.array;
-          expect(res.body.length).to.equal(3);
+          expect(res.body.length).to.equal(4);
           done();
         });
       });
@@ -159,7 +159,7 @@ describe('linagora.esn.project module', function() {
           return done(err);
         }
         var req = loggedInAsUser(request(this.app).post('/api/projects'));
-        req.send({ title: '' });
+        req.send({title: ''});
         req.expect(400).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.be.an('object');
@@ -179,7 +179,7 @@ describe('linagora.esn.project module', function() {
           return done(err);
         }
         var req = loggedInAsUser(request(this.app).post('/api/projects'));
-        req.send({ title: 'a new project' });
+        req.send({title: 'a new project'});
         req.expect(201).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.be.an('object');
@@ -189,6 +189,97 @@ describe('linagora.esn.project module', function() {
           done();
         });
       }.bind(this));
+    });
+  });
+
+  describe('POST /api/projects/:id/members', function() {
+    beforeEach(function() {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      this.app = this.helpers.modules.getWebServer(app);
+    });
+
+    it('should HTTP 401 when not connected', function(done) {
+      request(this.app).post('/api/projects/123/members').expect(401).end(done);
+    });
+
+    it('should HTTP 404 when project not found', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var ObjectId = require('bson').ObjectId;
+        var id = new ObjectId();
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + id + '/members'));
+        req.expect(404);
+        req.end(done);
+      });
+    });
+
+    it('should add member and HTTP 201', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + self.models.projects[1]._id + '/members'));
+        req.send({
+          objectType: 'community',
+          id: self.models.communities[0]._id
+        });
+        req.expect(201);
+        req.end(function(err) {
+          expect(err).to.not.exist;
+          process.nextTick(function() {
+            var Project = require('mongoose').model('Project');
+            Project.findById(self.models.projects[1]._id, function(err, project) {
+              if (err) {
+                return done(err);
+              }
+              if (!project) {
+                return done(new Error());
+              }
+              expect(project.members.length).to.equal(2);
+
+              var isMemberOf = project.members.filter(function(m) {
+                return m.member.id + '' === self.models.communities[0]._id + '' && m.member.objectType === 'community';
+              });
+              expect(isMemberOf.length).to.equal(1);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should HTTP 400 when member id is not set', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + self.models.projects[1]._id + '/members'));
+        req.send({
+          objectType: 'community'
+        });
+        req.expect(400);
+        req.end(done);
+      });
+    });
+
+    it('should HTTP 400 when member objectType is not set', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + self.models.projects[1]._id + '/members'));
+        req.send({
+          id: '123'
+        });
+        req.expect(400);
+        req.end(done);
+      });
     });
   });
 });
