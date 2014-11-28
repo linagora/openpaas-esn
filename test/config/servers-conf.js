@@ -15,7 +15,7 @@ module.exports = {
     'dbpath' : tmp + '/mongo/',
     'logpath' : '',
     'elasticsearch': {
-      'rivers': ['users', 'domains', 'messages']
+      'rivers': ['users', 'domains', 'messages', 'communities']
     }
   },
 
