@@ -1,0 +1,9 @@
+div.media.message-preview
+  a.media-left.pull-left.message-avatar(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+  div.media-body
+    div
+      h4.media-heading
+        a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
+        a.message-date(href="/#messages/{{::message._id}}/activitystreams/{{::activitystreamUuid}}")
+          small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
