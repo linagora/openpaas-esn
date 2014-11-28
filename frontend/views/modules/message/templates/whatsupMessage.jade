@@ -8,7 +8,8 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
         a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}")
           small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
       display-position(position='message.position')
-      p.multilines {{message.content}}
+      p.multilines
+        text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
     include ./includes/messagesBottomLinks
     include ./includes/attachments.jade
     include ./includes/comments.jade
