@@ -28,11 +28,15 @@ function projectLib(dependencies) {
     return collaboration.getMembershipRequest(project, user);
   }
 
+  function isMember(project, userId, callback) {
+    return collaboration.isMember(project, userId, callback);
+  }
 
 
   lib.query = query;
   lib.getMembershipRequests = getMembershipRequests;
   lib.getMembershipRequest = getMembershipRequest;
+  lib.isMember = isMember;
   return lib;
 }
 
