@@ -550,7 +550,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       templateUrl: '/views/modules/message/share/share-tag.html'
     };
   })
-  .controller('messageShareController', ['$scope', '$q', '$log', 'messageAPI', 'userAPI', function($scope, $q, $log, messageAPI, userAPI) {
+  .controller('messageShareController', ['$scope', '$q', '$log', 'notificationFactory', 'messageAPI', 'userAPI', function($scope, $q, $log, notificationFactory, messageAPI, userAPI) {
 
     $scope.sending = false;
 
@@ -585,8 +585,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
         if ($scope.shareModal) {
           $scope.shareModal.hide();
         }
+        $scope.messageShared();
       }, function(err) {
         $log.error('Can not share message', err.data);
+        $scope.displayError('Error while sharing message');
       }).finally (function() {
         $scope.sending = false;
       });
@@ -607,6 +609,22 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
 
     $scope.addTarget = function(selected) {
       $scope.shares.push(selected);
+    };
+
+    $scope.messageShared = function() {
+      notificationFactory.weakInfo('Message Sharing', 'Message has been shared to communities!');
+    };
+
+    $scope.displayError = function(err) {
+      $alert({
+        content: err,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '#shareerror',
+        duration: '3',
+        animation: 'am-fade'
+      });
     };
 
   }])
