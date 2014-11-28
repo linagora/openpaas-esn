@@ -7,6 +7,7 @@ var AwesomeModuleManager = require('awesome-module-manager');
 var AwesomeModule = require('awesome-module');
 var ESN_MODULE_PREFIX = 'linagora.esn.core.';
 var ESN_MIDDLEWARE_PREFIX = ESN_MODULE_PREFIX + 'webserver.middleware.';
+var setupServer = require('./server');
 
 var manager = new AwesomeModuleManager(core.logger);
 
@@ -90,8 +91,13 @@ function setupManager() {
   return manager;
 }
 
+function setupServerEnvironment() {
+  setupServer(module.exports);
+}
+
 module.exports.setupManager = setupManager;
 module.exports.ESN_MODULE_PREFIX = ESN_MODULE_PREFIX;
 module.exports.ESN_MIDDLEWARE_PREFIX = ESN_MIDDLEWARE_PREFIX;
 module.exports.manager = manager;
 module.exports.mockModule = mockModule;
+module.exports.setupServerEnvironment = setupServerEnvironment;

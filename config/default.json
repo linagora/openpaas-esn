@@ -42,5 +42,11 @@
   },
   "auth": {
     "strategies": ["local", "mongo", "bearer"]
-  }
+  },
+  "modules": [
+    "linagora.esn.core.webserver",
+    "linagora.esn.core.wsserver",
+    "linagora.esn.core.webrtcserver",
+    "linagora.esn.project"
+  ]
 }
