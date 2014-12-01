@@ -202,9 +202,22 @@ describe('linagora.esn.project module', function() {
       request(this.app).post('/api/projects/123/members').expect(401).end(done);
     });
 
-    it('should HTTP 404 when project not found', function(done) {
+    it('should HTTP 403 when current user is not project creator', function(done) {
       var self = this;
       this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + self.models.projects[1]._id + '/members'));
+        req.send({id: 123, objectType: 'community'});
+        req.expect(403);
+        req.end(done);
+      });
+    });
+
+    it('should HTTP 404 when project not found', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -218,7 +231,7 @@ describe('linagora.esn.project module', function() {
 
     it('should add member and HTTP 201', function(done) {
       var self = this;
-      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -254,7 +267,7 @@ describe('linagora.esn.project module', function() {
 
     it('should HTTP 400 when member id is not set', function(done) {
       var self = this;
-      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -269,7 +282,7 @@ describe('linagora.esn.project module', function() {
 
     it('should HTTP 400 when member objectType is not set', function(done) {
       var self = this;
-      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
