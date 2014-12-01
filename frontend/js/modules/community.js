@@ -661,10 +661,9 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       }
     };
   }])
-  .directive('communityButtonCreate', ['$modal', function($modal) {
+  .directive('communityCreationModalLauncher', ['$modal', function($modal) {
     return {
-      restrict: 'E',
-      templateUrl: '/views/modules/community/community-button-create.html',
+      restrict: 'A',
       scope: true,
       link: function($scope) {
         $scope.$on('modal.hide', function(evt, modal) {
