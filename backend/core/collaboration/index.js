@@ -69,6 +69,16 @@ function query(objectType, q, callback) {
   return Model.find(q, callback);
 }
 
+function queryOne(objectType, q, callback) {
+  q = q || {};
+
+  var Model = getModel(objectType);
+  if (!Model) {
+    return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
+  }
+  return Model.findOne(q, callback);
+}
+
 function registerCollaborationModel(name, modelName, schema) {
   if (collaborationModels[name]) {
     throw new Error('Collaboration model ' + name + 'is already registered');
@@ -79,6 +89,7 @@ function registerCollaborationModel(name, modelName, schema) {
 }
 
 module.exports.query = query;
+module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
 module.exports.registerCollaborationModel = registerCollaborationModel;
 module.exports.getMembershipRequests = getMembershipRequests;
