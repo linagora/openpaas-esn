@@ -141,4 +141,54 @@ describe('linagora.esn.project module', function() {
       }.bind(this));
     });
   });
+
+  describe('POST /api/projects/:id', function() {
+    it('should send back 401 when not logged in', function(done) {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      request(app).get('/api/projects').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should send back 400 when project title is missing', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({ title: '' });
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.error).to.be.an('object');
+          expect(res.body.error.status).to.equal(400);
+          expect(res.body.error.details).to.equal('Project title is mandatory');
+          done();
+        });
+      }.bind(this));
+    });
+
+    it('should send back 201 when project is created', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({ title: 'a new project' });
+        req.expect(201).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.title).to.equal('a new project');
+          expect(res.body.type).to.equal('open');
+          expect(res.body._id).to.exist;
+          done();
+        });
+      }.bind(this));
+    });
+  });
 });

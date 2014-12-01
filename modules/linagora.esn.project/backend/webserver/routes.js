@@ -7,6 +7,7 @@ function projectWebserverRoutes(app, projectLib, dependencies) {
 
   app.get('/api/projects', authorizationMW.requiresAPILogin, domainMW.loadFromDomainIdParameter, authorizationMW.requiresDomainMember, controllers.getAll);
   app.get('/api/projects/:id', authorizationMW.requiresAPILogin, controllers.get);
+  app.post('/api/projects', authorizationMW.requiresAPILogin, controllers.create);
 }
 
 module.exports = projectWebserverRoutes;

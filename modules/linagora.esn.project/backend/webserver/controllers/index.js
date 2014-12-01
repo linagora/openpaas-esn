@@ -80,6 +80,16 @@ function projectControllers(lib, dependencies) {
     });
   };
 
+  controllers.create = function(req, res, next) {
+    lib.create(req.body, function(err, project) {
+      if (err) {
+        res.json(400, { error: { status: 400, message: 'Project creation failed', details: err.message }});
+      } else {
+        res.json(201, project);
+      }
+    });
+  };
+
   return controllers;
 }
 

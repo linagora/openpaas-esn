@@ -22,6 +22,17 @@ function projectLib(dependencies) {
     return collaboration.queryOne(projectObjectType, q, callback);
   }
 
+  function create(projectData, callback) {
+    if (!projectData) {
+      return callback(new Error('Cannot save null project'));
+    }
+    if (!projectData.title) {
+      return callback(new Error('Project title is mandatory'));
+    }
+
+    var project = new lib.models.project(projectData);
+    project.save(callback);
+  }
 
   function getMembershipRequests(project, query, callback) {
     var projectId = project._id || project;
@@ -39,6 +50,7 @@ function projectLib(dependencies) {
 
   lib.query = query;
   lib.queryOne = queryOne;
+  lib.create = create;
   lib.getMembershipRequests = getMembershipRequests;
   lib.getMembershipRequest = getMembershipRequest;
   lib.isMember = isMember;
