@@ -6,6 +6,7 @@ function projectWebserverRoutes(app, projectLib, dependencies) {
   var domainMW = dependencies('domainMW');
 
   app.get('/api/projects', authorizationMW.requiresAPILogin, domainMW.loadFromDomainIdParameter, authorizationMW.requiresDomainMember, controllers.getAll);
+  app.get('/api/projects/:id', authorizationMW.requiresAPILogin, controllers.get);
 }
 
 module.exports = projectWebserverRoutes;

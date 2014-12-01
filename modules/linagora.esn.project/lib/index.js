@@ -18,6 +18,10 @@ function projectLib(dependencies) {
   function query(q, callback) {
     return collaboration.query(projectObjectType, q, callback);
   }
+  function queryOne(q, callback) {
+    return collaboration.queryOne(projectObjectType, q, callback);
+  }
+
 
   function getMembershipRequests(project, query, callback) {
     var projectId = project._id || project;
@@ -34,6 +38,7 @@ function projectLib(dependencies) {
 
 
   lib.query = query;
+  lib.queryOne = queryOne;
   lib.getMembershipRequests = getMembershipRequests;
   lib.getMembershipRequest = getMembershipRequest;
   lib.isMember = isMember;

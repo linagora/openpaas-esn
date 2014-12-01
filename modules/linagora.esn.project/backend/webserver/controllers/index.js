@@ -63,6 +63,23 @@ function projectControllers(lib, dependencies) {
     });
   };
 
+  controllers.get = function(req, res, next) {
+    var query = { _id: req.params.id };
+
+    lib.queryOne(query, function(err, project) {
+      if (err) {
+        return res.json(500, { error: { status: 500, message: 'Project retrieval failed', details: err }});
+      }
+      if (!project) {
+        return res.json(404, { error: { status: 404, message: 'Not found', details: 'Project not found' }});
+      }
+
+      transform(lib, project, req.user, function(transformed) {
+        res.json(200, transformed);
+      });
+    });
+  };
+
   return controllers;
 }
 

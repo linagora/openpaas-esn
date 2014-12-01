@@ -94,4 +94,51 @@ describe('linagora.esn.project module', function() {
       });
     });
   });
+
+  describe('GET /api/projects/:id', function() {
+    it('should send back 401 when not logged in', function(done) {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      request(app).get('/api/projects').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should send back 404 when project is not found', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var projectId = '507f1f77bcf86cd799439011';
+        var req = loggedInAsUser(request(this.app).get('/api/projects/' + projectId));
+        req.expect(404).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.error).to.be.an('object');
+          expect(res.body.error.status).to.equal(404);
+          done();
+        });
+      }.bind(this));
+    });
+
+    it('should send back 200 with project details', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var projectId = this.models.projects[0]._id;
+        var req = loggedInAsUser(request(this.app).get('/api/projects/' + projectId));
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.title).to.equal('OpenPaaS open');
+          done();
+        });
+      }.bind(this));
+    });
+  });
 });
