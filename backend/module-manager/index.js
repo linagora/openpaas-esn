@@ -35,6 +35,19 @@ function mockCoreModule(name) {
   manager.appendLoader(loader);
 }
 
+function mockPubsub(type) {
+  var mock = new AwesomeModule(ESN_MODULE_PREFIX + 'pubsub.' + type, {
+    states: {
+      lib: function(deps, callback) {
+        return callback(null, core.pubsub.local);
+      }
+    },
+    provides: ['pubsub.' + type]
+  });
+  var loader = manager.loaders.code(mock, true);
+  manager.appendLoader(loader);
+}
+
 function mockCore() {
   var corePath = Path.join(__dirname, '..', 'core');
   fs.readdirSync(corePath).forEach(function(filename) {
@@ -43,6 +56,8 @@ function mockCore() {
     if (!stat.isDirectory()) { return; }
     mockCoreModule(filename);
   });
+  mockPubsub('local');
+  mockPubsub('global');
 }
 
 function mockMiddlewares() {
@@ -54,6 +69,7 @@ function mockMiddlewares() {
     'community',
     'conference',
     'cookie-lifetime',
+    'domain',
     'feedback',
     'file',
     'link',

@@ -28,7 +28,7 @@ function project(collaboration) {
     this.findOne(query, cb);
   };
 
-  var ProjectModel = collaboration.registerCollaborationModel('project', 'Project', projectJSON);
+  var ProjectModel = collaboration.registerCollaborationModel('project', 'Project', ProjectSchema);
   return ProjectModel;
 
 }
