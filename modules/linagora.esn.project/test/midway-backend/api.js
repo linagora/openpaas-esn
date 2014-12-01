@@ -1,7 +1,7 @@
 'use strict';
 var expect = require('chai').expect;
 var request = require('supertest');
-
+var async = require('async');
 
 describe('linagora.esn.project module', function() {
   var moduleName = 'linagora.esn.project';
@@ -11,19 +11,41 @@ describe('linagora.esn.project module', function() {
       if (err) {
         return done(err);
       }
-      self.helpers.api.applyDomainDeployment(
-        'linagora_PROJECTS',
-        {
-          fixtures: __dirname + '/../fixtures/deployments'
+
+      async.series([
+        function(callback) {
+          self.helpers.elasticsearch.saveTestConfiguration(callback);
         },
-        function(err, models) {
-          if (err) {
-            return done(err);
-          }
-          self.models = models;
-          done();
+        function(callback) {
+          self.helpers.api.applyDomainDeployment(
+            'linagora_PROJECTS',
+            {
+              fixtures: __dirname + '/../fixtures/deployments'
+            },
+            function(err, models) {
+              if (err) {
+                return done(err);
+              }
+              self.models = models;
+              callback();
+            }
+          );
+        }, function(callback) {
+          self.helpers.api.applyDomainDeployment(
+            'orphans',
+            {
+              fixtures: __dirname + '/../fixtures/deployments'
+            },
+            function(err, models) {
+              if (err) {
+                return done(err);
+              }
+              self.orphans = models;
+              callback();
+            }
+          );
         }
-      );
+      ], done);
     });
   });
 
@@ -70,7 +92,7 @@ describe('linagora.esn.project module', function() {
           expect(err).to.not.exist;
           expect(res.body).to.exist;
           expect(res.body).to.be.an.array;
-          expect(res.body.length).to.equal(4);
+          expect(res.body.length).to.equal(5);
           done();
         });
       });
@@ -396,7 +418,9 @@ describe('linagora.esn.project module', function() {
 
     it('should include project resources', function(done) {
       this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
-        if (err) { return done(err); }
+        if (err) {
+          return done(err);
+        }
 
         var project = this.models.projects[0];
         var projectId = this.models.projects[0]._id.toString();
@@ -407,7 +431,7 @@ describe('linagora.esn.project module', function() {
           var foundProject, foundCommunity;
           res.body.forEach(function(entry) {
             if (entry.target.objectType === 'project' &&
-                entry.target._id === projectId) {
+              entry.target._id === projectId) {
               expect(entry.uuid).to.exist;
               expect(entry.target.displayName).to.equal(project.title);
               expect(entry.target.id).to.equal('urn:linagora.com:project:' + projectId);
@@ -422,6 +446,176 @@ describe('linagora.esn.project module', function() {
           done();
         });
       }.bind(this));
+    });
+  });
+
+  describe('GET /api/projects/:id/invitable', function() {
+    beforeEach(function() {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      this.app = this.helpers.modules.getWebServer(app);
+    });
+
+    it('should 401 when not connected', function(done) {
+      request(this.app).get('/api/projects/123/invitable').expect(401).end(done);
+    });
+
+    it('should 404 when project not found', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var ObjectId = require('bson').ObjectId;
+        var id = new ObjectId();
+        var req = loggedInAsUser(request(self.app).get('/api/projects/' + id + '/invitable'));
+        req.expect(404);
+        req.end(done);
+      });
+    });
+
+    it('should 403 when current user is not the project creator', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[0]._id + '/invitable'));
+        req.expect(403);
+        req.end(done);
+      });
+    });
+
+    it('should 400 when ?domain_id parameter is not defined', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[0]._id + '/invitable'));
+        req.expect(400);
+        req.end(done);
+      });
+    });
+
+    it('should 404 when ?domain_id domain does not exist', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var ObjectId = require('bson').ObjectId;
+        var id = new ObjectId();
+        var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[0]._id + '/invitable?domain_id=' + id));
+        req.expect(404);
+        req.end(done);
+      });
+    });
+
+    it('should 403 when current user is not member of the ?domain_id domain', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[0]._id + '/invitable?domain_id=' + self.orphans.domain._id));
+        req.expect(403);
+        req.end(done);
+      });
+    });
+
+    it('should 200 with the list of invitable communities matching the search terms', function(done) {
+
+      var self = this;
+      var ids = this.models.communities.map(function(community) {
+        return community._id;
+      });
+
+      this.helpers.elasticsearch.checkDocumentsIndexed('communities.idx', 'communities', ids, function(err) {
+        if (err) {
+          console.log(err);
+          return done(err);
+        }
+
+        self.helpers.api.loginAsUser(self.app, self.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var search = 'searchme';
+          var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[0]._id + '/invitable?domain_id=' + self.models.domain._id + '&search=' + search));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(2);
+            res.body.forEach(function(project) {
+              expect(project.target.title.toLowerCase().indexOf(search) >= 0).to.be.true;
+            });
+            done();
+          });
+        });
+      });
+    });
+
+    it('should 200 with the list of invitable communities matching the mulitple search terms', function(done) {
+
+      var self = this;
+      var ids = this.models.communities.map(function(community) {
+        return community._id;
+      });
+
+      this.helpers.elasticsearch.checkDocumentsIndexed('communities.idx', 'communities', ids, function(err) {
+        if (err) {
+          console.log(err);
+          return done(err);
+        }
+
+        self.helpers.api.loginAsUser(self.app, self.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[0]._id + '/invitable?domain_id=' + self.models.domain._id + '&search=community%20searchme'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should 200 with the list of matching communities which are not already member of the project', function(done) {
+
+      var self = this;
+      var ids = this.models.communities.map(function(community) {
+        return community._id;
+      });
+
+      this.helpers.elasticsearch.checkDocumentsIndexed('communities.idx', 'communities', ids, function(err) {
+        if (err) {
+          console.log(err);
+          return done(err);
+        }
+
+        self.helpers.api.loginAsUser(self.app, self.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(self.app).get('/api/projects/' + self.models.projects[4]._id + '/invitable?domain_id=' + self.models.domain._id + '&search=find community'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(1);
+            expect(res.body[0].target.title).to.equal(self.models.communities[3].title);
+            done();
+          });
+        });
+      });
     });
   });
 });

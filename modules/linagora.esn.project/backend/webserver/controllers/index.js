@@ -18,7 +18,7 @@ function transform(lib, project, user, callback) {
     project.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  lib.isMember(project, user._id, function(err, membership) {
+  lib.isMember(project, {objectType: 'user', id: user._id + ''}, function(err, membership) {
     if (membership) {
       project.member_status = 'member';
     } else {

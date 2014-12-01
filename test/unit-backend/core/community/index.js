@@ -406,6 +406,7 @@ describe('The community module', function() {
 
     it('should send back true when user is part of the community', function(done) {
       this.helpers.mock.models({});
+      var id = 456;
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
       var comMock = {
@@ -414,21 +415,13 @@ describe('The community module', function() {
         {
           member: {
             objectType: 'user',
-            id: {
-              equals: function() {
-                return false;
-              }
-            }
+            id: 123
           }
         },
         {
             member: {
               objectType: 'user',
-              id: {
-                equals: function() {
-                  return true;
-                }
-              }
+              id: id
             }
           }
         ]
@@ -449,21 +442,13 @@ describe('The community module', function() {
         {
           member: {
             objectType: 'user',
-            id: {
-              equals: function() {
-                return false;
-              }
-            }
+            id: 123
           }
         },
         {
           member: {
             objectType: 'user',
-            id: {
-              equals: function() {
-                return false;
-              }
-            }
+            id: 234
           }
         }
         ]
@@ -483,11 +468,7 @@ describe('The community module', function() {
         members: [
         {
           member: {
-            id: {
-              equals: function() {
-                return false;
-              }
-            }
+            id: 123
           }
         }
         ]
@@ -508,11 +489,7 @@ describe('The community module', function() {
         {
           member: {
             objectType: 'unicorn',
-            id: {
-              equals: function() {
-                return false;
-              }
-            }
+            id: 123
           }
         }
         ]

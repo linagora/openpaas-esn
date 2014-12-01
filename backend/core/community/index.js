@@ -164,7 +164,7 @@ module.exports.isManager = function(community, user, callback) {
 
 module.exports.isMember = function(community, user, callback) {
   var user_id = user._id || user;
-  return collaboration.isMember(community, user_id, callback);
+  return collaboration.isMember(community, {objectType: 'user', id: user_id}, callback);
 };
 
 module.exports.userToMember = function(document) {
@@ -436,3 +436,5 @@ module.exports.cleanMembershipRequest = function(community, user, callback) {
   community.membershipRequests = otherUserRequests;
   community.save(callback);
 };
+
+module.exports.search = require('./search');

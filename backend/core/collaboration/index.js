@@ -21,13 +21,13 @@ function getModel(objectType) {
   return Model;
 }
 
-function isMember(collaboration, userId, callback) {
+function isMember(collaboration, tuple, callback) {
   if (!collaboration || !collaboration._id) {
     return callback(new Error('Collaboration object is required'));
   }
 
   var isInMembersArray = collaboration.members.some(function(m) {
-    return m.member.objectType === 'user' && m.member.id.equals(userId);
+    return m.member.objectType === tuple.objectType && m.member.id + '' === tuple.id + '';
   });
   return callback(null, isInMembersArray);
 }

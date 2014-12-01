@@ -42,6 +42,9 @@ function projectLib(dependencies) {
     if (!projectData.title) {
       return callback(new Error('Project title is mandatory'));
     }
+    if (!projectData.creator) {
+      return callback(new Error('Project creator is mandatory'));
+    }
 
     var project = new lib.models.project(projectData);
     project.save(callback);
@@ -56,8 +59,8 @@ function projectLib(dependencies) {
     return collaboration.getMembershipRequest(project, user);
   }
 
-  function isMember(project, userId, callback) {
-    return collaboration.isMember(project, userId, callback);
+  function isMember(project, tuple, callback) {
+    return collaboration.isMember(project, tuple, callback);
   }
 
   function addMember(project, author, member, callback) {
