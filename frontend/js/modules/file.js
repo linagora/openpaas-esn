@@ -10,6 +10,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       var processed = 0;
       var tasks = [];
       var background = false;
+      var canceler = $q.defer();
 
       function progress() {
         return parseInt(100.0 * processed / tasks.length);
@@ -56,7 +57,10 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
           uploading: false,
           progress: 0,
           file: file,
-          defer: defer
+          defer: defer,
+          cancel: function() {
+            canceler.resolve();
+          }
         };
         tasks.push(task);
         if (start) {
@@ -73,7 +77,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
         task.uploading = true;
         task.progress = 0;
 
-        task.uploader = fileAPIService.uploadFile(task.file, task.file.type, task.file.size)
+        task.uploader = fileAPIService.uploadFile(task.file, task.file.type, task.file.size, canceler.promise)
           .success(function(response) {
             task.progress = 100;
             task.uploaded = true;
@@ -118,24 +122,26 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
     };
   }])
   .factory('fileAPIService', ['$upload', 'Restangular', function($upload, Restangular) {
-    function upload(blob, mime, size) {
+    function upload(blob, mime, size, canceler) {
       return $upload.http({
         method: 'POST',
         url: '/api/files',
         headers: {'Content-Type': mime},
         data: blob,
         params: {mimetype: mime, size: size},
-        withCredentials: true
+        withCredentials: true,
+        timeout: canceler
       });
     }
 
-    function uploadFile(file, mime, size) {
+    function uploadFile(file, mime, size, canceler) {
       return $upload.upload({
         method: 'POST',
         url: '/api/files',
         file: file,
         params: {mimetype: mime, size: size},
-        withCredentials: true
+        withCredentials: true,
+        timeout: canceler
       });
     }
 
