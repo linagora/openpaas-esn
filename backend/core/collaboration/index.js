@@ -82,7 +82,7 @@ function addMember(target, author, member, callback) {
     return callback(null, target);
   }
 
-  target.members.push({member: member});
+  target.members.push({member: member, status: 'joined'});
   return target.save(function(err, update) {
     if (err) {
       return callback(err);
