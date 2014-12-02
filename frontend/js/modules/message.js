@@ -511,6 +511,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
             }, function() {
               $scope.attachment.defer.resolve({status: 'can not delete file'});
             });
+          } else if ($scope.attachment.uploading) {
+            $scope.attachment.cancel();
+            $scope.$parent.removeFile($scope.attachment.file);
+            $scope.attachment.defer.resolve({status: 'canceled'});
           }
         };
       }
