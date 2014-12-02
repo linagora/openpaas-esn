@@ -47,6 +47,10 @@ function projectLib(dependencies) {
     return collaboration.isMember(project, userId, callback);
   }
 
+  function addMember(project, author, member, callback) {
+    return collaboration.addMember(project, author, member, callback);
+  }
+
 
   lib.query = query;
   lib.queryOne = queryOne;
@@ -54,6 +58,7 @@ function projectLib(dependencies) {
   lib.getMembershipRequests = getMembershipRequests;
   lib.getMembershipRequest = getMembershipRequest;
   lib.isMember = isMember;
+  lib.addMember = addMember;
   return lib;
 }
 

@@ -124,30 +124,17 @@ module.exports.leave = function(community, userAuthor, userTarget, callback) {
 };
 
 module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
-  if (!community.save) {
-    throw new Error('join(): first argument (community) must be a community mongoose model');
-  }
+
   var id = community._id;
   var userAuthor_id = userAuthor._id || userAuthor;
   var userTarget_id = userTarget._id || userTarget;
 
-  var member = community.members.filter(function(m) {
-    return m.member.id.equals(userTarget_id);
-  });
-
-  if (member.length) {
-    return callback(null, community);
-  }
-
-  community.members.push({
-    member: {
-      objectType: 'user',
+  var member = {
+    objectType: 'user',
       id: userTarget_id
-    },
-    status: 'joined'
-  });
+  };
 
-  community.save(function(err, updated) {
+  collaboration.addMember(community, userAuthor, member, function(err, updated) {
     if (err) {
       return callback(err);
     }

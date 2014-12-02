@@ -39,12 +39,26 @@ module.exports.linagora_PROJECTS = function() {
       emails: ['jhendrix@lng.net']
     }
     ],
+    communities: [
+      {
+        title: 'Open Community',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
+      }
+    ],
     projects: [
     {
       title: 'OpenPaaS open',
       type: 'open',
       creator: 'itadmin@lng.net',
       members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+    },
+    {
+      title: 'OpenPaaS Add members',
+      type: 'open',
+      creator: 'itadmin@lng.net',
+      members: []
     },
     {
       title: 'OpenPaaS private',
