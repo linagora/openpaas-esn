@@ -20,6 +20,7 @@ var projectModule = new AwesomeModule('linagora.esn.project', {
       var webserverWrapper = dependencies('webserver-wrapper');
       var app = require('./backend/webserver/application')(this, dependencies);
       webserverWrapper.injectAngularModules('projects', ['project.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.project', ['esn']);
+      webserverWrapper.injectCSS('projects', ['style.css'], ['esn']);
       webserverWrapper.addApp('', app);
       return callback();
     }
