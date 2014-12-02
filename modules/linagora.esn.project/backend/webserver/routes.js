@@ -2,6 +2,14 @@
 
 
 function projectWebserverRoutes(app, projectLib, dependencies) {
+
+  function views(req, res, next) {
+    var templateName = req.params[0].replace(/\.html$/, '');
+    res.render(templateName);
+  }
+
+  app.get('/views/*', views);
+
   var controllers = require('./controllers')(projectLib, dependencies);
   var authorizationMW = dependencies('authorizationMW');
   var domainMW = dependencies('domainMW');
