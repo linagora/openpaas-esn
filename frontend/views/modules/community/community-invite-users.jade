@@ -1,9 +1,7 @@
 .community-membership-invite-widget.hidden
     .title.ellipsis
-      | #{__('Invite people to join the community')}
+      | #{__('Invite people')}
     hr
-    .hidden.bg-danger(error-container)
-        p {{error.details || error}}
     div.form-container
         form(name='form')
             fieldset
@@ -12,12 +10,14 @@
                     placeholder='{{::placeholder}}', min-tags='1', add-from-autocomplete-only='true',
                     on-tag-added='resetView()', replace-spaces-with-dashes='false')
                         auto-complete(source='getInvitablePeople($query)', min-length='1', debounce-delay='200')
-                    .hidden(success-container)
+                    .hidden.bg-info(success-container)
                         p #{__('Invitations have been sent. You will be notified when new users join the community')}.
+                    .hidden.bg-danger(error-container)
+                        p {{error.details || error}}
                 .form-group
                     button.btn.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
                         i.fa.fa-sign-in(button-content) &nbsp;
-                            | #{__('Send invitations')}
+                            | #{__('Send')}
                         span.hidden(running-container)
                             i.fa.fa-spinner.fa-spin &nbsp;
                             | #{__('Please wait...')}
