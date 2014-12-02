@@ -117,7 +117,7 @@ describe('linagora.esn.project module', function() {
           expect(err).to.not.exist;
           expect(res.body).to.be.an('object');
           expect(res.body.error).to.be.an('object');
-          expect(res.body.error.status).to.equal(404);
+          expect(res.body.error.code).to.equal(404);
           done();
         });
       }.bind(this));
@@ -164,7 +164,7 @@ describe('linagora.esn.project module', function() {
           expect(err).to.not.exist;
           expect(res.body).to.be.an('object');
           expect(res.body.error).to.be.an('object');
-          expect(res.body.error.status).to.equal(400);
+          expect(res.body.error.code).to.equal(400);
           expect(res.body.error.details).to.equal('Project title is mandatory');
           done();
         });
