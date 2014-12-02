@@ -68,10 +68,10 @@ function projectControllers(lib, dependencies) {
 
     lib.queryOne(query, function(err, project) {
       if (err) {
-        return res.json(500, { error: { status: 500, message: 'Project retrieval failed', details: err }});
+        return res.json(500, { error: { code: 500, message: 'Project retrieval failed', details: err }});
       }
       if (!project) {
-        return res.json(404, { error: { status: 404, message: 'Not found', details: 'Project not found' }});
+        return res.json(404, { error: { code: 404, message: 'Not found', details: 'Project not found' }});
       }
 
       transform(lib, project, req.user, function(transformed) {
@@ -83,7 +83,7 @@ function projectControllers(lib, dependencies) {
   controllers.create = function(req, res, next) {
     lib.create(req.body, function(err, project) {
       if (err) {
-        res.json(400, { error: { status: 400, message: 'Project creation failed', details: err.message }});
+        res.json(400, { error: { code: 400, message: 'Project creation failed', details: err.message }});
       } else {
         res.json(201, project);
       }
