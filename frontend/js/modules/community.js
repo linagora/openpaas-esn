@@ -1138,12 +1138,12 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       },
       templateUrl: '/views/modules/community/community-invite-users.html',
       link: function($scope, $element) {
-        $scope.placeholder = 'Enter a user name or email';
+        $scope.placeholder = 'User name';
         $scope.displayProperty = 'displayName';
         $scope.running = false;
 
         $scope.getErrorDiv = function() {
-          return $element.children('[error-container]');
+          return $element.find('[error-container]');
         };
         $scope.getRunningDiv = function() {
           return $element.children('.form-container').children('form').children('fieldset').find('[running-container]');
@@ -1184,6 +1184,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
         };
 
         $scope.getInvitablePeople = function(query) {
+          $scope.query = query;
           var deferred = $q.defer();
           communityAPI.getInvitablePeople($scope.community._id, {search: query, limit: 5}).then(
             function(response) {
@@ -1226,6 +1227,10 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
               $scope.running = false;
               $scope.hideRunning();
               $scope.showSuccessMessage();
+              if ($scope.query && $scope.query !== '') {
+                $scope.error = 'Cannot invite ' + $scope.query + '.';
+                $scope.showErrorMessage();
+              }
             },
             function(error) {
               $scope.users = [];
