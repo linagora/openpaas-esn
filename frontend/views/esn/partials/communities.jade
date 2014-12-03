@@ -1,4 +1,4 @@
-.col-xs-12.esn-panel(ng-controller='communitiesController')
+.col-xs-12.esn-panel
   .row
     h2.esn-communities-header
       ul.list-inline
@@ -7,7 +7,7 @@
           | #{__('Communities')}
         li.pull-right
           div.btn-group
-            button.btn.btn-primary.btn-lg(type="button", community-creation-modal-launcher, ng-click="showCreateModal()")
+            button.btn.btn-primary.btn-lg(type="button", modal-launcher, template="/views/modules/community/community-create-modal", ng-click="showModal()")
               i.fa.fa-plus.hidden-sm.hidden-md.hidden-lg &nbsp;new community 
               span.hidden-xs #{__('Create a community')}
             button.btn.btn-primary.dropdown-toggle.btn-lg(type="button",data-toggle="dropdown", aria-expanded="false")
@@ -15,7 +15,7 @@
               span.sr-only Toggle Dropdown
             ul.dropdown-menu(role="menu")
               li
-                a(href="#")  #{__('Create a project')}
+                a(href="#")  #{__('Create a project')}  
   .vertiz-space
 
   .row
