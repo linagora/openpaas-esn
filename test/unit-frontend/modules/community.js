@@ -1291,14 +1291,14 @@ describe('The Community Angular module', function() {
       this.$httpBackend.verifyNoOutstandingExpectation();
     });
 
-    it('should set an ajax error when REST request is going on', function() {
+    it('should have $pending.unique set when REST request is going on', function() {
       this.$httpBackend.expectGET('/communities?title=' + this.title).respond(this.emptyResponse);
       var element = this.$compile(html)(this.$rootScope);
       var input = element.find('input');
       var scope = element.scope();
       input.val(this.title);
       input.trigger('change');
-      expect(scope.form.communityTitle.$error.ajax).to.be.true;
+      expect(scope.form.$pending).to.have.property('unique');
     });
 
     it('should call the companyAPI get() method after a one second delay', function() {
