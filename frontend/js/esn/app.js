@@ -37,13 +37,8 @@ angular.module('esnApp', [
   'esn.background',
   'esn.parser',
   'esn.markdown-parser',
-  'esn.widget.helper',
+  'esn.widget.helper'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
-
-    $routeProvider.when('/', {
-      templateUrl: '/views/esn/partials/home'
-    });
-
     $routeProvider.when('/domains/:id/members/invite', {
       templateUrl: '/views/esn/partials/domains/invite',
       controller: 'inviteMembers',
@@ -155,7 +150,16 @@ angular.module('esnApp', [
 
 
     $routeProvider.when('/communities', {
-      templateUrl: '/views/esn/partials/communities'
+      templateUrl: '/views/esn/partials/communities',
+      controller: 'communitiesController',
+      resolve: {
+        domain: ['session', '$q', function(session, $q) {
+          return $q.when(session.domain);
+        }],
+        user: ['session', '$q', function(session, $q) {
+          return $q.when(session.user);
+        }]
+      }
     });
 
     $routeProvider.when('/communities/:community_id', {
@@ -196,7 +200,7 @@ angular.module('esnApp', [
       templateUrl: '/views/modules/community/community-calendar'
     });
 
-    $routeProvider.otherwise({redirectTo: '/'});
+    $routeProvider.otherwise({redirectTo: '/communities'});
 
     RestangularProvider.setBaseUrl('/api');
     RestangularProvider.setFullResponse(true);
