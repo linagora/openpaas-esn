@@ -1,0 +1,15 @@
+.modal-header
+  h4.modal-title #{__('Creating the')} '{{project.title}}' #{__('project')}...
+.modal-body
+  .row.alert.alert-info(role="alert")
+    p(class='error')
+    p
+      i.fa.fa-cog.fa-spin
+      span(ng-show="create.step === 'post'") #{__('Creating the project')}...
+      span(ng-show="create.step === 'upload'") #{__('Uploading avatar')}...
+      span(ng-show="create.step === 'redirect'") #{__('Redirecting to project page')}...
+      span(ng-show="create.step === 'uploadfailed'") #{__('Upload failed')}!
+
+    .progress
+      .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{create.percent}}", aria-valuemin="0", aria-valuemax="100", style="width: {{create.percent}}%")
+        span.sr-only {{create.percent}} % #{__('Complete')}
