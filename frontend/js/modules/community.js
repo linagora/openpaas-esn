@@ -184,45 +184,10 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
         '/views/modules/community/community-creation-wizard-3'
       ]);
       selectionService.clear();
-      var alertInstance = null;
-      function destroyAlertInstance() {
-        if (alertInstance) {
-          alertInstance.destroy();
-          alertInstance = null;
-        }
-      }
 
       $scope.community = {
         domain_ids: [$scope.domain._id],
         type: 'open'
-      };
-
-      $scope.image = { selected: false, validated: false };
-
-      $scope.$on('crop:loaded', function() {
-        destroyAlertInstance();
-        $scope.image.selected = true;
-        $scope.image.validated = false;
-        $scope.$apply();
-      });
-
-      $scope.$on('crop:error', function(context, error) {
-        if (error) {
-          alertInstance = $alert({
-            title: '',
-            content: error,
-            type: 'danger',
-            show: true,
-            position: 'bottom',
-            container: element.find('.row.error'),
-            animation: 'am-fade'
-          });
-        }
-      });
-
-      $scope.removeSelectedImage = function() {
-        selectionService.clear();
-        $scope.image.selected = false;
       };
 
       $scope.createCommunity = function() {

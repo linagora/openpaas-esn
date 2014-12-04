@@ -1,0 +1,28 @@
+.row
+  label #{__('Avatar')}
+  .btn-group.btn-group-justified
+    .btn-group
+      span.btn.btn-info.btn-file
+        i.fa.fa-upload
+        | #{__('Select an image')}
+        input(type="file", load-button)
+    .btn-group
+      button.btn.btn-info.btn-file(data-ng-disabled='!image.selected || image.validated', data-ng-click='image.validated = true')
+        i.fa.fa-check
+        | #{__('Accept picture')}
+.vertiz-space
+.row.error
+.row
+  .col-xs-6.col-xs-offset-3.col-sm-3.col-sm-offset-0.community-img-preview-container
+    div(ng-show='!image.selected')
+      img(width="128", height="128", src='{{avatarPlaceholder}}')
+    div(ng-show='image.selected')
+      .img-preview
+        a(data-ng-click='removeSelectedImage()', href='')
+          i.fa.fa-times.fa-5.fa-border
+        canvas(width="128", height="128", id="preview", img-preview)
+  .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='image.selected && !image.validated')
+    .hidden-md.hidden-sm.hidden-lg
+      img-loaded(width="190")
+    .hidden-xs
+      img-loaded(width="380")
