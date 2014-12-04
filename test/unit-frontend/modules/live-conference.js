@@ -9,7 +9,7 @@ describe('The live-conference Angular module', function() {
   beforeEach(angular.mock.module('esn.live-conference'));
 
   describe('easyRTCService service', function() {
-    var service, $q, tokendefer, $rootScope, $log, tokenAPI, session, webrtcFactory;
+    var service, $q, $rootScope, $log, tokenAPI, session, webrtcFactory;
 
     beforeEach(function() {
       tokenAPI = {};
@@ -37,16 +37,31 @@ describe('The live-conference Angular module', function() {
             hangupAll: function() {},
             setOnCall: function() {},
             setOnHangup: function() {},
-            setSocketOptions: function() {}
+            useThisSocketConnection: function() {}
           };
         }
       };
+
+      var ioSocketConnection = {
+        isConnected: function() {
+          return true;
+        },
+        getSio: function() {
+          return this.sio;
+        },
+        addConnectCallback: function(callback) {
+          this.connectCallback = callback;
+        },
+        addDisconnectCallback: function() {}
+      };
+      this.ioSocketConnection = ioSocketConnection;
 
       module(function($provide) {
         $provide.value('$log', $log);
         $provide.value('tokenAPI', tokenAPI);
         $provide.value('session', session);
         $provide.value('webrtcFactory', webrtcFactory);
+        $provide.value('ioSocketConnection', ioSocketConnection);
       });
     });
 
@@ -99,11 +114,10 @@ describe('The live-conference Angular module', function() {
       service.performCall(user_id);
     });
 
-    it('$scope.connect should create the easyRTC app if token is retrieved', function(done) {
+    it('$scope.connect should create the easyRTC app when the socketIO connection becomes available', function(done) {
 
-      tokenAPI.getNewToken = function() {
-        tokendefer = $q.defer();
-        return tokendefer.promise;
+      this.ioSocketConnection.isConnected = function() {
+        return false;
       };
 
       webrtcFactory = {
@@ -113,7 +127,7 @@ describe('The live-conference Angular module', function() {
             setRoomEntryListener: function() {},
             setDisconnectListener: function() {},
             joinRoom: function() {},
-            setSocketOptions: function() {},
+            useThisSocketConnection: function() {},
             easyApp: function() {
               done();
             }
@@ -122,7 +136,6 @@ describe('The live-conference Angular module', function() {
       };
 
       module(function($provide) {
-        $provide.value('tokenAPI', tokenAPI);
         $provide.value('webrtcFactory', webrtcFactory);
       });
 
@@ -133,16 +146,54 @@ describe('The live-conference Angular module', function() {
       });
 
       service.connect({ _id: 123 }, {}, []);
-
-      tokendefer.resolve({token: '123'});
-      $rootScope.$digest();
+      expect(this.ioSocketConnection.connectCallback).to.be.a('function');
+      this.ioSocketConnection.connectCallback();
     });
 
+    it('$scope.connect should give the socketIO instance to easyrtc', function(done) {
+      var self = this;
+      this.ioSocketConnection.isConnected = function() {
+        return true;
+      };
+      this.ioSocketConnection.sio = {websocket: true};
 
+      webrtcFactory = {
+        get: function() {
+          return {
+            setRoomOccupantListener: function() {},
+            setRoomEntryListener: function() {},
+            setDisconnectListener: function() {},
+            joinRoom: function() {},
+            useThisSocketConnection: function(sio) {
+              expect(sio).to.deep.equal(self.ioSocketConnection.sio);
+              done();
+            },
+            easyApp: function() {
+            }
+          };
+        }
+      };
 
-    it('$scope.connect should not create the easyRTC app if token is not retrieved', function(done) {
-      $log.error = function() {
-        done();
+      module(function($provide) {
+        $provide.value('webrtcFactory', webrtcFactory);
+      });
+
+      inject(function($injector, _$q_, _$rootScope_) {
+        service = $injector.get('easyRTCService');
+        $q = _$q_;
+        $rootScope = _$rootScope_;
+      });
+
+      service.connect({ _id: 123 }, {}, []);
+    });
+
+    it('$scope.connect should create the easyRTC app if the socketIO connection is available', function(done) {
+      var self = this;
+      this.ioSocketConnection.isConnected = function() {
+        self.ioSocketConnection.addConnectCallback = function(cb) {
+          return done(new Error('I should not be called ' + cb));
+        };
+        return true;
       };
 
       webrtcFactory = {
@@ -152,22 +203,15 @@ describe('The live-conference Angular module', function() {
             setRoomEntryListener: function() {},
             setDisconnectListener: function() {},
             joinRoom: function() {},
-            setSocketOptions: function() {},
+            useThisSocketConnection: function() {},
             easyApp: function() {
-              done(new Error());
+              done();
             }
           };
         }
       };
 
-      tokenAPI.getNewToken = function() {
-        tokendefer = $q.defer();
-        return tokendefer.promise;
-      };
-
       module(function($provide) {
-        $provide.value('$log', $log);
-        $provide.value('tokenAPI', tokenAPI);
         $provide.value('webrtcFactory', webrtcFactory);
       });
 
@@ -178,8 +222,8 @@ describe('The live-conference Angular module', function() {
       });
 
       service.connect({ _id: 123 }, {}, []);
-      tokendefer.reject({data: 'ERROR'});
-      $rootScope.$digest();
+      expect(this.ioSocketConnection.connectCallback).to.be.a('function');
+      this.ioSocketConnection.connectCallback();
     });
   });
 

@@ -83,7 +83,9 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
     }
   ])
 
-  .factory('easyRTCService', ['$rootScope', '$log', 'webrtcFactory', 'tokenAPI', 'session', function($rootScope, $log, webrtcFactory, tokenAPI, session) {
+  .factory('easyRTCService', ['$rootScope', '$log', 'webrtcFactory', 'tokenAPI', 'session',
+  'ioSocketConnection', 'ioConnectionManager', '$timeout',
+  function($rootScope, $log, webrtcFactory, tokenAPI, session, ioSocketConnection, ioConnectionManager, $timeout) {
     var easyrtc = webrtcFactory.get();
 
     function leaveRoom(conference) {
@@ -163,12 +165,8 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         $log.debug(message);
       };
 
-      tokenAPI.getNewToken().then(function(response) {
-        var data = response.data || {token: ''};
-        var options = {query: 'token=' + data.token + '&user=' + session.user._id};
-
-        easyrtc.setSocketOptions(options);
-
+      function onWebsocket() {
+        easyrtc.useThisSocketConnection(ioSocketConnection.getSio());
         function onLoginSuccess(easyrtcid) {
           $log.debug('Successfully logged: ' + easyrtcid);
           $rootScope.$apply();
@@ -205,12 +203,14 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
           attendees[slot + 1] = null;
           $rootScope.$apply();
         });
+      }
 
-      }, function(error) {
-        if (error && error.data) {
-          $log.error('Error while getting creating websocket connection', error.data);
-        }
-      });
+      if (ioSocketConnection.isConnected()) {
+        onWebsocket();
+      } else {
+        ioSocketConnection.addConnectCallback(onWebsocket);
+      }
+
     }
 
     function enableMicrophone(muted) {
