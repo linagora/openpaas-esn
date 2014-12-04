@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "async": "~0.8.0",
+    "async-eventemitter": "~0.2.2",
     "awesome-module": "1.0.0",
     "awesome-module-manager": "1.0.0",
     "awesome-node-redis-pubsub": "git+https://ci.open-paas.org/stash/scm/or/awesome-node-redis-pubsub.git",

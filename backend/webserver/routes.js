@@ -11,6 +11,8 @@ var startupBuffer = require('./middleware/startup-buffer')(config.webserver.star
 exports = module.exports = function(application) {
   application.all('/api/*', cors());
   application.use(startupBuffer);
+  application.use(require('./middleware/modules'));
+
   var oauth2 = require('../oauth2');
   application.get('/oauth/authorize', authorize.loginAndContinue, oauth2.authorization, oauth2.dialog);
   application.post('/oauth/authorize/decision', authorize.requiresAPILogin, oauth2.decision);
