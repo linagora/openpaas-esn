@@ -4,7 +4,7 @@ var logger = require('../../core').logger;
 
 function moduleHooks(req, res, next) {
   function jsonHook(code, json) {
-    var specificRoute = 'route:' + req.route.path;
+    var specificRoute = 'route:' + req.method.toLowerCase() + ':' + req.route.path;
     var webserver = require('../index').webserver;
     var hookargs = arguments;
 

@@ -90,6 +90,26 @@ function projectControllers(lib, dependencies) {
     });
   };
 
+  controllers.getUserProjectStreams = function(req, res, next, json) {
+    var options = {};
+
+    if (req.query && req.query.domainid) {
+      options.domainid = req.query.domainid;
+    }
+
+    if (req.query && req.query.name) {
+      var escapedString = escapeStringRegexp(req.query.name);
+      options.name = new RegExp(escapedString, 'i');
+    }
+
+    lib.getUserProjectStreams(req.user._id, options, function(err, streams) {
+      if (err) { return next(err); }
+
+      Array.prototype.push.apply(json, streams);
+      next();
+    });
+  };
+
   return controllers;
 }
 
