@@ -142,13 +142,33 @@ describe('linagora.esn.project module', function() {
     });
   });
 
-  describe('POST /api/projects/:id', function() {
+  describe('POST /api/projects', function() {
     it('should send back 401 when not logged in', function(done) {
       var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
       request(app).get('/api/projects').expect(401).end(function(err, res) {
         expect(err).to.be.null;
         done();
       });
+    });
+
+    it('should send back 400 when domain id is missing', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({ title: 'hello' });
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.error).to.be.an('object');
+          expect(res.body.error.code).to.equal(400);
+          expect(res.body.error.details).to.equal('At least a domain is required');
+          done();
+        });
+      }.bind(this));
     });
 
     it('should send back 400 when project title is missing', function(done) {
@@ -159,13 +179,78 @@ describe('linagora.esn.project module', function() {
           return done(err);
         }
         var req = loggedInAsUser(request(this.app).post('/api/projects'));
-        req.send({title: ''});
+        req.send({ title: '', domain_ids: [this.models.domain._id.toString()] });
         req.expect(400).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.be.an('object');
           expect(res.body.error).to.be.an('object');
           expect(res.body.error.code).to.equal(400);
           expect(res.body.error.details).to.equal('Project title is mandatory');
+          done();
+        });
+      }.bind(this));
+    });
+
+    it('should send back 400 when start date is invalid', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({ title: 'title', domain_ids: [this.models.domain._id.toString()], startDate: 'soon' });
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.error).to.be.an('object');
+          expect(res.body.error.code).to.equal(400);
+          expect(res.body.error.details).to.equal('Start date is invalid');
+          done();
+        });
+      }.bind(this));
+    });
+
+    it('should send back 400 when end date is invalid', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({ title: 'title', domain_ids: [this.models.domain._id.toString()], endDate: 'soon' });
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.error).to.be.an('object');
+          expect(res.body.error.code).to.equal(400);
+          expect(res.body.error.details).to.equal('End date is invalid');
+          done();
+        });
+      }.bind(this));
+    });
+
+    it('should send back 400 when end date is before start date', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({
+          title: 'title',
+          domain_ids: [this.models.domain._id.toString()],
+          startDate: '2002-02-02T02:02:02Z',
+          endDate: '2001-01-01T01:01:01Z'
+        });
+        req.expect(400).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.error).to.be.an('object');
+          expect(res.body.error.code).to.equal(400);
+          expect(res.body.error.details).to.equal('Start date is after end date');
           done();
         });
       }.bind(this));
@@ -179,15 +264,22 @@ describe('linagora.esn.project module', function() {
           return done(err);
         }
         var req = loggedInAsUser(request(this.app).post('/api/projects'));
-        req.send({title: 'a new project'});
+        req.send({title: 'a new project', domain_ids: [this.models.domain._id.toString()]});
         req.expect(201).end(function(err, res) {
+          var p = res.body;
           expect(err).to.not.exist;
-          expect(res.body).to.be.an('object');
-          expect(res.body.title).to.equal('a new project');
-          expect(res.body.type).to.equal('open');
-          expect(res.body._id).to.exist;
+          expect(p).to.be.an('object');
+          expect(p.title).to.equal('a new project');
+          expect(p.type).to.equal('open');
+          expect(p._id).to.exist;
+          expect(p.creator).to.equal(this.models.users[1]._id.toString());
+          expect(p.activity_stream.uuid).to.exist;
+          expect(p.members.length).to.equal(1);
+          expect(p.members[0].member.id).to.equal(this.models.users[1]._id.toString());
+          expect(p.domain_ids.length).to.equal(1);
+          expect(p.domain_ids[0]).to.equal(this.models.domain._id.toString());
           done();
-        });
+        }.bind(this));
       }.bind(this));
     });
   });
