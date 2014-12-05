@@ -8,7 +8,7 @@ function projectWebserverRoutes(app, projectLib, dependencies) {
     res.render(templateName);
   }
 
-  app.get('/views/*', views);
+  app.get('/projects/views/*', views);
 
   var controllers = require('./controllers')(projectLib, dependencies);
   var authorizationMW = dependencies('authorizationMW');

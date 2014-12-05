@@ -1,0 +1,20 @@
+div.col-xs-12.nopadding.esn-community
+  .col-lg-2.col-sm-3.col-xs-4
+    a(href='#/projects/{{project._id}}')
+      img.thumbnail(src='/images/community.png', ng-src='/api/projects/{{project._id}}/avatar')
+    .text-center
+      span.label.label-default {{project.type}}
+  .col-lg-10.col-sm-9.col-xs-8
+    h4.media-heading
+      a(href='#/projects/{{project._id}}') {{project.title}}
+      small &nbsp; {{project.type}}
+    ul.list-inline
+      li.pull-left
+        i.fa.fa-users
+        span(ng-if='project.members_count !== 1') {{project.members_count || 0}} #{__('members')}
+        span(ng-if='project.members_count === 1') 1 #{__('member')}
+      li.pull-left(ng-show="isCreator()")
+        span.label.label-warning #{__('Creator')}
+      .clearfix
+    blockquote.hidden-xs.community-description(ng-show='project.description')
+      p(ng-hide='truncate === true') {{project.description}}

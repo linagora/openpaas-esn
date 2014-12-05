@@ -5,6 +5,7 @@ var path = require('path');
 var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
 var CSS_PATH = FRONTEND_PATH + '/css';
 var lessMiddleware = require('less-middleware');
+var i18n = require('../i18n');
 
 var lessMiddlewareConfig = {
   production: {
@@ -26,6 +27,8 @@ var lessMiddlewareConfig = {
 
 function projectApplication(projectLib, dependencies) {
   var app = express();
+
+  app.use(i18n.init);
 
   app.use('/projects/css', lessMiddleware(
     CSS_PATH,

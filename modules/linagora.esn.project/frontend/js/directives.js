@@ -53,4 +53,11 @@ angular.module('esn.project')
           };
         }
       };
-    }]);
+    }])
+  .directive('projectDescription', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/projects/views/project-description.html'
+    };
+  });
