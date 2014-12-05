@@ -14,7 +14,6 @@ var webrtcserver = {
 };
 
 var start = function(webserver, wsserver, callback) {
-
   if (webrtcserver.started) {
     return callback();
   }
@@ -75,6 +74,7 @@ var start = function(webserver, wsserver, callback) {
     });
 
     easyrtc.events.on('roomLeave', function(connectionObj, roomName, next) {
+      logger.debug('EasyRTC User ' + connectionObj.getUsername() + ' is leaving room ' + roomName);
       conference.leave(roomName, connectionObj.getUsername(), function(err) {
         if (err) {
           logger.error('EasyRTC ERROR While leaving the room ' + roomName, err);

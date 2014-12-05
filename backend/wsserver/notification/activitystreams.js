@@ -1,7 +1,8 @@
 'use strict';
 
 var pubsub = require('../../core/pubsub').global,
-    logger = require('../../core/logger');
+    logger = require('../../core/logger'),
+    iohelper = require('../helper/socketio');
 
 var initialized = false;
 
@@ -39,25 +40,25 @@ function init(io) {
   });
 
   io.of(NAMESPACE)
-    .on('connection', function(socket) {
-      var client = {
-        user: socket.handshake.query.user,
-        token: socket.handshake.query.token,
-        address: socket.handshake.address.address,
-        port: socket.handshake.address.port
-      };
+  .on('connection', function(socket) {
+    var infos = iohelper.getInfos(socket);
+    var client = {
+      user: infos.userId,
+      address: infos.remoteAddress,
+      port: infos.remotePort
+    };
 
-      logger.info('New connection on ' + NAMESPACE, client);
-      socket.on('subscribe', function(uuid) {
-        logger.info('Joining room', uuid, client);
-        socket.join(uuid);
-      });
-
-      socket.on('unsubscribe', function(uuid) {
-        logger.info('Leaving room', uuid, client);
-        socket.leave(uuid);
-      });
+    logger.info('New connection on ' + NAMESPACE, client);
+    socket.on('subscribe', function(uuid) {
+      logger.info('Joining room', uuid, client);
+      socket.join(uuid);
     });
+
+    socket.on('unsubscribe', function(uuid) {
+      logger.info('Leaving room', uuid, client);
+      socket.leave(uuid);
+    });
+  });
 
   initialized = true;
 }

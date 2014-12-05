@@ -7,6 +7,7 @@ var store = require('./socketstore');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var ESN_MODULE_PREFIX = require('../module-manager').ESN_MODULE_PREFIX;
+var socketioHelper = require('./helper/socketio');
 
 var WEBSOCKETS_NAMESPACES = ['/ws'];
 
@@ -63,22 +64,19 @@ function start(port, options, callback) {
     realCallback = function() {};
   }
 
-  var sio = io.listen(wsserver.server, options);
+  var sio = io(wsserver.server, options);
   if (sio) {
-    sio.configure(function() {
-      sio.set('authorization', require('./auth/token'));
-    });
+    sio.use(require('./auth/token'));
 
-    sio.sockets.on('connection', function(socket) {
-      var user = socket.handshake.user;
-      store.registerSocket(socket, user);
+    sio.on('connection', function(socket) {
+      var user = socketioHelper.getUserId(socket);
+      store.registerSocket(socket);
       logger.info('Socket is connected for user = ' + user);
       socket.on('disconnect', function() {
         logger.info('Socket is disconnected for user = ' + user);
         store.unregisterSocket(socket);
       });
     });
-
     wsserver.io = sio;
     require('./events')(sio);
   }

@@ -63,7 +63,7 @@ module.exports = function(config) {
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
-      '**/*.jade': 'ng-jade2js',
+      '**/*.jade': ['ng-jade2module'],
       'test/unit-frontend/fixtures/**': ['raw2js']
     },
 
@@ -74,7 +74,7 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-coverage',
       'karma-spec-reporter',
-      'karma-ng-jade2js-preprocessor',
+      'karma-ng-jade2module-preprocessor',
       'karma-rawfixtures-preprocessor'
     ],
 
@@ -85,7 +85,7 @@ module.exports = function(config) {
 
     coverageReporter: {type: 'text', dir: '/tmp'},
 
-    ngJade2JsPreprocessor: {
+    ngJade2ModulePreprocessor: {
       stripPrefix: 'frontend',
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')

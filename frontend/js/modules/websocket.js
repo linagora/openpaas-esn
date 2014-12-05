@@ -75,9 +75,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       this.removeListenerRequest = true;
     };
 
-    IoAction.prototype.applyToSocketIO = function(sio, ioOfflineBuffer) {
-      var s = sio;
-
+    IoAction.prototype.applyToSocketIO = function(ioSocketConnection, ioOfflineBuffer) {
       function _handleConnectedSubscription(s, action) {
         if (action.isUnsubscribe()) {
           action = ioOfflineBuffer.findSubscription(action);
@@ -93,9 +91,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         s.emit.apply(s, action.ngMessage);
       }
 
-      if (this.namespace) {
-        s = s.of(this.namespace);
-      }
+      var s = ioSocketConnection.getSio(this.namespace);
 
       if (this.broadcast) {
         s = s.broadcast;
@@ -222,7 +218,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       flushBuffer: flushBuffer
     };
   })
-  .factory('ioSocketConnection', ['$log', function($log) {
+  .factory('ioSocketConnection', ['$log', 'io', function($log, io) {
     var firstConnection = true;
     var connected = false;
     var sio = null;
@@ -241,7 +237,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     function bindListeners() {
-      sio.socket.on('error', function(reason) {
+      sio.on('error', function(reason) {
         $log.error('Unable to connect to websocket', reason);
       });
       sio.on('connect', function() {
@@ -284,8 +280,14 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       addReconnectCallback: function(callback) {
         reconnectCallbacks.push(callback);
       },
-      getSio: function() {
-        return sio;
+      getSio: function(namespace) {
+        if (!namespace) {
+          return sio;
+        }
+        if (!sio) {
+          return null;
+        }
+        return io()(namespace);
       }
     };
   }])
@@ -293,8 +295,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
   function($log, ioSocketConnection, ioInterface, ioOfflineBuffer) {
 
     function _handleConnectedAction(action) {
-      var sio = ioSocketConnection.getSio();
-      action.applyToSocketIO(sio, ioOfflineBuffer);
+      action.applyToSocketIO(ioSocketConnection, ioOfflineBuffer);
     }
 
     function _handleDisconnectedAction(action) {
@@ -330,10 +331,9 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     function _connect() {
       tokenAPI.getNewToken().then(function(response) {
         _disconnectOld();
-        var sio = io().connect('', {
+        var sio = io()('/', {
           query: 'token=' + response.data.token + '&user=' + session.user._id,
-          reconnect: false,
-          'force new connection': true
+          reconnection: false
         });
         ioSocketConnection.setSio(sio);
       }), function(error) {
@@ -344,10 +344,18 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       };
     }
 
+    function _clearManagersCache() {
+      var socketIO = io();
+      Object.keys(socketIO.managers).forEach(function(k) {
+        delete socketIO.managers[k];
+      });
+    }
+
     ioSocketConnection.addDisconnectCallback(function() {
       var reconnect = function() {
         $log.debug('ioConnectionManager reconnect algorithm starting');
         if (ioSocketConnection.isConnected()) { return; }
+        _clearManagersCache();
         _connect();
         $timeout(reconnect, 1000);
       };
@@ -355,14 +363,13 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     });
 
     ioSocketConnection.addConnectCallback(function() {
-      var sio = ioSocketConnection.getSio();
       var subscriptions = ioOfflineBuffer.getSubscriptions();
       var buffer = ioOfflineBuffer.getBuffer();
       ioOfflineBuffer.flushBuffer();
       $log.info('connect callback, ' + subscriptions.length + ' subscriptions, ' + buffer.length + ' buffered messages to apply');
       $log.debug(subscriptions);
       $log.debug(buffer);
-      subscriptions.concat(buffer).forEach(function(action) { action.applyToSocketIO(sio, ioOfflineBuffer); });
+      subscriptions.concat(buffer).forEach(function(action) { action.applyToSocketIO(ioSocketConnection, ioOfflineBuffer); });
     });
 
     return {

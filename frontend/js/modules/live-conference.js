@@ -166,7 +166,9 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       };
 
       function onWebsocket() {
-        easyrtc.useThisSocketConnection(ioSocketConnection.getSio());
+        var sio = ioSocketConnection.getSio();
+        sio.socket = {connected: true};
+        easyrtc.useThisSocketConnection(sio);
         function onLoginSuccess(easyrtcid) {
           $log.debug('Successfully logged: ' + easyrtcid);
           $rootScope.$apply();

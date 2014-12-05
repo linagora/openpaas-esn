@@ -8,7 +8,7 @@ var logger = require('../core/logger'),
     community = require('./notification/community');
 
 module.exports = function(io) {
-  io.sockets.on('connection', function(socket) {
+  io.on('connection', function(socket) {
     logger.info('Got a connection in the events module on socket');
   });
   activitystreams.init(io);

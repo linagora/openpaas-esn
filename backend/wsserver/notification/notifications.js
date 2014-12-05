@@ -63,15 +63,16 @@ function init(io) {
   });
 
   io.of(NAMESPACE).on('connection', function(socket) {
-    logger.info('User', socket.handshake.query.user, ': new connection on ' + NAMESPACE);
+    var userId = helper.getUserId(socket);
+    logger.info('User', userId, ': new connection on ' + NAMESPACE);
 
     socket.on('subscribe', function(uuid) {
-      logger.info('User', socket.handshake.query.user, ': joining room /', NAMESPACE, '/', uuid);
+      logger.info('User', userId, ': joining room /', NAMESPACE, '/', uuid);
       socket.join(uuid);
     });
 
     socket.on('unsubscribe', function(uuid) {
-      logger.info('User', socket.handshake.query.user, ': leaving room /', NAMESPACE, '/', uuid);
+      logger.info('User', userId, ': leaving room /', NAMESPACE, '/', uuid);
       socket.leave(uuid);
     });
   });
