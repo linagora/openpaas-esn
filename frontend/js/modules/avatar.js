@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload'])
+angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert'])
   .constant('AVATAR_MIN_SIZE_PX', 128)
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
@@ -327,4 +327,57 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         });
       }
     };
-  }]);
+}])
+.directive('avatarPicker', ['selectionService', '$alert', function(selectionService, $alert) {
+  function link($scope, element, attrs) {
+    $scope.image = {
+      selected: false,
+      validated: false
+    };
+    $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : '/images/community.png';
+
+    var alertInstance = null;
+    function destroyAlertInstance() {
+      if (alertInstance) {
+        alertInstance.destroy();
+        alertInstance = null;
+      }
+    }
+
+
+    $scope.removeSelectedImage = function() {
+      selectionService.clear();
+      $scope.image.selected = false;
+      $scope.image.validated = false;
+    };
+
+    $scope.$on('crop:loaded', function() {
+      destroyAlertInstance();
+      $scope.image.selected = true;
+      $scope.image.validated = false;
+      $scope.$apply();
+    });
+
+    $scope.$on('crop:error', function(context, error) {
+      if (error) {
+        alertInstance = $alert({
+          title: '',
+          content: error,
+          type: 'danger',
+          show: true,
+          position: 'bottom',
+          container: element.find('.row.error'),
+          animation: 'am-fade'
+        });
+      }
+    });
+
+  }
+
+  return {
+    scope: {},
+    restrict: 'E',
+    templateUrl: '/views/modules/avatar/avatar-picker.html',
+    link: link
+  };
+}]);

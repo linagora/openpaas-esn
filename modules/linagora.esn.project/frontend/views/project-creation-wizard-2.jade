@@ -1,0 +1,24 @@
+.modal-header
+  button.close(type="button", ng-click="createModal.hide()") &times;
+  h4.modal-title #{__('Create a community')}
+.modal-body
+  form(name='communityForm')
+    .form-group
+      .row.alert.alert-warning(role="alert")
+        p #{__('You are about to create')}
+          strong &nbsp;'{{project.title}}'&nbsp;
+          | #{__('as a')}
+          strong &nbsp;'{{project.type}}'&nbsp;
+          | #{__('project')}. #{__('You can customize it with an avatar and a description now or do it later on the community page')}.
+      avatar-picker
+    .form-group
+      label #{__('Description')}
+      textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
+      span.help-block #{__("A human readable description which will help users know what this community is about")}.
+
+.modal-footer(ng-hide="sending")
+  button.btn.btn-default.pull-left(type="button", ng-click="wizard.previousStep()")
+    i.fa.fa-chevron-left
+    | #{__('Previous')}
+  button.btn.btn-secondary-dark(type="button", ng-click="createProject()") #{__('Create')}
+  button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}

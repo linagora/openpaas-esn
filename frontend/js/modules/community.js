@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.calendar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.modal', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'ui.calendar'])
+angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.calendar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'ui.calendar', 'esn.widget.helper'])
   .config(['tagsInputConfigProvider', function(tagsInputConfigProvider) {
     tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
       placeholder: true,
@@ -103,211 +103,159 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       getInvitablePeople: getInvitablePeople
     };
   }])
-  .controller('communityCreateController', ['$rootScope', '$scope', '$location', '$timeout', '$log', '$alert', 'session', 'communityAPI', '$upload', 'selectionService',
-    function($rootScope, $scope, $location, $timeout, $log, $alert, session, communityAPI, $upload, selectionService) {
-    selectionService.clear();
-    var alertInstance;
+  .factory('communityCreationService', ['$q', '$log', '$timeout', 'communityAPI',
+   function($q, $log, $timeout, communityAPI) {
 
-    function destroyAlertInstance() {
-      if (alertInstance) {
-        alertInstance.destroy();
-        alertInstance = null;
-      }
+    function notifyProgress(d, step, percent) {
+      d.notify({
+        step: step,
+        percent: percent
+      });
     }
 
-    var initScope = function() {
-      $scope.step = 0;
-      $scope.sending = false;
-      $scope.validationError = {};
-      $scope.community = {
-        domain_ids: [session.domain._id],
-        image: '',
-        type: 'open'
-      };
-      $scope.alert = undefined;
-      $scope.percent = 0;
-      $scope.createStatus = {
-        step: 'none',
-        created: false
-      };
-      $scope.imageselected = false;
-      $scope.imagevalidated = false;
-    };
-    initScope();
-
-    $scope.$on('crop:loaded', function() {
-      $scope.imageselected = true;
-      $scope.imagevalidated = false;
-      $scope.$apply();
-    });
-
-    $scope.isTitleEmpty = function() {
-      return !$scope.community.title;
-    };
-
-    $scope.onInputChange = function() {
-      $scope.validationError = {};
-    };
-
-    $scope.isTitleInvalid = function() {
-      return $scope.communityForm.title.$error.unique || $scope.validationError.unique;
-    };
-
-    $scope.titleValidationRunning = false;
-    $scope.validateStep0 = function() {
-      if ($scope.titleValidationRunning) {
-        return;
-      }
-      $scope.titleValidationRunning = true;
-
-      communityAPI.list(session.domain._id, {title: $scope.community.title}).then(
-        function(response) {
-          if (response.data.length === 0) {
-            $scope.step = 1;
-          }
-          else {
-            $scope.validationError.unique = true;
-          }
-          $scope.titleValidationRunning = false;
-        },
-        function(err) {
-          $scope.validationError.ajax = true;
-          $log.error(err);
-          $scope.titleValidationRunning = false;
-        }
-      );
-    };
-
-    $scope.backToStep0 = function() {
-      $scope.step = 0;
-    };
-
-    $scope.validateImage = function() {
-      $scope.imagevalidated = true;
-    };
-
-    $scope.removeSelectedImage = function() {
-      selectionService.clear();
-      $scope.imageselected = false;
-    };
-
-    $scope.displayError = function(err) {
-      $scope.alert = $alert({
-        content: err,
-        type: 'danger',
-        show: true,
-        position: 'bottom',
-        container: '#communityerror'
-      });
-    };
-    $scope.$on('crop:reset', function() {
-      destroyAlertInstance();
-      selectionService.clear();
-    });
-    $scope.$on('crop:error', function(context, error) {
-      if (error) {
-        alertInstance = $alert({
-          title: 'Error',
-          content: error,
-          type: 'danger',
-          show: true,
-          position: 'bottom',
-          container: '#error',
-          animation: 'am-fade'
-        });
-      }
-    });
-
-    $scope.create = function(community) {
-      $scope.createStatus.step = 'post';
-      $scope.sending = true;
-      $scope.percent = 1;
-
-      if ($scope.alert) {
-        $scope.alert.hide();
-      }
-
+    function createCommunity(community) {
       if (!community) {
         $log.error('Missing community');
-        return $scope.displayError('Community information is missing');
+        return $q.reject('Community information is missing');
       }
 
       if (!community.title) {
         $log.error('Missing community title');
-        return $scope.displayError('Community title is missing');
+        return $q.reject('Community title is missing');
       }
 
       if (!community.domain_ids || community.domain_ids.length === 0) {
         $log.error('Missing community domain');
-        return $scope.displayError('Domain is missing, try reloading the page');
+        return $q.error('Domain is missing, try reloading the page');
       }
 
       if (!community.type) {
         community.type = 'open';
       }
 
-      $scope.percent = 5;
+      var avatar = community.avatar;
+      delete community.avatar;
 
-      function done(id) {
+      var d = $q.defer();
+
+      $timeout(function() {
+        notifyProgress(d, 'post', 1);
+      },0);
+
+      communityAPI.create(community).then(
+        function(data) {
+          var communityId = data.data._id;
+          if (avatar.exists()) {
+            notifyProgress(d, 'upload', 20);
+            var mime = 'image/png';
+            avatar.getBlob(mime, function(blob) {
+              communityAPI.uploadAvatar(communityId, blob, mime)
+              .progress(function(evt) {
+                var value = 20 + parseInt(80.0 * evt.loaded / evt.total, 10);
+                notifyProgress(d, 'upload', value);
+              }).success(function() {
+                return d.resolve(communityId);
+              }).error(function(err) {
+                $log.error(err);
+                d.notify({uploadFailed: err});
+                return d.resolve(communityId);
+              });
+            });
+          } else {
+            return d.resolve(communityId);
+          }
+        },
+        function(err) {
+          $log.error(err);
+          d.reject(err);
+        }
+      );
+      return d.promise;
+    }
+    return createCommunity;
+  }])
+  .directive('communityCreate',
+  ['widget.wizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert',
+  function(Wizard, selectionService, communityCreationService, $timeout, $location, $alert) {
+    function link($scope, element, attrs) {
+      $scope.wizard = new Wizard([
+        '/views/modules/community/community-creation-wizard-1',
+        '/views/modules/community/community-creation-wizard-2',
+        '/views/modules/community/community-creation-wizard-3'
+      ]);
+      selectionService.clear();
+
+      $scope.community = {
+        domain_ids: [$scope.domain._id],
+        type: 'open'
+      };
+
+      $scope.createCommunity = function() {
+        $scope.wizard.nextStep();
+        $scope.community.avatar = {
+          exists: function() { return selectionService.getImage() ? true : false; },
+          getBlob: function(mime, callback) { return selectionService.getBlob(mime, callback); }
+        };
+        $scope.create =  { step: 'post', percent: 1 };
+        communityCreationService($scope.community)
+        .then(onSuccess, onFailure, onNotification);
+      };
+
+      $scope.displayError = function(err) {
+        $scope.alert = $alert({
+          content: err,
+          type: 'danger',
+          show: true,
+          position: 'bottom',
+          container: element.find('p.error')
+        });
+      };
+
+      function onSuccess(id) {
+        selectionService.clear();
+        if (!$scope.uploadFailed) {
+          $scope.create = { step: 'redirect', percent: 100 };
+        }
         $timeout(function() {
           if ($scope.createModal) {
             $scope.createModal.hide();
           }
-          selectionService.clear();
           $location.path('/communities/' + id);
         }, 1000);
       }
 
-      communityAPI.create(community).then(
-        function(data) {
-
-          $scope.createStatus.created = true;
-
-          if (selectionService.getImage()) {
-            $scope.createStatus.step = 'upload';
-            $scope.percent = 20;
-            var mime = 'image/png';
-            selectionService.getBlob(mime, function(blob) {
-              communityAPI.uploadAvatar(data.data._id, blob, mime)
-                .progress(function(evt) {
-                  var value = parseInt(80.0 * evt.loaded / evt.total);
-                  $scope.percent = 20 + value;
-
-                }).success(function() {
-                  $scope.percent = 100;
-                  $scope.create.step = 'redirect';
-                  return done(data.data._id);
-
-                }).error(function(error) {
-                  $scope.percent = 100;
-                  $scope.create.step = 'uploadfailed';
-                  $scope.create.error = error;
-                  return done(data.data._id);
-                });
-            });
-
-          } else {
-            $scope.percent = 100;
-            $scope.createStatus.step = 'redirect';
-            return done(data.data._id);
-          }
-        },
-        function(err) {
-          $scope.sending = false;
-          $scope.createStatus.error = err;
-          $scope.createStatus.step = 'none';
-          $log.error('Error ', err);
-          return $scope.displayError('Error while creating the community');
+      function onNotification(notif) {
+        if (notif.uploadFailed) {
+          $scope.uploadFailed = true;
+        } else {
+          $scope.create = notif;
         }
-      );
+      }
+
+      function onFailure(err) {
+        return $scope.displayError('Error while creating the community');
+      }
+    }
+
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-create.html',
+      scope: {
+        user: '=',
+        domain: '=',
+        createModal: '='
+      },
+      link: link
     };
+
   }])
-  .controller('communitiesController', ['$scope', '$log', '$location', 'session', 'communityAPI', 'userAPI',
-  function($scope, $log, $location, session, communityAPI, userAPI) {
+  .controller('communitiesController', ['$scope', '$log', '$location', 'communityAPI', 'userAPI', 'domain', 'user',
+  function($scope, $log, $location, communityAPI, userAPI, domain, user) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;
-    $scope.user = session.user;
+    $scope.user = user;
+    $scope.domain = domain;
     $scope.selected = '';
 
     function refreshCommunity(community) {
@@ -365,7 +313,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
     $scope.getAll = function() {
       $scope.selected = 'all';
       $scope.loading = true;
-      communityAPI.list(session.domain._id).then(
+      communityAPI.list(domain._id).then(
         function(response) {
           $scope.communities = response.data;
         },
@@ -406,10 +354,10 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
 
       $scope.loading = true;
       var options = {
-        creator: session.user._id
+        creator: user._id
       };
 
-      communityAPI.list(session.domain._id, options).then(
+      communityAPI.list(domain._id, options).then(
         function(response) {
           $scope.communities = response.data;
         },
@@ -661,22 +609,6 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       }
     };
   }])
-  .directive('communityButtonCreate', ['$modal', function($modal) {
-    return {
-      restrict: 'E',
-      templateUrl: '/views/modules/community/community-button-create.html',
-      scope: true,
-      link: function($scope) {
-        $scope.$on('modal.hide', function(evt, modal) {
-          $scope.createModal = null;
-          modal.destroy();
-        });
-        $scope.showCreateModal = function() {
-          $scope.createModal = $modal({scope: $scope, template: '/views/modules/community/community-create-modal'});
-        };
-      }
-    };
-  }])
   .controller('communityController', ['$rootScope', '$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
   function($rootScope, $scope, $location, $log, session, communityAPI, communityService, community) {
     $scope.community = community;
@@ -750,63 +682,23 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       return communityService.isManager(community, session.user);
     };
   }])
-  .directive('ensureUniqueCommunityTitle', ['communityAPI', 'session', '$timeout', function(communityAPI, session, $timeout) {
+  .directive('ensureUniqueCommunityTitle', ['communityAPI', '$q', function(communityAPI, $q) {
     return {
-      restrict: 'A',
       require: 'ngModel',
-      link: function(scope, elem , attrs, control) {
-        var lastValue = null;
-        var timer = null;
-
-        var checkNameValidity = function() {
-          control.$setValidity('ajax', false);
-          (function(title) {
-            communityAPI.list(session.domain._id, {title: title}).then(
-              function(response) {
-                if (lastValue !== title) {
-                  return;
-                }
-
-                if (response.data.length !== 0) {
-                  control.$setValidity('ajax', true);
-                  control.$setValidity('unique', false);
-                }
-                else {
-                  control.$setValidity('ajax', true);
-                  control.$setValidity('unique', true);
-                }
-              },
-              function() {
-                if (lastValue !== title) {
-                  return;
-                }
-                control.$setValidity('ajax', true);
-                control.$setValidity('unique', true);
+      link: function($scope, element, attrs, ngModel) {
+        ngModel.$asyncValidators.unique = function(title) {
+          return communityAPI.list(attrs.domainId, {title: title}).then(
+            function(response) {
+              if (response.data.length === 0) {
+                return $q.when(true);
               }
-            );
-          })(lastValue);
+              return $q.reject(new Error('Title already taken'));
+            },
+            function(err) {
+              return $q.reject(err);
+            }
+          );
         };
-
-        control.$viewChangeListeners.push(function() {
-          var communityTitle = control.$viewValue;
-          if (communityTitle === lastValue) {
-            return;
-          }
-          lastValue = communityTitle;
-
-          control.$setValidity('unique', true);
-          if (timer) {
-            $timeout.cancel(timer);
-          }
-
-          if (communityTitle.length === 0) {
-            control.$setValidity('ajax', true);
-            return;
-          }
-
-          control.$setValidity('ajax', false);
-          timer = $timeout(checkNameValidity, 1000);
-        });
       }
     };
   }])
