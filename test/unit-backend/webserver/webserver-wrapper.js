@@ -7,15 +7,16 @@ describe('the webserver-wrapper', function() {
   var module;
 
   function getApi(module, callback) {
-    module.settings.states.lib([], function(err, api) {
-      return callback(err, api);
-    });
+    module.settings.states.lib([], callback);
   }
 
   it('should expose some methods', function() {
-    mockery.registerMock('./', {});
+    mockery.registerMock('./', {
+      webserver: { on: function() {} }
+    });
     module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
     getApi(module, function(err, api) {
+      expect(err).to.be.null;
       expect(api.injectJS).to.exist;
       expect(api.injectJS).to.be.a.function;
       expect(api.injectCSS).to.exist;
@@ -24,12 +25,14 @@ describe('the webserver-wrapper', function() {
       expect(api.injectAngularModules).to.be.a.function;
       expect(api.addApp).to.exist;
       expect(api.addApp).to.be.a.function;
+      expect(api.on).to.be.a.function;
     });
   });
 
   it('should call webserver.addJSInjection with arrays', function(done) {
     var webserverMock = {
       webserver: {
+        on: function() {},
         addJSInjection: function(namespace, js, apps) {
           expect(namespace).to.equal('myModule');
           expect(js).to.deep.equal(['mymodule.js']);
@@ -48,6 +51,7 @@ describe('the webserver-wrapper', function() {
   it('should call webserver.addCSSInjection with arrays', function(done) {
     var webserverMock = {
       webserver: {
+        on: function() {},
         addCSSInjection: function(namespace, css, apps) {
           expect(namespace).to.equal('myModule');
           expect(css).to.deep.equal(['mymodule.css']);
@@ -66,6 +70,7 @@ describe('the webserver-wrapper', function() {
   it('should call webserver.addAngularModulesInjection with arrays', function(done) {
     var webserverMock = {
       webserver: {
+        on: function() {},
         addAngularModulesInjection: function(namespace, js, angularModules, apps) {
           expect(namespace).to.equal('myModule');
           expect(js).to.deep.equal(['mymodule.js']);
@@ -85,6 +90,7 @@ describe('the webserver-wrapper', function() {
   it('should call webserver.application.use', function(done) {
     var webserverMock = {
       webserver: {
+        on: function() {},
         application: {
           use: function(baseUri) {
             expect(baseUri).to.equal('/myModule');

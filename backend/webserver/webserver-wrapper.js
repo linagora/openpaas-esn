@@ -27,6 +27,7 @@ function WebServerWrapper(server) {
     webserver.application.use('/' + namespace, expressApp);
   };
 
+  this.on = webserver.on.bind(webserver);
 }
 
 var server = require('./').webserver;

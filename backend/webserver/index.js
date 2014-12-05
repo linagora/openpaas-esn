@@ -8,6 +8,7 @@ var http = require('http');
 var fs = require('fs');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var AsyncEventEmitter = require('async-eventemitter');
 
 var webserver = {
   application: serverApplication,
@@ -23,6 +24,9 @@ var webserver = {
 };
 
 var injections = {};
+
+var emitter = new AsyncEventEmitter();
+emitter.setMaxListeners(0);
 
 function start(callback) {
   if (!webserver.port && !webserver.ssl_port) {
@@ -132,6 +136,15 @@ function getInjections() {
 }
 
 webserver.getInjections = getInjections;
+
+webserver.on = function(event, callback) {
+  emitter.on(event, function(data, next) {
+    var req = data[0], res = data[1], json = data[2];
+    return callback(req, res, next, json);
+  });
+};
+
+webserver.emit = emitter.emit.bind(emitter);
 
 var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
   dependencies: [

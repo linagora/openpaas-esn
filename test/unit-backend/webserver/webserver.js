@@ -152,6 +152,34 @@ describe('The Webserver module', function() {
     });
   });
 
+  describe('the event emitters', function() {
+    it('should call all listeners', function(done) {
+      var serverMock = mockServer(this.testEnv.basePath);
+      var webserver = serverMock.webserver;
+      var topic = 'route:/api/function';
+
+      var data = ['req', 'res', 'json']; // Usually actual objects
+      var called = 0;
+
+      function listener(req, res, next, json) {
+        expect(req).to.be.equal('req');
+        expect(res).to.be.equal('res');
+        expect(json).to.be.equal('json');
+        called++;
+        next();
+      }
+
+      // Adding twice intentionally, to check if multiple listners are called
+      webserver.on(topic, listener);
+      webserver.on(topic, listener);
+
+      webserver.emit('route:/api/function', data, function(err) {
+        expect(called).to.equal(2);
+        done(err);
+      });
+    });
+  });
+
   describe('when started', function() {
     it('should set the webserver into the server property', function(done) {
       var serverMock = mockServer(this.testEnv.basePath);

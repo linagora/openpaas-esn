@@ -295,4 +295,41 @@ describe('linagora.esn.project module', function() {
       });
     });
   });
+
+  describe('GET /api/user/activitystreams', function() {
+    beforeEach(function() {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      this.app = this.helpers.modules.getWebServer(app);
+    });
+
+    it('should include project resources', function(done) {
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+
+        var project = this.models.projects[0];
+        var projectId = this.models.projects[0]._id.toString();
+        var req = loggedInAsUser(request(this.app).get('/api/user/activitystreams'));
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('array');
+          var foundProject, foundCommunity;
+          res.body.forEach(function(entry) {
+            if (entry.target.objectType === 'project' &&
+                entry.target._id === projectId) {
+              expect(entry.uuid).to.exist;
+              expect(entry.target.displayName).to.equal(project.title);
+              expect(entry.target.id).to.equal('urn:linagora.com:project:' + projectId);
+              foundProject = true;
+            } else if (entry.target.objectType === 'community') {
+              // Find at least one to ensure they are not overwritten
+              foundCommunity = true;
+            }
+          });
+          expect(foundProject).to.be.true;
+          expect(foundCommunity).to.be.true;
+          done();
+        });
+      }.bind(this));
+    });
+  });
 });
