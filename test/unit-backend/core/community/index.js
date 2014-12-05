@@ -398,7 +398,7 @@ describe('The community module', function() {
       });
 
       var community = require(this.testEnv.basePath + '/backend/core/community/index');
-      community.isMember(123, 456, function(err) {
+      community.isMember(123, {objectType: 'user', id: 456}, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -426,7 +426,7 @@ describe('The community module', function() {
           }
         ]
       };
-      community.isMember(comMock, 456, function(err, result) {
+      community.isMember(comMock, {objectType: 'user', id: id}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         return done();
@@ -453,7 +453,7 @@ describe('The community module', function() {
         }
         ]
       };
-      community.isMember(comMock, 456, function(err, result) {
+      community.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
@@ -473,7 +473,7 @@ describe('The community module', function() {
         }
         ]
       };
-      community.isMember(comMock, 456, function(err, result) {
+      community.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
@@ -494,7 +494,7 @@ describe('The community module', function() {
         }
         ]
       };
-      community.isMember(comMock, 456, function(err, result) {
+      community.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
@@ -847,7 +847,7 @@ describe('The community module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
+        expect(u.id).to.deep.equal(user._id);
         callback(null, true);
       };
       communityModule.addMembershipRequest(community, {}, user, 'request', null, function(err, c) {
@@ -865,7 +865,7 @@ describe('The community module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
+        expect(u.id).to.deep.equal(user._id);
         callback(new Error('isMember fail'));
       };
       communityModule.addMembershipRequest(community, {}, user, 'request', null, function(err, c) {
@@ -885,7 +885,7 @@ describe('The community module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
+        expect(u.id).to.deep.equal(user._id);
         callback(null, false);
       };
       communityModule.addMembershipRequest(community, {}, user, workflow, null, function(err, c) {
@@ -908,7 +908,7 @@ describe('The community module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
+        expect(u.id).to.deep.equal(user._id);
         callback(null, false);
       };
       communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, actor, callback) {
@@ -934,7 +934,7 @@ describe('The community module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
+        expect(u.id).to.deep.equal(user._id);
         callback(null, false);
       };
       communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, actor, callback) {
@@ -964,7 +964,7 @@ describe('The community module', function() {
       var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
       communityModule.isMember = function(c, u, callback) {
         expect(c).to.deep.equal(community);
-        expect(u).to.deep.equal(user._id);
+        expect(u.id).to.deep.equal(user._id);
         callback(null, false);
       };
       communityModule.addMembershipInviteUserNotification = function(community, userAuthor, userTarget, actor, callback) {

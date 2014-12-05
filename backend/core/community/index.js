@@ -162,9 +162,8 @@ module.exports.isManager = function(community, user, callback) {
   });
 };
 
-module.exports.isMember = function(community, user, callback) {
-  var user_id = user._id || user;
-  return collaboration.isMember(community, {objectType: 'user', id: user_id}, callback);
+module.exports.isMember = function(community, tuple, callback) {
+  return collaboration.isMember(community, tuple, callback);
 };
 
 module.exports.userToMember = function(document) {
@@ -324,7 +323,7 @@ module.exports.addMembershipRequest = function(community, userAuthor, userTarget
     return callback(new Error('Only Restricted and Private communities allow membership requests.'));
   }
 
-  this.isMember(community, userTargetId, function(err, isMember) {
+  this.isMember(community, {objectType: 'user', id: userTargetId}, function(err, isMember) {
     if (err) {
       return callback(err);
     }

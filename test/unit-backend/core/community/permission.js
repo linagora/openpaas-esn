@@ -50,7 +50,7 @@ describe('The communities permission module', function() {
 
     it('should send back error if community is restricted and isMember returns error', function(done) {
       mockery.registerMock('./index', {
-        isMember: function(community, user, callback) {
+        isMember: function(community, tuple, callback) {
           return callback(new Error());
         }
       });
@@ -63,7 +63,7 @@ describe('The communities permission module', function() {
 
     it('should send back true if community is restricted and isMember returns true', function(done) {
       mockery.registerMock('./index', {
-        isMember: function(community, user, callback) {
+        isMember: function(community, tuple, callback) {
           return callback(null, true);
         }
       });
@@ -77,7 +77,7 @@ describe('The communities permission module', function() {
 
     it('should send back false if community is restricted and isMember returns false', function(done) {
       mockery.registerMock('./index', {
-        isMember: function(community, user, callback) {
+        isMember: function(community, tuple, callback) {
           return callback(null, false);
         }
       });
