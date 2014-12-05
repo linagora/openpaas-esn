@@ -523,7 +523,7 @@ describe('linagora.esn.project module', function() {
       });
     });
 
-    it.only('should 200 with the list of invitable communities matching the search terms', function(done) {
+    it('should 200 with the list of invitable communities matching the search terms', function(done) {
 
       var self = this;
       var ids = this.models.communities.map(function(community) {
@@ -546,7 +546,6 @@ describe('linagora.esn.project module', function() {
           req.end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
-            console.log(res.body)
             expect(res.body).to.be.an.array;
             expect(res.body.length).to.equal(2);
             res.body.forEach(function(project) {

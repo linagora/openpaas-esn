@@ -71,7 +71,7 @@ module.exports.linagora_PROJECTS = function() {
         members: []
       },
       {
-        title: 'Community SearchMeToo',
+        title: 'Community SearchMe Too',
         type: 'open',
         creator: 'jdoe@lng.net',
         members: []
