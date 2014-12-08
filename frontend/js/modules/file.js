@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('esn.file', ['angularFileUpload', 'restangular'])
-
-  .factory('fileUploadService', ['$q', '$timeout', '$log', 'fileAPIService', function($q, $timeout, $log, fileAPIService) {
+  .constant('FILES_API_URL', '/api/files')
+  .factory('fileUploadService', ['$q', '$timeout', '$log', 'fileAPIService', 'FILES_API_URL', function($q, $timeout, $log, fileAPIService, FILES_API_URL) {
 
     function get() {
       var date = Date.now();
@@ -78,7 +78,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
         task.uploading = true;
         task.progress = 0;
 
-        task.uploader = fileAPIService.uploadFile(task.file, task.file.type, task.file.size, task.canceler.promise)
+        task.uploader = fileAPIService.uploadFile(FILES_API_URL, task.file, task.file.type, task.file.size, task.canceler.promise)
           .success(function(response) {
             task.progress = 100;
             task.uploaded = true;
@@ -123,10 +123,10 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
     };
   }])
   .factory('fileAPIService', ['$upload', 'Restangular', function($upload, Restangular) {
-    function upload(blob, name, mime, size, canceler) {
+    function upload(url, blob, mime, size, canceler) {
       return $upload.http({
         method: 'POST',
-        url: '/api/files',
+        url: url,
         headers: {'Content-Type': mime},
         data: blob,
         params: {mimetype: mime, size: size, name: name},
@@ -135,10 +135,10 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       });
     }
 
-    function uploadFile(file, mime, size, canceler) {
+    function uploadFile(url, file, mime, size, canceler) {
       return $upload.upload({
         method: 'POST',
-        url: '/api/files',
+        url: url,
         file: file,
         params: {mimetype: mime, size: size, name: file.name},
         withCredentials: true,
@@ -146,8 +146,8 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       });
     }
 
-    function remove(id) {
-      return Restangular.one('files', id).remove();
+    function remove(parameter, id) {
+      return Restangular.one(parameter, id).remove();
     }
 
     return {
