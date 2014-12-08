@@ -8,9 +8,16 @@ angular.module('esn.community-as-tracker', [
   'esn.community'
 ])
   .factory('communityAStrackerAPI', ['Restangular', function(Restangular) {
+
     function getCommunityActivityStreams(uuid) {
-      return Restangular.one('user').getList('activitystreams', {domainid: uuid});
+      return Restangular.one('user').getList('activitystreams', {domainid: uuid}).then(function(response) {
+        response.data = response.data.filter(function(stream) {
+          return stream.target && stream.target.objectType === 'community';
+        });
+        return response;
+      });
     }
+
     function getUnreadCount(id) {
       return Restangular.one('activitystreams', id).one('unreadcount').get();
     }
