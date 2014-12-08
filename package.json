@@ -60,7 +60,8 @@
     "winston": "~0.7.2",
     "xml2js": "^0.4.3",
     "dav": "git+https://github.com/GrahamLinagora/dav.git",
-    "busboy": "^0.2.9"
+    "busboy": "^0.2.9",
+    "composable-middleware": "^0.3.0"
   },
   "devDependencies": {
     "bower": "~1.3.3",

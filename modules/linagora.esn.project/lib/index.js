@@ -89,6 +89,9 @@ function projectLib(dependencies) {
     });
   }
 
+  function getFromActivityStreamID(uuid, callback) {
+    collaboration.queryOne(projectObjectType, {'activity_stream.uuid': uuid}, callback);
+  }
 
   lib.query = query;
   lib.queryOne = queryOne;
@@ -99,6 +102,7 @@ function projectLib(dependencies) {
   lib.addMember = addMember;
   lib.getUserProjects = getUserProjects;
   lib.getUserProjectStreams = getUserProjectStreams;
+  lib.getFromActivityStreamID = getFromActivityStreamID;
   return lib;
 }
 

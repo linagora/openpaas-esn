@@ -10,5 +10,7 @@ tmp/
 db.json
 frontend/**/*.css
 frontend/**/*.css.map
+modules/linagora.esn.project/**/*.css
+modules/linagora.esn.project/**/*.css.map
 gjslint.xml
 jshint.xml
