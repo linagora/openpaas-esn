@@ -81,11 +81,45 @@ function projectControllers(lib, dependencies) {
   };
 
   controllers.create = function(req, res, next) {
-    lib.create(req.body, function(err, project) {
+    function copyIfSet(key) {
+      if (req.body[key]) {
+        project[key] = req.body[key];
+      }
+    }
+
+    var project = {
+      title: req.body.title,
+      creator: req.user._id,
+      domain_ids: req.body.domain_ids,
+      type: 'open',
+      members: [
+        { member: { id: req.user._id, objectType: 'user' } }
+      ]
+    };
+
+    ['description', 'startDate', 'endDate',
+     'status', 'avatar'].forEach(copyIfSet);
+
+    var startDate = new Date(project.startDate);
+    var endDate = new Date(project.endDate);
+    if (project.startDate && isNaN(startDate)) {
+      return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Start date is invalid'}});
+    } else if (project.endDate && isNaN(endDate)) {
+      return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'End date is invalid'}});
+    }
+    if (project.startDate && project.endDate && startDate.getTime() > endDate.getTime()) {
+      return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Start date is after end date'}});
+    }
+
+    if (!project.domain_ids || project.domain_ids.length === 0) {
+      return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'At least a domain is required'}});
+    }
+
+    lib.create(project, function(err, project) {
       if (err) {
-        res.json(400, { error: { code: 400, message: 'Project creation failed', details: err.message }});
+        res.status(400).json({ error: { code: 400, message: 'Project creation failed', details: err.message }});
       } else {
-        res.json(201, project);
+        res.status(201).json(project);
       }
     });
   };
