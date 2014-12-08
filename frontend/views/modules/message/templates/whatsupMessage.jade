@@ -10,6 +10,9 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
       display-position(position='message.position')
       p.multilines
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
+      .row
+
     include ./includes/messagesBottomLinks
     include ./includes/attachments.jade
+    include ./includes/oembed.jade
     include ./includes/comments.jade
