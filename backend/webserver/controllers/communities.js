@@ -26,7 +26,7 @@ function transform(community, user, callback) {
     community.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  communityModule.isMember(community, user._id, function(err, membership) {
+  communityModule.isMember(community, {objectType: 'user', id: user._id}, function(err, membership) {
     if (membership) {
       community.member_status = 'member';
     } else {
@@ -334,7 +334,7 @@ module.exports.getMember = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.isMember(community, req.params.user_id, function(err, result) {
+  communityModule.isMember(community, {objectType: 'user', id: req.params.user_id}, function(err, result) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }

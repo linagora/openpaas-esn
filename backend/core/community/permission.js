@@ -15,7 +15,7 @@ module.exports.canWrite = function(community, user, callback) {
     return callback(new Error('User is required'));
   } else {
     // The remaining case for restricted, private and confidential communities.
-    return communityModule.isMember(community, user._id, callback);
+    return communityModule.isMember(community, {objectType: 'user', id: user._id}, callback);
   }
 };
 

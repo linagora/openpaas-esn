@@ -45,33 +45,90 @@ module.exports.linagora_PROJECTS = function() {
         type: 'open',
         creator: 'jdoe@lng.net',
         members: []
+      },
+      {
+        title: 'find Community 1 member of project A',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
+      },
+      {
+        title: 'find Community 2 member of project A',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
+      },
+      {
+        title: 'find Community 3 not member of project A',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
+      },
+      {
+        title: 'Community SearchMe FindMe',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
+      },
+      {
+        title: 'Community SearchMe Too',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
+      },
+      {
+        title: 'Community SearchAndDoNotFindMe',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: []
       }
     ],
     projects: [
-    {
-      title: 'OpenPaaS open',
-      type: 'open',
-      creator: 'itadmin@lng.net',
-      members: [{objectType: 'user', id: 'jdoe@lng.net'}]
-    },
-    {
-      title: 'OpenPaaS Add members',
-      type: 'open',
-      creator: 'itadmin@lng.net',
-      members: []
-    },
-    {
-      title: 'OpenPaaS private',
-      type: 'private',
-      creator: 'itadmin@lng.net',
-      members: [{objectType: 'user', id: 'jdoe@lng.net'}]
-    },
-    {
-      title: 'OpenPaaS restricted',
-      type: 'restricted',
-      creator: 'itadmin@lng.net',
-      members: [{objectType: 'user', id: 'jdoe@lng.net'}]
-    }
+      {
+        title: 'OpenPaaS open',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS Add members',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: []
+      },
+      {
+        title: 'OpenPaaS private',
+        type: 'private',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS restricted',
+        type: 'restricted',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'jdoe@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS with communities members',
+        type: 'restricted',
+        creator: 'itadmin@lng.net',
+        members: [
+          {objectType: 'community', id: 'find Community 1 member of project A'},
+          {objectType: 'community', id: 'find Community 2 member of project A'}
+        ]
+      }
     ]
   };
 };
+
+module.exports.orphans = function() {
+  return {
+    domain: {
+      name: 'ORPHAN',
+      company_name: 'MyOnlyCompany'
+    },
+    users: [],
+    projects: []
+  };
+};
+

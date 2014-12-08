@@ -51,7 +51,7 @@ function requiresCommunityMember(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  communityModule.isMember(req.community, req.user._id, function(err, isMember) {
+  communityModule.isMember(req.community, {objectType: 'user', id: req.user._id}, function(err, isMember) {
     if (err) {
       return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }

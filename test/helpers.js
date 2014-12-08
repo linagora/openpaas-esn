@@ -265,6 +265,13 @@ module.exports = function(mixin, testEnv) {
      */
     checkUsersDocumentsIndexed: function(ids, callback) {
       mixin.elasticsearch.checkDocumentsIndexed('users.idx', 'users', ids, callback);
+    },
+
+    saveTestConfiguration: function(callback) {
+      mixin.mongo.saveDoc('configuration', {
+        _id: 'elasticsearch',
+        host: 'localhost:' + testEnv.serversConfig.elasticsearch.port
+      }, callback);
     }
   };
 

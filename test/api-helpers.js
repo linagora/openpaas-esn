@@ -61,6 +61,33 @@ module.exports = function(mixin, testEnv) {
 
     deployment.models = {};
 
+    var fillCollaboration = {
+      user: function(models, collaboration, member) {
+        if (member.objectType !== 'user') {
+          return;
+        }
+
+        var user = models.users.filter(function(u) { return u.emails.indexOf(member.id) >= 0; });
+        if (!user.length) {
+          return;
+        }
+        collaboration.members.push({member: {objectType: 'user', id: user[0]._id}});
+      },
+
+      community: function(models, collaboration, member) {
+        if (member.objectType !== 'community') {
+          return;
+        }
+        var community = models.communities.filter(function(c) {
+          return c.title.indexOf(member.id) >= 0;
+        });
+
+        if (!community.length) {
+          return;
+        }
+        collaboration.members.push({member: {objectType: 'community', id: community[0]._id}});
+      }
+    };
 
     function mapCollaborationUsers(models, c) {
       var d = q.defer();
@@ -74,14 +101,11 @@ module.exports = function(mixin, testEnv) {
       collaboration.domain_ids = [models.domain._id];
       collaboration.members = [{member: {objectType: 'user', id: creator[0]._id}}];
       c.members.forEach(function(m) {
-        if (m.objectType !== 'user') {
-          return;
+        try {
+          fillCollaboration[m.objectType](models, collaboration, m);
+        } catch (err) {
+          console.log(err);
         }
-        var user = models.users.filter(function(u) { return u.emails.indexOf(m.id) >= 0; });
-        if (!user.length) {
-          return;
-        }
-        collaboration.members.push({member: {objectType: 'user', id: user[0]._id}});
       });
       d.resolve(collaboration);
       return d.promise;
