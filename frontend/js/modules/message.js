@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead'])
+angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead'])
   .controller('messageEditionController', ['$scope', function($scope) {
     var types = ['whatsup', 'event'];
     $scope.type = types[0];
@@ -338,26 +338,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
       templateUrl: '/views/modules/message/templates/emailMessage.html'
     };
   })
-  .directive('eventMessage', ['caldavAPI', 'moment', function(caldavAPI, moment) {
+  .directive('eventMessage', ['calendarService', 'moment', function(calendarService, moment) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/templates/eventMessage.html',
       link: function(scope, element, attrs) {
-        caldavAPI.getEvent(scope.message.eventId)
-        .then(function(event) {
-          scope.event = event;
-          element.find('>div>div.loading').addClass('hidden');
-          element.find('>div>div.message').removeClass('hidden');
-          scope.event.formattedDate = moment(scope.event.startDate).format('MMMM D, YYYY');
-          scope.event.formattedStartTime = moment(scope.event.startDate).format('h');
-          scope.event.formattedStartA = moment(scope.event.startDate).format('a');
-          scope.event.formattedEndTime = moment(scope.event.endDate).format('h');
-          scope.event.formattedEndA = moment(scope.event.endDate).format('a');
-        }, function(err) {
-          element.find('>div.loading').addClass('hidden');
-          element.find('>div.error').removeClass('hidden');
-        });
+        // This will be taken care of in a separate commit
       }
     };
   }])

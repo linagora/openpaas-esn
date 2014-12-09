@@ -10,18 +10,17 @@ describe('The ICAL Angular module', function() {
 
   describe('icalParserService service', function() {
 
-    describe('The parseICS fn', function() {
+    describe.only('The parseICS fn', function() {
 
-      beforeEach(angular.mock.inject(function(icalParserService, ICALFactory) {
-        this.icalParserService = icalParserService;
-        this.ICALFactory = ICALFactory;
+      beforeEach(angular.mock.inject(function(ICAL) {
+        this.ICAL = ICAL;
       }));
 
       it('should parse the given ICS data', function() {
-        var result = this.icalParserService.parseICS(__FIXTURES__['test/unit-frontend/fixtures/calendar/event.ics']);
+        var ICAL = this.ICAL;
+        var result = ICAL.parse(__FIXTURES__['test/unit-frontend/fixtures/calendar/event.ics']);
         expect(result).to.exist;
 
-        var ICAL = this.ICALFactory.get();
         var comp = new ICAL.Component(result[1]);
         var vevent = comp.getFirstSubcomponent('vevent');
         var summary = vevent.getFirstPropertyValue('summary');

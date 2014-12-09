@@ -1,59 +1,73 @@
 'use strict';
 
-angular.module('esn.calendar', ['mgcrea.ngStrap.datepicker', 'angularMoment'])
-  .factory('calendarService', ['$q', function($q) {
+angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular', 'mgcrea.ngStrap.datepicker', 'angularMoment'])
+  .factory('calendarService', ['Restangular', 'moment', 'tokenAPI', 'ICAL', '$q', '$http', function(Restangular, moment, tokenAPI, ICAL, $q, $http) {
 
-    function list(start, end, timezone) {
-      var result = [
-        // TODO temporary event for effects.
-        {title: 'October Barcamp', start: new Date(2014, 9, 13), end: new Date(2014, 9, 17), color: '#f00'}
-      ].filter(function(e) {
-        return (e.start >= start && e.end <= end);
+    /**
+     * A shell that wraps an ical.js VEVENT component to be compatible with
+     * fullcalendar's objects.
+     *
+     * @param {ICAL.Component} vevent        The ical.js VEVENT component.
+     */
+    function CalendarShell(vevent) {
+      this.id = vevent.getFirstPropertyValue('uid');
+      this.title = vevent.getFirstPropertyValue('summary');
+      this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
+      this.start = vevent.getFirstPropertyValue('dtstart').toJSDate();
+      this.end = vevent.getFirstPropertyValue('dtend').toJSDate();
+    }
+
+    function getCaldavServerURL() {
+      if (serverUrlCache) {
+        return serverUrlCache.promise;
+      }
+
+      serverUrlCache = $q.defer();
+      Restangular.one('caldavserver').get().then(
+        function(response) {
+          serverUrlCache.resolve(response.data.url);
+        },
+        function(err) {
+          serverUrlCache.reject(err);
+        }
+      );
+
+      return serverUrlCache.promise;
+    }
+
+
+    function list(calendarPath, start, end, timezone) {
+      var req = {
+        match: {
+           start: moment(start).format('YYYYMMDD[T]HHmmss'),
+           end: moment(end).format('YYYYMMDD[T]HHmmss')
+        },
+        scope: {
+          calendars: [calendarPath]
+        }
+      };
+
+      return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
+        var token = results[0].data.token, url = results[1];
+        var config = { headers: { 'ESNToken': token } };
+        return $http.post(url + '/json/queries/time-range', req, config)
+                    .then(function(response) {
+          var results = [];
+          response.data.forEach(function(vcaldata) {
+            var vcalendar = new ICAL.Component(vcaldata);
+            var vevents = vcalendar.getAllSubcomponents('vevent');
+            vevents.forEach(function(vevent) {
+              results.push(new CalendarShell(vevent));
+            });
+          });
+          return results;
+        });
       });
-
-      var defer = $q.defer();
-      defer.resolve(result);
-      return defer.promise;
     }
 
-    function create(event) {
-      var defer = $q.defer();
-      defer.reject({message: 'Create is not implemented'});
-      return defer.promise;
-    }
-
-    function remove(event) {
-      var defer = $q.defer();
-      defer.reject({message: 'Remove is not implemented'});
-      return defer.promise;
-    }
-
-    function update(event) {
-      var defer = $q.defer();
-      defer.reject({message: 'Update is not implemented'});
-      return defer.promise;
-    }
-
-    function accept(event) {
-      var defer = $q.defer();
-      defer.reject({message: 'Accept is not implemented'});
-      return defer.promise;
-    }
-
-    function decline(event) {
-      var defer = $q.defer();
-      defer.reject({message: 'Decline is not implemented'});
-      return defer.promise;
-    }
-
-
+    var serverUrlCache = null;
     return {
-      list: list,
-      create: create,
-      remove: remove,
-      update: update,
-      accept: accept,
-      decline: decline
+      list: list
     };
   }])
   .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', function($scope, $rootScope, $alert, calendarService, moment) {
