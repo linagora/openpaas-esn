@@ -155,6 +155,9 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
     return {
       restrict: 'E',
       replace: true,
+      scope: {
+        project: '='
+      },
       templateUrl: '/projects/views/project-description.html'
     };
   });

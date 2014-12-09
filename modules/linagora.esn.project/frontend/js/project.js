@@ -3,6 +3,7 @@
 angular.module('esn.project', [
   'restangular',
   'esn.avatar',
+  'esn.session',
   'mgcrea.ngStrap.tooltip',
   'mgcrea.ngStrap.helpers.dimensions',
   'mgcrea.ngStrap.helpers.dateParser',
