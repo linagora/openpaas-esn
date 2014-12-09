@@ -1,6 +1,9 @@
 'use strict';
 var async = require('async');
+var uuid = require('node-uuid');
 var escapeStringRegexp = require('escape-string-regexp');
+
+var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 
 function transform(lib, project, user, callback) {
   if (!project) {
@@ -141,6 +144,95 @@ function projectControllers(lib, dependencies) {
 
       Array.prototype.push.apply(json, streams);
       next();
+    });
+  };
+
+  controllers.uploadAvatar = function(req, res) {
+    var imageModule = dependencies('image');
+
+    if (!req.project) {
+      return res.json(404, {error: 404, message: 'Not found', details: 'Project not found'});
+    }
+
+    if (!req.query.mimetype) {
+      return res.json(400, {error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
+    }
+
+    var mimetype = req.query.mimetype.toLowerCase();
+    if (acceptedImageTypes.indexOf(mimetype) < 0) {
+      return res.json(400, {error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
+    }
+
+    if (!req.query.size) {
+      return res.json(400, {error: 400, message: 'Parameter missing', details: 'size parameter is required'});
+    }
+
+    var size = parseInt(req.query.size);
+    if (isNaN(size)) {
+      return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
+    }
+    var avatarId = uuid.v1();
+
+    function updateProjectAvatar() {
+      lib.updateAvatar(req.project, avatarId, function(err, update) {
+        if (err) {
+          return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+        }
+        return res.json(200, {_id: avatarId});
+      });
+    }
+
+    function avatarRecordResponse(err, storedBytes) {
+      if (err) {
+        if (err.code === 1) {
+          return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});
+        } else if (err.code === 2) {
+          return res.json(500, {error: 500, message: 'Image processing failure', details: err.message});
+        } else {
+          return res.json(500, {error: 500, message: 'Internal server error', details: err.message});
+        }
+      } else if (storedBytes !== size) {
+        return res.json(412, {error: 412, message: 'Image size does not match', details: 'Image size given by user agent is ' + size +
+        ' and image size returned by storage system is ' + storedBytes});
+      }
+      updateProjectAvatar();
+    }
+
+    var metadata = {};
+    if (req.user) {
+      metadata.creator = {objectType: 'user', id: req.user._id};
+    }
+
+    return imageModule.recordAvatar(avatarId, mimetype, metadata, req, avatarRecordResponse);
+  };
+
+  controllers.getAvatar = function(req, res) {
+    var imageModule = dependencies('image');
+
+    if (!req.project) {
+      return res.json(404, {error: 404, message: 'Not found', details: 'Project not found'});
+    }
+
+    if (!req.project.avatar) {
+      return res.redirect('/images/project.png');
+    }
+
+    imageModule.getAvatar(req.project.avatar, req.query.format, function(err, fileStoreMeta, readable) {
+      if (err) {
+        return res.redirect('/images/project.png');
+      }
+
+      if (!readable) {
+        return res.redirect('/images/project.png');
+      }
+
+      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+        return res.send(304);
+      } else {
+        res.header('Last-Modified', fileStoreMeta.uploadDate);
+        res.status(200);
+        return readable.pipe(res);
+      }
     });
   };
 

@@ -96,6 +96,17 @@ function projectLib(dependencies) {
     collaboration.queryOne(projectObjectType, {'activity_stream.uuid': uuid}, callback);
   }
 
+  function updateAvatar(project, avatar, callback) {
+    if (!project) {
+      return callback(new Error('Project is required'));
+    }
+    if (!avatar) {
+      return callback(new Error('Avatar ID is required'));
+    }
+    project.avatar = avatar;
+    project.save(callback);
+  }
+
   lib.query = query;
   lib.queryOne = queryOne;
   lib.create = create;
@@ -106,6 +117,7 @@ function projectLib(dependencies) {
   lib.getUserProjects = getUserProjects;
   lib.getUserProjectStreams = getUserProjectStreams;
   lib.getFromActivityStreamID = getFromActivityStreamID;
+  lib.updateAvatar = updateAvatar;
   return lib;
 }
 

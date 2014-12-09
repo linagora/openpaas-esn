@@ -82,7 +82,7 @@ function($q, $log, $timeout, projectAPI) {
   }
   return createProject;
 }])
-  .factory('projectAPI', ['Restangular', function(Restangular) {
+  .factory('projectAPI', ['Restangular', '$upload', function(Restangular, $upload) {
     function list(domain, options) {
       var query = options || {};
       query.domain_id = domain;
@@ -105,12 +105,24 @@ function($q, $log, $timeout, projectAPI) {
       return Restangular.all('projects').post(body);
     }
 
+    function uploadAvatar(id, blob, mime) {
+      return $upload.http({
+        method: 'POST',
+        url: '/api/projects/' + id + '/avatar',
+        headers: {'Content-Type': mime},
+        data: blob,
+        params: {mimetype: mime, size: blob.size},
+        withCredentials: true
+      });
+    }
+
     return {
       get: get,
       addMember: addMember,
       getInvitableMembers: getInvitableMembers,
       create: create,
-      list: list
+      list: list,
+      uploadAvatar: uploadAvatar
     };
   }])
   .factory('projectService', function() {

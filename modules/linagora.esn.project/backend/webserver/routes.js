@@ -23,6 +23,8 @@ function projectWebserverRoutes(app, projectLib, dependencies) {
   app.get('/api/projects', authorizationMW.requiresAPILogin, domainMW.loadFromDomainIdParameter, authorizationMW.requiresDomainMember, controllers.getAll);
   app.get('/api/projects/:id', authorizationMW.requiresAPILogin, controllers.get);
   app.post('/api/projects', authorizationMW.requiresAPILogin, controllers.create);
+  app.post('/api/projects/:id/avatar', authorizationMW.requiresAPILogin, projectMW.load, permissionsMW.userIsProjectCreator, controllers.uploadAvatar);
+  app.get('/api/projects/:id/avatar', authorizationMW.requiresAPILogin, projectMW.load, controllers.getAvatar);
   app.post('/api/projects/:id/members', authorizationMW.requiresAPILogin, projectMW.load, permissionsMW.userIsProjectCreator, membershipController.add);
   webserver.on('route:get:/api/user/activitystreams', controllers.getUserProjectStreams);
   app.get('/api/projects/:id/invitable', authorizationMW.requiresAPILogin, projectMW.load, permissionsMW.userIsProjectCreator, domainMW.loadFromDomainIdParameter, authorizationMW.requiresDomainMember, membershipController.getInvitable);

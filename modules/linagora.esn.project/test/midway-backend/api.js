@@ -618,4 +618,66 @@ describe('linagora.esn.project module', function() {
       });
     });
   });
+
+  describe('GET /api/projects/:id/avatar', function() {
+    beforeEach(function() {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      this.app = this.helpers.modules.getWebServer(app);
+    });
+
+    it('should 401 when not connected', function(done) {
+      request(this.app).get('/api/projects/123/avatar').expect(401).end(done);
+    });
+
+    it('should 404 when project does not exist', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var ObjectId = require('bson').ObjectId;
+        var id = new ObjectId();
+        var req = loggedInAsUser(request(self.app).get('/api/projects/' + id + '/avatar'));
+        req.expect(404);
+        req.end(done);
+      });
+    });
+  });
+
+  describe('POST /api/projects/:id/avatar', function() {
+    beforeEach(function() {
+      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      this.app = this.helpers.modules.getWebServer(app);
+    });
+
+    it('should 401 when not connected', function(done) {
+      request(this.app).post('/api/projects/123/avatar').expect(401).end(done);
+    });
+
+    it('should 404 when project does not exists', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var ObjectId = require('bson').ObjectId;
+        var id = new ObjectId();
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + id + '/avatar'));
+        req.expect(404);
+        req.end(done);
+      });
+    });
+
+    it('should 403 when user is not the project creator', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(self.app).post('/api/projects/' + self.models.projects[1]._id + '/avatar'));
+        req.expect(403);
+        req.end(done);
+      });
+    });
+  });
 });
