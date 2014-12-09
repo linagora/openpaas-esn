@@ -197,8 +197,8 @@ angular.module('esnApp', [
     });
 
     $routeProvider.when('/communities/:community_id/calendar', {
-      controller: 'communityController',
       templateUrl: '/views/modules/community/community-calendar',
+      controller: 'communityCalendarController',
       resolve: {
         community: function(communityAPI, $route, $location) {
           return communityAPI.get($route.current.params.community_id).then(

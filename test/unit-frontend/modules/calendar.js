@@ -69,5 +69,37 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.flush();
       });
     });
+
+    describe('The getEvent fn', function() {
+      it('should return an event', function(done) {
+        // The server url needs to be retrieved
+        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+
+        // The caldav server will be hit
+        this.$httpBackend.expectGET('/path/to/event.ics').respond(
+          ['vcalendar', [], [
+            ['vevent', [
+              ['uid', {}, 'text', 'myuid'],
+              ['summary', {}, 'text', 'title'],
+              ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+              ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
+            ], []]
+          ]]
+        );
+
+        this.calendarService.getEvent('path/to/event.ics').then(function(event) {
+            expect(event).to.be.an('object');
+            expect(event.id).to.equal('myuid');
+            expect(event.title).to.equal('title');
+            expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
+            expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+            expect(event.vevent).to.exist;
+        }.bind(this)).finally (done);
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+    });
   });
 });
