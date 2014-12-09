@@ -29,22 +29,22 @@ module.exports = function(grunt) {
       },
       midway1: {
         options: {
-          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[a-c]*.js']
+          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[a-b]*.js']
         }
       },
       midway2: {
         options: {
-          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[d-k]*.js']
+          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/c*.js']
         }
       },
       midway3: {
         options: {
-          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[l-s]*.js']
+          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[d-m]*.js']
         }
       },
       midway4: {
         options: {
-          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[t-z]*.js']
+          files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/[n-z]*.js']
         }
       },
       modulesMidway: {
