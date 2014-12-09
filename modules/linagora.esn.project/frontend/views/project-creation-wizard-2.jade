@@ -1,20 +1,20 @@
 .modal-header
   button.close(type="button", ng-click="createModal.hide()") &times;
-  h4.modal-title #{__('Create a community')}
+  h4.modal-title #{__('Create a project')}
 .modal-body
-  form(name='communityForm')
+  form(name='projectForm')
     .form-group
       .row.alert.alert-warning(role="alert")
         p #{__('You are about to create')}
           strong &nbsp;'{{project.title}}'&nbsp;
           | #{__('as a')}
           strong &nbsp;'{{project.type}}'&nbsp;
-          | #{__('project')}. #{__('You can customize it with an avatar and a description now or do it later on the community page')}.
+          | #{__('project')}. #{__('You can customize it with an avatar and a description now or do it later on the project page')}.
       avatar-picker
     .form-group
       label #{__('Description')}
-      textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
-      span.help-block #{__("A human readable description which will help users know what this community is about")}.
+      textarea.form-control.textarea-fixed(rows="3", ng-model='project.description', name='description')
+      span.help-block #{__("A human readable description which will help users know what this project is about")}.
 
 .modal-footer(ng-hide="sending")
   button.btn.btn-default.pull-left(type="button", ng-click="wizard.previousStep()")
