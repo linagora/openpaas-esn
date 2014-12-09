@@ -16,6 +16,7 @@ function projectWebserverRoutes(app, projectLib, dependencies) {
   var membershipController = require('./controllers/members')(projectLib, dependencies);
   var projectMW = require('./middleware/project')(projectLib, dependencies);
   var permissionsMW = require('./middleware/permissions')(projectLib, dependencies);
+  require('./middleware/activitystream')(projectLib, dependencies);
 
   var webserver = dependencies('webserver-wrapper');
 

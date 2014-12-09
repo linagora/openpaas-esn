@@ -1,6 +1,65 @@
 'use strict';
 
 var communityModule = require('../../core/community');
+var communityPermission = require('../../core/community/permission');
+var mongoose = require('mongoose');
+var Community = mongoose.model('Community');
+
+module.exports.findStreamResource = function(req, res, next) {
+  var uuid = req.params.uuid;
+
+  Community.getFromActivityStreamID(uuid, function(err, community) {
+    if (err) {
+      return next(new Error('Error while searching the stream resource : ' + err.message));
+    }
+
+    if (!community) {
+      return next();
+    }
+
+    req.activity_stream = {
+      objectType: 'activitystream',
+      _id: uuid,
+      target: community
+    };
+    next();
+  });
+};
+
+module.exports.filterWritableTargets = function(req, res, next) {
+  var inReplyTo = req.body.inReplyTo;
+  if (inReplyTo) {
+    return next();
+  }
+
+  var targets = req.body.targets;
+  if (!targets || targets.length === 0) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Message targets are required'}});
+  }
+
+  var async = require('async');
+  async.filter(targets,
+    function(item, callback) {
+      Community.getFromActivityStreamID(item.id, function(err, community) {
+
+        if (err || !community) {
+          return callback(false);
+        }
+
+        communityPermission.canWrite(community, req.user, function(err, writable) {
+          return callback(!err && writable);
+        });
+      });
+    },
+    function(results) {
+      if (!results || results.length === 0) {
+        return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not create message'}});
+      }
+      req.body.targets = results;
+      next();
+    }
+  );
+};
 
 module.exports.canJoin = function(req, res, next) {
   if (!req.community) {
