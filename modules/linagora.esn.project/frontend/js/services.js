@@ -128,8 +128,13 @@ function($q, $log, $timeout, projectAPI) {
         isMember(project);
     }
 
+    function isManager(project, user) {
+      return project.creator === user._id;
+    }
+
     return {
       isMember: isMember,
+      isManager: isManager,
       canRead: canRead
     };
   });
