@@ -211,7 +211,7 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
 
       webserver.application.locals.injections = injections;
 
-      webserver.application.use(function(req, res){
+      webserver.application.use(function(req, res) {
         res.status(404);
         if (req.accepts('html')) {
           res.render('commons/404', { url: req.url });
