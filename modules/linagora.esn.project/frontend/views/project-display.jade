@@ -18,15 +18,20 @@ div.nopadding.esn-community
       .clearfix
 
     .row
-      .col-xs-1.pull-left.nopadding
-        span.label.label-default #{__('From')}
-      .col-xs-11
-        span {{project.startDate | amDateFormat:'MMM DD YYYY'}}
-    .row
-      .col-xs-1.pull-left.nopadding
-        span.label.label-default #{__('To')}
-      .col-xs-11
-        span {{project.endDate | amDateFormat:'MMM DD YYYY'}}
+      .col-xs-12.col-sm-6.nopadding-left
+        label #{__('From')}
+        .form-group
+          .input-group
+            .input-group-addon
+              i.fa.fa-calendar
+            input.form-control(type="text", value="{{project.startDate | amDateFormat:'MMM DD YYYY'}}" disabled)
+      .col-xs-12.col-sm-6.nopadding-left
+        label #{__('To')}
+        .form-group
+          .input-group
+            .input-group-addon
+              i.fa.fa-calendar
+            input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
 
     .clearfix
 

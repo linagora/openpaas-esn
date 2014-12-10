@@ -16,21 +16,20 @@ div.col-xs-12.nopadding.esn-community
       li.pull-left(ng-show="isCreator()")
         span.label.label-warning #{__('Creator')}
       .clearfix
-    .container-fluid
-      .row
-        .col-xs-6
-          label #{__('From')}
-          .form-group
-            .input-group
-              .input-group-addon
-                i.fa.fa-calendar
-              input.form-control(type="text", value="{{project.startDate | amDateFormat:'MMM DD YYYY'}}" disabled)
-        .col-xs-6
-          label #{__('To')}
-          .form-group
-            .input-group
-              .input-group-addon
-                i.fa.fa-calendar
-              input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
+    .row
+      .col-xs-12.col-sm-6.nopadding-left
+        label #{__('From')}
+        .form-group
+          .input-group
+            .input-group-addon
+              i.fa.fa-calendar
+            input.form-control(type="text", value="{{project.startDate | amDateFormat:'MMM DD YYYY'}}" disabled)
+      .col-xs-12.col-sm-6.nopadding-left
+        label #{__('To')}
+        .form-group
+          .input-group
+            .input-group-addon
+              i.fa.fa-calendar
+            input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
     blockquote.hidden-xs.community-description(ng-show='project.description')
       p(ng-hide='truncate === true') {{::project.description}}
