@@ -1,7 +1,7 @@
 div.col-xs-12.nopadding.esn-community
   .col-lg-2.col-sm-3.col-xs-4
     a(href='#/projects/{{::project._id}}')
-      img.thumbnail(src='/images/community.png', ng-src='/api/projects/{{::project._id}}/avatar')
+      img.thumbnail(fallback-src='/projects/images/project.png', src='/projects/images/project.png', ng-src='/api/projects/{{::project._id}}/avatar')
     .text-center
       span.label.label-default {{::project.type}}
   .col-lg-10.col-sm-9.col-xs-8
