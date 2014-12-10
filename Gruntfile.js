@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs-extra');
+var path = require('path');
 var gjslint = require('closure-linter-wrapper').gjslint;
 
 var conf_path = './test/config/';
@@ -386,13 +387,15 @@ module.exports = function(grunt) {
       } catch (e) {}
     }
 
-    try {
-      removeAllFilesInDirectory(servers.tmp);
-    } catch (err) {
-      throw err;
-    }
+    var testsFailed = !grunt.config.get('esn.tests.success');
+    var applog = path.join(servers.tmp, 'application.log');
 
-    if(!grunt.config.get('esn.tests.success')){
+    if (testsFailed && fs.existsSync(applog)) {
+      fs.copySync(applog, 'application.log');
+    }
+    removeAllFilesInDirectory(servers.tmp);
+
+    if (testsFailed) {
       grunt.log.writeln('Tests failure');
       grunt.fail.fatal('error', 3);
     }
