@@ -126,6 +126,7 @@ function get(req, res) {
       }
     }
 
+    res.set('Content-Length', fileMeta.length);
     res.status(200);
     return readStream.pipe(res);
   });
