@@ -10,7 +10,6 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       var processed = 0;
       var tasks = [];
       var background = false;
-      var canceler = $q.defer();
 
       function progress() {
         return parseInt(100.0 * processed / tasks.length);
@@ -51,6 +50,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
           return err;
         };
 
+        var canceler = $q.defer();
         var defer = $q.defer();
         tracker.push(defer.promise.then(done, fail));
         var task = {
@@ -58,6 +58,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
           progress: 0,
           file: file,
           defer: defer,
+          canceler: canceler,
           cancel: function() {
             canceler.resolve();
           }
@@ -77,7 +78,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
         task.uploading = true;
         task.progress = 0;
 
-        task.uploader = fileAPIService.uploadFile(task.file, task.file.type, task.file.size, canceler.promise)
+        task.uploader = fileAPIService.uploadFile(task.file, task.file.type, task.file.size, task.canceler.promise)
           .success(function(response) {
             task.progress = 100;
             task.uploaded = true;
