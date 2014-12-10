@@ -1,7 +1,6 @@
 'use strict';
 
 var express = require('express');
-var logger = require('../core').logger;
 var serverApplication = require('./application');
 var https = require('https');
 var http = require('http');
@@ -74,12 +73,12 @@ function start(callback) {
   }
 
   if (!webserver.port && !webserver.ssl_port) {
-    logger.error('The webserver needs to be configured before it is started');
+    console.error('The webserver needs to be configured before it is started');
     process.exit(1);
   }
 
   if (webserver.ssl_port && (!webserver.ssl_cert || !webserver.ssl_key)) {
-    logger.error('Configuring an SSL server requires port, certificate and key');
+    console.error('Configuring an SSL server requires port, certificate and key');
     process.exit(1);
   }
   callback = callback || function() {};
@@ -111,7 +110,7 @@ function start(callback) {
   };
 
   if (inState(DISABLED)) {
-    logger.error('Need to run on at least one socket');
+    console.error('Need to run on at least one socket');
     process.exit(1);
   }
 
@@ -206,7 +205,7 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
       var config = dependencies('conf')('default');
 
       if (!config.webserver.enabled) {
-        logger.warn('The webserver will not start as expected by the configuration.');
+        console.warn('The webserver will not start as expected by the configuration.');
         return callback();
       }
 
@@ -223,9 +222,9 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
       webserver.ssl_cert = config.webserver.ssl_cert;
       webserver.start(function(err) {
         if (err) {
-          logger.error('Web server failed to start', err);
+          console.error('Web server failed to start', err);
           if (err.syscall === 'listen' && err.code === 'EADDRINUSE') {
-            logger.info('Something is already listening on the Web server port', config.webserver.port);
+            console.info('Something is already listening on the Web server port', config.webserver.port);
           }
         }
         callback.apply(this, arguments);
