@@ -1,7 +1,12 @@
 {
   "webserver": {
     "enabled": true,
+
+    "ip": "127.0.0.1",
+    "ipv6": "::1",
     "port": 8081,
+    "ssl_ip": "127.0.0.1",
+    "ssl_ipv6": "::1",
     "ssl_port": 8444,
     "virtualhosts": [],
     "startupBufferTimeout": 500

@@ -9,16 +9,28 @@ describe('The Webserver module', function() {
       httpMock = null,
       httpsMock = null,
       serverInstance = null,
-      sslserverInstance = null;
+      sslserverInstance = null,
+      server6Instance = null,
+      sslserver6Instance = null;
 
   function mockServer(basePath) {
-    httpMock.serverInstance.listen = function(serverPort) {
-      returnData.serverHttpPort = serverPort;
-      return serverInstance;
+    httpMock.serverInstance.listen = function(serverPort, serverIp) {
+      if (serverIp === '127.0.0.1') {
+        returnData.serverHttpPort = serverPort;
+        return serverInstance;
+      } else {
+        returnData.serverHttpPort6 = serverPort;
+        return server6Instance;
+      }
     };
-    httpsMock.serverInstance.listen = function(serverPort) {
-      returnData.serverHttpsPort = serverPort;
-      return sslserverInstance;
+    httpsMock.serverInstance.listen = function(serverPort, serverIp) {
+      if (serverIp === '127.0.0.1') {
+        returnData.serverHttpsPort = serverPort;
+        return sslserverInstance;
+      } else {
+        returnData.serverHttpsPort6 = serverPort;
+        return sslserver6Instance;
+      }
     };
 
     mockery.registerMock('./middleware/setup-sessions', function() {});
@@ -31,7 +43,9 @@ describe('The Webserver module', function() {
     var returnData = {
       webserver: webserver,
       serverHttpPort: undefined,
-      serverHttpsPort: undefined
+      serverHttpsPort: undefined,
+      serverHttpPort6: undefined,
+      serverHttpsPort6: undefined
     };
     return returnData;
   }
@@ -44,10 +58,27 @@ describe('The Webserver module', function() {
     expect(webserver.application).to.be.a.Function;
     expect(webserver.virtualhosts).to.exist;
     expect(webserver.virtualhosts).to.be.an.Array;
+
     expect(webserver).to.have.property('server');
     expect(webserver.server).to.be.null;
+    expect(webserver).to.have.property('server6');
+    expect(webserver.server6).to.be.null;
+    expect(webserver).to.have.property('sslserver');
+    expect(webserver.sslserver).to.be.null;
+    expect(webserver).to.have.property('sslserver6');
+    expect(webserver.sslserver6).to.be.null;
+
+    expect(webserver).to.have.property('ip');
+    expect(webserver.ip).to.be.null;
+    expect(webserver).to.have.property('ipv6');
+    expect(webserver.ipv6).to.be.null;
     expect(webserver).to.have.property('port');
     expect(webserver.port).to.be.null;
+
+    expect(webserver).to.have.property('ssl_ip');
+    expect(webserver.ssl_ip).to.be.null;
+    expect(webserver).to.have.property('ssl_ipv6');
+    expect(webserver.ssl_ipv6).to.be.null;
     expect(webserver).to.have.property('ssl_port');
     expect(webserver.ssl_port).to.be.null;
     expect(webserver).to.have.property('ssl_key');
@@ -76,6 +107,8 @@ describe('The Webserver module', function() {
         removeListener: function() {}
       };
     sslserverInstance = Object.create(serverInstance);
+    sslserver6Instance = Object.create(serverInstance);
+    server6Instance = Object.create(serverInstance);
   });
 
   beforeEach(function(done) {
@@ -83,8 +116,9 @@ describe('The Webserver module', function() {
   });
 
   describe('the start method', function() {
-    it('should start the web server (http only)', function(done) {
+    it('should start the web server (http ipv4 only)', function(done) {
       var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.ip = config.webserver.ip;
       serverMock.webserver.port = config.webserver.port;
       serverMock.webserver.start(function() {
         expect(serverMock.serverHttpsPort).to.be.undefined;
@@ -93,8 +127,9 @@ describe('The Webserver module', function() {
       });
     });
 
-    it('should start the web server (https only)', function(done) {
+    it('should start the web server (https ipv4 only)', function(done) {
       var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.ssl_ip = config.webserver.ssl_ip;
       serverMock.webserver.ssl_port = config.webserver.ssl_port;
       serverMock.webserver.ssl_cert = this.testEnv.fixtures + '/ssl.crt';
       serverMock.webserver.ssl_key = this.testEnv.fixtures + '/ssl.key';
@@ -105,15 +140,31 @@ describe('The Webserver module', function() {
       });
     });
 
-    it('should start the web server (both types)', function(done) {
+    it('should start the web server (http+https ipv4)', function(done) {
       var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.ip = config.webserver.ip;
       serverMock.webserver.port = config.webserver.port;
+      serverMock.webserver.ssl_ip = config.webserver.ssl_ip;
       serverMock.webserver.ssl_port = config.webserver.ssl_port;
       serverMock.webserver.ssl_cert = this.testEnv.fixtures + '/ssl.crt';
       serverMock.webserver.ssl_key = this.testEnv.fixtures + '/ssl.key';
       serverMock.webserver.start(function() {
         expect(serverMock.serverHttpsPort).to.be.equal(config.webserver.ssl_port);
         expect(serverMock.serverHttpPort).to.be.equal(config.webserver.port);
+        done();
+      });
+    });
+    it('should start the web server (ipv6)', function(done) {
+      var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.ipv6 = config.webserver.ipv6;
+      serverMock.webserver.ssl_ipv6 = config.webserver.ssl_ipv6;
+      serverMock.webserver.port = config.webserver.port;
+      serverMock.webserver.ssl_port = config.webserver.ssl_port;
+      serverMock.webserver.ssl_cert = this.testEnv.fixtures + '/ssl.crt';
+      serverMock.webserver.ssl_key = this.testEnv.fixtures + '/ssl.key';
+      serverMock.webserver.start(function() {
+        expect(serverMock.serverHttpsPort6).to.be.equal(config.webserver.ssl_port);
+        expect(serverMock.serverHttpPort6).to.be.equal(config.webserver.port);
         done();
       });
     });
@@ -183,7 +234,9 @@ describe('The Webserver module', function() {
   describe('when started', function() {
     it('should set the webserver into the server property', function(done) {
       var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.ip = config.webserver.ip;
       serverMock.webserver.port = config.webserver.port;
+      serverMock.webserver.ssl_ip = config.webserver.ip;
       serverMock.webserver.ssl_port = config.webserver.ssl_port;
       serverMock.webserver.ssl_cert = this.testEnv.fixtures + '/ssl.crt';
       serverMock.webserver.ssl_key = this.testEnv.fixtures + '/ssl.key';

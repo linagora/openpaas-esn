@@ -12,14 +12,24 @@ var AsyncEventEmitter = require('async-eventemitter');
 
 var webserver = {
   application: serverApplication,
-  virtualhosts: [],
+
   server: null,
-  port: null,
+  server6: null,
+  sslserver: null,
+  sslserver6: null,
+
   ip: null,
+  ipv6: null,
+  port: null,
+
+  ssl_ip: null,
+  ssl_ipv6: null,
   ssl_port: null,
   ssl_key: null,
   ssl_cert: null,
-  ssl_ip: null,
+
+  virtualhosts: [],
+
   started: false
 };
 
@@ -29,10 +39,45 @@ var emitter = new AsyncEventEmitter();
 emitter.setMaxListeners(0);
 
 function start(callback) {
+  function listenCallback(server, err) {
+    if (server === webserver.server) { states.http4 = STARTED; }
+    if (server === webserver.sslserver) { states.ssl4 = STARTED; }
+    if (server === webserver.server6) { states.http6 = STARTED; }
+    if (server === webserver.sslserver6) { states.ssl6 = STARTED; }
+
+    server.removeListener('listening', listenCallback);
+    server.removeListener('error', listenCallback);
+
+    // If an error occurred or all servers are listening, call the callback
+    if (!callbackFired) {
+      if (err || inState(STOPPED, true)) {
+        callbackFired = true;
+        callback(err);
+      }
+    }
+  }
+
+  function inState(state, invert) {
+    for (var k in states) {
+      if (invert && states[k] === state) {
+        return false;
+      } else if (!invert && states[k] !== state) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function setupEventListeners(server) {
+    server.on('listening', listenCallback.bind(null, server));
+    server.on('error', listenCallback.bind(null, server));
+  }
+
   if (!webserver.port && !webserver.ssl_port) {
     logger.error('The webserver needs to be configured before it is started');
     process.exit(1);
   }
+
   if (webserver.ssl_port && (!webserver.ssl_cert || !webserver.ssl_key)) {
     logger.error('Configuring an SSL server requires port, certificate and key');
     process.exit(1);
@@ -52,46 +97,48 @@ function start(callback) {
     webserver.application = application;
   }
 
-  var serverListening = false;
-  var sslserverListening = false;
+  var DISABLED = 0;
+  var STOPPED = 1;
+  var STARTED = 2;
+
   var callbackFired = false;
+  var ws = webserver;
+  var states = {
+    http4: ws.ip && ws.port ? STOPPED : DISABLED,
+    http6: ws.ipv6 && ws.port ? STOPPED : DISABLED,
+    ssl4: ws.ssl_ip && ws.ssl_port && ws.ssl_key && ws.ssl_cert ? STOPPED : DISABLED,
+    ssl6: ws.ssl_ipv6 && ws.ssl_port && ws.ssl_key && ws.ssl_cert ? STOPPED : DISABLED
+  };
 
-  function listenCallback(server, err) {
-    if (server === webserver.server) {
-      serverListening = true;
-    }
-    if (server === webserver.sslserver) {
-      sslserverListening = true;
-    }
-    server.removeListener('listening', listenCallback);
-    server.removeListener('error', listenCallback);
-
-    // If an error occurred or both servers are listening, call the callback
-    if (!callbackFired && (err || (serverListening && sslserverListening))) {
-      callbackFired = true;
-      callback(err);
-    }
+  if (inState(DISABLED)) {
+    logger.error('Need to run on at least one socket');
+    process.exit(1);
   }
 
-  function setupEventListeners(server) {
-    server.on('listening', listenCallback.bind(null, server));
-    server.on('error', listenCallback.bind(null, server));
+  var sslkey, sslcert;
+  if (states.ssl4 === STOPPED || states.ssl6 === STOPPED) {
+    sslkey = fs.readFileSync(webserver.ssl_key);
+    sslcert = fs.readFileSync(webserver.ssl_cert);
   }
 
-  if (webserver.ssl_key && webserver.ssl_cert && webserver.ssl_port) {
-    var sslkey = fs.readFileSync(webserver.ssl_key);
-    var sslcert = fs.readFileSync(webserver.ssl_cert);
-    webserver.sslserver = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port, webserver.ssl_ip);
-    setupEventListeners(webserver.sslserver);
-  } else {
-    sslserverListening = true;
-  }
-
-  if (webserver.port) {
+  if (states.http4 === STOPPED) {
     webserver.server = http.createServer(webserver.application).listen(webserver.port, webserver.ip);
     setupEventListeners(webserver.server);
-  } else {
-    serverListening = true;
+  }
+
+  if (states.http6 === STOPPED) {
+    webserver.server6 = http.createServer(webserver.application).listen(webserver.port, webserver.ipv6);
+    setupEventListeners(webserver.server6);
+  }
+
+  if (states.ssl4 === STOPPED) {
+    webserver.sslserver = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port, webserver.ssl_ip);
+    setupEventListeners(webserver.sslserver);
+  }
+
+  if (states.ssl6 === STOPPED) {
+    webserver.sslserver6 = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port, webserver.ssl_ipv6);
+    setupEventListeners(webserver.sslserver6);
   }
 }
 
@@ -168,8 +215,10 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
       webserver.virtualhosts = config.webserver.virtualhosts;
       webserver.port = config.webserver.port;
       webserver.ip = config.webserver.ip;
+      webserver.ipv6 = config.webserver.ipv6;
       webserver.ssl_port = config.webserver.ssl_port;
       webserver.ssl_ip = config.webserver.ssl_ip;
+      webserver.ssl_ipv6 = config.webserver.ssl_ipv6;
       webserver.ssl_key = config.webserver.ssl_key;
       webserver.ssl_cert = config.webserver.ssl_cert;
       webserver.start(function(err) {
