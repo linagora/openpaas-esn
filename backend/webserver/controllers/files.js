@@ -25,6 +25,11 @@ function create(req, res) {
   }
 
   var saveStream = function(stream) {
+    var interrupted = false;
+    req.on('close', function(err) {
+      interrupted = true;
+    });
+
     return filestore.store(fileId, req.query.mimetype, metadata, stream, {}, function(err, saved) {
       if (err) {
         return res.json(500, {
@@ -36,7 +41,7 @@ function create(req, res) {
         });
       }
 
-      if (saved.length !== size) {
+      if (saved.length !== size || interrupted) {
         return filestore.delete(fileId, function(err) {
           res.json(412, {
             error: {

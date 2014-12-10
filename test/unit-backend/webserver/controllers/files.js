@@ -61,7 +61,8 @@ describe('The files controller', function() {
         body: 'yeah',
         headers: {
           'content-type': 'text/plain'
-        }
+        },
+        on: function() {}
       };
       var res = {
         json: function(code, detail) {
@@ -96,7 +97,8 @@ describe('The files controller', function() {
         body: 'yeah',
         headers: {
           'content-type': 'text/plain'
-        }
+        },
+        on: function() {}
       };
       var res = {
         json: function(code, detail) {
@@ -131,7 +133,8 @@ describe('The files controller', function() {
         body: 'yeah',
         headers: {
           'content-type': 'text/plain'
-        }
+        },
+        on: function() {}
       };
       var res = {
         json: function(code, detail) {
@@ -168,7 +171,8 @@ describe('The files controller', function() {
         body: 'yeah',
         headers: {
           'content-type': 'text/plain'
-        }
+        },
+        on: function() {}
       };
       var res = {
         json: function(code, detail) {
@@ -191,7 +195,8 @@ describe('The files controller', function() {
         user: { _id: 123 },
         headers: {
           'content-type': 'text/plain'
-        }
+        },
+        on: function() {}
       };
 
       mockery.registerMock('../../core/filestore', {
