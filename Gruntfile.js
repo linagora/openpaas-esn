@@ -2,7 +2,6 @@
 
 var fs = require('fs-extra');
 var path = require('path');
-var gjslint = require('closure-linter-wrapper').gjslint;
 
 var conf_path = './test/config/';
 var servers = require( conf_path + 'servers-conf');
@@ -10,6 +9,7 @@ var config = require('./config/default.json');
 
 module.exports = function(grunt) {
   var CI = grunt.option('ci');
+  var processHelpers = require('./tasks/helpers/process').init(grunt);
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -353,6 +353,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
 
+  grunt.loadTasks('tasks');
+
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo_replSet', 'shell:elasticsearch']);
   grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo_replSet:kill', 'shell:elasticsearch:kill']);
 
@@ -399,38 +401,6 @@ module.exports = function(grunt) {
       grunt.log.writeln('Tests failure');
       grunt.fail.fatal('error', 3);
     }
-  });
-
-  grunt.registerTask('gjslint', 'run the closure linter', function() {
-    var done = this.async();
-    var flagsArray = [
-      '--disable 0110',
-      '--nojsdoc',
-      '-r test',
-      '-r backend',
-      '-r frontend/js',
-      '-r modules',
-      '-e test/frontend/karma-include',
-      '-x frontend/js/modules/modernizr.js'
-    ];
-
-    var reporter;
-    if (CI) {
-      reporter = { name: 'gjslint_xml', dest: 'gjslint.xml' };
-    } else {
-      reporter = { name: 'console' };
-    }
-
-    gjslint({
-      flags: flagsArray,
-      reporter: reporter
-    }, function(err, result) {
-      if (CI && !err) {
-        grunt.log.ok('Report "gjslint.xml" created.');
-      }
-
-      done(!err);
-    });
   });
 
   grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', function() {
@@ -653,7 +623,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('linters', ['jshint', 'gjslint']);
+  grunt.registerTask('linters', 'Check code for lint', processHelpers.runWithForce(['jshint', 'gjslint']));
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
     var done = this.async();
