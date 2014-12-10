@@ -217,8 +217,9 @@ describe('The document store routes resource', function() {
       config.core.config.db = 'somewhere/not/writable';
 
       var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
-      var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-      webserver.port = port;
+      webserver.port = config.port;
+      webserver.ip = config.ip;
+      webserver.ipv6 = config.ipv6;
       webserver.start();
 
       var mongo = { hostname: 'localhost', port: 27017, dbname: 'openpaas-test-ok'};
@@ -244,8 +245,10 @@ describe('The document store routes resource', function() {
       var mongoModule = require(this.testEnv.basePath + '/backend/core').db.mongo;
 
       var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
-      var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-      webserver.port = port;
+      var config = require(this.testEnv.basePath + '/backend/core').config('default').webserver;
+      webserver.port = config.port;
+      webserver.ip = config.ip;
+      webserver.ipv6 = config.ipv6;
       webserver.start();
 
       mongoModule.init = done;
@@ -276,8 +279,10 @@ describe('The document store routes resource', function() {
         // set higher timeout than the mongo one so we can catch error
         this.timeout(30000);
         var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
-        var port = require(this.testEnv.basePath + '/backend/core').config('default').webserver.port;
-        webserver.port = port;
+        var config = require(this.testEnv.basePath + '/backend/core').config('default').webserver;
+        webserver.port = config.port;
+        webserver.ip = config.ip;
+        webserver.ipv6 = config.ipv6;
         webserver.start();
 
         var findport = require('find-port');
