@@ -1,0 +1,33 @@
+div.nopadding.esn-community
+
+  .col-lg-2.col-sm-3.col-xs-4
+
+    a(href='#/projects/{{project._id}}')
+      img.thumbnail.nopadding(src='/images/project.png', ng-src='/api/projects/{{project._id}}/avatar')
+
+  .col-lg-10.col-sm-9.col-xs-8
+    h4.media-heading
+      a(href='#/projects/{{project._id}}')
+        strong {{project.title}}
+      small &nbsp; {{project.type}}
+    ul.list-inline
+      li.pull-left
+        i.fa.fa-users
+        span(ng-if='project.members_count !== 1') {{project.members_count || 0}} #{__('members')}
+        span(ng-if='project.members_count === 1') 1 #{__('member')}
+      .clearfix
+
+    .row
+      .col-xs-1.pull-left.nopadding
+        span.label.label-default #{__('From')}
+      .col-xs-11
+        span {{project.startDate | amDateFormat:'MMM DD YYYY'}}
+    .row
+      .col-xs-1.pull-left.nopadding
+        span.label.label-default #{__('To')}
+      .col-xs-11
+        span {{project.endDate | amDateFormat:'MMM DD YYYY'}}
+
+    .clearfix
+
+    p.hidden-xs.community-description(ng-show='project.description') {{project.description | characters:256 :false }}
