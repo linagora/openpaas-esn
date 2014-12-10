@@ -41,7 +41,8 @@ angular.module('esnApp', [
   'esn.oembed',
   'esn.oembed.youtube',
   'esn.oembed.instagram',
-  'esn.oembed.soundcloud'
+  'esn.oembed.soundcloud',
+  'esn.oembed.deezer'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/', {
