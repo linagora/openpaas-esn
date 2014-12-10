@@ -649,6 +649,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.caldav', 'esn.backgr
           });
           calls.push(defer.promise);
         }
+        else if (attachment.uploading) {
+          attachment.cancel();
+        }
       });
       return calls;
     }

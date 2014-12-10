@@ -1,0 +1,20 @@
+doctype html
+html
+    head
+    meta(charset='utf8')
+    title OpenPaas
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    link(rel='icon', type='image/png', href='images/logo-tiny.png')
+    link(rel='stylesheet', href='/css/style-setup-wizard.css')
+    link(rel='stylesheet', href='/css/themes/default.css')
+
+    body.ng-cloak
+        header.topbar.navbar
+            .container-fluid
+                a(href="#/")
+                img.logo(src="/images/logo.png")
+            div.container
+                div.page-header.center
+                    h1 #{__('Not Found')}
+                div.text-center
+                    code.text-danger #{url} #{__('does not exist in OpenPaaS')}
