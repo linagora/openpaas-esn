@@ -140,6 +140,10 @@ function($q, $log, $timeout, projectAPI) {
         isMember(project);
     }
 
+    function canWrite(project) {
+      return project && project.writable;
+    }
+
     function isManager(project, user) {
       return project.creator === user._id;
     }
@@ -147,6 +151,7 @@ function($q, $log, $timeout, projectAPI) {
     return {
       isMember: isMember,
       isManager: isManager,
-      canRead: canRead
+      canRead: canRead,
+      canWrite: canWrite
     };
   });

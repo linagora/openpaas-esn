@@ -4,7 +4,6 @@ angular.module('esn.project')
   .controller('projectController', ['$scope', 'projectService', 'session', 'project',
     function($scope, projectService, session, project) {
       $scope.project = project;
-      $scope.writable = project.writable;
 
       $scope.canRead = function() {
         return projectService.canRead(project);
@@ -13,6 +12,12 @@ angular.module('esn.project')
       $scope.isProjectManager = function() {
         return projectService.isManager($scope.project, session.user);
       };
+
+      $scope.canWrite = function() {
+        return projectService.canWrite($scope.project);
+      };
+
+      $scope.writable = $scope.canWrite();
     }])
   .controller('projectsController', ['$scope', '$log', '$location', 'projectAPI', 'domain', 'user',
     function($scope, $log, $location, projectAPI, domain, user) {
