@@ -44,11 +44,17 @@ function start(port, options, callback) {
   wsserver.port = port;
   var realCallback = callback;
   if (webserver && webserver.sslserver && webserver.ssl_port === wsserver.port) {
-    logger.debug('websocket server will be attached to the SSL Express server');
+    logger.debug('websocket server will be attached to the IPv4 SSL Express server');
     wsserver.server = webserver.sslserver;
   } else if (webserver && webserver.server && webserver.port === wsserver.port) {
-    logger.debug('websocket server will be attached to the Express server');
+    logger.debug('websocket server will be attached to the IPv4 Express server');
     wsserver.server = webserver.server;
+  } else if (webserver && webserver.sslserver6 && webserver.ssl_port === wsserver.port) {
+    logger.debug('websocket server will be attached to the IPv6 SSL Express server');
+    wsserver.server = webserver.sslserver6;
+  } else if (webserver && webserver.server6 && webserver.port === wsserver.port) {
+    logger.debug('websocket server will be attached to the IPv6 Express server');
+    wsserver.server = webserver.server6;
   } else {
     logger.debug('websocket server will launch a new Express server');
     wsserver.server = express().listen(wsserver.port);

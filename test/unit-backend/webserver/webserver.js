@@ -99,6 +99,7 @@ describe('The Webserver module', function() {
     httpsMock = expressFixtures.https();
     serverInstance = {
         me: true,
+        address: function() { return this._address; },
         on: function(event, callback) {
           if (event === 'listening') {
             process.nextTick(callback);
@@ -109,6 +110,11 @@ describe('The Webserver module', function() {
     sslserverInstance = Object.create(serverInstance);
     sslserver6Instance = Object.create(serverInstance);
     server6Instance = Object.create(serverInstance);
+
+    serverInstance._address = { address: config.webserver.ip, port: config.webserver.port, family: 'IPv4' };
+    sslserverInstance._address = { address: config.webserver.ssl_ip, port: config.webserver.port, family: 'IPv4' };
+    server6Instance._address = { address: config.webserver.ipv6, port: config.webserver.ssl_port, family: 'IPv6' };
+    sslserver6Instance._address = { address: config.webserver.ssl_ipv6, port: config.webserver.ssl_port, family: 'IPv6' };
   });
 
   beforeEach(function(done) {

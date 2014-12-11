@@ -43,6 +43,11 @@ function start(callback) {
     if (server === webserver.sslserver) { states.ssl4 = STARTED; }
     if (server === webserver.server6) { states.http6 = STARTED; }
     if (server === webserver.sslserver6) { states.ssl6 = STARTED; }
+    var address = server.address();
+    if (address) {
+      console.log('Webserver listening on ' + address.address + ' port ' +
+                  address.port + ' (' + address.family + ')');
+    }
 
     server.removeListener('listening', listenCallback);
     server.removeListener('error', listenCallback);
@@ -118,6 +123,15 @@ function start(callback) {
   if (states.ssl4 === STOPPED || states.ssl6 === STOPPED) {
     sslkey = fs.readFileSync(webserver.ssl_key);
     sslcert = fs.readFileSync(webserver.ssl_cert);
+  }
+
+  if (ws.ipv6 === '::' && ws.ip === '0.0.0.0' && states.http6 && states.http4) {
+    // Listening on :: listens on ipv4 and ipv6, we only need one server
+    states.http4 = DISABLED;
+  }
+  if (ws.ssl_ipv6 === '::' && ws.ssl_ip === '0.0.0.0' && states.ssl6 && states.ssl4) {
+    // Listening on :: listens on ipv4 and ipv6, we only need one server
+    states.ssl4 = DISABLED;
   }
 
   if (states.http4 === STOPPED) {
