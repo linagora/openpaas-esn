@@ -2,38 +2,21 @@
 
 (function() {
 
-  var templates = ['soundcloud\\.com/[\\w-]+'];
-  var regExps = [new RegExp(templates[0], 'i')];
-  var endpoint = 'http://soundcloud.com/oembed';
-
-  var SCService = function SCService($http) {
-    return {
-      match: function(url) {
-        return regExps.some(function(regexp) {
-          if (url.match(regexp) !== null) {
-            return true;
-          }
-          return false;
-        });
-      },
-
-      oembed: function(url) {
-        return $http.get(endpoint, {params: {format: 'json', url: url}}).then(function(response) {
-          return response.data;
-        });
-      }
-    };
-  };
-  SCService.$inject = ['$http'];
-
   var soundcloud = angular.module('esn.oembed.soundcloud', ['esn.oembed']);
-  soundcloud.factory('soundcloudResolver', SCService);
+
+  var provider = {
+    name: 'soundcloud',
+    regexps: [new RegExp('soundcloud\\.com/[\\w-]+', 'i')],
+    endpoint: 'http://soundcloud.com/oembed',
+    type: 'rich',
+    resolver: 'http'
+  };
 
   soundcloud.run(['oembedRegistry', function(oembedRegistry) {
-    oembedRegistry.register('soundcloud', SCService);
+    oembedRegistry.addProvider(provider);
   }]);
 
-  soundcloud.directive('soundcloudOembed', ['soundcloudResolver', function(resolver) {
+  soundcloud.directive('soundcloudOembed', ['oembedResolver', function(oembedResolver) {
     return {
       restrict: 'E',
       replace: true,
@@ -44,12 +27,7 @@
         maxheight: '='
       },
       link: function($scope, $element) {
-
-        if (!resolver.match($scope.url)) {
-          return;
-        }
-
-        resolver.oembed($scope.url, $scope.maxwidth, $scope.maxheight).then(
+        oembedResolver[provider.resolver](provider.endpoint, $scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
             angular.element(oembed.html).appendTo($element[0]);
           },

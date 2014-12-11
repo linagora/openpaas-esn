@@ -18,10 +18,10 @@ angular.module('esn.oembed', [])
 
         oembedService.getLinks($scope.message).forEach(function(link) {
           $log.debug('Processing oembed for link', link);
-          var oembed = oembedService.getOEmbedProvider(link);
+          var oembed = oembedService.getProvider(link);
           if (oembed) {
-            var e = $('<' + oembed.provider + '-oembed></' + oembed.provider + '-oembed>');
-            e.attr({url: link, maxwidth: $scope.maxwidth || 800, maxheight: $scope.maxheight || 600});
+            var e = $('<' + oembed.name + '-oembed></' + oembed.name + '-oembed>');
+            e.attr({url: link, maxwidth: $scope.maxwidth, maxheight: $scope.maxheight});
             var template = angular.element(e);
             var newElt = $compile(template)($scope);
             $element.append(newElt);
@@ -32,58 +32,82 @@ angular.module('esn.oembed', [])
       }
     };
   }])
-  .factory('oembedService', ['oembedRegistry', function(oembedRegistry) {
-    return {
-      getLinks: function getLinks(text) {
-        var source = (text || '').toString();
-        var urlArray = [];
-        var matchArray;
+  .factory('oembedService', ['$log', 'oembedRegistry', function($log, oembedRegistry) {
+    function getLinks(text) {
+      var source = (text || '').toString();
+      var urlArray = [];
+      var matchArray;
 
-        // Regular expression to find FTP, HTTP(S) and email URLs.
-        var regexToken = /(((https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g;
+      var regexToken = /(((https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g;
 
-        // Iterate through any URLs in the text.
-        while ((matchArray = regexToken.exec(source)) !== null) {
-          var token = matchArray[0];
-          urlArray.push(token);
-        }
-
-        return urlArray;
-      },
-
-      getOEmbedProvider: function(link) {
-        return oembedRegistry.getHandler(link);
+      while ((matchArray = regexToken.exec(source)) !== null) {
+        var token = matchArray[0];
+        urlArray.push(token);
       }
+
+      return urlArray;
+    }
+
+    function validate(url, regExps) {
+      return regExps.some(function(regexp) {
+        if (url.match(regexp) !== null) {
+          return true;
+        }
+        return false;
+      });
+    }
+
+    function getProvider(url) {
+      var providers = oembedRegistry.getProviders();
+      for (var key in providers) {
+        if (validate(url, providers[key].regexps)) {
+          return providers[key];
+        } else {
+          $log.debug('URL ' + url + ' does not match the provider ' + key);
+        }
+      }
+      return null;
+    }
+
+    return {
+      getLinks: getLinks,
+      getProvider: getProvider
     };
   }])
   .factory('oembedRegistry', ['$log', function($log) {
-    var handlers = [];
+    var providers = {};
 
     return {
-      register: function register(name, handler) {
-        if (name && handler) {
-          handlers.push({provider: name, handler: handler});
+      /**
+       *  {provider: 'name', regexps: [RegExp], endpoint: 'http://provider/endpoint'}
+       */
+      addProvider: function(provider) {
+        if (provider && !providers[provider.name]) {
+          providers[provider.name] = provider;
         }
       },
 
-      getHandler: function getHandler(url) {
-        for (var i = 0; i < handlers.length; i++) {
-          if (handlers[i].handler().match(url)) {
-            return handlers[i];
-          } else {
-            $log.debug('URL does not match the provider', url);
-          }
-        }
-        return null;
+      getProviders: function() {
+        return providers;
       }
     };
   }])
-  .factory('YQLService', ['$http', function($http) {
+  .factory('oembedResolver', ['$http', function($http) {
     return {
-      get: function(oembed, url, width, height) {
+
+      yql: function(oembed, url, width, height) {
+        var q = 'select * from json where url ="' + oembed + '?url=' + url;
+        if (width) {
+          q = q + '&maxwidth=' + width;
+        }
+        if (height) {
+          q = q + '&maxheight=' + height;
+        }
+        q = q + '"';
+
         return $http.get('http://query.yahooapis.com/v1/public/yql', {
           params: {
-            q: 'select * from json where url ="' + oembed + '?url=' + url + '&maxwidth=' + width + '&mawheight=' + height + '"',
+            q: q,
             format: 'json'
           }
         }).then(function(response) {
@@ -92,6 +116,19 @@ angular.module('esn.oembed', [])
           } else {
             return {};
           }
+        });
+      },
+
+      http: function(oembed, url, width, height) {
+        return $http.get(oembed, {
+          params: {
+            format: 'json',
+            maxwidth: width,
+            maxheight: height,
+            url: url
+          }
+        }).then(function(response) {
+          return response.data;
         });
       }
     };

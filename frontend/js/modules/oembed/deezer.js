@@ -1,37 +1,23 @@
 'use strict';
 
 (function() {
+  var deezer = angular.module('esn.oembed.deezer', ['esn.oembed']);
 
   var templates = ['deezer\\.com/[\\w-]+'];
-  var regExps = [new RegExp(templates[0], 'i')];
-  var endpoint = 'http://api.deezer.com/oembed';
-
-  var DeezerService = function DeezerService(YQLService) {
-    return {
-      match: function(url) {
-        return regExps.some(function(regexp) {
-          if (url.match(regexp) !== null) {
-            return true;
-          }
-          return false;
-        });
-      },
-
-      oembed: function(url) {
-        return YQLService.get(endpoint, url);
-      }
-    };
+  var provider = {
+    name: 'deezer',
+    templates: templates,
+    regexps: [new RegExp(templates[0], 'i')],
+    endpoint: 'http://api.deezer.com/oembed',
+    type: 'rich',
+    resolver: 'yql'
   };
-  DeezerService.$inject = ['YQLService'];
-
-  var deezer = angular.module('esn.oembed.deezer', ['esn.oembed']);
-  deezer.factory('deezerResolver', DeezerService);
 
   deezer.run(['oembedRegistry', function(oembedRegistry) {
-    oembedRegistry.register('deezer', DeezerService);
+    oembedRegistry.addProvider(provider);
   }]);
 
-  deezer.directive('deezerOembed', ['deezerResolver', function(resolver) {
+  deezer.directive('deezerOembed', ['oembedResolver', function(oembedResolver) {
     return {
       restrict: 'E',
       replace: true,
@@ -42,12 +28,7 @@
         maxheight: '='
       },
       link: function($scope, $element) {
-
-        if (!resolver.match($scope.url)) {
-          return;
-        }
-
-        resolver.oembed($scope.url, $scope.maxwidth, $scope.maxheight).then(
+        oembedResolver[provider.resolver](provider.endpoint, $scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
             angular.element(oembed.html).appendTo($element[0]);
           },
@@ -57,5 +38,4 @@
       }
     };
   }]);
-
 })();
