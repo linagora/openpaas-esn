@@ -1,0 +1,37 @@
+.col-xs-12.esn-panel
+  .row
+    h2.esn-communities-header
+      ul.list-inline
+        li
+          i.fa.fa-briefcase
+          | #{__('Projects')}
+  .vertiz-space
+
+  .row
+    ul.nav.nav-pills.nav-justified
+      li(ng-class="{active: selected === 'all', disabled: loading}")
+        a(ng-click="getAll()", href="") #{__('All')}
+      li(ng-class="{active: selected === 'membership', disabled: loading}")
+        a(ng-click="getMembership()", href="") #{__('Member of')}
+      li(ng-class="{active: selected === 'moderator', disabled: loading}")
+        a(ng-click="getModerator()", href="") #{__('Owned')}
+  hr(ng-show="!projects.length")
+  .row(ng-hide="loading", ng-repeat="project in projects | orderBy:'title'")
+    hr
+    project-display(project="project")
+
+  .row.alert.alert-info(ng-show="loading", role="alert")
+    p
+      i.fa.fa-cog.fa-spin
+      | #{__('Loading projects...')}
+  .row.alert.alert-danger(ng-show="error && !loading", role="alert")
+    p #{__('Error while loading projects !')}
+  .row.alert.alert-info(ng-show="!loading && !error && projects.length === 0 && selected === 'all'", role="alert")
+    p #{__('There is no projects yet. Create a new one with the following link:')}
+      project-button-create
+  .row.alert.alert-info(ng-show="!loading && !error && projects.length === 0 && selected === 'membership'", role="alert")
+    p #{__('You are not member of any project. Please join one first.')}
+  .row.alert.alert-info(ng-show="!loading && !error && projects.length === 0 && selected === 'moderator'", role="alert")
+    p #{__('You are not moderator of any project yet. Create a new one with the following link:')}
+      project-button-create
+  .vertiz-space

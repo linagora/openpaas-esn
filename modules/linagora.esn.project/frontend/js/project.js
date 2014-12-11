@@ -29,4 +29,17 @@ angular.module('esn.project', [
       }
     });
 
+    $routeProvider.when('/projects', {
+      templateUrl: '/projects/views/projects',
+      controller: 'projectsController',
+      resolve: {
+        domain: ['session', '$q', function(session, $q) {
+          return $q.when(session.domain);
+        }],
+        user: ['session', '$q', function(session, $q) {
+          return $q.when(session.user);
+        }]
+      }
+    });
+
   });

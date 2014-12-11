@@ -160,4 +160,11 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       },
       templateUrl: '/projects/views/project-description.html'
     };
+  })
+  .directive('projectDisplay', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/projects/views/project-display.html'
+    };
   });

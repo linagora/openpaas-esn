@@ -1,21 +1,22 @@
-div.col-xs-12.nopadding.esn-community
+div.nopadding.esn-community
+
   .col-lg-2.col-sm-3.col-xs-4
-    a(href='#/projects/{{::project._id}}')
-      img.thumbnail(fallback-src='/projects/images/project.png', src='/projects/images/project.png', ng-src='/api/projects/{{::project._id}}/avatar')
-    .text-center
-      span.label.label-default {{::project.type}}
+
+    a(href='#/projects/{{project._id}}')
+      img.thumbnail.nopadding(fallback-src='/projects/images/project.png', src='/projects/images/project.png', ng-src='/api/projects/{{project._id}}/avatar')
+
   .col-lg-10.col-sm-9.col-xs-8
     h4.media-heading
-      a(href='#/projects/{{::project._id}}') {{::project.title}}
-      small &nbsp; {{::project.type}}
+      a(href='#/projects/{{project._id}}')
+        strong {{project.title}}
+      small &nbsp; {{project.type}}
     ul.list-inline
       li.pull-left
         i.fa.fa-users
-        span(ng-if='project.members_count !== 1') {{::project.members_count || 0}} #{__('members')}
+        span(ng-if='project.members_count !== 1') {{project.members_count || 0}} #{__('members')}
         span(ng-if='project.members_count === 1') 1 #{__('member')}
-      li.pull-left(ng-show="isCreator()")
-        span.label.label-warning #{__('Creator')}
       .clearfix
+
     .row
       .col-xs-12.col-sm-6.nopadding-left
         label #{__('From')}
@@ -31,5 +32,7 @@ div.col-xs-12.nopadding.esn-community
             .input-group-addon
               i.fa.fa-calendar
             input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
-    blockquote.hidden-xs.community-description(ng-show='project.description')
-      p(ng-hide='truncate === true') {{::project.description}}
+
+    .clearfix
+
+    p.hidden-xs.community-description(ng-show='project.description') {{project.description | characters:256 :false }}
