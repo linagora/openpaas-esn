@@ -757,7 +757,7 @@ describe('The community middleware', function() {
 
   describe('The filterWritableTargets fn', function() {
 
-    it('should send an error if targets is not set', function(done) {
+    it('should call next if targets is not set', function(done) {
       this.helpers.mock.models({
         Community: {
           getFromActivityStreamID: function(uuid, cb) {
@@ -766,22 +766,20 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         body: {
         }
       };
       var res = {
-        json: function(code) {
-          expect(code).to.equal(400);
-          done();
+        json: function() {
+          done(new Error());
         }
       };
-      var next = function() {};
-      middleware(req, res, next);
+      middleware(req, res, done);
     });
 
-    it('should send an error if targets is empty', function(done) {
+    it('should call next if targets is empty', function(done) {
       this.helpers.mock.models({
         Community: {
           getFromActivityStreamID: function(uuid, cb) {
@@ -790,23 +788,21 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         body: {
           targets: []
         }
       };
       var res = {
-        json: function(code) {
-          expect(code).to.equal(400);
-          done();
+        json: function() {
+          done(new Error());
         }
       };
-      var next = function() {};
-      middleware(req, res, next);
+      middleware(req, res, done);
     });
 
-    it('should send an error if targets is undefined', function(done) {
+    it('should call next if targets is undefined', function(done) {
       this.helpers.mock.models({
         Community: {
           getFromActivityStreamID: function(uuid, cb) {
@@ -822,13 +818,11 @@ describe('The community middleware', function() {
         }
       };
       var res = {
-        json: function(code) {
-          expect(code).to.equal(400);
-          done();
+        json: function() {
+          done(new Error());
         }
       };
-      var next = function() {};
-      middleware(req, res, next);
+      middleware(req, res, done);
     });
 
     it('should not filter valid and writable targets', function(done) {
@@ -846,7 +840,7 @@ describe('The community middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -892,7 +886,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -913,8 +907,9 @@ describe('The community middleware', function() {
         }
       };
       var next = function() {
-        expect(req.body.targets.length).to.equal(1);
-        expect(req.body.targets[0].id).to.equal('1');
+        expect(req.message_targets).to.exist;
+        expect(req.message_targets.length).to.equal(1);
+        expect(req.message_targets[0].id).to.equal('1');
         done();
       };
       middleware(req, res, next);
@@ -934,7 +929,7 @@ describe('The community middleware', function() {
           return callback(null, community._id > 10);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -964,16 +959,18 @@ describe('The community middleware', function() {
       };
       var res = {
         json: function(code) {
+          done(new Error());
         }
       };
       var next = function() {
-        expect(req.body.targets.length).to.equal(2);
+        expect(req.message_targets).to.exist;
+        expect(req.message_targets.length).to.equal(2);
         done();
       };
       middleware(req, res, next);
     });
 
-    it('should send 403 if no valid streams are set', function(done) {
+    it('should call next if no valid streams are set', function(done) {
       this.helpers.mock.models({
         Community: {
           getFromActivityStreamID: function(uuid, cb) {
@@ -991,7 +988,7 @@ describe('The community middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -1020,15 +1017,11 @@ describe('The community middleware', function() {
         }
       };
       var res = {
-        json: function(code) {
-          expect(code).to.equal(403);
-          done();
+        json: function() {
+          return done(new Error());
         }
       };
-      var next = function() {
-        done(new Error());
-      };
-      middleware(req, res, next);
+      middleware(req, res, done);
     });
 
     it('should be passthrough if inReplyTo is in the body', function(done) {

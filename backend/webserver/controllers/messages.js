@@ -104,6 +104,10 @@ function create(req, res) {
     return res.send(400, 'Missing message in body');
   }
 
+  if (req.message_targets) {
+    req.body.targets = req.message_targets;
+  }
+
   var message = postToModel(req.body, req.user);
 
   if (req.body.inReplyTo) {

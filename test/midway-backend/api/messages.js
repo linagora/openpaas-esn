@@ -231,8 +231,8 @@ describe('The messages API', function() {
           },
           targets: [target]
         });
-        req.expect(403)
-          .end(function(err, res) {
+        req.expect(400)
+          .end(function(err) {
             expect(err).to.not.exist;
             done();
           });
@@ -509,8 +509,8 @@ describe('The messages API', function() {
           },
           targets: [target]
         });
-        req.expect(403)
-          .end(function(err, res) {
+        req.expect(400)
+          .end(function(err) {
             expect(err).to.not.exist;
 
             process.nextTick(function() {

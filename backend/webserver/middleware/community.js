@@ -34,7 +34,7 @@ module.exports.filterWritableTargets = function(req, res, next) {
 
   var targets = req.body.targets;
   if (!targets || targets.length === 0) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Message targets are required'}});
+    return next();
   }
 
   var async = require('async');
@@ -53,9 +53,14 @@ module.exports.filterWritableTargets = function(req, res, next) {
     },
     function(results) {
       if (!results || results.length === 0) {
-        return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not create message'}});
+        return next();
       }
-      req.body.targets = results;
+
+      if (!req.message_targets) {
+        req.message_targets = [];
+      }
+
+      req.message_targets = req.message_targets.concat(results);
       next();
     }
   );
