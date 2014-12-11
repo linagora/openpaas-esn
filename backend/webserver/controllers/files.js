@@ -129,9 +129,12 @@ function get(req, res) {
         res.set('Content-Disposition', 'inline; filename="' +
         fileMeta.metadata.name.replace(/"/g, '') + '"');
       }
+
+      if (fileMeta.length) {
+        res.set('Content-Length', fileMeta.length);
+      }
     }
 
-    res.set('Content-Length', fileMeta.length);
     res.status(200);
     return readStream.pipe(res);
   });
