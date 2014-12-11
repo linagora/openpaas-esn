@@ -50,10 +50,6 @@ angular.module('esnApp', [
       templateUrl: '/views/esn/partials/home'
     });
 
-    $routeProvider.when('/oembed', {
-      templateUrl: '/views/esn/partials/oembed'
-    });
-
     $routeProvider.when('/domains/:id/members/invite', {
       templateUrl: '/views/esn/partials/domains/invite',
       controller: 'inviteMembers',
