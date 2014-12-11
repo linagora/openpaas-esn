@@ -58,4 +58,7 @@ angular.module('esn.project')
       };
 
       $scope.getAll();
+  }])
+  .controller('projectsAStrackerController', ['$scope', function($scope) {
+    $scope.activitystreams = [];
   }]);
