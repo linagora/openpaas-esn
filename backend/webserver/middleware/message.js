@@ -2,6 +2,7 @@
 
 var messagePermission = require('../../core/message/permission');
 var messageModule = require('../../core/message');
+var requestMiddleware = require('./request');
 
 module.exports.canReplyTo = function(req, res, next) {
   var inReplyTo = req.body.inReplyTo;
@@ -21,4 +22,12 @@ module.exports.canReplyTo = function(req, res, next) {
   } else {
     next();
   }
+};
+
+module.exports.checkTargets = function(req, res, next) {
+  var inReplyTo = req.body.inReplyTo;
+  if (inReplyTo) {
+    return next();
+  }
+  return requestMiddleware.assertRequestElementArrayAndNotEmpty('message_targets')(req, res, next);
 };

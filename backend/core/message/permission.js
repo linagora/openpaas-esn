@@ -1,8 +1,6 @@
 'use strict';
 
-var communityPermission = require('../community/permission');
-var mongoose = require('mongoose');
-var Community = mongoose.model('Community');
+var collaborationModule = require('../collaboration');
 var async = require('async');
 
 /**
@@ -18,13 +16,12 @@ module.exports.canReply = function(message, user, callback) {
       return found(false);
     }
 
-    Community.getFromActivityStreamID(share.id, function(err, community) {
-
-      if (err || !community) {
+    collaborationModule.findCollaborationFromActivityStreamID(share.id, function(err, collaborations) {
+      if (err || !collaborations || collaborations.length === 0 || !collaborations[0]) {
         return found(false);
       }
 
-      communityPermission.canWrite(community, user, function(err, writable) {
+      collaborationModule.permission.canWrite(collaborations[0], {objectType: 'user', id: user._id + ''}, function(err, writable) {
         return found(!err && writable === true);
       });
     });

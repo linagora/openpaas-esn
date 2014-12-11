@@ -1,12 +1,12 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
-
 
 var collaborationModels = {
   community: 'Community'
@@ -127,6 +127,34 @@ function registerCollaborationModel(name, modelName, schema) {
   return model;
 }
 
+function findCollaborationFromActivityStreamID(id, callback) {
+  var finders = [];
+
+  function finder(type, callback) {
+    queryOne(type, {'activity_stream.uuid': id}, function(err, result) {
+      if (err || !result) {
+        return callback();
+      }
+      return callback(null, result);
+    });
+  }
+
+  for (var key in collaborationModels) {
+    finders.push(async.apply(finder, key));
+  }
+
+  async.parallel(finders, function(err, results) {
+    if (err) {
+      return callback(err);
+    }
+    async.filter(results, function(item, callback) {
+      return callback(!!item);
+    }, function(results) {
+      return callback(null, results);
+    });
+  });
+}
+
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
@@ -135,4 +163,5 @@ module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
+module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
 module.exports.permission = require('./permission');

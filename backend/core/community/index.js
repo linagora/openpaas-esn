@@ -232,6 +232,12 @@ module.exports.getUserCommunities = function(user, options, callback) {
     q = {};
   }
 
+  if (!user) {
+    return callback(new Error('User is required'));
+  }
+
+  var id = user._id || user;
+
   var done = function(err, result) {
     if (err) {
       return callback(err);
@@ -243,7 +249,7 @@ module.exports.getUserCommunities = function(user, options, callback) {
 
     if (q.writable) {
       async.filter(result, function(community, callback) {
-        permission.canWrite(community, user, function(err, writable) {
+        permission.canWrite(community, {objectType: 'user', id: id + ''}, function(err, writable) {
           if (err) {
             return callback(false);
           }
@@ -259,11 +265,6 @@ module.exports.getUserCommunities = function(user, options, callback) {
     }
   };
 
-  if (!user) {
-    return callback(new Error('User is required'));
-  }
-
-  var id = user._id || user;
   var params = {
     members: {$elemMatch: { 'member.objectType': 'user', 'member.id': id}}
   };

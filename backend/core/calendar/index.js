@@ -34,7 +34,7 @@ var community = require('../../core/community');
  */
 function create(data, callback) {
 
-  communityPermission.canWrite(data.community, data.user, function(err, result) {
+  communityPermission.canWrite(data.community, {objectType: 'user', id: data.user._id}, function(err, result) {
     if (err) {
       return callback(err);
     }
