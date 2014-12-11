@@ -23,9 +23,53 @@ module.exports = function(lib, deps) {
     });
   };
 
+  var findWritableResource = function(req, res, next) {
+    var permission = deps('collaboration').permission;
+
+    var inReplyTo = req.body.inReplyTo;
+    if (inReplyTo) {
+      return next();
+    }
+
+    var targets = req.body.targets;
+    if (!targets || targets.length === 0) {
+      return next();
+    }
+
+    var async = require('async');
+    async.filter(targets,
+      function(item, callback) {
+        lib.getFromActivityStreamID(item.id, function(err, project) {
+
+          if (err || !project) {
+            return callback(false);
+          }
+
+          permission.canWrite(project, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
+            return callback(!err && writable);
+          });
+        });
+      },
+      function(results) {
+        if (!results || results.length === 0) {
+          return next();
+        }
+
+        if (!req.message_targets) {
+          req.message_targets = [];
+        }
+
+        req.message_targets = req.message_targets.concat(results);
+        next();
+      }
+    );
+  };
+
   deps('activitystreamMW').addStreamResourceFinder(findStreamResource);
+  deps('activitystreamMW').addStreamWritableFinder(findWritableResource);
 
   return {
-    findStreamResource: findStreamResource
+    findStreamResource: findStreamResource,
+    findWritableResource: findWritableResource
   };
 };

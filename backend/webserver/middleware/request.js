@@ -64,3 +64,12 @@ module.exports.assertRequestElementNotNull = function(elementName) {
     next();
   };
 };
+
+module.exports.assertRequestElementArrayAndNotEmpty = function(elementName) {
+  return function(req, res, next) {
+    if (!req[elementName] || req[elementName].length === 0) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Request element ' + elementName + ' can not be null or empty'}});
+    }
+    next();
+  };
+};

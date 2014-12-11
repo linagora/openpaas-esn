@@ -67,6 +67,7 @@ function projectControllers(lib, dependencies) {
   };
 
   controllers.get = function(req, res, next) {
+    var permission = dependencies('collaboration').permission;
     var query = { _id: req.params.id };
 
     lib.queryOne(query, function(err, project) {
@@ -78,7 +79,11 @@ function projectControllers(lib, dependencies) {
       }
 
       transform(lib, project, req.user, function(transformed) {
-        res.json(200, transformed);
+        permission.canWrite(project, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
+          var result = transformed;
+          result.writable = writable;
+          return res.json(200, result);
+        });
       });
     });
   };

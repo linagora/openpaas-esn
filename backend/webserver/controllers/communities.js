@@ -26,7 +26,7 @@ function transform(community, user, callback) {
     community.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  communityModule.isMember(community, {objectType: 'user', id: user._id}, function(err, membership) {
+  communityModule.isMember(community, {objectType: 'user', id: user._id + ''}, function(err, membership) {
     if (membership) {
       community.member_status = 'member';
     } else {
@@ -161,7 +161,7 @@ module.exports.load = function(req, res, next) {
 module.exports.get = function(req, res) {
   if (req.community) {
     transform(req.community, req.user, function(transformed) {
-      permission.canWrite(req.community, req.user, function(err, writable) {
+      permission.canWrite(req.community, {objectType: 'user', id: req.user._id + ''}, function(err, writable) {
         var result = transformed;
         result.writable = writable;
         return res.json(200, result);
