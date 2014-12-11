@@ -37,7 +37,9 @@
       replace: true,
       template: '<div class="oembed deezer-oembed"></div>',
       scope: {
-        url: '@'
+        url: '@',
+        maxwidth: '=',
+        maxheight: '='
       },
       link: function($scope, $element) {
 
@@ -45,7 +47,7 @@
           return;
         }
 
-        resolver.oembed($scope.url).then(
+        resolver.oembed($scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
             angular.element(oembed.html).appendTo($element[0]);
           },

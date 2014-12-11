@@ -6,8 +6,8 @@ angular.module('esn.oembed', [])
       restrict: 'E',
       scope: {
         message: '=',
-        width: '=',
-        height: '='
+        maxwidth: '=',
+        maxheight: '='
       },
       link: function($scope, $element) {
 
@@ -21,7 +21,7 @@ angular.module('esn.oembed', [])
           var oembed = oembedService.getOEmbedProvider(link);
           if (oembed) {
             var e = $('<' + oembed.provider + '-oembed></' + oembed.provider + '-oembed>');
-            e.attr({url: link, width: $scope.width || 800, height: $scope.height || 600});
+            e.attr({url: link, maxwidth: $scope.maxwidth || 800, maxheight: $scope.maxheight || 600});
             var template = angular.element(e);
             var newElt = $compile(template)($scope);
             $element.append(newElt);
@@ -83,7 +83,7 @@ angular.module('esn.oembed', [])
       get: function(oembed, url, width, height) {
         return $http.get('http://query.yahooapis.com/v1/public/yql', {
           params: {
-            q: 'select * from json where url ="' + oembed + '?url=' + url + '"',
+            q: 'select * from json where url ="' + oembed + '?url=' + url + '&maxwidth=' + width + '&mawheight=' + height + '"',
             format: 'json'
           }
         }).then(function(response) {

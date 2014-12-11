@@ -38,8 +38,8 @@
       template: '<div class="oembed youtube-oembed"></div>',
       scope: {
         url: '@',
-        width: '=',
-        height: '='
+        maxwidth: '=',
+        maxheight: '='
       },
       link: function($scope, $element) {
 
@@ -47,7 +47,7 @@
           return;
         }
 
-        youtubeResolver.oembed($scope.url).then(
+        youtubeResolver.oembed($scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
             angular.element(oembed.html).appendTo($element[0]);
           },
