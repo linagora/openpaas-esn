@@ -111,11 +111,21 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
           $scope.placeholder = 'Enter community name';
           $scope.displayProperty = 'displayName';
           $scope.running = false;
+          $scope.members = [];
 
           $scope.getInvitableCommunities = function(query) {
-            var deferred = $q.defer();
-            deferred.resolve({});
-            return deferred.promise;
+            $scope.query = query;
+
+            var options = {
+              domain_id: $scope.project.domain_ids[0],
+              search: query
+            };
+            return projectAPI.getInvitableMembers($scope.project._id, options).then(function(response) {
+              response.data.forEach(function(member) {
+                member.displayName = member.target.title;
+              });
+              return response;
+            });
           };
 
           $scope.addMembers = function() {
@@ -131,7 +141,7 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
 
             var promises = [];
             $scope.members.forEach(function(member) {
-              promises.push(projectAPI.addMember($scope.project._id, member));
+              promises.push(projectAPI.addMember($scope.project._id, {id: member.id, objectType: member.objectType}));
             });
 
             $q.all(promises).then(
