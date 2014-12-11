@@ -135,3 +135,4 @@ module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
+module.exports.permission = require('./permission');
