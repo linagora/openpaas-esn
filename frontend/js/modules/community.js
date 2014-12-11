@@ -1185,7 +1185,8 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
     };
 
     function eventSource(start, end, timezone, callback) {
-        calendarService.list(start, end, timezone).then(callback);
+      var path = '/calendars/' + $scope.community._id + '/events/';
+      return calendarService.list(path, start, end, timezone).then(callback);
     }
 
     $scope.eventSources = [eventSource];

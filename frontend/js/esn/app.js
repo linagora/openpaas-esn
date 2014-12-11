@@ -197,7 +197,20 @@ angular.module('esnApp', [
     });
 
     $routeProvider.when('/communities/:community_id/calendar', {
-      templateUrl: '/views/modules/community/community-calendar'
+      controller: 'communityController',
+      templateUrl: '/views/modules/community/community-calendar',
+      resolve: {
+        community: function(communityAPI, $route, $location) {
+          return communityAPI.get($route.current.params.community_id).then(
+            function(response) {
+              return response.data;
+            },
+            function(err) {
+              $location.path('/communities/' + $route.current.params.community_id);
+            }
+          );
+        }
+      }
     });
 
     $routeProvider.otherwise({redirectTo: '/communities'});
