@@ -242,6 +242,8 @@ describe('The files API', function() {
           expect(err).to.not.exist;
           expect(res.get('Content-Disposition')).to.equal('inline; filename="fname"');
           expect(res.get('Content-Type')).to.have.string('text/plain'); // accept charset
+          expect(res.get('Content-Length')).to.exist;
+          expect(res.get('Content-Length')).to.equal('11');
           callback();
         });
       }
