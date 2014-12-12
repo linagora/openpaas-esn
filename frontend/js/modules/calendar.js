@@ -36,7 +36,6 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
     }
 
     function getEvent(path) {
-      var token = tokenAPI.getNewToken();
       return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
         var token = results[0].data.token, url = results[1];
         var config = { headers: { 'ESNToken': token, 'Accept': 'application/calendar+json' } };
