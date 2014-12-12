@@ -344,7 +344,22 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       replace: true,
       templateUrl: '/views/modules/message/templates/eventMessage.html',
       link: function(scope, element, attrs) {
-        // This will be taken care of in a separate commit
+        calendarService.getEvent(scope.message.eventId)
+        .then(function(event) {
+          scope.event = event;
+          element.find('>div>div.loading').addClass('hidden');
+          element.find('>div>div.message').removeClass('hidden');
+          var start = moment(scope.event.start);
+          var end = moment(scope.event.end);
+          scope.event.formattedDate = start.format('MMMM D, YYYY');
+          scope.event.formattedStartTime = start.format('h');
+          scope.event.formattedStartA = start.format('a');
+          scope.event.formattedEndTime = end.format('h');
+          scope.event.formattedEndA = end.format('a');
+        }, function(err) {
+          element.find('>div.loading').addClass('hidden');
+          element.find('>div.error').removeClass('hidden');
+        });
       }
     };
   }])

@@ -1160,7 +1160,7 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       templateUrl: '/views/modules/community/community-button-event-create.html'
     };
   })
-  .controller('communityCalendarController', ['$scope', 'calendarService', function($scope, calendarService) {
+  .controller('communityCalendarController', ['$scope', 'community', 'calendarService', function($scope, community, calendarService) {
 
     $scope.changeView = function(view, calendar) {
       calendar.fullCalendar('changeView', view);
@@ -1184,10 +1184,10 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
       }
     };
 
-    function eventSource(start, end, timezone, callback) {
-      var path = '/calendars/' + $scope.community._id + '/events/';
+    function communityEventSource(start, end, timezone, callback) {
+      var path = '/calendars/' + community._id + '/events/';
       return calendarService.list(path, start, end, timezone).then(callback);
     }
 
-    $scope.eventSources = [eventSource];
+    $scope.eventSources = [communityEventSource];
   }]);

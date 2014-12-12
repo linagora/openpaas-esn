@@ -35,6 +35,19 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       return serverUrlCache.promise;
     }
 
+    function getEvent(path) {
+      var token = tokenAPI.getNewToken();
+      return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
+        var token = results[0].data.token, url = results[1];
+        var config = { headers: { 'ESNToken': token, 'Accept': 'application/calendar+json' } };
+        return $http.get(url + '/' + path, config)
+                    .then(function(response) {
+          var vcalendar = new ICAL.Component(response.data);
+          var vevent = vcalendar.getFirstSubcomponent('vevent');
+          return new CalendarShell(vevent);
+        });
+      });
+    }
 
     function list(calendarPath, start, end, timezone) {
       var req = {
@@ -67,7 +80,8 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
 
     var serverUrlCache = null;
     return {
-      list: list
+      list: list,
+      getEvent: getEvent
     };
   }])
   .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', function($scope, $rootScope, $alert, calendarService, moment) {
