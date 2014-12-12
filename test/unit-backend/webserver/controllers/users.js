@@ -824,7 +824,7 @@ describe('The User controller', function() {
     });
   });
 
-  describe('the postProfileAvatar function', function() {
+  describe('postProfileAvatar() function', function() {
     it('should return 404 if the user is not actually logged in', function(done) {
       var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
       var req = {};
@@ -903,7 +903,7 @@ describe('The User controller', function() {
     it('should call the image.recordAvatar method', function(done) {
       var imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
-          expect(avatarId).to.match(/^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$/);
+          expect(avatarId).to.have.property('toHexString');
           expect(mimetype).to.equal('image/png');
           expect(avatarRecordResponse).to.be.a.function;
           done();
@@ -1119,8 +1119,8 @@ describe('The User controller', function() {
         json: function(code, data) {
           expect(code).to.equal(200);
           expect(data._id).to.exist;
-          expect(data._id).to.match(/^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$/);
-          done();
+          expect(data._id).to.have.property('toHexString');
+         done();
         }
       };
       users.postProfileAvatar(req, res);

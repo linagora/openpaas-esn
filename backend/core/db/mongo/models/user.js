@@ -4,6 +4,7 @@ var emailAddresses = require('email-addresses');
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var trim = require('trim');
+var ObjectId = mongoose.Schema.Types.ObjectId;
 
 function validateEmail(email) {
   return emailAddresses.parseOneAddress(email) !== null;
@@ -49,8 +50,8 @@ var UserSchema = new mongoose.Schema({
     success: {type: Date}
   },
   schemaVersion: {type: Number, default: 1},
-  avatars: [String],
-  currentAvatar: String
+  avatars: [ObjectId],
+  currentAvatar: ObjectId
 });
 
 UserSchema.pre('save', function(next) {

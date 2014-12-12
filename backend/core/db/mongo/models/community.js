@@ -9,7 +9,7 @@ var communityJSON = {
   description: {type: String, trim: true},
   type: {type: String, trim: true, required: true, default: 'open'},
   status: String,
-  avatar: String,
+  avatar: ObjectId,
   membershipRequests: [
     {
       user: {type: ObjectId, ref: 'User'},

@@ -11,6 +11,8 @@ var PassThrough = require('stream').PassThrough;
 var gm = require('gm').subClass({ imageMagick: true });
 var filestore = require('../filestore');
 var async = require('async');
+var extend = require('extend');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 function getDuplicates(readable) {
   var p1 = new PassThrough();
@@ -54,6 +56,16 @@ function checkImageSquare(readable, callback) {
 
 function recordAvatar(id, contentType, opts, readable, callback) {
   var streams = getDuplicates(readable);
+  var fullSizeMetadata = extend(true, {}, opts);
+  var resizedMetadata = extend(true, {}, opts);
+  fullSizeMetadata.avatar = {
+    fullsize: true
+  };
+  resizedMetadata.avatar = {
+    originalId: id,
+    fullsize: false,
+    size: defaultAvatarSize
+  };
   var responses = {
     datastore: {},
     gm: {}
@@ -61,15 +73,14 @@ function recordAvatar(id, contentType, opts, readable, callback) {
   async.parallel(
     [
       function(callback) {
-        filestore.store(id, contentType, opts, streams[0], {}, function(err, file) {
-          var fileStoreMeta = filestore.getAsFileStoreMeta(file);
+        filestore.store(id, contentType, fullSizeMetadata, streams[0], {}, function(err, file) {
           if (err) {
             logger.debug('failed to record original image');
             logger.debug(err);
-            responses.datastore = {error: err, size: fileStoreMeta.length};
+            responses.datastore = {error: err, size: file.length};
             responses.datastore.error.code = 1;
           } else {
-            responses.datastore.size = fileStoreMeta.length;
+            responses.datastore.size = file.length;
           }
           callback();
         });
@@ -95,7 +106,6 @@ function recordAvatar(id, contentType, opts, readable, callback) {
         return callback(responses.gm.error);
       }
 
-      var resizedId = id + '-' + defaultAvatarSize;
       responses.gm.image.resize(defaultAvatarSize, defaultAvatarSize);
       responses.gm.image.stream(function(err, stdout, stderr) {
         if (err) {
@@ -105,7 +115,7 @@ function recordAvatar(id, contentType, opts, readable, callback) {
           err.code = 2;
           return callback(err);
         }
-        filestore.store(resizedId, contentType, opts, stdout, {}, function(err) {
+        filestore.store(new ObjectId(), contentType, resizedMetadata, stdout, {}, function(err) {
           if (err) {
             logger.debug('failed to record resized image');
             logger.debug(err.stack);
@@ -131,12 +141,16 @@ function setDefaultAvatarSize(size) {
 }
 
 function getSmallAvatar(id, callback) {
-  filestore.getMeta(id, function(err, originalmeta) {
-    if (err) {
+  filestore.find({
+    'metadata.avatar.originalId': id,
+    'metadata.avatar.fullsize': false,
+    'metadata.avatar.size': defaultAvatarSize
+  }, function(err, ids) {
+    if (err || !ids || !ids.length) {
       return callback(err);
     }
-    return filestore.getFileStream(id + '-' + defaultAvatarSize, function(err, stream) {
-      return callback(err, originalmeta, stream);
+    return filestore.get(ids.pop(), function(err, meta, stream) {
+      return callback(err, meta, stream);
     });
   });
 }
