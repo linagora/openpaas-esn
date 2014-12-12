@@ -797,6 +797,7 @@ describe('The messages API', function() {
   });
 
   it('should update the attachment references when posting a message with existing attachments', function(done) {
+    var ObjectId = this.mongoose.Types.ObjectId;
     var Whatsup = this.mongoose.model('Whatsup');
     var filestore = require(this.testEnv.basePath + '/backend/core/filestore');
     var self = this;
@@ -810,19 +811,19 @@ describe('The messages API', function() {
     var text = 'hello world';
     var name = 'hello.txt';
     var mime = 'text/plain';
-
+    var attachmentId = new ObjectId();
     var stream = require('stream');
     var s = new stream.Readable();
     s._read = function noop() {};
     s.push(text);
     s.push(null);
 
-    filestore.store('123456789', mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err, saved) {
+    filestore.store(attachmentId, mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err, saved) {
       if (err) {
         return done(err);
       }
 
-      var attachment = {_id: '123456789', name: name, contentType: mime, length: 11};
+      var attachment = {_id: attachmentId, name: name, contentType: mime, length: 11};
 
       self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
@@ -848,7 +849,7 @@ describe('The messages API', function() {
               expect(message).to.exist;
               expect(message.attachments).to.exist;
               expect(message.attachments.length).to.equal(1);
-              filestore.getMeta(saved.filename, function(err, meta) {
+              filestore.getMeta(attachmentId, function(err, meta) {
                 if (err) {
                   return done(err);
                 }

@@ -7,7 +7,7 @@ module.exports.loadMeta = function(req, res, next) {
 
   fileModule.getMeta(id, function(err, meta) {
     if (err) {
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting file'}});
+      return res.json(500, {error: {code: 500, message: 'Error while getting file', details: err.message}});
     }
 
     if (!meta) {

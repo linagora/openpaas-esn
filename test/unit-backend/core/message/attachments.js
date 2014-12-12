@@ -77,12 +77,7 @@ describe('The attachment module', function() {
           expect(id).to.exist;
           fileId = id;
           expect(type).to.equal(metaData.contentType);
-          callback(null);
-        },
-        getAsFileStoreMeta: function(gridfsMeta) {
-          return {
-            length: length
-          };
+          callback(null, {length: length});
         }
       };
       mockery.registerMock('../filestore', filestoreMock);

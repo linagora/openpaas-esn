@@ -1,8 +1,8 @@
 'use strict';
 
-var uuid = require('node-uuid');
 var filestore = require('../../core/filestore');
 var Busboy = require('busboy');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 function create(req, res) {
   var size = parseInt(req.query.size, 10);
@@ -14,7 +14,7 @@ function create(req, res) {
     });
   }
 
-  var fileId = uuid.v1();
+  var fileId = new ObjectId();
   var metadata = {};
   if (req.query.name) {
     metadata.name = req.query.name;

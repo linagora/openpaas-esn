@@ -1,6 +1,6 @@
 'use strict';
 
-var uuid = require('node-uuid');
+var ObjectId = require('mongoose').Types.ObjectId;
 var filestore = require('../filestore');
 
 function storeAttachment(metaData, stream, options, callback) {
@@ -14,24 +14,26 @@ function storeAttachment(metaData, stream, options, callback) {
     return callback(new Error('Attachment stream is required.'));
   }
 
-  var fileId = uuid.v1();
+  options = options ||  {};
+
+  var fileId = new ObjectId();
 
   var returnAttachmentModel = function(err, file) {
     if (err) {
       return callback(err);
     }
 
-    var fileStoreMeta = filestore.getAsFileStoreMeta(file);
-
     var attachmentModel = {
       _id: fileId,
       name: metaData.name,
       contentType: metaData.contentType,
-      length: fileStoreMeta.length
+      length: file.length
     };
 
     callback(null, attachmentModel);
   };
+
+  options.filename = metaData.name;
 
   filestore.store(fileId, metaData.contentType, {name: metaData.name, creator: metaData.creator}, stream, options, returnAttachmentModel);
 }
@@ -54,8 +56,8 @@ function setMessageReference(attachment, message, callback) {
   if (!message) {
     return callback(new Error('Message parameter is missing.'));
   }
-  return filestore.addMeta(attachment._id, {referenced: [{objectType: 'message', id: message._id}]}, callback);
+  return filestore.addMeta(attachment._id,
+    {metadata: {referenced: [{objectType: 'message', id: message._id}]}},
+  callback);
 }
 module.exports.setMessageReference = setMessageReference;
-
-
