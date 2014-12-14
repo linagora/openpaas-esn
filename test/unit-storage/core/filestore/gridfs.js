@@ -497,7 +497,7 @@ describe('The filestore gridfs module', function() {
       }, done).done();
     });
 
-    it('should return an array of matching files ObjectIds', function() {
+    it('should return an array of matching files ObjectIds', function(done) {
       var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
       var ObjectId = this.mongoose.Types.ObjectId;
       filestore.find({}, function(err, resp) {
@@ -507,10 +507,11 @@ describe('The filestore gridfs module', function() {
         expect(resp[0] instanceof ObjectId).to.be.true;
         expect(resp[1] instanceof ObjectId).to.be.true;
         expect(resp[2] instanceof ObjectId).to.be.true;
+        done();
       });
     });
 
-    it('should return an array of matching files ObjectIds (filename)', function() {
+    it('should return an array of matching files ObjectIds (filename)', function(done) {
       var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
       var self = this;
       filestore.find({filename: 'other.md'}, function(err, resp) {
@@ -518,15 +519,17 @@ describe('The filestore gridfs module', function() {
         expect(resp).to.be.an('array');
         expect(resp).to.have.length(1);
         expect(resp[0].equals(self.fileIds[1])).to.be.true;
+        done();
       });
     });
 
-    it('should return an array of matching files ObjectIds (metadata)', function() {
+    it('should return an array of matching files ObjectIds (metadata)', function(done) {
       var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
       filestore.find({'metadata.label': 'test'}, function(err, resp) {
         expect(err).to.be.not.ok;
         expect(resp).to.be.an('array');
         expect(resp).to.have.length(2);
+        done();
       });
     });
 

@@ -65,7 +65,7 @@ describe('The files API', function() {
               expect(data).to.equal('hello world');
               expect(meta.contentType).to.equal('text/plain');
               expect(meta.length).to.equal(11);
-              expect(meta.metadata.name).to.equal('fname');
+              expect(meta.filename).to.equal('fname');
               done();
             });
           });
@@ -191,7 +191,7 @@ describe('The files API', function() {
                 expect(data).to.equal('hello world');
                 expect(meta.contentType).to.equal('text/plain');
                 expect(meta.length).to.equal(11);
-                expect(meta.metadata.name).to.equal('fname');
+                expect(meta.filename).to.equal('fname');
                 done();
               });
             });
