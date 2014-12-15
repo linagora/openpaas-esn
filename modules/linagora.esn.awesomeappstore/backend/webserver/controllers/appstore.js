@@ -11,7 +11,6 @@ module.exports = function(appstoremanager) {
   function list(req, res) {
     var query = req.query || {};
 
-    // TODO from utils
     if (req.query.community) {
       var tuple = { objectType: 'community', id: req.query.community };
       var deploymentMatch = {
@@ -52,7 +51,6 @@ module.exports = function(appstoremanager) {
   }
 
   function deleteApp(req, res) {
-    // TODO
     return res.json(500, { error: { code: 500, message: 'App delete failed', details: 'Not implemented yet'}});
   }
 
@@ -73,7 +71,6 @@ module.exports = function(appstoremanager) {
   }
 
   function updeploy(req, res) {
-    // TODO
     return res.json(500, { error: { code: 500, message: 'App updeploy failed', details: 'Not implemented yet'}});
   }
 
@@ -243,7 +240,6 @@ module.exports = function(appstoremanager) {
       });
     };
 
-    // TODO utils
     var nb = 0;
     var busboy = new Busboy({ headers: req.headers });
     busboy.once('file', function(fieldname, file) {

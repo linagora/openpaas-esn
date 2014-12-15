@@ -19,7 +19,7 @@ function AwesomeAppManager(logger, storage, imageModule, communityModule, localP
 }
 
 AwesomeAppManager.prototype.getDeploymentDirForApplication = function(application, version) {
-  // TODO For now for the loader, into apps should be modules of which the directory is named the same than their AwesomeModule
+  // For now for the loader, into apps should be modules of which the directory is named the same than their AwesomeModule
   // they are installing. We remove then application.title and version from the path.
   return path.join(DEPLOYMENT_DIR);
 };
@@ -74,7 +74,7 @@ AwesomeAppManager.prototype.updateAvatar = function(application, avatar, callbac
 };
 
 AwesomeAppManager.prototype.uploadAvatar = function(avatarId, mimetype, metadata, req, callback) {
-  // TODO It should be done here.
+  // It should be done here.
   // var avatarId = uuid.v1();
   return this.imageModule.recordAvatar(avatarId, mimetype, metadata, req, callback);
 };
@@ -96,7 +96,6 @@ AwesomeAppManager.prototype.updateArtifact = function(application, artifactMetad
   application.save(callback);
 };
 
-// TODO create a core.util module for this
 function getDuplicates(readable) {
   var PassThrough = require('stream').PassThrough;
   var p1 = new PassThrough();
@@ -151,7 +150,6 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
 
   var injection = {};
   var streams = getDuplicates(stream);
-  // TODO What about if injectionAsJson is an array ?
   extractInjectionJson(streams[0])
     .on('injection', function(injectionAsJson) {
       injection = injectionAsJson;
@@ -246,7 +244,6 @@ AwesomeAppManager.prototype.undeploy = function(application, target, callback) {
   }
 
   var self = this;
-  // TODO Right now it removes every installed application because of getDeployementDirForApplication
   fs.remove(self.getDeploymentDirForApplication(application, ''), function(err) {
     if (err) {
       return callback(err);
@@ -281,7 +278,6 @@ AwesomeAppManager.prototype.setDeployState = function(application, deployTarget,
   application.save(callback);
 };
 
-// TODO It creates several installs in Application schema and injections in Community Schema
 AwesomeAppManager.prototype.install = function(application, target, callback) {
   if (!application) {
     return callback(new Error('Application is required.'));

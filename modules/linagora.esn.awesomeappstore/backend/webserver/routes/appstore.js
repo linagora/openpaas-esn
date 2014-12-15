@@ -15,14 +15,12 @@ module.exports = function(appstoremanager, dependencies) {
   router.all('/api/apps/:id', appstoreAsMiddleware.load);
   router.all('/api/apps/:id/*', appstoreAsMiddleware.load);
 
-  // TODO : installed and update boolean, X-Esn-Item-Count
   router.get('/api/apps', appstoreAsController.list);
   router.get('/api/apps/:id', appstoreAsController.get);
   router.post('/api/apps', appstoreAsController.submit);
   router.delete('/api/apps/:id', appstoreAsController.deleteApp);
 
   router.put('/api/apps/:id/deploy', appstoreAsController.deploy);
-  // TODO updeploy is not coded yet
   router.put('/api/apps/:id/updeploy', appstoreAsController.updeploy);
   router.put('/api/apps/:id/undeploy', appstoreAsController.undeploy);
 
