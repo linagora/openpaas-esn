@@ -519,6 +519,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
             $scope.attachment.defer.resolve({status: 'canceled'});
           }
         };
+
+        $scope.$on('$destroy', function() {
+          $scope.cancel();
+        });
       }
     };
   }])

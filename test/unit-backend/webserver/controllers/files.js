@@ -265,7 +265,7 @@ describe('The files controller', function() {
         }
       });
 
-      var req = { params: { id: '123' } };
+      var req = { params: { id: '123' }, accepts: function() {return false;} };
       var res = {
         json: function(code, detail) {
             expect(code).to.equal(404);
@@ -273,6 +273,33 @@ describe('The files controller', function() {
             expect(detail.error).to.equal(404);
             expect(detail.message).to.equal('Not Found');
             done();
+        }
+      };
+      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should redirect to the 404 page if the file is not found and request accepts html', function(done) {
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, null, null);
+        }
+      });
+
+      var req = {
+        params: { id: '123' },
+        accepts: function(type) {
+          return type === 'html';
+        }
+      };
+      var res = {
+        render: function(page) {
+          expect(page).to.equal('commons/404');
+          done();
+        },
+        status: function(code) {
+          expect(code).to.equal(404);
         }
       };
       var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
