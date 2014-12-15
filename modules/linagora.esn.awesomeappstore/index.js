@@ -5,14 +5,55 @@ var Dependency = AwesomeModule.AwesomeModuleDependency;
 
 var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.filestore', 'filestore'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.community', 'community'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.injection', 'injection'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
-  lib: function(dependencies, callback) {
-    var logger = dependencies('logger');
+  states: {
+    lib: function(dependencies, callback) {
+      var logger = dependencies('logger');
+      var storage = dependencies('filestore');
+      var common = dependencies('db').mongo.common;
+      var validation = dependencies('db').mongo.validation;
+      var imageModule = dependencies('image');
+      var communityModule = dependencies('community');
+      var injectionModule = dependencies('injection');
+      var localPubsub = dependencies('pubsub').local;
+      var moduleManager = require('../../backend/module-manager');
 
-    var api = {};
-    return callback(null, api);
+      require('./backend/db/mongo/application')(common, validation);
+
+      var AwesomeAppManager = require('./backend/appstore-manager').AwesomeAppManager;
+      var appManager = new AwesomeAppManager(
+        logger,
+        storage,
+        imageModule,
+        communityModule,
+        localPubsub,
+        moduleManager);
+      require('./backend/injection/pubsub').init(localPubsub, injectionModule, logger);
+
+      var app = require('./backend/webserver/application')(appManager, dependencies);
+
+      return callback(null, {
+        app: app,
+        manager: appManager
+      });
+    },
+
+    deploy: function(dependencies, callback) {
+      var webserverWrapper = dependencies('webserver-wrapper');
+      webserverWrapper.injectAngularModules('appstore', ['appstore.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.appstore', ['esn']);
+      webserverWrapper.addApp('appstore', this.app);
+      return callback();
+    }
   }
 });
 
-module.exports.awesomeAppStore = awesomeAppStore;
+module.exports = awesomeAppStore;
