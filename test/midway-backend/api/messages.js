@@ -754,12 +754,14 @@ describe('The messages API', function() {
 
   it('should save the attachments reference when posting a message', function(done) {
     var Whatsup = this.mongoose.model('Whatsup');
+    var ObjectId = this.mongoose.Types.ObjectId;
     var message = 'Hey, check out these files!';
     var target = {
       objectType: 'activitystream',
       id: community.activity_stream.uuid
     };
-    var attachment = {_id: '9829892-9982982-87222-238388', name: 'chuck.png', contentType: 'image/png', length: 988288};
+    var attachmentId = new ObjectId();
+    var attachment = {_id: attachmentId, name: 'chuck.png', contentType: 'image/png', length: 988288};
 
     this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) {
@@ -785,7 +787,7 @@ describe('The messages API', function() {
             expect(message).to.exist;
             expect(message.attachments).to.exist;
             expect(message.attachments.length).to.equal(1);
-            expect(message.attachments[0]._id).to.equal(attachment._id);
+            expect(message.attachments[0]._id + '').to.equal(attachmentId + '');
             expect(message.attachments[0].name).to.equal(attachment.name);
             expect(message.attachments[0].contentType).to.equal(attachment.contentType);
             expect(message.attachments[0].length).to.equal(attachment.length);

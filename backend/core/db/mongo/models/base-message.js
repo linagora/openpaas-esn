@@ -1,9 +1,10 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var ObjectId = mongoose.Schema.ObjectId;
 
 var AttachmentSchema = new mongoose.Schema({
-  _id: {type: String, required: true},
+  _id: {type: ObjectId, required: true},
   name: {type: String, required: true},
   contentType: {type: String, required: true},
   length: {type: Number, required: true}
