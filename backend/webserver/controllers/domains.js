@@ -97,27 +97,6 @@ function getMembers(req, res) {
 module.exports.getMembers = getMembers;
 
 /**
- * Load middleware. Load a domain from its UUID and push it into the request (req.domain) for later use.
- *
- * @param {Request} req
- * @param {Response} res
- * @param {Function} next
- */
-function load(req, res, next) {
-  Domain.loadFromID(req.params.uuid, function(err, domain) {
-    if (err) {
-      return next(err);
-    }
-    if (!domain) {
-      return res.send(404);
-    }
-    req.domain = domain;
-    return next();
-  });
-}
-module.exports.load = load;
-
-/**
  * Send invitations to a list of emails.
  *
  * @param {Request} req - The request with user and domain as attribute. The body MUST contains an array of emails.

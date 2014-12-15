@@ -68,8 +68,8 @@ module.exports.loadDomainForCreate = function(req, res, next) {
     return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Domain id is mandatory'}});
   }
   req.params.uuid = domains[0];
-  var domainController = require('./domains');
-  return domainController.load(req, res, next);
+  var domainMiddleware = require('../middleware/domain');
+  return domainMiddleware.load(req, res, next);
 };
 
 module.exports.create = function(req, res) {
