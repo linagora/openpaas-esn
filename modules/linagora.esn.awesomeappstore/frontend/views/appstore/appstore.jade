@@ -16,8 +16,7 @@
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
     p #{__('Error while loading applications!')}
   .row.alert.alert-info(ng-show="!loading && !error && applications.length === 0", role="alert")
-    p #{__('There is no applications yet')}
-      appstore-button-submit
+    p #{__('There are no applications yet.')}
   .vertiz-space
 
   .row
