@@ -3193,4 +3193,71 @@ describe('The Community Angular module', function() {
       });
     });
   });
+
+  describe('communityAStrackerController controller', function() {
+    beforeEach(angular.mock.inject(function($rootScope, $controller) {
+      this.activityStreamUuid1 = '12345678';
+      this.activityStreamUuid2 = '123456789';
+      this.rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+      this.controller = $controller;
+    }));
+
+    it('should initialize $scope.error', function() {
+      var AStrackerHelpers = {
+        getActivityStreamsWithUnreadCount: function(objectType, callback) {
+          return callback(new Error('mock'));
+        }
+      };
+
+      this.controller('communityAStrackerController', {
+        $scope: this.scope,
+        AStrackerHelpers: AStrackerHelpers
+      });
+
+      expect(this.scope.error).to.exist;
+      expect(this.scope.activityStreams).to.be.empty;
+    });
+
+    it('should initialize $scope.activityStreams', function() {
+      var self = this;
+      var AStrackerHelpers = {
+        getActivityStreamsWithUnreadCount: function(objectType, callback) {
+          return callback(null, [
+            {
+              uuid: self.activityStreamUuid1,
+              display_name: 'Community1',
+              href: '#',
+              img: '',
+              unread_count: 2,
+              target: {
+                _id: 123
+              }
+            },
+            {
+              uuid: self.activityStreamUuid2,
+              display_name: 'Community2',
+              href: '#',
+              img: '',
+              unread_count: 4,
+              target: {
+                _id: 456
+              }
+            }
+          ]);
+        }
+      };
+
+      this.controller('communityAStrackerController', {
+        $rootScope: this.rootScope,
+        $scope: this.scope,
+        AStrackerHelpers: AStrackerHelpers
+      });
+
+      expect(this.scope.activityStreams).to.exist;
+      expect(this.scope.activityStreams.length).to.deep.equal(2);
+      expect(this.scope.activityStreams[0].uuid).to.deep.equal(this.activityStreamUuid1);
+      expect(this.scope.activityStreams[1].uuid).to.deep.equal(this.activityStreamUuid2);
+    });
+  });
 });

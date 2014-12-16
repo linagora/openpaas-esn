@@ -26,7 +26,7 @@ angular.module('esnApp', [
   'esn.application',
   'esn.authentication',
   'esn.feedback',
-  'esn.community-as-tracker',
+  'esn.activitystreams-tracker',
   'esn.conference-notification',
   'esn.api-notification',
   'esn.user-notification',
