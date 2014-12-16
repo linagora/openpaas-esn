@@ -23,7 +23,7 @@
           .form-group
             #applicationerror
           .form-group.has-feedback(ng-show="step === 0", ng-class='{"has-error": isTitleInvalid()}')
-            label #{__('The application title')}&nbsp;*
+            label #{__('Title')}&nbsp;*
             input.form-control(type='text', ng-change='onInputChange()', ng-model='application.title', id="title", name='title', autofocus=true, required, ensure-unique-application-title, esn-track-first-blur)
             span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='applicationForm.title.$error.ajax')
             span.help-block(ng-show='applicationForm.title.$error.unique && !applicationForm.title.$error.ajax') #{__('This application title already exists. Please choose another one.')}
@@ -31,18 +31,21 @@
             span.help-block(ng-show='!validationError.ajax && validationError.unique') #{__('This application title already exists. Please choose another one.')}
 
           .form-group.has-feedback(ng-show="step === 0")
-            label #{__('The application version')}&nbsp;*
+            label #{__('Version')}&nbsp;*
             input.form-control(type='text', ng-model='version', id="version", name='version', autofocus=false, required)
 
           .form-group.has-feedback(ng-show="step === 0")
-            label #{__('The application artifact')}&nbsp;*
+            label #{__('Artifact')}&nbsp;*
             .btn-group.btn-group-justified
               .btn-group
                 span.btn.btn-info.btn-file
                   i.fa.fa-upload
                   | #{__('Select the artifact')}
                   input(type="file", ng-file-select="onFileSelect($files)", data-multiple='true')
-            span.help-block(ng-show='artifact') {{artifact.name}}
+            span.help-block(ng-show='artifact')
+              ul
+                li
+                  strong {{artifact.name}}
 
         .form-group(ng-show="step === 1")
             .row.alert.alert-warning(role="alert")
