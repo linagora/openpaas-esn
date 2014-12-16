@@ -20,5 +20,5 @@
   .vertiz-space
 
   .row
-    .col-sm-6.col-md-4(ng-hide="loading", ng-repeat="application in applications | orderBy:'title'")
+    div(ng-hide="loading", ng-repeat="application in applications | orderBy:'title'")
       appstore-app-display(application="application")

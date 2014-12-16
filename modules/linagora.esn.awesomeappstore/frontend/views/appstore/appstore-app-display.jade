@@ -1,15 +1,17 @@
-.app-display
-  .thumbnail
-    img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png" style="height: 200px; width: 200px; display: block;")
-    .caption
-      h3
-        a(href='#/appstore/apps/{{::application._id}}')
-          span {{::application.title}} &nbsp;
-          small {{::application.version}}
+.esn-app-display
+    .col-lg-4.col-md-6.col-sm-12.col-xs-12
+      .thumbnail
+        img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png" style="height: 200px; width: 200px; display: block;")
+        .caption
+          h3
+            a(href='#/appstore/apps/{{::application._id}}')
+              span {{::application.title}} &nbsp;
+              small {{::application.version}}
 
-      p {{::application.description | characters:256 :false }}
-      .row.text-center
-        appstore-button-install(application='application')
-        &nbsp;
-        appstore-button-update(application='application')
+          p.description {{::application.description | characters:128 :false }}
+
+          p.text-center
+            appstore-button-deploy(application='application')
+            &nbsp;
+            appstore-button-undeploy(application='application')
 
