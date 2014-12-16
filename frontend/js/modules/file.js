@@ -78,7 +78,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
         task.uploading = true;
         task.progress = 0;
 
-        task.uploader = fileAPIService.uploadFile(FILES_API_URL, task.file, task.file.type, task.file.size, task.canceler.promise)
+        task.uploader = fileAPIService.uploadFile(FILES_API_URL, task.file, task.file.type, task.file.size, {}, task.canceler.promise)
           .success(function(response) {
             task.progress = 100;
             task.uploaded = true;
@@ -135,12 +135,16 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       });
     }
 
-    function uploadFile(url, file, mime, size, canceler) {
+    function uploadFile(url, file, mime, size, options, canceler) {
+      var params = {mimetype: mime, size: size, name: file.name};
+      if (options) {
+        angular.extend(params, options);
+      }
       return $upload.upload({
         method: 'POST',
         url: url,
         file: file,
-        params: {mimetype: mime, size: size, name: file.name},
+        params: params,
         withCredentials: true,
         timeout: canceler
       });
