@@ -2,7 +2,7 @@
 
 var extend = require('extend');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
-var acceptedArtifactTypes = ['application/x-tar', 'application/x-gzip'];
+var acceptedArtifactTypes = ['application/x-tar', 'application/x-gzip', 'application/gzip'];
 var Busboy = require('busboy');
 var ObjectId = require('mongoose').Types.ObjectId;
 
