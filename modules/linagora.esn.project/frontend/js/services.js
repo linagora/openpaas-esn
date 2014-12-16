@@ -155,4 +155,19 @@ function($q, $log, $timeout, projectAPI) {
       canRead: canRead,
       canWrite: canWrite
     };
-  });
+  })
+  .factory('projectStreamsService', ['userAPI', function(userAPI) {
+
+    function getProjectsActivityStreams(domainId) {
+      return userAPI.getActivityStreams({domainid: domainId}).then(function(response) {
+        response.data = response.data.filter(function(stream) {
+          return stream.target && stream.target.objectType === 'project';
+        });
+        return response;
+      });
+    }
+
+    return {
+      getProjectsActivityStreams: getProjectsActivityStreams
+    };
+  }]);

@@ -59,6 +59,25 @@ angular.module('esn.project')
 
       $scope.getAll();
   }])
-  .controller('projectsAStrackerController', ['$scope', function($scope) {
-    $scope.activitystreams = [];
+  .controller('projectsAStrackerController', ['$rootScope', '$scope', 'AStrackerHelpers', 'ASTrackerNotificationService', function($rootScope, $scope, AStrackerHelpers, ASTrackerNotificationService) {
+      $scope.activityStreams = ASTrackerNotificationService.streams;
+      $scope.show = false;
+      $scope.load = true;
+
+      AStrackerHelpers.getActivityStreamsWithUnreadCount('project', function(err, result) {
+        if (err) {
+          $scope.error = 'Error while getting unread message: ' + err;
+          return;
+        }
+
+        result.forEach(function(element) {
+          element.objectType = 'project';
+          element.href = '/#/projects/' + element.target._id;
+          element.img = '/api/projects/' + element.target._id + '/avatar';
+          ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
+          ASTrackerNotificationService.addItem(element);
+        });
+        $scope.load = false;
+        $scope.show = result.length > 0;
+      });
   }]);
