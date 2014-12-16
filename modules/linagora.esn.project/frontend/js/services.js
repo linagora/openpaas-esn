@@ -94,11 +94,12 @@ function($q, $log, $timeout, projectAPI) {
     }
 
     function addMember(id, member) {
-      return Restangular.one('projects', id).post(member);
+      return Restangular.one('projects', id).all('members').post(member);
     }
 
-    function getInvitableMembers(id) {
-      return Restangular.one('projects', id).all('invitableentities').get();
+    function getInvitableMembers(id, query) {
+      query = query || {};
+      return Restangular.one('projects', id).all('invitable').getList(query);
     }
 
     function create(body) {
