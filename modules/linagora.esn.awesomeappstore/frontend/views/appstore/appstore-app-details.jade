@@ -1,0 +1,18 @@
+.nopadding
+  .col-lg-2.col-sm-3.col-xs-4
+
+    a(href='#/appstore/apps/{{::application._id}}')
+      img.thumbnail.nopadding(ng-src='/appstore/api/apps/{{::application._id}}/avatar', src='/appstore/images/application.png')
+
+  .col-lg-10.col-sm-9.col-xs-8
+    h4.media-heading
+      a(href='#/appstore/apps/{{::application._id}}')
+        strong {{::application.title}}
+        small &nbsp;{{::application.version}}
+    ul.list-inline
+      li.pull-right
+        appstore-button-install(application='application')
+        &nbsp;
+        appstore-button-update(application='application')
+      .clearfix
+    p.hidden-xs.application-description(ng-show='application.description') {{::application.description}}

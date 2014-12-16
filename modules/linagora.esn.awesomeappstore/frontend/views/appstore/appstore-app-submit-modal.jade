@@ -1,0 +1,92 @@
+.modal(ng-controller="appstoreAppSubmitController", tabindex="-1", role="dialog")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button", ng-click="$hide()", ng-hide="sending") &times;
+        h4.modal-title(ng-hide="step !== 0 && step !== 1") #{__('Submit a new Application')}
+        h4.modal-title(ng-show="sending") #{__('Submitting')} '{{application.title}}' #{__('application')}...
+      .modal-body
+
+        .row.alert.alert-info(ng-show="sending", role="alert")
+          p
+            i.fa.fa-cog.fa-spin
+            span(ng-show="createStatus.step === 'post'") #{__('Submitting the application')}...
+            span(ng-show="createStatus.step === 'upload'") #{__('Uploading artifact')}...
+            span(ng-show="createStatus.step === 'redirect'") #{__('Redirecting to application page')}...
+            span(ng-show="createStatus.step === 'uploadfailed'") #{__('Upload failed')}!
+
+          .progress
+            .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{percent}}", aria-valuemin="0", aria-valuemax="100", style="width: {{percent}}%")
+              span.sr-only {{percent}} % #{__('Complete')}
+
+        form(name='applicationForm', ng-hide="sending")
+          .form-group
+            #applicationerror
+          .form-group.has-feedback(ng-show="step === 0", ng-class='{"has-error": isTitleInvalid()}')
+            label #{__('The application title')}&nbsp;*
+            input.form-control(type='text', ng-change='onInputChange()', ng-model='application.title', id="title", name='title', autofocus=true, required, ensure-unique-application-title, esn-track-first-blur)
+            span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='applicationForm.title.$error.ajax')
+            span.help-block(ng-show='applicationForm.title.$error.unique && !applicationForm.title.$error.ajax') #{__('This application title already exists. Please choose another one.')}
+            span.help-block(ng-show='validationError.ajax && !validationError.unique') #{__('An error occured while checking for application title validity.')}
+            span.help-block(ng-show='!validationError.ajax && validationError.unique') #{__('This application title already exists. Please choose another one.')}
+
+          .form-group.has-feedback(ng-show="step === 0")
+            label #{__('The application version')}&nbsp;*
+            input.form-control(type='text', ng-model='version', id="version", name='version', autofocus=false, required)
+
+          .form-group.has-feedback(ng-show="step === 0")
+            label #{__('The application artifact')}&nbsp;*
+            .btn-group.btn-group-justified
+              .btn-group
+                span.btn.btn-info.btn-file
+                  i.fa.fa-upload
+                  | #{__('Select the artifact')}
+                  input(type="file", ng-file-select="onFileSelect($files)", data-multiple='true')
+            span.help-block(ng-show='artifact') {{artifact.name}}
+
+        .form-group(ng-show="step === 1")
+            .row.alert.alert-warning(role="alert")
+              p #{__('You are about to create the')}
+                strong &nbsp;'{{application.title}}'&nbsp;
+                | #{__('application')}. #{__('You can customize it with an avatar and a description now or do it later on the application page')}.
+            .row
+              label #{__('Avatar')}
+              .btn-group.btn-group-justified
+                .btn-group
+                  span.btn.btn-info.btn-file
+                    i.fa.fa-upload
+                    | #{__('Select an image')}
+                    input(type="file", load-button)
+                .btn-group
+                  button.btn.btn-info.btn-file(data-ng-disabled='!imageselected || imagevalidated', data-ng-click='validateImage()')
+                    i.fa.fa-check
+                    | #{__('Accept picture')}
+            .vertiz-space
+            .row(id='error')
+            .row
+              .col-xs-6.col-xs-offset-3.col-sm-3.col-sm-offset-0.application-img-preview-container
+                div(ng-show='!imageselected')
+                  img(width="128", height="128", src='/appstore/images/application.png')
+                div(ng-show='imageselected')
+                  .img-preview
+                    a(data-ng-click='removeSelectedImage()', href='')
+                      i.fa.fa-times.fa-5.fa-border
+                    canvas(width="128", height="128", id="preview", img-preview)
+              .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='imageselected && !imagevalidated')
+                .hidden-md.hidden-sm.hidden-lg
+                  img-loaded(width="190")
+                .hidden-xs
+                  img-loaded(width="380")
+          .form-group(ng-show="step === 1")
+            label #{__('Description')}
+            textarea.form-control.textarea-fixed(rows="3", ng-model='application.description', name='description')
+            span.help-block #{__("A human readable description which will help users know what this application is about")}.
+      .modal-footer(ng-hide="sending")
+        button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="backToStep0()")
+          i.fa.fa-chevron-left
+          | #{__('Previous')}
+        button.btn.btn-secondary-dark(type="button", ng-disabled="isTitleEmpty() || applicationForm.title.$error.unique || applicationForm.title.$error.ajax || validationError.ajax || validationError.unique", ng-show="step === 0", ng-click="validateStep0()")
+          | #{__('Next')} &nbsp;
+          i.fa.fa-chevron-right
+        button.btn.btn-secondary-dark(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="submit(application)") #{__('Submit')}
+        button.btn.btn-default(type="button", ng-disabled="sending", ng-click="$hide()") #{__('Cancel')}
