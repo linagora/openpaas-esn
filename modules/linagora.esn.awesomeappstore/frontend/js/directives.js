@@ -76,24 +76,68 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreButtonDeploy', ['appstoreAPI', function(appstoreAPI) {
+  .directive('appstoreButtonDeploy', ['$log', 'session', 'appstoreAPI', function($log, session, appstoreAPI) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-deploy.html',
       scope: {
-        disabled: '=',
         application: '=',
-        commmunity: '='
+        target: '=',
+        version: '@'
+      },
+      controller: function($scope) {
+        var target = { objectType: 'domain', id: session.domain._id };
+        $scope.loading = false;
+
+        $scope.deploy = function() {
+          $scope.loading = true;
+          appstoreAPI.deploy($scope.application._id, target, $scope.version)
+            .then(function() {
+              $log.debug('Application deployment success.');
+            }, function(error) {
+              $log.debug('Application deployment failed.', error);
+            }).finally (function() {
+              $scope.loading = false;
+              $log.debug('Done.');
+            });
+        };
+
+        $scope.disabled = function() {
+          return false;
+        };
+
       }
     };
   }])
-  .directive('appstoreButtonUndeploy', ['appstoreAPI', function(appstoreAPI) {
+  .directive('appstoreButtonUndeploy', ['$log', 'session', 'appstoreAPI', function($log, session, appstoreAPI) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-undeploy.html',
       scope: {
         application: '=',
-        commmunity: '='
+        target: '='
+      },
+      controller: function($scope) {
+        var target = { objectType: 'domain', id: session.domain._id };
+
+        $scope.loading = false;
+        $scope.undeploy = function() {
+          $scope.loading = true;
+          appstoreAPI.undeploy($scope.application._id, target)
+            .then(function() {
+              $log.debug('Application deployment success.');
+            }, function(error) {
+              $log.debug('Application deployment failed.', error);
+            }).finally (function() {
+              $scope.loading = false;
+              $log.debug('Done.');
+            });
+        };
+
+        $scope.disabled = function() {
+          return false;
+        };
+
       }
     };
   }])

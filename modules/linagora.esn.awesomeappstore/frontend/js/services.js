@@ -7,9 +7,18 @@ angular.module('esn.appstore')
       RestangularConfigurer.setFullResponse(true);
     });
   })
-  .factory('applicationService', ['appstoreAPI', function(appstoreAPI) {
-    return {};
-  }])
+  .factory('disableService', function() {
+    function disableFn(target, array) {
+      if (!array || !array.length) {
+        return false;
+      }
+      return array.some(function(element) {
+        var targetToCompare = element.target || element;
+        return angular.equals(targetToCompare, target);
+      });
+    }
+    return disableFn;
+  })
   .factory('appstoreAPI', ['AppstoreRestangular', 'fileAPIService', function(AppstoreRestangular, fileAPIService) {
 
     function get(id) {
@@ -26,7 +35,7 @@ angular.module('esn.appstore')
 
     function deploy(id, target, version) {
       var body = { target: target, version: version };
-      return AppstoreRestangular.one('apps', id).one('deploy').put(body);
+      return AppstoreRestangular.one('apps', id).one('deploy').customPUT(body);
     }
 
     function updeploy() {
@@ -34,7 +43,7 @@ angular.module('esn.appstore')
     }
 
     function undeploy(id, target) {
-      return AppstoreRestangular.one('apps', id).one('undeploy').put(target);
+      return AppstoreRestangular.one('apps', id).one('undeploy').customPUT(target);
     }
 
     function install(id, target) {

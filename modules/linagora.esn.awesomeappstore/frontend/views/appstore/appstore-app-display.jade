@@ -11,7 +11,7 @@
           p.description {{::application.description | characters:128 :false }}
 
           p.text-center
-            appstore-button-deploy(application='application')
+            appstore-button-deploy(application="application", version="1.0.0")
             &nbsp;
-            appstore-button-undeploy(application='application')
+            appstore-button-undeploy(application="application")
 

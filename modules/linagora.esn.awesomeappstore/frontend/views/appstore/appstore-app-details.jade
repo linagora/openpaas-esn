@@ -13,9 +13,10 @@
     .row
       blockquote
         p.application-description(ng-show='application.description') {{::application.description}}
+
     .row
       ul.list-inline
         li
-          appstore-button-deploy(application='application')
+          appstore-button-deploy(application='application', version="1.0.0")
         li
           appstore-button-undeploy(application='application')
