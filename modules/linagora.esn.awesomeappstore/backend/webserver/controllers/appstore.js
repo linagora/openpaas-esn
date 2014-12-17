@@ -11,14 +11,21 @@ module.exports = function(appstoremanager) {
   function list(req, res) {
     var query = req.query || {};
 
-    if (req.query.community) {
-      var tuple = { objectType: 'community', id: req.query.community };
+    if (req.query.domain) {
+      var tuple = { objectType: 'domain', id: req.query.domain };
       var deploymentMatch = {
         deployments: {
-          $elemMatch: tuple
+          $elemMatch: {
+            target: tuple
+          }
         }
       };
+      delete query.domain;
       extend(true, query, deploymentMatch);
+    }
+
+    if (req.query.community) {
+      delete query.community;
     }
 
     appstoremanager.get(query, function(err, result) {

@@ -35,8 +35,8 @@ angular.module('esn.appstore', [
       templateUrl: '/appstore/views/community/applications',
       controller: 'communityAppstoreController',
       resolve: {
-        applications: function(communityAppstoreAPI, $route) {
-          return communityAppstoreAPI.list($route.current.params.id).then(
+        applications: function(session, appstoreAPI, $route) {
+          return appstoreAPI.list({ domain: session.domain._id, community: $route.current.params.id }).then(
             function(response) {
               return response.data;
             },
