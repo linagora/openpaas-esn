@@ -1,4 +1,5 @@
 .col-xs-12.esn-panel
+  .vertiz-space
 
   .row.alert.alert-info(ng-show="loading", role="alert")
     p
@@ -7,12 +8,9 @@
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
     p #{__('Error while loading applications!')}
   .row.alert.alert-info(ng-show="!loading && !error && applications.length === 0", role="alert")
-    p #{__('There is no applications yet')}
+    p #{__('There are no applications yet.')}
   .vertiz-space
 
   .row(ng-if="applications")
-    .col-sm-6.col-md-4(ng-repeat="application in applications | orderBy:'title'")
+    div(ng-repeat="application in applications | orderBy:'title'")
       community-app-display(community="community", application="application")
-
-  .row.alert.alert-info(ng-if="!applications" role="alert")
-    p #{__('There is no applications yet')}

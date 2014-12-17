@@ -1,3 +1,3 @@
 button.btn.btn-primary(type="button", ng-click="uninstall()", ng-disabled='disabled()')
-  i.fa.fa-remove
+  i.fa(ng-class="{'fa-remove': !loading, 'fa-cog': loading, 'fa-spin': loading}")
   span #{__('Uninstall')}

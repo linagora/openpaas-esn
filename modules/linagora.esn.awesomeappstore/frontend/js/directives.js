@@ -16,7 +16,7 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('ensureUniqueApplicationTitle', ['appstoreAPI', 'session', '$timeout', function(appstoreAPI, session, $timeout) {
+  .directive('ensureUniqueApplicationTitle', ['$timeout', 'appstoreAPI', function($timeout, appstoreAPI) {
     return {
       restrict: 'A',
       require: 'ngModel',
@@ -125,9 +125,9 @@ angular.module('esn.appstore')
           $scope.loading = true;
           appstoreAPI.undeploy($scope.application._id, target)
             .then(function() {
-              $log.debug('Application deployment success.');
+              $log.debug('Application undeployment success.');
             }, function(error) {
-              $log.debug('Application deployment failed.', error);
+              $log.debug('Application undeployment failed.', error);
             }).finally (function() {
               $scope.loading = false;
               $log.debug('Done.');
@@ -141,13 +141,35 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreButtonInstall', ['appstoreAPI', function(appstoreAPI) {
+  .directive('appstoreButtonInstall', ['$log', 'appstoreAPI', function($log, appstoreAPI) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-install.html',
       scope: {
-        disabled: '&',
-        install: '&'
+        application: '=',
+        community: '='
+      },
+      controller: function($scope) {
+        var target = { objectType: 'community', id: $scope.community._id };
+
+        $scope.loading = false;
+        $scope.install = function() {
+          $scope.loading = true;
+          appstoreAPI.install($scope.application._id, target)
+            .then(function() {
+              $log.debug('Application install success.');
+            }, function(error) {
+              $log.debug('Application install failed.', error);
+            }).finally (function() {
+              $scope.loading = false;
+              $log.debug('Done.');
+            });
+        };
+
+        $scope.disabled = function() {
+          return false;
+        };
+
       }
     };
   }])
@@ -161,13 +183,35 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreButtonUninstall', ['appstoreAPI', function(appstoreAPI) {
+  .directive('appstoreButtonUninstall', ['$log', 'appstoreAPI', function($log, appstoreAPI) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-uninstall.html',
       scope: {
-        disabled: '&',
-        uninstall: '&'
+        application: '=',
+        community: '='
+      },
+      controller: function($scope) {
+        var target = { objectType: 'community', id: $scope.community._id };
+
+        $scope.loading = false;
+        $scope.uninstall = function() {
+          $scope.loading = true;
+          appstoreAPI.uninstall($scope.application._id, target)
+            .then(function() {
+              $log.debug('Application uninstall success.');
+            }, function(error) {
+              $log.debug('Application uninstall failed.', error);
+            }).finally (function() {
+              $scope.loading = false;
+              $log.debug('Done.');
+            });
+        };
+
+        $scope.disabled = function() {
+          return false;
+        };
+
       }
     };
   }])
@@ -189,7 +233,7 @@ angular.module('esn.appstore')
       }
     };
   })
-  .directive('communityAppDisplay', ['communityAppstoreAPI', '$log', function(communityAppstoreAPI, $log) {
+  .directive('communityAppDisplay', ['appstoreAPI', '$log', function(appstoreAPI, $log) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/community/community-app-display.html',
@@ -217,7 +261,7 @@ angular.module('esn.appstore')
           $scope.load = true;
           var version = {
           };
-          communityAppstoreAPI.update($scope.community._id, $scope.application._id, version).then(
+          appstoreAPI.update($scope.community._id, $scope.application._id, version).then(
             function() {
               $log.debug('Application updated');
               $scope.application.update = false;
@@ -233,7 +277,7 @@ angular.module('esn.appstore')
 
         $scope.uninstallApplication = function() {
           $scope.load = true;
-          communityAppstoreAPI.uninstall($scope.community._id, $scope.application).then(
+          appstoreAPI.uninstall($scope.community._id, $scope.application).then(
             function() {
               $log.debug('Application uninstalled');
               $scope.application.installed = false;
@@ -249,7 +293,7 @@ angular.module('esn.appstore')
 
         $scope.installApplication = function() {
           $scope.load = true;
-          communityAppstoreAPI.install($scope.community._id, $scope.application).then(
+          appstoreAPI.install($scope.community._id, $scope.application).then(
             function() {
               $log.debug('Application installed');
               $scope.application.installed = true;

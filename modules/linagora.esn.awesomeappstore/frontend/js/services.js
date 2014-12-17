@@ -47,11 +47,11 @@ angular.module('esn.appstore')
     }
 
     function install(id, target) {
-      return AppstoreRestangular.one('apps', id).one('install').put(target);
+      return AppstoreRestangular.one('apps', id).one('install').customPUT(target);
     }
 
     function uninstall(id, target) {
-      return AppstoreRestangular.one('apps', id).one('uninstall').put(target);
+      return AppstoreRestangular.one('apps', id).one('uninstall').customPUT(target);
     }
 
     function uploadAvatar(id, blob, mime) {
