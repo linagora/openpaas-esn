@@ -1,8 +1,8 @@
 'use strict';
 
-var uuid = require('node-uuid');
 var filestore = require('../../core/filestore');
 var Busboy = require('busboy');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 function create(req, res) {
   var size = parseInt(req.query.size, 10);
@@ -14,10 +14,11 @@ function create(req, res) {
     });
   }
 
-  var fileId = uuid.v1();
+  var fileId = new ObjectId();
+  var options = {};
   var metadata = {};
   if (req.query.name) {
-    metadata.name = req.query.name;
+    options.filename = req.query.name;
   }
 
   if (req.user) {
@@ -30,7 +31,7 @@ function create(req, res) {
       interrupted = true;
     });
 
-    return filestore.store(fileId, req.query.mimetype, metadata, stream, {}, function(err, saved) {
+    return filestore.store(fileId, req.query.mimetype, metadata, stream, options, function(err, saved) {
       if (err) {
         return res.json(500, {
           error: {
@@ -131,9 +132,9 @@ function get(req, res) {
 
       res.type(fileMeta.contentType);
 
-      if (fileMeta.metadata.name) {
+      if (fileMeta.filename) {
         res.set('Content-Disposition', 'inline; filename="' +
-        fileMeta.metadata.name.replace(/"/g, '') + '"');
+        fileMeta.filename.replace(/"/g, '') + '"');
       }
 
       if (fileMeta.length) {

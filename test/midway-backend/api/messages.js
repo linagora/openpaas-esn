@@ -754,12 +754,14 @@ describe('The messages API', function() {
 
   it('should save the attachments reference when posting a message', function(done) {
     var Whatsup = this.mongoose.model('Whatsup');
+    var ObjectId = this.mongoose.Types.ObjectId;
     var message = 'Hey, check out these files!';
     var target = {
       objectType: 'activitystream',
       id: community.activity_stream.uuid
     };
-    var attachment = {_id: '9829892-9982982-87222-238388', name: 'chuck.png', contentType: 'image/png', length: 988288};
+    var attachmentId = new ObjectId();
+    var attachment = {_id: attachmentId, name: 'chuck.png', contentType: 'image/png', length: 988288};
 
     this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) {
@@ -785,7 +787,7 @@ describe('The messages API', function() {
             expect(message).to.exist;
             expect(message.attachments).to.exist;
             expect(message.attachments.length).to.equal(1);
-            expect(message.attachments[0]._id).to.equal(attachment._id);
+            expect(message.attachments[0]._id + '').to.equal(attachmentId + '');
             expect(message.attachments[0].name).to.equal(attachment.name);
             expect(message.attachments[0].contentType).to.equal(attachment.contentType);
             expect(message.attachments[0].length).to.equal(attachment.length);
@@ -797,6 +799,7 @@ describe('The messages API', function() {
   });
 
   it('should update the attachment references when posting a message with existing attachments', function(done) {
+    var ObjectId = this.mongoose.Types.ObjectId;
     var Whatsup = this.mongoose.model('Whatsup');
     var filestore = require(this.testEnv.basePath + '/backend/core/filestore');
     var self = this;
@@ -810,19 +813,19 @@ describe('The messages API', function() {
     var text = 'hello world';
     var name = 'hello.txt';
     var mime = 'text/plain';
-
+    var attachmentId = new ObjectId();
     var stream = require('stream');
     var s = new stream.Readable();
     s._read = function noop() {};
     s.push(text);
     s.push(null);
 
-    filestore.store('123456789', mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err, saved) {
+    filestore.store(attachmentId, mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err, saved) {
       if (err) {
         return done(err);
       }
 
-      var attachment = {_id: '123456789', name: name, contentType: mime, length: 11};
+      var attachment = {_id: attachmentId, name: name, contentType: mime, length: 11};
 
       self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
@@ -848,7 +851,7 @@ describe('The messages API', function() {
               expect(message).to.exist;
               expect(message.attachments).to.exist;
               expect(message.attachments.length).to.equal(1);
-              filestore.getMeta(saved.filename, function(err, meta) {
+              filestore.getMeta(attachmentId, function(err, meta) {
                 if (err) {
                   return done(err);
                 }

@@ -4,8 +4,8 @@ var emailAdresses = require('email-addresses');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
-var uuid = require('node-uuid');
 var logger = require('../../core').logger;
+var ObjectId = require('mongoose').Types.ObjectId;
 
 function getEmailsFromPassportProfile(profile) {
   var emails = profile.emails
@@ -194,11 +194,12 @@ function postProfileAvatar(req, res) {
   if (isNaN(size)) {
     return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
   }
-  var avatarId = uuid.v1();
+  var avatarId = new ObjectId();
 
   function updateUserProfile() {
     req.user.avatars.push(avatarId);
     req.user.currentAvatar = avatarId;
+
     userModule.recordUser(req.user, function(err, user) {
       if (err) {
         return res.json(500, {error: 500, message: 'Datastore failure', details: err.message});

@@ -34,8 +34,7 @@ describe('The files API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.mongoose.connection.db.dropDatabase(done);
   });
 
   describe('POST /api/files', function() {
@@ -66,7 +65,7 @@ describe('The files API', function() {
               expect(data).to.equal('hello world');
               expect(meta.contentType).to.equal('text/plain');
               expect(meta.length).to.equal(11);
-              expect(meta.metadata.name).to.equal('fname');
+              expect(meta.filename).to.equal('fname');
               done();
             });
           });
@@ -192,7 +191,7 @@ describe('The files API', function() {
                 expect(data).to.equal('hello world');
                 expect(meta.contentType).to.equal('text/plain');
                 expect(meta.length).to.equal(11);
-                expect(meta.metadata.name).to.equal('fname');
+                expect(meta.filename).to.equal('fname');
                 done();
               });
             });
@@ -338,7 +337,7 @@ describe('The files API', function() {
     });
 
     it('should 404 when not exists', function(done) {
-
+      var ObjectId = require('mongoose').Types.ObjectId;
       function deleteFile(req, callback) {
         req.expect(404).end(function(err, res) {
           expect(err).to.not.exist;
@@ -349,7 +348,7 @@ describe('The files API', function() {
       this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) { return done(err); }
 
-        var req = loggedInAsUser(request(webserver.application).del('/api/files/123456789'));
+        var req = loggedInAsUser(request(webserver.application).del('/api/files/' + new ObjectId()));
         deleteFile(req, done);
       });
     });

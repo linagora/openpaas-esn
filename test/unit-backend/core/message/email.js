@@ -9,9 +9,7 @@ describe('The email message module', function() {
   describe('The saveEmail fn', function() {
 
     it('should send back error when email stream is undefined', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {}
-      });
+      this.helpers.mock.models({});
 
       mockery.registerMock('mailparser', {
         MailParser: function() {}
@@ -25,9 +23,7 @@ describe('The email message module', function() {
     });
 
     it('should send back error when email author is undefined', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {}
-      });
+      this.helpers.mock.models({});
 
       mockery.registerMock('mailparser', {
         MailParser: function() {}
@@ -41,14 +37,12 @@ describe('The email message module', function() {
     });
 
     it('should call email#save on end stream event', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return function() {
-            return {
-              save: function() {
-                return done();
-              }
-            };
+      this.helpers.mock.models({
+        EmailMessage: function() {
+          return {
+            save: function() {
+              return done();
+            }
           };
         }
       });
@@ -73,14 +67,12 @@ describe('The email message module', function() {
     });
 
     it('should send back error when email can not be parsed', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return function() {
-            return {
-              save: function() {
-                return done();
-              }
-            };
+      this.helpers.mock.models({
+        EmailMessage: function() {
+          return {
+            save: function() {
+              return done();
+            }
           };
         }
       });
@@ -122,32 +114,32 @@ describe('The email message module', function() {
         subject: 'This is a test'
       };
 
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return function() {
-            return {
-              save: function() {
-                expect(this.author).to.equal(author);
-                expect(this.headers).to.deep.equal([
-                  ['Received', 'from locahost (localhost [127.0.0.1])'],
-                  ['Received', 'from linagora (linagora [10.75.9.2])'],
-                  ['From', 'AwesomeGuy <awesomeguy@linagora.com'],
-                  ['To', 'anotherone@linagora.com'],
-                  ['Subject', 'a subject']
-                ]);
-                expect(this.body.text).to.equal(mail.text);
-                expect(this.body.html).to.equal(mail.html);
-                expect(this.parsedHeaders).to.exist;
-                expect(this.parsedHeaders.to).to.deep.equal(mail.to);
-                expect(this.parsedHeaders.from).to.equal(mail.from[0]);
-                expect(this.parsedHeaders.cc).to.deep.equal(mail.cc);
-                expect(this.parsedHeaders.bcc).to.deep.equal(mail.bcc);
-                expect(this.parsedHeaders.subject).to.deep.equal(mail.subject);
-                return done();
-              }
-            };
-          };
-        }
+      function EmailMessageModel() {
+      return {
+        save: function() {
+          expect(this.author).to.equal(author);
+          expect(this.headers).to.deep.equal([
+            ['Received', 'from locahost (localhost [127.0.0.1])'],
+            ['Received', 'from linagora (linagora [10.75.9.2])'],
+            ['From', 'AwesomeGuy <awesomeguy@linagora.com'],
+            ['To', 'anotherone@linagora.com'],
+            ['Subject', 'a subject']
+            ]);
+            expect(this.body.text).to.equal(mail.text);
+            expect(this.body.html).to.equal(mail.html);
+            expect(this.parsedHeaders).to.exist;
+            expect(this.parsedHeaders.to).to.deep.equal(mail.to);
+            expect(this.parsedHeaders.from).to.equal(mail.from[0]);
+            expect(this.parsedHeaders.cc).to.deep.equal(mail.cc);
+            expect(this.parsedHeaders.bcc).to.deep.equal(mail.bcc);
+            expect(this.parsedHeaders.subject).to.deep.equal(mail.subject);
+            return done();
+          }
+        };
+      }
+
+      this.helpers.mock.models({
+        EmailMessage: EmailMessageModel
       });
 
       mockery.registerMock('mailparser', {
@@ -211,23 +203,20 @@ describe('The email message module', function() {
         }
       });
 
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return function() {
-            return {
-              save: function(callback) {
-                var saved = {
-                  _id: {
-                    toString: function() {}
-                  }
-                };
-                return callback(null, saved);
-              }
-            };
+      this.helpers.mock.models({
+        EmailMessage: function() {
+          return {
+            save: function(callback) {
+              var saved = {
+                _id: {
+                  toString: function() {}
+                }
+              };
+              return callback(null, saved);
+            }
           };
         }
       });
-
       mockery.registerMock('mailparser', {
         MailParser: function() {
           return new EventEmitter();
@@ -315,19 +304,17 @@ describe('The email message module', function() {
         }
       });
 
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return function() {
-            return {
-              save: function(callback) {
-                var saved = {
-                  _id: {
-                    toString: function() {}
-                  }
-                };
-                return callback(null, saved);
-              }
-            };
+      this.helpers.mock.models({
+        EmailMessage: function() {
+          return {
+            save: function(callback) {
+              var saved = {
+                _id: {
+                  toString: function() {}
+                }
+              };
+              return callback(null, saved);
+            }
           };
         }
       });
@@ -386,12 +373,7 @@ describe('The email message module', function() {
           callback(new Error('Attachment storage problem'));
         }
       });
-
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return function() {};
-        }
-      });
+      this.helpers.mock.models({});
 
       mockery.registerMock('mailparser', {
         MailParser: function() {

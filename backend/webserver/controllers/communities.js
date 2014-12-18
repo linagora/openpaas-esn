@@ -3,12 +3,12 @@
 var communityModule = require('../../core/community');
 var userDomain = require('../../core/user/domain');
 var imageModule = require('../../core/image');
-var uuid = require('node-uuid');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
 var permission = require('../../core/community/permission');
 var logger = require('../../core/logger');
 var async = require('async');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 function transform(community, user, callback) {
   if (!community) {
@@ -207,7 +207,7 @@ module.exports.uploadAvatar = function(req, res) {
   if (isNaN(size)) {
     return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
   }
-  var avatarId = uuid.v1();
+  var avatarId = new ObjectId();
 
   function updateCommunityAvatar() {
     communityModule.updateAvatar(req.community, avatarId, function(err, update) {

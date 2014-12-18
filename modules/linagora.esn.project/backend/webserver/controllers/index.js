@@ -1,7 +1,7 @@
 'use strict';
 var async = require('async');
-var uuid = require('node-uuid');
 var escapeStringRegexp = require('escape-string-regexp');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 
@@ -176,7 +176,7 @@ function projectControllers(lib, dependencies) {
     if (isNaN(size)) {
       return res.json(400, {error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
     }
-    var avatarId = uuid.v1();
+    var avatarId = new ObjectId();
 
     function updateProjectAvatar() {
       lib.updateAvatar(req.project, avatarId, function(err, update) {

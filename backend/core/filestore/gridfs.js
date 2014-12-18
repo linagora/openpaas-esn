@@ -3,27 +3,43 @@
 
 var Grid = require('gridfs-stream');
 var mongoose = require('mongoose');
-var extend = require('extend');
+var ObjectId = mongoose.Types.ObjectId;
 var chunk_size = 1024;
+var extend = require('extend');
 
-module.exports.getAsFileStoreMeta = function(gridfsMeta) {
-  var result = {};
-
-  if (!gridfsMeta) {
-    return result;
+function getMongoID(id) {
+  if (!id || !(id + '').length) {
+    return null;
   }
-  result.id = gridfsMeta.filename;
-  result._id = gridfsMeta._id;
-  result.contentType = gridfsMeta.contentType;
-  result.length = gridfsMeta.length;
-  result.md5 = gridfsMeta.md5;
-  result.uploadDate = gridfsMeta.uploadDate;
-  result.metadata = gridfsMeta.metadata;
-  return result;
+  if (id.toHexString) {
+    return id;
+  }
+  var outid;
+  try {
+    outid = new ObjectId(id);
+  } catch (e) {
+    return null;
+  }
+  return outid;
+}
+
+function getGrid() {
+  return new Grid(mongoose.connection.db, mongoose.mongo);
+}
+
+module.exports.find = function find(query, callback) {
+  var gfs = getGrid();
+  gfs.files.find(query).toArray(function(err, meta) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, meta.map(function(m) { return m._id; }));
+  });
 };
 
 module.exports.store = function(id, contentType, metadata, stream, options, callback) {
-  if (!id) {
+  var mongoId = getMongoID(id);
+  if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
 
@@ -44,13 +60,20 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
     console.log(result);
   };
 
+  var strMongoId = mongoId.toHexString(); // http://stackoverflow.com/a/27176168
   var opts = {
-    filename: id,
+    _id: strMongoId,
     mode: 'w',
     content_type: contentType
   };
 
-  if (options && options.chunk_size) {
+  options = options ||  {};
+
+  if (options.filename) {
+    opts.filename = options.filename;
+  }
+
+  if (options.chunk_size) {
     var size = parseInt(options.chunk_size, 10);
     if (!isNaN(size) && size > 0 && size < 255) {
       opts.chunk_size = chunk_size * size;
@@ -59,7 +82,7 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
 
   opts.metadata = metadata;
 
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
+  var gfs = getGrid();
   var writeStream = gfs.createWriteStream(opts);
 
   writeStream.on('close', function(file) {
@@ -73,26 +96,20 @@ module.exports.store = function(id, contentType, metadata, stream, options, call
   stream.pipe(writeStream);
 };
 
-module.exports.getMeta = function(id, callback) {
-  if (!id) {
+function getMeta(id, callback) {
+  var mongoId = getMongoID(id);
+  if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
 
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-  var self = this;
-  gfs.files.findOne({filename: id}, function(err, meta) {
-    if (err) {
-      return callback(err);
-    }
-    if (meta) {
-      return callback(null, self.getAsFileStoreMeta(meta));
-    }
-    return callback();
-  });
-};
+  var gfs = getGrid();
+  gfs.files.findOne({_id: mongoId}, callback);
+}
+module.exports.getMeta = getMeta;
 
 module.exports.addMeta = function(id, data, callback) {
-  if (!id) {
+  var mongoId = getMongoID(id);
+  if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
 
@@ -100,28 +117,26 @@ module.exports.addMeta = function(id, data, callback) {
     return callback(new Error('Metadata value is mandatory'));
   }
 
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-  gfs.files.findOne({filename: id}, function(err, file) {
-
+  getMeta(mongoId, function(err, file) {
     if (err) {
       return callback(err);
     }
     if (file) {
-      file.metadata = file.metadata || {};
-      file.metadata = extend(true, file.metadata, data);
-      return gfs.files.save(file, callback);
+      extend(true, file, data);
+      var gfs = getGrid();
+      return gfs.files.update({_id: mongoId}, file, callback);
     }
     return callback();
   });
 };
 
-module.exports.get = function(id, callback) {
-  if (!id) {
+function get(id, callback) {
+  var mongoId = getMongoID(id);
+  if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
 
-  var self = this;
-  this.getMeta(id, function(err, meta) {
+  getMeta(id, function(err, meta) {
     if (err) {
       return callback(err);
     }
@@ -130,44 +145,29 @@ module.exports.get = function(id, callback) {
       return callback();
     }
 
-    var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
+    var gfs = getGrid();
     var readstream = gfs.createReadStream({
-      filename: id
+      _id: mongoId
     });
-    return callback(err, self.getAsFileStoreMeta(meta), readstream);
+    return callback(err, meta, readstream);
   });
-};
+}
+module.exports.get = get;
 
 module.exports.getFileStream = function(id, callback) {
-  if (!id) {
-    return callback(new Error('ID is mandatory'));
-  }
-
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-
-  gfs.exist({
-    filename: id
-  }, function(err, exists) {
-
-    if (err) {
-      return callback(err);
-    }
-
-    if (!exists) {
+  get(id, function(err, meta, readstream) {
+    if (!err && !meta) {
       return callback(new Error('File does not exists'));
     }
-
-    var readstream = gfs.createReadStream({
-      filename: id
-    });
-    return callback(null, readstream);
+    return callback(err, readstream);
   });
 };
 
 module.exports.delete = function(id, callback) {
-  if (!id) {
+  var mongoId = getMongoID(id);
+  if (!mongoId) {
     return callback(new Error('ID is mandatory'));
   }
-  var gfs = new Grid(mongoose.connection.db, mongoose.mongo);
-  return gfs.remove({filename: id}, callback);
+  var gfs = getGrid();
+  return gfs.remove({_id: mongoId}, callback);
 };

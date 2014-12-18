@@ -46,7 +46,7 @@ module.exports.castParamToObjectId = function(/* ...params */) {
 
       var id;
       try {
-        id = new ObjectId(req.params.user_id);
+        id = new ObjectId(req.params[param]);
       } catch (err) {
         return res.json(400, {error: {code: 400, message: 'Bad request', details: 'not a valid ObjectId (' + param + ')'}});
       }

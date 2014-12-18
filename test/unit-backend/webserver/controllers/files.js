@@ -49,7 +49,7 @@ describe('The files controller', function() {
           expect(id).to.not.be.null;
           expect(contentType).to.equal(req.query.mimetype);
           expect(metadata).to.be.an('object');
-          expect(metadata.name).to.equal(req.query.name);
+          expect(options.filename).to.equal(req.query.name);
           expect(req).to.equal(stream);
           storeId = id;
           callback(null, { length: stream.body.length });
@@ -159,7 +159,6 @@ describe('The files controller', function() {
           storeId = id;
 
           expect(metadata).to.be.an('object');
-          expect(metadata.name).to.equal(req.query.name);
           expect(contentType).to.equal(req.query.mimetype);
           expect(req).to.equal(stream);
           callback(new Error('fooled by a test'), null);
