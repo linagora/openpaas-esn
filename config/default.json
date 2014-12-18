@@ -1,6 +1,7 @@
 {
   "webserver": {
     "enabled": true,
+    "debugPort": 8081,
 
     "ip": "0.0.0.0",
     "ipv6": "::",

@@ -339,6 +339,16 @@ module.exports = function(grunt) {
     watch: {
       files: ['<%= jshint.files %>'],
       tasks: ['jshint']
+    },
+    'node-inspector': {
+      dev: {
+        options: {
+          'web-host': 'localhost',
+          'web-port': config.webserver.debugPort || 8081,
+          'save-live-edit': true,
+          'no-preload': true
+        }
+      }
     }
   });
 
@@ -352,6 +362,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell-spawn');
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
+  grunt.loadNpmTasks('grunt-node-inspector');
 
   grunt.loadTasks('tasks');
 
@@ -615,6 +626,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('dev', ['nodemon:dev']);
+  grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-mbsplit', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend_split', 'kill-servers', 'clean-environment']);
