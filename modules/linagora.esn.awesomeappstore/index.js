@@ -19,15 +19,14 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     lib: function(dependencies, callback) {
       var logger = dependencies('logger');
       var storage = dependencies('filestore');
-      var common = dependencies('db').mongo.common;
-      var validation = dependencies('db').mongo.validation;
       var imageModule = dependencies('image');
       var communityModule = dependencies('community');
       var injectionModule = dependencies('injection');
       var localPubsub = dependencies('pubsub').local;
       var moduleManager = require('../../backend/module-manager');
+      var schemas = dependencies('db').mongo.schemas;
 
-      require('./backend/db/mongo/application')(common, validation);
+      require('./backend/db/mongo/application')(schemas);
 
       var AwesomeAppManager = require('./backend/appstore-manager').AwesomeAppManager;
       var appManager = new AwesomeAppManager(

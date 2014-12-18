@@ -2,27 +2,28 @@
 
 var extend = require('extend');
 var Schema = require('mongoose').Schema;
-var Tuple = require('../common').Tuple;
-var Validation = require('../validation');
-var Injection = require('../common').Injection;
+var tuple = require('../schemas/tuple');
+var injection = require('../schemas/injection');
+var Tuple = tuple.Tuple;
+var Injection = injection.Injection;
 var uuid = require('node-uuid');
 
 var collaborationBaseSchema = {
   creator: {type: Schema.ObjectId, ref: 'User'},
   domain_ids: [
-  {type: Schema.ObjectId, ref: 'Domain'}
+    {type: Schema.ObjectId, ref: 'Domain'}
   ],
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
   members: [
-  {
-    member: {type: Tuple.tree, required: true, validate: [Validation.validateTuple, 'Bad subject tuple']},
-    status: {type: String},
-    timestamps: {
-      creation: {type: Date, default: Date.now}
+    {
+      member: {type: Tuple.tree, required: true, validate: [tuple.validateTuple, 'Bad subject tuple']},
+      status: {type: String},
+      timestamps: {
+        creation: {type: Date, default: Date.now}
+      }
     }
-  }
   ],
   activity_stream: {
     uuid: {type: String},
@@ -30,7 +31,7 @@ var collaborationBaseSchema = {
       creation: {type: Date, default: Date.now}
     }
   },
-  injections: {type: [Injection], validate: [Validation.validateInjections, 'Bad injections']},
+  injections: {type: [Injection], validate: [injection.validateInjections, 'Bad injections']},
   schemaVersion: {type: Number, default: 1}
 };
 

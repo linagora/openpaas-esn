@@ -254,6 +254,11 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   require('./models/' + filename);
 });
 
-// load common and validation
-module.exports.common = require('./common');
-module.exports.validation = require('./validation');
+// load schemas
+var schemas = {};
+fs.readdirSync(__dirname + '/schemas').forEach(function(filename) {
+  var stat = fs.statSync(__dirname + '/schemas/' + filename);
+  if (!stat.isFile()) { return; }
+  schemas[filename.replace('.js', '')] = require('./schemas/' + filename);
+});
+module.exports.schemas = schemas;

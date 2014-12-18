@@ -5,7 +5,6 @@ var Dependency = AwesomeModule.AwesomeModuleDependency;
 
 var injectionModule = new AwesomeModule('linagora.esn.injection', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.domain', 'domain'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.community', 'community')
   ],

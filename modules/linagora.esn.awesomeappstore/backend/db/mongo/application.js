@@ -2,8 +2,9 @@
 
 var mongoose = require('mongoose');
 
-module.exports = function(common, validation) {
-  var Tuple = common.Tuple;
+module.exports = function(schemas) {
+  var tuple = schemas.tuple;
+  var Tuple = tuple.Tuple;
 
   var Artifact = new mongoose.Schema({
     id: {type: String, required: true},
@@ -15,10 +16,10 @@ module.exports = function(common, validation) {
   }, {_id: false});
 
   var Deployment = new mongoose.Schema({
-    target: {type: Tuple.tree, validate: [validation.validateTuple, 'Bad object tuple']},
+    target: {type: Tuple.tree, validate: [tuple.validateTuple, 'Bad object tuple']},
     state: {type: String, required: true, default: 'submit'},
     version: {type: String, required: true},
-    installs: {type: [Tuple], validate: [validation.validateTuples, 'Bad install tuples']},
+    installs: {type: [Tuple], validate: [tuple.validateTuples, 'Bad install tuples']},
     timestamps: {
       creation: {type: Date, default: Date.now}
     }
@@ -43,7 +44,7 @@ module.exports = function(common, validation) {
     description: {type: String, trim: true},
     author: {type: String, trim: true},
     website: {type: String, trim: true},
-    icon: {type: Tuple.tree, validate: [validation.validateIconTuple, 'bad objectType']},
+    icon: {type: Tuple.tree, validate: [tuple.validateIconTuple, 'bad objectType']},
     avatar: {type: String},
     artifacts: {type: [Artifact]},
     deployments: {type: [Deployment]},
