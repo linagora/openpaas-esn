@@ -56,20 +56,20 @@ module.exports = function(common, validation) {
   });
 
   ApplicationSchema.methods = {
-    getArtifactFromVersion: function(version, cb) {
+    getArtifactFromVersion: function(version, callback) {
       if (!version) {
-        return cb(new Error('Can not find archive for null version'));
+        return callback(new Error('Can not find archive for null version'));
       }
 
-      var foundArchives = this.artifacts.filter(function(artifact) {
+      var foundArtifacts = this.artifacts.filter(function(artifact) {
         return artifact.version === version;
       });
 
-      if (foundArchives.length === 0) {
-        return cb(new Error('Can not find archive for version ' + version));
+      if (foundArtifacts.length === 0) {
+        return callback(null, null);
       }
 
-      return cb(null, foundArchives[0]);
+      return callback(null, foundArtifacts[0]);
     }
   };
 

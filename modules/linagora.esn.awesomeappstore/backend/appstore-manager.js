@@ -204,11 +204,24 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
   }
 
   function getArtifactStream(artifact, callback) {
+    if (!artifact) {
+      return callback(new Error('Artifact is needed to retreive the associated stream.'));
+    }
     self.getArtifact(artifact.id, callback);
   }
 
   function getArtifactMetadataFromVersion(application, version, callback) {
-    application.getArtifactFromVersion(version, callback);
+    application.getArtifactFromVersion(version, function(err, artifact) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!artifact) {
+        return callback(new Error('Can not find artifact for version ' + version));
+      }
+
+      return callback(null, artifact);
+    });
   }
 
   var self = this;
