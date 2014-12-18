@@ -10,8 +10,8 @@
       img.media-object(ng-src='/api/avatars?objectType=community&id={{::communityJoined._id}}', src='/images/community.png')
     .media-body
       .notification-head.ellipsis
-        a(ng-href="/#/communities/{{::communityJoined._id}}") {{::communityJoined.title}}
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
+        a(ng-href="/#/communities/{{::communityJoined._id}}") {{::communityJoined.title}}
       .notification-body
         span
           a(ng-href="/#/profile/{{::joiner._id}}") {{::joiner.firstname}} {{::joiner.lastname}}

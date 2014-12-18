@@ -14,8 +14,8 @@
       i.nomargin.remove.fa.fa-remove
     .media-body
       .notification-head.ellipsis
-        a(ng-show='context', ng-href="{{::context.url}}") {{::context.displayName}}
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
+        a(ng-show='context', ng-href="{{::context.url}}") {{::context.displayName}}
       .notification-body
         span
           a(ng-href="{{::subject.url}}") {{::subject.displayName}}
