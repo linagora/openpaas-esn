@@ -308,7 +308,7 @@ angular.module('esn.user-notification',
         var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
 
         this.actionDone = function(action) {
-          $scope.actionDone = action;
+          $scope.notification.actionDone = action;
         };
 
         $scope.invitedUser = session.user;
