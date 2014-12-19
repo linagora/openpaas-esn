@@ -127,3 +127,18 @@ function getUnreadCount(req, res) {
   });
 }
 module.exports.getUnreadCount = getUnreadCount;
+
+function getResource(req, res) {
+  var activity_stream = req.activity_stream;
+
+  if (!activity_stream) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
+  }
+
+  if (!activity_stream.target) {
+    return res.json(404, {error: {code: 404, message: 'Not found', details: 'Could not find a resource for this stream.'}});
+  }
+
+  return res.json(200, activity_stream.target);
+}
+module.exports.getResource = getResource;
