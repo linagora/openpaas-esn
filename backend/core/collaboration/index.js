@@ -12,6 +12,10 @@ var collaborationModels = {
   community: 'Community'
 };
 
+var collaborationLibs = {
+  community: require('../community')
+};
+
 function getModel(objectType) {
   var modelName = collaborationModels[objectType];
   if (!modelName) {
@@ -127,6 +131,13 @@ function registerCollaborationModel(name, modelName, schema) {
   return model;
 }
 
+function registerCollaborationLib(name, lib) {
+  if (collaborationLibs[name]) {
+    throw new Error('Collaboration lib for ' + name + 'is already registered');
+  }
+  collaborationLibs[name] = lib;
+}
+
 function findCollaborationFromActivityStreamID(id, callback) {
   var finders = [];
 
@@ -159,6 +170,7 @@ module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
 module.exports.registerCollaborationModel = registerCollaborationModel;
+module.exports.registerCollaborationLib = registerCollaborationLib;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
