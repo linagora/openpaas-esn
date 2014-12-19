@@ -85,7 +85,7 @@ function projectLib(dependencies) {
     return query(params, callback);
   }
 
-  function getUserProjectStreams(userId, options, callback) {
+  function getStreamsForUser(userId, options, callback) {
     getUserProjects(userId, options, function(err, projects) {
       if (err) { return callback(err); }
       callback(null, projects.map(projectToStream));
@@ -115,7 +115,7 @@ function projectLib(dependencies) {
   lib.isMember = isMember;
   lib.addMember = addMember;
   lib.getUserProjects = getUserProjects;
-  lib.getUserProjectStreams = getUserProjectStreams;
+  lib.getStreamsForUser = getStreamsForUser;
   lib.getFromActivityStreamID = getFromActivityStreamID;
   lib.updateAvatar = updateAvatar;
   return lib;

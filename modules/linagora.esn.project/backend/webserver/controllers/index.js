@@ -144,7 +144,7 @@ function projectControllers(lib, dependencies) {
       options.name = new RegExp(escapedString, 'i');
     }
 
-    lib.getUserProjectStreams(req.user._id, options, function(err, streams) {
+    lib.getStreamsForUser(req.user._id, options, function(err, streams) {
       if (err) { return next(err); }
 
       Array.prototype.push.apply(json, streams);

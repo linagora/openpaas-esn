@@ -225,7 +225,7 @@ module.exports.getManagers = function(community, query, callback) {
   });
 };
 
-module.exports.getUserCommunities = function(user, options, callback) {
+function getUserCommunities(user, options, callback) {
   var q = options || {};
   if (typeof(options) === 'function') {
     callback = options;
@@ -278,6 +278,27 @@ module.exports.getUserCommunities = function(user, options, callback) {
   }
 
   return query(params, done);
+}
+module.exports.getUserCommunities = getUserCommunities;
+
+function communityToStream(community) {
+  return {
+    uuid: community.activity_stream.uuid,
+    target: {
+      objectType: 'community',
+      _id: community._id,
+      displayName: community.title,
+      id: 'urn:linagora.com:community:' + community._id,
+      image: community.avatar || ''
+    }
+  };
+}
+
+module.exports.getStreamsForUser = function(userId, options, callback) {
+  getUserCommunities(userId, options, function(err, projects) {
+    if (err) { return callback(err); }
+    callback(null, projects.map(communityToStream));
+  });
 };
 
 module.exports.getMembershipRequests = function(community, query, callback) {

@@ -166,6 +166,35 @@ function findCollaborationFromActivityStreamID(id, callback) {
   });
 }
 
+function getStreamsForUser(userId, options, callback) {
+  var finders = [];
+  var results = [];
+
+  function finder(type, callback) {
+    collaborationLibs[type].getStreamsForUser(userId, options, function(err, streams) {
+      if (err || !streams || !streams.length) {
+        return callback();
+      }
+      results = results.concat(streams);
+      return callback(null, null);
+    });
+  }
+
+  for (var type in collaborationLibs) {
+    if (collaborationLibs[type] && collaborationLibs[type].getStreamsForUser) {
+      finders.push(async.apply(finder, type));
+    }
+  }
+
+  async.parallel(finders, function(err) {
+    if (err) {
+      return callback(err);
+    }
+    console.log('RESULTS', results);
+    return callback(null, results);
+  });
+}
+
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
@@ -176,4 +205,5 @@ module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
 module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
+module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.permission = require('./permission');
