@@ -43,7 +43,8 @@ angular.module('esnApp', [
   'esn.oembed.instagram',
   'esn.oembed.soundcloud',
   'esn.oembed.deezer',
-  'esn.oembed.vimeo'
+  'esn.oembed.vimeo',
+  'esn.oembed.slideshare'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/domains/:id/members/invite', {
