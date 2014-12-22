@@ -225,17 +225,6 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
 
       webserver.application.locals.injections = injections;
 
-      webserver.application.use(function(req, res) {
-        res.status(404);
-        if (req.accepts('html')) {
-          res.render('commons/404', { url: req.url });
-          return;
-        }
-        else {
-          return res.send({ error: 'Not found' });
-        }
-      });
-
       webserver.virtualhosts = config.webserver.virtualhosts;
       webserver.port = config.webserver.port;
       webserver.ip = config.webserver.ip;
