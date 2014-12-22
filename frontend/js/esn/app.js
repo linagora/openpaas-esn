@@ -46,10 +46,6 @@ angular.module('esnApp', [
   'esn.oembed.vimeo'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
-    $routeProvider.when('/', {
-      templateUrl: '/views/esn/partials/home'
-    });
-
     $routeProvider.when('/domains/:id/members/invite', {
       templateUrl: '/views/esn/partials/domains/invite',
       controller: 'inviteMembers',
