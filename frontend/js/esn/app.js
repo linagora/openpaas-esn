@@ -37,8 +37,19 @@ angular.module('esnApp', [
   'esn.background',
   'esn.parser',
   'esn.markdown-parser',
-  'esn.widget.helper'
+  'esn.widget.helper',
+  'esn.oembed',
+  'esn.oembed.youtube',
+  'esn.oembed.instagram',
+  'esn.oembed.soundcloud',
+  'esn.oembed.deezer',
+  'esn.oembed.vimeo'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
+
+    $routeProvider.when('/', {
+      templateUrl: '/views/esn/partials/home'
+    });
+
     $routeProvider.when('/domains/:id/members/invite', {
       templateUrl: '/views/esn/partials/domains/invite',
       controller: 'inviteMembers',
