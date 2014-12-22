@@ -93,7 +93,6 @@ describe('The Calendar Angular module', function() {
             expect(event.title).to.equal('title');
             expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
             expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
-            expect(event.vevent).to.exist;
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();

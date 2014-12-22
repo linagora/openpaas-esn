@@ -10,7 +10,7 @@ describe('The ICAL Angular module', function() {
 
   describe('icalParserService service', function() {
 
-    describe.only('The parseICS fn', function() {
+    describe('The parseICS fn', function() {
 
       beforeEach(angular.mock.inject(function(ICAL) {
         this.ICAL = ICAL;
