@@ -1087,6 +1087,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
                 else {
                   user.displayName = user.emails[0];
                 }
+                $scope.query = '';
               });
               deferred.resolve(response);
             },
@@ -1098,7 +1099,20 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         };
 
         $scope.inviteUsers = function() {
-          if (!$scope.users || $scope.users.length === 0) {
+          $scope.hideSuccessMessage();
+          $scope.hideErrorMessage();
+          $scope.noUser = false;
+          $scope.invalidUser = false;
+          if ($scope.query && $scope.query !== '') {
+            $scope.invalidUser = $scope.query;
+            $scope.showErrorMessage();
+            if (!$scope.users || $scope.users.length === 0) {
+              $scope.query = '';
+              return;
+            }
+          } else if (!$scope.users || $scope.users.length === 0) {
+            $scope.noUser = true;
+            $scope.showErrorMessage();
             return;
           }
           if ($scope.running) {
@@ -1120,7 +1134,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
               $scope.hideRunning();
               $scope.showSuccessMessage();
               if ($scope.query && $scope.query !== '') {
-                $scope.error = 'Cannot invite ' + $scope.query + '.';
+                $scope.invalidUser = $scope.query;
                 $scope.showErrorMessage();
               }
             },
