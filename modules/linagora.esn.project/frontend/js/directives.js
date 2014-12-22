@@ -182,6 +182,6 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/projects/views/project-as-tracker.html'
+      templateUrl: '/projects/views/list-project-activity-streams.html'
     };
   });
