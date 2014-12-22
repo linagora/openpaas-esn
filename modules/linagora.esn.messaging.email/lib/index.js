@@ -6,6 +6,8 @@ module.exports = function(dependencies) {
 
   var lib = {};
 
+  lib.emailTokenModel = require('../backend/db/models/email-recipient-token');
+
   function validateTo(to, callback) {
     if (!to) {
       return callback(new Error('Address is required'));
@@ -121,6 +123,8 @@ module.exports = function(dependencies) {
   lib.reply = reply;
   lib.getReplyTo = getReplyTo;
   lib.validateTo = validateTo;
+  lib.token = require('./token')(lib, dependencies);
+  lib.sender = require('./sender')(lib, dependencies);
 
   return lib;
 };

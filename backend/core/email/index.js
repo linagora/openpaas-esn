@@ -144,7 +144,7 @@ exports.sendHTML = function(from, to, subject, type, locals, done) {
               logger.warn('Error while sending email %s', err.message);
               return done(err);
             }
-            logger.debug('Email has been sent to %s', to);
+            logger.debug('Email has been sent to %s from %s', to, from);
             done(null, response);
           });
         });
@@ -190,7 +190,7 @@ exports.send = function(from, to, subject, text, done) {
           logger.warn('Error while sending email %s', err.message);
           return done(err);
         }
-        logger.debug('Email has been sent to %s', to);
+        logger.debug('Email has been sent to %s from %s', to, from);
         done(null, response);
       });
     });
