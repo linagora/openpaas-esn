@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.calendar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'ui.calendar', 'esn.widget.helper'])
+angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', 'esn.user', 'esn.avatar', 'esn.calendar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'ui.calendar', 'esn.widget.helper'])
   .config(['tagsInputConfigProvider', function(tagsInputConfigProvider) {
     tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
       placeholder: true,
@@ -1190,4 +1190,70 @@ angular.module('esn.community', ['esn.session', 'esn.user', 'esn.avatar', 'esn.c
     }
 
     $scope.eventSources = [communityEventSource];
-  }]);
+  }])
+  .controller('communityAStrackerController',
+  ['$rootScope', '$scope', '$log', 'AStrackerHelpers', 'communityAPI', 'ASTrackerNotificationService',
+    function($rootScope, $scope, $log, AStrackerHelpers, communityAPI, ASTrackerNotificationService) {
+
+      $scope.activityStreams = ASTrackerNotificationService.streams;
+
+      AStrackerHelpers.getActivityStreamsWithUnreadCount('community', function(err, result) {
+        if (err) {
+          $scope.error = 'Error while getting unread message: ' + err;
+          $log.error($scope.error, err);
+          return;
+        }
+
+        result.forEach(function(element) {
+          element.objectType = 'community';
+          element.href = '/#/communities/' + element.target._id;
+          element.img = '/api/communities/' + element.target._id + '/avatar';
+          ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
+          ASTrackerNotificationService.addItem(element);
+        });
+      });
+
+      function joinCommunityNotificationHandler(event, data) {
+        communityAPI.get(data.community).then(function(success) {
+          var uuid = success.data.activity_stream.uuid;
+          ASTrackerNotificationService.subscribeToStreamNotification(uuid);
+
+          var streamInfo = {
+            uuid: uuid,
+            href: '/#/communities/' + success.data._id,
+            img: '/api/communities/' + success.data._id + '/avatar',
+            display_name: success.data.title,
+            objectType: 'community'
+          };
+          ASTrackerNotificationService.addItem(streamInfo);
+
+        }, function(err) {
+          $log.debug('Error while getting community', err.data);
+        });
+      }
+
+      function leaveCommunityNotificationHandler(event, data) {
+        communityAPI.get(data.community).then(function(success) {
+          var uuid = success.data.activity_stream.uuid;
+          ASTrackerNotificationService.unsubscribeFromStreamNotification(uuid);
+          ASTrackerNotificationService.removeItem(uuid);
+        }, function(err) {
+          $log.debug('Error while getting the community', err.data);
+        });
+      }
+
+      var joinHandler = $rootScope.$on('community:join', joinCommunityNotificationHandler);
+      var leaveHandler = $rootScope.$on('community:leave', leaveCommunityNotificationHandler);
+
+      $scope.$on('$destroy', function() {
+        joinHandler();
+        leaveHandler();
+      });
+  }])
+  .directive('listCommunityActivityStreams', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/community/community-as-tracker.html'
+    };
+  });

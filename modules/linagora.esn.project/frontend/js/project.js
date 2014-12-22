@@ -4,6 +4,7 @@ angular.module('esn.project', [
   'restangular',
   'esn.avatar',
   'esn.session',
+  'esn.activitystreams-tracker',
   'angularFileUpload',
   'mgcrea.ngStrap.tooltip',
   'mgcrea.ngStrap.helpers.dimensions',

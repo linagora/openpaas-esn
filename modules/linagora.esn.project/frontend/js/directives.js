@@ -177,4 +177,11 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       replace: true,
       templateUrl: '/projects/views/project-display.html'
     };
+  })
+  .directive('listProjectActivityStreams', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/projects/views/list-project-activity-streams.html'
+    };
   });
