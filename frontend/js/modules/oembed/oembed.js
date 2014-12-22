@@ -105,7 +105,7 @@ angular.module('esn.oembed', [])
         }
         q = q + '"';
 
-        return $http.get('http://query.yahooapis.com/v1/public/yql', {
+        return $http.get('//query.yahooapis.com/v1/public/yql', {
           params: {
             q: q,
             format: 'json'
