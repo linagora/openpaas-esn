@@ -69,11 +69,14 @@ Use npm start to start the server !
 Develop the ESN
 ---------------
 
-Use 
+Running `grunt dev` will start the server in development mode. Whenever you
+make changes to server files, the server will be restarted. Make sure you have
+started the mongo, redis and elasticsearch servers beforehand.
 
-    grunt dev
-
-to start the server in development mode.
+In addition, you can run `grunt debug` to start the node-inspector debugger
+server. Visit the displayed URL in Chrome or Opera to start the graphical
+debugging session. Note that startup takes a while, you must wait until the ESN
+webserver starts to do anything meaningful.
 
 Licence
 -------
