@@ -200,7 +200,9 @@ describe('The activitystreams routes', function() {
               req.cookies = cookies;
               req.expect(200).end(function(err, res) {
                 expect(err).to.be.null;
-                var returnedComm = res.body;
+                expect(res.body.objectType).to.exist;
+                expect(res.body.objectType).to.equal('community');
+                var returnedComm = res.body.object;
                 expect(returnedComm._id).to.equal(community._id + '');
                 expect(returnedComm.activity_stream.uuid).to.equal(activitystreamId);
                 done();
