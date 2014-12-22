@@ -69,9 +69,19 @@ angular.module('esn.oembed', [])
       return null;
     }
 
+    function fixHttpLinks(fragment) {
+      if (!fragment) {
+        return;
+      }
+      var find = 'https?:\/\/';
+      var re = new RegExp(find, 'g');
+      return fragment.replace(re, '//');
+    }
+
     return {
       getLinks: getLinks,
-      getProvider: getProvider
+      getProvider: getProvider,
+      fixHttpLinks: fixHttpLinks
     };
   }])
   .factory('oembedRegistry', ['$log', function($log) {
