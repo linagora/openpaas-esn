@@ -190,7 +190,6 @@ function getStreamsForUser(userId, options, callback) {
     if (err) {
       return callback(err);
     }
-    console.log('RESULTS', results);
     return callback(null, results);
   });
 }
