@@ -34,6 +34,7 @@ module.exports = {
   },
   author: {type: mongoose.Schema.ObjectId, required: true},
   language: {type: String, required: false},
+  source: {type: String, required: false, default: 'web'},
   attachments: {type: [AttachmentSchema], required: false },
   shares: [{
     objectType: {type: String},
