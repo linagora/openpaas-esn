@@ -3,8 +3,20 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 
-describe.only('linagora.esn.messaging.email module', function() {
+describe('linagora.esn.messaging.email module', function() {
   var moduleName = 'linagora.esn.messaging.email';
+
+  var createToken = function(message, user, callback) {
+    var EmailRecipientToken = require('mongoose').model('EmailRecipientToken');
+    new EmailRecipientToken({
+      user: user,
+      message: {
+        id: message._id,
+        objectType: message.objectType
+      }
+    }).save(callback);
+  };
+
   beforeEach(function(done) {
     var self = this;
     this.helpers.modules.initMidway(moduleName, function(err) {
@@ -59,15 +71,25 @@ describe.only('linagora.esn.messaging.email module', function() {
           return done(err);
         }
 
-        var req = request(self.app).post('/api/messages/email/reply');
-        req.set('Content-Type', 'message/rfc822');
-        req.set('x-esn-email-to-reply-to', message.objectType + '+' + message._id + '@open-paas.org');
-        req.set('x-esn-email-to-reply-from', self.models.users[2].emails[0]);
-        req.send('123');
-        req.expect(403);
-        req.end(function(err, res) {
-          expect(err).to.not.exist;
-          done();
+        createToken(message, self.models.users[2], function(err, emailtoken) {
+          if (err) {
+            return done(err);
+          }
+
+          if (!emailtoken) {
+            return done(new Error());
+          }
+
+          var req = request(self.app).post('/api/messages/email/reply');
+          req.set('Content-Type', 'message/rfc822');
+          req.set('x-esn-email-to-reply-to', emailtoken.token + '@open-paas.org');
+          req.set('x-esn-email-to-reply-from', self.models.users[2].emails[0]);
+          req.send('123');
+          req.expect(403);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            done();
+          });
         });
       });
     });
@@ -80,21 +102,31 @@ describe.only('linagora.esn.messaging.email module', function() {
           return done(err);
         }
 
-        var fs = require('fs');
-        var file = __dirname + '/../fixtures/mail.eml';
-        var email = fs.readFileSync(file, 'utf8');
+        createToken(message, self.models.users[1], function(err, emailtoken) {
+          if (err) {
+            return done(err);
+          }
 
-        var req = request(self.app).post('/api/messages/email/reply');
-        req.set('Content-Type', 'message/rfc822');
-        req.set('x-esn-email-to-reply-to', message.objectType + '+' + message._id + '@open-paas.org');
-        req.set('x-esn-email-to-reply-from', self.models.users[1].emails[0]);
-        req.send(email);
-        req.expect(201);
-        req.end(function(err, res) {
-          expect(err).to.not.exist;
-          expect(res.body.parentId).to.exist;
-          expect(res.body.parentId).to.equal(message._id + '');
-          done();
+          if (!emailtoken) {
+            return done(new Error());
+          }
+
+          var fs = require('fs');
+          var file = __dirname + '/../fixtures/mail.eml';
+          var email = fs.readFileSync(file, 'utf8');
+
+          var req = request(self.app).post('/api/messages/email/reply');
+          req.set('Content-Type', 'message/rfc822');
+          req.set('x-esn-email-to-reply-to', emailtoken.token + '@open-paas.org');
+          req.set('x-esn-email-to-reply-from', self.models.users[1].emails[0]);
+          req.send(email);
+          req.expect(201);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body.parentId).to.exist;
+            expect(res.body.parentId).to.equal(message._id + '');
+            done();
+          });
         });
       });
     });

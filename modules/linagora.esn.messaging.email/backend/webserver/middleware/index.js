@@ -1,7 +1,7 @@
 'use strict';
 
-var FROM_HEADER = 'esn-email-to-reply-from';
-var TO_HEADER = 'esn-email-to-reply-to';
+var FROM_HEADER = 'x-esn-email-to-reply-from';
+var TO_HEADER = 'x-esn-email-to-reply-to';
 
 module.exports = function(dependencies, lib) {
 
