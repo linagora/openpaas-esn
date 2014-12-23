@@ -43,7 +43,7 @@ var isValid = function(req, res) {
 };
 module.exports.isValid = isValid;
 
-var getUser = function(req, res) {
+var authenticateByToken = function(req, res) {
   if (!req.params.token) {
     return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Can not retrieve token'}});
   }
@@ -66,10 +66,21 @@ var getUser = function(req, res) {
       if (!u) {
         return res.json(404, {error: {code: 404, message: 'Not found', details: 'User not found'}});
       }
-      delete u.password;
-      return res.json(200, u);
-    });
 
+      var finishRequest = function(err) {
+        if (err) {
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while logging in user'}});
+        }
+        delete u.password;
+        return res.json(200, u);
+      };
+
+      if (req.user) {
+        finishRequest(null);
+      } else {
+        req.login(u, finishRequest);
+      }
+    });
   });
 };
-module.exports.getUser = getUser;
+module.exports.authenticateByToken = authenticateByToken;
