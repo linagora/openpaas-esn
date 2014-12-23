@@ -2,9 +2,6 @@
 
 var mail = require('./mail');
 
-var REPLY_PREFIX = 'reply';
-var REPLY_SEPARATOR = '+';
-
 module.exports = function(dependencies) {
 
   var lib = {};
@@ -68,14 +65,7 @@ module.exports = function(dependencies) {
       return callback(new Error('Can not get the replyTo from the target email'));
     }
 
-    // reply+uuid@example.com
-    var replyTo = targetMessage.split(REPLY_SEPARATOR);
-
-    if (replyTo[0] !== REPLY_PREFIX) {
-      return callback(new Error('Invalid reply address'));
-    }
-
-    token.getToken(replyTo[1], function(err, token) {
+    token.getToken(targetMessage, function(err, token) {
       if (err) {
         return callback(err);
       }

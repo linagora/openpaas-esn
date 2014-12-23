@@ -1,6 +1,7 @@
 'use strict';
 
 var async = require('async');
+var DEFAULT_DOMAIN = 'localhost';
 
 module.exports = function(lib, dependencies) {
 
@@ -41,10 +42,24 @@ module.exports = function(lib, dependencies) {
   }
 
   function getSenderAddress(emailtoken, callback) {
-    if (!emailtoken) {
-      return callback(new Error('Token is required'));
+    if (!emailtoken || !emailtoken.token) {
+      return callback(new Error('Valid Token is required'));
     }
-    return callback(null, emailtoken.token + '@open-paas.org');
+    var domain = DEFAULT_DOMAIN;
+    var esnconfig = dependencies('esn-config');
+
+    esnconfig('mail').get(function(err, data) {
+      if (!err && data && data.mail && data.mail.reply && data.mail.reply.domain) {
+        domain = data.mail.reply.domain;
+      }
+
+      var email = emailtoken.token + '@' + domain;
+      if (data && data.mail && data.mail.reply && data.mail.reply.name) {
+        email = data.mail.reply.name + ' <' + email + '>';
+      }
+
+      return callback(null, email);
+    });
   }
 
   function sendMail(from, user, message, callback) {
