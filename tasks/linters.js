@@ -10,14 +10,15 @@ module.exports = function(grunt) {
     var flagsArray = [
       '--disable 0110',
       '--nojsdoc',
-      '-r Gruntfile.js',
       '-r tasks',
       '-r test',
       '-r backend',
       '-r frontend/js',
       '-r modules',
       '-e test/frontend/karma-include',
-      '-x frontend/js/modules/modernizr.js'
+      '-x frontend/js/modules/modernizr.js',
+      'Gruntfile.js',
+      'Gruntfile-tests.js'
     ];
 
     var reporter;

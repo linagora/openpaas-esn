@@ -4,7 +4,7 @@ var fs = require('fs-extra');
 var path = require('path');
 
 var conf_path = './test/config/';
-var servers = require( conf_path + 'servers-conf');
+var servers = require(conf_path + 'servers-conf');
 var config = require('./config/default.json');
 
 module.exports = function(grunt) {
@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         reporter: CI && 'checkstyle',
         reporterOutput: CI && 'jshint.xml'
       },
-      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js', 'modules/**/*.js'],
+      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js', 'modules/**/*.js']
     },
     shell: {
       redis: {
@@ -35,11 +35,11 @@ module.exports = function(grunt) {
           (servers.redis.conf_file ? ' ' + servers.redis.conf_file : ''),
         options: {
           async: false,
-          stdout: function(chunk){
+          stdout: function(chunk) {
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started=/on port/;
-            if(started.test(out)) {
+            var started = /on port/;
+            if (started.test(out)) {
               grunt.log.write('Redis server is started.');
               done(true);
             }
@@ -54,11 +54,11 @@ module.exports = function(grunt) {
           (servers.mongodb.port ? servers.mongodb.port : '23456') + ' --nojournal',
         options: {
           async: false,
-          stdout: function(chunk){
+          stdout: function(chunk) {
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started = new RegExp('connections on port '+ servers.mongodb.port);
-            if(started.test(out)) {
+            var started = new RegExp('connections on port ' + servers.mongodb.port);
+            if (started.test(out)) {
               grunt.log.write('MongoDB server is started.');
               done(true);
             }
@@ -74,11 +74,11 @@ module.exports = function(grunt) {
           servers.mongodb.replicat_set_name + '\' --smallfiles --oplogSize 128',
         options: {
           async: false,
-          stdout: function(chunk){
+          stdout: function(chunk) {
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started = new RegExp('connections on port '+ servers.mongodb.port);
-            if(started.test(out)) {
+            var started = new RegExp('connections on port ' + servers.mongodb.port);
+            if (started.test(out)) {
               grunt.log.write('MongoDB server is started.');
               done(true);
             }
@@ -92,11 +92,11 @@ module.exports = function(grunt) {
         command: servers.ldap.cmd,
         options: {
           async: false,
-          stdout: function(chunk){
+          stdout: function(chunk) {
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started=/LDAP server up at/;
-            if(started.test(out)) {
+            var started = /LDAP server up at/;
+            if (started.test(out)) {
               grunt.log.write('Ldap server is started.');
               done(true);
             }
@@ -117,11 +117,11 @@ module.exports = function(grunt) {
           ' -Des.discovery.zen.ping.multicast.enabled=false',
         options: {
           async: false,
-          stdout: function(chunk){
+          stdout: function(chunk) {
             var done = grunt.task.current.async();
             var out = '' + chunk;
-            var started=/started/;
-            if(started.test(out)) {
+            var started = /started/;
+            if (started.test(out)) {
               grunt.log.write('Elasticsearch server is started.');
               done(true);
             }
@@ -139,12 +139,12 @@ module.exports = function(grunt) {
           env: {NODE_ENV: 'dev'},
           ignore: ['frontend/**', '.git', 'README.md', 'node_modules/**', 'test/**', 'doc/**', 'fixtures/**', 'log/**'],
           watchedExtensions: ['js'],
-          callback: function (nodemon) {
-            nodemon.on('log', function (event) {
+          callback: function(nodemon) {
+            nodemon.on('log', function(event) {
               console.log(event.colour);
             });
 
-            nodemon.on('config:update', function () {
+            nodemon.on('config:update', function() {
               // Delay before server listens on port
               setTimeout(function() {
                 require('open')('http://localhost:' + config.webserver.port || 8080);
@@ -165,12 +165,12 @@ module.exports = function(grunt) {
             grunt.log.error(data);
           },
           args: grunt.option('test') ? {test: grunt.option('test')} : {},
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           }
@@ -187,12 +187,12 @@ module.exports = function(grunt) {
             grunt.log.error(data);
           },
           args: grunt.option('test') ? {test: grunt.option('test')} : {},
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -210,12 +210,12 @@ module.exports = function(grunt) {
             grunt.log.error(data);
           },
           args: grunt.option('test') ? {test: grunt.option('test')} : {},
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -233,12 +233,12 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -255,12 +255,12 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -277,12 +277,12 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -299,12 +299,12 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -322,12 +322,12 @@ module.exports = function(grunt) {
             grunt.log.error(data);
           },
           args: grunt.option('test') ? {test: grunt.option('test')} : {},
-          process: function(res){
-            if (res.fail){
-              grunt.config.set('esn.tests.success',false);
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('esn.tests.success',true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
@@ -369,7 +369,7 @@ module.exports = function(grunt) {
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo_replSet', 'shell:elasticsearch']);
   grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo_replSet:kill', 'shell:elasticsearch:kill']);
 
-  grunt.registerTask('setup-environment', 'create temp folders and files for tests', function(){
+  grunt.registerTask('setup-environment', 'create temp folders and files for tests', function() {
     try {
       fs.mkdirsSync(servers.mongodb.dbpath);
       fs.mkdirsSync(servers.tmp);
@@ -378,7 +378,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('clean-environment', 'remove temp folder for tests', function(){
+  grunt.registerTask('clean-environment', 'remove temp folder for tests', function() {
 
     function removeAllFilesInDirectory(directory) {
       var files;
@@ -496,15 +496,15 @@ module.exports = function(grunt) {
     var async = require('async');
     var functionsArray = [];
 
-    var wrapper = function (collection) {
-      var functionToAdd = function (callback) {
+    var wrapper = function(collection) {
+      var functionToAdd = function(callback) {
         request
           .put(elasticsearchURL + '/_river/' + collection + '/_meta')
           .set('Content-Type', 'application/json')
           .send({
             'type': 'mongodb',
             'mongodb': {
-              'servers': [ { host: 'localhost', port : servers.mongodb.port  } ],
+              'servers': [{ host: 'localhost', port: servers.mongodb.port }],
               'db': servers.mongodb.dbname,
               'collection': collection
             },
@@ -513,7 +513,7 @@ module.exports = function(grunt) {
               'type': collection
             }
           })
-          .end(function(res){
+          .end(function(res) {
             if (res.status === 201) {
               callback(null, res.body);
             }
@@ -525,12 +525,12 @@ module.exports = function(grunt) {
       functionsArray.push(functionToAdd);
     };
 
-    for (var i = 0 ; i < servers.mongodb.elasticsearch.rivers.length ; i++) {
+    for (var i = 0; i < servers.mongodb.elasticsearch.rivers.length; i++) {
       var collection = servers.mongodb.elasticsearch.rivers[i];
       wrapper(collection);
     }
 
-    async.parallel(functionsArray, function (err, results) {
+    async.parallel(functionsArray, function(err, results) {
       if (err) {
         done(err);
       }
@@ -614,7 +614,7 @@ module.exports = function(grunt) {
           }
         }
       })
-      .end(function(res){
+      .end(function(res) {
         if (res.status === 200) {
           grunt.log.write('Elasticsearch settings are successfully added');
           done(true);
