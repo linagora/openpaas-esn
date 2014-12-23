@@ -1,4 +1,4 @@
-.modal(tabindex="-1", role="dialog")
+.modal(tabindex="-1", role="dialog", id="edit-avatar-dialog")
   .modal-dialog
     .modal-content
       .modal-header
@@ -6,7 +6,7 @@
         h4.modal-title(ng-hide="uploading") #{__('Edit your avatar')}
         h4.modal-title(ng-show="uploading") #{__('Updating your avatar')}...
       .modal-body
-        .row(ng-hide="uploading" id='error')
+        .row.error(ng-hide="uploading")
         .row.alert.alert-info(ng-show="uploading", role="alert")
           p
             i.fa.fa-cog.fa-spin
