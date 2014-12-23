@@ -104,6 +104,34 @@ module.exports = function(lib, dependencies) {
     });
   }
 
+  function sendMessageAsEmails(message, users, callback) {
+    if (!message) {
+      return callback(new Error('Message is required'));
+    }
+
+    if (!users) {
+      return callback(new Error('Users are required'));
+    }
+
+    async.forEach(users, function(user, callback) {
+      notify(user, message, function(err, sent) {
+        if (err) {
+          logger.info('Can not notify user %s: %s', user._id, err.message);
+          return;
+        }
+        logger.info('Email has been sent to user %s', user._id);
+        callback();
+      });
+    }, function(err) {
+      if (err) {
+        logger.info('Error occurred while sending mail messages', err.message);
+      } else {
+        logger.info('Messages have been sent by email');
+      }
+      callback(err);
+    });
+  }
+
   function listen() {
     var pubsub = dependencies('pubsub').local;
     pubsub.topic('message:activity').subscribe(function(activity) {
@@ -129,6 +157,32 @@ module.exports = function(lib, dependencies) {
         }
 
         var recipients = [];
+
+        function addRecipients(members) {
+          if (!members || members.length === 0) {
+            return;
+          }
+
+          function equals(a, b) {
+            return a.member.id + '' === b.member.id + '' && a.member.objectType === b.member.objectType;
+          }
+
+          function isIn(array, element) {
+            for (var i = 0; i < array.length; i++) {
+              if (equals(array[i], element)) {
+                return true;
+              }
+            }
+            return false;
+          }
+
+          members.forEach(function(member) {
+            if (!isIn(recipients, member)) {
+              recipients.push(member);
+            }
+          });
+        }
+
         function applyRules(collaboration, callback) {
           async.forEach(rules, function(rule, done) {
 
@@ -143,7 +197,7 @@ module.exports = function(lib, dependencies) {
               }
 
               if (members && members.length > 0) {
-                recipients = recipients.concat(members);
+                addRecipients(members);
               }
               done();
             });
@@ -175,29 +229,20 @@ module.exports = function(lib, dependencies) {
             return;
           }
 
-          // TODO keep unique members
-
           getUsers(recipients, function(err, users) {
             if (err) {
-              logger.info('Can not get users %s', err.message);
-              return;
+              return logger.info('Can not get users %s', err.message);
             }
 
-            async.forEach(users, function(user, callback) {
-              notify(user, message, function(err, sent) {
-                if (err) {
-                  logger.info('Can not notify user %s: %s', user._id, err.message);
-                  return;
-                }
-                logger.info('Email has been sent to user %s for message', user._id, messageTuple);
-                callback();
-              });
-            }, function(err) {
+            if (!users) {
+              return logger.info('Can not get users from recipients', recipients);
+            }
+
+            sendMessageAsEmails(message, users, function(err) {
               if (err) {
-               logger.info('Error occurred while sending mail messages', err.message);
-              } else {
-                logger.info('Messages have been sent by email');
+                return logger.info('Can not send message as email %s', err.message);
               }
+              logger.info('Message has been sent has email');
             });
           });
         });
