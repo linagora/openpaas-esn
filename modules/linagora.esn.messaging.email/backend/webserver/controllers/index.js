@@ -29,9 +29,8 @@ module.exports = function(dependencies, lib) {
         lib.reply(message, tuple, user, callback);
       }
     ], function(err, result) {
-      console.log(err);
       if (err) {
-        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.details}});
+        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.message}});
       }
       return res.json(201, result);
     });

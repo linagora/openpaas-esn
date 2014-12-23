@@ -17,7 +17,7 @@ module.exports = function(dependencies, lib) {
 
     lib.getReplyTo(to, req.user, function(err, tuple) {
       if (err) {
-        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.details}});
+        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.message}});
       }
 
       if (!tuple) {
@@ -26,7 +26,7 @@ module.exports = function(dependencies, lib) {
 
       lib.canReply(tuple, req.user, function(err, reply) {
         if (err) {
-          return res.json(500, {error: {status: 500, message: 'Server Error', details: err.details}});
+          return res.json(500, {error: {status: 500, message: 'Server Error', details: err.message}});
         }
         if (!reply) {
           return res.json(403, {error: {status: 403, message: 'Forbidden', details: 'User does not have enough rights to reply to the message'}});
@@ -46,7 +46,7 @@ module.exports = function(dependencies, lib) {
 
     lib.getUser(user, function(err, u) {
       if (err) {
-        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.details}});
+        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.message}});
       }
 
       if (!u) {

@@ -5,6 +5,8 @@ var DEFAULT_DOMAIN = 'localhost';
 
 module.exports = function(lib, dependencies) {
 
+  var logger = dependencies('logger');
+
   function getUsers(message, stream, callback) {
     // get the users who wants to receive emails for the given message and stream
 
@@ -27,7 +29,7 @@ module.exports = function(lib, dependencies) {
         async.forEach(members, function(member, callback) {
           userModule.get(member.member.id, function(err, user) {
             if (err) {
-              console.log('Error while getting user', err);
+              logger.info('Error while getting user', err);
             }
             if (user) {
               result.push(user);
@@ -109,25 +111,26 @@ module.exports = function(lib, dependencies) {
       var messageModule = dependencies('message');
       var messageTuple = activity.object;
 
-      // TODO :get the user which sent the message to avoid to send him the email...
-
       messageModule.get(messageTuple._id, function(err, message) {
         if (err) {
+          logger.info('Can not load message %s', err.message);
           return;
         }
 
         async.forEach(activity.target, function(target) {
           getUsers(message, target, function(err, users) {
             if (err) {
+              logger.info('Can not get users %s', err.message);
               return;
             }
 
             async.forEach(users, function(user) {
               notify(user, message, function(err, sent) {
                 if (err) {
+                  logger.info('Can not notify user %s: %s', user._id, err.message);
                   return;
                 }
-                console.log('SENT MAIL', sent);
+                logger.info('Email has been sent to user %s for message', user._id, messageTuple);
               });
             });
           });

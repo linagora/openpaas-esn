@@ -398,7 +398,7 @@ module.exports = function(mixin, testEnv) {
           id: stream
         };
       })
-    }
+    };
     return module.getInstance(type, message).save(callback);
   };
 };

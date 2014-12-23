@@ -55,7 +55,6 @@ module.exports = function(dependencies) {
   }
 
   function getReplyTo(to, user, callback) {
-    // need the token service, for now the message to reply to is directly in the email
     if (!to) {
       return callback(new Error('target is required'));
     }
@@ -77,7 +76,11 @@ module.exports = function(dependencies) {
       if (!token.user.equals(user._id)) {
         return callback(new Error('Invalid user'));
       }
-      return callback(null, token.message);
+
+      return callback(null, {
+        objectType: token.message.objectType,
+        _id: token.message.id
+      });
     });
   }
 
