@@ -11,7 +11,11 @@ module.exports = function(dependencies, lib) {
       return res.json(400, {error: {status: 400, message: 'Bad Request', details: 'to query parameter is required'}});
     }
 
-    lib.getReplyTo(to, function(err, tuple) {
+    if (!req.user) {
+      return res.json(400, {error: {status: 400, message: 'Bad Request', details: 'request user is required'}});
+    }
+
+    lib.getReplyTo(to, req.user, function(err, tuple) {
       if (err) {
         return res.json(500, {error: {status: 500, message: 'Server Error', details: err.details}});
       }
@@ -20,7 +24,7 @@ module.exports = function(dependencies, lib) {
         return res.json(404, {error: {status: 404, message: 'Not found', details: 'Can not get message from recipient address'}});
       }
 
-      lib.canReply(req.user, tuple, function(err, reply) {
+      lib.canReply(tuple, req.user, function(err, reply) {
         if (err) {
           return res.json(500, {error: {status: 500, message: 'Server Error', details: err.details}});
         }

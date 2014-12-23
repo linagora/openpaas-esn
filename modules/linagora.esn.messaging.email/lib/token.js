@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(lib, dependencies) {
+module.exports = function(lib) {
 
   function generateToken(data, callback) {
     var Token = lib.emailTokenModel;

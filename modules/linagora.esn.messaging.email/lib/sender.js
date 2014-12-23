@@ -40,12 +40,11 @@ module.exports = function(lib, dependencies) {
     });
   }
 
-  function getSenderAddress(token, callback) {
-    // TODO
-    if (!token) {
+  function getSenderAddress(emailtoken, callback) {
+    if (!emailtoken) {
       return callback(new Error('Token is required'));
     }
-    return callback(null, token.token + '@open-paas.org');
+    return callback(null, emailtoken.token + '@open-paas.org');
   }
 
   function sendMail(from, user, message, callback) {

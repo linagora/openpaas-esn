@@ -2,11 +2,16 @@
 
 var mail = require('./mail');
 
+var REPLY_PREFIX = 'reply';
+var REPLY_SEPARATOR = '+';
+
 module.exports = function(dependencies) {
 
   var lib = {};
 
-  lib.emailTokenModel = require('../backend/db/models/email-recipient-token');
+  var emailTokenModel = require('../backend/db/models/email-recipient-token');
+  var token = require('./token')(lib, dependencies);
+  var sender = require('./sender')(lib, dependencies);
 
   function validateTo(to, callback) {
     if (!to) {
@@ -32,7 +37,7 @@ module.exports = function(dependencies) {
     return messageModule.get(messageId, callback);
   }
 
-  function canReply(user, message, callback) {
+  function canReply(message, user, callback) {
 
     if (!user) {
       return callback(new Error('User is required'));
@@ -52,7 +57,7 @@ module.exports = function(dependencies) {
     });
   }
 
-  function getReplyTo(to, callback) {
+  function getReplyTo(to, user, callback) {
     // need the token service, for now the message to reply to is directly in the email
     if (!to) {
       return callback(new Error('target is required'));
@@ -63,9 +68,27 @@ module.exports = function(dependencies) {
       return callback(new Error('Can not get the replyTo from the target email'));
     }
 
-    // for now message is like whatsup+98393893893, then we will have token-based stuff
-    var replyTo = targetMessage.split('+');
-    return callback(null, {_id: replyTo[1], objectType: replyTo[0]});
+    // reply+uuid@example.com
+    var replyTo = targetMessage.split(REPLY_SEPARATOR);
+
+    if (replyTo[0] !== REPLY_PREFIX) {
+      return callback(new Error('Invalid reply address'));
+    }
+
+    token.getToken(replyTo[1], function(err, token) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!token) {
+        return callback(new Error('Token not found'));
+      }
+
+      if (!token.user.equals(user._id)) {
+        return callback(new Error('Invalid user'));
+      }
+      return callback(null, token.message);
+    });
   }
 
   function parseMessage(stream, callback) {
@@ -123,8 +146,9 @@ module.exports = function(dependencies) {
   lib.reply = reply;
   lib.getReplyTo = getReplyTo;
   lib.validateTo = validateTo;
-  lib.token = require('./token')(lib, dependencies);
-  lib.sender = require('./sender')(lib, dependencies);
+  lib.emailTokenModel = emailTokenModel;
+  lib.token = token;
+  lib.sender = sender;
 
   return lib;
 };
