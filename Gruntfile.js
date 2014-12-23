@@ -25,7 +25,34 @@ module.exports = function(grunt) {
         reporter: CI && 'checkstyle',
         reporterOutput: CI && 'jshint.xml'
       },
-      files: ['Gruntfile.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'test/**/**/*.js', 'modules/**/*.js']
+      all: {
+        src: [
+          'Gruntfile.js',
+          'Gruntfile-tests.js',
+          'tasks/**/*.js',
+          'test/**/**/*.js',
+          'backend/**/*.js',
+          'frontend/js/**/*.js',
+          'modules/**/*.js'
+        ]
+      }
+    },
+    gjslint: {
+      options: {
+        flags: [
+          '--disable 0110',
+          '--nojsdoc',
+          '-e test/frontend/karma-include',
+          '-x frontend/js/modules/modernizr.js'
+        ],
+        reporter: {
+          name: CI ? 'gjslint_xml' : 'console',
+          dest: CI ? 'gjslint.xml' : undefined
+        }
+      },
+      all: {
+        src: ['<%= jshint.all.src %>']
+      }
     },
     shell: {
       redis: {
@@ -357,6 +384,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-shell-spawn');

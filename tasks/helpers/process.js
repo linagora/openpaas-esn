@@ -30,7 +30,7 @@ exports.init = function(grunt) {
         return runTask.bind(null, task);
       }).concat([function(cb) {
         for (var k in taskmap) {
-          if (taskmap[k] != 0) {
+          if (taskmap[k] !== 0) {
             grunt.fail.warn('Task ' + k + ' failed.', taskmap[k]);
             break;
           }
