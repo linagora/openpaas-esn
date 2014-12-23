@@ -15,7 +15,7 @@
     oembedRegistry.addProvider(provider);
   }]);
 
-  instagram.directive('instagramOembed', ['oembedResolver', function(oembedResolver) {
+  instagram.directive('instagramOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -28,7 +28,7 @@
       link: function($scope, $element) {
         oembedResolver[provider.resolver](provider.endpoint, $scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
-            angular.element(oembed.html).appendTo($element[0]);
+            angular.element(oembedService.fixHttpLinks(oembed.html)).appendTo($element[0]);
           },
           function(err) {
           }

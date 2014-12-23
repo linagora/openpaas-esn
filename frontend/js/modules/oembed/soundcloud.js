@@ -7,7 +7,7 @@
   var provider = {
     name: 'soundcloud',
     regexps: [new RegExp('soundcloud\\.com/[\\w-]+', 'i')],
-    endpoint: 'http://soundcloud.com/oembed',
+    endpoint: '//soundcloud.com/oembed',
     type: 'rich',
     resolver: 'http'
   };
@@ -16,7 +16,7 @@
     oembedRegistry.addProvider(provider);
   }]);
 
-  soundcloud.directive('soundcloudOembed', ['oembedResolver', function(oembedResolver) {
+  soundcloud.directive('soundcloudOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -29,7 +29,7 @@
       link: function($scope, $element) {
         oembedResolver[provider.resolver](provider.endpoint, $scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
-            angular.element(oembed.html).appendTo($element[0]);
+            angular.element(oembedService.fixHttpLinks(oembed.html)).appendTo($element[0]);
           },
           function(err) {
           }
