@@ -143,5 +143,7 @@ module.exports = function(dependencies) {
   lib.token = token;
   lib.sender = sender;
 
+  lib.sender.addSenderRule('all', require('./rules/all'));
+
   return lib;
 };

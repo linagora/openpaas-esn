@@ -2,43 +2,43 @@
 
 var async = require('async');
 var DEFAULT_DOMAIN = 'localhost';
+var rules = [];
 
 module.exports = function(lib, dependencies) {
 
   var logger = dependencies('logger');
 
-  function getUsers(message, stream, callback) {
-    // get the users who wants to receive emails for the given message and stream
+  function addSenderRule(name, fn) {
+    if (!fn) {
+      return;
+    }
+    rules.push({
+      name: name,
+      active: true,
+      rule: fn
+    });
+  }
 
-    var collaborationModule = dependencies('collaboration');
+  function getUsers(members, callback) {
+
     var userModule = dependencies('user');
 
-    collaborationModule.findCollaborationFromActivityStreamID(stream._id, function(err, collaboration) {
-      if (err) {
-        return callback(err);
-      }
-      if (!collaboration || collaboration.length === 0) {
-        return callback(new Error('Can not find valid collaboration for stream ' + stream));
-      }
-
-      async.filter(collaboration[0].members, function(member, callback) {
-        return callback(member.member.objectType === 'user');
-      }, function(members) {
-
-        var result = [];
-        async.forEach(members, function(member, callback) {
-          userModule.get(member.member.id, function(err, user) {
-            if (err) {
-              logger.info('Error while getting user', err);
-            }
-            if (user) {
-              result.push(user);
-            }
-            return callback();
-          });
-        }, function() {
-          return callback(null, result);
+    async.filter(members, function(member, callback) {
+      return callback(member.member.objectType === 'user');
+    }, function(members) {
+      var result = [];
+      async.forEach(members, function(member, callback) {
+        userModule.get(member.member.id, function(err, user) {
+          if (err) {
+            logger.info('Error while getting user', err);
+          }
+          if (user) {
+            result.push(user);
+          }
+          return callback();
         });
+      }, function() {
+        return callback(null, result);
       });
     });
   }
@@ -108,7 +108,13 @@ module.exports = function(lib, dependencies) {
     var pubsub = dependencies('pubsub').local;
     pubsub.topic('message:activity').subscribe(function(activity) {
 
+      if (!rules || rules.length === 0) {
+        logger.debug('No rules to apply to message');
+        return;
+      }
+
       var messageModule = dependencies('message');
+      var collaborationModule = dependencies('collaboration');
       var messageTuple = activity.object;
 
       messageModule.get(messageTuple._id, function(err, message) {
@@ -117,21 +123,81 @@ module.exports = function(lib, dependencies) {
           return;
         }
 
-        async.forEach(activity.target, function(target) {
-          getUsers(message, target, function(err, users) {
+        if (!message) {
+          logger.info('Can not find message');
+          return;
+        }
+
+        var recipients = [];
+        function applyRules(collaboration, callback) {
+          async.forEach(rules, function(rule, done) {
+
+            if (!rule.active) {
+              logger.debug('Rule %s is not active', rule.name);
+              return done();
+            }
+
+            rule.rule(collaboration, message, function(err, members) {
+              if (err) {
+                logger.info('Error while applying the rule %s', err.message);
+              }
+
+              if (members && members.length > 0) {
+                recipients = recipients.concat(members);
+              }
+              done();
+            });
+          }, callback);
+        }
+
+        async.forEach(activity.target, function(target, callback) {
+          collaborationModule.findCollaborationFromActivityStreamID(target._id, function(err, collaboration) {
+            if (err) {
+              logger.info('Error while loading collaboration %s', err.message);
+            }
+
+            if (!collaboration) {
+              logger.info('Can not get any collabotation');
+            }
+
+            if (!err && collaboration) {
+              applyRules(collaboration[0], function() {
+                return callback();
+              });
+            } else {
+              return callback();
+            }
+          });
+        }, function(err) {
+
+          if (err) {
+            logger.info('Error while applying rules %s', err.message);
+            return;
+          }
+
+          // TODO keep unique members
+
+          getUsers(recipients, function(err, users) {
             if (err) {
               logger.info('Can not get users %s', err.message);
               return;
             }
 
-            async.forEach(users, function(user) {
+            async.forEach(users, function(user, callback) {
               notify(user, message, function(err, sent) {
                 if (err) {
                   logger.info('Can not notify user %s: %s', user._id, err.message);
                   return;
                 }
                 logger.info('Email has been sent to user %s for message', user._id, messageTuple);
+                callback();
               });
+            }, function(err) {
+              if (err) {
+               logger.info('Error occurred while sending mail messages', err.message);
+              } else {
+                logger.info('Messages have been sent by email');
+              }
             });
           });
         });
@@ -142,7 +208,8 @@ module.exports = function(lib, dependencies) {
   return {
     listen: listen,
     sendMail: sendMail,
-    notify: notify
+    notify: notify,
+    addSenderRule: addSenderRule
   };
 
 };
