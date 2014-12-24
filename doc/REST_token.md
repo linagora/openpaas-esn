@@ -77,7 +77,9 @@ Get the token content from the token ID if the token has not expired.
 
 ## GET /api/authenticationtoken/{token}/user
 
-Get user information from an authentication token.
+Get user information from an authentication token. Also initiates a login
+session for the user behind the authentication token if one does not already
+exist.
 
 **Request Headers:**
 
