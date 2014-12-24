@@ -20,7 +20,10 @@ module.exports.findStreamResource = function(req, res, next) {
     req.activity_stream = {
       objectType: 'activitystream',
       _id: uuid,
-      target: community
+      target: {
+        objectType: 'community',
+        object: community
+      }
     };
     next();
   });

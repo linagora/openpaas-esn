@@ -37,7 +37,7 @@ describe('The activitystreams routes', function() {
 
     describe('Activity Stream tests', function() {
       var Domain, User, TimelineEntry, Community;
-      var activitystreamId, savedTimelineEntry;
+      var activitystreamId, savedTimelineEntry, community;
       var email = 'itadmin@lng.net';
       password = 'secret';
 
@@ -47,6 +47,7 @@ describe('The activitystreams routes', function() {
         TimelineEntry = this.mongoose.model('TimelineEntry');
         Community = this.mongoose.model('Community');
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          community = models.communities[0];
           activitystreamId = models.communities[0].activity_stream.uuid;
           var timelineentryJSON = {
             actor: {
@@ -164,6 +165,46 @@ describe('The activitystreams routes', function() {
                 expect(entry.target[0].objectType).to.equal('activitystream');
                 expect(entry.target[0]._id).to.equal(activitystreamId);
 
+                done();
+              });
+            });
+        });
+      });
+
+      describe('GET /api/activitystreams/:uuid/resource', function() {
+        it('should return 400 when activitystream does not exist', function(done) {
+          var incorrectUUID = uuid.v4();
+          request(webserver.application)
+            .post('/api/login')
+            .send({username: email, password: password, rememberme: false})
+            .expect(200)
+            .end(function(err, res) {
+              var cookies = res.headers['set-cookie'].pop().split(';')[0];
+              var req = request(webserver.application).get('/api/activitystreams/' + incorrectUUID + '/resource');
+              req.cookies = cookies;
+              req.expect(400).end(function(err, res) {
+                expect(err).to.be.null;
+                done();
+              });
+            });
+        });
+
+        it('should return 200 whit activitystream associated resource', function(done) {
+          request(webserver.application)
+            .post('/api/login')
+            .send({username: email, password: password, rememberme: false})
+            .expect(200)
+            .end(function(err, res) {
+              var cookies = res.headers['set-cookie'].pop().split(';')[0];
+              var req = request(webserver.application).get('/api/activitystreams/' + activitystreamId + '/resource');
+              req.cookies = cookies;
+              req.expect(200).end(function(err, res) {
+                expect(err).to.be.null;
+                expect(res.body.objectType).to.exist;
+                expect(res.body.objectType).to.equal('community');
+                var returnedComm = res.body.object;
+                expect(returnedComm._id).to.equal(community._id + '');
+                expect(returnedComm.activity_stream.uuid).to.equal(activitystreamId);
                 done();
               });
             });

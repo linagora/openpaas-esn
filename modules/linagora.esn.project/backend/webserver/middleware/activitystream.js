@@ -17,7 +17,10 @@ module.exports = function(lib, deps) {
       req.activity_stream = {
         objectType: 'activitystream',
         _id: uuid,
-        target: project
+        target: {
+          objectType: 'project',
+          object: project
+        }
       };
       next();
     });

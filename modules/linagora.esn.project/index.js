@@ -17,6 +17,8 @@ var projectModule = new AwesomeModule('linagora.esn.project', {
   states: {
     lib: function(dependencies, callback) {
       var lib = require('./lib')(dependencies);
+      var collaborationModule = dependencies('collaboration');
+      collaborationModule.registerCollaborationLib('project', lib);
       return callback(null, lib);
     },
     deploy: function(dependencies, callback) {

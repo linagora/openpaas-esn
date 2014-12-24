@@ -23,8 +23,8 @@ describe('The activity streams core module', function() {
           return cb(new Error());
         }
       });
-      mockery.registerMock('../community', {
-        getUserCommunities: function(user, options, cb) {
+      mockery.registerMock('../collaboration', {
+        getStreamsForUser: function(user, options, cb) {
           return cb(new Error());
         }
       });
@@ -39,20 +39,12 @@ describe('The activity streams core module', function() {
     });
 
     it('should send back streams from user communities', function(done) {
-      var communities = [
+      var streams = [
         {
-          _id: 111,
-          title: 'Node.js',
-          activity_stream: {
-            uuid: 222
-          }
+          uuid: 222
         },
         {
-          _id: 333,
-          title: 'angular',
-          activity_stream: {
-            uuid: 444
-          }
+          uuid: 444
         }
       ];
       this.helpers.mock.models({});
@@ -61,9 +53,9 @@ describe('The activity streams core module', function() {
           return cb();
         }
       });
-      mockery.registerMock('../community', {
-        getUserCommunities: function(user, cb) {
-          return cb(null, communities);
+      mockery.registerMock('../collaboration', {
+        getStreamsForUser: function(user, options, cb) {
+          return cb(null, streams);
         }
       });
 
@@ -77,26 +69,18 @@ describe('The activity streams core module', function() {
     });
 
     it('should send back streams from communities', function(done) {
-      var communities = [
+      var streams = [
         {
-          _id: 111,
-          title: 'Node.js',
-          activity_stream: {
-            uuid: 222
-          }
+          uuid: 222
         },
         {
-          _id: 333,
-          title: 'angular',
-          activity_stream: {
-            uuid: 444
-          }
+          uuid: 444
         }
       ];
       this.helpers.mock.models({});
-      mockery.registerMock('../community', {
-        getUserCommunities: function(user, cb) {
-          return cb(null, communities);
+      mockery.registerMock('../collaboration', {
+        getStreamsForUser: function(user, options, cb) {
+          return cb(null, streams);
         }
       });
 

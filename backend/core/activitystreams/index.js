@@ -3,40 +3,27 @@
 var mongoose = require('mongoose');
 var TimelineEntry = mongoose.model('TimelineEntry');
 var helpers = require('./helpers');
-var community = require('../community');
+var collaboration = require('../collaboration');
 var logger = require('../logger');
-
-function communityToStream(community) {
-  return {
-    uuid: community.activity_stream.uuid,
-    target: {
-      objectType: 'community',
-      _id: community._id,
-      displayName: community.title,
-      id: 'urn:linagora.com:community:' + community._id,
-      image: community.avatar || ''
-    }
-  };
-}
 
 function getUserStreams(user, options, callback) {
   if (!user) {
     return callback(new Error('User is required'));
   }
 
-  community.getUserCommunities(user, options || {}, function(err, communities) {
+  if (typeof(options) === 'function') {
+    callback = options;
+    options = null;
+  }
 
+  collaboration.getStreamsForUser(user, options || {}, function(err, streams) {
     if (err) {
-      logger.warn('Problem while getting user communities : ' + err.message);
+      logger.warn('Problem while getting user collaborations : ' + err.message);
     }
-
-    var result = [];
-    if (!err && communities && communities.length) {
-      communities.forEach(function(community) {
-        result.push(communityToStream(community));
-      });
+    if (!err && streams) {
+      return callback(null, streams);
     }
-    return callback(null, result);
+    return callback(null, []);
   });
 }
 module.exports.getUserStreams = getUserStreams;

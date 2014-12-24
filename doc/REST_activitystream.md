@@ -138,3 +138,59 @@ The last timeline entry read is updated each time `GET /api/activitystreams/{uui
       "_id": "7389992882",
       "unread_count": "4"
     }
+
+## GET /api/activitystreams/{uuid}/resource
+
+Get the resource associated with the activitystream
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Request URL Parameters:**
+
+- uuid: The identifier of the activity stream.
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Response JSON Object:**
+
+The resource associated to an acitivty stream. For now it can only be a collaboration
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad Request. Invalid request body or parameters
+- 404 Not Found. The activity stream resource has not been found.
+
+**Request:**
+
+    GET /api/activitystreams/7389992882/resource
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+      objectType: "community",
+      object: {
+          "_id": "123456789"
+          "title": "Node.js",
+          "description": "All about node.js",
+          "creator": "0987654321",
+          "domain_ids": ["83878920289838830309"],
+          "timestamps": {
+            "creation": "2014-05-16T09:47:11.703Z"
+          },
+          activity_stream: {
+            uuid: "7389992882",
+            "timestamps": {
+              "creation": "2014-05-16T09:47:11.704Z"
+            }
+          }
+      }
+    }

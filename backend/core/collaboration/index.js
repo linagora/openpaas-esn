@@ -12,6 +12,10 @@ var collaborationModels = {
   community: 'Community'
 };
 
+var collaborationLibs = {
+  community: require('../community')
+};
+
 function getModel(objectType) {
   var modelName = collaborationModels[objectType];
   if (!modelName) {
@@ -127,6 +131,13 @@ function registerCollaborationModel(name, modelName, schema) {
   return model;
 }
 
+function registerCollaborationLib(name, lib) {
+  if (collaborationLibs[name]) {
+    throw new Error('Collaboration lib for ' + name + 'is already registered');
+  }
+  collaborationLibs[name] = lib;
+}
+
 function findCollaborationFromActivityStreamID(id, callback) {
   var finders = [];
 
@@ -155,13 +166,43 @@ function findCollaborationFromActivityStreamID(id, callback) {
   });
 }
 
+function getStreamsForUser(userId, options, callback) {
+  var finders = [];
+  var results = [];
+
+  function finder(type, callback) {
+    collaborationLibs[type].getStreamsForUser(userId, options, function(err, streams) {
+      if (err || !streams || !streams.length) {
+        return callback();
+      }
+      results = results.concat(streams);
+      return callback(null, null);
+    });
+  }
+
+  for (var type in collaborationLibs) {
+    if (collaborationLibs[type] && collaborationLibs[type].getStreamsForUser) {
+      finders.push(async.apply(finder, type));
+    }
+  }
+
+  async.parallel(finders, function(err) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, results);
+  });
+}
+
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
 module.exports.registerCollaborationModel = registerCollaborationModel;
+module.exports.registerCollaborationLib = registerCollaborationLib;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
 module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
+module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.permission = require('./permission');
