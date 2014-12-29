@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular', 'mgcrea.ngStrap.datepicker', 'angularMoment'])
-  .factory('calendarService', ['Restangular', 'moment', 'tokenAPI', 'ICAL', '$q', '$http', function(Restangular, moment, tokenAPI, ICAL, $q, $http) {
+angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular', 'mgcrea.ngStrap.datepicker', 'angularMoment', 'uuid4'])
+  .factory('calendarService', ['Restangular', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(Restangular, moment, tokenAPI, uuid4, ICAL, $q, $http) {
 
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -62,6 +62,35 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       });
     }
 
+    function shellToICAL(shell) {
+      var uid = uuid4.generate();
+      var vcalendar = new ICAL.Component('vcalendar');
+      var vevent = new ICAL.Component('vevent');
+      vevent.addPropertyWithValue('uid', uid);
+      vevent.addPropertyWithValue('summary', shell.title);
+
+      var dtstart = ICAL.Time.fromJSDate(shell.startDate);
+      var dtend = ICAL.Time.fromJSDate(shell.endDate);
+      dtstart.isDate = shell.allday;
+      dtend.isDate = shell.allday;
+
+      if (shell.allday) {
+        dtend.day++;
+      }
+
+      vevent.addPropertyWithValue('dtstart', dtstart);
+      vevent.addPropertyWithValue('dtend', dtend);
+      vevent.addPropertyWithValue('transp', shell.allday ? 'TRANSPARENT' : 'OPAQUE');
+      if (shell.location) {
+        vevent.addPropertyWithValue('location', shell.location);
+      }
+      if (shell.description) {
+        vevent.addPropertyWithValue('description', shell.description);
+      }
+      vcalendar.addSubcomponent(vevent);
+      return vcalendar;
+    }
+
     function getEvent(path) {
       var headers = { Accept: 'application/calendar+json' };
       return request('get', '/' + path, headers).then(function(response) {
@@ -95,13 +124,37 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       });
     }
 
+    function create(calendarPath, vcalendar) {
+      var vevent = vcalendar.getFirstSubcomponent('vevent');
+      if (!vevent) {
+        return $q.reject(new Error('Missing VEVENT in VCALENDAR'));
+      }
+      var uid = vevent.getFirstPropertyValue('uid');
+      if (!uid) {
+        return $q.reject(new Error('Missing UID in VEVENT'));
+      }
+
+      var headers = { 'Content-Type': 'application/json+calendar' };
+      var body = vcalendar.toJSON();
+
+      return request('put', calendarPath + '/' + uid + '.ics', headers, body).then(function(response) {
+        if (response.status !== 201) {
+          return $q.reject(response);
+        }
+        return response;
+      });
+    }
+
     var serverUrlCache = null;
     return {
       list: list,
-      getEvent: getEvent
+      create: create,
+      getEvent: getEvent,
+
+      shellToICAL: shellToICAL
     };
   }])
-  .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', function($scope, $rootScope, $alert, calendarService, moment) {
+  .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', '$timeout', function($scope, $rootScope, $alert, calendarService, moment, $timeout) {
     $scope.rows = 1;
 
     function getNewDate() {
@@ -155,7 +208,6 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
     };
 
     $scope.createEvent = function() {
-
       if (!$scope.event.title || $scope.event.title.trim().length === 0) {
         $scope.displayError('You must define an event title');
         return;
@@ -165,26 +217,30 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
         $scope.displayError('You can not post to an unknown stream');
         return;
       }
-
       var event = $scope.event;
-
-      calendarService.create(event).then(function(response) {
+      var path = '/calendars/' + $scope.calendarId + '/events';
+      var vcalendar = calendarService.shellToICAL(event);
+      calendarService.create(path, vcalendar).then(function(response) {
         $rootScope.$emit('message:posted', {
           activitystreamUuid: $scope.activitystreamUuid,
-          id: response.id
+          id: response.headers('ESN-Message-Id')
         });
         $scope.resetEvent();
+        $scope.show('whatsup');
       }, function(err) {
-        $scope.displayError('Error while creating the event ' + err.message);
+        $scope.displayError('Error while creating the event: ' + err.statusText);
+        console.error(err.data);
       });
     };
 
     $scope.resetEvent = function() {
       $scope.rows = 1;
-      $scope.event.startDate = getNewDate();
-      $scope.event.endDate = getNewEndDate();
-      $scope.event.diff = 1;
-      $scope.event.allday = false;
+      $scope.event = {
+        startDate: getNewDate(),
+        endDate: getNewEndDate(),
+        diff: 1,
+        allday: false
+      };
     };
 
     $scope.getMinDate = function() {

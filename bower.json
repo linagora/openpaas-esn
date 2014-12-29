@@ -58,7 +58,8 @@
     "ical.js": "https://github.com/mozilla-comm/ical.js.git#~0.0.2",
     "angular-recursion": "~1.0.3",
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
-    "angular-markdown-directive": "~0.3.0"
+    "angular-markdown-directive": "~0.3.0",
+    "angular-uuid4": "~0.3.0"
   },
   "resolutions": {
     "jquery": "2.1.1",

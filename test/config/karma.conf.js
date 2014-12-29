@@ -35,6 +35,7 @@ module.exports = function(config) {
       'frontend/components/angular-recursion/angular-recursion.min.js',
       'frontend/components/fullcalendar/dist/fullcalendar.min.js',
       'frontend/components/ical.js/build/ical.js',
+      'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'node_modules/easyrtc/api/easyrtc.js',
       'node_modules/async/lib/async.js',
       'node_modules/chai-jquery/chai-jquery.js',

@@ -7,6 +7,8 @@ var expect = chai.expect;
 describe('The Calendar Angular module', function() {
 
   describe('The calendarService service', function() {
+    var ICAL;
+
     beforeEach(function() {
       var self = this;
       this.tokenAPI = {
@@ -18,17 +20,28 @@ describe('The Calendar Angular module', function() {
           };
         }
       };
+      this.uuid4 = {
+        // This is a valid uuid4. Change this if you need other uuids generated.
+        _uuid: '00000000-0000-4000-a000-000000000000',
+        generate: function() {
+          return this._uuid;
+        }
+      };
 
       angular.mock.module('esn.calendar');
+      angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
         $provide.value('tokenAPI', self.tokenAPI);
+        $provide.value('uuid4', self.uuid4);
       });
     });
 
-    beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope) {
+    beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, _ICAL_) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.calendarService = calendarService;
+
+      ICAL = _ICAL_;
     }));
 
     describe('The list fn', function() {
@@ -98,6 +111,177 @@ describe('The Calendar Angular module', function() {
         this.$rootScope.$apply();
         this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
+      });
+    });
+
+    describe('The create fn', function() {
+      function unexpected(done) {
+        done(new Error('Unexpected'));
+      }
+
+      it('should fail on missing vevent', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        this.calendarService.create('/path/to/uid.ics', vcalendar).then(
+          unexpected.bind(null, done), function(e) {
+            expect(e.message).to.equal('Missing VEVENT in VCALENDAR');
+            done();
+          }
+        );
+        this.$rootScope.$apply();
+      });
+
+      it('should fail on missing uid', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vcalendar.addSubcomponent(vevent);
+
+        this.calendarService.create('/path/to/calendar', vcalendar).then(
+          unexpected.bind(null, done), function(e) {
+            expect(e.message).to.equal('Missing UID in VEVENT');
+            done();
+          }
+        );
+        this.$rootScope.$apply();
+      });
+
+      it.only('should fail on 500 response status', function(done) {
+        // The server url needs to be retrieved
+        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+
+        // The caldav server will be hit
+        this.$httpBackend.expectPUT('//path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(500, '');
+
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vcalendar.addSubcomponent(vevent);
+
+        this.calendarService.create('/path/to/calendar', vcalendar).then(
+          unexpected.bind(null, done), function(response) {
+            expect(response.status).to.equal(500);
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+
+      it('should fail on a 2xx status that is not 201', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vcalendar.addSubcomponent(vevent);
+
+        // The server url needs to be retrieved
+        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+
+        // The caldav server will be hit
+        this.$httpBackend.expectPUT('//path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, '');
+
+        this.calendarService.create('/path/to/calendar', vcalendar).then(
+          unexpected.bind(null, done), function(response) {
+            expect(response.status).to.equal(200);
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed when everything is correct', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vcalendar.addSubcomponent(vevent);
+
+        // The server url needs to be retrieved
+        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+
+        // The caldav server will be hit
+        this.$httpBackend.expectPUT('//path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
+
+        this.calendarService.create('/path/to/calendar', vcalendar).then(
+          function(response) {
+            expect(response.status).to.equal(201);
+            expect(response.data).to.deep.equal(vcalendar.toJSON());
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('The shellToICAL fn', function() {
+      beforeEach(function() {
+        this.compareShell = (function(shell, ical) {
+          var vcalendar = this.calendarService.shellToICAL(shell);
+          var vevents = vcalendar.getAllSubcomponents();
+          expect(vevents.length).to.equal(1);
+          var vevent = vevents[0];
+
+          var properties = vevent.getAllProperties();
+          var propkeys = properties.map(function(p) {
+            return p.name;
+          }).sort();
+          var icalkeys = Object.keys(ical).sort();
+
+          var message = 'Key count mismatch in ical object.\n' +
+                        'expected: ' + icalkeys + '\n' +
+                        '   found: ' + propkeys;
+          expect(properties.length).to.equal(icalkeys.length, message);
+
+          for (var propName in ical) {
+            var value = vevent.getFirstPropertyValue(propName).toString();
+            expect(value).to.equal(ical[propName]);
+          }
+        }).bind(this);
+      });
+
+      it('should correctly create an allday event', function() {
+        var shell = {
+          startDate: new Date('2014-12-29T18:00:00'),
+          endDate: new Date('2014-12-29T19:00:00'),
+          allday: true,
+          title: 'allday event',
+          location: 'location',
+          description: 'description'
+        };
+        var ical = {
+          uid: '00000000-0000-4000-a000-000000000000',
+          dtstart: '2014-12-29',
+          dtend: '2014-12-30',
+          summary: 'allday event',
+          location: 'location',
+          description: 'description',
+          transp: 'TRANSPARENT'
+        };
+
+        this.compareShell(shell, ical);
+      });
+
+      it('should correctly create a non-allday event', function() {
+        var shell = {
+          startDate: new Date(2014, 11, 29, 18, 0, 0),
+          endDate: new Date(2014, 11, 29, 19, 0, 0),
+          allday: false,
+          title: 'non-allday event'
+        };
+        var ical = {
+          uid: '00000000-0000-4000-a000-000000000000',
+          dtstart: '2014-12-29T18:00:00',
+          dtend: '2014-12-29T19:00:00',
+          summary: 'non-allday event',
+          transp: 'OPAQUE'
+        };
+
+        this.compareShell(shell, ical);
       });
     });
   });
