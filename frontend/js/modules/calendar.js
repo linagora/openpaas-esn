@@ -35,16 +35,39 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       return serverUrlCache.promise;
     }
 
-    function getEvent(path) {
+    function configureRequest(method, path, headers, body) {
       return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
         var token = results[0].data.token, url = results[1];
-        var config = { headers: { 'ESNToken': token, 'Accept': 'application/calendar+json' } };
-        return $http.get(url + '/' + path, config)
-                    .then(function(response) {
-          var vcalendar = new ICAL.Component(response.data);
-          var vevent = vcalendar.getFirstSubcomponent('vevent');
-          return new CalendarShell(vevent);
-        });
+
+        headers = headers || {};
+        headers.ESNToken = token;
+
+        var config = {
+          url: url + '/' + path,
+          method: method,
+          headers: headers
+        };
+
+        if (body) {
+          config.data = body;
+        }
+
+        return config;
+      });
+    }
+
+    function request(method, path, headers, body) {
+      return configureRequest(method, path, headers, body).then(function(config) {
+        return $http(config);
+      });
+    }
+
+    function getEvent(path) {
+      var headers = { Accept: 'application/calendar+json' };
+      return request('get', '/' + path, headers).then(function(response) {
+        var vcalendar = new ICAL.Component(response.data);
+        var vevent = vcalendar.getFirstSubcomponent('vevent');
+        return new CalendarShell(vevent);
       });
     }
 
@@ -59,21 +82,16 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
         }
       };
 
-      return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
-        var token = results[0].data.token, url = results[1];
-        var config = { headers: { 'ESNToken': token } };
-        return $http.post(url + '/json/queries/time-range', req, config)
-                    .then(function(response) {
-          var results = [];
-          response.data.forEach(function(vcaldata) {
-            var vcalendar = new ICAL.Component(vcaldata);
-            var vevents = vcalendar.getAllSubcomponents('vevent');
-            vevents.forEach(function(vevent) {
-              results.push(new CalendarShell(vevent));
-            });
+      return request('post', '/json/queries/time-range', null, req).then(function(response) {
+        var results = [];
+        response.data.forEach(function(vcaldata) {
+          var vcalendar = new ICAL.Component(vcaldata);
+          var vevents = vcalendar.getAllSubcomponents('vevent');
+          vevents.forEach(function(vevent) {
+            results.push(new CalendarShell(vevent));
           });
-          return results;
         });
+        return results;
       });
     }
 
