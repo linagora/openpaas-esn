@@ -160,7 +160,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         type: 'danger',
         show: true,
         position: 'bottom',
-        container: '#error',
+        container: '.message-panel > .error',
         duration: '3',
         animation: 'am-fade'
       });

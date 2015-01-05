@@ -89,7 +89,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           type: 'danger',
           show: true,
           position: 'bottom',
-          container: '#error',
+          container: '#edit-avatar-dialog .error',
           animation: 'am-fade'
         });
       }
