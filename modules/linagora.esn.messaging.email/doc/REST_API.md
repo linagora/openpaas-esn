@@ -29,11 +29,11 @@ An email in rfc822 MIME format.
     POST /api/messages/email/reply
     Content-Type: message/rfc822
     x-esn-email-to-reply-from: bruce@willis.com
-    x-esn-email-to-reply-to: reply+98298-09883-62729-8266288@open-paas.org
+    x-esn-email-to-reply-to: 98298-09883-62729-8266288@open-paas.org
     Host: localhost:8080
 
     From: 'Bruce Willis' <bruce@willis.com>
-    To: 'OpenPaaS Reply Bot' <whatsup+98298-09883-62729-8266288@open-paas.org>
+    To: 'OpenPaaS Reply Bot' <98298-09883-62729-8266288@open-paas.org>
     Subject: Re: New message from Chuck Norris
 
     This is nice. Thanks!
@@ -65,7 +65,7 @@ Check that the sender and the recipient are valid ie that the user can reply to 
 
 **Request:**
 
-    GET /api/messages/email/reply/check?from=bruce@willis.com&to=whatsup+98298-09883-62729-8266288@open-paas.org
+    GET /api/messages/email/reply/check?from=bruce@willis.com&to=98298-09883-62729-8266288@open-paas.org
     Host: localhost:8080
 
 **Response:**

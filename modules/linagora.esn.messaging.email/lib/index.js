@@ -84,8 +84,8 @@ module.exports = function(dependencies) {
     });
   }
 
-  function parseMessage(stream, callback) {
-    return mail.parse(stream, callback);
+  function parseMessage(stream, author, callback) {
+    return mail(dependencies).parse(stream, author, callback);
   }
 
   function reply(message, inReplyTo, user, callback) {
@@ -103,7 +103,8 @@ module.exports = function(dependencies) {
     var replyMessage = {
       content: message.body.text,
       author: user._id,
-      source: 'email'
+      source: 'email',
+      attachments: message.attachments
     };
 
     var comment;

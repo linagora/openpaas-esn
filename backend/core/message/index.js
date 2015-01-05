@@ -236,6 +236,7 @@ module.exports = {
     whatsup: whatsupMessageModule
   },
   permission: require('./permission'),
+  attachments: attachments,
   get: getWithAuthors,
   copy: copy,
   getModel: getModel,

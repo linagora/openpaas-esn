@@ -125,7 +125,71 @@ describe('linagora.esn.messaging.email module', function() {
             expect(err).to.not.exist;
             expect(res.body.parentId).to.exist;
             expect(res.body.parentId).to.equal(message._id + '');
-            done();
+
+            self.helpers.api.loadMessage(message._id, function(err, message) {
+              if (err) {
+                return done(err);
+              }
+              expect(message.responses.length).to.equal(1);
+              var response = message.responses[0];
+              expect(response.content).to.equal('Hi guys,\n\nCheck this out!');
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should save the attachments in the reply and send back 201', function(done) {
+      var self = this;
+
+      this.helpers.api.createMessage('whatsup', 'This is the message content, please send me the awesome file', self.models.users[1], [self.models.communities[0].activity_stream.uuid], function(err, message) {
+        if (err) {
+          return done(err);
+        }
+
+        createToken(message, self.models.users[1], function(err, emailtoken) {
+          if (err) {
+            return done(err);
+          }
+
+          if (!emailtoken) {
+            return done(new Error());
+          }
+
+          var fs = require('fs');
+          var file = __dirname + '/../fixtures/mail_with_attachments.eml';
+          var email = fs.readFileSync(file, 'utf8');
+
+          var req = request(self.app).post('/api/messages/email/reply');
+          req.set('Content-Type', 'message/rfc822');
+          req.set('x-esn-email-to-reply-to', emailtoken.token + '@open-paas.org');
+          req.set('x-esn-email-to-reply-from', self.models.users[1].emails[0]);
+          req.send(email);
+          req.expect(201);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body.parentId).to.exist;
+            expect(res.body.parentId).to.equal(message._id + '');
+
+            self.helpers.api.loadMessage(message._id, function(err, message) {
+              if (err) {
+                return done(err);
+              }
+              expect(message.responses.length).to.equal(1);
+              var response = message.responses[0];
+              expect(response.content).to.equal('OK looks nice, check the attached documents!\nCheers,\n');
+              expect(response.attachments.length).to.equal(2);
+
+              var attachments = 0;
+              response.attachments.forEach(function(attachment) {
+                if (attachment.name === 'popup.js' || attachment.name === 'bootswatch.less') {
+                  attachments++;
+                }
+              });
+              expect(attachments).to.equal(2);
+              done();
+            });
           });
         });
       });

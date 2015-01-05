@@ -401,4 +401,9 @@ module.exports = function(mixin, testEnv) {
     };
     return module.getInstance(type, message).save(callback);
   };
+
+  api.loadMessage = function(id, callback) {
+    var module = require(testEnv.basePath + '/backend/core/message');
+    return module.get(id, callback);
+  };
 };

@@ -23,7 +23,7 @@ module.exports = function(dependencies, lib) {
 
     async.waterfall([
       function(callback) {
-        lib.parseMessage(req, callback);
+        lib.parseMessage(req, user, callback);
       },
       function(message, callback) {
         lib.reply(message, tuple, user, callback);
