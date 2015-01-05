@@ -9,7 +9,6 @@ var config = require('./config/default.json');
 
 module.exports = function(grunt) {
   var CI = grunt.option('ci');
-  var processHelpers = require('./tasks/helpers/process').init(grunt);
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -35,6 +34,11 @@ module.exports = function(grunt) {
           'frontend/js/**/*.js',
           'modules/**/*.js'
         ]
+      },
+      quick: {
+        // You must run the prepare-quick-lint target before jshint:quick,
+        // files are filled in dynamically.
+        src: []
       }
     },
     gjslint: {
@@ -52,6 +56,9 @@ module.exports = function(grunt) {
       },
       all: {
         src: ['<%= jshint.all.src %>']
+      },
+      quick: {
+        src: ['<%= jshint.quick.src %>']
       }
     },
     shell: {
@@ -663,7 +670,15 @@ module.exports = function(grunt) {
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', processHelpers.runWithForce(['jshint', 'gjslint']));
+  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all']);
+
+  /**
+   * Usage:
+   *   grunt linters-dev              # Run linters against files changed in git
+   *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
+   */
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick']);
+
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
     var done = this.async();
