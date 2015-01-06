@@ -2,6 +2,27 @@
 
 var Domain = require('mongoose').model('Domain');
 
+/**
+ * Load middleware. Load a domain from its UUID and push it into the request (req.domain) for later use.
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+function load(req, res, next) {
+  Domain.loadFromID(req.params.uuid, function(err, domain) {
+    if (err) {
+      return next(err);
+    }
+    if (!domain) {
+      return res.send(404);
+    }
+    req.domain = domain;
+    return next();
+  });
+}
+module.exports.load = load;
+
 function loadFromDomainIdParameter(req, res, next) {
   var id = req.param('domain_id');
   if (!id) {

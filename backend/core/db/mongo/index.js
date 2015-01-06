@@ -246,7 +246,6 @@ module.exports.isConnected = function() {
   return connected;
 };
 
-
 // load models
 module.exports.models = {};
 fs.readdirSync(__dirname + '/models').forEach(function(filename) {
@@ -254,3 +253,12 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   if (!stat.isFile()) { return; }
   require('./models/' + filename);
 });
+
+// load schemas
+var schemas = {};
+fs.readdirSync(__dirname + '/schemas').forEach(function(filename) {
+  var stat = fs.statSync(__dirname + '/schemas/' + filename);
+  if (!stat.isFile()) { return; }
+  schemas[filename.replace('.js', '')] = require('./schemas/' + filename);
+});
+module.exports.schemas = schemas;

@@ -459,3 +459,7 @@ module.exports.cleanMembershipRequest = function(community, user, callback) {
 };
 
 module.exports.search = require('./search');
+
+module.exports.hasDomain = function(community) {
+  return collaboration.hasDomain(community);
+};

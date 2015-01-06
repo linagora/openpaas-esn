@@ -2,33 +2,28 @@
 
 var extend = require('extend');
 var Schema = require('mongoose').Schema;
-var Tuple = require('./tuple-schema');
+var tuple = require('../schemas/tuple');
+var injection = require('../schemas/injection');
+var Tuple = tuple.Tuple;
+var Injection = injection.Injection;
 var uuid = require('node-uuid');
-
-function validateTuple(tuple) {
-  if (!tuple) { return false; }
-  if (! ('objectType' in tuple)) { return false; }
-  if (! ('id' in tuple)) { return false; }
-  if (typeof tuple.objectType !== 'string') { return false; }
-  return true;
-}
 
 var collaborationBaseSchema = {
   creator: {type: Schema.ObjectId, ref: 'User'},
   domain_ids: [
-  {type: Schema.ObjectId, ref: 'Domain'}
+    {type: Schema.ObjectId, ref: 'Domain'}
   ],
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
   members: [
-  {
-    member: {type: Tuple.tree, required: true, validate: [validateTuple, 'Bad subject tuple']},
-    status: {type: String},
-    timestamps: {
-      creation: {type: Date, default: Date.now}
+    {
+      member: {type: Tuple.tree, required: true, validate: [tuple.validateTuple, 'Bad subject tuple']},
+      status: {type: String},
+      timestamps: {
+        creation: {type: Date, default: Date.now}
+      }
     }
-  }
   ],
   activity_stream: {
     uuid: {type: String},
@@ -36,21 +31,7 @@ var collaborationBaseSchema = {
       creation: {type: Date, default: Date.now}
     }
   },
-  injections: [
-  {
-    key: {type: String, required: true},
-    values: [
-    {
-      directive: {type: String, required: true},
-      attributes:
-      [{
-        name: {type: String, required: true},
-        value: {type: String, required: true}
-      }]
-    }
-    ]
-  }
-  ],
+  injections: {type: [Injection], validate: [injection.validateInjections, 'Bad injections']},
   schemaVersion: {type: Number, default: 1}
 };
 

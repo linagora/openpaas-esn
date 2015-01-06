@@ -3,6 +3,8 @@
 var mongoose = require('mongoose');
 var trim = require('trim');
 var Schema = mongoose.Schema;
+var injection = require('../schemas/injection');
+var Injection = injection.Injection;
 
 var DomainSchema = new Schema({
   name: {type: String, required: true, lowercase: true, trim: true},
@@ -11,6 +13,7 @@ var DomainSchema = new Schema({
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
+  injections: {type: [Injection], validate: [injection.validateInjections, 'Bad injections']},
   schemaVersion: {type: Number, default: 1}
 });
 

@@ -194,6 +194,16 @@ function getStreamsForUser(userId, options, callback) {
   });
 }
 
+function hasDomain(community) {
+  if (!community || !community.domain_ids) {
+    return false;
+  }
+
+  return community.domain_ids.some(function(domainId) {
+    return domainId + '' === domainId + '';
+  });
+}
+
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
@@ -206,3 +216,4 @@ module.exports.addMember = addMember;
 module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
 module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.permission = require('./permission');
+module.exports.hasDomain = hasDomain;

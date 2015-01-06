@@ -1,86 +1,28 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var Tuple = require('./tuple-schema');
-
-var iconObjectType = ['icon', 'url'];
-var targetObjectType = ['user', 'community'];
-
-function validateTuple(tuple) {
-  if (!tuple) { return true; }
-  if (! ('objectType' in tuple)) { return false; }
-  if (! ('id' in tuple)) { return false; }
-  if (typeof tuple.objectType !== 'string') { return false; }
-  return true;
-}
-
-function validateIconTuple(value) {
-  if (!value) { return true;}
-  return (iconObjectType.indexOf(value.objectType) >= 0);
-}
-
-function validateI18n(value) {
-  if (!value) { return false;}
-  if (! ('label' in value)) { return false; }
-  if (! ('text' in value)) { return false; }
-  return true;
-}
-
-function validateAction(value) {
-  if (!value.url) { return false; }
-  if (!value.display) { return false; }
-  if (!value.display.label) { return false; }
-  if (!value.display.text) { return false; }
-  if (typeof value.url !== 'string') { return false; }
-  if (typeof value.display.label !== 'string') { return false; }
-  if (typeof value.display.text !== 'string') { return false; }
-  return true;
-}
-
-function validateActions(value) {
-  if (!value) { return true; }
-  for (var i = 0, len = value.length; i < len; i++) {
-    if (!validateAction(value[i])) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function validateTargetTuples(value) {
-  for (var i = 0, len = value.length; i < len; i++) {
-    if (targetObjectType.indexOf(value[i].objectType) < 0) {
-      return false;
-    }
-  }
-  return true;
-}
-
-var I18n = new mongoose.Schema({
-  label: {type: String, required: true},
-  text: {type: String, required: true}
-}, {_id: false});
-
-var Action = new mongoose.Schema({
-  url: {type: String, required: true},
-  display: {type: I18n.tree, required: true}
-}, {_id: false});
+var tuple = require('../schemas/tuple');
+var action = require('../schemas/action');
+var i18n = require('../schemas/i18n');
+var Tuple = tuple.Tuple;
+var Action = action.Action;
+var I18n = i18n.I18n;
 
 var NotificationSchema = new mongoose.Schema({
-  subject: {type: Tuple.tree, required: true, validate: [validateTuple, 'Bad subject tuple']},
-  verb: {type: I18n.tree, required: true, validate: [validateI18n, 'Bad verb i18n']},
-  complement: {type: Tuple.tree, required: true, validate: [validateTuple, 'Bad complement tuple']},
-  context: {type: Tuple.tree, validate: [validateTuple, 'Bad context tuple']},
+  subject: {type: Tuple.tree, required: true, validate: [tuple.validateTuple, 'Bad subject tuple']},
+  verb: {type: I18n.tree, required: true, validate: [i18n.validateI18n, 'Bad verb i18n']},
+  complement: {type: Tuple.tree, required: true, validate: [tuple.validateTuple, 'Bad complement tuple']},
+  context: {type: Tuple.tree, validate: [tuple.validateTuple, 'Bad context tuple']},
   description: {Type: String},
-  icon: {type: Tuple.tree, validate: [validateIconTuple, 'bad objectType']},
+  icon: {type: Tuple.tree, validate: [tuple.validateIconTuple, 'bad objectType']},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
   category: {type: String, required: true},
   interactive: {type: Boolean, required: true, default: false},
-  action: {type: [Action], validate: [validateActions, 'bad action']},
+  action: {type: [Action], validate: [action.validateActions, 'bad action']},
   target: {type: mongoose.Schema.ObjectId, required: true, ref: 'User'},
-  parentTarget: {type: [Tuple], validate: [validateTargetTuples, 'bad parent target tuple objectType']},
+  parentTarget: {type: [Tuple], validate: [tuple.validateTargetTuples, 'bad parent target tuple objectType']},
   read: {type: Boolean, default: false},
   acknowledged: {type: Boolean, default: false}
 });

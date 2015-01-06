@@ -18,7 +18,7 @@
         community-invite-users(community="community")
       .vertiz-space
       .esn-panel
-        div(community-injections-widget='communityPageRightPanel')
+        injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
       .vertiz-space
 .col-xs-12.esn-panel(ng-if='!canRead()')
   p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}

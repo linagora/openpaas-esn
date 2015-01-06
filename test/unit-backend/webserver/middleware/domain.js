@@ -1,8 +1,103 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The domain middleware', function() {
+
+  describe('The load domain middleware', function() {
+
+    it('should call next(err) if domain can not be loaded', function(done) {
+
+      var mock = {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback(new Error());
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mock);
+
+      var req = {
+        params: {
+          uuid: '123'
+        }
+      };
+      var res = {};
+      var next = function(err) {
+        expect(err).to.exist;
+        done();
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      middleware.load(req, res, next);
+    });
+
+    it('should send 404 if domain is not found', function(done) {
+
+      var mock = {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback();
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mock);
+
+      var req = {
+        params: {
+          uuid: 123
+        }
+      };
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(404);
+          done();
+        }
+      };
+      var next = function() {};
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      middleware.load(req, res, next);
+    });
+
+    it('should inject the domain into the request', function(done) {
+
+      var domain = {_id: 123};
+      var mock = {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback(null, domain);
+            }
+          };
+        }
+      };
+      mockery.registerMock('mongoose', mock);
+      var req = {
+        params: {
+          uuid: 123
+        }
+      };
+
+      var res = {
+      };
+
+      var next = function() {
+        expect(req.domain).to.exist;
+        expect(req.domain).to.deep.equal(domain);
+        done();
+      };
+
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      middleware.load(req, res, next);
+    });
+  });
 
   describe('loadFromDomainIdParameter() method', function() {
     it('should send back 400 when param is undefined', function(done) {
