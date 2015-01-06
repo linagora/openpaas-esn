@@ -48,8 +48,6 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
 
     deploy: function(dependencies, callback) {
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('appstore', ['appstore.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.appstore', ['esn']);
-      webserverWrapper.addApp('appstore', this.app);
       return callback();
     }
   }
