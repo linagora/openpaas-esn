@@ -6,7 +6,7 @@ module.exports = function(dependencies, lib) {
 
   function getUser(req, res) {
     if (!req.user) {
-      return res.json(404, {error: {status: 404, message: 'Not found', details: 'User not found'}});
+      return res.json(404, {error: {code: 404, message: 'Not found', details: 'User not found'}});
     }
 
     return res.json(200, req.user);
@@ -18,7 +18,7 @@ module.exports = function(dependencies, lib) {
     var tuple = req.message;
 
     if (!user || !tuple) {
-      return res.json(400, {error: {status: 400, message: 'Bad request', details: 'User or message tuple not found'}});
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User or message tuple not found'}});
     }
 
     async.waterfall([
@@ -30,7 +30,7 @@ module.exports = function(dependencies, lib) {
       }
     ], function(err, result) {
       if (err) {
-        return res.json(500, {error: {status: 500, message: 'Server Error', details: err.message}});
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
       }
       return res.json(201, result);
     });
