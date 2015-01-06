@@ -47,7 +47,6 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     },
 
     deploy: function(dependencies, callback) {
-      var webserverWrapper = dependencies('webserver-wrapper');
       return callback();
     }
   }
