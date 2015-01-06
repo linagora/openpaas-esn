@@ -4,7 +4,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
   div.media-body
     div
       h4.media-heading
-        i.fa.fa-envelope.message-source-email(ng-show='message.source === "email"', title='This message left by email reply')
+        i.fa.fa-envelope.message-source-email(ng-show='message.source === "email"', title='sent via email reply')
         a(href="#") {{message.author.firstname}} {{message.author.lastname}}
         a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}")
           small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
