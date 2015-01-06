@@ -1,8 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var ObjectId = mongoose.Types.ObjectId;
 var Application = mongoose.model('Application');
-var uuid = require('node-uuid');
 var zlib = require('zlib');
 var tar = require('tar');
 var fs = require('fs-extra');
@@ -107,14 +107,14 @@ function getDuplicates(readable) {
 
 AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, metadata, stream, options, callback) {
   var self = this;
+  var fileId = new ObjectId();
 
-  function returnFileMeta(err, results) {
+  function returnFileMeta(err) {
     if (err) {
       return callback(err);
     }
 
-    var file = results[1];
-    return callback(null, self.storage.getAsFileStoreMeta(file));
+    return self.storage.getMeta(fileId, callback);
   }
 
   function updateApplication(application, updates, callback) {
@@ -123,7 +123,6 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
   }
 
   function storeArtifact(contentType, metadata, stream, options, callback) {
-    var fileId = uuid.v1();
     return self.storage.store(fileId, contentType, metadata, stream, options, callback);
   }
 

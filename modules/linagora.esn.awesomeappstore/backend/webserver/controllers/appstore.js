@@ -1,10 +1,10 @@
 'use strict';
 
-var uuid = require('node-uuid');
 var extend = require('extend');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var acceptedArtifactTypes = ['application/x-tar', 'application/x-gzip'];
 var Busboy = require('busboy');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = function(appstoremanager) {
 
@@ -128,7 +128,7 @@ module.exports = function(appstoremanager) {
     if (isNaN(size)) {
       return res.json(400, {error: { code: 400, message: 'Bad parameter', details: 'size parameter should be an integer'}});
     }
-    var avatarId = uuid.v1();
+    var avatarId = new ObjectId();
 
     function updateApplicationAvatar() {
       appstoremanager.updateAvatar(req.application, avatarId, function(err) {
@@ -229,13 +229,13 @@ module.exports = function(appstoremanager) {
           return res.json(500, { error: { code: 500, message: 'Cannot upload artifact', details: err.message}});
         }
 
-        var artifactMetadata = {id: fileMetadata.id, version: req.query.version};
+        var artifactMetadata = {id: fileMetadata._id, version: req.query.version};
         appstoremanager.updateArtifact(req.application, artifactMetadata, function(err) {
           if (err) {
             return res.json(500, {error: { code: 500, message: 'Datastore failure', details: err.message}});
           }
 
-          return res.json(201, {_id: fileMetadata.id});
+          return res.json(201, {_id: fileMetadata._id});
         });
       });
     };
