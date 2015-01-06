@@ -15,7 +15,7 @@
         p.application-description(ng-show='application.description') {{::application.description}}
 
     .row
-      ul.list-inline
+      ul.list-inline(appstore-buttons-group)
         li
           appstore-button-deploy(application='application', version="1.0.0")
         li

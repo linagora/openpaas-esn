@@ -76,100 +76,159 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreButtonDeploy', ['$log', 'session', 'appstoreAPI', function($log, session, appstoreAPI) {
+  .directive('appstoreButtonDeploy', ['$log', 'session', 'appstoreAPI', 'disableService', function($log, session, appstoreAPI, disableService) {
     return {
+      require: '^appstoreButtonsGroup',
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-deploy.html',
       scope: {
         application: '=',
-        target: '=',
         version: '@'
       },
-      controller: function($scope) {
+      link: function(scope, element, attrs, controllers) {
         var target = { objectType: 'domain', id: session.domain._id };
-        $scope.loading = false;
+        scope.loading = false;
+        scope.disabled = disableService(target, scope.application.deployments);
 
-        $scope.deploy = function() {
-          $scope.loading = true;
-          appstoreAPI.deploy($scope.application._id, target, $scope.version)
+        scope.deploy = function() {
+          scope.loading = true;
+          appstoreAPI.deploy(scope.application._id, target, scope.version)
             .then(function() {
               $log.debug('Application deployment success.');
             }, function(error) {
               $log.debug('Application deployment failed.', error);
             }).finally (function() {
-              $scope.loading = false;
+              scope.loading = false;
+              scope.disabled = true;
+              controllers.emit('deployed');
               $log.debug('Done.');
             });
         };
 
-        $scope.disabled = function() {
-          return false;
-        };
-
+        scope.$on('undeployed', function() {
+          scope.disabled = false;
+        });
       }
     };
   }])
-  .directive('appstoreButtonUndeploy', ['$log', 'session', 'appstoreAPI', function($log, session, appstoreAPI) {
+  .directive('appstoreButtonUndeploy', ['$log', 'session', 'appstoreAPI', 'disableService', function($log, session, appstoreAPI, disableService) {
     return {
+      require: '^appstoreButtonsGroup',
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-undeploy.html',
       scope: {
         application: '=',
         target: '='
       },
-      controller: function($scope) {
+      link: function(scope, element, attrs, controllers) {
         var target = { objectType: 'domain', id: session.domain._id };
+        scope.loading = false;
+        scope.disabled = !disableService(target, scope.application.deployments);
 
-        $scope.loading = false;
-        $scope.undeploy = function() {
-          $scope.loading = true;
-          appstoreAPI.undeploy($scope.application._id, target)
+        scope.undeploy = function() {
+          scope.loading = true;
+          appstoreAPI.undeploy(scope.application._id, target)
             .then(function() {
               $log.debug('Application undeployment success.');
             }, function(error) {
               $log.debug('Application undeployment failed.', error);
             }).finally (function() {
-              $scope.loading = false;
+              scope.loading = false;
+              scope.disabled = true;
+              controllers.emit('undeployed');
               $log.debug('Done.');
             });
         };
 
-        $scope.disabled = function() {
-          return false;
-        };
-
+        scope.$on('deployed', function() {
+          scope.disabled = false;
+        });
       }
     };
   }])
-  .directive('appstoreButtonInstall', ['$log', 'appstoreAPI', function($log, appstoreAPI) {
+  .directive('appstoreButtonInstall', ['$log', 'session', 'appstoreAPI', 'disableService', function($log, session, appstoreAPI, disableService) {
     return {
+      require: '^appstoreButtonsGroup',
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-install.html',
       scope: {
         application: '=',
         community: '='
       },
-      controller: function($scope) {
-        var target = { objectType: 'community', id: $scope.community._id };
+      link: function(scope, element, attrs, controllers) {
+        var target = { objectType: 'community', id: scope.community._id };
+        var targetDomain = { objectType: 'domain', id: session.domain._id };
+        var deployment = scope.application.deployments.filter(function(deployment) {
+          return angular.equals(deployment.target, targetDomain);
+        });
+        if (deployment[0]) {
+          scope.disabled = disableService(target, deployment[0].installs);
+        } else {
+          scope.disabled = true;
+        }
 
-        $scope.loading = false;
-        $scope.install = function() {
-          $scope.loading = true;
-          appstoreAPI.install($scope.application._id, target)
+        scope.loading = false;
+        scope.install = function() {
+          scope.loading = true;
+          appstoreAPI.install(scope.application._id, target)
             .then(function() {
               $log.debug('Application install success.');
             }, function(error) {
               $log.debug('Application install failed.', error);
             }).finally (function() {
-              $scope.loading = false;
+              scope.loading = false;
+              scope.disabled = true;
+              controllers.emit('installed');
               $log.debug('Done.');
             });
         };
 
-        $scope.disabled = function() {
-          return false;
+        scope.$on('uninstalled', function() {
+          scope.disabled = false;
+        });
+      }
+    };
+  }])
+  .directive('appstoreButtonUninstall', ['$log', 'session', 'appstoreAPI', 'disableService', function($log, session, appstoreAPI, disableService) {
+    return {
+      require: '^appstoreButtonsGroup',
+      restrict: 'E',
+      templateUrl: '/appstore/views/appstore/appstore-button-uninstall.html',
+      scope: {
+        application: '=',
+        community: '='
+      },
+      link: function(scope, element, attrs, controllers) {
+        var target = { objectType: 'community', id: scope.community._id };
+        var targetDomain = { objectType: 'domain', id: session.domain._id };
+        var deployment = scope.application.deployments.filter(function(deployment) {
+          return angular.equals(deployment.target, targetDomain);
+        });
+        if (deployment[0]) {
+          scope.disabled = !disableService(target, deployment[0].installs);
+        } else {
+          scope.disabled = true;
+        }
+        scope.loading = false;
+
+        scope.uninstall = function() {
+          scope.loading = true;
+          appstoreAPI.uninstall(scope.application._id, target)
+            .then(function() {
+              $log.debug('Application uninstall success.');
+            }, function(error) {
+              $log.debug('Application uninstall failed.', error);
+            }).finally (function() {
+              scope.loading = false;
+              scope.disabled = true;
+              controllers.emit('uninstalled');
+              $log.debug('Done.');
+            });
         };
 
+        scope.$on('installed', function() {
+          scope.disabled = false;
+        });
       }
     };
   }])
@@ -178,43 +237,29 @@ angular.module('esn.appstore')
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-update.html',
       scope: {
-        disabled: '&',
-        update: '&'
-      }
-    };
-  }])
-  .directive('appstoreButtonUninstall', ['$log', 'appstoreAPI', function($log, appstoreAPI) {
-    return {
-      restrict: 'E',
-      templateUrl: '/appstore/views/appstore/appstore-button-uninstall.html',
-      scope: {
         application: '=',
         community: '='
       },
       controller: function($scope) {
-        var target = { objectType: 'community', id: $scope.community._id };
-
-        $scope.loading = false;
-        $scope.uninstall = function() {
-          $scope.loading = true;
-          appstoreAPI.uninstall($scope.application._id, target)
-            .then(function() {
-              $log.debug('Application uninstall success.');
-            }, function(error) {
-              $log.debug('Application uninstall failed.', error);
-            }).finally (function() {
-              $scope.loading = false;
-              $log.debug('Done.');
-            });
-        };
+        $scope.update = function() {};
 
         $scope.disabled = function() {
-          return false;
+          return true;
         };
 
       }
     };
   }])
+  .directive('appstoreButtonsGroup', function() {
+    return {
+      restrict: 'A',
+      controller: function($scope) {
+        this.emit = function(event) {
+          $scope.$broadcast(event);
+        };
+      }
+    };
+  })
   .directive('appstoreAppDisplay', function() {
     return {
       restrict: 'E',

@@ -10,7 +10,7 @@
 
         p.description {{::application.description | characters:128 :false }}
 
-        p.text-center
+        p.text-center(appstore-buttons-group)
           appstore-button-install(community='community', application='application')
           &nbsp;
           appstore-button-uninstall(community='community', application='application')
