@@ -7,6 +7,7 @@ var extend = require('extend');
 var mongoose = require('mongoose');
 var trim = require('trim');
 var User = mongoose.model('User');
+var emailAddresses = require('email-addresses');
 
 function getUserTemplate(callback) {
   esnConfig('user', 'templates').get(callback);
@@ -70,3 +71,18 @@ module.exports.updateProfile = function(user, parameter, value, callback) {
   update[parameter] = value;
   User.update({_id: id}, {$set: update}, callback);
 };
+
+module.exports.belongsToCompany = function(user, company, callback) {
+  if (!user || !company) {
+    return callback(new Error('User and company are required.'));
+  }
+  var hasCompany = false;
+  user.emails.forEach(function(email) {
+    var parsedEmail = emailAddresses.parseOneAddress(email);
+    if (parsedEmail.domain === company) {
+      hasCompany = true;
+    }
+  });
+  return callback(null, hasCompany);
+};
+

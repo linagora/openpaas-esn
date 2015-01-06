@@ -176,4 +176,46 @@ describe('The user core module', function() {
       });
     });
   });
+
+  describe('belongsToCompany fn', function() {
+    var userModule = null;
+
+    beforeEach(function() {
+      mockModels({
+        User: {}
+      });
+      userModule = require(this.testEnv.basePath + '/backend/core').user;
+    });
+
+    it('should send back an error when user is undefined', function(done) {
+      userModule.belongsToCompany(null, 'linagora.com', function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back an error when company is undefined', function(done) {
+      userModule.belongsToCompany({_id: '123'}, null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back true when user belongs to company', function(done) {
+      userModule.belongsToCompany({_id: '123', emails: ['user1@linagora.com', 'user1@open-paas.org']}, 'linagora.com', function(err, isInternal) {
+        expect(err).to.not.exist;
+        expect(isInternal).to.be.true;
+        done();
+      });
+    });
+
+    it('should send back false when user does not belong to company', function(done) {
+      userModule.belongsToCompany({_id: '123', emails: ['user1@linagora.com', 'user1@open-paas.org']}, 'problem.com', function(err, isInternal) {
+        expect(err).to.not.exist;
+        expect(isInternal).to.be.false;
+        done();
+      });
+    });
+  });
+
 });
