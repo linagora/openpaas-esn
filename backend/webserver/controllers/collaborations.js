@@ -58,3 +58,8 @@ module.exports.searchWhereMember = function(req, res) {
     });
   });
 };
+
+function getMembers(req, res) {
+
+}
+module.exports.getMembers = getMembers;
