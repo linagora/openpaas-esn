@@ -241,4 +241,124 @@ angular.module('esn.activitystream')
 
     return activitystreamAggregator;
   }]
-);
+).factory('activitystreamsAggregator', ['$q', '$log', function($q, $log) {
+
+  function activitystreamsAggregator(aggs, rpp) {
+    var aggregators = aggs.map(function(agg) {
+      return {aggregator: agg, items: [], runningPromise: null};
+    });
+
+    function isEndOfStream() {
+      var end = 0;
+      aggregators.forEach(function(obj) {
+        if (obj.aggregator.endOfStream) {
+          end++;
+        }
+      });
+      return end === aggregators.length;
+    }
+
+    function _loadMoreElement(obj) {
+      if (obj.items.length >= rpp || obj.aggregator.endOfStream) {
+        return $q.when(true);
+      }
+
+      if (!obj.runningPromise) {
+        var defer = $q.defer();
+        obj.aggregator.loadMoreElements(function(err, items) {
+          obj.runningPromise = null;
+          if (err) {
+            return defer.reject(err);
+          } else {
+            obj.items = obj.items.concat(items);
+            return defer.resolve(true);
+          }
+        });
+        obj.runningPromise = defer.promise;
+      }
+      return obj.runningPromise;
+    }
+
+    function _loadAllMoreElements() {
+      var jobs = aggregators.map(function(obj) {
+        return _loadMoreElement(obj);
+      });
+      return $q.all(jobs);
+    }
+
+    function _getMostRecent() {
+      var mostRecent = null;
+      aggregators.forEach(function(obj) {
+        if (obj.items.length === 0) {
+          return;
+        }
+        if (!mostRecent) {
+          mostRecent = obj;
+        } else {
+          var selected = mostRecent.items[0].published;
+          var candidate = obj.items[0].published;
+          if (Date.parse(candidate) > Date.parse(selected)) {
+            mostRecent = obj;
+          }
+        }
+      });
+
+      if (mostRecent) {
+        return mostRecent.items.shift();
+      }
+    }
+
+    function _getXMostRecent(count) {
+      var response = [];
+      for (var i = 0; i < count; i++) {
+        var item = _getMostRecent();
+        if (item) {
+          response.push(item);
+        }
+      }
+      return response;
+    }
+
+    function loadMoreElements(callback) {
+      if (isEndOfStream()) {
+        return callback();
+      }
+      _loadAllMoreElements().then(function() {
+          callback(null, _getXMostRecent(rpp));
+        },
+        function(err) {
+          return callback(err);
+        });
+    }
+
+    var aggregator = {
+      loadMoreElements: loadMoreElements
+    };
+
+    aggregator.__defineGetter__('endOfStream', isEndOfStream);
+    return aggregator;
+  }
+
+  return activitystreamsAggregator;
+}])
+.factory('activitystreamAggregatorCreator', ['activitystreamAggregator', 'activitystreamsAggregator', function(activitystreamAggregator, activitystreamsAggregator) {
+
+  function one(id, limit) {
+    return activitystreamAggregator(id, limit);
+  }
+
+  function many(ids, limit) {
+    var aggs = ids.map(function(id) {
+      return one(id, limit);
+    });
+    return activitystreamsAggregator(aggs, limit);
+  }
+
+  return function(id, limit) {
+    if (!angular.isArray(id)) {
+      return one(id, limit);
+    } else {
+      return many(id, limit);
+    }
+  };
+}]);
