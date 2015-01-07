@@ -25,7 +25,10 @@ The configuration of the ESN is stored in MongoDB under the configuration collec
     {
       "_id": mail,
       "mail": {
-        "noreply": "noreply@openpaas.io"
+        "noreply": "noreply@open-paas.org",
+        "reply": {
+          "domain": "open-paas.org",
+          "name": "OpenPaaS Bot"
       },
       "transport": {
         "module": "nodemailer-browser",

@@ -384,4 +384,26 @@ module.exports = function(mixin, testEnv) {
       return callback(null, models);
     });
   };
+
+  api.createMessage = function(type, content, author, activitystreams, callback) {
+    var module = require(testEnv.basePath + '/backend/core/message');
+
+    var message = {
+      content: content,
+      objectType: type,
+      author: author,
+      shares: activitystreams.map(function(stream) {
+        return {
+          objectType: 'activitystream',
+          id: stream
+        };
+      })
+    };
+    return module.getInstance(type, message).save(callback);
+  };
+
+  api.loadMessage = function(id, callback) {
+    var module = require(testEnv.basePath + '/backend/core/message');
+    return module.get(id, callback);
+  };
 };

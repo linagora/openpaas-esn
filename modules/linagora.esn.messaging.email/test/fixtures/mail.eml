@@ -1,0 +1,25 @@
+Return-Path: <chamerling@example.com>
+Received: from yolo.example.com (smtp.example.dc1 [192.168.0.1])
+	 by imap (Cyrus v2.2.13-Debian-2.2.13-19+squeeze3) with LMTPA;
+	 Wed, 17 Dec 2014 12:15:55 +0100
+X-Sieve: CMU Sieve 2.2
+Received: from [127.0.0.1] (unknown [92.103.166.6])
+	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by yolo.example.com (Postfix) with ESMTPSA id 7B7C0728
+	for <chamerling@example.com>; Wed, 17 Dec 2014 12:15:55 +0100 (CET)
+Message-ID: <549165F3.3010706@example.com>
+Date: Wed, 17 Dec 2014 12:16:03 +0100
+From: Christophe Hamerling <chamerling@example.com>
+User-Agent: Mozilla/5.0 (Windows NT 5.1; rv:24.0) Gecko/20100101 Thunderbird/24.6.0
+MIME-Version: 1.0
+To: OpenPaaS Bot <whatsup+5493fb74e9ce80dd0b91f64d@example.com>
+Subject: Re: Note de Frais du 07/11
+References: <549136E7.2040907@example.com>
+In-Reply-To: <549136E7.2040907@example.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Hi guys,
+
+Check this out!

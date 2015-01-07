@@ -157,7 +157,8 @@ describe('The messages controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
+      this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
+      this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -193,7 +194,7 @@ describe('The messages controller', function() {
         }
       });
 
-      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
+      this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
@@ -341,7 +342,7 @@ describe('The messages controller', function() {
           done();
         }
       };
-      mockery.registerMock('../../core/activitystreams/helpers', ashelpermock);
+      mockery.registerMock('../core/activitystreams/helpers', ashelpermock);
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
 
@@ -372,7 +373,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
 
-      this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
+      this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
 
       var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);

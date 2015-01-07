@@ -100,7 +100,21 @@ function mockMiddlewares() {
   });
 }
 
+function mockHelpers() {
+  var moduleName = ESN_MODULE_PREFIX + 'helpers';
+  var mock = new AwesomeModule(moduleName, {
+    states: {
+      lib: function(deps, callback) {
+        return callback(null, require(__dirname + '/../helpers'));
+      }
+    }
+  });
+  var loader = manager.loaders.code(mock, true);
+  manager.appendLoader(loader);
+}
+
 function setupManager() {
+  mockHelpers();
   mockCore();
   mockMiddlewares();
   core.moduleManager = manager;

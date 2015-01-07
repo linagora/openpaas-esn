@@ -3,28 +3,12 @@
 var messageModule = require('../../core/message'),
     emailModule = require('../../core/message/email'),
     postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
+    publishCommentActivityHelper = require('../../helpers/message').publishCommentActivity,
+    messageSharesToTimelineTarget = require('../../helpers/message').messageSharesToTimelineTarget,
+    publishMessageEvents = require('../../helpers/message').publishMessageEvents,
     logger = require('../../core/logger'),
     localpubsub = require('../../core/pubsub').local,
     globalpubsub = require('../../core/pubsub').global;
-
-function messageSharesToTimelineTarget(shares) {
-  return shares.map(function(e) {
-    return {
-      objectType: e.objectType,
-      _id: e.id
-    };
-  });
-}
-
-function publishMessageEvents(message, targets, user) {
-  var timelineTargets = messageSharesToTimelineTarget(targets);
-  var activity = require('../../core/activitystreams/helpers').userMessageToTimelineEntry(message, 'post', user, timelineTargets);
-
-  localpubsub.topic('message:stored').publish(message);
-  globalpubsub.topic('message:stored').publish(message);
-  localpubsub.topic('message:activity').publish(activity);
-  globalpubsub.topic('message:activity').publish(activity);
-}
 
 function createNewMessage(message, req, res) {
   function finishMessageResponse(err, savedMessage) {
@@ -58,10 +42,7 @@ function createNewMessage(message, req, res) {
 function commentMessage(message, inReplyTo, req, res) {
 
   var publishCommentActivity = function(parentMessage, childMessage) {
-    var targets = messageSharesToTimelineTarget(parentMessage.shares);
-    var activity = require('../../core/activitystreams/helpers').userMessageCommentToTimelineEntry(childMessage, 'post', req.user, targets, inReplyTo, new Date());
-    localpubsub.topic('message:activity').publish(activity);
-    globalpubsub.topic('message:activity').publish(activity);
+    publishCommentActivityHelper(req.user, inReplyTo, parentMessage, childMessage);
   };
 
   var comment;
