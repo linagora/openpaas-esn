@@ -37,7 +37,8 @@ angular.module('esn.activitystream')
     return {
       restrict: 'E',
       scope: {
-        writable: '='
+        writable: '=',
+        calendarId: '='
       },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
