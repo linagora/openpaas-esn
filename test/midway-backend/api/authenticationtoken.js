@@ -35,6 +35,11 @@ describe('The authenticationtoken API', function() {
     });
   });
 
+  beforeEach(function(done) {
+    var conf = require('../../../backend/core/esn-config')('session');
+    conf.store({ 'secret': '123123' }, done);
+  });
+
   afterEach(function(done) {
     this.mongoose.connection.db.dropDatabase();
     this.mongoose.disconnect(done);

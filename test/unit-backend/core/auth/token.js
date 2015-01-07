@@ -45,13 +45,13 @@ describe('The token authentication module', function() {
 
     mockery.registerMock('../db/redis', redis);
     this.helpers.mock.esnConfig(function(callback) {
-      callback(new Error("too lazy"));
+      callback(new Error('too lazy'));
     });
 
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
     token.getNewToken({ user: 'abc123' }, function(err) {
       expect(err).to.exist;
-      expect(err.message).to.equal("too lazy");
+      expect(err.message).to.equal('too lazy');
       done();
     });
   });
@@ -71,7 +71,7 @@ describe('The token authentication module', function() {
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
     token.getNewToken({ user: 'abc123' }, function(err) {
       expect(err).to.exist;
-      expect(err.message).to.equal("Missing session configuration");
+      expect(err.message).to.equal('Missing session configuration');
       done();
     });
   });
@@ -91,7 +91,7 @@ describe('The token authentication module', function() {
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
     token.getNewToken({ user: 'abc123' }, function(err) {
       expect(err).to.exist;
-      expect(err.message).to.equal("Missing session configuration");
+      expect(err.message).to.equal('Missing session configuration');
       done();
     });
   });
@@ -138,7 +138,6 @@ describe('The token authentication module', function() {
       callback(null, { secret: 'secret' });
     });
 
-    var config = require(this.testEnv.basePath + '/backend/core').config('default');
     var jwt = require('jsonwebtoken');
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
     var options = { user: 'abc123', ttl: 120 };
@@ -147,7 +146,7 @@ describe('The token authentication module', function() {
       expect(err).to.not.exist;
       expect(options.token).to.exist;
 
-      var decoded = jwt.verify(options.token, "secret");
+      var decoded = jwt.verify(options.token, 'secret');
       expect(decoded.user).to.equal(options.user);
       expect(decoded.exp - decoded.iat).to.equal(options.ttl);
 

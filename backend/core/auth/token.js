@@ -16,7 +16,7 @@ var getNewToken = function(options, callback) {
 
     esnconfig('session').get(function(err, sessionconf) {
       if (err || !sessionconf || !sessionconf.secret) {
-          return callback(err || new Error("Missing session configuration"));
+          return callback(err || new Error('Missing session configuration'));
       }
 
       options.created_at = new Date();
