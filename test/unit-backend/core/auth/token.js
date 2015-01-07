@@ -15,7 +15,7 @@ describe('The token authentication module', function() {
     mockery.registerMock('../db/redis', redis);
 
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    token.getNewToken({ user: 'abc123' }, function(err) {
+    token.getNewToken({}, function(err) {
       expect(err).to.exist;
       done();
     });
@@ -30,68 +30,8 @@ describe('The token authentication module', function() {
     mockery.registerMock('../db/redis', redis);
 
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    token.getNewToken({ user: 'abc123' }, function(err) {
+    token.getNewToken({}, function(err) {
       expect(err).to.exist;
-      done();
-    });
-  });
-
-  it('getNewToken should send back error when config returns an error', function(done) {
-    var redis = {
-      getClient: function(callback) {
-        return callback(null, {});
-      }
-    };
-
-    mockery.registerMock('../db/redis', redis);
-    this.helpers.mock.esnConfig(function(callback) {
-      callback(new Error('too lazy'));
-    });
-
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    token.getNewToken({ user: 'abc123' }, function(err) {
-      expect(err).to.exist;
-      expect(err.message).to.equal('too lazy');
-      done();
-    });
-  });
-
-  it('getNewToken should send back error when session config is null', function(done) {
-    var redis = {
-      getClient: function(callback) {
-        return callback(null, {});
-      }
-    };
-
-    mockery.registerMock('../db/redis', redis);
-    this.helpers.mock.esnConfig(function(callback) {
-      callback(null, null);
-    });
-
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    token.getNewToken({ user: 'abc123' }, function(err) {
-      expect(err).to.exist;
-      expect(err.message).to.equal('Missing session configuration');
-      done();
-    });
-  });
-
-  it('getNewToken should send back error when session secret is not set', function(done) {
-    var redis = {
-      getClient: function(callback) {
-        return callback(null, {});
-      }
-    };
-
-    mockery.registerMock('../db/redis', redis);
-    this.helpers.mock.esnConfig(function(callback) {
-      callback(null, {});
-    });
-
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    token.getNewToken({ user: 'abc123' }, function(err) {
-      expect(err).to.exist;
-      expect(err.message).to.equal('Missing session configuration');
       done();
     });
   });
@@ -109,12 +49,9 @@ describe('The token authentication module', function() {
       }
     };
     mockery.registerMock('../db/redis', redis);
-    this.helpers.mock.esnConfig(function(callback) {
-      callback(null, { secret: 'secret' });
-    });
 
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    token.getNewToken({ user: 'abc123' }, function(err) {
+    token.getNewToken({}, function(err) {
       expect(called).to.be.true;
       expect(err).to.exist;
       done();
@@ -134,22 +71,12 @@ describe('The token authentication module', function() {
       }
     };
     mockery.registerMock('../db/redis', redis);
-    this.helpers.mock.esnConfig(function(callback) {
-      callback(null, { secret: 'secret' });
-    });
 
-    var jwt = require('jsonwebtoken');
     var token = require(this.testEnv.basePath + '/backend/core/auth/token');
-    var options = { user: 'abc123', ttl: 120 };
-    token.getNewToken(options, function(err, options) {
+    token.getNewToken({}, function(err, options) {
       expect(called).to.be.true;
       expect(err).to.not.exist;
       expect(options.token).to.exist;
-
-      var decoded = jwt.verify(options.token, 'secret');
-      expect(decoded.user).to.equal(options.user);
-      expect(decoded.exp - decoded.iat).to.equal(options.ttl);
-
       done();
     });
   });
