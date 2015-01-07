@@ -1,9 +1,8 @@
 'use strict';
 
+var uuid = require('node-uuid');
 var redis = require('../db/redis');
 var logger = require('../logger');
-var esnconfig = require('../esn-config');
-var jwt = require('jsonwebtoken');
 
 var getNewToken = function(options, callback) {
   options = options || {};
@@ -14,27 +13,14 @@ var getNewToken = function(options, callback) {
       return callback(new Error('Error while getting client'));
     }
 
-    esnconfig('session').get(function(err, sessionconf) {
-      if (err || !sessionconf || !sessionconf.secret) {
-          return callback(err || new Error('Missing session configuration'));
+    options.token = uuid.v4();
+    options.created_at = new Date();
+
+    client.setex(options.token, options.ttl, JSON.stringify(options), function(err) {
+      if (err) {
+        return callback(err);
       }
-
-      options.created_at = new Date();
-      var token = jwt.sign({
-        user: options.user
-      }, sessionconf.secret, {
-        expiresInMinutes: Math.floor(options.ttl / 60),
-        algorithm: 'HS512'
-      });
-
-      options.token = token;
-
-      client.setex(options.token, options.ttl, JSON.stringify(options), function(err) {
-        if (err) {
-          return callback(err);
-        }
-        return callback(null, options);
-      });
+      return callback(null, options);
     });
   });
 };
