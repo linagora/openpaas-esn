@@ -54,7 +54,7 @@ describe('The Calendar Angular module', function() {
           match: { start: '20140101T000000', end: '20140102T000000' },
           scope: { calendars: ['/path/to/calendar'] }
         };
-        this.$httpBackend.expectPOST('/json/queries/time-range', data).respond([
+        this.$httpBackend.expectPOST('//json/queries/time-range', data).respond([
           ['vcalendar', [], [
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
@@ -89,7 +89,7 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
 
         // The caldav server will be hit
-        this.$httpBackend.expectGET('/path/to/event.ics').respond(
+        this.$httpBackend.expectGET('//path/to/event.ics').respond(
           ['vcalendar', [], [
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
@@ -144,7 +144,7 @@ describe('The Calendar Angular module', function() {
         this.$rootScope.$apply();
       });
 
-      it.only('should fail on 500 response status', function(done) {
+      it('should fail on 500 response status', function(done) {
         // The server url needs to be retrieved
         this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
 
@@ -219,30 +219,28 @@ describe('The Calendar Angular module', function() {
     });
 
     describe('The shellToICAL fn', function() {
-      beforeEach(function() {
-        this.compareShell = (function(shell, ical) {
-          var vcalendar = this.calendarService.shellToICAL(shell);
-          var vevents = vcalendar.getAllSubcomponents();
-          expect(vevents.length).to.equal(1);
-          var vevent = vevents[0];
+      function compareShell(calendarService, shell, ical) {
+        var vcalendar = calendarService.shellToICAL(shell);
+        var vevents = vcalendar.getAllSubcomponents();
+        expect(vevents.length).to.equal(1);
+        var vevent = vevents[0];
 
-          var properties = vevent.getAllProperties();
-          var propkeys = properties.map(function(p) {
-            return p.name;
-          }).sort();
-          var icalkeys = Object.keys(ical).sort();
+        var properties = vevent.getAllProperties();
+        var propkeys = properties.map(function(p) {
+          return p.name;
+        }).sort();
+        var icalkeys = Object.keys(ical).sort();
 
-          var message = 'Key count mismatch in ical object.\n' +
-                        'expected: ' + icalkeys + '\n' +
-                        '   found: ' + propkeys;
-          expect(properties.length).to.equal(icalkeys.length, message);
+        var message = 'Key count mismatch in ical object.\n' +
+                      'expected: ' + icalkeys + '\n' +
+                      '   found: ' + propkeys;
+        expect(properties.length).to.equal(icalkeys.length, message);
 
-          for (var propName in ical) {
-            var value = vevent.getFirstPropertyValue(propName).toString();
-            expect(value).to.equal(ical[propName]);
-          }
-        }).bind(this);
-      });
+        for (var propName in ical) {
+          var value = vevent.getFirstPropertyValue(propName).toString();
+          expect(value).to.equal(ical[propName]);
+        }
+      }
 
       it('should correctly create an allday event', function() {
         var shell = {
@@ -263,7 +261,7 @@ describe('The Calendar Angular module', function() {
           transp: 'TRANSPARENT'
         };
 
-        this.compareShell(shell, ical);
+        compareShell(this.calendarService, shell, ical);
       });
 
       it('should correctly create a non-allday event', function() {
@@ -281,7 +279,7 @@ describe('The Calendar Angular module', function() {
           transp: 'OPAQUE'
         };
 
-        this.compareShell(shell, ical);
+        compareShell(this.calendarService, shell, ical);
       });
     });
   });
