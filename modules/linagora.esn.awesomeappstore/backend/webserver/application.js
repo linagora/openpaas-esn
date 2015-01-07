@@ -3,6 +3,7 @@
 var path = require('path');
 var express = require('express');
 var lessMiddleware = require('less-middleware');
+var i18n = require('i18n');
 var FRONTEND_PATH = path.join(__dirname, '../../frontend');
 var CSS_PATH = FRONTEND_PATH + '/css';
 var VIEW_PATH = FRONTEND_PATH + '/views';
@@ -28,6 +29,7 @@ var lessMiddlewareConfig = {
 module.exports = function(appManager, dependencies) {
 
   var app = express();
+  app.use(i18n.init);
   app.use(express.static(FRONTEND_PATH));
   app.set('views', VIEW_PATH);
   app.use(lessMiddleware(
