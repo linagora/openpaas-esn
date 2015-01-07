@@ -1,0 +1,20 @@
+@defaultImageSizeBig: 150px;
+
+.esn-application-details {
+  .ResizeImage(@defaultImageSizeBig, auto);
+  padding: 1em;
+}
+
+.esn-app-display {
+  .description {
+    width: auto;
+    height: 4em;
+  }
+}
+
+.ResizeImage(@width, @height) {
+  img {
+    width: @width;
+    height: @height;
+  }
+}

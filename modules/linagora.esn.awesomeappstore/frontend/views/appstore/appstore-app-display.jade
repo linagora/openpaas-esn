@@ -8,7 +8,7 @@
               span {{::application.title}} &nbsp;
               small {{::application.version}}
 
-          p.description {{::application.description | characters:128 :false }}
+          p.description.multilines {{::application.description | characters:128 :false }}
 
           p.text-center(appstore-buttons-group)
             appstore-button-deploy(application="application", version="1.0.0")

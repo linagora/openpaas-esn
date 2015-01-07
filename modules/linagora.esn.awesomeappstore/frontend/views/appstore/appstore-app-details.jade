@@ -12,7 +12,7 @@
           small &nbsp;{{::application.version}}
     .row
       blockquote
-        p.application-description(ng-show='application.description') {{::application.description}}
+        p.application-description.multilines(ng-show='application.description') {{::application.description}}
 
     .row
       ul.list-inline(appstore-buttons-group)
