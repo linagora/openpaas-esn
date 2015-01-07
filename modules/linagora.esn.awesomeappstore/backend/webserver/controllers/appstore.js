@@ -12,7 +12,7 @@ module.exports = function(appstoremanager) {
     var query = req.query || {};
 
     if (req.query.domain) {
-      var tuple = { objectType: 'domain', id: req.query.domain };
+      var tuple = { id: req.query.domain, objectType: 'domain'};
       var deploymentMatch = {
         deployments: {
           $elemMatch: {

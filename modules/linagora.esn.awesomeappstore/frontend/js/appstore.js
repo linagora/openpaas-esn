@@ -35,15 +35,20 @@ angular.module('esn.appstore', [
       templateUrl: '/appstore/views/community/applications',
       controller: 'communityAppstoreController',
       resolve: {
-        applications: function(session, appstoreAPI, $route) {
-          return appstoreAPI.list({ domain: session.domain._id, community: $route.current.params.id }).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              console.log(err);
-            }
-          );
+        applications: function(session, appstoreAPI, $route, $q) {
+          var defer = $q.defer();
+          session.ready.then(function(session) {
+            appstoreAPI.list({ domain: session.domain._id, community: $route.current.params.id }).then(
+              function(response) {
+                defer.resolve(response.data);
+              },
+              function(err) {
+                defer.reject(err);
+                console.log(err);
+              }
+            );
+          });
+          return defer.promise;
         },
         community: function(communityAPI, $route) {
           return communityAPI.get($route.current.params.id).then(
