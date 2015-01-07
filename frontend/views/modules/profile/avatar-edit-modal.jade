@@ -22,7 +22,7 @@
             .row
               label
                 span.btn.btn-info.btn-file #{__('Select an image')}...
-                  input(type="file", id="profile_image", load-button, max-size="10")
+                  input(type="file", accept="image/*", id="profile_image", load-button, max-size="10")
             .row(ng-show='preview')
               canvas(width="128", height="128", id="preview", img-preview)
           .col-xs-9.col-md-9.col-lg-9(ng-show='preview')
