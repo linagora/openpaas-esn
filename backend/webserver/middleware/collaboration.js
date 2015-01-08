@@ -50,10 +50,12 @@ function requiresCollaborationMember(req, res, next) {
     return next();
   });
 }
+module.exports.requiresCollaborationMember = requiresCollaborationMember;
 
-module.exports.canRead = function(req, res, next) {
+function canRead(req, res, next) {
   if (req.collaboration.type === 'open' || req.collaboration.type === 'restricted') {
     return next();
   }
   return requiresCollaborationMember(req, res, next);
-};
+}
+module.exports.canRead = canRead;
