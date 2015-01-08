@@ -103,3 +103,131 @@ describe('load() method', function() {
     });
   });
 });
+
+describe('canRead() method', function() {
+
+  it('should call next if the collaboration type is "open"', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          done(new Error('I should not be called'));
+        }
+      },
+      collaboration: { type: 'open' },
+      user: {_id: 'user1'}
+    };
+    var res = {};
+    middleware(req, res, done);
+  });
+
+  it('should call next if the collaboration type is "restricted"', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          done(new Error('I should not be called'));
+        }
+      },
+      collaboration: { type: 'restricted' },
+      user: {_id: 'user1'}
+    };
+    var res = {};
+    middleware(req, res, done);
+  });
+
+  it('should delegate to isMember middleware if the collaboration type is "private"', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          done();
+        }
+      },
+      collaboration: { type: 'private' },
+      user: {_id: 'user1'}
+    };
+    var res = {};
+    var err = function() { done(new Error('I should not be called')); };
+    middleware(req, res, err);
+  });
+
+  it('should delegate to isMember middleware if the collaboration type is "confidential"', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          done();
+        }
+      },
+      collaboration: { type: 'confidential' },
+      user: {_id: 'user1'}
+    };
+    var res = {};
+    var err = function() { done(new Error('I should not be called')); };
+    middleware(req, res, err);
+  });
+});
+
+describe('requiresCollaborationMember fn', function() {
+
+  it('should send back 400 when service check fails', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCommunityMember;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          return callback(new Error());
+        }
+      },
+      collaboration: {},
+      user: {}
+    };
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+    middleware(req, res);
+  });
+
+  it('should send back 403 when user is not a collaboration member', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCommunityMember;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          return callback(null, false);
+        }
+      },
+      collaboration: {},
+      user: {}
+    };
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(403);
+        done();
+      }
+    };
+    middleware(req, res);
+  });
+
+  it('should call next if user is a collaboration member', function(done) {
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCommunityMember;
+    var req = {
+      lib: {
+        isMember: function(com, user, callback) {
+          return callback(null, true);
+        }
+      },
+      collaboration: {},
+      user: {}
+    };
+    var res = {
+      json: function() {
+        done(new Error());
+      }
+    };
+    middleware(req, res, done);
+  });
+
+});

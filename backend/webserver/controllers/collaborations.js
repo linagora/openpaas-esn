@@ -62,11 +62,11 @@ module.exports.searchWhereMember = function(req, res) {
 
 function getMembers(req, res) {
   if (!req.lib) {
-    res.json(500, {error: {code: 500, message: 'Server error', details: 'Could not get the collaboration lib'}});
+    return res.json(500, {error: {code: 500, message: 'Server error', details: 'Could not get the collaboration lib'}});
   }
 
   if (!req.collaboration) {
-    res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
+    return res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
   }
 
   var query = {};

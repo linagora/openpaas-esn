@@ -6,8 +6,7 @@ describe('Member object', function() {
   var collaboration;
 
   before(function() {
-    this.helpers.mock.models({});
-    collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+    collaboration = require(this.testEnv.basePath + '/backend/helpers/collaboration');
   });
 
   it('should filter a user from password, avatars and login', function(done) {

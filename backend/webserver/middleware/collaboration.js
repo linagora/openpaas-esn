@@ -37,3 +37,23 @@ function load(req, res, next) {
   });
 }
 module.exports.load = load;
+
+function requiresCollaborationMember(req, res, next) {
+  req.lib.isMember(req.collaboration, {objectType: 'user', id: req.user._id}, function(err, isMember) {
+    if (err) {
+      return res.json(500, {error: 500, message: 'Server error', details: 'Can not define the collaboration membership: ' + err.message});
+    }
+
+    if (!isMember) {
+      return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not collaboration member'});
+    }
+    return next();
+  });
+}
+
+module.exports.canRead = function(req, res, next) {
+  if (req.collaboration.type === 'open' || req.collaboration.type === 'restricted') {
+    return next();
+  }
+  return requiresCollaborationMember(req, res, next);
+};

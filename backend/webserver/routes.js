@@ -218,6 +218,7 @@ exports = module.exports = function(application) {
     authorize.requiresAPILogin,
     collaborationMW.loadLib,
     collaborationMW.load,
+    collaborationMW.canRead,
     collaborations.getMembers
   );
 };

@@ -3,22 +3,21 @@
 var expect = require('chai').expect;
 
 describe('getMembers fn', function() {
-  it('should send back 400 is req.collaboration is undefined', function(done) {
+  it('should send back 500 if req.collaboration is undefined', function(done) {
     var res = {
       json: function(code) {
-        expect(code).to.equal(400);
+        expect(code).to.equal(500);
         done();
       }
     };
 
-    var req = {
-    };
+    var req = {};
 
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
-  it('should send back 500 is collaboration.getMembers returns error', function(done) {
+  it('should send back 500 if collaboration.getMembers returns error', function(done) {
     var res = {
       json: function(code) {
         expect(code).to.equal(500);
@@ -33,7 +32,7 @@ describe('getMembers fn', function() {
         }
       },
       collaboration: {},
-      param: function() {}
+      query: function() {}
     };
 
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
@@ -56,7 +55,7 @@ describe('getMembers fn', function() {
         }
       },
       collaboration: {},
-      param: function() {}
+      query: function() {}
     };
 
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
@@ -86,7 +85,7 @@ describe('getMembers fn', function() {
       collaboration: {
         members: members
       },
-      param: function() {}
+      query: function() {}
     };
 
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
@@ -122,13 +121,9 @@ describe('getMembers fn', function() {
       collaboration: {
         members: members
       },
-      param: function(name) {
-        if (name === 'limit') {
-          return limit;
-        }
-        if (name === 'offset') {
-          return offset;
-        }
+      query: {
+        limit: limit,
+        offset: offset
       }
     };
 
