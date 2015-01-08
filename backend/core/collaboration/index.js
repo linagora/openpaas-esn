@@ -25,6 +25,10 @@ function getModel(objectType) {
   return Model;
 }
 
+function getLib(objectType) {
+  return collaborationLibs[objectType] || null;
+}
+
 function isMember(collaboration, tuple, callback) {
   if (!collaboration || !collaboration._id) {
     return callback(new Error('Collaboration object is required'));
@@ -240,6 +244,7 @@ function hasDomain(community) {
   });
 }
 
+module.exports.getLib = getLib;
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');

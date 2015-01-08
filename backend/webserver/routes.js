@@ -212,11 +212,11 @@ exports = module.exports = function(application) {
   var calendars = require('./controllers/calendars');
   application.post('/api/calendars/:id/events', authorize.requiresAPILogin, communities.load, communityMiddleware.requiresCommunityMember, calendars.createEvent);
 
-  /* Collaboration */
   var collaborations = require('./controllers/collaborations');
   var collaborationMW = require('./middleware/collaboration');
   application.get('/api/collaboration/:objectType/:id/members',
     authorize.requiresAPILogin,
+    collaborationMW.loadLib,
     collaborationMW.load,
     collaborations.getMembers
   );
