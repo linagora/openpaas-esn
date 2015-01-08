@@ -4,6 +4,7 @@ angular.module('esn.project')
   .controller('projectController', ['$scope', 'projectService', 'session', 'project',
     function($scope, projectService, session, project) {
       $scope.project = project;
+      $scope.streams = [];
 
       $scope.canRead = function() {
         return projectService.canRead(project);
