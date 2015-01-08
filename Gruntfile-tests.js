@@ -22,6 +22,26 @@ module.exports = function(grunt) {
           files: ['test/unit-backend/all.js', grunt.option('test') || 'test/unit-backend/**/*.js']
         }
       },
+      backend1: {
+        options: {
+          files: ['test/unit-backend/all.js', grunt.option('test') || 'test/unit-backend/**/[a-b]*.js']
+        }
+      },
+      backend2: {
+        options: {
+          files: ['test/unit-backend/all.js', grunt.option('test') || 'test/unit-backend/**/c*.js']
+        }
+      },
+      backend3: {
+        options: {
+          files: ['test/unit-backend/all.js', grunt.option('test') || 'test/unit-backend/**/[d-m]*.js']
+        }
+      },
+      backend4: {
+        options: {
+          files: ['test/unit-backend/all.js', grunt.option('test') || 'test/unit-backend/**/[n-z]*.js']
+        }
+      },
       midway: {
         options: {
           files: ['test/midway-backend/all.js', grunt.option('test') || 'test/midway-backend/**/*.js']
@@ -63,7 +83,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-mocha-cli');
 
-  grunt.registerTask('test-unit-backend', 'run the backend unit tests', ['mochacli:backend']);
+  grunt.registerTask('test-unit-backend', 'run the backend unit tests (to be used with .only)', ['mochacli:backend']);
+  grunt.registerTask('test-unit-backend-split', 'run the backend unit tests', ['mochacli:backend1', 'mochacli:backend2', 'mochacli:backend3', 'mochacli:backend4']);
   grunt.registerTask('test-midway-backend-split', 'run midway tests', ['mochacli:midway1', 'mochacli:midway2', 'mochacli:midway3', 'mochacli:midway4']);
   grunt.registerTask('test-midway-backend', 'run midway tests (to be used with .only)', ['mochacli:midway']);
   grunt.registerTask('test-modules-midway-backend', 'run modules midway backend tests', ['mochacli:modulesMidway']);
