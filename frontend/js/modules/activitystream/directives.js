@@ -38,14 +38,17 @@ angular.module('esn.activitystream')
       restrict: 'E',
       scope: {
         writable: '=',
-        calendarId: '='
+        calendarId: '=',
+        streams: '=',
+        activitystreamUuid: '='
       },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
       controller: 'activitystreamController',
       link: function(scope, element, attrs) {
-        scope.activitystreamUuid = attrs.activitystreamUuid;
-        var currentActivitystreamUuid = scope.activitystreamUuid;
+        scope.streams = scope.streams || [];
+        scope.streams = scope.streams.concat(scope.activitystreamUuid);
+        var initialized = false;
 
         scope.lastPost = {
           messageId: null,
@@ -53,13 +56,13 @@ angular.module('esn.activitystream')
         };
 
         function onMessagePosted(evt, msgMeta) {
-          if (msgMeta.activitystreamUuid !== scope.activitystreamUuid) {
+          if (scope.streams.indexOf(msgMeta.activitystreamUuid) === -1) {
             return;
           }
-          if (scope.restActive) {
+          if (scope.restActive[msgMeta.activitystreamUuid] || scope.updateMessagesActive) {
             return;
           }
-          scope.getStreamUpdates();
+          scope.getStreamUpdates(msgMeta.activitystreamUuid);
           scope.lastPost.messageId = msgMeta.id;
         }
 
@@ -76,10 +79,20 @@ angular.module('esn.activitystream')
         }
 
         function updateMessage(message) {
-          if (scope.restActive) {
+          var running = message.shares.filter(function(share) {
+              return share.objectType === 'activitystream' && scope.restActive[share.id];
+            });
+
+          if (running.length > 0 || scope.updateMessagesActive) {
             return;
           }
-          scope.restActive = true;
+
+          message.shares.forEach(function(share) {
+            if (share.objectType === 'activitystream' && scope.streams.indexOf(share.id) !== -1) {
+              scope.restActive[share.id] = true;
+            }
+          });
+
           var parentId = message._id;
           messageAPI.get(parentId).then(function(response) {
             var message = response.data;
@@ -88,9 +101,12 @@ angular.module('esn.activitystream')
               thread.responses = message.responses;
             }
           }).finally (function() {
-            scope.restActive = false;
+            message.shares.forEach(function(share) {
+              if (share.objectType === 'activitystream' && scope.streams.indexOf(share.id) !== -1) {
+                scope.restActive[share.id] = false;
+              }
+            });
           });
-
         }
 
         function onCommentPosted(evt, msgMeta) {
@@ -109,8 +125,10 @@ angular.module('esn.activitystream')
         // before we start fetching the stream
         $timeout(function() {
           scope.loadMoreElements();
-          $rootScope.$emit('activitystream:updated', {
-            activitystreamUuid: currentActivitystreamUuid
+          scope.streams.forEach(function(activitystreamUuid) {
+            $rootScope.$emit('activitystream:updated', {
+              activitystreamUuid: activitystreamUuid
+            });
           });
         },0);
 
@@ -118,12 +136,12 @@ angular.module('esn.activitystream')
         var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
 
         scope.$watch('activitystreamUuid', function() {
-          if (scope.activitystreamUuid === currentActivitystreamUuid) {
+          if (initialized) {
             return;
           }
           scope.reset();
           scope.loadMoreElements();
-          currentActivitystreamUuid = scope.activitystreamUuid;
+          initialized = true;
         });
 
         scope.$on('$destroy', function() {

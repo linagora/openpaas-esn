@@ -2,7 +2,7 @@
 
 angular.module('esn.activitystream')
 .controller('activitystreamController',
-  ['$rootScope', '$scope', 'activitystreamAggregator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
+  ['$rootScope', '$scope', 'activitystreamAggregatorCreator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
   function($rootScope, $scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates) {
 
     var spinnerKey = 'activityStreamSpinner', aggregator;
@@ -20,7 +20,8 @@ angular.module('esn.activitystream')
     };
 
     $scope.reset = function() {
-      $scope.restActive = false;
+      $scope.restActive = {};
+      $scope.updateMessagesActive = false;
       $scope.threads = [];
       $scope.mostRecentActivityID = null;
       aggregator = null;
@@ -28,28 +29,28 @@ angular.module('esn.activitystream')
 
     $scope.reset();
 
-    $scope.getStreamUpdates = function() {
-      if ($scope.restActive) {
+    $scope.getStreamUpdates = function(streamUuid) {
+      if ($scope.restActive[streamUuid]) {
         return;
       }
-      $scope.restActive = true;
+      $scope.restActive[streamUuid] = true;
       $scope.updates = [];
-      activityStreamUpdates($scope.activitystreamUuid, $scope).then(function() {
+      activityStreamUpdates(streamUuid, $scope).then(function() {
       }, function(err) {
       }).finally (function() {
         // we have to plug here the throbber once the websocket stuff is on
-        $scope.restActive = false;
+        $scope.restActive[streamUuid] = false;
         $rootScope.$emit('activitystream:updated', {
-          activitystreamUuid: $scope.activitystreamUuid
+          activitystreamUuid: streamUuid
         });
       });
     };
 
     function updateMessageList() {
-      if ($scope.restActive) {
+      if ($scope.updateMessagesActive) {
         return;
       }
-      $scope.restActive = true;
+      $scope.updateMessagesActive = true;
       usSpinnerService.spin(spinnerKey);
 
       aggregator.loadMoreElements(function(error, items) {
@@ -64,17 +65,17 @@ angular.module('esn.activitystream')
             $scope.threads.push(items[i].object);
           }
         }
-        $scope.restActive = false;
+        $scope.updateMessagesActive = false;
         usSpinnerService.stop(spinnerKey);
       });
     }
 
     $scope.loadMoreElements = function() {
-      if (!$scope.activitystreamUuid) {
+      if (!$scope.streams || $scope.streams.length === 0) {
         return;
       }
       if (!aggregator) {
-        aggregator = aggregatorService($scope.activitystreamUuid, 25);
+        aggregator = aggregatorService($scope.streams, 25);
       }
       if (!aggregator.endOfStream) {
         updateMessageList();
@@ -82,8 +83,8 @@ angular.module('esn.activitystream')
     };
 
     $rootScope.$on('activitystream:userUpdateRequest', function(evt, data) {
-      if ($scope.activitystreamUuid === data.activitystreamUuid) {
-        $scope.getStreamUpdates();
+      if ($scope.streams.indexOf(data.activitystreamUuid) !== -1) {
+        $scope.getStreamUpdates(data.activitystreamUuid);
       }
     });
   }]

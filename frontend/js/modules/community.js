@@ -616,6 +616,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     $scope.error = false;
     $scope.loading = false;
     $scope.writable = community.writable;
+    $scope.streams = [];
 
     $scope.$on('community:membership', function(data) {
       communityAPI.get(community._id).then(function(response) {
