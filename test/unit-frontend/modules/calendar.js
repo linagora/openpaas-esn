@@ -75,6 +75,9 @@ describe('The Calendar Angular module', function() {
             expect(events[0].title).to.equal('title');
             expect(events[0].start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
             expect(events[0].end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+            expect(events[0].vcalendar).to.be.an('object');
+            expect(events[0].etag).to.be.empty;
+            expect(events[0].path).to.be.empty;
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
@@ -97,7 +100,9 @@ describe('The Calendar Angular module', function() {
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
             ], []]
-          ]]
+          ]],
+          // headers:
+          { 'ETag': 'testing-tag' }
         );
 
         this.calendarService.getEvent('path/to/event.ics').then(function(event) {
@@ -106,6 +111,9 @@ describe('The Calendar Angular module', function() {
             expect(event.title).to.equal('title');
             expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
             expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+            expect(event.vcalendar).to.be.an('object');
+            expect(event.path).to.equal('/path/to/event.ics');
+            expect(event.etag).to.equal('testing-tag');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
@@ -216,6 +224,136 @@ describe('The Calendar Angular module', function() {
         this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
+    });
+
+    describe('The modify fn', function() {
+      function unexpected(done) {
+        done(new Error('Unexpected'));
+      }
+
+      beforeEach(function() {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('summary', 'test event');
+        vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(new Date()));
+        vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(new Date()));
+        vcalendar.addSubcomponent(vevent);
+        this.vcalendar = vcalendar;
+
+        this.$httpBackend.whenGET('/caldavserver').respond({data: { url: ''}});
+      });
+
+      it('should fail if status is 201', function(done) {
+        this.$httpBackend.expectPUT('//path/to/uid.ics').respond(201, this.vcalendar.toJSON());
+
+        this.calendarService.modify('/path/to/uid.ics', this.vcalendar).then(
+          unexpected.bind(null, done), function(response) {
+            expect(response.status).to.equal(201);
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed on 200', function(done) {
+        this.$httpBackend.expectPUT('//path/to/uid.ics').respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+
+        this.calendarService.modify('/path/to/uid.ics', this.vcalendar).then(
+          function(shell) {
+            expect(shell.title).to.equal('test event');
+            expect(shell.etag).to.equal('changed-etag');
+            expect(shell.vcalendar.toJSON()).to.deep.equal(this.vcalendar.toJSON());
+            done();
+          }.bind(this), unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed on 204', function(done) {
+        var headers = { 'ETag': 'changed-etag' };
+        this.$httpBackend.expectPUT('//path/to/uid.ics').respond(204, '');
+        this.$httpBackend.expectGET('///path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+
+        this.calendarService.modify('/path/to/uid.ics', this.vcalendar).then(
+          function(shell) {
+            expect(shell.title).to.equal('test event');
+            expect(shell.etag).to.equal('changed-etag');
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+
+      it('should send etag as If-Match header', function(done) {
+        var requestHeaders = {
+          'Content-Type': 'application/json+calendar',
+          'Prefer': 'return-representation',
+          'If-Match': 'etag',
+          'ESNToken': '123',
+          'Accept': 'application/json, text/plain, */*'
+        };
+        this.$httpBackend.expectPUT('//path/to/uid.ics', this.vcalendar.toJSON(), requestHeaders).respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+
+        this.calendarService.modify('/path/to/uid.ics', this.vcalendar, 'etag').then(
+          function(shell) { done(); }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+    });
+
+    describe('The changeParticipation fn', function() {
+      function unexpected(done) {
+        done(new Error('Unexpected'));
+      }
+
+      beforeEach(function() {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('summary', 'test event');
+        vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(new Date()));
+        vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(new Date()));
+        var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
+        att.setParameter('partstat', 'DECLINED');
+        vcalendar.addSubcomponent(vevent);
+        this.vcalendar = vcalendar;
+
+        this.$httpBackend.whenGET('/caldavserver').respond({data: { url: ''}});
+      });
+
+      it('should change the participation status', function(done) {
+
+        var emails = ['test@example.com'];
+        var copy = new ICAL.Component(ICAL.helpers.clone(this.vcalendar.jCal, true));
+        var vevent = copy.getFirstSubcomponent('vevent');
+        var att = vevent.getFirstProperty('attendee');
+        att.setParameter('partstat', 'ACCEPTED');
+
+        this.$httpBackend.expectPUT('//path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
+
+        this.calendarService.changeParticipation('/path/to/uid.ics', this.vcalendar, emails, 'ACCEPTED').then(
+          function(response) { done(); }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.tokenAPI.callback({ data: { token: '123' } });
+        this.$httpBackend.flush();
+      });
+
+      // Everything else is covered by the modify fn
     });
 
     describe('The shellToICAL fn', function() {

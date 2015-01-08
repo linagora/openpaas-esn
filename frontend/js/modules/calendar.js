@@ -7,14 +7,31 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
      *
-     * @param {ICAL.Component} vevent        The ical.js VEVENT component.
+     * @param {ICAL.Component} vcalendar     The ical.js VCALENDAR component.
+     * @param {String} path                  The path on the caldav server.
+     * @param {String} etag                  The ETag of the event.
      */
-    function CalendarShell(vevent) {
+    function CalendarShell(vcalendar, path, etag) {
+      var vevent = vcalendar.getFirstSubcomponent('vevent');
       this.id = vevent.getFirstPropertyValue('uid');
       this.title = vevent.getFirstPropertyValue('summary');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
       this.start = vevent.getFirstPropertyValue('dtstart').toJSDate();
       this.end = vevent.getFirstPropertyValue('dtend').toJSDate();
+
+      var start = moment(this.start);
+      var end = moment(this.end);
+      this.formattedDate = start.format('MMMM D, YYYY');
+      this.formattedStartTime = start.format('h');
+      this.formattedStartA = start.format('a');
+      this.formattedEndTime = end.format('h');
+      this.formattedEndA = end.format('a');
+
+      // NOTE: changing any of the above properties won't update the vevent, or
+      // vice versa.
+      this.vcalendar = vcalendar;
+      this.path = path;
+      this.etag = etag;
     }
 
     function getCaldavServerURL() {
@@ -91,12 +108,27 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       return vcalendar;
     }
 
+    function getInvitedAttendees(vcalendar, emails) {
+      var vevent = vcalendar.getFirstSubcomponent('vevent');
+      var attendees = vevent.getAllProperties('attendee');
+
+      var emailMap = Object.create(null);
+      emails.forEach(function(email) { emailMap['mailto:' + email.toLowerCase()] = true; });
+
+      var invitedAttendees = [];
+      for (var i = 0; i < attendees.length; i++) {
+        if (attendees[i].getFirstValue().toLowerCase() in emailMap) {
+          invitedAttendees.push(attendees[i]);
+        }
+      }
+      return invitedAttendees;
+    }
+
     function getEvent(path) {
       var headers = { Accept: 'application/calendar+json' };
       return request('get', '/' + path, headers).then(function(response) {
         var vcalendar = new ICAL.Component(response.data);
-        var vevent = vcalendar.getFirstSubcomponent('vevent');
-        return new CalendarShell(vevent);
+        return new CalendarShell(vcalendar, '/' + path, response.headers('ETag'));
       });
     }
 
@@ -112,15 +144,10 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       };
 
       return request('post', '/json/queries/time-range', null, req).then(function(response) {
-        var results = [];
-        response.data.forEach(function(vcaldata) {
+        return response.data.map(function(vcaldata) {
           var vcalendar = new ICAL.Component(vcaldata);
-          var vevents = vcalendar.getAllSubcomponents('vevent');
-          vevents.forEach(function(vevent) {
-            results.push(new CalendarShell(vevent));
-          });
+          return new CalendarShell(vcalendar);
         });
-        return results;
       });
     }
 
@@ -145,16 +172,68 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       });
     }
 
+    function modify(eventPath, vcalendar, etag) {
+      var headers = {
+        'Content-Type': 'application/json+calendar',
+        'Prefer': 'return-representation'
+      };
+      var body = vcalendar.toJSON();
+
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
+
+      return request('put', eventPath, headers, body).then(function(response) {
+        if (response.status === 200) {
+          var vcalendar = new ICAL.Component(response.data);
+          return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
+        } else if (response.status === 204) {
+            return getEvent(eventPath);
+        } else {
+          return $q.reject(response);
+        }
+      });
+    }
+
+    function changeParticipation(eventPath, vcalendar, emails, status, etag) {
+      var atts = getInvitedAttendees(vcalendar, emails);
+      var needsModify = false;
+      atts.forEach(function(att) {
+        if (att.getParameter('partstat') !== status) {
+          att.setParameter('partstat', status);
+          needsModify = true;
+        }
+      });
+      if (!atts.length || !needsModify) {
+        return $q.when(null);
+      }
+
+      return modify(eventPath, vcalendar, etag)['catch'](function(response) {
+        if (response.status === 412) {
+          return getEvent(eventPath).then(function(shell) {
+            // A conflict occurred. We've requested the event data in the
+            // response, so we can retry the request with this data.
+            return changeParticipation(eventPath, shell.vcalendar, emails, status, shell.etag);
+          });
+        } else {
+          return $q.reject(response);
+        }
+      });
+    }
+
     var serverUrlCache = null;
     return {
       list: list,
       create: create,
+      modify: modify,
+      changeParticipation: changeParticipation,
       getEvent: getEvent,
 
-      shellToICAL: shellToICAL
+      shellToICAL: shellToICAL,
+      getInvitedAttendees: getInvitedAttendees
     };
   }])
-  .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', '$timeout', function($scope, $rootScope, $alert, calendarService, moment, $timeout) {
+  .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', function($scope, $rootScope, $alert, calendarService, moment) {
     $scope.rows = 1;
 
     function getNewDate() {
