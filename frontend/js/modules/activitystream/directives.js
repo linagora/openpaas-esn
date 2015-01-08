@@ -12,7 +12,7 @@ angular.module('esn.activitystream')
   function(moment, session, livenotification, notificationFactory) {
   return {
     restrict: 'A',
-    link: function(scope, element, attrs) {
+    link: function(scope) {
       function liveNotificationHandler(msg) {
         if (msg.actor && msg.actor._id !== session.user._id) {
           var m = moment(new Date(msg.published).getTime());
@@ -24,7 +24,7 @@ angular.module('esn.activitystream')
         }
       }
 
-      var socketIORoom = livenotification('/activitystreams', attrs.activitystreamUuid)
+      var socketIORoom = livenotification('/activitystreams', scope.activitystreamUuid)
         .on('notification', liveNotificationHandler);
 
       scope.$on('$destroy', function() {
@@ -45,7 +45,7 @@ angular.module('esn.activitystream')
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
       controller: 'activitystreamController',
-      link: function(scope, element, attrs) {
+      link: function(scope) {
         scope.streams = scope.streams || [];
         scope.streams = scope.streams.concat(scope.activitystreamUuid);
         var initialized = false;
