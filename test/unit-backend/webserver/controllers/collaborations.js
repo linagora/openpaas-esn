@@ -1,8 +1,15 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('getMembers fn', function() {
+
+  beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/index', {});
+    mockery.registerMock('../../core/collaboration/permission', {});
+  });
+
   it('should send back 500 if req.collaboration is undefined', function(done) {
     var res = {
       json: function(code) {
@@ -26,15 +33,18 @@ describe('getMembers fn', function() {
     };
 
     var req = {
-      lib: {
-        getMembers: function(com, query, callback) {
-          return callback(new Error());
-        }
+      params: {
+        objectType: 'communty'
       },
       collaboration: {},
       query: function() {}
     };
 
+    mockery.registerMock('../../core/collaboration/index', {
+      getMembers: function(com, objectType, query, callback) {
+        return callback(new Error());
+      }
+    });
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
@@ -49,15 +59,18 @@ describe('getMembers fn', function() {
     };
 
     var req = {
-      lib: {
-        getMembers: function(com, query, callback) {
-          return callback(null, []);
-        }
+      params: {
+        objectType: 'communty'
       },
       collaboration: {},
       query: function() {}
     };
 
+    mockery.registerMock('../../core/collaboration/index', {
+      getMembers: function(com, objectType, query, callback) {
+        return callback(null, []);
+      }
+    });
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
@@ -77,10 +90,8 @@ describe('getMembers fn', function() {
     };
 
     var req = {
-      lib: {
-        getMembers: function(com, query, callback) {
-          return callback(null, []);
-        }
+      params: {
+        objectType: 'communty'
       },
       collaboration: {
         members: members
@@ -88,6 +99,11 @@ describe('getMembers fn', function() {
       query: function() {}
     };
 
+    mockery.registerMock('../../core/collaboration/index', {
+      getMembers: function(com, objectType, query, callback) {
+        return callback(null, []);
+      }
+    });
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
@@ -109,14 +125,8 @@ describe('getMembers fn', function() {
     };
 
     var req = {
-      lib: {
-        getMembers: function(com, query, callback) {
-          expect(query).to.exist;
-          expect(query.limit).to.equal(limit);
-          expect(query.offset).to.equal(offset);
-
-          return callback(null, []);
-        }
+      params: {
+        objectType: 'communty'
       },
       collaboration: {
         members: members
@@ -127,6 +137,15 @@ describe('getMembers fn', function() {
       }
     };
 
+    mockery.registerMock('../../core/collaboration/index', {
+      getMembers: function(com, objectType, query, callback) {
+        expect(query).to.exist;
+        expect(query.limit).to.equal(limit);
+        expect(query.offset).to.equal(offset);
+
+        return callback(null, []);
+      }
+    });
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });

@@ -6,11 +6,6 @@ var mockery = require('mockery');
 describe('load() method', function() {
   var collaborationMW;
 
-  beforeEach(function() {
-    mockery.registerMock('../../core/collaboration', {});
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
-  });
-
   it('should send back 500 if collaboration module sends back error on load', function(done) {
     var res = {
       json: function(code) {
@@ -20,16 +15,18 @@ describe('load() method', function() {
     };
 
     var req = {
-      lib: {
-        queryOne: function(id, callback) {
-          return callback(new Error());
-        }
-      },
       params: {
-        id: 123
+        id: 123,
+        objectType: 'community'
       }
     };
 
+    mockery.registerMock('../../core/collaboration', {
+      queryOne: function(objectType, id, callback) {
+        return callback(new Error());
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
     collaborationMW.load(req, res, function(err) {
       expect(err).to.exist;
       done();
@@ -46,67 +43,73 @@ describe('load() method', function() {
     };
 
     var req = {
-      lib: {
-        queryOne: function(id, callback) {
-          return callback();
-        }
-      },
       params: {
-        id: 123
+        id: 123,
+        objectType: 'community'
       }
     };
 
+    mockery.registerMock('../../core/collaboration', {
+      queryOne: function(objectType, id, callback) {
+        return callback();
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
     collaborationMW.load(req, res);
   });
 
   it('should set req.collaboration when collaboration can be found', function(done) {
-    var collaboration = [{_id: 123}];
+    var collaboration = {_id: 123};
 
     var req = {
-      lib: {
-        queryOne: function(id, callback) {
-          return callback(null, collaboration);
-        },
-        isMember: function(collaboration, user, callback) {
-          return callback(null, true);
-        }
-      },
       params: {
-        id: 123
+        id: 123,
+        objectType: 'community'
       },
       user: {
         _id: 1
       }
     };
 
+    mockery.registerMock('../../core/collaboration', {
+      queryOne: function(objectType, id, callback) {
+        return callback(null, collaboration);
+      },
+      isMember: function(collaboration, user, callback) {
+        return callback(null, true);
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
     collaborationMW.load(req, {}, function(err) {
       expect(err).to.not.exist;
       expect(req.collaboration).to.exist;
-      expect(req.collaboration).to.deep.equal(collaboration[0]);
+      expect(req.collaboration).to.deep.equal(collaboration);
       done();
     });
   });
 
   it('should send back members array', function(done) {
-    var collaboration = [{_id: 123, members: [1, 2, 3]}];
+    var collaboration = {_id: 123, members: [1, 2, 3]};
 
     var req = {
-      lib: {
-        queryOne: function(id, callback) {
-          return callback(null, collaboration);
-        },
-        isMember: function(collaboration, user, callback) {
-          return callback(null, true);
-        }
-      },
       params: {
-        id: 123
+        id: 123,
+        objectType: 'community'
       },
       user: {
         id: 1
       }
     };
 
+    mockery.registerMock('../../core/collaboration', {
+      queryOne: function(objectType, id, callback) {
+        return callback(null, collaboration);
+      },
+      isMember: function(collaboration, user, callback) {
+        return callback(null, true);
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
     collaborationMW.load(req, {}, function(err) {
       expect(err).to.not.exist;
       expect(req.collaboration).to.exist;
@@ -119,66 +122,69 @@ describe('load() method', function() {
 describe('canRead() method', function() {
   var collaborationMW;
 
-  beforeEach(function() {
-    mockery.registerMock('../../core/collaboration', {});
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
-  });
-
   it('should call next if the collaboration type is "open"', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          done(new Error('I should not be called'));
-        }
-      },
       collaboration: { type: 'open' },
       user: {_id: 'user1'}
     };
     var res = {};
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        done(new Error('I should not be called'));
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, done);
   });
 
   it('should call next if the collaboration type is "restricted"', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          done(new Error('I should not be called'));
-        }
-      },
       collaboration: { type: 'restricted' },
       user: {_id: 'user1'}
     };
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        done(new Error('I should not be called'));
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
     var res = {};
     collaborationMW(req, res, done);
   });
 
   it('should delegate to isMember middleware if the collaboration type is "private"', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          done();
-        }
-      },
       collaboration: { type: 'private' },
       user: {_id: 'user1'}
     };
     var res = {};
     var err = function() { done(new Error('I should not be called')); };
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        done();
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, err);
   });
 
   it('should delegate to isMember middleware if the collaboration type is "confidential"', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          done();
-        }
-      },
       collaboration: { type: 'confidential' },
       user: {_id: 'user1'}
     };
     var res = {};
     var err = function() { done(new Error('I should not be called')); };
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        done();
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, err);
   });
 });
@@ -186,18 +192,8 @@ describe('canRead() method', function() {
 describe('requiresCollaborationMember fn', function() {
   var collaborationMW;
 
-  beforeEach(function() {
-    mockery.registerMock('../../core/collaboration', {});
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
-  });
-
   it('should send back 500 when service check fails', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          return callback(new Error());
-        }
-      },
       collaboration: {},
       user: {}
     };
@@ -207,16 +203,18 @@ describe('requiresCollaborationMember fn', function() {
         done();
       }
     };
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        return callback(new Error());
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
     collaborationMW(req, res);
   });
 
   it('should send back 403 when user is not a collaboration member', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          return callback(null, false);
-        }
-      },
       collaboration: {},
       user: {}
     };
@@ -226,16 +224,18 @@ describe('requiresCollaborationMember fn', function() {
         done();
       }
     };
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        return callback(null, false);
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
     collaborationMW(req, res);
   });
 
   it('should call next if user is a collaboration member', function(done) {
     var req = {
-      lib: {
-        isMember: function(com, user, callback) {
-          return callback(null, true);
-        }
-      },
       collaboration: {},
       user: {}
     };
@@ -244,6 +244,13 @@ describe('requiresCollaborationMember fn', function() {
         done(new Error());
       }
     };
+
+    mockery.registerMock('../../core/collaboration', {
+      isMember: function(com, user, callback) {
+        return callback(null, true);
+      }
+    });
+    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
     collaborationMW(req, res, done);
   });
 

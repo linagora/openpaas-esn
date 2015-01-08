@@ -61,10 +61,6 @@ module.exports.searchWhereMember = function(req, res) {
 };
 
 function getMembers(req, res) {
-  if (!req.lib) {
-    return res.json(500, {error: {code: 500, message: 'Server error', details: 'Could not get the collaboration lib'}});
-  }
-
   if (!req.collaboration) {
     return res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
   }
@@ -84,7 +80,7 @@ function getMembers(req, res) {
     }
   }
 
-  req.lib.getMembers(req.collaboration, query, function(err, members) {
+  collaborationModule.getMembers(req.collaboration, req.params.objectType, query, function(err, members) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }

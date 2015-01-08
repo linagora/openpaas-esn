@@ -200,7 +200,13 @@ exports = module.exports = function(application) {
   application.get('/api/communities/:id/invitablepeople', authorize.requiresAPILogin, communities.load, communities.getInvitablePeople);
 
   var collaborations = require('./controllers/collaborations');
+  var collaborationMW = require('./middleware/collaboration');
   application.get('/api/collaborations/membersearch', authorize.requiresAPILogin, collaborations.searchWhereMember);
+  application.get('/api/collaborations/:objectType/:id/members',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.canRead,
+    collaborations.getMembers);
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);
@@ -211,14 +217,4 @@ exports = module.exports = function(application) {
 
   var calendars = require('./controllers/calendars');
   application.post('/api/calendars/:id/events', authorize.requiresAPILogin, communities.load, communityMiddleware.requiresCommunityMember, calendars.createEvent);
-
-  var collaborations = require('./controllers/collaborations');
-  var collaborationMW = require('./middleware/collaboration');
-  application.get('/api/collaboration/:objectType/:id/members',
-    authorize.requiresAPILogin,
-    collaborationMW.loadLib,
-    collaborationMW.load,
-    collaborationMW.canRead,
-    collaborations.getMembers
-  );
 };

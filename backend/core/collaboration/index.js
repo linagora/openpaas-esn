@@ -41,22 +41,22 @@ function isMember(collaboration, tuple, callback) {
   return callback(null, isInMembersArray);
 }
 
-function getMembers(collaboration, query, callback) {
+function getMembers(collaboration, objectType, query, callback) {
   query = query ||  {};
 
   var id = collaboration._id || collaboration;
 
-  var Model = getModel(collaboration.objectType);
+  var Model = getModel(objectType);
   if (!Model) {
     return callback(new Error('Collaboration model ' + collaboration.objectType + ' is unknown'));
   }
 
-  Model.findById(id, function(err, community) {
+  Model.findById(id, function(err, collaboration) {
     if (err) {
       return callback(err);
     }
 
-    var members = community.members.slice().splice(query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT);
+    var members = collaboration.members.slice().splice(query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT);
     var memberIds = members.map(function(member) { return member.member.id; });
 
     User.find({_id: {$in: memberIds}}, function(err, users) {
