@@ -123,18 +123,6 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
     };
   }])
   .factory('fileAPIService', ['$upload', 'Restangular', function($upload, Restangular) {
-    function upload(url, blob, mime, size, canceler) {
-      return $upload.http({
-        method: 'POST',
-        url: url,
-        headers: {'Content-Type': mime},
-        data: blob,
-        params: {mimetype: mime, size: size, name: name},
-        withCredentials: true,
-        timeout: canceler
-      });
-    }
-
     function uploadFile(url, file, mime, size, options, canceler) {
       var params = {mimetype: mime, size: size, name: file.name};
       if (options) {
@@ -155,7 +143,6 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
     }
 
     return {
-      upload: upload,
       uploadFile: uploadFile,
       remove: remove
     };
