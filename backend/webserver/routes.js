@@ -199,6 +199,9 @@ exports = module.exports = function(application) {
   );
   application.get('/api/communities/:id/invitablepeople', authorize.requiresAPILogin, communities.load, communities.getInvitablePeople);
 
+  var collaborations = require('./controllers/collaborations');
+  application.get('/api/collaborations/membersearch', authorize.requiresAPILogin, collaborations.searchWhereMember);
+
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);
 

@@ -166,6 +166,42 @@ function findCollaborationFromActivityStreamID(id, callback) {
   });
 }
 
+function getCollaborationsForTuple(tuple, callback) {
+
+  if (!tuple) {
+    return callback(new Error('Tuple is required'));
+  }
+
+  var finders = [];
+
+  function finder(type, callback) {
+
+    query(type, {
+      members: {$elemMatch: { 'member.objectType': tuple.objectType, 'member.id': tuple.id}}
+    }, function(err, result) {
+      if (err || !result) {
+        return callback();
+      }
+      return callback(null, result);
+    });
+  }
+
+  for (var key in collaborationModels) {
+    finders.push(async.apply(finder, key));
+  }
+
+  async.parallel(finders, function(err, results) {
+    if (err) {
+      return callback(err);
+    }
+
+    results = results.reduce(function(a, b) {
+      return a.concat(b);
+    });
+    return callback(null, results);
+  });
+}
+
 function getStreamsForUser(userId, options, callback) {
   var finders = [];
   var results = [];
@@ -213,6 +249,7 @@ module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
+module.exports.getCollaborationsForTuple = getCollaborationsForTuple;
 module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
 module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.permission = require('./permission');

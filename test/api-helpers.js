@@ -274,6 +274,32 @@ module.exports = function(mixin, testEnv) {
     });
   };
 
+  api.addMembersInCommunity = function(community, tuples, done) {
+    var Community = require('mongoose').model('Community');
+    var async = require('async');
+    async.each(tuples, function(tuple, callback) {
+      Community.update({
+        _id: community._id || community
+      }, {
+        $push: {
+          members: {
+            member: {
+              id: tuple.id,
+              objectType: tuple.objectType,
+              status: 'joined'
+            }
+          }
+        }
+      }, callback);
+    }, function(err) {
+      if (err) { return done(err); }
+      Community.findOne({_id: community._id || community}, function(err, result) {
+        if (err) { return done(err); }
+        return done(null, result);
+      });
+    });
+  };
+
   api.createConference = function(creator, attendees, done) {
     var Conference = require('mongoose').model('Conference');
     var json = {
