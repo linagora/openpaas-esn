@@ -5,7 +5,7 @@
       span.btn.btn-info.btn-file
         i.fa.fa-upload
         | #{__('Select an image')}
-        input(type="file", load-button)
+        input(type="file", accept="image/*", load-button)
     .btn-group
       button.btn.btn-info.btn-file(data-ng-disabled='!image.selected || image.validated', data-ng-click='image.validated = true')
         i.fa.fa-check
