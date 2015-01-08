@@ -2,6 +2,15 @@
 
 var collaborationModule = require('./index');
 
+var READABLES = ['open', 'restricted'];
+
+module.exports.isPubliclyReadable = function(collaboration) {
+  if (!collaboration || !collaboration.type) {
+    return false;
+  }
+  return READABLES.indexOf(collaboration.type) !== -1;
+};
+
 module.exports.canWrite = function(collaboration, tuple, callback) {
   if (!collaboration || !collaboration.type) {
     return callback(new Error('collaboration object is required'));

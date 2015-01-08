@@ -136,3 +136,74 @@ module.exports.linagora_test_domain2 = function() {
   };
 
 };
+
+module.exports.collaborationMembers = function() {
+
+  return {
+    domain: {
+      name: 'IT',
+      company_name: 'Linagora'
+    },
+    users: [
+      {
+        password: 'secret',
+        firstname: 'Domain ',
+        lastname: 'Administrator',
+        emails: ['itadmin@lng.net']
+      },
+      {
+        password: 'secret',
+        firstname: 'John',
+        lastname: 'Doe',
+        emails: ['jdoe@lng.net']
+      },
+      {
+        password: 'secret',
+        firstname: 'Yo',
+        lastname: 'Lo',
+        emails: ['yolo@lng.net']
+      },
+      {
+        password: 'secret',
+        firstname: 'Jimmy',
+        lastname: 'Hendrix',
+        emails: ['jhendrix@lng.net']
+      },
+      {
+        password: 'secret',
+        firstname: 'Not',
+        lastname: 'Member',
+        emails: ['notmember@lng.net']
+      }
+    ],
+    communities: [
+      {
+        title: 'OpenPaaS open',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'yolo@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS private',
+        type: 'private',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'yolo@lng.net'}]
+      },
+      {
+        title: 'OpenPaaS restricted',
+        type: 'restricted',
+        creator: 'itadmin@lng.net',
+        members: [{objectType: 'user', id: 'yolo@lng.net'}, {objectType: 'user', id: 'jhendrix@lng.net'}]
+      },
+      {
+        title: 'No members',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: []
+      }
+    ],
+    projects: [
+    ]
+  };
+
+};
