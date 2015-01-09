@@ -21,9 +21,9 @@ var addStreamWritableFinder = function(finder) {
   }
 };
 module.exports.addStreamWritableFinder = addStreamWritableFinder;
-addStreamWritableFinder(communityMiddleware.filterWritableTargets);
+addStreamWritableFinder(communityMiddleware.requiresWritableTargets);
 
-module.exports.filterWritableTargets = writableFinder;
+module.exports.requiresWritableTargets = writableFinder;
 
 module.exports.isValidStream = function(req, res, next) {
   var objectType = req.query.objectType ||  req.query.objectType;
