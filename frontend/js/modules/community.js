@@ -998,13 +998,13 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           return $element.find('[error-container]');
         };
         $scope.getRunningDiv = function() {
-          return $element.children('.form-container').children('form').children('fieldset').find('[running-container]');
+          return $element.children('.form-container').children('form').find('[running-container]');
         };
         $scope.getButtonContent = function() {
-          return $element.children('.form-container').children('form').children('fieldset').find('[button-content]');
+          return $element.children('.form-container').children('form').find('[button-content]');
         };
         $scope.getSuccessDiv = function() {
-          return $element.children('.form-container').children('form').children('fieldset').find('[success-container]');
+          return $element.children('.form-container').children('form').find('[success-container]');
         };
 
         $scope.showErrorMessage = function() {
