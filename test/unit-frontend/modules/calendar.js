@@ -12,10 +12,12 @@ describe('The Calendar Angular module', function() {
     beforeEach(function() {
       var self = this;
       this.tokenAPI = {
+        _token: '123',
         getNewToken: function() {
+          var token = this._token;
           return {
             then: function(callback) {
-              self.tokenAPI.callback = callback;
+              callback({ data: { token: token } });
             }
           };
         }
@@ -81,7 +83,6 @@ describe('The Calendar Angular module', function() {
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
     });
@@ -117,7 +118,6 @@ describe('The Calendar Angular module', function() {
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
     });
@@ -172,7 +172,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
 
@@ -196,7 +195,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
 
@@ -221,7 +219,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
     });
@@ -255,7 +252,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
 
@@ -272,7 +268,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
 
@@ -290,7 +285,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
 
@@ -309,7 +303,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
     });
@@ -349,7 +342,6 @@ describe('The Calendar Angular module', function() {
         );
 
         this.$rootScope.$apply();
-        this.tokenAPI.callback({ data: { token: '123' } });
         this.$httpBackend.flush();
       });
 
