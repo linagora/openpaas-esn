@@ -61,6 +61,19 @@ module.exports = function(grunt) {
         src: ['<%= jshint.quick.src %>']
       }
     },
+    lint_pattern: {
+      options: {
+        rules: [
+          { pattern: /(describe|it)\.only/, message: 'Must not use .only in tests' }
+        ]
+      },
+      all: {
+        src: ['<%= jshint.all.src %>']
+      },
+      quick: {
+        src: ['<%= jshint.quick.src %>']
+      }
+    },
     shell: {
       redis: {
         command: servers.redis.cmd + ' --port ' +
@@ -421,6 +434,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
   grunt.loadNpmTasks('grunt-node-inspector');
+  grunt.loadNpmTasks('grunt-lint-pattern');
 
   grunt.loadTasks('tasks');
 
@@ -694,14 +708,14 @@ module.exports = function(grunt) {
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend_split', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all']);
+  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
 
   /**
    * Usage:
    *   grunt linters-dev              # Run linters against files changed in git
    *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
    */
-  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick']);
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'jshint:quick', 'gjslint:quick', 'lint_pattern:quick']);
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
