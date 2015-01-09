@@ -16,63 +16,24 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('ensureUniqueApplicationTitle', ['$timeout', 'appstoreAPI', function($timeout, appstoreAPI) {
+  .directive('ensureUniqueApplicationTitle', ['$timeout', '$q', 'appstoreAPI', function($timeout, $q, appstoreAPI) {
     return {
       restrict: 'A',
       require: 'ngModel',
-      link: function(scope, elem , attrs, control) {
-        var lastValue = null;
-        var timer = null;
-
-        var checkNameValidity = function() {
-          control.$setValidity('ajax', false);
-          (function(title) {
-            appstoreAPI.list({title: title}).then(
-              function(response) {
-                if (lastValue !== title) {
-                  return;
-                }
-
-                if (response.data.length !== 0) {
-                  control.$setValidity('ajax', true);
-                  control.$setValidity('unique', false);
-                }
-                else {
-                  control.$setValidity('ajax', true);
-                  control.$setValidity('unique', true);
-                }
-              },
-              function() {
-                if (lastValue !== title) {
-                  return;
-                }
-                control.$setValidity('ajax', true);
-                control.$setValidity('unique', true);
+      link: function(scope, elem , attrs, ngModel) {
+        ngModel.$asyncValidators.unique = function(title) {
+          return appstoreAPI.list({title: title}).then(
+            function(response) {
+              if (response.data.length === 0) {
+                return $q.when(true);
               }
-            );
-          })(lastValue);
+              return $q.reject(new Error('Title already taken'));
+            },
+            function(err) {
+              return $q.reject(err);
+            }
+          );
         };
-
-        control.$viewChangeListeners.push(function() {
-          var applicationTitle = control.$viewValue;
-          if (applicationTitle === lastValue) {
-            return;
-          }
-          lastValue = applicationTitle;
-
-          control.$setValidity('unique', true);
-          if (timer) {
-            $timeout.cancel(timer);
-          }
-
-          if (applicationTitle.length === 0) {
-            control.$setValidity('ajax', true);
-            return;
-          }
-
-          control.$setValidity('ajax', false);
-          timer = $timeout(checkNameValidity, 1000);
-        });
       }
     };
   }])
