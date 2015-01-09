@@ -449,45 +449,45 @@ describe('The esn.websocket Angular module', function() {
       describe('message style IoAction', function() {
         it('should propagate namespace and broadcast properties to socketIO', function() {
           var ns = null, broadcast = false;
-          var sioMock = {
-            of: function(namespace) {
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
               ns = namespace;
-              var r = {
-                broadcast: {
-                  emit: function(evt, data) {
-                    broadcast = true;
-                  }
-                }
-              };
-              return r;
+              return sioMock;
+            }
+          };
+          var sioMock = {
+            broadcast: {
+              emit: function(evt, data) {
+                broadcast = true;
+              }
             }
           };
 
           var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
           ioa.emit('one', 'two');
-          ioa.applyToSocketIO(sioMock);
+          ioa.applyToSocketIO(ioSocketConnectionMock);
           expect(ns).to.equal('ns1');
           expect(broadcast).to.be.true;
         });
         it('should call socketIO emit method', function() {
           var event = null, data = false;
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
+            }
+          };
           var sioMock = {
-            of: function(namespace) {
-              var r = {
-                broadcast: {
-                  emit: function(e, d) {
-                    event = e;
-                    data = d;
-                  }
-                }
-              };
-              return r;
+            broadcast: {
+              emit: function(e, d) {
+                event = e;
+                data = d;
+              }
             }
           };
 
           var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
           ioa.emit('one', 'two');
-          ioa.applyToSocketIO(sioMock);
+          ioa.applyToSocketIO(ioSocketConnectionMock);
           expect(event).to.equal('one');
           expect(data).to.equal('two');
         });
@@ -495,45 +495,45 @@ describe('The esn.websocket Angular module', function() {
       describe('subscription style IoAction', function() {
         it('should propagate namespace and broadcast properties to socketIO', function() {
           var ns = null, broadcast = false;
-          var sioMock = {
-            of: function(namespace) {
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
               ns = namespace;
-              var r = {
-                broadcast: {
-                  on: function(evt, data) {
-                    broadcast = true;
-                  }
-                }
-              };
-              return r;
+              return sioMock;
+            }
+          };
+          var sioMock = {
+            broadcast: {
+              on: function(evt, data) {
+                broadcast = true;
+              }
             }
           };
 
           var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
           ioa.on('one', 'two');
-          ioa.applyToSocketIO(sioMock);
+          ioa.applyToSocketIO(ioSocketConnectionMock);
           expect(ns).to.equal('ns1');
           expect(broadcast).to.be.true;
         });
         it('should call socketIO on method', function() {
           var event = null, data = false;
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
+            }
+          };
           var sioMock = {
-            of: function(namespace) {
-              var r = {
-                broadcast: {
-                  on: function(e, d) {
-                    event = e;
-                    data = d;
-                  }
-                }
-              };
-              return r;
+            broadcast: {
+              on: function(e, d) {
+                event = e;
+                data = d;
+              }
             }
           };
 
           var ioa = new this.IoAction({namespace: 'ns1', broadcast: true});
           ioa.on('one', 'two');
-          ioa.applyToSocketIO(sioMock);
+          ioa.applyToSocketIO(ioSocketConnectionMock);
           expect(event).to.equal('one');
           expect(data).to.equal('two');
         });
@@ -541,6 +541,11 @@ describe('The esn.websocket Angular module', function() {
       describe('unsubscription style IoAction', function() {
         it('should call SocketIO removeListener with the ioOfflineBuffer buffered action', function() {
           var event, data;
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
+            }
+          };
           var sioMock = {
             removeListener: function(e, d) {
               event = e;
@@ -556,7 +561,7 @@ describe('The esn.websocket Angular module', function() {
           };
           var ioa = new this.IoAction();
           ioa.removeListener('one', 'two');
-          ioa.applyToSocketIO(sioMock, ioOfflineBufferMock);
+          ioa.applyToSocketIO(ioSocketConnectionMock, ioOfflineBufferMock);
           expect(event).to.equal('buffer1');
           expect(data).to.equal('buffer2');
         });
@@ -1015,10 +1020,8 @@ describe('The esn.websocket Angular module', function() {
       this.io = function() {
         return self.ioMock;
       };
-      this.ioMock = {
-        connect: function() {},
-        disconnect: function() {}
-      };
+      this.ioMock = function() {};
+      this.ioMock.managers = {};
 
       this.sessionMock = {
         user: {
@@ -1058,7 +1061,7 @@ describe('The esn.websocket Angular module', function() {
     });
     describe('tokenAPI.getNewToken() callback', function() {
       it('should call socketIO connect method, with token in arguments', function(done) {
-        this.ioMock.connect = function(ns, options) {
+        this.ioMock = function(ns, options) {
           expect(options.query).to.contain('token=token1');
           expect(options.query).to.contain('user=user1');
           done();
@@ -1067,7 +1070,7 @@ describe('The esn.websocket Angular module', function() {
         this.tokenAPI.callback({data: {token: 'token1'}});
       });
       it('should set socketIO connect method response in ioSocketConnection', function(done) {
-        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.ioMock = function(ns, options) { return {io: true}; };
         this.icm.connect();
         this.isc.setSio = function(sio) {
           expect(sio).to.deep.equal({io: true});
@@ -1078,7 +1081,8 @@ describe('The esn.websocket Angular module', function() {
     });
     describe('disconnect callback', function() {
       it('should try to reconnect', function(done) {
-        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.ioMock = function(ns, options) { return {io: true}; };
+        this.ioMock.managers = {};
         this.icm.connect();
         this.tokenAPI.callback({data: {token: 'token1'}});
         this.isc.isConnected = function() { return false; };
@@ -1092,7 +1096,7 @@ describe('The esn.websocket Angular module', function() {
     describe('connect callback', function() {
       it('should call ioOfflineBuffer.flushBuffer()', function(done) {
         this.ioOfflineBuffer.flushBuffer = done;
-        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.ioMock = function(ns, options) { return {io: true}; };
         this.icm.connect();
         this.tokenAPI.callback({data: {token: 'token1'}});
         this.isc.callbacks.connect();
@@ -1108,7 +1112,7 @@ describe('The esn.websocket Angular module', function() {
         a2.id = 'action2';
         this.ioOfflineBuffer.push(a1);
         this.ioOfflineBuffer.push(a2);
-        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.ioMock = function(ns, options) { return {io: true}; };
         this.icm.connect();
         this.tokenAPI.callback({data: {token: 'token1'}});
         this.isc.callbacks.connect();
@@ -1127,7 +1131,7 @@ describe('The esn.websocket Angular module', function() {
         a2.id = 'action2';
         this.ioOfflineBuffer.handleSubscription(a1);
         this.ioOfflineBuffer.handleSubscription(a2);
-        this.ioMock.connect = function(ns, options) { return {io: true}; };
+        this.ioMock = function(ns, options) { return {io: true}; };
         this.icm.connect();
         this.tokenAPI.callback({data: {token: 'token1'}});
         this.isc.callbacks.connect();
