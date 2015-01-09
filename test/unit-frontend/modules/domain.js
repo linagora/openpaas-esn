@@ -130,42 +130,52 @@ describe('The Domain Angular module', function() {
     });
   });
 
-  describe('inviteMembers controller', function() {
-    beforeEach(inject(function($rootScope, $controller) {
-      this.domainAPI = {};
-      this.domain = {_id: 123456789};
-      this.scope = $rootScope.$new();
-      this.scope.emails = [{email: 'foo@baz.com'}, {email: 'bar@baz.com'}];
 
-      $controller('inviteMembers', {
-        $scope: this.scope,
-        domainAPI: this.domainAPI,
-        domain: this.domain
+  describe('inviteMembersInput directive', function() {
+
+    describe('submit button', function() {
+
+      beforeEach(module('jadeTemplates'));
+
+      beforeEach(angular.mock.inject(function($rootScope, $compile, domainAPI) {
+        this.scope = $rootScope.$new();
+        this.scope.domain = {_id: 123456789};
+        this.domainAPI = domainAPI;
+        this.$compile = $compile;
+        this.html = '<invite-members-input domain="domain"/>';
+      }));
+
+      it('should call the domainAPI inviteMember when invite is called', function(done) {
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        iscope.emails = [{email: 'foo@baz.com'}, {email: 'bar@baz.com'}];
+        this.domainAPI.inviteUsers = function() {
+          done();
+        };
+        iscope.invite();
       });
-    }));
 
-    it('should call the domainAPI inviteMember when invite is called', function(done) {
-      this.domainAPI.inviteUsers = function() {
-        done();
-      };
-      this.scope.invite();
-    });
+      it('should call the domainAPI inviteMember with domain id and array of emails', function(done) {
+        var inputEmails = [{email: 'foo@baz.com'}, {email: 'bar@baz.com'}];
 
-    it('should call the domainAPI inviteMember with domain id and array of emails', function(done) {
-      this.scope.emails = [{email: 'foo@baz.com'}, {email: 'bar@baz.com'}];
+        var self = this;
+        this.domainAPI.inviteUsers = function(id, emails) {
+          expect(id).exist;
+          expect(emails).exist;
+          expect(id).is.equal(self.scope.domain._id);
+          expect(emails.length).is.equal(2);
+          expect(emails[0]).is.equal(inputEmails[0].email);
+          expect(emails[1]).is.equal(inputEmails[1].email);
+          done();
+        };
 
-      var self = this;
-      this.domainAPI.inviteUsers = function(id, emails) {
-        expect(id).exist;
-        expect(emails).exist;
-        expect(id).is.equal(self.domain._id);
-        expect(emails.length).is.equal(2);
-        expect(emails[0]).is.equal(self.scope.emails[0].email);
-        expect(emails[1]).is.equal(self.scope.emails[1].email);
-
-        done();
-      };
-      this.scope.invite();
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        iscope.emails = inputEmails;
+        iscope.invite();
+      });
     });
   });
 });

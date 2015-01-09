@@ -50,6 +50,7 @@ module.exports = function(config) {
       'frontend/views/modules/profile/**/*.jade',
       'frontend/views/modules/user-notification/**/*.jade',
       'frontend/views/modules/maps/**/*.jade',
+      'frontend/views/modules/domain/**/*.jade',
 
       // fixtures
       'test/unit-frontend/fixtures/**'
