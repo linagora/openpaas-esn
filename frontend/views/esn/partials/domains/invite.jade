@@ -1,25 +1,9 @@
 .col-xs-12.esn-panel
-  h3 #{__('Invite people to join OpenPaas')}
+  h3 #{__('Invite people of your organization')}
+  invite-members-input(domain='domain', validate-email='validateEmailForInternalUser')
 
-  div(ng-show='error')
-    p {{error}}
+.col-xs-12.vertiz-space
 
-  div.form-container(ng-show='step===0')
-    form(name='form')
-      fieldset
-        .form-group
-          tags-input(ng-disabled='running', ng-model='emails', display-property='{{displayProperty}}', placeholder='{{placeholder}}', allowed-tags-pattern='{{pattern}}', min-tags='1', add-on-enter='true', add-on-space='true', add-on-comma='true')
-        .form-group
-          button.btn.btn-primary.pull-right(type='submit', ng-click='invite()', ng-disabled='running')
-            i.fa.fa-sign-in(ng-hide="running") &nbsp;
-              | #{__('Send invitations')}
-            span(ng-hide="!running")
-              i.fa.fa-spinner.fa-spin &nbsp;
-              | #{__('Please wait...')}
-
-
-  div.form-container(ng-show='step===1')
-    .alert.alert-success.animated
-      | #{__('Invitations have been sent. You will be notified when new users join the platform')}.
-    .text-right
-      button.btn.btn-primary(ng-click='step=0') #{__('Send new invitations')}
+.col-xs-12.esn-panel
+  h3 #{__('Invite external people')}
+  invite-members-input(domain='domain', validate-email='validateEmailForExternalUser')
