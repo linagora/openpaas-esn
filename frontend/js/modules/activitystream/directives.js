@@ -48,7 +48,6 @@ angular.module('esn.activitystream')
       link: function(scope) {
         scope.streams = scope.streams || [];
         scope.streams = scope.streams.concat(scope.activitystreamUuid);
-        var initialized = false;
 
         scope.lastPost = {
           messageId: null,
@@ -124,6 +123,7 @@ angular.module('esn.activitystream')
         // let sub-directives load and register event listeners
         // before we start fetching the stream
         $timeout(function() {
+          scope.reset();
           scope.loadMoreElements();
           scope.streams.forEach(function(activitystreamUuid) {
             $rootScope.$emit('activitystream:updated', {
@@ -134,15 +134,6 @@ angular.module('esn.activitystream')
 
         var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
         var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
-
-        scope.$watch('activitystreamUuid', function() {
-          if (initialized) {
-            return;
-          }
-          scope.reset();
-          scope.loadMoreElements();
-          initialized = true;
-        });
 
         scope.$on('$destroy', function() {
           unregMsgPostedListener();

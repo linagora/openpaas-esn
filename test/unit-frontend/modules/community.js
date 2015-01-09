@@ -1092,7 +1092,7 @@ describe('The Community Angular module', function() {
       this.scope = $rootScope.$new();
       this.location = {};
       this.log = {error: function() {}, debug: function() {}};
-      this.community = {_id: 'community1'};
+      this.community = {_id: 'community1', memberOf: []};
       this.communityAPI = {};
       this.communityService = {};
       this.session = {domain: {_id: 'domain1'}, user: {_id: 'user1'}};
