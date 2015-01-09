@@ -56,7 +56,7 @@ describe('The Calendar Angular module', function() {
           match: { start: '20140101T000000', end: '20140102T000000' },
           scope: { calendars: ['/path/to/calendar'] }
         };
-        this.$httpBackend.expectPOST('//json/queries/time-range', data).respond([
+        this.$httpBackend.expectPOST('/json/queries/time-range', data).respond([
           ['vcalendar', [], [
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
@@ -93,7 +93,7 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
 
         // The caldav server will be hit
-        this.$httpBackend.expectGET('//path/to/event.ics').respond(
+        this.$httpBackend.expectGET('/path/to/event.ics').respond(
           ['vcalendar', [], [
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
@@ -106,7 +106,7 @@ describe('The Calendar Angular module', function() {
           { 'ETag': 'testing-tag' }
         );
 
-        this.calendarService.getEvent('path/to/event.ics').then(function(event) {
+        this.calendarService.getEvent('/path/to/event.ics').then(function(event) {
             expect(event).to.be.an('object');
             expect(event.id).to.equal('myuid');
             expect(event.title).to.equal('title');
@@ -157,7 +157,7 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
 
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('//path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(500, '');
+        this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(500, '');
 
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
@@ -185,7 +185,7 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
 
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('//path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, '');
+        this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, '');
 
         this.calendarService.create('/path/to/calendar', vcalendar).then(
           unexpected.bind(null, done), function(response) {
@@ -208,7 +208,7 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
 
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('//path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
+        this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
 
         this.calendarService.create('/path/to/calendar', vcalendar).then(
           function(response) {
@@ -242,7 +242,7 @@ describe('The Calendar Angular module', function() {
       });
 
       it('should fail if status is 201', function(done) {
-        this.$httpBackend.expectPUT('//path/to/uid.ics').respond(201, this.vcalendar.toJSON());
+        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(201, this.vcalendar.toJSON());
 
         this.calendarService.modify('/path/to/uid.ics', this.vcalendar).then(
           unexpected.bind(null, done), function(response) {
@@ -256,7 +256,7 @@ describe('The Calendar Angular module', function() {
       });
 
       it('should succeed on 200', function(done) {
-        this.$httpBackend.expectPUT('//path/to/uid.ics').respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
 
         this.calendarService.modify('/path/to/uid.ics', this.vcalendar).then(
           function(shell) {
@@ -273,8 +273,8 @@ describe('The Calendar Angular module', function() {
 
       it('should succeed on 204', function(done) {
         var headers = { 'ETag': 'changed-etag' };
-        this.$httpBackend.expectPUT('//path/to/uid.ics').respond(204, '');
-        this.$httpBackend.expectGET('///path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(204, '');
+        this.$httpBackend.expectGET('/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
 
         this.calendarService.modify('/path/to/uid.ics', this.vcalendar).then(
           function(shell) {
@@ -296,7 +296,7 @@ describe('The Calendar Angular module', function() {
           'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
-        this.$httpBackend.expectPUT('//path/to/uid.ics', this.vcalendar.toJSON(), requestHeaders).respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+        this.$httpBackend.expectPUT('/path/to/uid.ics', this.vcalendar.toJSON(), requestHeaders).respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
 
         this.calendarService.modify('/path/to/uid.ics', this.vcalendar, 'etag').then(
           function(shell) { done(); }, unexpected.bind(null, done)
@@ -335,7 +335,7 @@ describe('The Calendar Angular module', function() {
         var att = vevent.getFirstProperty('attendee');
         att.setParameter('partstat', 'ACCEPTED');
 
-        this.$httpBackend.expectPUT('//path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
+        this.$httpBackend.expectPUT('/path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
 
         this.calendarService.changeParticipation('/path/to/uid.ics', this.vcalendar, emails, 'ACCEPTED').then(
           function(response) { done(); }, unexpected.bind(null, done)

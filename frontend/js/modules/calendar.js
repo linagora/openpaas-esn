@@ -60,7 +60,7 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
         headers.ESNToken = token;
 
         var config = {
-          url: url + '/' + path,
+          url: url.replace(/\/$/, '') + path,
           method: method,
           headers: headers
         };
@@ -126,9 +126,9 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
 
     function getEvent(path) {
       var headers = { Accept: 'application/calendar+json' };
-      return request('get', '/' + path, headers).then(function(response) {
+      return request('get', path, headers).then(function(response) {
         var vcalendar = new ICAL.Component(response.data);
-        return new CalendarShell(vcalendar, '/' + path, response.headers('ETag'));
+        return new CalendarShell(vcalendar, path, response.headers('ETag'));
       });
     }
 
@@ -161,10 +161,11 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
         return $q.reject(new Error('Missing UID in VEVENT'));
       }
 
+      var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
       var headers = { 'Content-Type': 'application/json+calendar' };
       var body = vcalendar.toJSON();
 
-      return request('put', calendarPath + '/' + uid + '.ics', headers, body).then(function(response) {
+      return request('put', eventPath, headers, body).then(function(response) {
         if (response.status !== 201) {
           return $q.reject(response);
         }
