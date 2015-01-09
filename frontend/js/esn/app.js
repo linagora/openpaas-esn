@@ -178,19 +178,16 @@ angular.module('esnApp', [
       resolve: {
         community: function(communityAPI, collaborationAPI, $q, $route, $location) {
 
-          var deferred = $q.defer();
-
           var community = communityAPI.get($route.current.params.community_id);
           var memberOf = collaborationAPI.getWhereMember({objectType: 'community', id: $route.current.params.community_id});
 
-          $q.all({community: community, memberOf: memberOf}).then(function(response) {
+          return $q.all({community: community, memberOf: memberOf}).then(function(response) {
             var result = response.community.data;
             result.memberOf = response.memberOf.data;
-            return deferred.resolve(result);
+            return result;
           }, function() {
             $location.path('/communities');
           });
-          return deferred.promise;
         }
       }
     });
