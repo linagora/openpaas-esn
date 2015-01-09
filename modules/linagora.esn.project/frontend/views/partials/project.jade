@@ -5,6 +5,8 @@
     .col-lg-9.col-md-9.col-sm-9.col-xs-12.esn-component-container
       activity-stream(activitystream-uuid='project.activity_stream.uuid', streams='streams', writable='writable')
     .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane
+      .esn-panel
+        collaboration-members-widget(collaboration='project', object-type='project', in-slices-of='4')
       .esn-panel(ng-if='isProjectManager()')
         project-add-communities-widget(project="project")
 .col-xs-12.esn-panel(ng-if='!canRead()')
