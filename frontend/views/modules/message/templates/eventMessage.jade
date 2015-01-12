@@ -9,29 +9,29 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
         small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
     div.loading.text-center
       div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner', spinner-size='0.3', spinner-start-active)
-      | Loading calendar event data, please wait...
+      | #{__('Loading calendar event data, please wait...')}
 
     div.hidden.message
       div
         p.multilines {{event.description}}
       p
-        div.vertiz-space(style='background-color: #eff0f4')
-          div.text-center(style='color: #428bca')
-            strong(style='font-size: 1.1em') {{event.formattedDate}} from {{event.formattedStartTime}}&nbsp;
+        div.event-details.vertiz-space
+          div.text-center
+            strong.dates {{event.formattedDate}} #{__('from')} {{event.formattedStartTime}}&nbsp;
               sup {{event.formattedStartA}}
-              |&nbsp; to {{event.formattedEndTime}}&nbsp;
+              |&nbsp; #{__('to')} {{event.formattedEndTime}}&nbsp;
               sup {{event.formattedEndA}}
             div.vertiz-space(style='color: #666' ng-show='event.location')
-              u Location :
+              u #{__('Location:')}
               | &nbsp;{{event.location}}
-            div.vertiz-space(style='color: #333')
-              strong Do you want to participate ?
-            div.vertiz-space(style='color: #428bca')
-              strong(style='padding: 0 1em') Yes
-              strong(style='padding: 0 1em') No
-              strong(style='padding: 0 1em') Maybe
+            div.vertiz-space.question
+              strong #{__('Do you want to participate?')}
+            div.vertiz-space.participateStatus
+              button.btn.btn-link.participate(ng-click='changeParticipation("ACCEPTED")', ng-class='{ selected: partstat == "ACCEPTED" }') #{__('Yes')}
+              button.btn.btn-link.participate(ng-click='changeParticipation("DECLINED")', ng-class='{ selected: partstat == "DECLINED" }') #{__('No')}
+              button.btn.btn-link.participate(ng-click='changeParticipation("TENTATIVE")', ng-class='{ selected: partstat == "TENTATIVE" }') #{__('Maybe')}
       include ./includes/messagesBottomLinks
       include ./includes/attachments.jade
       include ./includes/comments.jade
     div.error.hidden
-      h4 Unable to get event details from server... sorry
+      h4 #{__('Unable to get event details from server... sorry')}

@@ -338,27 +338,44 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/templates/emailMessage.html'
     };
   })
-  .directive('eventMessage', ['calendarService', 'moment', function(calendarService, moment) {
+  .directive('eventMessage', ['calendarService', 'session', 'moment', function(calendarService, session, moment) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/templates/eventMessage.html',
-      link: function(scope, element, attrs) {
-        calendarService.getEvent(scope.message.eventId)
-        .then(function(event) {
-          scope.event = event;
+      link: function($scope, element, attrs) {
+        $scope.changeParticipation = function(partstat) {
+          var vcalendar = $scope.event.vcalendar;
+          var path = $scope.event.path;
+          var etag = $scope.event.etag;
+          var emails = session.user.emails;
+
+          calendarService.changeParticipation(path, vcalendar, emails, partstat, etag).then(function(shell) {
+            $scope.partstat = partstat;
+            if (shell) {
+              $scope.event = shell;
+            }
+          });
+        };
+
+        // Initialization
+        calendarService.getEvent($scope.message.eventId).then(function(event) {
+          // Set up dom nodes
+          $scope.event = event;
           element.find('>div>div.loading').addClass('hidden');
           element.find('>div>div.message').removeClass('hidden');
-          var start = moment(scope.event.start);
-          var end = moment(scope.event.end);
-          scope.event.formattedDate = start.format('MMMM D, YYYY');
-          scope.event.formattedStartTime = start.format('h');
-          scope.event.formattedStartA = start.format('a');
-          scope.event.formattedEndTime = end.format('h');
-          scope.event.formattedEndA = end.format('a');
-        }, function(err) {
-          element.find('>div.loading').addClass('hidden');
-          element.find('>div.error').removeClass('hidden');
+
+          // Load participation status
+          var vcalendar = event.vcalendar;
+          var emails = session.user.emails;
+          var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
+          if (attendees.length) {
+            $scope.partstat = attendees[0].getParameter('partstat');
+          }
+        }, function(response) {
+          var error = 'Could not retrieve event: ' + response.statusText;
+          element.find('>div>.loading').addClass('hidden');
+          element.find('>div>.error').text(error).removeClass('hidden');
         });
       }
     };

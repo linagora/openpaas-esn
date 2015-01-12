@@ -225,5 +225,12 @@
   "Time": "Time",
   "This notification is processed": "This notification is processed",
   "does not exist in OpenPaaS": "does not exist in OpenPaaS",
-  "Please check your email inbox to confirm your registration": "Please check your email inbox to confirm your registration"
+  "Please check your email inbox to confirm your registration": "Please check your email inbox to confirm your registration",
+  "Loading calendar event data, please wait...": "Loading calendar event data, please wait…",
+  "Location:": "Location",
+  "Do you want to participate?": "Do you want to participate?",
+  "Yes": "Yes",
+  "No": "No",
+  "Maybe": "Maybe",
+  "Unable to get event details from server... sorry": "Unable to get event details from server… sorry"
 }

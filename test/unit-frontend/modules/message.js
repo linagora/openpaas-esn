@@ -5,9 +5,15 @@
 var expect = chai.expect;
 
 describe('The esn.message Angular module', function() {
-
   beforeEach(function() {
+    var session = this.session = {
+      user: { emails: ['jdoe@lng.net'] }
+    };
+
     angular.mock.module('esn.message');
+    angular.mock.module(function($provide) {
+      $provide.value('session', session);
+    });
   });
 
   describe('messagesAttachment directive', function() {
