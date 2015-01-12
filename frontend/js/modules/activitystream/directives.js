@@ -37,25 +37,30 @@ angular.module('esn.activitystream')
     return {
       restrict: 'E',
       scope: {
-        writable: '=',
         calendarId: '=',
         streams: '=',
-        activitystreamUuid: '='
+        activitystream: '='
       },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
       controller: 'activitystreamController',
       link: function(scope) {
         scope.streams = scope.streams || [];
-        scope.streams = scope.streams.concat(scope.activitystreamUuid);
+        scope.streams = scope.streams.concat(scope.activitystream);
 
         scope.lastPost = {
           messageId: null,
           comment: null
         };
 
+        function isInStreams(id) {
+          return scope.streams.some(function(stream) {
+            return stream.activity_stream.uuid === id;
+          });
+        }
+
         function onMessagePosted(evt, msgMeta) {
-          if (scope.streams.indexOf(msgMeta.activitystreamUuid) === -1) {
+          if (!isInStreams(msgMeta.activitystreamUuid)) {
             return;
           }
           if (scope.restActive[msgMeta.activitystreamUuid] || scope.updateMessagesActive) {
@@ -125,9 +130,9 @@ angular.module('esn.activitystream')
         $timeout(function() {
           scope.reset();
           scope.loadMoreElements();
-          scope.streams.forEach(function(activitystreamUuid) {
+          scope.streams.forEach(function(stream) {
             $rootScope.$emit('activitystream:updated', {
-              activitystreamUuid: activitystreamUuid
+              activitystreamUuid: stream.activity_stream.uuid
             });
           });
         },0);
@@ -141,5 +146,48 @@ angular.module('esn.activitystream')
         });
       }
     };
-  }]
-);
+  }])
+  .directive('activityStreamOrigin', function() {
+    return {
+      scope: {
+        currentstream: '=',
+        message: '=',
+        streams: '='
+      },
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/activitystream/activitystream-origin.html',
+      controller: function($scope) {
+
+        $scope.currentMessageInStreams = function() {
+          if (!$scope.streams || $scope.streams.length === 0 || !$scope.message.shares) {
+            return false;
+          }
+
+          return $scope.message.shares.some(function(share) {
+            return share.objectType === 'activitystream' && $scope.streams.some(function(stream) {
+              return stream.activity_stream.uuid === share.id && stream.activity_stream.uuid !== $scope.currentstream.activity_stream.uuid;
+            });
+          });
+        };
+
+        $scope.getMessageStreamOrigins = function() {
+          return $scope.streams.filter(function(stream) {
+            return $scope.message.shares && $scope.message.shares.some(function(share) {
+              return share.objectType === 'activitystream' && share.id === stream.activity_stream.uuid;
+            });
+          });
+        };
+      }
+    };
+  })
+.directive('activityStreamCard', function() {
+  return {
+    scope: {
+      stream: '='
+    },
+    restrict: 'E',
+    replace: true,
+    templateUrl: '/views/modules/activitystream/activitystream-card.html'
+  };
+});

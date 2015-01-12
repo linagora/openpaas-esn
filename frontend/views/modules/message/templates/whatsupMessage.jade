@@ -6,8 +6,9 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
       h4.media-heading
         i.fa.fa-envelope.message-source-email(ng-show='message.source === "email"', title='sent via email reply')
         a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-        a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}")
+        a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}")
           small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
+      activity-stream-origin(ng-if='parentMessage', currentstream='activitystream', streams='streams', message='message')
       display-position(position='message.position')
       p.multilines
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')

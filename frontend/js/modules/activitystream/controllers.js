@@ -75,7 +75,10 @@ angular.module('esn.activitystream')
         return;
       }
       if (!aggregator) {
-        aggregator = aggregatorService($scope.streams, 25);
+        var ids = $scope.streams.map(function(stream) {
+          return stream.activity_stream.uuid;
+        });
+        aggregator = aggregatorService(ids, 25);
       }
       if (!aggregator.endOfStream) {
         updateMessageList();

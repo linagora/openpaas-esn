@@ -232,5 +232,6 @@
   "Yes": "Yes",
   "No": "No",
   "Maybe": "Maybe",
-  "Unable to get event details from server... sorry": "Unable to get event details from server… sorry"
+  "Unable to get event details from server... sorry": "Unable to get event details from server… sorry",
+  "Source": "Source"
 }

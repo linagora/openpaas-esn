@@ -59,8 +59,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.activitystreamUuid) {
-        $scope.displayError('You can not post to an unknown domain');
+      if (!$scope.activitystream.activity_stream.uuid) {
+        $scope.displayError('You can not post to an unknown activitystream');
         return;
       }
 
@@ -81,7 +81,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       var target = {
         objectType: 'activitystream',
-        id: $scope.activitystreamUuid
+        id: $scope.activitystream.activity_stream.uuid
       };
 
       function send(objectType, data, targets, attachments) {
@@ -98,7 +98,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         messageAPI.post(objectType, data, targets, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.activitystreamUuid,
+              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
               id: response.data._id
             });
             return defer.resolve();
@@ -411,9 +411,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       scope: {
         message: '=',
         writable: '=',
-        activitystreamUuid: '=',
+        activitystream: '=',
         lastPost: '=',
-        parentMessage: '='
+        parentMessage: '=',
+        streams: '='
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
       compile: function(element) {

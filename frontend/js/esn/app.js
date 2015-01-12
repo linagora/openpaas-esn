@@ -178,15 +178,15 @@ angular.module('esnApp', [
       templateUrl: '/views/esn/partials/community',
       controller: 'communityController',
       resolve: {
-        community: function(communityAPI, collaborationAPI, $q, $route, $location) {
-
-          var community = communityAPI.get($route.current.params.community_id);
-          var memberOf = collaborationAPI.getWhereMember({objectType: 'community', id: $route.current.params.community_id});
-
-          return $q.all({community: community, memberOf: memberOf}).then(function(response) {
-            var result = response.community.data;
-            result.memberOf = response.memberOf.data;
-            return result;
+        community: function(communityAPI, $q, $route, $location) {
+          return communityAPI.get($route.current.params.community_id).then(function(response) {
+            return response.data;
+          }, function() {
+            $location.path('/communities');
+          });
+        }, memberOf: function(collaborationAPI, $q, $route, $location) {
+          return collaborationAPI.getWhereMember({objectType: 'community', id: $route.current.params.community_id}).then(function(response) {
+            return response.data;
           }, function() {
             $location.path('/communities');
           });
