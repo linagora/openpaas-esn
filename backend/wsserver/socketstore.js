@@ -1,9 +1,10 @@
 'use strict';
 var logger = require('../core/logger');
-
+var iohelper = require('./helper/socketio');
 var websockets = {};
 
-function registerSocket(socket, userId) {
+function registerSocket(socket) {
+  var userId = iohelper.getUserId(socket);
   if (!userId || !userId.length) {
     var err = new Error('SocketStore: refusing to store a socket without an associated user ID');
     logger.error('SocketStore: refusing to store a socket without an associated user ID');
@@ -12,12 +13,11 @@ function registerSocket(socket, userId) {
   }
   websockets[userId] = websockets[userId] || [];
   websockets[userId].push(socket);
-  socket.userId = userId;
 }
 module.exports.registerSocket = registerSocket;
 
 function unregisterSocket(socket) {
-  var userId = socket.userId;
+  var userId = iohelper.getUserId(socket);
   if (! (userId in websockets)) {
     logger.warn('Weird: try to unregister socket for user ' + userId + ', and this user have no socket');
     return;

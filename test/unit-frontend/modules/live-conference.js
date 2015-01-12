@@ -115,7 +115,7 @@ describe('The live-conference Angular module', function() {
     });
 
     it('$scope.connect should create the easyRTC app when the socketIO connection becomes available', function(done) {
-
+      this.ioSocketConnection.sio = {};
       this.ioSocketConnection.isConnected = function() {
         return false;
       };
@@ -189,6 +189,7 @@ describe('The live-conference Angular module', function() {
 
     it('$scope.connect should create the easyRTC app if the socketIO connection is available', function(done) {
       var self = this;
+      this.ioSocketConnection.sio = {};
       this.ioSocketConnection.isConnected = function() {
         self.ioSocketConnection.addConnectCallback = function(cb) {
           return done(new Error('I should not be called ' + cb));

@@ -38,11 +38,9 @@ describe('The WebSockets server module', function() {
           }
         };
 
-        var ioMock = {
-          listen: function(target) {
-            expect(target.name).to.equal('a new server');
-            done();
-          }
+        var ioMock = function(target) {
+          expect(target.name).to.equal('a new server');
+          done();
         };
 
         var expressMock = function() {
@@ -77,12 +75,10 @@ describe('The WebSockets server module', function() {
           }
         };
 
-        var ioMock = {
-          listen: function(target) {
-            expect(wsserver.server).to.equal(webserverMock.webserver.server);
-            expect(target).to.equal(webserverMock.webserver.server);
-            return done();
-          }
+        var ioMock = function(target) {
+          expect(wsserver.server).to.equal(webserverMock.webserver.server);
+          expect(target).to.equal(webserverMock.webserver.server);
+          return done();
         };
 
         mockery.registerMock('socket.io', ioMock);
@@ -105,12 +101,10 @@ describe('The WebSockets server module', function() {
           }
         };
 
-        var ioMock = {
-          listen: function(target) {
-            expect(wsserver.server).to.equal(webserverMock.webserver.sslserver);
-            expect(target).to.equal(webserverMock.webserver.sslserver);
-            return done();
-          }
+        var ioMock = function(target) {
+          expect(wsserver.server).to.equal(webserverMock.webserver.sslserver);
+          expect(target).to.equal(webserverMock.webserver.sslserver);
+          return done();
         };
 
         mockery.registerMock('socket.io', ioMock);
@@ -123,9 +117,11 @@ describe('The WebSockets server module', function() {
     });
 
     it('should fire the callback when system is started', function(done) {
-      var ioMock = {
-        listen: function(target) {
-        }
+      var ioMock = function() {
+        return {
+          use: function() {},
+          on: function() {}
+        };
       };
 
       mockery.registerMock('./middleware/setup-sessions', function() {});
@@ -142,17 +138,10 @@ describe('The WebSockets server module', function() {
     it('should add user on socket connection', function(done) {
       var events = require('events');
       var eventEmitter = new events.EventEmitter();
+      eventEmitter.use = function() {};
 
-      var ioMock = {
-        listen: function() {
-          return {
-            configure: function() {
-            },
-            set: function() {
-            },
-            sockets: eventEmitter
-          };
-        }
+      var ioMock = function() {
+        return eventEmitter;
       };
 
       mockery.registerMock('./middleware/setup-sessions', function() {});
@@ -163,8 +152,8 @@ describe('The WebSockets server module', function() {
       wsserver.start(function() {
         var socket = {
           id: 'socket1',
-          handshake: {
-            user: '123'
+          request: {
+            userId: '123'
           },
           on: function() {
           }
@@ -182,25 +171,18 @@ describe('The WebSockets server module', function() {
 
     it('should remove user on socket disconnect event', function(done) {
       var events = require('events');
-      var eventEmitter = new events.EventEmitter();
+      var ioEventEmitter = new events.EventEmitter();
       var util = require('util');
 
       function Socket(handshake) {
-        this.handshake = handshake;
+        this.request = handshake;
         events.EventEmitter.call(this);
       }
       util.inherits(Socket, events.EventEmitter);
 
-      var ioMock = {
-        listen: function() {
-          return {
-            configure: function() {
-            },
-            set: function() {
-            },
-            sockets: eventEmitter
-          };
-        }
+      var ioMock = function() {
+        ioEventEmitter.use = function() {};
+        return ioEventEmitter;
       };
 
       mockery.registerMock('./middleware/setup-sessions', function() {});
@@ -209,9 +191,9 @@ describe('The WebSockets server module', function() {
       var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
       var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
       wsserver.start(function() {
-        var socket = new Socket({user: '123'});
+        var socket = new Socket({userId: '123'});
         socket.id = 'socket1';
-        eventEmitter.emit('connection', socket);
+        ioEventEmitter.emit('connection', socket);
 
         process.nextTick(function() {
           socket.emit('disconnect');
@@ -227,7 +209,7 @@ describe('The WebSockets server module', function() {
   describe('AwesomeWsServer', function() {
     it('should provide a start state', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
-      mockery.registerMock('socket.io', {});
+      mockery.registerMock('socket.io', function() {});
       var module = require(this.testEnv.basePath + '/backend/wsserver').awesomeWsServer;
       expect(module.settings.states.start).to.exist;
       expect(module.settings.states.start).to.be.a('function');

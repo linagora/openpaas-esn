@@ -1,22 +1,26 @@
 'use strict';
 
 var authtoken = require('../../core/auth/token');
+var helper = require('../helper/socketio');
 
-module.exports = function(handshakeData, callback) {
-  if (!handshakeData || !handshakeData.query || !handshakeData.query.token || !handshakeData.query.user) {
+module.exports = function(socket, callback) {
+  var infos = helper.getInfos(socket);
+  if (!infos || !infos.query) {
+    return callback(new Error('Invalid socket object passed in argument'));
+  }
+  var query = infos.query;
+  if (!query.token || !query.user) {
     return callback(new Error('Token or user not found'));
   }
 
-  authtoken.getToken(handshakeData.query.token, function(err, data) {
+  authtoken.getToken(query.token, function(err, data) {
     if (err || !data) {
-      return callback(null, false);
+      return callback(new Error('No data from token system'));
     }
-
-    if (handshakeData.query.user !== data.user) {
+    if (query.user !== data.user) {
       return callback(new Error('Bad user'));
     }
-
-    handshakeData.user = data.user;
-    return callback(null, true);
+    helper.setUserId(socket, data.user);
+    return callback();
   });
 };

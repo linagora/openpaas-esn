@@ -5,9 +5,7 @@ var mockery = require('mockery');
 describe('The WebSockets Event module', function() {
 
   var io = {
-    sockets: {
       on: function() {}
-    }
   };
 
   var initMock = function(callback) {

@@ -13,6 +13,7 @@ describe('The WebSockets Event module', function() {
     var called = 0;
 
     var io = {
+      use: function() {},
       of: function() { return this; },
       on: function() { called++; return; }
     };
@@ -32,6 +33,7 @@ describe('The WebSockets Event module', function() {
     this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
     var io = {
+      use: function() {},
       of: function() {
         expect(globalstub.topics.length).to.equal(1);
         expect(globalstub.topics[0]).to.equal('message:activity');
@@ -73,6 +75,7 @@ describe('The WebSockets Event module', function() {
     };
 
     var io = {
+      use: function() {},
       of: function(namespace) {
         namespaceToTest = namespace;
         return this;
@@ -107,6 +110,7 @@ describe('The WebSockets Event module', function() {
     this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
     var io = {
+      use: function() {},
       of: function(namespace) {
         expect(namespace).to.equal('/activitystreams');
         return this;
@@ -129,10 +133,7 @@ describe('The WebSockets Event module', function() {
     this.helpers.mock.pubsub('../../core/pubsub', localstub, globalstub);
 
     var socket = {
-      handshake: {
-        query: {},
-        address: {}
-      },
+      request: {},
       on: function(event, callback) {
         eventsToTest.push(event);
         callback(1234);
@@ -148,6 +149,7 @@ describe('The WebSockets Event module', function() {
     };
 
     var io = {
+      use: function() {},
       of: function() {
         return this;
       },
