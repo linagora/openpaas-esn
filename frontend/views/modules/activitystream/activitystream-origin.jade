@@ -1,0 +1,3 @@
+.row(ng-show="currentMessageInStreams()")
+  div(ng-repeat="stream in getMessageStreamOrigins()")
+    activity-stream-card(stream='stream')
