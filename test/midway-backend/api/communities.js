@@ -109,7 +109,7 @@ describe('The communities API', function() {
       var self = this;
       var domain = {
         name: 'MyDomain',
-        company_name: 'MyAwesomeCompany',
+        company_name: 'open-paas.org',
         administrator: user._id
       };
       var domain2 = {
@@ -123,6 +123,9 @@ describe('The communities API', function() {
         },
         function(callback) {
           saveDomain(domain2, callback);
+        },
+        function(callback) {
+          user.joinDomain(domain, callback);
         },
         function(callback) {
           saveCommunity({title: 'Node.js', domain_ids: [domain._id]}, callback);
@@ -164,7 +167,7 @@ describe('The communities API', function() {
       var self = this;
       var domain = {
         name: 'MyDomain',
-        company_name: 'MyAwesomeCompany',
+        company_name: 'open-paas.org',
         administrator: user._id
       };
 
@@ -174,6 +177,9 @@ describe('The communities API', function() {
       async.series([
           function(callback) {
             saveDomain(domain, callback);
+          },
+          function(callback) {
+            user.joinDomain(domain, callback);
           },
           function(callback) {
             saveCommunity({title: title, domain_ids: [domain._id]}, callback);
@@ -215,7 +221,7 @@ describe('The communities API', function() {
       var self = this;
       var domain = {
         name: 'MyDomain',
-        company_name: 'MyAwesomeCompany',
+        company_name: 'open-paas.org',
         administrator: user._id
       };
 
@@ -228,6 +234,9 @@ describe('The communities API', function() {
           },
           function(callback) {
             saveDomain(domain, callback);
+          },
+          function(callback) {
+            user.joinDomain(domain, callback);
           },
           function(callback) {
             saveCommunity({title: title, domain_ids: [domain._id], creator: user._id}, callback);

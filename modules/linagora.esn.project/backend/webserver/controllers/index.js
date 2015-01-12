@@ -37,6 +37,7 @@ function projectControllers(lib, dependencies) {
   var controllers = {};
 
   controllers.getAll = function(req, res, next) {
+    var permission = dependencies('collaboration').permission;
     var query = {};
     if (req.domain) {
       query.domain_ids = [req.domain._id];
@@ -56,12 +57,21 @@ function projectControllers(lib, dependencies) {
         return res.json(500, { error: { code: 500, message: 'Project list failed', details: err}});
       }
 
-      async.map(response, function(project, callback) {
-        transform(lib, project, req.user, function(transformed) {
-          return callback(null, transformed);
+      async.filter(response, function(project, callback) {
+        permission.canFind(project, {objectType: 'user', id: req.user._id}, function(err, canFind) {
+          if (err) {
+            return callback(false);
+          }
+          return callback(canFind);
         });
-      }, function(err, results) {
-        return res.json(200, results);
+      }, function(filterResults) {
+        async.map(filterResults, function(project, callback) {
+          transform(lib, project, req.user, function(transformed) {
+            return callback(null, transformed);
+          });
+        }, function(err, mapResults) {
+          return res.json(200, mapResults);
+        });
       });
     });
   };
