@@ -45,7 +45,8 @@ angular.module('esnApp', [
   'esn.oembed.deezer',
   'esn.oembed.vimeo',
   'esn.oembed.slideshare',
-  'esn.injection'
+  'esn.injection',
+  'esn.collaboration'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/domains/:id/members/invite', {
@@ -175,15 +176,18 @@ angular.module('esnApp', [
       templateUrl: '/views/esn/partials/community',
       controller: 'communityController',
       resolve: {
-        community: function(communityAPI, $route, $location) {
-          return communityAPI.get($route.current.params.community_id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/communities');
-            }
-          );
+        community: function(communityAPI, collaborationAPI, $q, $route, $location) {
+
+          var community = communityAPI.get($route.current.params.community_id);
+          var memberOf = collaborationAPI.getWhereMember({objectType: 'community', id: $route.current.params.community_id});
+
+          return $q.all({community: community, memberOf: memberOf}).then(function(response) {
+            var result = response.community.data;
+            result.memberOf = response.memberOf.data;
+            return result;
+          }, function() {
+            $location.path('/communities');
+          });
         }
       }
     });

@@ -34,8 +34,9 @@ describe('The esn.activitystream Angular module', function() {
         this.scope = $rootScope.$new();
         this.alert = function(msgObject) {};
         $controller('activitystreamController', {
+          $rootScope: $rootScope,
           $scope: this.scope,
-          activitystreamAggregator: this.aggregatorService,
+          activitystreamAggregatorCreator: this.aggregatorService,
           usSpinnerService: this.usSpinnerService,
           alert: this.alert
         });
@@ -43,30 +44,31 @@ describe('The esn.activitystream Angular module', function() {
 
       it('should not call the aggregator loadMoreElements method if a rest request is active', function() {
         this.loadCount = 0;
-        this.scope.restActive = true;
-        this.scope.activitystreamUuid = '0987654321';
+        this.scope.updateMessagesActive = true;
+        this.scope.streams = ['0987654321'];
         this.scope.loadMoreElements();
         expect(this.loadCount).to.equal(0);
       });
 
       it('should not call the aggregator loadMoreElements method if the activity stream uuid is not set', function() {
         this.loadCount = 0;
-        this.scope.restActive = false;
-        this.scope.activitystreamUuid = null;
+        this.scope.restActive = {};
+        this.scope.streams = null;
         this.scope.loadMoreElements();
         expect(this.loadCount).to.equal(0);
       });
 
       it('should call the aggregator loadMoreElements method', function() {
         this.loadCount = 0;
-        this.scope.restActive = false;
-        this.scope.activitystreamUuid = '0987654321';
+        this.scope.restActive = {};
+        this.scope.streams = ['0987654321'];
         this.scope.loadMoreElements();
         expect(this.loadCount).to.equal(1);
       });
 
       describe('aggregator loadMoreElements() response', function() {
         it('should handle error', function() {
+          var id = '0987654321';
           var self = this;
           var errorMsg = 'An Error';
           this.aggregatorService = function(id, limit) {
@@ -88,14 +90,14 @@ describe('The esn.activitystream Angular module', function() {
           angular.mock.inject(function($controller) {
             $controller('activitystreamController', {
               $scope: this.scope,
-              activitystreamAggregator: this.aggregatorService,
+              activitystreamAggregatorCreator: this.aggregatorService,
               usSpinnerService: this.usSpinnerService
             });
           });
 
           this.loadCount = 0;
-          this.scope.restActive = false;
-          this.scope.activitystreamUuid = '0987654321';
+          this.scope.updateMessagesActive = false;
+          this.scope.streams = [id];
           this.scope.displayError = function(err) {
             self.thrownError = err;
           };
@@ -103,7 +105,7 @@ describe('The esn.activitystream Angular module', function() {
           this.scope.loadMoreElements();
           expect(this.thrownError).to.contain(errorMsg);
           expect(this.loadCount).to.equal(1);
-          expect(this.scope.restActive).to.be.false;
+          expect(this.scope.updateMessagesActive).to.be.false;
           expect(this.spinnerStopped).to.be.true;
           expect(this.scope.threads.length).to.equal(0);
         });
@@ -117,8 +119,8 @@ describe('The esn.activitystream Angular module', function() {
           };
 
           this.loadCount = 0;
-          this.scope.restActive = false;
-          this.scope.activitystreamUuid = '0987654321';
+          this.scope.updateMessagesActive = false;
+          this.scope.streams = ['0987654321'];
           this.thrownError = null;
           this.scope.displayError = function(err) {
             self.thrownError = err;
@@ -128,7 +130,7 @@ describe('The esn.activitystream Angular module', function() {
           this.scope.loadMoreElements();
           expect(this.thrownError).to.be.null;
           expect(this.loadCount).to.equal(1);
-          expect(this.scope.restActive).to.be.false;
+          expect(this.scope.updateMessagesActive).to.be.false;
           expect(this.spinnerStopped).to.be.true;
           expect(this.scope.threads.length).to.equal(3);
         });
@@ -146,7 +148,7 @@ describe('The esn.activitystream Angular module', function() {
           done();
         };
 
-        this.scope.activitystreamUuid = '0987654321';
+        this.scope.streams = ['0987654321'];
         this.scope.loadMoreElements();
       });
 
@@ -165,22 +167,22 @@ describe('The esn.activitystream Angular module', function() {
 
       }));
 
-      describe('when a rest query is active', function() {
+      describe('when a rest query is active for current stream', function() {
         beforeEach(function() {
           this.activityStreamUpdates = function() {
             throw new Error('I should not be called');
           };
           this.$controller('activitystreamController', {
             $scope: this.scope,
-            activitystreamAggregator: this.aggregatorService,
+            activitystreamAggregatorCreator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
             alert: this.alert,
             activityStreamUpdates: this.activityStreamUpdates
           });
-          this.scope.restActive = true;
+          this.scope.restActive['123'] = true;
         });
         it('should not call the activityStreamUpdates service', function() {
-          this.scope.getStreamUpdates();
+          this.scope.getStreamUpdates('123');
         });
       });
 
@@ -188,18 +190,18 @@ describe('The esn.activitystream Angular module', function() {
         it('should call the activityStreamUpdates service and set scope restActive to true', function(done) {
           var self = this;
           this.activityStreamUpdates = function() {
-            expect(self.scope.restActive).to.be.true;
+            expect(self.scope.restActive['123']).to.be.true;
             done();
           };
           this.$controller('activitystreamController', {
             $scope: this.scope,
-            activitystreamAggregator: this.aggregatorService,
+            activitystreamAggregatorCreator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
             alert: this.alert,
             activityStreamUpdates: this.activityStreamUpdates
           });
 
-          this.scope.getStreamUpdates();
+          this.scope.getStreamUpdates('123');
         });
         it('should finally set the restActive to false', function(done) {
           var self = this;
@@ -209,7 +211,7 @@ describe('The esn.activitystream Angular module', function() {
                 return {
                   'finally': function(callback) {
                     callback();
-                    expect(self.scope.restActive).to.be.false;
+                    expect(self.scope.restActive['123']).to.be.false;
                     done();
                   }
                 };
@@ -218,13 +220,13 @@ describe('The esn.activitystream Angular module', function() {
           };
           this.$controller('activitystreamController', {
             $scope: this.scope,
-            activitystreamAggregator: this.aggregatorService,
+            activitystreamAggregatorCreator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
             alert: this.alert,
             activityStreamUpdates: this.activityStreamUpdates
           });
 
-          this.scope.getStreamUpdates();
+          this.scope.getStreamUpdates('123');
         });
       });
 

@@ -12,7 +12,7 @@ angular.module('esn.activitystream')
   function(moment, session, livenotification, notificationFactory) {
   return {
     restrict: 'A',
-    link: function(scope, element, attrs) {
+    link: function(scope) {
       function liveNotificationHandler(msg) {
         if (msg.actor && msg.actor._id !== session.user._id) {
           var m = moment(new Date(msg.published).getTime());
@@ -24,7 +24,7 @@ angular.module('esn.activitystream')
         }
       }
 
-      var socketIORoom = livenotification('/activitystreams', attrs.activitystreamUuid)
+      var socketIORoom = livenotification('/activitystreams', scope.activitystreamUuid)
         .on('notification', liveNotificationHandler);
 
       scope.$on('$destroy', function() {
@@ -38,14 +38,16 @@ angular.module('esn.activitystream')
       restrict: 'E',
       scope: {
         writable: '=',
-        calendarId: '='
+        calendarId: '=',
+        streams: '=',
+        activitystreamUuid: '='
       },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
       controller: 'activitystreamController',
-      link: function(scope, element, attrs) {
-        scope.activitystreamUuid = attrs.activitystreamUuid;
-        var currentActivitystreamUuid = scope.activitystreamUuid;
+      link: function(scope) {
+        scope.streams = scope.streams || [];
+        scope.streams = scope.streams.concat(scope.activitystreamUuid);
 
         scope.lastPost = {
           messageId: null,
@@ -53,13 +55,13 @@ angular.module('esn.activitystream')
         };
 
         function onMessagePosted(evt, msgMeta) {
-          if (msgMeta.activitystreamUuid !== scope.activitystreamUuid) {
+          if (scope.streams.indexOf(msgMeta.activitystreamUuid) === -1) {
             return;
           }
-          if (scope.restActive) {
+          if (scope.restActive[msgMeta.activitystreamUuid] || scope.updateMessagesActive) {
             return;
           }
-          scope.getStreamUpdates();
+          scope.getStreamUpdates(msgMeta.activitystreamUuid);
           scope.lastPost.messageId = msgMeta.id;
         }
 
@@ -76,10 +78,20 @@ angular.module('esn.activitystream')
         }
 
         function updateMessage(message) {
-          if (scope.restActive) {
+          var running = message.shares.filter(function(share) {
+              return share.objectType === 'activitystream' && scope.restActive[share.id];
+            });
+
+          if (running.length > 0 || scope.updateMessagesActive) {
             return;
           }
-          scope.restActive = true;
+
+          message.shares.forEach(function(share) {
+            if (share.objectType === 'activitystream' && scope.streams.indexOf(share.id) !== -1) {
+              scope.restActive[share.id] = true;
+            }
+          });
+
           var parentId = message._id;
           messageAPI.get(parentId).then(function(response) {
             var message = response.data;
@@ -88,9 +100,12 @@ angular.module('esn.activitystream')
               thread.responses = message.responses;
             }
           }).finally (function() {
-            scope.restActive = false;
+            message.shares.forEach(function(share) {
+              if (share.objectType === 'activitystream' && scope.streams.indexOf(share.id) !== -1) {
+                scope.restActive[share.id] = false;
+              }
+            });
           });
-
         }
 
         function onCommentPosted(evt, msgMeta) {
@@ -108,23 +123,17 @@ angular.module('esn.activitystream')
         // let sub-directives load and register event listeners
         // before we start fetching the stream
         $timeout(function() {
+          scope.reset();
           scope.loadMoreElements();
-          $rootScope.$emit('activitystream:updated', {
-            activitystreamUuid: currentActivitystreamUuid
+          scope.streams.forEach(function(activitystreamUuid) {
+            $rootScope.$emit('activitystream:updated', {
+              activitystreamUuid: activitystreamUuid
+            });
           });
         },0);
 
         var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
         var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
-
-        scope.$watch('activitystreamUuid', function() {
-          if (scope.activitystreamUuid === currentActivitystreamUuid) {
-            return;
-          }
-          scope.reset();
-          scope.loadMoreElements();
-          currentActivitystreamUuid = scope.activitystreamUuid;
-        });
 
         scope.$on('$destroy', function() {
           unregMsgPostedListener();
