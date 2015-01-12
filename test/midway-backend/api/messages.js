@@ -13,8 +13,8 @@ describe('The messages API', function() {
   var community;
   var restrictedCommunity;
   var password = 'secret';
-  var email = 'foo@bar.com';
-  var restrictedEmail = 'restricted@bar.com';
+  var email;
+  var restrictedEmail;
   var message1, message2, message3;
 
   beforeEach(function(done) {
@@ -23,58 +23,6 @@ describe('The messages API', function() {
       app = require(self.testEnv.basePath + '/backend/webserver/application');
       self.mongoose = require('mongoose');
       var Whatsup = require(self.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      var Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      var Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
-
-      testuser = new User({
-        username: 'Foo',
-        password: password,
-        emails: [email]
-      });
-
-      restrictedUser = new User({
-        username: 'Restricted',
-        password: password,
-        emails: [restrictedEmail]
-      });
-
-      domain = new Domain({
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      });
-
-      community = new Community({
-        title: 'myCommunity',
-        type: 'open'
-      });
-
-      restrictedCommunity = new Community({
-        title: 'myRestrictedCommunity',
-        type: 'restricted'
-      });
-
-      message1 = new Whatsup({
-        content: 'message 1'
-      });
-
-      message2 = new Whatsup({
-        content: 'message 2'
-      });
-
-      message3 = new Whatsup({
-        content: 'message 3',
-        responses: 'responses'
-      });
-
-      function saveUser(user, cb) {
-        user.save(function(err, saved) {
-          if (saved) {
-            user._id = saved._id;
-          }
-          return cb(err, saved);
-        });
-      }
 
       function saveMessage(message, cb) {
         message.save(function(err, saved) {
@@ -85,63 +33,60 @@ describe('The messages API', function() {
         });
       }
 
-      function saveDomain(domain, user, cb) {
-        domain.administrator = user;
-        domain.save(function(err, saved) {
-          domain._id = saved._id;
-          return cb(err, saved);
-        });
-      }
-
-      function saveCommunity(community, domain, cb) {
-        community.domain_ids.push(domain._id);
-        community.save(function(err, saved) {
-          if (err) {
-            console.log(err, err.stack);
-          }
-          community._id = saved._id;
-          return cb(err, saved);
-        });
-      }
-
-      async.series([
-        function(callback) {
-          saveUser(testuser, callback);
-        },
-        function(callback) {
-          saveUser(restrictedUser, callback);
-        },
-        function(callback) {
-          saveDomain(domain, testuser, callback);
-        },
-        function(callback) {
-          saveCommunity(community, domain, callback);
-        },
-        function(callback) {
-          message1.author = testuser._id;
-          saveMessage(message1, callback);
-        },
-        function(callback) {
-          message2.author = restrictedUser._id;
-          saveMessage(message2, callback);
-        },
-        function(callback) {
-          message3.author = testuser._id;
-          saveMessage(message3, callback);
-        },
-        function(callback) {
-          restrictedCommunity.members.push(
-            {
-              member: {id: restrictedUser._id, objectType: 'user'},
-              status: 'joined'
-            }
-          );
-          saveCommunity(restrictedCommunity, domain, callback);
+      self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) {
+          return done(err);
         }
-      ],
-        function(err) {
-          done(err);
+        domain = models.domain;
+        testuser = models.users[0];
+        restrictedUser = models.users[1];
+        community = models.communities[0];
+        restrictedCommunity = models.communities[2];
+        email = testuser.emails[0];
+        restrictedEmail = restrictedUser.emails[0];
+
+        message1 = new Whatsup({
+          content: 'message 1'
         });
+
+        message2 = new Whatsup({
+          content: 'message 2'
+        });
+
+        message3 = new Whatsup({
+          content: 'message 3',
+          responses: 'responses'
+        });
+
+        async.series([
+            function(callback) {
+              message1.author = testuser._id;
+              saveMessage(message1, callback);
+            },
+            function(callback) {
+              message2.author = restrictedUser._id;
+              saveMessage(message2, callback);
+            },
+            function(callback) {
+              message3.author = testuser._id;
+              saveMessage(message3, callback);
+            },
+            function(callback) {
+              restrictedCommunity.members.splice(0, 1);
+              restrictedCommunity.markModified('members');
+              restrictedCommunity.save(function(err, saved) {
+                if (err) {
+                  return done(err);
+                }
+                restrictedCommunity = saved;
+                return callback(null, saved);
+              });
+            }
+          ],
+          function(err) {
+            done(err);
+          });
+      });
     });
   });
 
