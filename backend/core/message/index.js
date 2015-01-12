@@ -102,11 +102,26 @@ function copy(id, sharerId, resource, target, callback) {
 
   function getOriginal(callback) {
     mongoose.connection.db.collection(MESSAGES_COLLECTION, function(err, collection) {
-      collection.find({_id: mongoose.Types.ObjectId(id)}).toArray(function(err, messages) {
-        if (!messages.length) {
+      var query = {
+        $or: [
+          {_id: mongoose.Types.ObjectId(id)},
+          {'responses._id': mongoose.Types.ObjectId(id)}
+        ]
+      };
+      collection.findOne(query, function(err, message) {
+        if (!message) {
           return callback(null, null);
         }
-        return callback(null, messages[0]);
+        var targetMessage = null;
+        if (message._id.equals(id)) {
+          targetMessage = message;
+        } else {
+          targetMessage = message.responses.filter(function(response) {
+            return response._id.equals(id);
+          })
+          .pop();
+        }
+        return callback(null, targetMessage);
       });
     });
   }
@@ -153,7 +168,6 @@ function copy(id, sharerId, resource, target, callback) {
       if (err) {
         return callback(err);
       }
-
       return callback(err, result[1][0]);
     });
   });

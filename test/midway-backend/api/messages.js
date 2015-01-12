@@ -15,7 +15,7 @@ describe('The messages API', function() {
   var password = 'secret';
   var email;
   var restrictedEmail;
-  var message1, message2, message3;
+  var message1, message2, message3, message4;
 
   beforeEach(function(done) {
     var self = this;
@@ -58,6 +58,16 @@ describe('The messages API', function() {
           responses: 'responses'
         });
 
+        var comment1 = new Whatsup({
+          content: 'comment 1',
+          author: testuser._id
+        });
+
+        message4 = new Whatsup({
+          content: 'message 3',
+          responses: [comment1]
+        });
+
         async.series([
             function(callback) {
               message1.author = testuser._id;
@@ -70,6 +80,10 @@ describe('The messages API', function() {
             function(callback) {
               message3.author = testuser._id;
               saveMessage(message3, callback);
+            },
+            function(callback) {
+              message4.author = testuser._id;
+              saveMessage(message4, callback);
             },
             function(callback) {
               restrictedCommunity.members.splice(0, 1);
@@ -636,6 +650,34 @@ describe('The messages API', function() {
           'target': [
             {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
           ]
+        });
+        req.expect(201);
+        req.end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res.body._id).to.exist;
+          process.nextTick(function() {
+            Whatsup.findOne({_id: res.body._id}, function(err, message) {
+              expect(message).to.exist;
+              expect(message.responses).to.be.empty;
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should support sharing a message comment', function(done) {
+      var Whatsup = this.mongoose.model('Whatsup');
+      var commentId = message4.responses[0]._id;
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + commentId + '/shares'));
+        req.send({
+            'resource': { 'objectType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
+            'target': [{'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }]
         });
         req.expect(201);
         req.end(function(err, res) {
