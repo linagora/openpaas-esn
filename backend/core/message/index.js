@@ -12,7 +12,8 @@ var MESSAGES_COLLECTION = 'messages';
 var objectTypeToSchemaName = {
   email: 'EmailMessage',
   whatsup: 'Whatsup',
-  event: 'EventMessage'
+  event: 'EventMessage',
+  organizational: 'OrganizationalMessage'
 };
 
 function getModel(objectType) {
