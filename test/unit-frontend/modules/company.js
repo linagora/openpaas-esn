@@ -90,4 +90,23 @@ describe('The Company Angular module', function() {
     });
   });
 
+
+  describe('companyUser service', function() {
+    describe('isInternalUser() method', function() {
+
+      beforeEach(angular.mock.inject(function(companyUserService) {
+        this.companyUserService = companyUserService;
+        this.companyName = 'linagora';
+      }));
+
+      it('should return true if user is internal', function() {
+        expect(this.companyUserService.isInternalUser('user@linagora.com', this.companyName)).to.be.true;
+      });
+
+      it('should return true if user is external', function() {
+        expect(this.companyUserService.isInternalUser('user@pipo.com', this.companyName)).to.be.false;
+      });
+    });
+  });
+
 });

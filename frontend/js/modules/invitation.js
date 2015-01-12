@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
+angular.module('esn.invitation', ['restangular', 'esn.form.helper', 'esn.company'])
 .controller('signup', function($scope, $location, invitationAPI) {
     $scope.settings = { firstname: '', lastname: '', email: ''};
     $scope.signupButton = {
@@ -36,7 +36,7 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
       );
     };
   })
-.controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation) {
+.controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation, companyUserService) {
     $scope.notFound = invitation.status === 'error' ? true : false;
     $scope.form = {};
     $scope.settings = {};
@@ -44,12 +44,10 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
 
     var company_name, domain_name, main_company_name;
     var getCompanyForAddMemberInvitation = function(email, domain) {
-        var emailDomain = email.replace(/.*@/, '');
-        var emailDomainWithoutSuffix = emailDomain.split('.')[0];
         main_company_name = domain.company_name;
-        //If the user is external, display his company
-        if (emailDomain !== domain.company_name ||
-            emailDomainWithoutSuffix !== domain.company_name) {
+        if (!companyUserService.isInternalUser(email, domain.company_name)) {
+            var emailDomain = email.replace(/.*@/, '');
+            var emailDomainWithoutSuffix = emailDomain.split('.')[0];
             return emailDomainWithoutSuffix;
         }
         else {

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['restangular', 'ngTagsInput'])
+angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.company'])
   .factory('domainAPI', ['Restangular', function(Restangular) {
 
     /**
@@ -107,26 +107,20 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
       }
     };
   })
-  .controller('inviteMembers', function($scope, domain) {
+  .controller('inviteMembers', ['$scope', 'domain', 'companyUserService', function($scope, domain, companyUserService) {
     $scope.domain = domain;
 
     $scope.validateEmailForInternalUser = function(email) {
-      var emailDomain = email.replace(/.*@/, '');
-      var emailDomainWithoutSuffix = emailDomain.split('.')[0];
-      if (emailDomain === $scope.domain.company_name ||
-          emailDomainWithoutSuffix === $scope.domain.company_name) {
+      if (companyUserService.isInternalUser(email, $scope.domain.company_name)) {
         return null;
       }
       return email + ' is not an email from this domain (' + $scope.domain.company_name + '). ';
     };
 
     $scope.validateEmailForExternalUser = function(email) {
-      var emailDomain = email.replace(/.*@/, '');
-      var emailDomainWithoutSuffix = emailDomain.split('.')[0];
-      if (emailDomain === $scope.domain.company_name ||
-          emailDomainWithoutSuffix === $scope.domain.company_name) {
+      if (companyUserService.isInternalUser(email, $scope.domain.company_name)) {
         return email + ' is not an email of an external people. ';
       }
       return null;
     };
-  });
+  }]);
