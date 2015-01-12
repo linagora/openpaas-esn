@@ -207,6 +207,8 @@ angular.module('esnApp', [
               $location.path('/communities/' + $route.current.params.community_id);
             }
           );
+        }, memberOf: function() {
+          return [];
         }
       }
     });
