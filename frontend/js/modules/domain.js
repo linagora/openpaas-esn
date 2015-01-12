@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['restangular', 'ngTagsInput'])
+angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.company'])
   .factory('domainAPI', ['Restangular', function(Restangular) {
 
     /**
@@ -50,36 +50,77 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
       get: get
     };
   }])
-  .controller('inviteMembers', function($scope, domainAPI, domain) {
+  .directive('inviteMembersInput', function(domainAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        domain: '=',
+        validateEmail: '='
+      },
+      templateUrl: '/views/modules/domain/inviteMembersInput.html',
+      link: function($scope) {
+        $scope.error = undefined;
+        $scope.placeholder = 'Add an email';
+        $scope.displayProperty = 'email';
+        // Regular expression to check that the input text is a valid email
+        // regexp as string, single \ are \\ escaped, doubles \ are \\\ escaped
+        // original regexp is
+        // var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        $scope.pattern = '^(([^<>()[\\\]\\\\\.,;:\\\s@\\\"]+(\\\.[^<>()[\\\]\\\\\.,;:\s@\\\"]+)*)|(\\\".+\\\"))@((\\\[[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\])|(([a-zA-Z\-0-9]+\\\.)+[a-zA-Z]{2,}))$'; // jshint ignore:line
+        $scope.step = 0;
+        $scope.running = 0;
+        $scope.emails = [];
 
-    $scope.placeholder = 'Add an email';
-    $scope.displayProperty = 'email';
-    // Regular expression to check that the input text is a valid email
-    // regexp as string, single \ are \\ escaped, doubles \ are \\\ escaped
-    // original regexp is
-    // var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    $scope.pattern = '^(([^<>()[\\\]\\\\\.,;:\\\s@\\\"]+(\\\.[^<>()[\\\]\\\\\.,;:\s@\\\"]+)*)|(\\\".+\\\"))@((\\\[[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\])|(([a-zA-Z\-0-9]+\\\.)+[a-zA-Z]{2,}))$'; // jshint ignore:line
-    $scope.step = 0;
-    $scope.running = 0;
-    $scope.domain = domain.name;
-    $scope.emails = [];
-
-    $scope.invite = function() {
-      var emails = $scope.emails.map(function(element) {
-        return element.email;
-      });
-
-      $scope.running = 1;
-      domainAPI.inviteUsers(domain._id, emails).then(
-        function(data) {
+        $scope.validateTags = function() {
           $scope.error = undefined;
-          $scope.running = 0;
-          $scope.step = 1;
-        },
-        function(err) {
-          $scope.running = 0;
-          $scope.error = err;
-        }
-      );
+          $scope.emails.forEach(function(tag) {
+            var validationError = $scope.validateEmail(tag.email);
+            if (validationError) {
+              $scope.error = $scope.error ? $scope.error + validationError : validationError;
+            }
+          });
+        };
+
+        $scope.invite = function() {
+          if ($scope.emails.length === 0) {
+            return;
+          }
+
+          var emails = $scope.emails.map(function(element) {
+            return element.email;
+          });
+
+          $scope.running = 1;
+          domainAPI.inviteUsers($scope.domain._id, emails).then(
+              function(data) {
+                $scope.error = undefined;
+                $scope.running = 0;
+                $scope.step = 1;
+              },
+              function(err) {
+                $scope.running = 0;
+                $scope.error = err;
+              }
+          );
+        };
+      }
     };
-  });
+  })
+  .controller('inviteMembers', ['$scope', 'domain', 'companyUserService', function($scope, domain, companyUserService) {
+    $scope.domain = domain;
+
+    $scope.validateEmailForInternalUser = function(email) {
+      if (companyUserService.isInternalUser(email, $scope.domain.company_name)) {
+        return null;
+      }
+      return email + ' is not an email from this domain (' + $scope.domain.company_name + '). ';
+    };
+
+    $scope.validateEmailForExternalUser = function(email) {
+      if (companyUserService.isInternalUser(email, $scope.domain.company_name)) {
+        return email + ' is not an email of an external people. ';
+      }
+      return null;
+    };
+  }]);

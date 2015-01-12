@@ -46,7 +46,8 @@ angular.module('esnApp', [
   'esn.oembed.vimeo',
   'esn.oembed.slideshare',
   'esn.injection',
-  'esn.collaboration'
+  'esn.collaboration',
+  'esn.company'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
 
     $routeProvider.when('/domains/:id/members/invite', {

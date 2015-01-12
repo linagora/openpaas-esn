@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
+angular.module('esn.invitation', ['restangular', 'esn.form.helper', 'esn.company'])
 .controller('signup', function($scope, $location, invitationAPI) {
     $scope.settings = { firstname: '', lastname: '', email: ''};
     $scope.signupButton = {
@@ -36,15 +36,27 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
       );
     };
   })
-.controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation) {
+.controller('finalize', function($scope, $window, invitationAPI, loginAPI, invitation, companyUserService) {
     $scope.notFound = invitation.status === 'error' ? true : false;
     $scope.form = {};
     $scope.settings = {};
     $scope.invited = false;
 
-    var company_name, domain_name;
+    var company_name, domain_name, main_company_name;
+    var getCompanyForAddMemberInvitation = function(email, domain) {
+        main_company_name = domain.company_name;
+        if (!companyUserService.isInternalUser(email, domain.company_name)) {
+            var emailDomain = email.replace(/.*@/, '');
+            var emailDomainWithoutSuffix = emailDomain.split('.')[0];
+            return emailDomainWithoutSuffix;
+        }
+        else {
+            return domain.company_name;
+        }
+    };
+
     if (invitation.type === 'addmember') {
-      company_name = invitation.data.domain.company_name;
+      company_name = getCompanyForAddMemberInvitation(invitation.data.email, invitation.data.domain);
       domain_name = invitation.data.domain.name;
       $scope.invited = true;
     }
@@ -75,7 +87,11 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
       $scope.finalizeTask.running = true;
       $scope.finalizeButton.label = $scope.finalizeButton.running;
 
-      var payload = {data: $scope.settings, type: invitation.type || 'signup'};
+      var data = $scope.settings;
+      if (invitation.type === 'addmember') {
+          data.company = main_company_name;
+      }
+      var payload = {data: data, type: invitation.type || 'signup'};
       invitationAPI.finalize($scope.invitationId, payload).then(
         function(data) {
           $scope.finalizeButton.label = $scope.finalizeButton.notRunning;
