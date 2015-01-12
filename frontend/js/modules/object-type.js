@@ -8,6 +8,46 @@ angular.module('esn.object-type', [])
       return defer.promise;
     });
   }])
+  .factory('objectTypeAdapter', function() {
+
+    var adapters = {};
+
+    function register(objectType, adapter) {
+      if (!objectType) {
+        throw new Error('ObjectType can not be null');
+      }
+
+      if (!adapter) {
+        throw new Error('Adapter can not be null');
+      }
+
+      if (!angular.isFunction(adapter)) {
+        throw new Error('Adapter must be a function');
+      }
+      adapters[objectType] = adapter;
+    }
+
+    function adapt(model) {
+      if (!model) {
+        throw new Error('Model is required');
+      }
+
+      if (!model.objectType) {
+        throw new Error('ObjectType is required');
+      }
+
+      var adapter = adapters[model.objectType];
+      if (!adapter) {
+        throw new Error(adapter.objectType + ' is not a registered adapter');
+      }
+      return adapter(model);
+    }
+
+    return {
+      register: register,
+      adapt: adapt
+    };
+  })
   .factory('objectTypeResolver', ['$q', function($q) {
 
     var resolvers = {};
