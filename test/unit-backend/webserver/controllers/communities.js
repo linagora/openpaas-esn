@@ -189,7 +189,11 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
+      mockery.registerMock('../../core/community/permission', {
+        canFind: function(community, tuple, callback) {
+          return callback(null, true);
+        }
+      });
 
       var req = {
         param: function() {},

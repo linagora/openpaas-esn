@@ -132,15 +132,24 @@ module.exports.list = function(req, res) {
 
   communityModule.query(query, function(err, response) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Community list failed', details: err}});
+      return res.json(500, { error: { code: 500, message: 'Community list failed', details: err.message}});
     }
 
-    async.map(response, function(community, callback) {
-      transform(community, req.user, function(transformed) {
-        return callback(null, transformed);
+    async.filter(response, function(community, callback) {
+      permission.canFind(community, {objectType: 'user', id: req.user._id}, function(err, canFind) {
+        if (err) {
+          return callback(false);
+        }
+        return callback(canFind);
       });
-    }, function(err, results) {
-      return res.json(200, results);
+    }, function(filterResults) {
+      async.map(filterResults, function(community, callback) {
+        transform(community, req.user, function(transformed) {
+          return callback(null, transformed);
+        });
+      }, function(err, mapResults) {
+        return res.json(200, mapResults);
+      });
     });
   });
 };

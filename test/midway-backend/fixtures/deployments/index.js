@@ -5,7 +5,7 @@ module.exports.linagora_IT = function() {
   return {
     domain: {
       name: 'IT',
-      company_name: 'Linagora'
+      company_name: 'lng.net'
     },
     users: [
       {
