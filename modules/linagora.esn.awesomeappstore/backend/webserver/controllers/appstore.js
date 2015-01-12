@@ -2,7 +2,7 @@
 
 var extend = require('extend');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
-var acceptedArtifactTypes = ['application/x-tar', 'application/x-gzip'];
+var acceptedArtifactTypes = ['application/x-tar', 'application/x-gzip', 'application/gzip'];
 var Busboy = require('busboy');
 var ObjectId = require('mongoose').Types.ObjectId;
 
@@ -11,14 +11,21 @@ module.exports = function(appstoremanager) {
   function list(req, res) {
     var query = req.query || {};
 
-    if (req.query.community) {
-      var tuple = { objectType: 'community', id: req.query.community };
+    if (req.query.domain) {
+      var tuple = { id: req.query.domain, objectType: 'domain'};
       var deploymentMatch = {
         deployments: {
-          $elemMatch: tuple
+          $elemMatch: {
+            target: tuple
+          }
         }
       };
+      delete query.domain;
       extend(true, query, deploymentMatch);
+    }
+
+    if (req.query.community) {
+      delete query.community;
     }
 
     appstoremanager.get(query, function(err, result) {

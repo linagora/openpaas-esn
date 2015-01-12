@@ -1,0 +1,24 @@
+.col-xs-12.esn-panel
+  .row
+    h2.esn-communities-header
+      ul.list-inline
+        li
+          i.fa.fa-cloud
+          | #{__('App Store')}
+        li.pull-right
+          appstore-button-submit
+  .vertiz-space
+
+  .row.alert.alert-info(ng-show="loading", role="alert")
+    p
+      i.fa.fa-cog.fa-spin
+      | #{__('Loading applications...')}
+  .row.alert.alert-danger(ng-show="error && !loading", role="alert")
+    p #{__('Error while loading applications!')}
+  .row.alert.alert-info(ng-show="!loading && !error && applications.length === 0", role="alert")
+    p #{__('There are no applications yet.')}
+  .vertiz-space
+
+  .row
+    div(ng-hide="loading", ng-repeat="application in applications | orderBy:'title'")
+      appstore-app-display(application="application")

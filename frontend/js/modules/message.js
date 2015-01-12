@@ -508,7 +508,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         $scope.cancel = function() {
           if ($scope.attachment.uploaded) {
             $scope.$parent.removeFile($scope.attachment.file);
-            fileAPIService.remove($scope.attachment.response._id).then(function() {
+            fileAPIService.remove('files', $scope.attachment.response._id).then(function() {
               $scope.attachment.defer.resolve({status: 'canceled'});
             }, function() {
               $scope.attachment.defer.resolve({status: 'can not delete file'});
@@ -648,7 +648,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       angular.forEach(attachments, function(attachment) {
         if (attachment.response && attachment.response._id) {
           var defer = $q.defer();
-          fileAPIService.remove(attachment.response._id).then(function() {
+          fileAPIService.remove('files', attachment.response._id).then(function() {
             defer.resolve({status: 'success', _id: attachment.response._id});
           }, function() {
             defer.resolve({status: 'error', _id: attachment.response._id});
