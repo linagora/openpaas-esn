@@ -3,13 +3,34 @@
 var collaborationModule = require('./index');
 var userHelpers = require('../../helpers/user');
 
-var READABLES = ['open', 'restricted'];
-
-module.exports.isPubliclyReadable = function(collaboration) {
+module.exports.canRead = function(collaboration, tuple, callback) {
   if (!collaboration || !collaboration.type) {
-    return false;
+    return callback(new Error('collaboration object is required'));
   }
-  return READABLES.indexOf(collaboration.type) !== -1;
+
+  if (!tuple) {
+    // Tuple is required because the tuple objectType determines the permission
+    return callback(new Error('Tuple is required'));
+  }
+  if (tuple.objectType === 'user') {
+    userHelpers.isInternal(tuple.id, function(err, isInternal) {
+      if (err) {
+        return callback(err);
+      }
+      // If the user is internal then he can read in open and restricted collaborations
+      if (isInternal && (collaboration.type === 'open' || collaboration.type === 'restricted')) {
+        return callback(null, true);
+      } else {
+        // For other collaboration type he must be a member
+        return collaborationModule.isMember(collaboration, tuple, callback);
+      }
+    });
+  } else {
+    if (collaboration.type === 'open' || collaboration.type === 'restricted') {
+      return callback(null, true);
+    }
+    return collaborationModule.isMember(collaboration, tuple, callback);
+  }
 };
 
 module.exports.canWrite = function(collaboration, tuple, callback) {
