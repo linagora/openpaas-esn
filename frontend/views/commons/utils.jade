@@ -6,11 +6,13 @@ mixin injectJSFromModules(module, injections)
         script(src='/' + key + '/js/' + file)
 
 mixin injectAngularFromModules(module, injections)
-  each injection, key in injections
-    - var moduleInjections = injection[module]
-    if (moduleInjections)
-      script(type='text/javascript').
-        var angularInjections = "#{moduleInjections.angular}".split(',');
+  script(type='text/javascript')
+    | var angularInjections = []
+    each injection, key in injections
+      - var moduleInjections = injection[module]
+      if (moduleInjections && moduleInjections.angular)
+        | .concat("#{moduleInjections.angular}".split(','))
+    | ;
 
 mixin injectCSSFromModules(module, injections)
   each injection, key in injections
