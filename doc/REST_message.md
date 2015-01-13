@@ -24,8 +24,9 @@ If a message is not found from the input ID, the result array will contain an er
 
 **Status Codes:**
 
-- 200 OK
-- 400 Bad Request. Invalid request body or parameters
+- 200 OK. At least one message is found.
+- 400 Bad Request. Invalid request body or parameters.
+- 404 Not Found. All messages was not found.
 
 **Request:**
 
@@ -63,6 +64,54 @@ If a message is not found from the input ID, the result array will contain an er
             }
         },
     ]
+
+## GET /api/messages/:id
+
+Get a message from its ID.
+
+**Request URL Parameters:**
+
+- id: Identifier of the message to fetch.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Response JSON Object:**
+
+The message object.
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad Request. Invalid request body or parameters.
+- 403 Forbidden. You do not have the permission to read message.
+- 404 Not Found. The message does not exist.
+
+**Request:**
+
+    GET /api/messages/53581bb1cca7800000522731
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+
+    {
+        objectType: "whatsup",
+        _id: "53581bb1cca7800000522731",
+        description: "I'm the content !",
+        creator: 34556456,
+        timestamps: {
+          creation: 2354456547
+        }
+    }
 
 ## POST /api/messages/{id}/shares
 

@@ -1,5 +1,6 @@
 'use strict';
 
+var async = require('async');
 var messageModule = require('../../core/message'),
     emailModule = require('../../core/message/email'),
     postToModel = require(__dirname + '/../../helpers/message').postToModelMessage,
@@ -17,17 +18,17 @@ function createNewMessage(message, req, res) {
     }
 
     publishMessageEvents(savedMessage, req.body.targets, req.user);
-    res.send(201, { _id: savedMessage._id });
+    res.json(201, { _id: savedMessage._id });
   }
 
   messageModule.getInstance(message.objectType, message).save(function(err, saved) {
     if (err) {
       var errorData = { error: { status: 500, message: 'Server Error', details: 'Cannot create message . ' + err.message }};
-      return res.send(500, errorData);
+      return res.json(500, errorData);
     }
 
     if (!saved) {
-      return res.send(404);
+      return res.json(404);
     }
 
     if (message.attachments && message.attachments.length > 0) {
@@ -47,16 +48,16 @@ function commentMessage(message, inReplyTo, req, res) {
 
   var comment;
   if (!inReplyTo._id) {
-    return res.send(400, { error: { status: 400, message: 'Bad parameter', details: 'Missing inReplyTo _id in body'}});
+    return res.json(400, { error: { status: 400, message: 'Bad parameter', details: 'Missing inReplyTo _id in body'}});
   }
   try {
     comment = messageModule.getInstance(message.objectType, message);
   } catch (e) {
-    return res.send(400, { error: { status: 400, message: 'Bad parameter', details: 'Unknown message type ' + message.objectType}});
+    return res.json(400, { error: { status: 400, message: 'Bad parameter', details: 'Unknown message type ' + message.objectType}});
   }
   messageModule.addNewComment(comment, inReplyTo, function(err, childMessage, parentMessage) {
     if (err) {
-      return res.send(
+      return res.json(
         500,
         { error: { status: 500, message: 'Server Error', details: 'Cannot add commment. ' + err.message }});
     }
@@ -67,22 +68,22 @@ function commentMessage(message, inReplyTo, req, res) {
           logger.warn('Can not set attachment references', err);
         }
         publishCommentActivity(parentMessage, childMessage);
-        return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
+        return res.json(201, { _id: childMessage._id, parentId: parentMessage._id });
       });
     } else {
       publishCommentActivity(parentMessage, childMessage);
-      return res.send(201, { _id: childMessage._id, parentId: parentMessage._id });
+      return res.json(201, { _id: childMessage._id, parentId: parentMessage._id });
     }
   });
 }
 
 function create(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.send(500, { error: { status: 500, message: 'Server Error', details: 'User is not set.'}});
+    return res.json(500, { error: { status: 500, message: 'Server Error', details: 'User is not set.'}});
   }
 
   if (!req.body) {
-    return res.send(400, 'Missing message in body');
+    return res.json(400, 'Missing message in body');
   }
 
   if (req.message_targets) {
@@ -98,57 +99,91 @@ function create(req, res) {
   }
 }
 
+/**
+ * Get messages with its ids.
+ *
+ * @param {string[]} messageIds the messages ids to find
+ * @param {object} tuple who want to read the messages. Object like {objectType: string, id: ObjectId}
+ * @param {function} callback fn like callback(err, object) where object is {messages: [object], messagesNotFound: [object]}
+ */
+function getMessages(messageIds, tuple, callback) {
+  messageModule.findByIds(messageIds, function(err, messagesFound) {
+    if (err) {
+      return callback(err);
+    }
+    if (!messagesFound) {
+      return callback(new Error('Error when find messages by ids'));
+    }
+
+    var messagesNotFound = [];
+    var foundIds = messagesFound.map(function(message) {
+      return message._id.toString();
+    });
+    messageIds.filter(function(id) {
+      return foundIds.indexOf(id) < 0;
+    }).forEach(function(id) {
+      messagesNotFound.push({ error: { code: 404, message: 'Not Found', details: 'The message ' + id + ' can not be found'}});
+    });
+
+    async.concat(messagesFound, function(message, callback) {
+      messageModule.permission.canRead(message, tuple, function(err, readable) {
+        if (err) {
+          return callback(null, [{ error: { code: 500, message: 'Server Error when checking the read permission', details: err.message}}]);
+        }
+        if (!readable) {
+          return callback(null, [{ error: { code: 403, message: 'Forbidden', details: 'You do not have the permission to read message ' + message._id.toString()}}]);
+        }
+        return callback(null, [message]);
+      });
+    }, function(err, messages) {
+      return callback(err, {
+        messages: messages,
+        messagesNotFound: messagesNotFound
+      });
+    });
+  });
+}
+
 function get(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
-    return res.send(500, { error: { status: 500, message: 'Server Error', details: 'User can not be set.'}});
+    return res.json(500, { error: { code: 500, message: 'Server Error', details: 'User can not be set.'}});
   }
 
   if (!req.query || !req.query.ids) {
-    return res.send(400, 'Missing ids in query');
+    return res.json(400, 'Missing ids in query');
   }
+  var messageIds = req.query.ids;
 
-  messageModule.findByIds(req.query.ids, function(err, result) {
+  getMessages(messageIds, {objectType: 'user', id: req.user._id}, function(err, messagesObject) {
     if (err) {
-      return res.send(
-        500,
-        { error: { status: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
+      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
     }
-
-    var foundIds = result.map(function(message) {
-      return message._id.toString();
-    });
-    req.query.ids.filter(function(id) {
-      return foundIds.indexOf(id) < 0;
-    }).forEach(function(id) {
-      result.push({
-        error: {
-          status: 404,
-          message: 'Not Found',
-          details: 'The message ' + id + ' can not be found'
-        }
-      });
-    });
-
-    return res.send(200, result);
+    var messagesFound = messagesObject.messages;
+    var messagesNotFound = messagesObject.messagesNotFound;
+    if (messagesFound && messagesFound.length > 0) {
+      return res.json(200, messagesFound.concat(messagesNotFound));
+    }
+    return res.json(404, messagesNotFound);
   });
 }
 
 function getOne(req, res) {
-  if (!req.param('uuid')) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Message ID is required'}});
+  if (!req.param('id')) {
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Message ID is required'}});
   }
 
-  var uuid = req.param('uuid');
+  var id = req.param('id');
 
-  messageModule.get(uuid, function(err, result) {
+  getMessages([id], {objectType: 'user', id: req.user._id}, function(err, messagesObject) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
+      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
     }
-
-    if (!result) {
-      return res.json(404, { error: { status: 404, message: 'Message not found', details: 'Message has not been found ' + uuid}});
+    var messagesFound = messagesObject.messages;
+    var messagesNotFound = messagesObject.messagesNotFound;
+    if (messagesFound && messagesFound.length > 0) {
+      return res.json(200, messagesFound[0]);
     }
-    res.json(200, result);
+    return res.json(404, messagesNotFound[0]);
   });
 }
 
