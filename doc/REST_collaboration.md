@@ -101,7 +101,62 @@ Array of {objectType} members.
       }
     ]
 
-## GET /api/collaborations/membersearch
+## GET /api/collaboration/{objectType}/{id}/invitablepeople
+
+Get the list of peoples (for now only users of the ESN) who can be invited in the {objectType}.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Request URL Parameters:**
+
+- community_id: The community id
+
+**Request Query Strings Parameters:**
+
+- limit (int): The number of peoples to return. This will only keep the N first peoples (where N=limit). Default value is 5.
+- search (string): Search the people "firstname", "lastname" and "email" fields in case insensitive and accent agnostic way. Note that when there are more than one word in the search string (separated by one or more spaces), the search will become an AND. For example: 'search=foo bar' will search members where firstname, lastname and email contain foo AND bar.
+
+**Response Headers:**
+
+- X-ESN-Items-Count: The number of peoples in the result list
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 Ok. With the list of peoples
+- 401 Unauthorized. The current request does not contains any valid data to be used for authentication.
+- 404 Not found.
+- 500 Internal server error.
+
+**Request:**
+
+    GET /api/collaboration/community/987654321/invitablepeople
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    X-ESN-Items-Count: 2
+    [
+        {
+            _id: 123456789,
+            firstname: "John",
+            lastname: "Doe",
+            emails: ["johndoe@linagora.com"]
+        },
+        {
+            _id: 987654321,
+            firstname: "Foo",
+            lastname: "Bar",
+            emails: ["foobar@linagora.com"]
+        },
+    ]
+
+## /api/collaborations/membersearch
 
 Get all the collaborations where the given tuple is a member.
 
