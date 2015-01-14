@@ -594,8 +594,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
     $scope.share = function() {
 
-      if (!$scope.activitystreamUuid) {
-        $log.debug('Current activitystreamUuid is required');
+      if (!$scope.activitystream) {
+        $log.debug('activitystream is required');
         return;
       }
 
@@ -613,7 +613,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       var resource = {
         objectType: 'activitystream',
-        id: $scope.activitystreamUuid
+        id: $scope.activitystream.activity_stream.uuid
       };
 
       $scope.sending = true;
