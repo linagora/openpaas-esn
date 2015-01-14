@@ -233,7 +233,7 @@ function getCollaborationsForTuple(tuple, callback) {
       if (err || !result) {
         return callback();
       }
-      return callback(null, result);
+      return callback(null, addObjectType(type, result));
     });
   }
 

@@ -33,7 +33,7 @@ angular.module('esn.object-type', [])
       }
 
       if (!model.objectType) {
-        throw new Error('ObjectType is required');
+        return model;
       }
 
       var adapter = adapters[model.objectType];
