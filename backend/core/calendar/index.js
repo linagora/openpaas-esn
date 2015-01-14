@@ -4,134 +4,116 @@ var async = require('async');
 var eventMessage = require('../../core/message/event');
 var localpubsub = require('../../core/pubsub').local;
 var globalpubsub = require('../../core/pubsub').global;
-var communityPermission = require('../../core/community/permission');
+var collaborationModule = require('../../core/collaboration');
+var collaborationPermission = require('../../core/collaboration/permission');
 var activityStreamHelper = require('../../core/activitystreams/helpers');
 var user = require('../../core/user');
-var community = require('../../core/community');
-
-/*
- * In this module, the data parameter is like :
- * {
- *    user: {User, String},
- *    community: {Community, String},
- *    event: {
- *      event_id: {string},
- *      type: {string},
- *      ...
- *    }
- * }
- *
- * See REST_calendars.md for the complete event structure
- */
 
 /**
- * Check if the user has the right to create an eventmessage in that community and
- * create the event message and the timeline entry.
+ * Check if the user has the right to create an eventmessage in that
+ * collaboration and create the event message and the timeline entry. The
+ * callback function is called with either the saved event message or false if
+ * the user doesn't have write permissions.
  *
- * @param {object} data the data which contain the user, the community and the event
- * @param {function} callback fn like callback(err, saved)
- *  (saved is the eventMessage saved or false if the user doesn't have write permission in the community)
+ * @param {object} user             The user object from req.user
+ * @param {object} collaboration    The collaboration object from req.collaboration
+ * @param {object} event            The event data, see REST_calendars.md
+ * @param {function} callback       The callback function
  */
-function create(data, callback) {
+function create(user, collaboration, event, callback) {
+  var userData = { objectType: 'user', id: user._id };
 
-  communityPermission.canWrite(data.community, {objectType: 'user', id: data.user._id}, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    if (!result) {
-      return callback(null, false);
+  collaborationPermission.canWrite(collaboration, userData, function(err, result) {
+    if (err || !result) {
+      return callback(err, result);
     }
 
-    eventMessage.save({eventId: data.event.event_id, author: data.user}, function(err, saved) {
+    eventMessage.save({ eventId: event.event_id, author: user }, function(err, saved) {
       if (err) {
         return callback(err);
       }
 
       var targets = [{
         objectType: 'activitystream',
-        _id: data.community.activity_stream.uuid
+        _id: collaboration.activity_stream.uuid
       }];
-      var activity = activityStreamHelper.userMessageToTimelineEntry(saved, 'post', data.user, targets);
+      var activity = activityStreamHelper.userMessageToTimelineEntry(saved, 'post', user, targets);
       localpubsub.topic('message:activity').publish(activity);
       globalpubsub.topic('message:activity').publish(activity);
       return callback(null, saved);
     });
   });
 }
+module.exports.create = create;
 
 /**
- * Validate the data structure and forward it to the right handler.
+ * Validate the data structure and forward it to the right handler. This method
+ * can be used to process message queue data. The message data format is as
+ * follows:
+ *   {
+ *     user: "userid", // This can be the user id or a user object
+ *     collaboration: "collabid", // This can be the collab id or object
+ *     event: {  // The message event data
+ *       event_id: '/path/to/event', // An event identifier
+ *       type: 'created', // The operation to execute
+ *       event: 'BEGIN:VCALENDAR...', /// The event ics data
+ *     }
+ *   }
  *
- * @param {object} data the data which contain the user, the community and the event
- * @param {function} callback fn like callback(err, result) (result depend on the handler called)
+ * The callback result is false if there was a permission issue. Otherwise it
+ * is an object with the event message data created or updated.
+ *
+ * @param {object} data         The data which contain the user, the community
+ *                                and the event
+ * @param {function} callback   Callback function for results: function(err, result)
  */
 function dispatch(data, callback) {
-  if (!data) {
+  if (!data || typeof data !== 'object') {
     return callback(new Error('Data is missing'));
   }
-  if (typeof data !== 'object') {
-    return callback(new Error('The parameter data is not an object'));
-  }
   if (!data.user) {
-    return callback(new Error('The user field in data is missing'));
+    return callback(new Error('Invalid user specified'));
   }
-  if (!data.community) {
-    return callback(new Error('The community field in data is missing'));
+  if (!data.collaboration) {
+    return callback(new Error('Invalid collaboration specified'));
   }
-  if (typeof data.event !== 'object') {
-    return callback(new Error('The field event in data is not an object'));
-  }
-  if (!data.event.event_id) {
-    return callback(new Error('The event_id field in event in data is missing'));
-  }
-  if (!data.event.type) {
-    return callback(new Error('The type field in event in data is missing'));
+  if (!data.event || !data.event.event_id) {
+    return callback(new Error('Invalid event specified'));
   }
 
-  async.parallel([
-      function(callback) {
-        // If data.user is a string fetch the user with the id
-        if (typeof data.user === 'string') {
-          user.get(data.user, function(err, userObject) {
-            if (err) { return callback(err); }
-            return callback(null, userObject);
-          });
-        } else {
-          return callback(null, data.user);
-        }
-      },
-      function(callback) {
-        // If data.community is a string fetch the community with the id
-        if (typeof data.community === 'string') {
-          community.load(data.community, function(err, communityObject) {
-            if (err) { return callback(err); }
-            return callback(null, communityObject);
-          });
-        } else {
-          return callback(null, data.community);
-        }
-      }
-    ],
-    function(err, result) {
-      if (err) {
-        return callback(err);
-      }
-      data.user = result[0];
-      data.community = result[1];
-
-      if (data.event.type === 'created') {
-        create(data, function(err, saved) {
-          if (err) {
-            return callback(err);
-          }
-          if (!saved) {
-            return callback(null, false);
-          }
-          return callback(null, {type: 'created', saved: saved});
-        });
+  var retrievals = [
+    function retrieveUser(callback) {
+      if (typeof data.user === 'object') {
+        return callback(null, data.user);
+      } else if (typeof data.user === 'string') {
+        user.get(data.user, callback);
       } else {
-        return callback(new Error('Type ' + data.event.type + ' not implemented'));
+        return callback('Invalid user data');
       }
-    });
+    },
+    function retrieveCollaboration(callback) {
+      if (typeof data.collaboration === 'object') {
+        return callback(null, data.collaboration);
+      } else if (typeof data.collaboration === 'string' && data.objectType) {
+        collaborationModule.queryOne(data.objectType, data.collaboration, callback);
+      } else {
+        return callback('Missing collaboration');
+      }
+    }
+  ];
+
+  async.parallel(retrievals, function(err, result) {
+    if (err) {
+      return callback(new Error('Error dispatching event: ' + err));
+    }
+    data.user = result[0]; data.collaboration = result[1];
+
+    switch (data.event.type) {
+      case 'created':
+        return create(data.user, data.collaboration, data.event, callback);
+      default:
+        return callback(new Error('Invalid type specified'));
+    }
+  });
 }
 module.exports.dispatch = dispatch;

@@ -4,7 +4,7 @@ div.esn-panel.message-panel.whatsup-form.form-container(ng-controller='messageEd
     li
       button.btn.btn-link(type='button', ng-click='show("whatsup")')
         i.fa.fa-pencil
-    li
+    li(ng-show='::calendarId')
       button.btn.btn-link(type='button', ng-click='show("event")')
         i.fa.fa-calendar
   div(data-ng-switch='type')

@@ -4,41 +4,48 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('The calendar core module', function() {
-  var eventMessageMock = {};
   var localStub = {}, globalStub = {};
-  var communityPermissionMock = {};
-  var activityStreamHelperMock = {};
-  var userMock = {};
-  var communityMock = {};
 
-  function setupMock() {
-    eventMessageMock.save = function(object, callback) {
-      return callback(null, object);
-    };
-
-    communityPermissionMock.canWrite = function(community, user, callback) {
-      return callback(null, true);
-    };
-
-    activityStreamHelperMock.userMessageToTimelineEntry = function() {};
-
-    userMock.get = function(id, callback) {
-      return callback(null, {});
-    };
-
-    communityMock.load = function(id, callback) {
-      return callback(null, {});
-    };
-  }
+  var collaborationPermissionMock = {
+    _write: true,
+    canWrite: function(collaboration, user, callback) {
+      return callback(null, this._write);
+    }
+  };
+  var eventMessageMock = {
+    _object: null,
+    _err: null,
+    save: function(object, callback) {
+      return callback(this._err, this._object || object);
+    }
+  };
+  var userMock = {
+    _user: {},
+    _err: null,
+    get: function(id, callback) {
+      return callback(this._err, this._user);
+    }
+  };
+  var activityStreamHelperMock = {
+    userMessageToTimelineEntry: function() {}
+  };
 
   beforeEach(function() {
-    setupMock();
+    // Reset mocks
+    collaborationPermissionMock._write = true;
+    eventMessageMock._err = null;
+    eventMessageMock._object = null;
+    userMock._user = {};
+    userMock._err = null;
+
+    // Register mocks and models
     mockery.registerMock('../../core/message/event', eventMessageMock);
-    mockery.registerMock('../../core/community/permission', communityPermissionMock);
+    mockery.registerMock('../../core/collaboration/permission', collaborationPermissionMock);
     mockery.registerMock('../../core/activitystreams/helpers', activityStreamHelperMock);
     mockery.registerMock('../../core/user', userMock);
-    mockery.registerMock('../../core/community', communityMock);
+    this.helpers.mock.models({});
 
+    // Set up pubsub
     localStub = {};
     globalStub = {};
     this.helpers.mock.pubsub('../../core/pubsub', localStub, globalStub);
@@ -63,7 +70,7 @@ describe('The calendar core module', function() {
 
     it('should return an error if data.user is undefined', function(done) {
       var data = {
-        community: {},
+        collaboration: {},
         event: {
           event_id: '',
           type: ''
@@ -77,7 +84,7 @@ describe('The calendar core module', function() {
       });
     });
 
-    it('should return an error if data.community is undefined', function(done) {
+    it('should return an error if data.collaboration is undefined', function(done) {
       var data = {
         user: {},
         event: {
@@ -96,7 +103,7 @@ describe('The calendar core module', function() {
     it('should return an error if data.event is an object', function(done) {
       var data = {
         user: {},
-        community: {},
+        collaboration: {},
         event: 'test'
       };
 
@@ -110,7 +117,7 @@ describe('The calendar core module', function() {
     it('should return an error if data.event.event_id is undefined', function(done) {
       var data = {
         user: {},
-        community: {},
+        collaboration: {},
         event: {
           type: ''
         }
@@ -126,7 +133,7 @@ describe('The calendar core module', function() {
     it('should return an error if data.event.type is undefined', function(done) {
       var data = {
         user: {},
-        community: {},
+        collaboration: {},
         event: {
           event_id: ''
         }
@@ -142,7 +149,7 @@ describe('The calendar core module', function() {
     it('should return an error if data.event.type is not "created"', function(done) {
       var data = {
         user: {},
-        community: {},
+        collaboration: {},
         event: {
           event_id: '123',
           type: 'test'
@@ -157,15 +164,13 @@ describe('The calendar core module', function() {
     });
 
     it('should return false if the user does not have write permission', function(done) {
-      communityPermissionMock.canWrite = function(community, user, callback) {
-        return callback(null, false);
-      };
+      collaborationPermissionMock._write = false;
 
       var user = {
         _id: '123',
         firstname: 'test'
       };
-      var community = {
+      var collaboration = {
         _id: '345',
         activity_stream: {
           uuid: '42'
@@ -173,7 +178,7 @@ describe('The calendar core module', function() {
       };
       var data = {
         user: user,
-        community: community,
+        collaboration: collaboration,
         event: {
           event_id: 'event id',
           type: 'created'
@@ -194,7 +199,7 @@ describe('The calendar core module', function() {
         _id: '123',
         firstname: 'test'
       };
-      var community = {
+      var collaboration = {
         _id: '345',
         activity_stream: {
           uuid: '42'
@@ -202,19 +207,24 @@ describe('The calendar core module', function() {
       };
       var data = {
         user: user,
-        community: community,
+        collaboration: collaboration,
         event: {
           event_id: 'event id',
           type: 'created'
         }
       };
 
+      eventMessageMock._object = {
+        _id: '123123',
+        objectType: 'event'
+      };
+
       var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
-        expect(result.type).to.equal('created');
-        expect(result.saved).to.exist;
+        expect(result._id).to.equal('123123');
+        expect(result.objectType).to.equal('event');
         done();
       });
     });

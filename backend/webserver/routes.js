@@ -223,5 +223,9 @@ exports = module.exports = function(application) {
   application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);
 
   var calendars = require('./controllers/calendars');
-  application.post('/api/calendars/:id/events', authorize.requiresAPILogin, communities.load, communityMiddleware.requiresCommunityMember, calendars.createEvent);
+  application.post('/api/calendars/:objectType/:id/events',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.requiresCollaborationMember,
+    calendars.dispatchEvent);
 };
