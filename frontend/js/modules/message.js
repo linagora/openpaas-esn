@@ -413,14 +413,18 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         streamable: '=',
         lastPost: '=',
         parentMessage: '=',
-        streams: '='
+        streams: '=',
+        activitystream: '=?'
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
       controller: function($scope) {
-        var origins = activitystreamHelper.getMessageStreamOrigins($scope.message, $scope.streams);
-        if (origins && origins.length > 0) {
-          $scope.activitystream = origins[0];
-          $scope.writable = $scope.activitystream.writable;
+
+        if (!$scope.activitystream) {
+          var origins = activitystreamHelper.getMessageStreamOrigins($scope.message, $scope.streams);
+          if (origins && origins.length > 0) {
+            $scope.activitystream = origins[0];
+            $scope.writable = $scope.activitystream.writable;
+          }
         }
       },
       compile: function(element) {
