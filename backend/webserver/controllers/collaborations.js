@@ -87,11 +87,23 @@ function getMembers(req, res) {
 
     res.header('X-ESN-Items-Count', req.collaboration.members ? req.collaboration.members.length : 0);
 
-    var result = members.filter(function(member) {
-      return !(!member || !member.member);
-    }).map(function(member) {
-      var user = member.member;
-      return new Member(user);
+    function format(member) {
+      var result = Object.create(null);
+      if (!member || !member.member) {
+        return result;
+      }
+
+      result.user = new Member(member);
+
+      result.metadata = {
+        timestamps: member.timestamps
+      };
+
+      return result;
+    }
+
+    var result = members.map(function(member) {
+      return format(member);
     });
 
     return res.json(200, result || []);

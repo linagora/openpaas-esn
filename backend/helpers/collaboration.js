@@ -12,9 +12,6 @@ function Member(object) {
   this.main_phone = object.main_phone;
   this.domains = object.domains;
   this.currentAvatar = object.currentAvatar;
-  this.metadata = {
-    timestamps: object.timestamps
-  };
 }
 
 module.exports.Member = Member;

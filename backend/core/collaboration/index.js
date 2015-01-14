@@ -56,7 +56,9 @@ function getMembers(collaboration, objectType, query, callback) {
       return callback(err);
     }
 
-    var members = collaboration.members.slice().splice(query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT);
+    var offset = query.offset || DEFAULT_OFFSET;
+    var limit = query.limit || DEFAULT_LIMIT;
+    var members = collaboration.members.slice(offset, offset + limit);
     var memberIds = members.map(function(member) { return member.member.id; });
 
     User.find({_id: {$in: memberIds}}, function(err, users) {
