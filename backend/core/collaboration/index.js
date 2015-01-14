@@ -1,6 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var User = mongoose.model('User');
 var async = require('async');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
@@ -25,6 +26,10 @@ function getModel(objectType) {
   return Model;
 }
 
+function getLib(objectType) {
+  return collaborationLibs[objectType] || null;
+}
+
 function isMember(collaboration, tuple, callback) {
   if (!collaboration || !collaboration._id) {
     return callback(new Error('Collaboration object is required'));
@@ -34,6 +39,42 @@ function isMember(collaboration, tuple, callback) {
     return m.member.objectType === tuple.objectType && m.member.id + '' === tuple.id + '';
   });
   return callback(null, isInMembersArray);
+}
+
+function getMembers(collaboration, objectType, query, callback) {
+  query = query ||  {};
+
+  var id = collaboration._id || collaboration;
+
+  var Model = getModel(objectType);
+  if (!Model) {
+    return callback(new Error('Collaboration model ' + collaboration.objectType + ' is unknown'));
+  }
+
+  Model.findById(id, function(err, collaboration) {
+    if (err) {
+      return callback(err);
+    }
+
+    var offset = query.offset || DEFAULT_OFFSET;
+    var limit = query.limit || DEFAULT_LIMIT;
+    var members = collaboration.members.slice(offset, offset + limit);
+    var memberIds = members.map(function(member) { return member.member.id; });
+
+    User.find({_id: {$in: memberIds}}, function(err, users) {
+      if (err) {
+        return callback(err);
+      }
+
+      var hash = {};
+      users.forEach(function(u) { hash[u._id] = u; });
+      members.forEach(function(m) {
+        m.member = hash[m.member.id];
+      });
+
+      return callback(null, members);
+    });
+  });
 }
 
 function getMembershipRequests(objectType, objetId, query, callback) {
@@ -240,6 +281,9 @@ function hasDomain(community) {
   });
 }
 
+module.exports.getModel = getModel;
+module.exports.getLib = getLib;
+module.exports.getMembers = getMembers;
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');

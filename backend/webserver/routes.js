@@ -200,7 +200,13 @@ exports = module.exports = function(application) {
   application.get('/api/communities/:id/invitablepeople', authorize.requiresAPILogin, communities.load, communities.getInvitablePeople);
 
   var collaborations = require('./controllers/collaborations');
+  var collaborationMW = require('./middleware/collaboration');
   application.get('/api/collaborations/membersearch', authorize.requiresAPILogin, collaborations.searchWhereMember);
+  application.get('/api/collaborations/:objectType/:id/members',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.canRead,
+    collaborations.getMembers);
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

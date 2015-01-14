@@ -1,6 +1,7 @@
 'use strict';
 
 var collaborationModule = require('../../core/collaboration/index');
+var Member = require('../../helpers/collaboration').Member;
 var permission = require('../../core/collaboration/permission');
 
 var async = require('async');
@@ -58,3 +59,54 @@ module.exports.searchWhereMember = function(req, res) {
     });
   });
 };
+
+function getMembers(req, res) {
+  if (!req.collaboration) {
+    return res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
+  }
+
+  var query = {};
+  if (req.query.limit) {
+    var limit = parseInt(req.query.limit, 10);
+    if (!isNaN(limit)) {
+      query.limit = limit;
+    }
+  }
+
+  if (req.query.offset) {
+    var offset = parseInt(req.query.offset, 10);
+    if (!isNaN(offset)) {
+      query.offset = offset;
+    }
+  }
+
+  collaborationModule.getMembers(req.collaboration, req.params.objectType, query, function(err, members) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+    }
+
+    res.header('X-ESN-Items-Count', req.collaboration.members ? req.collaboration.members.length : 0);
+
+    function format(member) {
+      var result = Object.create(null);
+      if (!member || !member.member) {
+        return result;
+      }
+
+      result.user = new Member(member);
+
+      result.metadata = {
+        timestamps: member.timestamps
+      };
+
+      return result;
+    }
+
+    var result = members.map(function(member) {
+      return format(member);
+    });
+
+    return res.json(200, result || []);
+  });
+}
+module.exports.getMembers = getMembers;
