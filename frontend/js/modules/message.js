@@ -411,7 +411,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       scope: {
         message: '=',
         writable: '=',
-        activitystream: '=',
+        streamable: '=',
         lastPost: '=',
         parentMessage: '=',
         streams: '='

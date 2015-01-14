@@ -39,14 +39,14 @@ angular.module('esn.activitystream')
       scope: {
         calendarId: '=',
         streams: '=',
-        activitystream: '='
+        streamable: '='
       },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
       controller: 'activitystreamController',
       link: function(scope) {
         scope.streams = scope.streams || [];
-        scope.streams = scope.streams.concat(scope.activitystream);
+        scope.streams = scope.streams.concat(scope.streamable);
 
         scope.lastPost = {
           messageId: null,
@@ -166,7 +166,7 @@ angular.module('esn.activitystream')
 
           return $scope.message.shares.some(function(share) {
             return share.objectType === 'activitystream' && $scope.streams.some(function(stream) {
-              return stream.activity_stream.uuid === share.id && stream.activity_stream.uuid !== $scope.currentstream.activity_stream.uuid;
+              return $scope.currentstream.activity_stream && stream.activity_stream && stream.activity_stream.uuid === share.id && stream.activity_stream.uuid !== $scope.currentstream.activity_stream.uuid;
             });
           });
         };
