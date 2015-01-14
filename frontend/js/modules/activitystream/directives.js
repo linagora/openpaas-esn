@@ -55,7 +55,7 @@ angular.module('esn.activitystream')
 
         function isInStreams(id) {
           return scope.streams.some(function(stream) {
-            return stream.activity_stream.uuid === id;
+            return stream.activity_stream && stream.activity_stream.uuid === id;
           });
         }
 
@@ -147,10 +147,10 @@ angular.module('esn.activitystream')
       }
     };
   }])
-  .directive('activityStreamOrigin', function() {
+  .directive('activityStreamOrigin', ['activitystreamHelper', function(activitystreamHelper) {
     return {
       scope: {
-        currentstream: '=',
+        activitystream: '=',
         message: '=',
         streams: '='
       },
@@ -159,32 +159,26 @@ angular.module('esn.activitystream')
       templateUrl: '/views/modules/activitystream/activitystream-origin.html',
       controller: function($scope) {
 
-        $scope.currentMessageInStreams = function() {
+        $scope.currentMessageInLinkedStreams = function() {
           if (!$scope.streams || $scope.streams.length === 0 || !$scope.message.shares) {
             return false;
           }
 
           return $scope.message.shares.some(function(share) {
             return share.objectType === 'activitystream' && $scope.streams.some(function(stream) {
-              return $scope.currentstream.activity_stream && stream.activity_stream && stream.activity_stream.uuid === share.id && stream.activity_stream.uuid !== $scope.currentstream.activity_stream.uuid;
+              return $scope.activitystream.activity_stream && stream.activity_stream && stream.activity_stream.uuid === share.id && stream.activity_stream.uuid !== $scope.activitystream.activity_stream.uuid;
             });
           });
         };
 
-        $scope.getMessageStreamOrigins = function() {
-          return $scope.streams.filter(function(stream) {
-            return $scope.message.shares && $scope.message.shares.some(function(share) {
-              return share.objectType === 'activitystream' && share.id === stream.activity_stream.uuid;
-            });
-          });
-        };
+        $scope.streamOrigins = activitystreamHelper.getMessageStreamOrigins($scope.message, $scope.streams);
       }
     };
-  })
+  }])
 .directive('activityStreamCard', function() {
   return {
     scope: {
-      stream: '='
+      streamable: '='
     },
     restrict: 'E',
     replace: true,

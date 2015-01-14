@@ -361,4 +361,27 @@ angular.module('esn.activitystream')
       return many(id, limit);
     }
   };
-}]);
+}])
+.factory('activitystreamHelper', function() {
+
+  function getMessageStreamOrigins(message, streams) {
+    if (!message || !angular.isArray(streams)) {
+      return [];
+    }
+
+    return streams.filter(function(stream) {
+      return message.shares && message.shares.some(function(share) {
+        return share.objectType === 'activitystream' && share.id === stream.activity_stream.uuid;
+      });
+    });
+  }
+
+  function messageIsSharedInStreams(message, streams) {
+    return getMessageStreamOrigins(message, streams).length > 0;
+  }
+
+  return {
+    messageIsSharedInStreams: messageIsSharedInStreams,
+    getMessageStreamOrigins: getMessageStreamOrigins
+  };
+});

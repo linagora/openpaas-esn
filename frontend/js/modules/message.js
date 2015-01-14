@@ -59,7 +59,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.activitystream.activity_stream.uuid) {
+      if (!$scope.streamable.activity_stream.uuid) {
         $scope.displayError('You can not post to an unknown activitystream');
         return;
       }
@@ -81,7 +81,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       var target = {
         objectType: 'activitystream',
-        id: $scope.activitystream.activity_stream.uuid
+        id: $scope.streamable.activity_stream.uuid
       };
 
       function send(objectType, data, targets, attachments) {
@@ -98,7 +98,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         messageAPI.post(objectType, data, targets, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+              activitystreamUuid: $scope.streamable.activity_stream.uuid,
               id: response.data._id
             });
             return defer.resolve();
@@ -404,19 +404,25 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/messagesDisplay.html'
     };
   })
-  .directive('messageTemplateDisplayer', ['RecursionHelper', function(RecursionHelper) {
+  .directive('messageTemplateDisplayer', ['RecursionHelper', 'activitystreamHelper', function(RecursionHelper, activitystreamHelper) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         message: '=',
-        writable: '=',
         streamable: '=',
         lastPost: '=',
         parentMessage: '=',
         streams: '='
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
+      controller: function($scope) {
+        var origins = activitystreamHelper.getMessageStreamOrigins($scope.message, $scope.streams);
+        if (origins && origins.length > 0) {
+          $scope.activitystream = origins[0];
+          $scope.writable = $scope.activitystream.writable;
+        }
+      },
       compile: function(element) {
         return RecursionHelper.compile(element, function() {});
       }
