@@ -588,7 +588,7 @@ a:focus {
 
   img {
     margin-right: 0px;
-    border-radius: 2px;
+    .RoundedShape();
   }
   a {
     color: @defaultFontColor;
@@ -713,20 +713,20 @@ a:focus {
 
 tags-input .tags {
   background-color: #fff;
-  border-radius: @defaultRadius;
+  .RoundedShape();
   box-shadow: @defaultShadow;
 }
 
 tags-input.ng-invalid .tags {
   background-color: #fff;
-  border-radius: @defaultRadius;
+  .RoundedShape();
   box-shadow: @defaultShadow;
 }
 
 tags-input .tags .tag-item {
   background: @secondary-blue;
   border: @defaultBorder;
-  border-radius: @defaultRadius;
+  .RoundedShape();
   color: @esn-primary-dark;
   white-space: nowrap;
 }
