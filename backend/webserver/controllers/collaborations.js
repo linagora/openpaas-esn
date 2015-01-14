@@ -1,6 +1,7 @@
 'use strict';
 
 var collaborationModule = require('../../core/collaboration/index');
+var userDomain = require('../../core/user/domain');
 var Member = require('../../helpers/collaboration').Member;
 var permission = require('../../core/collaboration/permission');
 var userHelper = require('../../helpers/user');
@@ -176,3 +177,37 @@ function getExternalCompanies(req, res) {
   );
 }
 module.exports.getExternalCompanies = getExternalCompanies;
+
+function getInvitablePeople(req, res) {
+  var collaboration = req.collaboration;
+  var user = req.user;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+  }
+
+  if (!collaboration) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
+  }
+
+  var query = {
+    limit: req.param('limit') || 5,
+    search: req.param('search') || null,
+    not_in_collaboration: collaboration
+  };
+
+  var domainIds = collaboration.domain_ids.map(function(domainId) {
+    return domainId;
+  });
+
+  var search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
+  search(domainIds, query, function(err, result) {
+    if (err) {
+      return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching invitable people: ' + err.message}});
+    }
+
+    res.header('X-ESN-Items-Count', result.total_count);
+    return res.json(200, result.list);
+  });
+}
+module.exports.getInvitablePeople = getInvitablePeople;

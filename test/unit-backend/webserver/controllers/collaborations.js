@@ -11,6 +11,7 @@ describe('getMembers fn', function() {
     mockery.registerMock('../../core/collaboration/permission', {});
     mockery.registerMock('../../core/user', {});
     mockery.registerMock('../../helpers/user', {});
+    mockery.registerMock('../../core/user/domain', {});
   });
 
   it('should send back 500 if req.collaboration is undefined', function(done) {

@@ -34,31 +34,33 @@ function getUserDomains(user, callback) {
 module.exports.getUserDomains = getUserDomains;
 
 /**
- * Return an array of users who are not in the community AND
+ * Return an array of users who are not in the collaboration AND
  *  who have no pending membership request/invitation.
  *
  * @param {User[]} users array of user
- * @param {Community} community the community
+ * @param {Collaboration} collaboration the collaboration
  * @param {function} callback fn like callback(err, users) (users is an array of users)
  */
-function filterByNotInCommunityAndNoMembershipRequest(users, community, callback) {
+function filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, callback) {
   if (!users) {
     return callback(new Error('Users is mandatory'));
   }
-  if (!community) {
+
+  if (!collaboration) {
     return callback(new Error('Community is mandatory'));
   }
 
   var results = [];
-
   var memberHash = {};
-  if (community.members) {
-    community.members.forEach(function(m) {
+
+  if (collaboration.members) {
+    collaboration.members.forEach(function(m) {
       memberHash[m.member.id] = true;
     });
   }
-  if (community.membershipRequests) {
-    community.membershipRequests.forEach(function(membershipRequest) {
+
+  if (collaboration.membershipRequests) {
+    collaboration.membershipRequests.forEach(function(membershipRequest) {
       memberHash[membershipRequest.user] = true;
     });
   }
@@ -68,6 +70,7 @@ function filterByNotInCommunityAndNoMembershipRequest(users, community, callback
       results.push(user);
     }
   });
+
   return callback(null, results);
 }
 
@@ -91,9 +94,9 @@ function getUsersList(domains, query, cb) {
   }
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
-  var community = query.not_in_community;
+  var collaboration = query.not_in_collaboration || query.not_in_community;
   var limit = query.limit;
-  if (community) {
+  if (collaboration) {
     query.limit = null;
   }
 
@@ -114,8 +117,8 @@ function getUsersList(domains, query, cb) {
       if (err) {
         return cb(new Error('Cannot execute find request correctly on domains collection'));
       }
-      if (community) {
-        filterByNotInCommunityAndNoMembershipRequest(list, community, function(err, results) {
+      if (collaboration) {
+        filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, function(err, results) {
           if (err) {
             return cb(err);
           }
@@ -172,9 +175,9 @@ function getUsersSearch(domains, query, cb) {
   });
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
-  var community = query.not_in_community;
+  var collaboration = query.not_in_collaboration || query.not_in_community;
   var limit = query.limit;
-  if (community) {
+  if (collaboration) {
     query.limit = null;
   }
 
@@ -220,10 +223,9 @@ function getUsersSearch(domains, query, cb) {
 
       var list = response.hits.hits;
       var users = list.map(function(hit) { return hit._source; });
-      var community = query.not_in_community;
 
-      if (community) {
-        filterByNotInCommunityAndNoMembershipRequest(users, community, function(err, results) {
+      if (collaboration) {
+        filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, function(err, results) {
           if (err) {
             return cb(err);
           }
