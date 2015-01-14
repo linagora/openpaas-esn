@@ -43,4 +43,7 @@ angular.module('esn.project', [
       }
     });
 
-  });
+  })
+  .run(['projectAdapterService', 'objectTypeAdapter', function(projectAdapterService, objectTypeAdapter) {
+    objectTypeAdapter.register('project', projectAdapterService);
+  }]);
