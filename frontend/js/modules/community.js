@@ -16,6 +16,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
   }])
   .factory('communityAdapterService', function() {
     return function(community) {
+      community.htmlUrl = '/#/communities/' + community._id;
       community.url = '/#/communities/' + community._id;
       community.avatarUrl = '/api/avatars?objectType=community&id=' + community._id;
       community.displayName = community.title;

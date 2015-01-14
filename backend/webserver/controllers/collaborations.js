@@ -48,7 +48,6 @@ module.exports.searchWhereMember = function(req, res) {
     }, function(results) {
       async.map(results, function(element, callback) {
         transform(element, req.user, function(transformed) {
-          transformed.objectType = req.query.objectType;
           return callback(null, transformed);
         });
       }, function(err, results) {

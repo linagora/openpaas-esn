@@ -187,7 +187,7 @@ function findCollaborationFromActivityStreamID(id, callback) {
       if (err || !result) {
         return callback();
       }
-      return callback(null, result);
+      return callback(null, addObjectType(type, result));
     });
   }
 
@@ -214,6 +214,16 @@ function getCollaborationsForTuple(tuple, callback) {
   }
 
   var finders = [];
+
+  function addObjectType(objectType, collaborations) {
+    return collaborations.map(function(collaboration) {
+      if (typeof(collaboration.toObject) === 'function') {
+        collaboration = collaboration.toObject();
+      }
+      collaboration.objectType = objectType;
+      return collaboration;
+    });
+  }
 
   function finder(type, callback) {
 

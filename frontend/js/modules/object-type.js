@@ -38,7 +38,7 @@ angular.module('esn.object-type', [])
 
       var adapter = adapters[model.objectType];
       if (!adapter) {
-        throw new Error(adapter.objectType + ' is not a registered adapter');
+        return model;
       }
       return adapter(model);
     }
