@@ -179,6 +179,16 @@ function registerCollaborationLib(name, lib) {
   collaborationLibs[name] = lib;
 }
 
+function addObjectType(objectType, collaborations) {
+  return collaborations.map(function(collaboration) {
+    if (typeof(collaboration.toObject) === 'function') {
+      collaboration = collaboration.toObject();
+    }
+    collaboration.objectType = objectType;
+    return collaboration;
+  });
+}
+
 function findCollaborationFromActivityStreamID(id, callback) {
   var finders = [];
 
@@ -187,7 +197,7 @@ function findCollaborationFromActivityStreamID(id, callback) {
       if (err || !result) {
         return callback();
       }
-      return callback(null, addObjectType(type, result));
+      return callback(null, result);
     });
   }
 
@@ -214,16 +224,6 @@ function getCollaborationsForTuple(tuple, callback) {
   }
 
   var finders = [];
-
-  function addObjectType(objectType, collaborations) {
-    return collaborations.map(function(collaboration) {
-      if (typeof(collaboration.toObject) === 'function') {
-        collaboration = collaboration.toObject();
-      }
-      collaboration.objectType = objectType;
-      return collaboration;
-    });
-  }
 
   function finder(type, callback) {
 

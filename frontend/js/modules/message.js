@@ -59,7 +59,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.streamable.activity_stream.uuid) {
+      if (!$scope.streamable || !$scope.streamable.activity_stream || !$scope.streamable.activity_stream.uuid) {
         $scope.displayError('You can not post to an unknown activitystream');
         return;
       }
