@@ -1,11 +1,11 @@
 div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
   h3.media-heading
-      a(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}") {{event.title}}
+      a(href="/#messages/{{message._id}}/activitystreams/{{streamable.activity_stream.uuid}}") {{event.title}}
   a.pull-left.message-avatar(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div
     a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-    a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystreamUuid}}")
+    a.message-date(href="/#messages/{{message._id}}/activitystreams/{{streamable.activity_stream.uuid}}")
         small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
     div.loading.text-center
       div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner', spinner-size='0.3', spinner-start-active)
