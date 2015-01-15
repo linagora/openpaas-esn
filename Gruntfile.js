@@ -15,7 +15,9 @@ module.exports = function(grunt) {
     var args = {};
     opts.forEach(function(optName) {
       var opt = grunt.option(optName);
-      if (opt) args[optName] = "" + opt;
+      if (opt) {
+        args[optName] = '' + opt;
+      }
     });
     return args;
   })();

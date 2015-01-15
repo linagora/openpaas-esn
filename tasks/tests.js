@@ -9,7 +9,7 @@ module.exports = function(grunt) {
     });
 
     if (!options.target) {
-        grunt.fatal.fail("Missing target in options");
+        grunt.fatal.fail('Missing target in options');
         return;
     }
 
