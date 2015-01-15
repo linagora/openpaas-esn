@@ -229,16 +229,16 @@ function projectControllers(lib, dependencies) {
     }
 
     if (!req.project.avatar) {
-      return res.redirect('/images/project.png');
+      return res.redirect('/projects/images/project.png');
     }
 
     imageModule.getAvatar(req.project.avatar, req.query.format, function(err, fileStoreMeta, readable) {
       if (err) {
-        return res.redirect('/images/project.png');
+        return res.redirect('/projects/images/project.png');
       }
 
       if (!readable) {
-        return res.redirect('/images/project.png');
+        return res.redirect('/projects/images/project.png');
       }
 
       if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {

@@ -23,6 +23,7 @@ angular.module('esnApp', [
   'esn.conference',
   'esn.contact',
   'esn.community',
+  'esn.collaboration',
   'esn.application',
   'esn.authentication',
   'esn.feedback',

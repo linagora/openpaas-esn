@@ -1,0 +1,18 @@
+.collaboration-members-widget
+  .title
+    i.fa.fa-users
+    | #{__('Members')}
+  hr
+
+  .row.alert.alert-danger(ng-show="error", role="alert")
+    p #{__('Error while getting members')}.
+
+  .row
+    .row(ng-repeat="row in members")
+      .col-xs-3.nopadding(ng-repeat="member in row")
+        collaboration-member-avatar(member="member", collaboration="collaboration")
+
+  .row.text-center(ng-show='more > 0')
+    a(ng-href='#/collaborations/{{objectType}}/{{collaboration._id}}/members') #{__('And')} {{more}} #{__('more')}...
+  .row.text-center(ng-show='more === 0')
+    a(ng-href='#/collaborations/{{objectType}}/{{collaboration._id}}/members') #{__('Show all members')}...
