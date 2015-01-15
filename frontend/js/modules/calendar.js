@@ -27,6 +27,32 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       this.formattedEndTime = end.format('h');
       this.formattedEndA = end.format('a');
 
+      var attendees = this.attendees = {};
+
+      vevent.getAllProperties('attendee').forEach(function(att) {
+        var id = att.getFirstValue();
+        if (!id) {
+          return;
+        }
+        var cn = att.getParameter('cn');
+        var mail = id.replace(/^mailto:/, '');
+        var partstat = att.getParameter('partstat');
+        var data = {
+          fullmail: (cn ? cn + ' <' + mail + '>' : mail),
+          mail: mail,
+          name: cn || mail,
+          partstat: partstat
+        };
+
+        // We will only handle these three cases
+        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED') {
+          partstat = 'OTHER';
+        }
+
+        attendees[partstat] = attendees[partstat] || [];
+        attendees[partstat].push(data);
+      });
+
       // NOTE: changing any of the above properties won't update the vevent, or
       // vice versa.
       this.vcalendar = vcalendar;
