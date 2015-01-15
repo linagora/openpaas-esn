@@ -5,6 +5,7 @@ var async = require('async');
 var attachments = require('./attachments');
 var emailMessageModule = require('./email');
 var whatsupMessageModule = require('./whatsup');
+var organizationalMessageModule = require('./organizational');
 var pubsub = require('../').pubsub.local;
 
 var MESSAGES_COLLECTION = 'messages';
@@ -245,11 +246,33 @@ function setAttachmentsReferences(message, callback) {
   });
 }
 
+var type = {
+  email: emailMessageModule,
+  whatsup: whatsupMessageModule,
+  organizational: organizationalMessageModule
+};
+
+function specificModelCheckForObjectType(objectType, messageModel, messageTargets, callback) {
+  if (!objectType || !type[objectType] || !type[objectType].checkModel) {
+    return callback(null);
+  }
+  else {
+    return type[objectType].checkModel(messageModel, messageTargets, callback);
+  }
+}
+
+function typeSpecificReplyPermission(message, user, callback) {
+  var objectType = message.objectType;
+  if (!objectType || !type[objectType] || !type[objectType].checkReplyPermission) {
+    return callback(null);
+  }
+  else {
+    return type[objectType].checkReplyPermission(message, user, callback);
+  }
+}
+
 module.exports = {
-  type: {
-    email: emailMessageModule,
-    whatsup: whatsupMessageModule
-  },
+  type: type,
   permission: require('./permission'),
   attachments: attachments,
   get: getWithAuthors,
@@ -258,5 +281,7 @@ module.exports = {
   getInstance: getInstance,
   addNewComment: addNewComment,
   findByIds: findByIds,
-  setAttachmentsReferences: setAttachmentsReferences
+  setAttachmentsReferences: setAttachmentsReferences,
+  specificModelCheckForObjectType: specificModelCheckForObjectType,
+  typeSpecificReplyPermission: typeSpecificReplyPermission
 };

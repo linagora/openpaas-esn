@@ -2,6 +2,7 @@
 
 var messagePermission = require('../../core/message/permission');
 var messageModule = require('../../core/message');
+var messageHelper = require('../../helpers/message');
 var requestMiddleware = require('./request');
 
 module.exports.canReplyTo = function(req, res, next) {
@@ -14,7 +15,12 @@ module.exports.canReplyTo = function(req, res, next) {
 
       messagePermission.canReply(message, req.user, function(err, result) {
         if (result) {
-          return next();
+          return messageModule.typeSpecificReplyPermission(message, req.user, function(err) {
+            if (err) {
+              return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not reply to this message'}});
+            }
+            return next();
+          });
         }
         return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not reply to this message'}});
       });
@@ -30,4 +36,21 @@ module.exports.checkTargets = function(req, res, next) {
     return next();
   }
   return requestMiddleware.assertRequestElementArrayAndNotEmpty('message_targets')(req, res, next);
+};
+
+module.exports.checkMessageModel = function(req, res, next) {
+  var inReplyTo = req.body.inReplyTo;
+  if (inReplyTo) {
+    return next();
+  }
+  var messageModel = messageHelper.postToModelMessage(req.body, req.user);
+  if (!messageModel.objectType) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'ObjectType is required for messages.'}});
+  }
+  messageModule.specificModelCheckForObjectType(messageModel.objectType, messageModel, req.message_targets, function(err) {
+    if (err) {
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: err.details}});
+    }
+    next();
+  });
 };
