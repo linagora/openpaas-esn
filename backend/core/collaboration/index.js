@@ -3,8 +3,19 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var async = require('async');
+var permission = require('./permission');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
+
+var MEMBERSHIP_TYPE_REQUEST = 'request';
+var MEMBERSHIP_TYPE_INVITATION = 'invitation';
+module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
+module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
+
+var WORKFLOW_NOTIFICATIONS_TOPIC = {
+  request: 'community:membership:request',
+  invitation: 'community:membership:invite'
+};
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -28,6 +39,23 @@ function getModel(objectType) {
 
 function getLib(objectType) {
   return collaborationLibs[objectType] || null;
+}
+
+function isManager(objectType, collaboration, user, callback) {
+  var id = collaboration._id || collaboration;
+  var user_id = user._id || user;
+
+  var Model = getModel(objectType);
+  if (!Model) {
+    return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
+  }
+
+  Model.findOne({_id: id, 'creator': user_id}, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, !!result);
+  });
 }
 
 function isMember(collaboration, tuple, callback) {
@@ -77,6 +105,82 @@ function getMembers(collaboration, objectType, query, callback) {
   });
 }
 
+function addMembershipRequest(collaboration, userAuthor, userTarget, workflow, actor, callback) {
+  if (!userAuthor) {
+    return callback(new Error('Author user object is required'));
+  }
+  var userAuthorId = userAuthor._id || userAuthor;
+
+  if (!userTarget) {
+    return callback(new Error('Target user object is required'));
+  }
+  var userTargetId = userTarget._id || userTarget;
+
+  if (!collaboration) {
+    return callback(new Error('Collaboration object is required'));
+  }
+
+  if (!workflow) {
+    return callback(new Error('Workflow string is required'));
+  }
+
+  var topic = WORKFLOW_NOTIFICATIONS_TOPIC[workflow];
+  if (!topic) {
+    var errorMessage = 'Invalid workflow, must be ';
+    var isFirstLoop = true;
+    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
+      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
+        if (isFirstLoop) {
+          errorMessage += '"' + key + '"';
+          isFirstLoop = false;
+        } else {
+          errorMessage += ' or "' + key + '"';
+        }
+      }
+    }
+    return callback(new Error(errorMessage));
+  }
+
+  if (workflow !== 'invitation' && !permission.supportsMemberShipRequests(collaboration)) {
+    return callback(new Error('Only Restricted and Private collaborations allow membership requests.'));
+  }
+
+  isMember(collaboration, {objectType: 'user', id: userTargetId}, function(err, isMember) {
+    if (err) {
+      return callback(err);
+    }
+    if (isMember) {
+      return callback(new Error('User already member of the collaboration.'));
+    }
+
+    var previousRequests = collaboration.membershipRequests.filter(function(request) {
+      var requestUserId = request.user._id || request.user;
+      return requestUserId.equals(userTargetId);
+    });
+    if (previousRequests.length > 0) {
+      return callback(null, collaboration);
+    }
+
+    collaboration.membershipRequests.push({user: userTargetId, workflow: workflow});
+
+    collaboration.save(function(err, collaborationSaved) {
+      if (err) {
+        return callback(err);
+      }
+
+      localpubsub.topic(topic).forward(globalpubsub, {
+        author: userAuthorId,
+        target: userTargetId,
+        collaboration: collaboration._id,
+        workflow: workflow,
+        actor: actor || 'user'
+      });
+
+      return callback(null, collaborationSaved);
+    });
+  });
+}
+
 function getMembershipRequests(objectType, objetId, query, callback) {
   query = query || {};
 
@@ -88,11 +192,11 @@ function getMembershipRequests(objectType, objetId, query, callback) {
   var q = Model.findById(objetId);
   q.slice('membershipRequests', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
   q.populate('membershipRequests.user');
-  q.exec(function(err, community) {
+  q.exec(function(err, collaboration) {
     if (err) {
       return callback(err);
     }
-    return callback(null, community ? community.membershipRequests : []);
+    return callback(null, collaboration ? collaboration.membershipRequests : []);
   });
 }
 
@@ -281,12 +385,12 @@ function getStreamsForUser(userId, options, callback) {
   });
 }
 
-function hasDomain(community) {
-  if (!community || !community.domain_ids) {
+function hasDomain(collaboration) {
+  if (!collaboration || !collaboration.domain_ids) {
     return false;
   }
 
-  return community.domain_ids.some(function(domainId) {
+  return collaboration.domain_ids.some(function(domainId) {
     return domainId + '' === domainId + '';
   });
 }
@@ -299,8 +403,10 @@ module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
 module.exports.registerCollaborationModel = registerCollaborationModel;
 module.exports.registerCollaborationLib = registerCollaborationLib;
+module.exports.addMembershipRequest = addMembershipRequest;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
+module.exports.isManager = isManager;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
 module.exports.getCollaborationsForTuple = getCollaborationsForTuple;

@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 
 describe('The collaboration module', function() {
+
   describe('query() method', function() {
     it('should fail if the collaboration objectType is unknown', function(done) {
       this.helpers.mock.models({});
@@ -22,7 +23,7 @@ describe('The collaboration module', function() {
         }
       });
       var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration');
-      collaboration.query('community', {}, function(err) {});
+      collaboration.query('community', 'collaboration', {}, function(err) {});
     });
 
     it('should call mongoose#find even when query is undefined', function(done) {
@@ -40,6 +41,266 @@ describe('The collaboration module', function() {
       });
       var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration');
       collaboration.query('community', theQuery, function(err) {});
+    });
+  });
+
+  describe('The addMembershipRequest fn', function() {
+    beforeEach(function() {
+      this.helpers.mock.models({});
+    });
+
+    it('should send back error when userAuthor is null', function() {
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest({}, null, {}, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when userTarget is null', function() {
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest({}, {}, null, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when collaboration is null', function() {
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest(null, {}, {}, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when workflow is null', function() {
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest({}, {}, {}, null, null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error when workflow is not "request" or "invitation"', function() {
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest({}, {}, {}, 'test', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error if collaboration type is not restricted or private for membership request', function() {
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest({type: 'open'}, {}, {}, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+      collaborationModule.addMembershipRequest({type: 'confidential'}, {}, {}, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error if userTarget is already member of the collaboration', function() {
+      var user = { _id: 'uid' };
+      var collaboration = {
+        _id: 'cid',
+        type: 'restricted',
+        members: [
+          {
+            member: {
+              objectType: 'user',
+              id: 'uid'
+            }
+          }
+        ]
+      };
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest(collaboration, {}, user, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should send back error if the check if the target user is member of the collaboration fails', function() {
+      var user = { _id: 'uid' };
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest(null, {}, user, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should not add a request if the target user has already a pending membership', function() {
+      var user = { _id: this.helpers.objectIdMock('uid') };
+      var collaboration = {
+        _id: 'cid',
+        type: 'restricted',
+        membershipRequests: [{user: user._id}],
+        members: [
+          {
+            member: {
+              objectType: 'user',
+              id: 'uid123465'
+            }
+          }
+        ]
+      };
+      var workflow = 'request';
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipRequest(collaboration, {}, user, workflow, null, function(err, c) {
+        expect(err).to.not.exist;
+        expect(c).to.exist;
+        expect(c.membershipRequests).to.deep.equal(collaboration.membershipRequests);
+      });
+    });
+
+    it('should fail if the updated collaboration save fails', function() {
+      var user = { _id: this.helpers.objectIdMock('uid') };
+      var collaboration = {
+        _id: 'cid',
+        type: 'restricted',
+        members: [
+          {
+            member: {
+              objectType: 'user',
+              id: 'uid456789'
+            }
+          }
+        ],
+        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
+        save: function(callback) {
+          return callback(new Error('save fail'));
+        }
+      };
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
+        return callback(null, {});
+      };
+      collaborationModule.addMembershipRequest(collaboration, {}, user, 'request', null, function(err, c) {
+        expect(err).to.exist;
+        expect(c).to.not.exist;
+      });
+    });
+
+    it('should add a new request and return the updated collaboration', function() {
+      var user = { _id: this.helpers.objectIdMock('uid') };
+      var collaboration = {
+        _id: 'cid',
+        type: 'restricted',
+        members: [
+          {
+            member: {
+              objectType: 'user',
+              id: 'uid456789'
+            }
+          }
+        ],
+        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
+        save: function(callback) {
+          return callback(null, collaboration);
+        }
+      };
+      var workflow = 'request';
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
+        return callback(null, {});
+      };
+      collaborationModule.addMembershipRequest(collaboration, {}, user, workflow, null, function(err, c) {
+        expect(err).to.not.exist;
+        expect(c).to.exist;
+        expect(c.membershipRequests.length).to.equal(2);
+        var newRequest = c.membershipRequests[1];
+        expect(newRequest.user).to.deep.equal(user._id);
+        expect(newRequest.workflow).to.deep.equal(workflow);
+      });
+    });
+
+    it('should add a new invitation and return the updated collaboration with open type', function() {
+      var user = { _id: this.helpers.objectIdMock('uid') };
+      var collaboration = {
+        _id: 'cid',
+        type: 'open',
+        members: [
+          {
+            member: {
+              objectType: 'user',
+              id: 'uid456789'
+            }
+          }
+        ],
+        membershipRequests: [{user: this.helpers.objectIdMock('otherUser')}],
+        save: function(callback) {
+          return callback(null, collaboration);
+        }
+      };
+      var workflow = 'invitation';
+      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
+        return callback(null, {});
+      };
+      collaborationModule.addMembershipRequest(collaboration, {}, user, workflow, null, function(err, c) {
+        expect(err).to.not.exist;
+        expect(c).to.exist;
+        expect(c.membershipRequests.length).to.equal(2);
+        var newRequest = c.membershipRequests[1];
+        expect(newRequest.user).to.deep.equal(user._id);
+        expect(newRequest.workflow).to.deep.equal(workflow);
+      });
+    });
+
+  });
+
+  describe('The isManager fn', function() {
+
+    it('should send back error when Community.findOne fails', function(done) {
+      this.helpers.mock.models({
+        Community: {
+          findOne: function(a, callback) {
+            return callback(new Error());
+          }
+        }
+      });
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.isManager('community', 123, 456, function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+
+    it('should send back true when Community.findOne finds user', function(done) {
+      this.helpers.mock.models({
+        Community: {
+          findOne: function(a, callback) {
+            return callback(null, {});
+          }
+        }
+      });
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.isManager('community', 123, 456, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        return done();
+      });
+    });
+
+    it('should send back false when Community.findOne does not find user', function(done) {
+      this.helpers.mock.models({
+        Community: {
+          findOne: function(a, callback) {
+            return callback();
+          }
+        }
+      });
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.isManager('community', 123, 456, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        return done();
+      });
     });
   });
 });

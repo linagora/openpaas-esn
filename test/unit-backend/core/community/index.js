@@ -780,7 +780,6 @@ describe('The community module', function() {
 
   });
 
-
   describe('The addMembershipRequest fn', function() {
     beforeEach(function() {
       this.helpers.mock.models({});

@@ -6,15 +6,50 @@ var async = require('async');
 
 describe('The collaborations API', function() {
 
-  var webserver;
+  var user;
+  var email = 'user@open-paas.org';
   var password = 'secret';
+  var Community, User, Domain, webserver;
+
+  var saveCommunity = function(community, done) {
+    var c = new Community(community);
+    return c.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+      community._id = saved._id;
+      return done();
+    });
+  };
+
+  var saveDomain = function(domain, done) {
+    var d = new Domain(domain);
+    return d.save(function(err, saved) {
+      if (err) {
+        return done(err);
+      }
+      domain._id = saved._id;
+      return done();
+    });
+  };
 
   beforeEach(function(done) {
     var self = this;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
       webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
-      done();
+      Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
+      User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+
+      user = new User({password: password, emails: [email]});
+      user.save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+        user._id = saved._id;
+        return done();
+      });
     });
   });
 
@@ -447,7 +482,6 @@ describe('The collaborations API', function() {
     });
   });
 
-
   describe('GET /api/collaborations/:objectType/:id/externalcompanies', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
@@ -557,6 +591,182 @@ describe('The collaborations API', function() {
       });
     });
 
+  });
+
+  describe('PUT /api/collaboration/community/:id/membership/:user_id', function() {
+
+    it('should return 401 if user is not authenticated', function(done) {
+      request(webserver.application).put('/api/collaborations/community/123/membership/456').expect(401).end(function(err) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should return 400 if user is already member of the community', function(done) {
+      var self = this;
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var community = models.communities[1];
+
+        self.helpers.api.loginAsUser(webserver.application, models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + models.users[1]._id));
+          req.expect(400);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.text).to.contain('already member');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return 200 if user has already made a request for this community', function(done) {
+      var self = this;
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        members: [],
+        type: 'private',
+        membershipRequests: []
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+
+      async.series([
+        function(callback) {
+          domain.administrator = user._id;
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.creator = user._id;
+          community.domain_ids = [domain._id];
+          community.membershipRequests.push({user: user._id, workflow: 'workflow'});
+          saveCommunity(community, callback);
+        },
+        function() {
+          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + user._id));
+            req.end(function(err, res) {
+              expect(res.status).to.equal(200);
+              expect(res.body.membershipRequest).to.exist;
+              expect(res.body.membershipRequests).to.not.exist;
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    describe('when the current user is not a community manager', function() {
+      it('should return 400 if current user is not equal to :user_id param', function(done) {
+        var self = this;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
+
+          self.helpers.api.loginAsUser(webserver.application, models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + models.users[3]._id));
+            req.expect(400);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+
+      it('should return 200 with the community containing a new request', function(done) {
+        var self = this;
+        var community = {
+          title: 'Node.js',
+          description: 'This is the community description',
+          members: [],
+          type: 'private',
+          membershipRequests: []
+        };
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'MyAwesomeCompany'
+        };
+
+        async.series([
+          function(callback) {
+            domain.administrator = user._id;
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            community.creator = user._id;
+            community.domain_ids = [domain._id];
+            saveCommunity(community, callback);
+          },
+          function() {
+            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + user._id));
+              req.end(function(err, res) {
+                expect(res.status).to.equal(200);
+                expect(res.body).to.exist;
+                expect(res.body.title).to.equal(community.title);
+                expect(res.body.description).to.equal(community.description);
+                expect(res.body.type).to.equal(community.type);
+                expect(res.body.membershipRequest).to.exist;
+                expect(res.body.membershipRequests).to.not.exist;
+                done();
+              });
+            });
+          }
+        ], function(err) {
+          if (err) {
+            return done(err);
+          }
+        });
+      });
+    });
+
+    describe('when the current user is a community manager', function() {
+      it('should return 200 with the community containing a new invitation', function(done) {
+        var self = this;
+        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) { return done(err); }
+          var community = models.communities[1];
+          self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + models.users[2]._id));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              Community.findOne({_id: community._id}, function(err, document) {
+                expect(document.membershipRequests).to.exist;
+                expect(document.membershipRequests).to.be.an('array');
+                expect(document.membershipRequests).to.have.length(1);
+                expect(document.membershipRequests[0].user + '').to.equal(models.users[2]._id + '');
+                expect(document.membershipRequests[0].workflow).to.equal('invitation');
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
 });

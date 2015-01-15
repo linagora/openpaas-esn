@@ -237,7 +237,6 @@ ie. which are not member of this collaboration through another collaboration
 - Accept: application/json
 
 **Parameters:**
-
 - id: The id of the collaboration
 
 **Query Parameters:**
@@ -278,3 +277,63 @@ ie. which are not member of this collaboration through another collaboration
         id: 'linuxFR'
       }
     ]
+
+## PUT /api/collaborations/{objectType}/{id}/membership/{user_id}
+
+Adds an item in the {objectType} membership requests list i.e. the user request to be part of the {objectType}.
+
+Notes:
+
+- Only private and restricted {objectType} support membership requests
+- A user cannot make a membership request for a {objectType} he is already member of.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- {objectType}: The community id
+- {id}: The {objectType} id
+- user_id: The user id
+
+**Response Headers:**
+
+- Content-Type: application/json
+
+**Response JSON Object**
+
+The updated {objectType}.
+
+**Status Codes:**
+
+- 200 OK - Updated community.
+- 400 Bad request.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 500 Internal server error - Something went wrong on the server side.
+
+**Request:**
+
+    PUT /api/collaborations/community/538e3bd6654d7c3307f990fa/membership/538e3bd6654d7c3307f990fb
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+      "_id": "538e3bd6654d7c3307f990fa",
+      "title": "Node.js",
+      "description": "All about node.js",
+      "domain_ids": ["9328938983983"],
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      },
+      membershipRequest: "2014-05-16T09:47:11.704Z"
+    }

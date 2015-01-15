@@ -202,7 +202,9 @@ exports = module.exports = function(application) {
 
   var collaborations = require('./controllers/collaborations');
   var collaborationMW = require('./middleware/collaboration');
-  application.get('/api/collaborations/membersearch', authorize.requiresAPILogin, collaborations.searchWhereMember);
+  application.get('/api/collaborations/membersearch',
+    authorize.requiresAPILogin,
+    collaborations.searchWhereMember);
   application.get('/api/collaborations/:objectType/:id/members',
     authorize.requiresAPILogin,
     collaborationMW.load,
@@ -214,10 +216,19 @@ exports = module.exports = function(application) {
     collaborationMW.canRead,
     collaborations.getExternalCompanies
   );
-  application.get('/api/collaboration/:objectType/:id/invitablepeople',
+  application.get('/api/collaborations/:objectType/:id/invitablepeople',
     authorize.requiresAPILogin,
     collaborationMW.load,
     collaborations.getInvitablePeople);
+  application.put('/api/collaborations/:objectType/:id/membership/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    requestMW.castParamToObjectId('user_id'),
+    collaborationMW.checkUserParamIsNotMember,
+    collaborationMW.flagCollaborationManager,
+    collaborationMW.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
+    collaborations.addMembershipRequest
+  );
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

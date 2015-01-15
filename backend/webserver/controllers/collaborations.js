@@ -211,3 +211,88 @@ function getInvitablePeople(req, res) {
   });
 }
 module.exports.getInvitablePeople = getInvitablePeople;
+
+function ensureLoginCollaborationAndUserId(req, res) {
+  var collaboration = req.collaboration;
+  var user = req.user;
+
+  if (!user) {
+    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+    return false;
+  }
+
+  if (!req.params || !req.params.user_id) {
+    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
+    return false;
+  }
+
+  if (!collaboration) {
+    res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
+    return false;
+  }
+  return true;
+}
+module.exports.ensureLoginCollaborationAndUserId = ensureLoginCollaborationAndUserId;
+
+function transform(collaboration, user, callback) {
+  if (!collaboration) {
+    return {};
+  }
+
+  var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
+
+  if (typeof(collaboration.toObject) === 'function') {
+    collaboration = collaboration.toObject();
+  }
+
+  collaboration.members_count = collaboration.members ? collaboration.members.length : 0;
+  if (membershipRequest) {
+    collaboration.membershipRequest = membershipRequest.timestamp.creation.getTime();
+  }
+
+  collaborationModule.isMember(collaboration, {objectType: 'user', id: user._id + ''}, function(err, membership) {
+    if (membership) {
+      collaboration.member_status = 'member';
+    } else {
+      collaboration.member_status = 'none';
+    }
+    delete collaboration.members;
+    delete collaboration.membershipRequests;
+    return callback(collaboration);
+  });
+}
+
+function addMembershipRequest(req, res) {
+  if (!ensureLoginCollaborationAndUserId(req, res)) {
+    return;
+  }
+  var collaboration = req.collaboration;
+  var userAuthor = req.user;
+  var userTargetId = req.params.user_id;
+
+  var member = collaboration.members.filter(function(m) {
+    return m.member.objectType === 'user' && m.member.id.equals(userTargetId);
+  });
+
+  if (member.length) {
+    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User is already member'}});
+  }
+
+  function addMembership(collaboration, userAuthor, userTarget, workflow, actor) {
+    collaborationModule.addMembershipRequest(collaboration, userAuthor, userTarget, workflow, actor, function(err, collaboration) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+      }
+      return transform(collaboration, userAuthor, function(transformed) {
+        return res.json(200, transformed);
+      });
+    });
+  }
+
+  if (req.isCollaborationManager) {
+    addMembership(collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_INVITATION, 'manager');
+  } else {
+    addMembership(collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_REQUEST, 'user');
+  }
+}
+module.exports.addMembershipRequest = addMembershipRequest;

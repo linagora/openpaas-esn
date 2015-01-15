@@ -47,3 +47,68 @@ function canRead(req, res, next) {
   return requiresCollaborationMember(req, res, next);
 }
 module.exports.canRead = canRead;
+
+module.exports.checkUserParamIsNotMember = function(req, res, next) {
+  if (!req.collaboration) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.param('user_id')) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
+  }
+
+  collaborationModule.isMember(req.collaboration, req.param('user_id'), function(err, isMember) {
+    if (err) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
+    }
+
+    if (isMember) {
+      return res.json(400, {error: 400, message: 'Bad request', details: 'User is already member of the community.'});
+    }
+    return next();
+  });
+};
+
+module.exports.flagCollaborationManager = function(req, res, next) {
+  if (!req.collaboration) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing collaboration'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  collaborationModule.isManager(req.params.objectType, req.collaboration, req.user, function(err, manager) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
+    }
+    req.isCollaborationManager = manager;
+    next();
+  });
+};
+
+function checkUserIdParameterIsCurrentUser(req, res, next) {
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  if (!req.param('user_id')) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user id'});
+  }
+
+  if (!req.user._id.equals(req.param('user_id'))) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Parameters do not match'});
+  }
+
+  return next();
+}
+module.exports.checkUserIdParameterIsCurrentUser = checkUserIdParameterIsCurrentUser;
+
+function ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser(req, res, next) {
+  if (req.isCollaborationManager) {
+    return next();
+  }
+
+  checkUserIdParameterIsCurrentUser(req, res, next);
+}
+module.exports.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser = ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser;
