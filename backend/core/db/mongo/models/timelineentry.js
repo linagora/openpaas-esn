@@ -1,6 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var tuple = require('../schemas/tuple');
+var Tuple = tuple.Tuple;
 
 var TimelineEntrySchema = new mongoose.Schema({
   verb: {type: String},
@@ -23,7 +25,8 @@ var TimelineEntrySchema = new mongoose.Schema({
   inReplyTo: [{
     objectType: {type: String},
     _id: {type: mongoose.Schema.ObjectId, required: true}
-  }]
+  }],
+  to: {type: [Tuple], validate: [tuple.validateTuples, 'Bad to tuple']}
 }, {collection: 'timelineentries'});
 
 module.exports = mongoose.model('TimelineEntry', TimelineEntrySchema);
