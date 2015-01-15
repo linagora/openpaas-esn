@@ -87,6 +87,11 @@ describe('The activitystreams controller module', function() {
     var timelineMock = {
       query: function(options, cb) {
         return cb(null, timeline);
+      },
+      permission: {
+        canRead: function(timelineEntry, tuple, callback) {
+          return callback(null, true);
+        }
       }
     };
     mockery.registerMock('../../core/activitystreams', timelineMock);
@@ -97,7 +102,10 @@ describe('The activitystreams controller module', function() {
         uuid: '12345'
       },
       query: {},
-      activity_stream: {}
+      activity_stream: {},
+      user: {
+        _id: '123'
+      }
     };
 
     var res = {
