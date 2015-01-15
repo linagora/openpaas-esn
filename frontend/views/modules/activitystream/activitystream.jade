@@ -1,6 +1,6 @@
 div(activity-stream-notification)
   div
-    message-edition(ng-show="streamable.writable")
+    message-edition(ng-show="activitystream.writable")
   activity-stream-updates-notifier
   div
       div#activitystreamerror
@@ -8,6 +8,6 @@ div(activity-stream-notification)
       infinite-list
           ul.media-list
             li.media(ng-repeat="thread in threads" ng-init='parentMessage=true')
-              message-template-displayer(message='thread' streamable='streamable' streams='streams' last-post='lastPost' parent-message='parentMessage')
+              message-template-displayer(message='thread' activitystream='activitystream' last-post='lastPost' parent-message='parentMessage')
       .throbber-container.text-center
         div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner')

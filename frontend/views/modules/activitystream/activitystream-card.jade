@@ -1,7 +1,7 @@
 .streamcard
-  a.avatar(ng-href='{{::streamable.htmlUrl}}')
-    img(src='/images/activitystream.png', fallback-src='/images/activitystream.png', ng-src='{{::streamable.avatarUrl}}')
+  a.avatar(ng-href='{{::activitystream.htmlUrl}}')
+    img(src='/images/activitystream.png', fallback-src='/images/activitystream.png', ng-src='{{::activitystream.avatarUrl}}')
     span.label.sourcelabel.label-primary #{__("Source")}
   div.ellipsis
     span
-      a(ng-href='{{::streamable.htmlUrl}}') {{::streamable.displayName}}
+      a(ng-href='{{::activitystream.htmlUrl}}') {{::activitystream.displayName}}

@@ -53,18 +53,18 @@ describe('The esn.activitystream Angular module', function() {
     });
 
     it('should return an object having a endOfStream property', function() {
-      var instance = this.agg('ID1', 30);
+      var instance = this.agg({activity_stream: {uuid: 'ID1'}}, {activity_stream: {uuid: 'ID2'}}, [], 30);
       expect(instance).to.have.property('endOfStream');
     });
 
     it('should return an object having a loadMoreElements method', function() {
-      var instance = this.agg('ID1', 30);
+      var instance = this.agg({activity_stream: {uuid: 'ID1'}}, {activity_stream: {uuid: 'ID2'}}, [], 30);
       expect(instance).to.respondTo('loadMoreElements');
     });
 
     describe('endOfStream property', function() {
       it('should return the endofstream property of the associated filteredcursor', function() {
-        var instance = this.agg('ID1', 30);
+        var instance = this.agg({activity_stream: {uuid: 'ID1'}}, {activity_stream: {uuid: 'ID2'}}, [], 30);
         expect(instance.endOfStream).to.be.false;
         this.filteredcursorInstance.endOfStream = true;
         expect(instance.endOfStream).to.be.true;
@@ -73,7 +73,7 @@ describe('The esn.activitystream Angular module', function() {
 
     describe('loadMoreElements method', function() {
       it('should call the nextItems method of the associated filteredcursor', function(done) {
-        var instance = this.agg('ID1', 30);
+        var instance = this.agg({activity_stream: {uuid: 'ID1'}}, {activity_stream: {uuid: 'ID2'}}, [], 30);
         this.filteredcursorInstance.nextItems = function() {done();};
         instance.loadMoreElements();
       });

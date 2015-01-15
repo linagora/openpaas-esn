@@ -193,8 +193,8 @@ angular.module('esn.activitystream')
 
 .factory(
 'activitystreamAggregator',
-['activitystreamFilter', 'filteredcursor', 'restcursor', 'activitystreamMessageDecorator', 'activitystreamAPI',
-  function(activitystreamFilter, filteredcursor, restcursor, activitystreamMessageDecorator, activitystreamAPI) {
+['activitystreamFilter', 'filteredcursor', 'restcursor', 'activitystreamOriginDecorator', 'activitystreamAPI',
+  function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginDecorator, activitystreamAPI) {
 
     function apiWrapper(id) {
       function api(options) {
@@ -215,7 +215,8 @@ angular.module('esn.activitystream')
       return restcursor(apiWrapper(id), limit, restcursorOptions);
     }
 
-    function activitystreamAggregator(id, limit) {
+    function activitystreamAggregator(activitystream, streamOrigin, streams, limit) {
+      var id = activitystream.activity_stream.uuid;
 
       var restcursorlimit = limit * 3;
       var restcursorinstance = getRestcursor(id, restcursorlimit);
@@ -226,7 +227,7 @@ angular.module('esn.activitystream')
       var filteredcursorInstance = filteredcursor(restcursorinstance, limit, filteredcursorOptions);
 
       function loadMoreElements(callback) {
-        filteredcursorInstance.nextItems(activitystreamMessageDecorator(callback));
+        filteredcursorInstance.nextItems(activitystreamOriginDecorator(streamOrigin, streams, callback));
       }
 
       var aggregator = {
@@ -343,24 +344,57 @@ angular.module('esn.activitystream')
 }])
 .factory('activitystreamAggregatorCreator', ['activitystreamAggregator', 'activitystreamsAggregator', function(activitystreamAggregator, activitystreamsAggregator) {
 
-  function one(id, limit) {
-    return activitystreamAggregator(id, limit);
+  function one(activitystream, streamOrigin, streams, limit) {
+    return activitystreamAggregator(activitystream, streamOrigin, streams, limit);
   }
 
-  function many(ids, limit) {
-    var aggs = ids.map(function(id) {
-      return one(id, limit);
+  function many(streamOrigin, streams, limit) {
+    var aggs = streams.map(function(stream) {
+      return one(stream, streamOrigin, streams, limit);
     });
     return activitystreamsAggregator(aggs, limit);
   }
 
-  return function(id, limit) {
-    if (!angular.isArray(id)) {
-      return one(id, limit);
+  return function(streamOrigin, streams, limit) {
+    if (!streams || streams.length === 0) {
+      return one(streamOrigin, streamOrigin, streams, limit);
     } else {
-      return many(id, limit);
+      return many(streamOrigin, streams, limit);
     }
   };
+}])
+.factory('activitystreamOriginDecorator', ['activitystreamMessageDecorator', 'activitystreamHelper', function(activitystreamMessageDecorator, activitystreamHelper) {
+  return function activitystreamOriginDecorator(streamOrigin, streams, callback) {
+
+    function getStreamOrigins(message) {
+      if (!message || !angular.isArray(streams)) {
+        return [];
+      }
+
+      return streams.filter(function(stream) {
+        return message.target && message.target.some(function(target) {
+            return target.objectType === 'activitystream' && target._id === stream.activity_stream.uuid;
+          });
+      });
+    }
+
+    function isOriginMessage(message) {
+      return message.target && message.target.some(function(target) {
+          return target.objectType === 'activitystream' && target._id === streamOrigin.activity_stream.uuid;
+        });
+    }
+
+    return activitystreamMessageDecorator(function(err, items) {
+        if (items) {
+          items = items.map(function(item) {
+            item.object.streamOrigins = getStreamOrigins(item);
+            item.object.isOrigin = isOriginMessage(item);
+            return item;
+          });
+        }
+        return callback(err, items);
+      });
+    };
 }])
 .factory('activitystreamHelper', function() {
 

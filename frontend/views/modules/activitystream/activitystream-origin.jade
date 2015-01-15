@@ -1,3 +1,3 @@
-.row(ng-show="currentMessageInLinkedStreams()")
-  div(ng-repeat="stream in streamOrigins")
-    activity-stream-card(streamable='stream')
+.row
+  div(ng-repeat="stream in streams")
+    activity-stream-card(activitystream='stream')

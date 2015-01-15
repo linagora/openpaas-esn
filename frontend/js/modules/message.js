@@ -59,7 +59,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.streamable || !$scope.streamable.activity_stream || !$scope.streamable.activity_stream.uuid) {
+      if (!$scope.activitystream || !$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
         $scope.displayError('You can not post to an unknown activitystream');
         return;
       }
@@ -81,7 +81,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       var target = {
         objectType: 'activitystream',
-        id: $scope.streamable.activity_stream.uuid
+        id: $scope.activitystream.activity_stream.uuid
       };
 
       function send(objectType, data, targets, attachments) {
@@ -98,7 +98,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         messageAPI.post(objectType, data, targets, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.streamable.activity_stream.uuid,
+              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
               id: response.data._id
             });
             return defer.resolve();
@@ -404,27 +404,29 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/messagesDisplay.html'
     };
   })
-  .directive('messageTemplateDisplayer', ['RecursionHelper', 'activitystreamHelper', function(RecursionHelper, activitystreamHelper) {
+  .directive('messageTemplateDisplayer', ['RecursionHelper', function(RecursionHelper) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         message: '=',
-        streamable: '=',
+        activitystream: '=?',
         lastPost: '=',
-        parentMessage: '=',
-        streams: '=',
-        activitystream: '=?'
+        parentMessage: '='
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
       controller: function($scope) {
 
         if (!$scope.activitystream) {
-          var origins = activitystreamHelper.getMessageStreamOrigins($scope.message, $scope.streams);
+          var origins = $scope.message.streamOrigins;
           if (origins && origins.length > 0) {
             $scope.activitystream = origins[0];
-            $scope.writable = $scope.activitystream.writable;
           }
+        }
+        if ($scope.activitystream) {
+          $scope.writable = $scope.activitystream.writable;
+        } else {
+          $scope.writable = false;
         }
       },
       compile: function(element) {

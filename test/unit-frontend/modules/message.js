@@ -375,7 +375,7 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done(new Error());
         };
-        this.scope.streamable = {activity_stream: {uuid: '0987654321'}};
+        this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
@@ -391,7 +391,7 @@ describe('The esn.message Angular module', function() {
         this.scope.position = {
           coords: coords
         };
-        this.scope.streamable = {activity_stream: {uuid: '0987654321'}};
+        this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
@@ -407,7 +407,7 @@ describe('The esn.message Angular module', function() {
           done();
         };
         defer.reject({data: {status: 403}});
-        this.scope.streamable = {activity_stream: {uuid: '0987654321'}};
+        this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
@@ -430,7 +430,7 @@ describe('The esn.message Angular module', function() {
           this.scope.displayError = function() {
             done(new Error());
           };
-          this.scope.streamable = {activity_stream: {uuid: '0987654321'}};
+          this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
           this.scope.whatsupmessage = 'Hey Oh, let\'s go';
           this.rootScope.$on('message:posted', function(evt, data) {
             expect(data.activitystreamUuid).to.equal('0987654321');

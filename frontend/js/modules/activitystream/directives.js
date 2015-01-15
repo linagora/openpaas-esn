@@ -39,14 +39,14 @@ angular.module('esn.activitystream')
       scope: {
         calendarId: '=',
         streams: '=',
-        streamable: '='
+        activitystream: '='
       },
       replace: true,
       templateUrl: '/views/modules/activitystream/activitystream.html',
       controller: 'activitystreamController',
       link: function(scope) {
         scope.streams = scope.streams || [];
-        scope.streams = scope.streams.concat(scope.streamable);
+        scope.streams = scope.streams.concat(scope.activitystream);
 
         scope.lastPost = {
           messageId: null,
@@ -147,38 +147,20 @@ angular.module('esn.activitystream')
       }
     };
   }])
-  .directive('activityStreamOrigin', ['activitystreamHelper', function(activitystreamHelper) {
-    return {
-      scope: {
-        activitystream: '=',
-        message: '=',
-        streams: '='
-      },
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/activitystream/activitystream-origin.html',
-      controller: function($scope) {
-
-        $scope.currentMessageInLinkedStreams = function() {
-          if (!$scope.streams || $scope.streams.length === 0 || !$scope.message.shares) {
-            return false;
-          }
-
-          return $scope.message.shares.some(function(share) {
-            return share.objectType === 'activitystream' && $scope.streams.some(function(stream) {
-              return $scope.activitystream.activity_stream && stream.activity_stream && stream.activity_stream.uuid === share.id && stream.activity_stream.uuid !== $scope.activitystream.activity_stream.uuid;
-            });
-          });
-        };
-
-        $scope.streamOrigins = activitystreamHelper.getMessageStreamOrigins($scope.message, $scope.streams);
-      }
-    };
-  }])
+.directive('activityStreamOrigin', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      streams: '='
+    },
+    templateUrl: '/views/modules/activitystream/activitystream-origin.html'
+  };
+})
 .directive('activityStreamCard', function() {
   return {
     scope: {
-      streamable: '='
+      activitystream: '='
     },
     restrict: 'E',
     replace: true,

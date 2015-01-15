@@ -185,8 +185,8 @@ describe('The esn.activitystream Angular module', function() {
     it('should call scope.getStreamUpdates() method when a "message:posted" event is emitted with this activitystream uuid', function(done) {
       var uuid = '0987654321';
       this.$scope.streams = [];
-      this.$scope.streamable = {activity_stream: {uuid: uuid}};
-      var html = '<activity-stream streamable="streamable" streams="streams"></activity-stream>';
+      this.$scope.activitystream = {activity_stream: {uuid: uuid}};
+      var html = '<activity-stream activitystream="activitystream" streams="streams"></activity-stream>';
       var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       var scope = element.isolateScope();
@@ -200,8 +200,8 @@ describe('The esn.activitystream Angular module', function() {
     });
     it('should update scope.lastPost.messageId when a "message:posted" event is emitted with this activitystream uuid', function() {
       this.$scope.streams = [];
-      this.$scope.streamable = {activity_stream: {uuid: '0987654321'}};
-      var html = '<activity-stream streamable="streamable" streams="streams"></activity-stream>';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
+      var html = '<activity-stream activitystream="activitystream" streams="streams"></activity-stream>';
       var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       var scope = element.isolateScope();
@@ -213,8 +213,8 @@ describe('The esn.activitystream Angular module', function() {
     });
     it('should update the thread comments method when a "message:comment" event is emitted', function() {
       this.$scope.streams = [];
-      this.$scope.streamable = {activity_stream: {uuid: '0987654321'}};
-      var html = '<activity-stream streamable="streamable" streams="streams"></activity-stream>';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
+      var html = '<activity-stream activitystream="activitystream" streams="streams"></activity-stream>';
       var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       var scope = element.isolateScope();
@@ -242,8 +242,8 @@ describe('The esn.activitystream Angular module', function() {
 
     it('should update scope.lastPost.comment when a "message:comment" event is emitted', function() {
       this.$scope.streams = [];
-      this.$scope.streamable = {activity_stream: {uuid: '0987654321'}};
-      var html = '<activity-stream streamable="streamable" streams="streams"></activity-stream>';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
+      var html = '<activity-stream activitystream="activitystream" streams="streams"></activity-stream>';
       var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       var scope = element.isolateScope();
@@ -270,8 +270,8 @@ describe('The esn.activitystream Angular module', function() {
 
     it('should ignore "message:comment" events when the comment parent is not in the threads', function() {
       this.$scope.streams = [];
-      this.$scope.streamable = {activity_stream: {uuid: '0987654321'}};
-      var html = '<activity-stream streamable="streamable" streams="streams"></activity-stream>';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
+      var html = '<activity-stream activitystream="activitystream" streams="streams"></activity-stream>';
       var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       var scope = element.isolateScope();
