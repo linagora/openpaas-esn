@@ -11,7 +11,7 @@ module.exports = function(grunt) {
 
     splitfiles: {
       options: {
-        chunk: 10,
+        chunk: 10
       },
       backend: {
         options: {
