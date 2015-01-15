@@ -17,6 +17,12 @@ var objectTypeToSchemaName = {
   organizational: 'OrganizationalMessage'
 };
 
+var type = {
+  email: emailMessageModule,
+  whatsup: whatsupMessageModule,
+  organizational: organizationalMessageModule
+};
+
 function getModel(objectType) {
   var modelName = objectTypeToSchemaName[objectType];
   if (!modelName) {
@@ -246,15 +252,9 @@ function setAttachmentsReferences(message, callback) {
   });
 }
 
-var type = {
-  email: emailMessageModule,
-  whatsup: whatsupMessageModule,
-  organizational: organizationalMessageModule
-};
-
 function specificModelCheckForObjectType(objectType, messageModel, messageTargets, callback) {
   if (!objectType || !type[objectType] || !type[objectType].checkModel) {
-    return callback(null);
+    return callback();
   }
   else {
     return type[objectType].checkModel(messageModel, messageTargets, callback);
@@ -264,7 +264,7 @@ function specificModelCheckForObjectType(objectType, messageModel, messageTarget
 function typeSpecificReplyPermission(message, user, callback) {
   var objectType = message.objectType;
   if (!objectType || !type[objectType] || !type[objectType].checkReplyPermission) {
-    return callback(null);
+    return callback();
   }
   else {
     return type[objectType].checkReplyPermission(message, user, callback);
