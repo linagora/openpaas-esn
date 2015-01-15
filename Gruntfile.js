@@ -10,6 +10,16 @@ var config = require('./config/default.json');
 module.exports = function(grunt) {
   var CI = grunt.option('ci');
 
+  var testArgs = (function() {
+    var opts = ['test', 'chunk'];
+    var args = {};
+    opts.forEach(function(optName) {
+      var opt = grunt.option(optName);
+      if (opt) args[optName] = "" + opt;
+    });
+    return args;
+  })();
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
@@ -211,7 +221,7 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          args: grunt.option('test') ? {test: grunt.option('test')} : {},
+          args: testArgs,
           process: function(res) {
             if (res.fail) {
               grunt.config.set('esn.tests.success', false);
@@ -233,7 +243,7 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          args: grunt.option('test') ? {test: grunt.option('test')} : {},
+          args: testArgs,
           process: function(res) {
             if (res.fail) {
               grunt.config.set('esn.tests.success', false);
@@ -247,33 +257,10 @@ module.exports = function(grunt) {
         },
         src: ['Gruntfile-tests.js']
       },
-      midway_backend_split: {
-        options: {
-          log: true,
-          stdout: function(data) {
-            grunt.log.write(data);
-          },
-          stderr: function(data) {
-            grunt.log.error(data);
-          },
-          args: grunt.option('test') ? {test: grunt.option('test')} : {},
-          process: function(res) {
-            if (res.fail) {
-              grunt.config.set('esn.tests.success', false);
-              grunt.log.writeln('failed');
-            } else {
-              grunt.config.set('esn.tests.success', true);
-              grunt.log.writeln('succeeded');
-            }
-          },
-          task: ['test-midway-backend-split']
-        },
-        src: ['Gruntfile-tests.js']
-      },
       unit_backend: {
         options: {
           log: true,
-          args: grunt.option('test') ? {test: grunt.option('test')} : {},
+          args: testArgs,
           stdout: function(data) {
             grunt.log.write(data);
           },
@@ -290,29 +277,6 @@ module.exports = function(grunt) {
             }
           },
           task: ['test-unit-backend']
-        },
-        src: ['Gruntfile-tests.js']
-      },
-      unit_backend_split: {
-        options: {
-          log: true,
-          args: grunt.option('test') ? {test: grunt.option('test')} : {},
-          stdout: function(data) {
-            grunt.log.write(data);
-          },
-          stderr: function(data) {
-            grunt.log.error(data);
-          },
-          process: function(res) {
-            if (res.fail) {
-              grunt.config.set('esn.tests.success', false);
-              grunt.log.writeln('failed');
-            } else {
-              grunt.config.set('esn.tests.success', true);
-              grunt.log.writeln('succeeded');
-            }
-          },
-          task: ['test-unit-backend-split']
         },
         src: ['Gruntfile-tests.js']
       },
@@ -363,6 +327,7 @@ module.exports = function(grunt) {
       all_with_storage: {
         options: {
           log: true,
+          args: testArgs,
           stdout: function(data) {
             grunt.log.write(data);
           },
@@ -378,7 +343,7 @@ module.exports = function(grunt) {
               grunt.log.writeln('succeeded');
             }
           },
-          task: ['test-unit-storage', 'test-midway-backend-split', 'test-modules-midway-backend']
+          task: ['test-unit-storage', 'test-midway-backend', 'test-modules-midway-backend']
         },
         src: ['Gruntfile-tests.js']
       },
@@ -391,7 +356,7 @@ module.exports = function(grunt) {
           stderr: function(data) {
             grunt.log.error(data);
           },
-          args: grunt.option('test') ? {test: grunt.option('test')} : {},
+          args: testArgs,
           process: function(res) {
             if (res.fail) {
               grunt.config.set('esn.tests.success', false);
@@ -701,13 +666,11 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('test-mbsplit', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend_split', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
-  grunt.registerTask('test-unit-backend-split', ['setup-environment', 'run_grunt:unit_backend_split', 'clean-environment']);
   grunt.registerTask('test-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend_split', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:unit_backend', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
 
   /**
