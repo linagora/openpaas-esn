@@ -38,7 +38,7 @@ module.exports = function(dependencies, lib) {
   }
 
   function loadUser(req, res, next) {
-    var user = req.query.user || req.headers[FROM_HEADER];
+    var user = req.query.from || req.headers[FROM_HEADER];
 
     if (!user) {
       return res.json(400, {error: {status: 400, message: 'Bad Request', details: 'User query parameter is required'}});
