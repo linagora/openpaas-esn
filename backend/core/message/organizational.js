@@ -2,6 +2,7 @@
 
 var userHelper = require('../../helpers/user');
 var userModule = require('../user');
+var async = require('async');
 
 module.exports.checkModel = function(messageModel, messageTargets, callback) {
   if (!messageModel.inReplyTo) {
@@ -32,13 +33,13 @@ module.exports.checkReplyPermission = function(message, user, callback) {
     if (isInternal) {
       return callback(null);
     }
-    var compliantCompany = message.recipients.some(function(companyTuple) {
-      var result = false;
-      userModule.belongsToCompany(user, companyTuple.id, function(err, belongs) {
-        result = !err && belongs;
-      });
-      return result;
-    });
-    return callback(compliantCompany);
+    async.some(message.recipients,
+      function(companyTuple, found) {
+        userModule.belongsToCompany(user, companyTuple.id, function(err, belongs) {
+          found(!err && belongs);
+        });
+      },
+      callback
+    );
   });
 };
