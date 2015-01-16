@@ -161,7 +161,7 @@ describe('The esn.contact Angular module', function() {
         this.$q = $q;
         this.$controller = $controller;
         this.scope = $rootScope.$new();
-        this.addressbookOwner = '539b0ba6b801603217aa2e24';
+        this.user = { _id: '539b0ba6b801603217aa2e24' };
         this.alert = function(msgObject) {};
         this.contactAPI = {
           getAddressBooks: function() {
@@ -198,7 +198,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -225,7 +225,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -246,7 +246,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -267,7 +267,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -287,7 +287,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -304,7 +304,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -321,7 +321,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -436,7 +436,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
       describe('when no addressbook is selected', function() {
@@ -467,7 +467,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
       describe('when no contact is selected', function() {
@@ -500,7 +500,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -530,7 +530,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 
@@ -561,7 +561,7 @@ describe('The esn.contact Angular module', function() {
           $alert: this.alert,
           contactAPI: this.contactAPI,
           usSpinnerService: this.spinner,
-          addressbookOwner: this.addressbookOwner
+          user: this.user
         });
       }));
 

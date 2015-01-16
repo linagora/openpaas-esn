@@ -50,40 +50,18 @@ angular.module('esnApp', [
   'esn.collaboration',
   'esn.company',
   'esn.localstorage'
-].concat(angularInjections)).config(function($routeProvider, RestangularProvider) {
+].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {
       templateUrl: '/views/esn/partials/domains/invite',
       controller: 'inviteMembers',
-      resolve: {
-        domain: function(domainAPI, $route, $location) {
-          return domainAPI.get($route.current.params.id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/');
-            }
-          );
-        }
-      }
+      resolve: { domain: routeResolver.api('domainAPI') }
     });
 
     $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
       templateUrl: '/views/esn/partials/message',
       controller: 'whatsupMessageDisplayController',
-      resolve: {
-        message: function(messageAPI, $route, $location) {
-          return messageAPI.get($route.current.params.id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/');
-            }
-          );
-        }
-      }
+      resolve: { message: routeResolver.api('messageAPI') }
     });
 
     $routeProvider.when('/profile', {
@@ -94,15 +72,7 @@ angular.module('esnApp', [
     $routeProvider.when('/contacts', {
       templateUrl: '/views/esn/partials/contacts',
       controller: 'contactsController',
-      resolve: {
-        addressbookOwner: function($q, session) {
-          var d = $q.defer();
-          session.ready.then(function(session) {
-            d.resolve(session.user._id);
-          });
-          return d.promise;
-        }
-      }
+      resolve: { user: routeResolver.session('user') }
     });
 
     $routeProvider.when('/domains/:domain_id/members', {
@@ -113,34 +83,14 @@ angular.module('esnApp', [
     $routeProvider.when('/conferences', {
       templateUrl: '/views/esn/partials/conference',
       controller: 'conferencesController',
-      resolve: {
-        conferences: function(conferenceAPI, $location) {
-          return conferenceAPI.list().then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/');
-            }
-          );
-        }
-      }
+      resolve: { conferences: routeResolver.api('conferenceAPI', 'list') }
     });
 
     $routeProvider.when('/applications', {
       templateUrl: '/views/modules/application/applications',
       controller: 'applicationController',
       resolve: {
-        applications: function(applicationAPI, $location) {
-          return applicationAPI.created().then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/');
-            }
-          );
-        }
+        applications: routeResolver.api('applicationAPI', 'created', 'undefined')
       }
     });
 
@@ -148,30 +98,16 @@ angular.module('esnApp', [
       templateUrl: '/views/modules/application/application-details',
       controller: 'applicationDetailsController',
       resolve: {
-        application: function(applicationAPI, $route, $location) {
-          return applicationAPI.get($route.current.params.application_id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/applications');
-            }
-          );
-        }
+        application: routeResolver.api('applicationAPI', 'get', 'application_id', '/applications')
       }
     });
-
 
     $routeProvider.when('/communities', {
       templateUrl: '/views/esn/partials/communities',
       controller: 'communitiesController',
       resolve: {
-        domain: ['session', '$q', function(session, $q) {
-          return $q.when(session.domain);
-        }],
-        user: ['session', '$q', function(session, $q) {
-          return $q.when(session.user);
-        }]
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
       }
     });
 
@@ -179,14 +115,12 @@ angular.module('esnApp', [
       templateUrl: '/views/esn/partials/community',
       controller: 'communityController',
       resolve: {
-        community: function(communityAPI, $q, $route, $location) {
-          return communityAPI.get($route.current.params.community_id).then(function(response) {
-            return response.data;
-          }, function() {
-            $location.path('/communities');
-          });
-        }, memberOf: function(collaborationAPI, $q, $route, $location) {
-          return collaborationAPI.getWhereMember({objectType: 'community', id: $route.current.params.community_id}).then(function(response) {
+        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
+        memberOf: function(collaborationAPI, $q, $route, $location) {
+          return collaborationAPI.getWhereMember({
+            objectType: 'community',
+            id: $route.current.params.community_id
+          }).then(function(response) {
             return response.data;
           }, function() {
             $location.path('/communities');
@@ -199,16 +133,8 @@ angular.module('esnApp', [
       templateUrl: '/views/modules/community/community-members',
       controller: 'communityController',
       resolve: {
-        community: function(communityAPI, $route, $location) {
-          return communityAPI.get($route.current.params.community_id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/communities/' + $route.current.params.community_id);
-            }
-          );
-        }, memberOf: function() {
+        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
+        memberOf: function() {
           return [];
         }
       }
@@ -218,16 +144,7 @@ angular.module('esnApp', [
       templateUrl: '/views/modules/community/community-calendar',
       controller: 'communityCalendarController',
       resolve: {
-        community: function(communityAPI, $route, $location) {
-          return communityAPI.get($route.current.params.community_id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/communities/' + $route.current.params.community_id);
-            }
-          );
-        }
+        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
       }
     });
 

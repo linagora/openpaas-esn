@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
-  .controller('contactsController', ['$scope', 'contactAPI', 'session', '$alert', 'usSpinnerService', 'addressbookOwner',
-  function($scope, contactAPI, session, alert, usSpinnerService, ownerId) {
+  .controller('contactsController', ['$scope', 'contactAPI', 'session', '$alert', 'usSpinnerService', 'user',
+  function($scope, contactAPI, session, alert, usSpinnerService, user) {
     var spinnerKey = 'addressbooksSpinner';
     var contactsSpinnerKey = 'contactsSpinner';
     $scope.addressbooks = [];
@@ -77,7 +77,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
       }
 
       var options = angular.copy(restOptions);
-      options.owner = ownerId;
+      options.owner = user._id;
       options.addressbooks.push($scope.selected_addressbook);
       $scope.contactsRestActive = true;
       usSpinnerService.spin(contactsSpinnerKey);
@@ -122,7 +122,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
     $scope.init = function() {
       $scope.restActive = true;
       usSpinnerService.spin(spinnerKey);
-      contactAPI.getAddressBooks({limit: 20, creator: ownerId}).then(
+      contactAPI.getAddressBooks({ limit: 20, creator: user._id }).then(
         function(data) {
           $scope.addressbooks = data.data;
         },
