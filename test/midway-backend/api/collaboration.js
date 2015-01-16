@@ -593,7 +593,7 @@ describe('The collaborations API', function() {
 
   });
 
-  describe('PUT /api/collaboration/community/:id/membership/:user_id', function() {
+  describe('PUT /api/collaborations/community/:id/membership/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).put('/api/collaborations/community/123/membership/456').expect(401).end(function(err) {

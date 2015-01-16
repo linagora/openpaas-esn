@@ -19,6 +19,7 @@ var WORKFLOW_NOTIFICATIONS_TOPIC = {
   request: 'community:membership:request',
   invitation: 'community:membership:invite'
 };
+module.exports.WORKFLOW_NOTIFICATIONS_TOPIC = WORKFLOW_NOTIFICATIONS_TOPIC;
 
 var MEMBERSHIP_TYPE_REQUEST = 'request';
 var MEMBERSHIP_TYPE_INVITATION = 'invitation';
@@ -131,7 +132,7 @@ module.exports.join = function(community, userAuthor, userTarget, actor, callbac
 
   var member = {
     objectType: 'user',
-      id: userTarget_id
+    id: userTarget_id
   };
 
   collaboration.addMember(community, userAuthor, member, function(err, updated) {
@@ -151,15 +152,7 @@ module.exports.join = function(community, userAuthor, userTarget, actor, callbac
 };
 
 module.exports.isManager = function(community, user, callback) {
-  var id = community._id || community;
-  var user_id = user._id || user;
-
-  Community.findOne({_id: id, 'creator': user_id}, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, !!result);
-  });
+  return collaboration.isManager(communityObjectType, community, user, callback);
 };
 
 module.exports.isMember = function(community, tuple, callback) {
@@ -306,79 +299,7 @@ module.exports.getMembershipRequests = function(community, query, callback) {
 };
 
 module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
-  if (!userAuthor) {
-    return callback(new Error('Author user object is required'));
-  }
-  var userAuthorId = userAuthor._id || userAuthor;
-
-  if (!userTarget) {
-    return callback(new Error('Target user object is required'));
-  }
-  var userTargetId = userTarget._id || userTarget;
-
-  if (!community) {
-    return callback(new Error('Community object is required'));
-  }
-
-  if (!workflow) {
-    return callback(new Error('Workflow string is required'));
-  }
-
-  var topic = WORKFLOW_NOTIFICATIONS_TOPIC[workflow];
-  if (!topic) {
-    var errorMessage = 'Invalid workflow, must be ';
-    var isFirstLoop = true;
-    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
-      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
-        if (isFirstLoop) {
-          errorMessage += '"' + key + '"';
-          isFirstLoop = false;
-        } else {
-          errorMessage += ' or "' + key + '"';
-        }
-      }
-    }
-    return callback(new Error(errorMessage));
-  }
-
-  if (workflow !== 'invitation' && !permission.supportsMemberShipRequests(community)) {
-    return callback(new Error('Only Restricted and Private communities allow membership requests.'));
-  }
-
-  this.isMember(community, {objectType: 'user', id: userTargetId}, function(err, isMember) {
-    if (err) {
-      return callback(err);
-    }
-    if (isMember) {
-      return callback(new Error('User already member of the community.'));
-    }
-
-    var previousRequests = community.membershipRequests.filter(function(request) {
-      var requestUserId = request.user._id || request.user;
-      return requestUserId.equals(userTargetId);
-    });
-    if (previousRequests.length > 0) {
-      return callback(null, community);
-    }
-
-    community.membershipRequests.push({user: userTargetId, workflow: workflow});
-
-    community.save(function(err, communitySaved) {
-      if (err) {
-        return callback(err);
-      }
-
-      localpubsub.topic(topic).forward(globalpubsub, {
-        author: userAuthorId,
-        target: userTargetId,
-        community: community._id,
-        workflow: workflow,
-        actor: actor || 'user'
-      });
-
-      return callback(null, communitySaved);
-    });
-  });
+  return collaboration.addMembershipRequest(community, userAuthor, userTarget, workflow, actor, callback);
 };
 
 module.exports.getMembershipRequest = function(community, user) {

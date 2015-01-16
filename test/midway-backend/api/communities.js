@@ -1455,182 +1455,6 @@ describe('The communities API', function() {
     });
   });
 
-  describe('PUT /api/communities/:id/membership/:user_id', function() {
-
-    it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).put('/api/communities/123/membership/456').expect(401).end(function(err) {
-        expect(err).to.be.null;
-        done();
-      });
-    });
-
-    it('should return 400 if user is already member of the community', function(done) {
-      var self = this;
-      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
-        if (err) { return done(err); }
-        var community = models.communities[1];
-
-        self.helpers.api.loginAsUser(webserver.application, models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
-          if (err) {
-            return done(err);
-          }
-          var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + models.users[1]._id));
-          req.expect(400);
-          req.end(function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.text).to.contain('already member');
-            done();
-          });
-        });
-      });
-    });
-
-    it('should return 200 if user has already made a request for this community', function(done) {
-      var self = this;
-      var community = {
-        title: 'Node.js',
-        description: 'This is the community description',
-        members: [],
-        type: 'private',
-        membershipRequests: []
-      };
-      var domain = {
-        name: 'MyDomain',
-        company_name: 'MyAwesomeCompany'
-      };
-
-      async.series([
-        function(callback) {
-          domain.administrator = user._id;
-          saveDomain(domain, callback);
-        },
-        function(callback) {
-          community.creator = user._id;
-          community.domain_ids = [domain._id];
-          community.membershipRequests.push({user: user._id, workflow: 'workflow'});
-          saveCommunity(community, callback);
-        },
-        function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
-            req.end(function(err, res) {
-              expect(res.status).to.equal(200);
-              expect(res.body.membershipRequest).to.exist;
-              expect(res.body.membershipRequests).to.not.exist;
-              done();
-            });
-          });
-        }
-      ], function(err) {
-        if (err) {
-          return done(err);
-        }
-      });
-    });
-
-    describe('when the current user is not a community manager', function() {
-      it('should return 400 if current user is not equal to :user_id param', function(done) {
-        var self = this;
-        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
-          if (err) { return done(err); }
-          var community = models.communities[1];
-
-          self.helpers.api.loginAsUser(webserver.application, models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + models.users[3]._id));
-            req.expect(400);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              done();
-            });
-          });
-        });
-      });
-
-      it('should return 200 with the community containing a new request', function(done) {
-        var self = this;
-        var community = {
-          title: 'Node.js',
-          description: 'This is the community description',
-          members: [],
-          type: 'private',
-          membershipRequests: []
-        };
-        var domain = {
-          name: 'MyDomain',
-          company_name: 'MyAwesomeCompany'
-        };
-
-        async.series([
-          function(callback) {
-            domain.administrator = user._id;
-            saveDomain(domain, callback);
-          },
-          function(callback) {
-            community.creator = user._id;
-            community.domain_ids = [domain._id];
-            saveCommunity(community, callback);
-          },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) {
-                return done(err);
-              }
-              var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + user._id));
-              req.end(function(err, res) {
-                expect(res.status).to.equal(200);
-                expect(res.body).to.exist;
-                expect(res.body.title).to.equal(community.title);
-                expect(res.body.description).to.equal(community.description);
-                expect(res.body.type).to.equal(community.type);
-                expect(res.body.membershipRequest).to.exist;
-                expect(res.body.membershipRequests).to.not.exist;
-                done();
-              });
-            });
-          }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
-        });
-      });
-    });
-
-    describe('when the current user is a community manager', function() {
-      it('should return 200 with the community containing a new invitation', function(done) {
-        var self = this;
-        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
-          if (err) { return done(err); }
-          var community = models.communities[1];
-          self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
-            if (err) {
-              return done(err);
-            }
-            var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + community._id + '/membership/' + models.users[2]._id));
-            req.expect(200);
-            req.end(function(err, res) {
-              expect(err).to.not.exist;
-              Community.findOne({_id: community._id}, function(err, document) {
-                expect(document.membershipRequests).to.exist;
-                expect(document.membershipRequests).to.be.an('array');
-                expect(document.membershipRequests).to.have.length(1);
-                expect(document.membershipRequests[0].user + '').to.equal(models.users[2]._id + '');
-                expect(document.membershipRequests[0].workflow).to.equal('invitation');
-                done();
-              });
-            });
-          });
-        });
-      });
-    });
-  });
-
   describe('DELETE /api/communities/:id/membership/:user_id', function() {
 
     beforeEach(function(done) {
@@ -1940,7 +1764,8 @@ describe('The communities API', function() {
 
     });
 
-    describe('pubsub events', function() {
+    // TODO Move those tests when DELETE /api/collaborations is done
+    describe.skip('pubsub events', function() {
       beforeEach(function(done) {
         var self = this;
         self.helpers.api.loginAsUser(webserver.application, self.admin.emails[0], 'secret', function(err, loggedInAsUser) {
@@ -1951,6 +1776,7 @@ describe('The communities API', function() {
           });
         });
       });
+
       describe('when admin refuses a join request', function() {
         it('should add a usernotification for the user', function(done) {
           var self = this;
@@ -1983,10 +1809,9 @@ describe('The communities API', function() {
 
           var req = self.loggedInAsUser(
             request(webserver.application)
-              .put('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
+              .put('/api/collaboration/community/' + self.community._id + '/membership/' + self.jhendrix._id)
           );
           req.end(function(err, res) {
-            expect(res.status).to.equal(200);
             var req = self.loggedInAsManager(
               request(webserver.application)
                 . delete('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
@@ -1998,6 +1823,7 @@ describe('The communities API', function() {
           });
         });
       });
+
       describe('when manager cancels an invitation', function() {
 
         it('should remove the attendee usernotification', function(done) {
@@ -2056,7 +1882,6 @@ describe('The communities API', function() {
               .put('/api/communities/' + self.community._id + '/membership/' + self.jhendrix._id)
           );
           req.end(function(err, res) {
-            expect(res.status).to.equal(200);
             checkusernotificationexists(function(err, notif) {
               if (err) { return done(err); }
               var req = self.loggedInAsManager(
@@ -2314,160 +2139,4 @@ describe('The communities API', function() {
     });
   });
 
-  describe('GET /api/communities/:id/invitablepeople', function() {
-    var domain, domain2;
-    var community;
-    var user1, user2, user3, user4;
-    var user12, user22, user32, user42;
-
-    beforeEach(function(done) {
-      var self = this;
-
-      this.helpers.mongo.saveDoc('configuration', {
-        _id: 'elasticsearch',
-        host: 'localhost:' + self.testEnv.serversConfig.elasticsearch.port
-      }, function(err) {
-        if (err) {
-          done(err);
-        }
-
-        self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
-          if (err) { return done(err); }
-
-          domain = models.domain;
-          user1 = models.users[0];
-          user2 = models.users[1];
-          user3 = models.users[2];
-          user4 = models.users[3];
-
-          self.helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
-            if (err) { return done(err); }
-
-            domain2 = models2.domain;
-            user12 = models2.users[0];
-            user22 = models2.users[1];
-            user32 = models2.users[2];
-            user42 = models2.users[3];
-
-            self.helpers.api.createCommunity('Community', user1, domain, function(err, communitySaved) {
-              if (err) { return done(err); }
-
-              Community.update({_id: communitySaved._id}, {$push: {domain_ids: domain2._id}}, function(err, updated) {
-                if (err) { return done(err); }
-
-                self.helpers.api.addUsersInCommunity(communitySaved, [user2, user3, user22], function(err, communityUpdated) {
-                  if (err) { return done(err); }
-
-                  community = communityUpdated;
-                  var ids = models.users.map(function(element) {
-                    return element._id;
-                  });
-                  models2.users.forEach(function(user) {
-                    ids.push(user._id);
-                  });
-                  self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
-                    if (err) { return done(err); }
-                    done();
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-
-    it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/communities/123/invitablepeople').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
-    });
-
-    it('should return 404 if community does not exist', function(done) {
-      var ObjectId = require('bson').ObjectId;
-      var id = new ObjectId();
-
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + id + '/invitablepeople'));
-        req.expect(404);
-        req.end(function(err) {
-          expect(err).to.not.exist;
-          done();
-        });
-      });
-    });
-
-    it('should return all users who are not in the community', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-
-        var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/invitablepeople'));
-        req.expect(200).end(function(err, res) {
-          expect(err).to.be.null;
-          expect(res.body).to.be.not.null;
-          expect(res.body.length).to.equal(4);
-          expect(res.body[0]._id).to.equal(user12._id.toString());
-          expect(res.body[1]._id).to.equal(user32._id.toString());
-          expect(res.body[2]._id).to.equal(user4._id.toString());
-          expect(res.body[3]._id).to.equal(user42._id.toString());
-          expect(res.headers['x-esn-items-count']).to.exist;
-          expect(res.headers['x-esn-items-count']).to.equal('4');
-          done();
-        });
-      });
-    });
-
-    it('should return all users who are not in the community and no membership request/invitation', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-
-        Community.update({_id: community._id}, {$push: {membershipRequests: {user: user32, workflow: 'request'}}}, function(err, updated) {
-          if (err) {
-            return done(err);
-          }
-
-          var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/invitablepeople'));
-          req.expect(200).end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res.body).to.be.not.null;
-            expect(res.body.length).to.equal(3);
-            expect(res.body[0]._id).to.equal(user12._id.toString());
-            expect(res.body[1]._id).to.equal(user4._id.toString());
-            expect(res.body[2]._id).to.equal(user42._id.toString());
-            expect(res.headers['x-esn-items-count']).to.exist;
-            expect(res.headers['x-esn-items-count']).to.equal('3');
-            done();
-          });
-        });
-      });
-    });
-
-    it('should return search users who are not in the community', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-
-        var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id + '/invitablepeople'));
-        req.send({search: 'linagora'}).expect(200).end(function(err, res) {
-          expect(err).to.be.null;
-          expect(res.body).to.be.not.null;
-          expect(res.body.length).to.equal(2);
-          expect(res.body[0]._id).to.equal(user4._id.toString());
-          expect(res.body[1]._id).to.equal(user42._id.toString());
-          expect(res.headers['x-esn-items-count']).to.exist;
-          expect(res.headers['x-esn-items-count']).to.equal('2');
-          done();
-        });
-      });
-    });
-  });
 });

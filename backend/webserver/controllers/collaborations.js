@@ -98,7 +98,7 @@ function getMembers(req, res) {
         return result;
       }
 
-      result.user = new Member(member);
+      result.user = new Member(member.member || member);
 
       result.metadata = {
         timestamps: member.timestamps

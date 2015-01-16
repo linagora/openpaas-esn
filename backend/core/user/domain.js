@@ -94,7 +94,7 @@ function getUsersList(domains, query, cb) {
   }
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
-  var collaboration = query.not_in_collaboration || query.not_in_community;
+  var collaboration = query.not_in_collaboration;
   var limit = query.limit;
   if (collaboration) {
     query.limit = null;
@@ -175,7 +175,7 @@ function getUsersSearch(domains, query, cb) {
   });
   query = query || {limit: defaultLimit, offset: defaultOffset};
 
-  var collaboration = query.not_in_collaboration || query.not_in_community;
+  var collaboration = query.not_in_collaboration;
   var limit = query.limit;
   if (collaboration) {
     query.limit = null;

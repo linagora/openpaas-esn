@@ -1,7 +1,6 @@
 'use strict';
 
 var communityModule = require('../../core/community');
-var userDomain = require('../../core/user/domain');
 var imageModule = require('../../core/image');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
@@ -485,40 +484,6 @@ module.exports.getMembershipRequests = function(req, res) {
   });
 };
 
-module.exports.addMembershipRequest = function(req, res) {
-  if (!ensureLoginCommunityAndUserId(req, res)) {
-    return;
-  }
-  var community = req.community;
-  var userAuthor = req.user;
-  var userTargetId = req.params.user_id;
-
-  var member = community.members.filter(function(m) {
-    return m.member.objectType === 'user' && m.member.id.equals(userTargetId);
-  });
-
-  if (member.length) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User is already member'}});
-  }
-
-  function addMembership(community, userAuthor, userTarget, workflow, actor) {
-    communityModule.addMembershipRequest(community, userAuthor, userTarget, workflow, actor, function(err, community) {
-      if (err) {
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
-      }
-      return transform(community, userAuthor, function(transformed) {
-        return res.json(200, transformed);
-      });
-    });
-  }
-
-  if (req.isCommunityManager) {
-    addMembership(community, userAuthor, userTargetId, communityModule.MEMBERSHIP_TYPE_INVITATION, 'manager');
-  } else {
-    addMembership(community, userAuthor, userTargetId, communityModule.MEMBERSHIP_TYPE_REQUEST, 'user');
-  }
-};
-
 module.exports.removeMembershipRequest = function(req, res) {
   if (!ensureLoginCommunityAndUserId(req, res)) {
     return;
@@ -568,49 +533,5 @@ module.exports.removeMembershipRequest = function(req, res) {
     } else {
       communityModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
     }
-  }
-};
-
-module.exports.getInvitablePeople = function(req, res) {
-  var community = req.community;
-  var user = req.user;
-
-  if (!user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-  }
-
-  var query = {
-    limit: req.param('limit') || 5,
-    search: req.param('search') || null,
-    not_in_community: community
-  };
-
-  var domainIds = community.domain_ids.map(function(domainId) {
-    return domainId;
-  });
-
-  if (query.search) {
-    userDomain.getUsersSearch(domainIds, query, function(err, result) {
-      if (err) {
-        return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
-      }
-
-      res.header('X-ESN-Items-Count', result.total_count);
-      return res.json(200, result.list);
-    });
-  }
-  else {
-    userDomain.getUsersList(domainIds, query, function(err, result) {
-      if (err) {
-        return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
-      }
-
-      res.header('X-ESN-Items-Count', result.total_count);
-      return res.json(200, result.list);
-    });
   }
 };
