@@ -2,6 +2,7 @@
 
 var localpubsub = require('../core/pubsub').local;
 var globalpubsub = require('../core/pubsub').global;
+var extend = require('extend');
 
 module.exports.postToModelMessage = function(message, user) {
   var objectType = message.object.objectType,
@@ -9,12 +10,14 @@ module.exports.postToModelMessage = function(message, user) {
       author = user._id,
       shares = message.targets;
 
-  var result = {
-    objectType: objectType,
-    content: content,
-    author: author,
-    shares: shares
-  };
+  var result = {};
+  if (message.object.data) {
+    extend(true, result, message.object.data);
+  }
+  result.objectType = objectType;
+  result.content = content;
+  result.author = author;
+  result.shares = shares;
 
   if (message.object.position) {
     result.position = message.object.position;

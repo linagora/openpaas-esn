@@ -138,6 +138,36 @@ describe('The activitystreams helper module', function() {
       expect(out.inReplyTo).to.not.be.ok;
       done();
     });
+
+    it('should support a to part', function() {
+      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var input = {
+        _id: '123',
+        verb: 'post',
+        language: 'fr',
+        published: new Date(),
+        actor: {
+          objectType: 'user',
+          _id: 456,
+          image: '789',
+          displayName: 'Foo Bar'
+        },
+        object: {
+          objectType: 'whatsup',
+          _id: '234'
+        },
+        target: [{
+          objectType: 'activitystream',
+          _id: '567'
+        }],
+        to: [{objectType: 'company', id: 'linagora'}]
+      };
+
+      var out = helper.timelineToActivity(input);
+      expect(out).to.exist;
+      expect(out.to).to.be.ok;
+      expect(out.to).deep.to.equal(input.to);
+    });
   });
 
   describe('userMessageToTimelineEntry fn', function() {
@@ -168,7 +198,8 @@ describe('The activitystreams helper module', function() {
             objectType: 'user',
             _id: 222
           }
-        ]
+        ],
+        recipients: [{objectType: 'company', id: 'linagora'}]
       };
 
       var targets = [
@@ -194,6 +225,8 @@ describe('The activitystreams helper module', function() {
       expect(out.target.length).to.equal(3);
       expect(out.target).to.deep.equal(targets);
       expect(out.published).to.exist;
+      expect(out.to).to.exist;
+      expect(out.to).deep.equal(message.recipients);
       done();
     });
   });

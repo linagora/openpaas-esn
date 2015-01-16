@@ -29,7 +29,8 @@ module.exports.userMessageToTimelineEntry = function(message, verb, user, shares
       objectType: message.objectType,
       _id: message._id
     },
-    target: shares
+    target: shares,
+    to: message.recipients || []
   };
 };
 
@@ -74,6 +75,10 @@ module.exports.timelineToActivity = function(entry) {
         id: getURN(elt.objectType, elt._id)
       };
     });
+  }
+
+  if (entry.to) {
+    timelineentry.to = entry.to;
   }
 
   return timelineentry;

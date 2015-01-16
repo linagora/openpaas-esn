@@ -963,4 +963,228 @@ describe('The messages API', function() {
       });
     });
   });
+
+  it('should not be able to post an organizational message when targets are not defined', function(done) {
+    var message = 'Hey Oh, let\'s go!';
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'organizational'
+        }
+      });
+      req.expect(400)
+        .end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+    });
+  });
+
+  it('should not be able to post an organizational message when message is not well formed', function(done) {
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          yolo: 'hey',
+          objectType: 'organizational'
+        },
+        targets: [target]
+      });
+      req.expect(400)
+        .end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+    });
+  });
+
+  it('should not be able to post an organizational message on an invalid activitystream', function(done) {
+    var message = 'Hey Oh, let\'s go!';
+    var target = {
+      objectType: 'activitystream',
+      id: 'yolo'
+    };
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'organizational'
+        },
+        targets: [target]
+      });
+      req.expect(403)
+        .end(function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+    });
+  });
+
+  it('should not be able to post an organizational message when there is more than one target', function(done) {
+    var message = 'Hey Oh, let\'s go!';
+    var invalidtarget = {
+      objectType: 'activitystream',
+      id: 'yolo'
+    };
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          description: message,
+          objectType: 'organizational'
+        },
+        targets: [invalidtarget, target]
+      });
+      req.expect(400)
+        .end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+    });
+  });
+
+  it('should be able to post an organizational message on an open community', function(done) {
+    var message = 'Hey Oh, let\'s go!';
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          data: {
+            recipients: [{objectType: 'company', id: 'linagora'}]
+          },
+          description: message,
+          objectType: 'organizational'
+        },
+        targets: [target]
+      });
+      req.expect(201)
+        .end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          expect(res.body._id).to.exist;
+          done();
+        });
+    });
+  });
+
+  it('should create a timelineentry when posting a new organizational message to a community', function(done) {
+    var message = 'Hey Oh, let\'s go!';
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+    var TimelineEntry = this.mongoose.model('TimelineEntry');
+    var recipients = [{objectType: 'company', id: 'linagora'}];
+
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          data: {
+            recipients: recipients
+          },
+          description: message,
+          objectType: 'organizational'
+        },
+        targets: [target]
+      });
+      req.expect(201)
+        .end(function(err, res) {
+
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+
+          process.nextTick(function() {
+
+            TimelineEntry.find({}, function(err, results) {
+              expect(results).to.exist;
+              expect(results.length).to.equal(1);
+              expect(results[0].verb).to.equal('post');
+              expect(results[0].target).to.exist;
+              expect(results[0].target.length).to.equal(1);
+              expect(results[0].target[0].objectType).to.equal('activitystream');
+              expect(results[0].target[0]._id).to.equal(community.activity_stream.uuid);
+              expect(results[0].object).to.exist;
+              expect(results[0].object.objectType).to.equal('organizational');
+              expect(results[0].object._id + '').to.equal(res.body._id);
+              expect(results[0].actor).to.exist;
+              expect(results[0].actor.objectType).to.equal('user');
+              expect(results[0].actor._id + '').to.equal('' + testuser._id);
+              expect(results[0].to).to.exist;
+              expect(results[0].to.toObject()).to.deep.equal(recipients);
+              done();
+            });
+          });
+        });
+    });
+  });
+
+
+  it('should be able to post a comment to an organizational message', function(done) {
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          data: {
+            recipients: [{objectType: 'company', id: 'linagora'}]
+          },
+          description: 'a new organizational message',
+          objectType: 'organizational'
+        },
+        targets: [target]
+      });
+      req.expect(201)
+        .end(function(err, res) {
+          var req = loggedInAsUser(request(app).post('/api/messages'));
+          req.send({
+            object: {
+              data: {
+                recipients: [{objectType: 'company', id: 'linagora'}]
+              },
+              description: 'a new comment to the previous whatsup message',
+              objectType: 'organizational'
+            },
+            inReplyTo: {
+              objectType: 'organizational',
+              _id: res.body._id
+            }
+          }).expect(201).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+            expect(res.body.parentId).to.exist;
+            done();
+          });
+        });
+    });
+  });
 });

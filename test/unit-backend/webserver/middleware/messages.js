@@ -133,6 +133,9 @@ describe('The messages middleware', function() {
       mockery.registerMock('../../core/message', {
         get: function(id, callback) {
           return callback(null, {_id: id});
+        },
+        typeSpecificReplyPermission: function(message, user, callback) {
+          return callback(null);
         }
       });
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
@@ -148,6 +151,40 @@ describe('The messages middleware', function() {
       var res = {
         json: function() {
           done(new Error());
+        }
+      };
+      middleware(req, res, done);
+    });
+
+
+    it('should send back 403 if type specific reply permissions are not ok', function(done) {
+      mockery.registerMock('../../core/message/permission', {
+        canReply: function(message, user, callback) {
+          return callback(null, true);
+        }
+      });
+      mockery.registerMock('../../core/message', {
+        get: function(id, callback) {
+          return callback(null, {_id: id});
+        },
+        typeSpecificReplyPermission: function(message, user, callback) {
+          return callback(new Error());
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var req = {
+        body: {
+          inReplyTo: {
+            _id: 1
+          }
+        },
+        user: {
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(403);
+          done();
         }
       };
       middleware(req, res, done);

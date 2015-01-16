@@ -9,7 +9,7 @@ var Tuple = tuple.Tuple;
 var specificSchema = {
     objectType: {type: String, required: true, default: 'organizational'},
     content: {type: String, required: true},
-    recipients: {type: [Tuple], validate: [tuple.validateTuple, 'Bad recipient tuple']},
+    recipients: {type: [Tuple], validate: [tuple.validateTuples, 'Bad recipient tuple']},
     published: {type: Date, default: Date.now}
 };
 

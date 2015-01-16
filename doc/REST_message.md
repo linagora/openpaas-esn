@@ -203,7 +203,10 @@ Post a new message by the currently logged in user.
       ],
       parsers: [
         {name: "markdown"}
-      ]
+      ],
+      data: {
+        //some data which is specific to the message type
+      }
     }
 ```
 
@@ -237,7 +240,7 @@ Post a new message by the currently logged in user.
                 {"_id": "9829892-9982982-87222-238388", "name": "chuck.png", "contentType": "image/png", "length": 988288},
                 {"_id": "9829892-9982982-87222-238388", "name": "bruce.png", "contentType": "image/png", "length": 67392}
             ],
-            parsers: [
+            "parsers": [
                 {name: "markdown"}
             ]
         },
