@@ -2,8 +2,8 @@
 
 angular.module('esn.activitystream')
 .controller('activitystreamController',
-  ['$rootScope', '$scope', 'activitystreamAggregatorCreator', 'usSpinnerService', '$alert', 'activityStreamUpdates',
-  function($rootScope, $scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates) {
+  ['$rootScope', '$scope', 'activitystreamAggregatorCreator', 'usSpinnerService', '$alert', 'activityStreamUpdates', 'activitystreamHelper',
+  function($rootScope, $scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates, activitystreamHelper) {
 
     var spinnerKey = 'activityStreamSpinner', aggregator;
 
@@ -80,6 +80,13 @@ angular.module('esn.activitystream')
       if (!aggregator.endOfStream) {
         updateMessageList();
       }
+    };
+
+    $scope.filterMessagesInSelectedStream = function(thread) {
+      if (!$scope.selectedStream) {
+        return true;
+      }
+      return activitystreamHelper.messageIsSharedInStreams(thread, [$scope.selectedStream]);
     };
 
     $rootScope.$on('activitystream:userUpdateRequest', function(evt, data) {

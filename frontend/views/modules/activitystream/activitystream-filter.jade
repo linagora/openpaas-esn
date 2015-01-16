@@ -1,0 +1,9 @@
+div.btn-group
+  button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false") {{selectedStream.displayName || 'All'}}&nbsp;
+    span.caret
+  ul.dropdown-menu(role="menu")
+    li(ng-repeat="stream in streams")
+      a(href="" ng-click="selectStream(stream)") {{::stream.displayName}}
+    li.divider
+    li
+      a(href="" ng-click="clearStreamSelection()") #{__("All")}

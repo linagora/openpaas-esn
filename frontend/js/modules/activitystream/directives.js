@@ -166,4 +166,20 @@ angular.module('esn.activitystream')
     replace: true,
     templateUrl: '/views/modules/activitystream/activitystream-card.html'
   };
+})
+.directive('activityStreamFilter', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '/views/modules/activitystream/activitystream-filter.html',
+    link: function($scope) {
+
+      $scope.selectStream = function(stream) {
+        $scope.selectedStream = stream;
+      };
+
+      $scope.clearStreamSelection = function() {
+        $scope.selectedStream = null;
+      };
+    }
+  };
 });
