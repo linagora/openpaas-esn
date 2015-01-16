@@ -9,13 +9,15 @@ describe('The messages API', function() {
   var app;
   var testuser;
   var restrictedUser;
+  var userNotInPrivateCommunity;
   var domain;
   var community;
   var restrictedCommunity;
+  var privateCommunity;
   var password = 'secret';
   var email;
   var restrictedEmail;
-  var message1, message2, message3, message4;
+  var message1, message2, message3, message4, message5;
 
   beforeEach(function(done) {
     var self = this;
@@ -40,17 +42,27 @@ describe('The messages API', function() {
         domain = models.domain;
         testuser = models.users[0];
         restrictedUser = models.users[1];
+        userNotInPrivateCommunity = models.users[2];
         community = models.communities[0];
+        privateCommunity = models.communities[1];
         restrictedCommunity = models.communities[2];
         email = testuser.emails[0];
         restrictedEmail = restrictedUser.emails[0];
 
         message1 = new Whatsup({
-          content: 'message 1'
+          content: 'message 1',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }]
         });
 
         message2 = new Whatsup({
-          content: 'message 2'
+          content: 'message 2',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }]
         });
 
         message3 = new Whatsup({
@@ -64,8 +76,16 @@ describe('The messages API', function() {
         });
 
         message4 = new Whatsup({
-          content: 'message 3',
+          content: 'message 4',
           responses: [comment1]
+        });
+
+        message5 = new Whatsup({
+          content: 'message 5',
+          shares: [{
+            objectType: 'activitystream',
+            id: privateCommunity.activity_stream.uuid
+          }]
         });
 
         async.series([
@@ -84,6 +104,10 @@ describe('The messages API', function() {
             function(callback) {
               message4.author = testuser._id;
               saveMessage(message4, callback);
+            },
+            function(callback) {
+              message5.author = testuser._id;
+              saveMessage(message5, callback);
             },
             function(callback) {
               restrictedCommunity.members.splice(0, 1);
@@ -551,6 +575,27 @@ describe('The messages API', function() {
     });
   });
 
+  it('should return 404 when retrieving multiple non-existent messages', function(done) {
+    var ObjectId = require('bson').ObjectId;
+
+    this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + new ObjectId() + '&ids[]=' + new ObjectId()));
+      req.expect(404);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.an.array;
+        expect(res.body.length).to.equal(2);
+        expect(res.body[0].error).to.be.an('object');
+        expect(res.body[0].error.code).to.equal(404);
+        expect(res.body[1].error).to.be.an('object');
+        expect(res.body[1].error.code).to.equal(404);
+        done();
+      });
+    });
+  });
+
   it('should expand authors when retrieving multiple messages', function(done) {
     this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
@@ -581,6 +626,25 @@ describe('The messages API', function() {
         expect(res.body).to.be.an('object');
         expect(res.body.author).to.be.an('object');
         expect(res.body.author._id).to.equal(testuser._id.toString());
+        done();
+      });
+    });
+  });
+
+  it('should return 200 with a 403 object error retrieving multiple messages with one in private community', function(done) {
+    this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + message5._id));
+      req.expect(200);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.an.array;
+        expect(res.body.length).to.equal(2);
+        expect(res.body[0].author).to.be.an('object');
+        expect(res.body[0].author._id).to.equal(testuser._id.toString());
+        expect(res.body[1].error).to.be.an('object');
+        expect(res.body[1].error.code).to.equal(403);
         done();
       });
     });

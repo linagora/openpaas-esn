@@ -4,6 +4,7 @@ var activitystreams = require('../../core/activitystreams');
 var tracker = require('../../core/activitystreams/tracker');
 var mongoose = require('mongoose');
 var escapeStringRegexp = require('escape-string-regexp');
+var async = require('async');
 
 var isLimitvalid = function(limit) {
   return limit > 0;
@@ -18,6 +19,24 @@ var isValidObjectId = function(id) {
     return false;
   }
 };
+
+/*
+ * Check if the tracker can be updated :
+ *  * req.user is mandatory
+ *  * req.query.before must not be set because the tracker must be updated only when a user GET all the timelines entries
+ *  or if the req.query.after is defined
+ *  * if timelineEntriesReadable[0] is defined then there is at least 1 timeline entry in the activity stream
+ */
+function updateTracker(req, timelineEntriesReadable) {
+  if (req && req.user && !req.query.before && timelineEntriesReadable && timelineEntriesReadable[0]) {
+    // When req.query.after, the last timeline entry is the last element in the result array
+    if (req.query.after && timelineEntriesReadable[timelineEntriesReadable.length - 1]) {
+      tracker.updateLastTimelineEntryRead(req.user._id, req.activity_stream._id, timelineEntriesReadable[timelineEntriesReadable.length - 1]._id, function(err) {});
+    } else {
+      tracker.updateLastTimelineEntryRead(req.user._id, req.activity_stream._id, timelineEntriesReadable[0]._id, function(err) {});
+    }
+  }
+}
 
 function getMine(req, res) {
   function streamsCallback(err, streams) {
@@ -81,28 +100,19 @@ function get(req, res) {
     options.after = req.query.after;
   }
 
-  activitystreams.query(options, function(err, result) {
+  activitystreams.query(options, function(err, timelineEntriesFound) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Internal error', details: 'Can not get Activity Stream for resource ' + activity_stream}});
     }
 
-    res.json(result);
-
-    /*
-     * Check if the tracker can be update :
-     *  * req.user is mandatory
-     *  * req.query.before must not be set because the tracker must be update only when a user GET all the timelines entries
-     *  or if the req.query.after is defined
-     *  * if result[0] is defined then there is at least 1 timeline entry in the activity stream
-     */
-    if (req.user && !req.query.before && result[0]) {
-      // When req.query.after, the last timeline entry is the last element in the result array
-      if (req.query.after && result[result.length - 1]) {
-        tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[result.length - 1]._id, function(err) {});
-      } else {
-        tracker.updateLastTimelineEntryRead(req.user._id, activity_stream._id, result[0]._id, function(err) {});
-      }
-    }
+    async.filter(timelineEntriesFound, function(timelineEntry, callback) {
+      activitystreams.permission.canRead(timelineEntry, {objectType: 'user', id: req.user._id}, function(err, readable) {
+        return callback(err ? false : readable);
+      });
+    }, function(timelineEntriesReadable) {
+      res.json(timelineEntriesReadable);
+      updateTracker(req, timelineEntriesReadable);
+    });
   });
 }
 module.exports.get = get;

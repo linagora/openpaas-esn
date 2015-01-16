@@ -58,7 +58,7 @@ exports = module.exports = function(application) {
   var messageMiddleware = require('./middleware/message');
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
   application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.requiresWritableTargets, messageMiddleware.checkTargets, messages.createOrReplyToMessage);
-  application.get('/api/messages/:uuid', authorize.requiresAPILogin, messages.getMessage);
+  application.get('/api/messages/:id', authorize.requiresAPILogin, messages.getMessage);
   application.post('/api/messages/:id/shares', authorize.requiresAPILogin, messages.copy);
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
 

@@ -37,7 +37,8 @@ describe('The activitystreams routes', function() {
 
     describe('Activity Stream tests', function() {
       var Domain, User, TimelineEntry, Community;
-      var activitystreamId, savedTimelineEntry, community;
+      var activitystreamId, savedTimelineEntry, community, privateCommunity, privateActivitystreamId;
+      var user, userNotInPrivateCommunity;
       var email = 'itadmin@lng.net';
       password = 'secret';
 
@@ -47,15 +48,19 @@ describe('The activitystreams routes', function() {
         TimelineEntry = this.mongoose.model('TimelineEntry');
         Community = this.mongoose.model('Community');
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          user = models.users[0];
+          userNotInPrivateCommunity = models.users[2];
           community = models.communities[0];
+          privateCommunity = models.communities[1];
           activitystreamId = models.communities[0].activity_stream.uuid;
+          privateActivitystreamId = privateCommunity.activity_stream.uuid;
           var timelineentryJSON = {
             actor: {
               objectType: 'user',
-              _id: models.users[0]._id
+              _id: user._id
             },
             object: {
-              _id: models.users[0]._id
+              _id: user._id
             },
             target: [
               {objectType: 'activitystream', _id: activitystreamId}
@@ -139,6 +144,42 @@ describe('The activitystreams routes', function() {
                 done();
               });
             });
+        });
+
+        it('should return a JSON with 200 result when activitystream exists and not return timeline entries in private community', function(done) {
+          var self = this;
+
+          var timelineentryPrivate = {
+            actor: {
+              objectType: 'user',
+              _id: user._id
+            },
+            object: {
+              _id: user._id
+            },
+            target: [
+              {objectType: 'activitystream', _id: privateActivitystreamId}
+            ]
+          };
+          var timelineEntry = new TimelineEntry(timelineentryPrivate);
+          timelineEntry.save(function(err, timelineEntryPrivateSaved) {
+            if (err) { return done(err); }
+
+            self.helpers.api.loginAsUser(webserver.application, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+              if (err) { return done(err); }
+
+              var req = loggedInAsUser(request(webserver.application).get('/api/activitystreams/' + privateActivitystreamId + '?limit=10'));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+
+                var entryArray = res.body;
+                expect(entryArray).to.be.not.null;
+                expect(entryArray.length).to.equal(0);
+                done();
+              });
+            });
+          });
         });
 
         it('should return a JSON with 200 result when activitystream exists', function(done) {

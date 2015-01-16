@@ -31,7 +31,7 @@ describe('The messages controller', function() {
 
     it('should return 500 if the user is not set in the request', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('User');
           done();
@@ -52,7 +52,7 @@ describe('The messages controller', function() {
         }
       };
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(400);
           expect(message).to.contain('Missing');
           done();
@@ -68,7 +68,7 @@ describe('The messages controller', function() {
 
     it('should return 500 if it cannot save the message in the database', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
@@ -98,7 +98,7 @@ describe('The messages controller', function() {
 
     it('should return 201 and the id of the newly created message', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(201);
           expect(message._id).to.equal('a new id');
           done();
@@ -131,7 +131,7 @@ describe('The messages controller', function() {
       var globalstub = {};
 
       var res = {
-        send: function() {
+        json: function() {
           expect(localstub.topics['message:activity']).to.exist;
           expect(globalstub.topics['message:activity']).to.exist;
           expect(localstub.topics['message:activity'].data).to.exist;
@@ -170,7 +170,7 @@ describe('The messages controller', function() {
       var id = 234;
 
       var res = {
-        send: function(code) {
+        json: function(code) {
           expect(code).to.equal(201);
           expect(localstub.topics['message:stored']).to.exist;
           expect(localstub.topics['message:stored'].data).to.be.an.array;
@@ -202,7 +202,7 @@ describe('The messages controller', function() {
 
     it('should return 404 otherwise', function(done) {
       var res = {
-        send: function(code) {
+        json: function(code) {
           expect(code).to.equal(404);
           done();
         }
@@ -254,7 +254,7 @@ describe('The messages controller', function() {
 
     it('should return 500 if it cannot save the comment in the database', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
@@ -275,7 +275,7 @@ describe('The messages controller', function() {
 
     it('should return 400 if message type is not supported', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(400);
           done();
         }
@@ -299,7 +299,7 @@ describe('The messages controller', function() {
 
     it('should return 201 with the _id of the new comment and the parentId', function(done) {
       var res = {
-        send: function(code, data) {
+        json: function(code, data) {
           expect(code).to.equal(201);
           expect(data._id).to.equal('an id');
           expect(data.parentId).to.equal('a parent id');
@@ -322,7 +322,7 @@ describe('The messages controller', function() {
 
     it('should inherits target from its parent', function(done) {
       var res = {
-        send: function(code, data) {
+        json: function(code, data) {
         }
       };
 
@@ -355,7 +355,7 @@ describe('The messages controller', function() {
       var globalstub = {};
 
       var res = {
-        send: function() {
+        json: function() {
           expect(localstub.topics[0]).to.equal('message:activity');
           expect(globalstub.topics[0]).to.equal('message:activity');
           expect(localstub.topics['message:activity'].data).to.exist;
@@ -397,7 +397,7 @@ describe('The messages controller', function() {
 
     it('should return 500 if the user is not set in the request', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('User');
           done();
@@ -418,7 +418,7 @@ describe('The messages controller', function() {
         }
       };
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(400);
           expect(message).to.contain('Missing');
           done();
@@ -434,7 +434,7 @@ describe('The messages controller', function() {
 
     it('should return 500 if it cannot findByIds the messages in the database', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
@@ -460,13 +460,13 @@ describe('The messages controller', function() {
 
     it('should return 200 and the messages found by ids, also not found ones', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(200);
           expect(message[0]._id.toString()).to.equal('1');
           expect(message[1]).to.deep.equal(
             {
               error: {
-                status: 404,
+                code: 404,
                 message: 'Not Found',
                 details: 'The message 2 can not be found'
               }
@@ -493,6 +493,11 @@ describe('The messages controller', function() {
               }
             }
           ]);
+        },
+        permission: {
+          canRead: function(message, tuple, callback) {
+            return callback(null, true);
+          }
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -504,7 +509,7 @@ describe('The messages controller', function() {
 
     it('should return 200 and only the messages found by ids', function(done) {
       var res = {
-        send: function(code, message) {
+        json: function(code, message) {
           expect(code).to.equal(200);
           expect(message[0]._id.toString()).to.equal('1');
           expect(message[1]._id.toString()).to.equal('2');
@@ -537,6 +542,11 @@ describe('The messages controller', function() {
               }
             }
           ]);
+        },
+        permission: {
+          canRead: function(message, tuple, callback) {
+            return callback(null, true);
+          }
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -571,7 +581,7 @@ describe('The messages controller', function() {
 
     it('should return send back HTTP 500 if core module returns an error', function(done) {
       var mock = {
-        get: function(id, callback) {
+        findByIds: function(id, callback) {
           return callback(new Error());
         }
       };
@@ -581,6 +591,9 @@ describe('The messages controller', function() {
       var req = {
         param: function() {
           return '1234';
+        },
+        user: {
+          _id: '123'
         }
       };
 
@@ -597,8 +610,8 @@ describe('The messages controller', function() {
 
     it('should return send back HTTP 404 if core module does not find the message', function(done) {
       var mock = {
-        get: function(id, callback) {
-          return callback();
+        findByIds: function(id, callback) {
+          return callback(null, []);
         }
       };
       mockery.registerMock('../../core/message/email', {});
@@ -607,6 +620,9 @@ describe('The messages controller', function() {
       var req = {
         param: function() {
           return '1234';
+        },
+        user: {
+          _id: '123'
         }
       };
 
@@ -623,8 +639,13 @@ describe('The messages controller', function() {
 
     it('should return send back HTTP 200 if core module finds the message', function(done) {
       var mock = {
-        get: function(id, callback) {
-          return callback(null, {_id: 123});
+        findByIds: function(ids, callback) {
+          return callback(null, [{_id: 123}]);
+        },
+        permission: {
+          canRead: function(message, tuple, callback) {
+            return callback(null, true);
+          }
         }
       };
       mockery.registerMock('../../core/message/email', {});
@@ -633,6 +654,9 @@ describe('The messages controller', function() {
       var req = {
         param: function() {
           return '1234';
+        },
+        user: {
+          _id: '123'
         }
       };
 

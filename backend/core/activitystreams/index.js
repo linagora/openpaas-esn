@@ -114,3 +114,5 @@ function addTimelineEntry(entry, cb) {
   return timelineEntry.save(cb);
 }
 module.exports.addTimelineEntry = addTimelineEntry;
+
+module.exports.permission = require('./permission');
