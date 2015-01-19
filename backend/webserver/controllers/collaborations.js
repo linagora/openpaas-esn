@@ -269,6 +269,7 @@ function addMembershipRequest(req, res) {
   var collaboration = req.collaboration;
   var userAuthor = req.user;
   var userTargetId = req.params.user_id;
+  var objectType = req.params.objectType;
 
   var member = collaboration.members.filter(function(m) {
     return m.member.objectType === 'user' && m.member.id.equals(userTargetId);
@@ -278,8 +279,8 @@ function addMembershipRequest(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User is already member'}});
   }
 
-  function addMembership(collaboration, userAuthor, userTarget, workflow, actor) {
-    collaborationModule.addMembershipRequest(collaboration, userAuthor, userTarget, workflow, actor, function(err, collaboration) {
+  function addMembership(objectType, collaboration, userAuthor, userTarget, workflow, actor) {
+    collaborationModule.addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, function(err, collaboration) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
       }
@@ -290,9 +291,9 @@ function addMembershipRequest(req, res) {
   }
 
   if (req.isCollaborationManager) {
-    addMembership(collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_INVITATION, 'manager');
+    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_INVITATION, 'manager');
   } else {
-    addMembership(collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_REQUEST, 'user');
+    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_REQUEST, 'user');
   }
 }
 module.exports.addMembershipRequest = addMembershipRequest;

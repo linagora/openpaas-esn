@@ -299,7 +299,7 @@ module.exports.getMembershipRequests = function(community, query, callback) {
 };
 
 module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
-  return collaboration.addMembershipRequest(community, userAuthor, userTarget, workflow, actor, callback);
+  return collaboration.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
 };
 
 module.exports.getMembershipRequest = function(community, user) {

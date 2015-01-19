@@ -12,11 +12,6 @@ var MEMBERSHIP_TYPE_INVITATION = 'invitation';
 module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
 module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
 
-var WORKFLOW_NOTIFICATIONS_TOPIC = {
-  request: 'community:membership:request',
-  invitation: 'community:membership:invite'
-};
-
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
 
@@ -26,6 +21,10 @@ var collaborationModels = {
 
 var collaborationLibs = {
   community: require('../community')
+};
+
+var collaborationTopic = {
+  community: collaborationLibs.community.WORKFLOW_NOTIFICATIONS_TOPIC
 };
 
 function getModel(objectType) {
@@ -105,7 +104,7 @@ function getMembers(collaboration, objectType, query, callback) {
   });
 }
 
-function addMembershipRequest(collaboration, userAuthor, userTarget, workflow, actor, callback) {
+function addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, callback) {
   if (!userAuthor) {
     return callback(new Error('Author user object is required'));
   }
@@ -124,12 +123,12 @@ function addMembershipRequest(collaboration, userAuthor, userTarget, workflow, a
     return callback(new Error('Workflow string is required'));
   }
 
-  var topic = WORKFLOW_NOTIFICATIONS_TOPIC[workflow];
+  var topic = collaborationTopic[objectType][workflow];
   if (!topic) {
     var errorMessage = 'Invalid workflow, must be ';
     var isFirstLoop = true;
-    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
-      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
+    for (var key in collaborationTopic[objectType]) {
+      if (collaborationTopic[objectType].hasOwnProperty(key)) {
         if (isFirstLoop) {
           errorMessage += '"' + key + '"';
           isFirstLoop = false;

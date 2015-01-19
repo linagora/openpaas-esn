@@ -51,7 +51,7 @@ describe('The collaboration module', function() {
 
     it('should send back error when userAuthor is null', function() {
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest({}, null, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {}, null, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -59,7 +59,7 @@ describe('The collaboration module', function() {
 
     it('should send back error when userTarget is null', function() {
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest({}, {}, null, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {}, {}, null, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -67,7 +67,7 @@ describe('The collaboration module', function() {
 
     it('should send back error when collaboration is null', function() {
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest(null, {}, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', null, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -75,7 +75,7 @@ describe('The collaboration module', function() {
 
     it('should send back error when workflow is null', function() {
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest({}, {}, {}, null, null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {}, {}, {}, null, null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -83,7 +83,7 @@ describe('The collaboration module', function() {
 
     it('should send back error when workflow is not "request" or "invitation"', function() {
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest({}, {}, {}, 'test', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {}, {}, {}, 'test', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -91,11 +91,11 @@ describe('The collaboration module', function() {
 
     it('should send back error if collaboration type is not restricted or private for membership request', function() {
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest({type: 'open'}, {}, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {type: 'open'}, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
-      collaborationModule.addMembershipRequest({type: 'confidential'}, {}, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {type: 'confidential'}, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -116,7 +116,7 @@ describe('The collaboration module', function() {
         ]
       };
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest(collaboration, {}, user, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', collaboration, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -125,7 +125,7 @@ describe('The collaboration module', function() {
     it('should send back error if the check if the target user is member of the collaboration fails', function() {
       var user = { _id: 'uid' };
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest(null, {}, user, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', null, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -148,7 +148,7 @@ describe('The collaboration module', function() {
       };
       var workflow = 'request';
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaborationModule.addMembershipRequest(collaboration, {}, user, workflow, null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests).to.deep.equal(collaboration.membershipRequests);
@@ -177,7 +177,7 @@ describe('The collaboration module', function() {
       collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
-      collaborationModule.addMembershipRequest(collaboration, {}, user, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', collaboration, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -206,7 +206,7 @@ describe('The collaboration module', function() {
       collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
-      collaborationModule.addMembershipRequest(collaboration, {}, user, workflow, null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(2);
@@ -239,7 +239,7 @@ describe('The collaboration module', function() {
       collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
-      collaborationModule.addMembershipRequest(collaboration, {}, user, workflow, null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
         expect(c.membershipRequests.length).to.equal(2);
