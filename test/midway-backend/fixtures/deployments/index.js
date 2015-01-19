@@ -30,13 +30,13 @@ module.exports.linagora_IT = function() {
         password: 'secret',
         firstname: 'Kurt',
         lastname: 'Cobain',
-        emails: ['kcobain@lng.net']
+        emails: ['kcobain@linagora.com']
       },
       {
         password: 'secret',
         firstname: 'Jimmy',
         lastname: 'Hendrix',
-        emails: ['jhendrix@lng.net']
+        emails: ['jhendrix@linagora.com']
       }
     ],
     communities: [
