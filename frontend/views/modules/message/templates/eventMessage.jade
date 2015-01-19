@@ -15,7 +15,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
       div
         p.multilines {{event.description}}
       p
-        div.event-details
+        div.event-details.vertiz-space
           div.text-center
             strong.dates {{event.formattedDate}} #{__('from')} {{event.formattedStartTime}}&nbsp;
               sup {{event.formattedStartA}}
@@ -30,16 +30,6 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               button.btn.btn-link.participate(ng-click='changeParticipation("ACCEPTED")', ng-class='{ selected: partstat == "ACCEPTED" }') #{__('Yes')}
               button.btn.btn-link.participate(ng-click='changeParticipation("DECLINED")', ng-class='{ selected: partstat == "DECLINED" }') #{__('No')}
               button.btn.btn-link.participate(ng-click='changeParticipation("TENTATIVE")', ng-class='{ selected: partstat == "TENTATIVE" }') #{__('Maybe')}
-          div.attendees
-            div.statusrow(ng-if='event.attendees.ACCEPTED.length > 0') #{__('Going')}#{': '}
-              span(ng-repeat='att in event.attendees.ACCEPTED track by att.mail')
-                a(href='mailto:{{att.mail}}' title='{{att.fullmail}}') {{att.name}}
-                span(ng-if='!$last') #{', '}
-            div.statusrow(ng-if='event.attendees.DECLINED.length > 0') #{__('Not Going')}#{': '}
-              span(ng-repeat='att in event.attendees.DECLINED track by att.mail')
-                a(href='mailto:{{att.mail}}' title='{{att.fullmail}}') {{att.name}}
-                span(ng-if='!$last') #{', '}
-
       include ./includes/messagesBottomLinks
       include ./includes/attachments.jade
       include ./includes/comments.jade

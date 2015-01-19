@@ -99,10 +99,7 @@ describe('The Calendar Angular module', function() {
               ['uid', {}, 'text', 'myuid'],
               ['summary', {}, 'text', 'title'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
-              ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
-              ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
-              ['attendee', { 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
-              ['attendee', { 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com']
+              ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
             ], []]
           ]],
           // headers:
@@ -113,32 +110,8 @@ describe('The Calendar Angular module', function() {
             expect(event).to.be.an('object');
             expect(event.id).to.equal('myuid');
             expect(event.title).to.equal('title');
-            expect(event.allDay).to.be.false;
             expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
             expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
-
-            expect(event.formattedDate).to.equal('January 1, 2014');
-            expect(event.formattedStartTime).to.equal('2');
-            expect(event.formattedStartA).to.equal('am');
-            expect(event.formattedEndTime).to.equal('3');
-            expect(event.formattedEndA).to.equal('am');
-
-            expect(event.attendees.ACCEPTED.length).to.equal(1);
-            expect(event.attendees.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
-            expect(event.attendees.ACCEPTED[0].mail).to.equal('test@example.com');
-            expect(event.attendees.ACCEPTED[0].name).to.equal('name');
-            expect(event.attendees.ACCEPTED[0].partstat).to.equal('ACCEPTED');
-
-            expect(event.attendees.DECLINED.length).to.equal(1);
-            expect(event.attendees.DECLINED[0].fullmail).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].mail).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].name).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].partstat).to.equal('DECLINED');
-
-            expect(event.attendees.OTHER.length).to.equal(1);
-            expect(event.attendees.OTHER[0].fullmail).to.equal('tentative@example.com');
-            expect(event.attendees.OTHER[0].partstat).to.equal('TENTATIVE');
-
             expect(event.vcalendar).to.be.an('object');
             expect(event.path).to.equal('/path/to/event.ics');
             expect(event.etag).to.equal('testing-tag');
