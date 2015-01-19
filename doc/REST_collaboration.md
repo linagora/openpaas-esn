@@ -101,7 +101,7 @@ Array of {objectType} members.
       }
     ]
 
-## /api/collaborations/membersearch
+## GET /api/collaborations/membersearch
 
 Get all the collaborations where the given tuple is a member.
 
@@ -170,3 +170,56 @@ Get all the collaborations where the given tuple is a member.
         }
       }
     }
+
+## GET /api/collaborations/:id/externalcompanies
+
+This route sends back the companies of all external users which are members of the collaboration.
+Currently, it only searches the companies of users who are direct members of the collaboration,
+ie. which are not member of this collaboration through another collaboration
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Parameters:**
+
+- id: The id of the collaboration
+
+**Query Parameters:**
+
+- query: A search phrase to be contained in the returned company names
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Response JSON Object:**
+
+- An array of external companies which have a user belonging to the collaboration
+
+**Status Codes:**
+
+- 200 OK
+- 400 Bad Request
+- 401 Unauthorized
+- 500 Internal server error
+
+**Request:**
+
+    GET /api/collaborations/123456/externalcompanies?search=lin
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [
+      {
+        objectType: 'company',
+        id: 'linagora'
+      },
+      {
+        objectType: 'company',
+        id: 'linuxFR'
+      }
+    ]
