@@ -1,8 +1,6 @@
 'use strict';
 
-var userHelper = require('../../helpers/user');
-var userModule = require('../user');
-var async = require('async');
+var permissionHelpers = require('../../helpers/permission');
 
 module.exports.checkModel = function(messageModel, messageTargets, callback) {
   if (!messageModel.inReplyTo) {
@@ -26,20 +24,5 @@ module.exports.checkModel = function(messageModel, messageTargets, callback) {
 };
 
 module.exports.checkReplyPermission = function(message, user, callback) {
-  userHelper.isInternal(user, function(err, isInternal) {
-    if (err) {
-      return callback(err);
-    }
-    if (isInternal) {
-      return callback(null);
-    }
-    async.some(message.recipients,
-      function(companyTuple, found) {
-        userModule.belongsToCompany(user, companyTuple.id, function(err, belongs) {
-          found(!err && belongs);
-        });
-      },
-      callback
-    );
-  });
+  return permissionHelpers.checkUserCompany(message.recipients, user, callback);
 };

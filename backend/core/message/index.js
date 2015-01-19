@@ -264,7 +264,7 @@ function specificModelCheckForObjectType(objectType, messageModel, messageTarget
 function typeSpecificReplyPermission(message, user, callback) {
   var objectType = message.objectType;
   if (!objectType || !type[objectType] || !type[objectType].checkReplyPermission) {
-    return callback();
+    return callback(null, true);
   }
   else {
     return type[objectType].checkReplyPermission(message, user, callback);
