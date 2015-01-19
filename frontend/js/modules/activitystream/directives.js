@@ -173,10 +173,10 @@ angular.module('esn.activitystream')
     templateUrl: '/views/modules/activitystream/activitystream-filter.html',
     link: function($scope) {
 
-      var storage = localStorageService.getDefault();
+      var storage = localStorageService.getOrCreateInstance('streamFilters');
 
       function getKeyName() {
-        return $scope.activitystream._id + '.filter';
+        return $scope.activitystream._id;
       }
 
       function getCachedStream() {

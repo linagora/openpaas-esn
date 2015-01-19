@@ -1,26 +1,42 @@
 'use strict';
 
-angular.module('esn.localstorage', ['LocalForageModule'])
-  .config(['$localForageProvider', function($localForageProvider) {
-    $localForageProvider.config({
-      name: 'esnApp',
-      storeName: 'keyvaluepairs'
-    });
-  }])
-  .factory('localStorageService', ['$localForage', function($localForage) {
-    return {
-      getDefault: function() {
-        return $localForage;
-      },
+angular.module('esn.localstorage', ['esn.session', 'LocalForageModule'])
+  .factory('localStorageService', ['session', '$localForage', function(session, $localForage) {
 
-      createInstance: function(name, options) {
-        options = options || {};
-        options.name = name;
-        return $localForage.createInstance(options);
-      },
+    function getName(name) {
+      return session.user._id + '.' + name;
+    }
 
-      getInstance: function(name) {
-        return $localForage.instance(name);
+    function getDefault() {
+      return $localForage.createInstance(getName('esnApp'), {storeName: 'keyvaluepairs'});
+    }
+
+    function createInstance(name, options) {
+      options = options || {};
+      options.name = getName(name);
+      return $localForage.createInstance(options);
+    }
+
+    function getInstance(name) {
+      return $localForage.instance(getName(name));
+    }
+
+    function getOrCreateInstance(name, options) {
+      options = options || {};
+      var instance;
+
+      try {
+        instance = getInstance(name);
+      } catch (Error) {
+        instance = createInstance(name, options);
       }
+      return instance;
+    }
+
+    return {
+      getDefault: getDefault,
+      createInstance: createInstance,
+      getInstance: getInstance,
+      getOrCreateInstance: getOrCreateInstance
     };
   }]);
