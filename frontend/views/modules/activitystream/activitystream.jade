@@ -6,7 +6,7 @@ div(activity-stream-notification)
       div#activitystreamerror
       div.text-center.bg-info(ng-show="threads.length===0 && !restActive") #{__('There are no messages on this activity stream yet. Be the first to post !')}
       .row
-        activity-stream-filter.streamfilter.pull-left(ng-show="threads.length!==0 && streams.length > 1")
+        activity-stream-filter.streamfilter.pull-right(ng-show="threads.length!==0 && streams.length > 1")
       infinite-list
           ul.media-list
             li.media(ng-repeat="thread in threads | filter: filterMessagesInSelectedStream" ng-init='parentMessage=true')

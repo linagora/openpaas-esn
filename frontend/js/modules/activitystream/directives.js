@@ -189,7 +189,6 @@ angular.module('esn.activitystream')
         storage.setItem(getKeyName(), stream.activity_stream.uuid).then(function() {
           $log.debug('Filter saved in local storage');
         });
-
       };
 
       $scope.clearStreamSelection = function() {
@@ -200,7 +199,6 @@ angular.module('esn.activitystream')
         });
       };
 
-      // FIXME : Do it before the stream is displayed, to be tested
       getCachedStream().then(function(stream) {
         if (stream) {
           var found = $scope.streams.filter(function(item) {
