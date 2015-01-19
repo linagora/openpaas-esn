@@ -10,6 +10,7 @@ describe('The messages API', function() {
   var testuser;
   var restrictedUser;
   var userNotInPrivateCommunity;
+  var userExternal;
   var domain;
   var community;
   var restrictedCommunity;
@@ -17,7 +18,7 @@ describe('The messages API', function() {
   var password = 'secret';
   var email;
   var restrictedEmail;
-  var message1, message2, message3, message4, message5;
+  var message1, message2, message3, message4, message5, message6, message7;
 
   beforeEach(function(done) {
     var self = this;
@@ -25,6 +26,7 @@ describe('The messages API', function() {
       app = require(self.testEnv.basePath + '/backend/webserver/application');
       self.mongoose = require('mongoose');
       var Whatsup = require(self.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
+      var Organizational = require(self.testEnv.basePath + '/backend/core/db/mongo/models/organizationalmessage');
 
       function saveMessage(message, cb) {
         message.save(function(err, saved) {
@@ -43,6 +45,7 @@ describe('The messages API', function() {
         testuser = models.users[0];
         restrictedUser = models.users[1];
         userNotInPrivateCommunity = models.users[2];
+        userExternal = models.users[3];
         community = models.communities[0];
         privateCommunity = models.communities[1];
         restrictedCommunity = models.communities[2];
@@ -88,6 +91,26 @@ describe('The messages API', function() {
           }]
         });
 
+        message6 = new Organizational({
+          content: 'message 6',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }],
+          recipients: [{
+            objectType: 'company',
+            id: 'linagora.com'
+          }]
+        });
+
+        message7 = new Organizational({
+          content: 'message 7',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }]
+        });
+
         async.series([
             function(callback) {
               message1.author = testuser._id;
@@ -110,6 +133,14 @@ describe('The messages API', function() {
               saveMessage(message5, callback);
             },
             function(callback) {
+              message6.author = testuser._id;
+              saveMessage(message6, callback);
+            },
+            function(callback) {
+              message7.author = testuser._id;
+              saveMessage(message7, callback);
+            },
+            function(callback) {
               restrictedCommunity.members.splice(0, 1);
               restrictedCommunity.markModified('members');
               restrictedCommunity.save(function(err, saved) {
@@ -117,6 +148,17 @@ describe('The messages API', function() {
                   return done(err);
                 }
                 restrictedCommunity = saved;
+                return callback(null, saved);
+              });
+            },
+            function(callback) {
+              community.members.push({member: {objectType: 'user', id: userExternal._id}});
+              community.markModified('members');
+              community.save(function(err, saved) {
+                if (err) {
+                  return done(err);
+                }
+                community = saved;
                 return callback(null, saved);
               });
             }
@@ -631,7 +673,7 @@ describe('The messages API', function() {
     });
   });
 
-  it('should return 200 with a 403 object error retrieving multiple messages with one in private community', function(done) {
+  it('should return 200 with a 403 object error when retrieving multiple messages with one in private community', function(done) {
     this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
 
@@ -645,6 +687,25 @@ describe('The messages API', function() {
         expect(res.body[0].author._id).to.equal(testuser._id.toString());
         expect(res.body[1].error).to.be.an('object');
         expect(res.body[1].error.code).to.equal(403);
+        done();
+      });
+    });
+  });
+
+  it('should return 200 with a 403 object error when retrieving multiple messages with one without recipients', function(done) {
+    this.helpers.api.loginAsUser(app, userExternal.emails[0], password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + message6._id + '&ids[]=' + message7._id));
+      req.expect(200);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.an.array;
+        expect(res.body.length).to.equal(3);
+        expect(res.body[0]._id.toString()).to.equal(message1._id.toString());
+        expect(res.body[1]._id.toString()).to.equal(message6._id.toString());
+        expect(res.body[2].error).to.be.an('object');
+        expect(res.body[2].error.code).to.equal(403);
         done();
       });
     });
