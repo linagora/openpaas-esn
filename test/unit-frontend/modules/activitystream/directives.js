@@ -175,7 +175,7 @@ describe('The esn.activitystream Angular module', function() {
     it('should call scope.loadMoreElements() method', function(done) {
       this.$scope.streams = [];
       this.$scope.stream = {activity_stream: {uuid: '0987654321'}};
-      var html = '<activity-stream activitystream-uuid="activityStreamUuid" streams="streams"></activity-stream>';
+      var html = '<activity-stream activitystream="stream" streams="streams"></activity-stream>';
       var element = this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
       var scope = element.isolateScope();
