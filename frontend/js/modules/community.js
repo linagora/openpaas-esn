@@ -7,21 +7,22 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       displayProperty: true
     });
   }])
-  .run(['objectTypeResolver', 'communityAPI', 'Restangular', function(objectTypeResolver, communityAPI, Restangular) {
+  .run(['objectTypeResolver', 'objectTypeAdapter', 'communityAPI', 'communityAdapterService', 'Restangular', function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular) {
     objectTypeResolver.register('community', communityAPI.get);
+    objectTypeAdapter.register('community', communityAdapterService);
     Restangular.extendModel('communities', function(model) {
-      model.url = function(community) {
-        return '/#/communities/' + community._id || community;
-      };
-      model.avatarUrl = function(community) {
-        return '/api/avatars?objectType=community&id=' + community._id || community;
-      };
-      model.displayName = function(community) {
-        return community.title || community;
-      };
-      return model;
+      return communityAdapterService(model);
     });
   }])
+  .factory('communityAdapterService', function() {
+    return function(community) {
+      community.htmlUrl = '/#/communities/' + community._id;
+      community.url = '/#/communities/' + community._id;
+      community.avatarUrl = '/api/avatars?objectType=community&id=' + community._id;
+      community.displayName = community.title;
+      return community;
+    };
+  })
   .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
@@ -609,19 +610,19 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       }
     };
   }])
-  .controller('communityController', ['$rootScope', '$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'community',
-  function($rootScope, $scope, $location, $log, session, communityAPI, communityService, community) {
+  .controller('communityController', ['$rootScope', '$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'objectTypeAdapter', 'community', 'memberOf',
+  function($rootScope, $scope, $location, $log, session, communityAPI, communityService, objectTypeAdapter, community, memberOf) {
     $scope.community = community;
     $scope.user = session.user;
     $scope.error = false;
     $scope.loading = false;
     $scope.writable = community.writable;
-    $scope.streams = community.memberOf.map(function(collaboration) {
-      return collaboration.activity_stream.uuid;
+    $scope.streams = memberOf.map(function(collaboration) {
+      return objectTypeAdapter.adapt(collaboration);
     });
 
     $scope.$on('community:membership', function(data) {
-      communityAPI.get(community._id).then(function(response) {
+      communityAPI.get($scope.community._id).then(function(response) {
         $scope.writable = response.data.writable;
       });
     });

@@ -1097,6 +1097,7 @@ describe('The Community Angular module', function() {
       this.communityService = {};
       this.session = {domain: {_id: 'domain1'}, user: {_id: 'user1'}};
       this.$q = $q;
+      this.memberOf = [];
 
       $controller('communityController', {
         $rootScope: this.$rootScope,
@@ -1106,7 +1107,8 @@ describe('The Community Angular module', function() {
         session: this.session,
         communityAPI: this.communityAPI,
         communityService: this.communityService,
-        community: this.community
+        community: this.community,
+        memberOf: this.memberOf
       });
     }]));
 

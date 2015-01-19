@@ -45,7 +45,7 @@ describe('The esn.activitystream Angular module', function() {
       it('should not call the aggregator loadMoreElements method if a rest request is active', function() {
         this.loadCount = 0;
         this.scope.updateMessagesActive = true;
-        this.scope.streams = ['0987654321'];
+        this.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
         this.scope.loadMoreElements();
         expect(this.loadCount).to.equal(0);
       });
@@ -61,7 +61,7 @@ describe('The esn.activitystream Angular module', function() {
       it('should call the aggregator loadMoreElements method', function() {
         this.loadCount = 0;
         this.scope.restActive = {};
-        this.scope.streams = ['0987654321'];
+        this.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
         this.scope.loadMoreElements();
         expect(this.loadCount).to.equal(1);
       });
@@ -97,7 +97,7 @@ describe('The esn.activitystream Angular module', function() {
 
           this.loadCount = 0;
           this.scope.updateMessagesActive = false;
-          this.scope.streams = [id];
+          this.scope.streams = [{activity_stream: {uuid: id}}];
           this.scope.displayError = function(err) {
             self.thrownError = err;
           };
@@ -120,7 +120,7 @@ describe('The esn.activitystream Angular module', function() {
 
           this.loadCount = 0;
           this.scope.updateMessagesActive = false;
-          this.scope.streams = ['0987654321'];
+          this.scope.streams = [{activity_stream: {uuid: '0987654321'}}];
           this.thrownError = null;
           this.scope.displayError = function(err) {
             self.thrownError = err;
@@ -148,7 +148,7 @@ describe('The esn.activitystream Angular module', function() {
           done();
         };
 
-        this.scope.streams = ['0987654321'];
+        this.scope.streams = [{activity_stream: {uuid: '123'}}];
         this.scope.loadMoreElements();
       });
 

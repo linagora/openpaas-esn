@@ -75,7 +75,7 @@ angular.module('esn.activitystream')
         return;
       }
       if (!aggregator) {
-        aggregator = aggregatorService($scope.streams, 25);
+        aggregator = aggregatorService($scope.activitystream, $scope.streams, 25);
       }
       if (!aggregator.endOfStream) {
         updateMessageList();

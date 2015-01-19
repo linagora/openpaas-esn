@@ -133,6 +133,7 @@ describe('The esn.message Angular module', function() {
     beforeEach(module('angularMoment'));
     beforeEach(module('esn.profile'));
     beforeEach(module('esn.core'));
+    beforeEach(module('esn.activitystream'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
@@ -244,6 +245,7 @@ describe('The esn.message Angular module', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('angularMoment'));
     beforeEach(module('esn.core'));
+    beforeEach(module('esn.activitystream'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;
@@ -373,7 +375,7 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done(new Error());
         };
-        this.scope.activitystreamUuid = '0987654321';
+        this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
@@ -389,7 +391,7 @@ describe('The esn.message Angular module', function() {
         this.scope.position = {
           coords: coords
         };
-        this.scope.activitystreamUuid = '0987654321';
+        this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
@@ -405,7 +407,7 @@ describe('The esn.message Angular module', function() {
           done();
         };
         defer.reject({data: {status: 403}});
-        this.scope.activitystreamUuid = '0987654321';
+        this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.whatsupmessage = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
@@ -428,7 +430,7 @@ describe('The esn.message Angular module', function() {
           this.scope.displayError = function() {
             done(new Error());
           };
-          this.scope.activitystreamUuid = '0987654321';
+          this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
           this.scope.whatsupmessage = 'Hey Oh, let\'s go';
           this.rootScope.$on('message:posted', function(evt, data) {
             expect(data.activitystreamUuid).to.equal('0987654321');

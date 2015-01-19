@@ -179,6 +179,16 @@ function registerCollaborationLib(name, lib) {
   collaborationLibs[name] = lib;
 }
 
+function addObjectType(objectType, collaborations) {
+  return collaborations.map(function(collaboration) {
+    if (typeof(collaboration.toObject) === 'function') {
+      collaboration = collaboration.toObject();
+    }
+    collaboration.objectType = objectType;
+    return collaboration;
+  });
+}
+
 function findCollaborationFromActivityStreamID(id, callback) {
   var finders = [];
 
@@ -223,7 +233,7 @@ function getCollaborationsForTuple(tuple, callback) {
       if (err || !result) {
         return callback();
       }
-      return callback(null, result);
+      return callback(null, addObjectType(type, result));
     });
   }
 

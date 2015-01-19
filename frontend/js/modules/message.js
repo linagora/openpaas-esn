@@ -59,8 +59,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.activitystreamUuid) {
-        $scope.displayError('You can not post to an unknown domain');
+      if (!$scope.activitystream || !$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
+        $scope.displayError('You can not post to an unknown activitystream');
         return;
       }
 
@@ -81,7 +81,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       var target = {
         objectType: 'activitystream',
-        id: $scope.activitystreamUuid
+        id: $scope.activitystream.activity_stream.uuid
       };
 
       function send(objectType, data, targets, attachments) {
@@ -98,7 +98,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         messageAPI.post(objectType, data, targets, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.activitystreamUuid,
+              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
               id: response.data._id
             });
             return defer.resolve();
@@ -410,12 +410,25 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       replace: true,
       scope: {
         message: '=',
-        writable: '=',
-        activitystreamUuid: '=',
+        activitystream: '=?',
         lastPost: '=',
         parentMessage: '='
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
+      controller: function($scope) {
+
+        if (!$scope.activitystream) {
+          var origins = $scope.message.streamOrigins;
+          if (origins && origins.length > 0) {
+            $scope.activitystream = origins[0];
+          }
+        }
+        if ($scope.activitystream) {
+          $scope.writable = $scope.activitystream.writable;
+        } else {
+          $scope.writable = false;
+        }
+      },
       compile: function(element) {
         return RecursionHelper.compile(element, function() {});
       }
@@ -583,8 +596,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
     $scope.share = function() {
 
-      if (!$scope.activitystreamUuid) {
-        $log.debug('Current activitystreamUuid is required');
+      if (!$scope.activitystream) {
+        $log.debug('activitystream is required');
         return;
       }
 
@@ -602,7 +615,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       var resource = {
         objectType: 'activitystream',
-        id: $scope.activitystreamUuid
+        id: $scope.activitystream.activity_stream.uuid
       };
 
       $scope.sending = true;

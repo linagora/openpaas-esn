@@ -170,4 +170,13 @@ function($q, $log, $timeout, projectAPI) {
     return {
       getProjectsActivityStreams: getProjectsActivityStreams
     };
-  }]);
+  }])
+  .factory('projectAdapterService', function() {
+    return function(project) {
+      project.htmlUrl = '/#/projects/' + project._id;
+      project.url = '/#/projects/' + project._id;
+      project.avatarUrl = '/api/projects/' + project._id + '/avatar';
+      project.displayName = project.title;
+      return project;
+    };
+  });
