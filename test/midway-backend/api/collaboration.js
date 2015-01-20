@@ -447,6 +447,7 @@ describe('The collaborations API', function() {
     });
   });
 
+
   describe('GET /api/collaborations/:objectType/:id/externalcompanies', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
@@ -516,7 +517,7 @@ describe('The collaborations API', function() {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
             expect(res.body.length).to.equal(2);
-            expect(res.body).to.deep.equal([{ objectType: 'company', id: 'test.net' }, { objectType: 'company', id: 'pipo.net' }]);
+            expect(res.body).to.deep.equal([{ objectType: 'company', id: 'test' }, { objectType: 'company', id: 'pipo' }]);
             done();
           });
         });
@@ -542,13 +543,13 @@ describe('The collaborations API', function() {
             expect(res.body).to.exist;
             expect(res.body.length).to.equal(0);
 
-            var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/externalcompanies?search=pipo'));
+            var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/externalcompanies?search=pi'));
             req.expect(200);
             req.end(function(err, res) {
               expect(err).to.not.exist;
               expect(res.body).to.exist;
               expect(res.body.length).to.equal(1);
-              expect(res.body).to.deep.equal([{ objectType: 'company', id: 'pipo.net' }]);
+              expect(res.body).to.deep.equal([{ objectType: 'company', id: 'pipo' }]);
               done();
             });
           });

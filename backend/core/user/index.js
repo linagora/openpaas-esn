@@ -90,7 +90,7 @@ module.exports.getCompanies = function(user, callback) {
   }
   var companies = user.emails.map(function(email) {
     var parsedEmail = emailAddresses.parseOneAddress(email);
-    return parsedEmail.domain;
+    return parsedEmail.domain.split('.')[0];
   });
   return callback(null, companies);
 };
