@@ -84,3 +84,14 @@ module.exports.belongsToCompany = function(user, company, callback) {
   return callback(null, hasCompany);
 };
 
+module.exports.getCompanies = function(user, callback) {
+  if (!user) {
+    return callback(new Error('User is required.'));
+  }
+  var companies = user.emails.map(function(email) {
+    var parsedEmail = emailAddresses.parseOneAddress(email);
+    return parsedEmail.domain;
+  });
+  return callback(null, companies);
+};
+
