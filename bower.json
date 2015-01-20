@@ -60,8 +60,8 @@
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
     "angular-markdown-directive": "~0.3.0",
     "angular-uuid4": "~0.3.0",
-    "angular-localforage": "~1.2.2",
-    "localforage": "~1.2.1"
+    "angular-localforage": "1.2.2",
+    "localforage": "1.2.0"
   },
   "resolutions": {
     "jquery": "2.1.1",
