@@ -8,8 +8,16 @@
   .col-xs-12
     .members-infinite-list
       infinite-list
-        .row(ng-repeat="member in members")
-          member-display(member="member.user", community="community")
-        .vertiz-space
+        .row.members-list-section.internal
+          h1 {{prettyCompany}}
+          .col-xs-12
+            .row.members-list-item(ng-repeat="member in internalMembers")
+              member-display(member="member", community="community")
+        .row.members-list-section(ng-repeat="(company, members) in externalMembers")
+          h1 {{company}}
+          .col-xs-12
+            .row.members-list-item(ng-repeat="member in members")
+              member-display(member="member", community="community")
+  .col-xs-12
     .throbber-container.text-center
       div.throbber(openpaas-logo-spinner, spinner-key='membersSpinner')

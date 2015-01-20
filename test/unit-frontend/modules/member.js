@@ -19,21 +19,21 @@ describe('The Member Angular module', function() {
     }]));
 
     beforeEach(function() {
-      this.defaultHtml = '<div class="col-xs-12 nopadding esn-member">' +
-        '<div class="col-xs-12"><hr></div><div class="col-lg-2 col-sm-3 col-xs-4">' +
+      this.defaultHtml = '<div class="col-xs-12 esn-member">' +
+        '<div class="col-lg-2 col-sm-3 col-xs-4">' +
         '<img src="/images/user.png" class="thumbnail"></div>' +
         '<div class="col-lg-7 col-sm-5 col-xs-8"><h4 class="media-heading ng-binding"> </h4><span>' +
         '<a href="mailto:" class="ng-binding"></a></span></div><div class="col-lg-3 col-sm-4 col-xs-12">' +
         '<div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Contact</button>' +
         '</div><div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Add</button></div></div></div>';
       this.getExpectedHtmlForUser = function(firstName, lastName, email, id) {
-      var templateAsHtmlString = '<div class="col-xs-12 nopadding esn-member">' +
-          '<div class="col-xs-12"><hr></div><div class="col-lg-2 col-sm-3 col-xs-4">' +
-          '<img src="/api/users/%Id/profile/avatar" ng-src="/api/users/%Id/profile/avatar" class="thumbnail"></div>' +
-          '<div class="col-lg-7 col-sm-5 col-xs-8"><h4 class="media-heading ng-binding">%FirstName %LastName</h4><span>' +
-          '<a href="mailto:%Email" class="ng-binding">%Email</a></span></div><div class="col-lg-3 col-sm-4 col-xs-12">' +
-          '<div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Contact</button>' +
-          '</div><div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Add</button></div></div></div>';
+        var templateAsHtmlString = '<div class="col-xs-12 esn-member">' +
+            '<div class="col-lg-2 col-sm-3 col-xs-4">' +
+            '<img src="/api/users/%Id/profile/avatar" ng-src="/api/users/%Id/profile/avatar" class="thumbnail"></div>' +
+            '<div class="col-lg-7 col-sm-5 col-xs-8"><h4 class="media-heading ng-binding">%FirstName %LastName</h4><span>' +
+            '<a href="mailto:%Email" class="ng-binding">%Email</a></span></div><div class="col-lg-3 col-sm-4 col-xs-12">' +
+            '<div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Contact</button>' +
+            '</div><div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Add</button></div></div></div>';
         templateAsHtmlString = templateAsHtmlString.replace(/%FirstName/g, firstName);
         templateAsHtmlString = templateAsHtmlString.replace(/%LastName/g, lastName);
         templateAsHtmlString = templateAsHtmlString.replace(/%Email/g, email);

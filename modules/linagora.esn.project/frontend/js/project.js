@@ -30,6 +30,14 @@ angular.module('esn.project', [
         user: routeResolver.session('user')
       }
     });
+
+    $routeProvider.when('/projects/:project_id/members', {
+      templateUrl: '/views/modules/collaboration/collaboration-members',
+      controller: 'collaborationController',
+      resolve: {
+        collaboration: routeResolver.api('projectAPI', 'get', 'project_id', '/projects')
+      }
+    });
   }])
   .run(['projectAdapterService', 'objectTypeAdapter', function(projectAdapterService, objectTypeAdapter) {
     objectTypeAdapter.register('project', projectAdapterService);
