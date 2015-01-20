@@ -3,7 +3,8 @@
 var collaborationModule = require('../../core/collaboration/index');
 var Member = require('../../helpers/collaboration').Member;
 var permission = require('../../core/collaboration/permission');
-
+var userHelper = require('../../helpers/user');
+var userModule = require('../../core/user');
 var async = require('async');
 
 function transform(collaboration, user, callback) {
@@ -113,3 +114,65 @@ function getMembers(req, res) {
   });
 }
 module.exports.getMembers = getMembers;
+
+function getExternalCompanies(req, res) {
+  if (!req.collaboration) {
+    return res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
+  }
+
+  var allCompanies = [];
+  async.eachSeries(req.collaboration.members,
+    function(member, callback) {
+      if (member.member.objectType === 'user') {
+        userModule.get(member.member.id, function(err, user) {
+          if (err) {
+            return callback(err);
+          }
+          if (!user) {
+            return callback(new Error('Unexpected error while searching member.'));
+          }
+          userHelper.isInternal(user, function(err, isInternal) {
+            if (err) {
+              return callback(err);
+            }
+            if (isInternal) {
+              return callback();
+            }
+            userModule.getCompanies(user, function(err, companies) {
+              if (err) {
+                return callback(err);
+              }
+              companies.forEach(function(company) {
+                if (allCompanies.indexOf(company) === -1) {
+                  allCompanies.push(company);
+                }
+              });
+              return callback();
+            });
+          });
+        });
+      }
+      else {
+        return callback();
+      }
+    },
+    function(err) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server error', details: err.message}});
+      }
+      if (req.query.search) {
+        allCompanies = allCompanies.filter(function(company) {
+          return company.indexOf(req.query.search) > -1;
+        });
+      }
+      allCompanies = allCompanies.map(function(company) {
+        return {
+          objectType: 'company',
+          id: company
+        };
+      });
+      return res.json(200, allCompanies);
+    }
+  );
+}
+module.exports.getExternalCompanies = getExternalCompanies;
