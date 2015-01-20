@@ -5,9 +5,11 @@ div(activity-stream-notification)
   div
       div#activitystreamerror
       div.text-center.bg-info(ng-show="threads.length===0 && !restActive") #{__('There are no messages on this activity stream yet. Be the first to post !')}
+      .row
+        activity-stream-filter.streamfilter.pull-right(ng-show="threads.length!==0 && streams.length > 1")
       infinite-list
           ul.media-list
-            li.media(ng-repeat="thread in threads" ng-init='parentMessage=true')
+            li.media(ng-repeat="thread in threads | filter: filterMessagesInSelectedStream" ng-init='parentMessage=true')
               message-template-displayer(message='thread' activitystream='activitystream' last-post='lastPost' parent-message='parentMessage')
       .throbber-container.text-center
         div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner')

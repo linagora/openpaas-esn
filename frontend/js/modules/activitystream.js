@@ -7,6 +7,7 @@ angular.module('esn.activitystream', [
   'esn.session',
   'esn.websocket',
   'esn.notification',
+  'esn.localstorage',
   'mgcrea.ngStrap',
   'ngAnimate',
   'openpaas-logo'

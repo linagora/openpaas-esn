@@ -166,4 +166,49 @@ angular.module('esn.activitystream')
     replace: true,
     templateUrl: '/views/modules/activitystream/activitystream-card.html'
   };
-});
+})
+.directive('activityStreamFilter', ['$log', 'localStorageService', function($log, localStorageService) {
+  return {
+    restrict: 'E',
+    templateUrl: '/views/modules/activitystream/activitystream-filter.html',
+    link: function($scope) {
+
+      var storage = localStorageService.getOrCreateInstance('streamFilters');
+
+      function getKeyName() {
+        return $scope.activitystream._id;
+      }
+
+      function getCachedStream() {
+        return storage.getItem(getKeyName());
+      }
+
+      $scope.selectStream = function(stream) {
+        $scope.selectedStream = stream;
+
+        storage.setItem(getKeyName(), stream.activity_stream.uuid).then(function() {
+          $log.debug('Filter saved in local storage');
+        });
+      };
+
+      $scope.clearStreamSelection = function() {
+        storage.removeItem(getKeyName()).then(function() {
+          $log.debug('Filter removed form local storage');
+        }).finally (function() {
+          $scope.selectedStream = null;
+        });
+      };
+
+      getCachedStream().then(function(stream) {
+        if (stream) {
+          var found = $scope.streams.filter(function(item) {
+            return item.activity_stream.uuid === stream;
+          });
+          if (found.length > 0) {
+            $scope.selectedStream = found[0];
+          }
+        }
+      });
+    }
+  };
+}]);
