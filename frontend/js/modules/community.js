@@ -645,17 +645,20 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     });
 
     function currentCommunityMembershipHandler(event, msg) {
+      if (msg && msg.collaboration && msg.collaboration.objectType !== 'community') {
+        return;
+      }
       $log.debug('Got a community membership event on community', msg);
-      if (msg && msg.community === $scope.community._id) {
-        communityAPI.get(msg.community).then(function(response) {
+      if (msg && msg.collaboration.id === $scope.community._id) {
+        communityAPI.get(msg.collaboration.id).then(function(response) {
           $scope.writable = response.data.writable;
           $scope.community = response.data;
         });
       }
     }
 
-    var unregisterJoinEvent = $rootScope.$on('community:join', currentCommunityMembershipHandler);
-    var unregisterLeaveEvent = $rootScope.$on('community:leave', currentCommunityMembershipHandler);
+    var unregisterJoinEvent = $rootScope.$on('collaboration:join', currentCommunityMembershipHandler);
+    var unregisterLeaveEvent = $rootScope.$on('collaboration:leave', currentCommunityMembershipHandler);
 
     $scope.$on('$destroy', function() {
       unregisterJoinEvent();
@@ -815,79 +818,6 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       canCancelRequestMembership: canCancelRequestMembership,
       requestMembership: requestMembership,
       cancelRequestMembership: cancelRequestMembership
-    };
-  }])
-  .directive('communitiesEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
-    return {
-      restrict: 'A',
-      replace: true,
-      link: function($scope) {
-        var join = function(data) {
-          $rootScope.$emit('community:join', data);
-        };
-
-        var leave = function(data) {
-          $rootScope.$emit('community:leave', data);
-        };
-
-        livenotification('/community').on('join', join);
-        livenotification('/community').on('leave', leave);
-
-        $scope.$on('$destroy', function() {
-          livenotification('/community').removeListener('join', join);
-          livenotification('/community').removeListener('leave', leave);
-        });
-      }
-    };
-  }])
-  .directive('communityMembersWidget', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        community: '='
-      },
-      templateUrl: '/views/modules/community/community-members-widget.html',
-      link: function($scope, element, attrs) {
-        $scope.inSlicesOf = attrs.inSlicesOf && angular.isNumber(parseInt(attrs.inSlicesOf, 10)) ?
-          parseInt(attrs.inSlicesOf, 10) : 3;
-        $scope.error = false;
-
-        function sliceMembers(members) {
-          if ($scope.inSlicesOf < 1 || !angular.isArray(members)) {
-            return members;
-          }
-          var array = [];
-          for (var i = 0; i < members.length; i++) {
-            var chunkIndex = parseInt(i / $scope.inSlicesOf, 10);
-            var isFirst = (i % $scope.inSlicesOf === 0);
-            if (isFirst) {
-              array[chunkIndex] = [];
-            }
-            array[chunkIndex].push(members[i]);
-          }
-          return array;
-        }
-
-        $scope.updateMembers = function() {
-          communityAPI.getMembers($scope.community._id, {limit: 16}).then(function(result) {
-            var total = parseInt(result.headers('X-ESN-Items-Count'));
-            var members = result.data;
-            $scope.more = total - members.length;
-            $scope.members = sliceMembers(members);
-          }, function() {
-            $scope.error = true;
-          });
-        };
-
-        var communityJoinRemover = $rootScope.$on('community:join', $scope.updateMembers);
-        var communityLeaveRemover = $rootScope.$on('community:leave', $scope.updateMembers);
-        element.on('$destroy', function() {
-          communityJoinRemover();
-          communityLeaveRemover();
-        });
-        $scope.updateMembers();
-      }
     };
   }])
   .directive('communityMembershipRequestsWidget', ['$rootScope', 'communityAPI', function($rootScope, communityAPI) {
@@ -1227,8 +1157,11 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         });
       }
 
-      function leaveCommunityNotificationHandler(event, data) {
-        communityAPI.get(data.community).then(function(success) {
+      function leaveCommunityNotificationHandler(event, msg) {
+        if (msg && msg.collaboration && msg.collaboration.objectType !== 'community') {
+          return;
+        }
+        communityAPI.get(msg.collaboration.id).then(function(success) {
           var uuid = success.data.activity_stream.uuid;
           ASTrackerNotificationService.unsubscribeFromStreamNotification(uuid);
           ASTrackerNotificationService.removeItem(uuid);
@@ -1237,8 +1170,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         });
       }
 
-      var joinHandler = $rootScope.$on('community:join', joinCommunityNotificationHandler);
-      var leaveHandler = $rootScope.$on('community:leave', leaveCommunityNotificationHandler);
+      var joinHandler = $rootScope.$on('collaboration:join', joinCommunityNotificationHandler);
+      var leaveHandler = $rootScope.$on('collaboration:leave', leaveCommunityNotificationHandler);
 
       $scope.$on('$destroy', function() {
         joinHandler();

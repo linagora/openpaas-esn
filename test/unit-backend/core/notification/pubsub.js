@@ -11,17 +11,17 @@ describe('The notification pubsub module', function() {
 
   });
 
-  it('should subscribe to community:join', function() {
+  it('should subscribe to collaboration:join', function() {
     var localstub = {};
     this.helpers.mock.pubsub('../pubsub', localstub, {});
     mockery.registerMock('./usernotification', {});
 
     var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
     module.init();
-    expect(localstub.topics['community:join'].handler).to.be.a.function;
+    expect(localstub.topics['collaboration:join'].handler).to.be.a.function;
   });
 
-  describe('communityJoinHandler method', function() {
+  describe('collaborationJoinHandler method', function() {
 
     it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
       var globalstub = {};
@@ -43,7 +43,7 @@ describe('The notification pubsub module', function() {
       mockery.registerMock('./usernotification', usernotificationMocked);
 
       var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
-      module.communityJoinHandler(data, function(err) {
+      module.collaborationJoinHandler(data, function(err) {
         if (err) {
           return done(err);
         }

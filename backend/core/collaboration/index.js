@@ -7,6 +7,12 @@ var permission = require('./permission');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 
+var WORKFLOW_NOTIFICATIONS_TOPIC = {
+  request: 'collaboration:membership:request',
+  invitation: 'collaboration:membership:invite'
+};
+module.exports.WORKFLOW_NOTIFICATIONS_TOPIC = WORKFLOW_NOTIFICATIONS_TOPIC;
+
 var MEMBERSHIP_TYPE_REQUEST = 'request';
 var MEMBERSHIP_TYPE_INVITATION = 'invitation';
 module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
@@ -21,10 +27,6 @@ var collaborationModels = {
 
 var collaborationLibs = {
   community: require('../community')
-};
-
-var collaborationTopic = {
-  community: collaborationLibs.community.WORKFLOW_NOTIFICATIONS_TOPIC
 };
 
 function getModel(objectType) {
@@ -66,6 +68,27 @@ function isMember(collaboration, tuple, callback) {
     return m.member.objectType === tuple.objectType && m.member.id + '' === tuple.id + '';
   });
   return callback(null, isInMembersArray);
+}
+
+function getManagers(objectType, collaboration, query, callback) {
+  var id = collaboration._id || collaboration;
+
+  var Model = getModel(objectType);
+  if (!Model) {
+    return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
+  }
+
+  var q = Model.findById(id);
+  // TODO Right now creator is the only manager. It will change in the futur.
+  // query = query ||  {};
+  // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
+  q.populate('creator');
+  q.exec(function(err, collaboration) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, collaboration ? [collaboration.creator] : []);
+  });
 }
 
 function getMembers(collaboration, objectType, query, callback) {
@@ -123,12 +146,12 @@ function addMembershipRequest(objectType, collaboration, userAuthor, userTarget,
     return callback(new Error('Workflow string is required'));
   }
 
-  var topic = collaborationTopic[objectType][workflow];
+  var topic = WORKFLOW_NOTIFICATIONS_TOPIC[workflow];
   if (!topic) {
     var errorMessage = 'Invalid workflow, must be ';
     var isFirstLoop = true;
-    for (var key in collaborationTopic[objectType]) {
-      if (collaborationTopic[objectType].hasOwnProperty(key)) {
+    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
+      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
         if (isFirstLoop) {
           errorMessage += '"' + key + '"';
           isFirstLoop = false;
@@ -170,7 +193,7 @@ function addMembershipRequest(objectType, collaboration, userAuthor, userTarget,
       localpubsub.topic(topic).forward(globalpubsub, {
         author: userAuthorId,
         target: userTargetId,
-        collaboration: collaboration._id,
+        collaboration: {objectType: objectType, id: collaboration._id},
         workflow: workflow,
         actor: actor || 'user'
       });
@@ -394,8 +417,61 @@ function hasDomain(collaboration) {
   });
 }
 
+function leave(objectType, collaboration, userAuthor, userTarget, callback) {
+  var id = collaboration._id || collaboration;
+  var userAuthor_id = userAuthor._id || userAuthor;
+  var userTarget_id = userTarget._id || userTarget;
+  var selection = { 'member.objectType': 'user', 'member.id': userTarget_id };
+  var Model = getModel(objectType);
+  Model.update(
+    {_id: id, members: {$elemMatch: selection} },
+    {$pull: {members: selection} },
+    function(err, updated) {
+      if (err) {
+        return callback(err);
+      }
+
+      localpubsub.topic('collaboration:leave').forward(globalpubsub, {
+        author: userAuthor_id,
+        target: userTarget_id,
+        collaboration: {objectType: objectType, id: id}
+      });
+
+      return callback(null, updated);
+    }
+  );
+}
+
+function join(objectType, collaboration, userAuthor, userTarget, actor, callback) {
+
+  var id = collaboration._id || collaboration;
+  var userAuthor_id = userAuthor._id || userAuthor;
+  var userTarget_id = userTarget._id || userTarget;
+
+  var member = {
+    objectType: 'user',
+    id: userTarget_id
+  };
+
+  addMember(collaboration, userAuthor, member, function(err, updated) {
+    if (err) {
+      return callback(err);
+    }
+
+    localpubsub.topic('collaboration:join').forward(globalpubsub, {
+      author: userAuthor_id,
+      target: userTarget_id,
+      actor: actor || 'user',
+      collaboration: {objectType: objectType, id: id}
+    });
+
+    return callback(null, updated);
+  });
+}
+
 module.exports.getModel = getModel;
 module.exports.getLib = getLib;
+module.exports.getManagers = getManagers;
 module.exports.getMembers = getMembers;
 module.exports.query = query;
 module.exports.queryOne = queryOne;
@@ -413,3 +489,5 @@ module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActi
 module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.permission = require('./permission');
 module.exports.hasDomain = hasDomain;
+module.exports.join = join;
+module.exports.leave = leave;

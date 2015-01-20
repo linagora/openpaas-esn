@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The collaboration module', function() {
 
@@ -299,6 +300,176 @@ describe('The collaboration module', function() {
       collaboration.isManager('community', 123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
+        return done();
+      });
+    });
+  });
+
+  describe('The leave fn', function() {
+
+    it('should send back error when Community.update fails', function(done) {
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(new Error());
+          }
+        }
+      });
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.leave('community', 123, 456, 456, function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+
+    it('should send back updated document when Community.update is ok', function(done) {
+      var result = {_id: 123};
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(null, result);
+          }
+        }
+      });
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.leave('community', 123, 456, 456, function(err, update) {
+        expect(err).to.not.exist;
+        expect(update).to.deep.equal(result);
+        return done();
+      });
+    });
+
+    it('should forward message into collaboration:leave', function(done) {
+      var result = {_id: 123};
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(null, result);
+          }
+        }
+      });
+
+      var localstub = {}, globalstub = {};
+      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.leave('community', 123, 456, 789, function(err, update) {
+        expect(err).to.not.exist;
+        expect(update).to.deep.equal(result);
+
+        expect(localstub.topics['collaboration:leave'].data[0]).to.deep.equal({
+          author: 456,
+          target: 789,
+          collaboration: {objectType: 'community', id: 123}
+        });
+        expect(globalstub.topics['collaboration:leave'].data[0]).to.deep.equal({
+          author: 456,
+          target: 789,
+          collaboration: {objectType: 'community', id: 123}
+        });
+
+        return done();
+      });
+    });
+  });
+
+  describe('join fn', function() {
+
+    it('should send back error when Community.update fails', function(done) {
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(new Error());
+          }
+        }
+      });
+
+      var comMock = {
+        members: [],
+        _id: 'community1',
+        save: function(callback) {
+          return callback(new Error());
+        }
+      };
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.join('community', comMock, 456, 456, 'user', function(err) {
+        expect(err).to.exist;
+        return done();
+      });
+    });
+
+    it('should send back updated document when Community.update is ok', function(done) {
+      this.helpers.mock.models({});
+
+      mockery.registerMock('../../core/activitystreams/tracker', {
+        updateLastTimelineEntryRead: function(userId, activityStreamUuid, lastTimelineEntry, callback) {
+          return callback(null, {});
+        }
+      });
+      mockery.registerMock('../../core/activitystreams', {
+        query: function(options, callback) {
+          return callback(null, [
+            {_id: '123'}
+          ]);
+        }
+      });
+      var comMock = {
+        members: [],
+        _id: 'community1',
+        save: function(callback) {
+          this.updated = true;
+          return callback(null, this);
+        }
+      };
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      collaboration.join('community', comMock, 456, 456, 'user', function(err, update) {
+        expect(err).to.not.exist;
+        expect(update.updated).to.be.true;
+        return done();
+      });
+    });
+
+    it('should forward message into community:join', function(done) {
+      var result = {_id: 123};
+      this.helpers.mock.models({
+        Community: {
+          update: function(a, b, callback) {
+            return callback(null, result);
+          }
+        }
+      });
+
+      var localstub = {}, globalstub = {};
+      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var comMock = {
+        members: [],
+        _id: 'community1',
+        save: function(callback) {
+          this.updated = true;
+          return callback(null, this);
+        }
+      };
+      collaboration.join('community', comMock, 456, 789, 'user', function(err, update) {
+        expect(err).to.not.exist;
+
+        expect(localstub.topics['collaboration:join'].data[0]).to.deep.equal({
+          author: 456,
+          target: 789,
+          actor: 'user',
+          collaboration: {objectType: 'community', id: 'community1'}
+        });
+        expect(globalstub.topics['collaboration:join'].data[0]).to.deep.equal({
+          author: 456,
+          target: 789,
+          actor: 'user',
+          collaboration: {objectType: 'community', id: 'community1'}
+        });
+
         return done();
       });
     });

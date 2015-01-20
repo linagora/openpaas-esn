@@ -5,7 +5,7 @@ var async = require('async'),
     globalpubsub = require('../pubsub').global,
     logger = require('../logger'),
     usernotification = require('./usernotification'),
-    communityModule = require('../community'),
+    collaborationModule = require('../collaboration'),
     extend = require('extend'),
     initialized = false;
 
@@ -34,10 +34,11 @@ function onSuccessPublishIntoGlobal(callback) {
 }
 
 function augmentToMembershipAccepted(data, callback) {
+  var id = data.community || data.collaboration.id;
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
-    complement: {objectType: 'community', id: data.community},
+    complement: {objectType: 'community', id: id},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
@@ -49,21 +50,21 @@ function augmentToMembershipAccepted(data, callback) {
   return callback(null, notification);
 }
 
-function augmentToCommunityJoin(data, callback) {
+function augmentToCollaborationJoin(data, callback) {
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_COMMUNITY_JOIN', text: 'has joined'},
-    complement: {objectType: 'community', id: data.community},
+    complement: {objectType: data.collaboration.objectType, id: data.collaboration.id},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:join',
+    category: 'collaboration:join',
     target: data.manager
   };
   return callback(null, notification);
 }
 
-function communityJoinHandler(data, callback) {
+function collaborationJoinHandler(data, callback) {
   if (data.actor === 'manager') {
     async.waterfall([
         augmentToMembershipAccepted.bind(null, data),
@@ -72,7 +73,7 @@ function communityJoinHandler(data, callback) {
       onSuccessPublishIntoGlobal(callback));
   } else {
 
-    communityModule.getManagers(data.community, {}, function(err, managers) {
+    collaborationModule.getManagers(data.collaboration.objectType, data.collaboration.id, {}, function(err, managers) {
       if (err || !managers || managers.legnth === 0) {
         logger.warn('Notification could not be created : no target user found.');
         return;
@@ -83,7 +84,7 @@ function communityJoinHandler(data, callback) {
         };
         extend(notifData, data);
         async.waterfall([
-            augmentToCommunityJoin.bind(null, notifData),
+            augmentToCollaborationJoin.bind(null, notifData),
             createUserNotification
           ],
           onSuccessPublishIntoGlobal(callback));
@@ -91,7 +92,7 @@ function communityJoinHandler(data, callback) {
     });
   }
 }
-module.exports.communityJoinHandler = communityJoinHandler;
+module.exports.collaborationJoinHandler = collaborationJoinHandler;
 
 function augmentToMembershipInvite(data, callback) {
   var notification = {
@@ -202,7 +203,7 @@ function init() {
     logger.warn('Notification Pubsub is already initialized');
     return;
   }
-  localpubsub.topic('community:join').subscribe(communityJoinHandler);
+  localpubsub.topic('collaboration:join').subscribe(collaborationJoinHandler);
   localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
   localpubsub.topic('community:membership:invitation:cancel').subscribe(membershipInvitationCancelHandler);
   localpubsub.topic('community:membership:request:refuse').subscribe(membershipRequestRefuseHandler);

@@ -5,6 +5,7 @@ var logger = require('../core/logger'),
     notifications = require('./notification/notifications'),
     usernotifications = require('./notification/usernotifications'),
     conferences = require('./notification/conferences'),
+    collaboration = require('./notification/collaboration'),
     community = require('./notification/community');
 
 module.exports = function(io) {
@@ -15,5 +16,6 @@ module.exports = function(io) {
   conferences.init(io);
   notifications.init(io);
   usernotifications.init(io);
+  collaboration.init(io);
   community.init(io);
 };

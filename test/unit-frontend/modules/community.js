@@ -135,48 +135,6 @@ describe('The Community Angular module', function() {
     });
   });
 
-  describe('The communitiesEventListener directive', function() {
-
-    var called = 0;
-
-    beforeEach(function() {
-      var self = this;
-
-      this.livenotification = function(path) {
-        if (path === '/community') {
-          called++;
-        }
-        return {
-          on: function() {
-          }
-        };
-      };
-
-      angular.mock.module(function($provide) {
-        $provide.value('livenotification', self.livenotification);
-      });
-
-    });
-
-    beforeEach(inject(['$rootScope', '$compile', function($rootScope, $compile) {
-      this.$rootScope = $rootScope;
-      this.scope = $rootScope.$new();
-      this.$compile = $compile;
-    }]));
-
-    afterEach(function() {
-      called = 0;
-    });
-
-    it('should register listeners on /community', function(done) {
-      this.html = '<div communities-event-listener></div>';
-      this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-      expect(called).to.equal(2);
-      done();
-    });
-  });
-
   describe('communityAPI service', function() {
 
     describe('list() function', function() {
@@ -1197,32 +1155,32 @@ describe('The Community Angular module', function() {
       });
     });
 
-    describe('$rootScope community:join event', function() {
+    describe('$rootScope collaboration:join event', function() {
       it('should not call the communityAPI if event msg is null', function(done) {
         this.communityAPI.get = function() {
           return done(new Error());
         };
-        this.$rootScope.$emit('community:join');
+        this.$rootScope.$emit('collaboration:join');
         this.$rootScope.$digest();
         done();
       });
 
-      it('should not call the communityAPI if event msg.id is not community._id', function(done) {
+      it('should not call the communityAPI if event msg.collaboration.id is not community._id', function(done) {
         this.communityAPI.get = function() {
           return done(new Error());
         };
-        this.$rootScope.$emit('community:join', {id: 456});
+        this.$rootScope.$emit('collaboration:join', {collaboration: {objectType: 'community', id: 456}});
         this.$rootScope.$digest();
         done();
       });
 
-      it('should call the communityAPI if event msg.id is equal to community._id', function(done) {
+      it('should call the communityAPI if event msg.collaboration.id is equal to community._id', function(done) {
         var self = this;
         this.communityAPI.get = function(id) {
           expect(id).to.equal(self.community._id);
           return done();
         };
-        this.$rootScope.$emit('community:join', {community: 'community1'});
+        this.$rootScope.$emit('collaboration:join', {collaboration: {objectType: 'community', id: 'community1'}});
         this.$rootScope.$digest();
       });
 
@@ -1233,7 +1191,7 @@ describe('The Community Angular module', function() {
           return communityDefer.promise;
         };
         communityDefer.resolve({data: result});
-        this.$rootScope.$emit('community:join', {community: 'community1'});
+        this.$rootScope.$emit('collaboration:join', {collaboration: {objectType: 'community', id: 'community1'}});
         this.scope.$digest();
 
         expect(this.scope.community).to.deep.equal(result);
@@ -1247,7 +1205,7 @@ describe('The Community Angular module', function() {
         this.communityAPI.get = function() {
           return done(new Error());
         };
-        this.$rootScope.$emit('community:leave');
+        this.$rootScope.$emit('collaboration:leave');
         this.$rootScope.$digest();
         done();
       });
@@ -1256,7 +1214,7 @@ describe('The Community Angular module', function() {
         this.communityAPI.get = function() {
           return done(new Error());
         };
-        this.$rootScope.$emit('community:leave', {community: 456});
+        this.$rootScope.$emit('collaboration:leave', {collaboration: {objectType: 'community', id: 456}});
         this.$rootScope.$digest();
         done();
       });
@@ -1267,7 +1225,7 @@ describe('The Community Angular module', function() {
           expect(id).to.equal(self.community._id);
           return done();
         };
-        this.$rootScope.$emit('community:leave', {community: 'community1'});
+        this.$rootScope.$emit('collaboration:leave', {collaboration: {objectType: 'community', id: 'community1'}});
         this.$rootScope.$digest();
       });
 
@@ -1278,7 +1236,7 @@ describe('The Community Angular module', function() {
           return communityDefer.promise;
         };
         communityDefer.resolve({data: result});
-        this.$rootScope.$emit('community:leave', {community: 'community1'});
+        this.$rootScope.$emit('collaboration:leave', {collaboration: {objectType: 'community', id: 'community1'}});
         this.scope.$digest();
 
         expect(this.scope.community).to.deep.equal(result);
@@ -2193,306 +2151,6 @@ describe('The Community Angular module', function() {
         });
       });
     });
-  });
-
-  describe('The communityMembersWidget directive', function() {
-    beforeEach(function() {
-      var self = this;
-      this.communityAPI = {
-        get: function() {}
-      };
-      angular.mock.module(function($provide) {
-        $provide.value('communityAPI', self.communityAPI);
-      });
-      module('jadeTemplates');
-      module('esn.core');
-    });
-
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
-      this.$rootScope = $rootScope;
-      this.$compile = $compile;
-      this.$q = $q;
-      this.scope = $rootScope.$new();
-      this.scope.community = {
-        _id: 'community1',
-        creator: 'user1'
-      };
-      this.html = '<community-members-widget community="community"/>';
-    }));
-
-    it('should call communityAPI#getMembers', function(done) {
-      this.communityAPI.getMembers = function() {
-        return done();
-      };
-      this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-    });
-
-    it('should set more to the difference between header and array size', function(done) {
-      var defer = this.$q.defer();
-      this.communityAPI.getMembers = function() {
-        return defer.promise;
-      };
-      defer.resolve({
-        headers: function() {
-          return 3;
-        },
-        data: [{user: {firstname: 'john'}}]
-      });
-
-      var element = this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-
-      var iscope = element.isolateScope();
-      expect(iscope.more).to.exist;
-      expect(iscope.more).to.equal(2);
-      done();
-    });
-
-    it('should slice members', function(done) {
-      var defer = this.$q.defer();
-      this.communityAPI.getMembers = function() {
-        return defer.promise;
-      };
-      defer.resolve({
-        headers: function() {
-          return 3;
-        },
-        data: [
-          {user: {firstname: 'joe'}},
-          {user: {firstname: 'jack'}},
-          {user: {firstname: 'william'}},
-          {user: {firstname: 'averell'}},
-          {user: {firstname: 'calamity jane'}},
-          {user: {firstname: 'billy the kid'}}
-        ]
-      });
-
-      var element = this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-
-      var iscope = element.isolateScope();
-      expect(iscope.members).to.exist;
-      expect(iscope.members).to.have.length(2);
-      expect(iscope.members[0]).to.have.length(3);
-      expect(iscope.members[1]).to.have.length(3);
-      done();
-    });
-
-    it('should set error when call the API fails', function(done) {
-      var defer = this.$q.defer();
-      this.communityAPI.getMembers = function() {
-        return defer.promise;
-      };
-      defer.reject();
-
-      var element = this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-
-      var iscope = element.isolateScope();
-      expect(iscope.error).to.exist;
-      expect(iscope.error).to.be.true;
-      done();
-    });
-
-    it('should call the API when community:join event is received', function() {
-      var call = 0;
-      this.communityAPI.getMembers = function() {
-        call++;
-        return {
-          then: function() {}
-        };
-      };
-
-      this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-      expect(call).to.equal(1);
-      this.$rootScope.$emit('community:join', {data: 'fake'});
-      expect(call).to.equal(2);
-    });
-
-    it('should call the API when community:leave event is received', function() {
-      var call = 0;
-      this.communityAPI.getMembers = function() {
-        call++;
-        return {
-          then: function() {}
-        };
-      };
-
-      this.$compile(this.html)(this.scope);
-      this.scope.$digest();
-      expect(call).to.equal(1);
-      this.$rootScope.$emit('community:leave', {data: 'fake'});
-      expect(call).to.equal(2);
-    });
-
-    describe('members slicing', function() {
-
-      describe('when in-slices-of is not set', function() {
-        it('should set scope.inSlicesOf to 3', function(done) {
-          var defer = this.$q.defer();
-          this.communityAPI.getMembers = function() {
-            return defer.promise;
-          };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
-          var element = this.$compile(this.html)(this.scope);
-          this.scope.$digest();
-
-          var iscope = element.isolateScope();
-          expect(iscope.inSlicesOf).to.equal(3);
-          done();
-        });
-
-        it('should slice members by packs of 3', function(done) {
-          var defer = this.$q.defer();
-          this.communityAPI.getMembers = function() {
-            return defer.promise;
-          };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
-          var element = this.$compile(this.html)(this.scope);
-          this.scope.$digest();
-
-          var iscope = element.isolateScope();
-          expect(iscope.members).to.exist;
-          expect(iscope.members).to.have.length(2);
-          expect(iscope.members[0]).to.have.length(3);
-          expect(iscope.members[1]).to.have.length(3);
-          done();
-        });
-      });
-
-      describe('when in-slices-of is set to 4', function() {
-        it('should slice members by packs of 4', function(done) {
-          var html = '<community-members-widget community="community" in-slices-of="4" />';
-          var defer = this.$q.defer();
-          this.communityAPI.getMembers = function() {
-            return defer.promise;
-          };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
-          var element = this.$compile(html)(this.scope);
-          this.scope.$digest();
-
-          var iscope = element.isolateScope();
-          expect(iscope.members).to.exist;
-          expect(iscope.members).to.have.length(2);
-          expect(iscope.members[0]).to.have.length(4);
-          expect(iscope.members[1]).to.have.length(2);
-          done();
-        });
-      });
-
-      describe('when in-slices-of is set to 6', function() {
-        it('should slice members by packs of 6', function(done) {
-          var html = '<community-members-widget community="community" in-slices-of="6" />';
-          var defer = this.$q.defer();
-          this.communityAPI.getMembers = function() {
-            return defer.promise;
-          };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
-          var element = this.$compile(html)(this.scope);
-          this.scope.$digest();
-
-          var iscope = element.isolateScope();
-          expect(iscope.members).to.exist;
-          expect(iscope.members).to.have.length(1);
-          expect(iscope.members[0]).to.have.length(6);
-          done();
-        });
-      });
-
-    });
-    describe('on scope destroy', function() {
-
-      it('should remove community:join event listener', function() {
-        var call = 0;
-        this.communityAPI.getMembers = function() {
-          call++;
-          return {
-            then: function() {}
-          };
-        };
-
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        expect(call).to.equal(1);
-        this.$rootScope.$emit('community:join', {data: 'fake'});
-        expect(call).to.equal(2);
-        element.remove();
-        this.$rootScope.$digest();
-        this.$rootScope.$emit('community:join', {data: 'fake'});
-        expect(call).to.equal(2);
-      });
-
-      it('should remove community:leave event listener', function() {
-        var call = 0;
-        this.communityAPI.getMembers = function() {
-          call++;
-          return {
-            then: function() {}
-          };
-        };
-
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        expect(call).to.equal(1);
-        this.$rootScope.$emit('community:leave', {data: 'fake'});
-        expect(call).to.equal(2);
-        element.remove();
-        this.$rootScope.$digest();
-        this.$rootScope.$emit('community:leave', {data: 'fake'});
-        expect(call).to.equal(2);
-      });
-    });
-
   });
 
   describe('The communityMembershipRequestsWidget directive', function() {

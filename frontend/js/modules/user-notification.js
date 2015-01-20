@@ -413,14 +413,14 @@ angular.module('esn.user-notification',
       }
     };
   }])
-  .directive('communityJoinNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
+  .directive('collaborationJoinNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/community-join.html',
+      templateUrl: '/views/modules/user-notification/templates/collaboration-join.html',
       controller: function($scope) {
         var userResolver = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
         var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);

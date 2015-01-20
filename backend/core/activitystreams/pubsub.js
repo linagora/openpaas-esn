@@ -4,7 +4,7 @@ var pubsub = require('../pubsub').local;
 var logger = require('../logger');
 var activitystream = require('./index');
 var tracker = require('./tracker');
-var Community = require('mongoose').model('Community');
+var collaborationModule = require('../collaboration');
 var initialized = false;
 
 function createActivity(data, callback) {
@@ -42,7 +42,7 @@ function updateTimelineEntriesTracker(data, callback) {
     }
   };
 
-  Community.findOne({_id: data.community}, function(err, community) {
+  collaborationModule.queryOne(data.collaboration.objectType, {_id: data.collaboration.id}, function(err, community) {
     if (err) {
       return callback(err);
     }
@@ -80,7 +80,7 @@ function init() {
     return;
   }
   pubsub.topic('message:activity').subscribe(createActivity);
-  pubsub.topic('community:join').subscribe(updateTimelineEntriesTracker);
+  pubsub.topic('collaboration:join').subscribe(updateTimelineEntriesTracker);
   initialized = true;
 }
 module.exports.init = init;

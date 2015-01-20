@@ -10,6 +10,12 @@ describe('The activitystreams pubsub module', function() {
   });
 
   describe('createActivity fn', function() {
+
+    beforeEach(function() {
+      mockery.registerMock('../collaboration', {});
+    });
+
+
     it('should call nothing when data is not set', function(done) {
       var called = false;
       var mock = {

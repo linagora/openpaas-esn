@@ -56,6 +56,29 @@ angular.module('esn.collaboration', ['restangular'])
       templateUrl: '/views/modules/collaboration/create-collaboration-button.html'
     };
   })
+  .directive('collaborationsEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
+    return {
+      restrict: 'A',
+      replace: true,
+      link: function($scope) {
+        var join = function(data) {
+          $rootScope.$emit('collaboration:join', data);
+        };
+
+        var leave = function(data) {
+          $rootScope.$emit('collaboration:leave', data);
+        };
+
+        livenotification('/collaboration').on('join', join);
+        livenotification('/collaboration').on('leave', leave);
+
+        $scope.$on('$destroy', function() {
+          livenotification('/collaboration').removeListener('join', join);
+          livenotification('/collaboration').removeListener('leave', leave);
+        });
+      }
+    };
+  }])
   .directive('collaborationMembersWidget', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
     return {
       restrict: 'E',
@@ -97,11 +120,11 @@ angular.module('esn.collaboration', ['restangular'])
           });
         };
 
-        var communityJoinRemover = $rootScope.$on('community:join', $scope.updateMembers);
-        var communityLeaveRemover = $rootScope.$on('community:leave', $scope.updateMembers);
+        var collaborationJoinRemover = $rootScope.$on('collaboration:join', $scope.updateMembers);
+        var collaborationLeaveRemover = $rootScope.$on('collaboration:leave', $scope.updateMembers);
         element.on('$destroy', function() {
-          communityJoinRemover();
-          communityLeaveRemover();
+          collaborationJoinRemover();
+          collaborationLeaveRemover();
         });
         $scope.updateMembers();
       }

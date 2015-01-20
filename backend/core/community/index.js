@@ -8,18 +8,12 @@ var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var permission = require('./permission');
 var async = require('async');
-var collaboration = require('../collaboration');
+var collaborationModule = require('../collaboration');
 
 var communityObjectType = 'community';
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
-
-var WORKFLOW_NOTIFICATIONS_TOPIC = {
-  request: 'community:membership:request',
-  invitation: 'community:membership:invite'
-};
-module.exports.WORKFLOW_NOTIFICATIONS_TOPIC = WORKFLOW_NOTIFICATIONS_TOPIC;
 
 var MEMBERSHIP_TYPE_REQUEST = 'request';
 var MEMBERSHIP_TYPE_INVITATION = 'invitation';
@@ -89,7 +83,7 @@ module.exports.loadWithDomains = function(community, callback) {
 };
 
 function query(q, callback) {
-  return collaboration.query(communityObjectType, q, callback);
+  return collaborationModule.query(communityObjectType, q, callback);
 }
 module.exports.query = query;
 
@@ -101,62 +95,19 @@ module.exports.delete = function(community, callback) {
 };
 
 module.exports.leave = function(community, userAuthor, userTarget, callback) {
-  var id = community._id || community;
-  var userAuthor_id = userAuthor._id || userAuthor;
-  var userTarget_id = userTarget._id || userTarget;
-  var selection = { 'member.objectType': 'user', 'member.id': userTarget_id };
-  Community.update(
-    {_id: id, members: {$elemMatch: selection} },
-    {$pull: {members: selection} },
-    function(err, updated) {
-      if (err) {
-        return callback(err);
-      }
-
-      localpubsub.topic('community:leave').forward(globalpubsub, {
-        author: userAuthor_id,
-        target: userTarget_id,
-        community: id
-      });
-
-      return callback(null, updated);
-    }
-  );
+  collaborationModule.leave(communityObjectType, community, userAuthor, userTarget, callback);
 };
 
 module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
-
-  var id = community._id;
-  var userAuthor_id = userAuthor._id || userAuthor;
-  var userTarget_id = userTarget._id || userTarget;
-
-  var member = {
-    objectType: 'user',
-    id: userTarget_id
-  };
-
-  collaboration.addMember(community, userAuthor, member, function(err, updated) {
-    if (err) {
-      return callback(err);
-    }
-
-    localpubsub.topic('community:join').forward(globalpubsub, {
-      author: userAuthor_id,
-      target: userTarget_id,
-      actor: actor || 'user',
-      community: id
-    });
-
-    return callback(null, updated);
-  });
+  collaborationModule.join(communityObjectType, community, userAuthor, userTarget, actor, callback);
 };
 
 module.exports.isManager = function(community, user, callback) {
-  return collaboration.isManager(communityObjectType, community, user, callback);
+  return collaborationModule.isManager(communityObjectType, community, user, callback);
 };
 
 module.exports.isMember = function(community, tuple, callback) {
-  return collaboration.isMember(community, tuple, callback);
+  return collaborationModule.isMember(community, tuple, callback);
 };
 
 module.exports.userToMember = function(document) {
@@ -295,15 +246,15 @@ module.exports.getStreamsForUser = function(userId, options, callback) {
 };
 
 module.exports.getMembershipRequests = function(community, query, callback) {
-  return collaboration.getMembershipRequests(communityObjectType, community._id || community, query, callback);
+  return collaborationModule.getMembershipRequests(communityObjectType, community._id || community, query, callback);
 };
 
 module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
-  return collaboration.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
+  return collaborationModule.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
 };
 
 module.exports.getMembershipRequest = function(community, user) {
-  return collaboration.getMembershipRequest(community, user);
+  return collaborationModule.getMembershipRequest(community, user);
 };
 
 module.exports.cancelMembershipInvitation = function(community, membership, manager, onResponse) {
@@ -382,5 +333,5 @@ module.exports.cleanMembershipRequest = function(community, user, callback) {
 module.exports.search = require('./search');
 
 module.exports.hasDomain = function(community) {
-  return collaboration.hasDomain(community);
+  return collaborationModule.hasDomain(community);
 };
