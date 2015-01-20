@@ -446,4 +446,116 @@ describe('The collaborations API', function() {
       });
     });
   });
+
+  describe('GET /api/collaborations/:objectType/:id/externalcompanies', function() {
+
+    it('should return 401 if user is not authenticated', function(done) {
+      request(webserver.application).get('/api/collaborations/community/123456/externalcompanies').expect(401).end(function(err, res) {
+        expect(err).to.be.null;
+        done();
+      });
+    });
+
+    it('should return 500 if objectType is invalid', function(done) {
+      var self = this;
+
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/badone/123456/externalcompanies'));
+          req.expect(500);
+          req.end(function(err, res) {
+            expect(res.error).to.exist;
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return 500 if id is invalid', function(done) {
+      var self = this;
+
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/123456/externalcompanies'));
+          req.expect(500);
+          req.end(function(err, res) {
+            expect(res.error).to.exist;
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return external companies', function(done) {
+      var self = this;
+
+      this.helpers.api.applyDomainDeployment('extrernalUsersCollaborations', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+        self.com = models.communities[0];
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/externalcompanies'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body.length).to.equal(2);
+            expect(res.body).to.deep.equal([{ objectType: 'company', id: 'test.net' }, { objectType: 'company', id: 'pipo.net' }]);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return external companies filtered according to the search parameter', function(done) {
+      var self = this;
+
+      this.helpers.api.applyDomainDeployment('extrernalUsersCollaborations', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+        self.com = models.communities[0];
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/externalcompanies?search=nottobefound'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body.length).to.equal(0);
+
+            var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/externalcompanies?search=pipo'));
+            req.expect(200);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.exist;
+              expect(res.body.length).to.equal(1);
+              expect(res.body).to.deep.equal([{ objectType: 'company', id: 'pipo.net' }]);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+  });
+
 });
