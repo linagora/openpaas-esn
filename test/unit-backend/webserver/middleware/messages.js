@@ -135,7 +135,7 @@ describe('The messages middleware', function() {
           return callback(null, {_id: id});
         },
         typeSpecificReplyPermission: function(message, user, callback) {
-          return callback(null);
+          return callback(null, true);
         }
       });
       var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
@@ -157,7 +157,40 @@ describe('The messages middleware', function() {
     });
 
 
-    it('should send back 403 if type specific reply permissions are not ok', function(done) {
+    it('should send back 403 if type specific reply permissions return false', function(done) {
+      mockery.registerMock('../../core/message/permission', {
+        canReply: function(message, user, callback) {
+          return callback(null, true);
+        }
+      });
+      mockery.registerMock('../../core/message', {
+        get: function(id, callback) {
+          return callback(null, {_id: id});
+        },
+        typeSpecificReplyPermission: function(message, user, callback) {
+          return callback(null, false);
+        }
+      });
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var req = {
+        body: {
+          inReplyTo: {
+            _id: 1
+          }
+        },
+        user: {
+        }
+      };
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(403);
+          done();
+        }
+      };
+      middleware(req, res, done);
+    });
+
+    it('should send back 500 if type specific reply permissions are not ok', function(done) {
       mockery.registerMock('../../core/message/permission', {
         canReply: function(message, user, callback) {
           return callback(null, true);
@@ -183,7 +216,7 @@ describe('The messages middleware', function() {
       };
       var res = {
         json: function(code) {
-          expect(code).to.equal(403);
+          expect(code).to.equal(500);
           done();
         }
       };
