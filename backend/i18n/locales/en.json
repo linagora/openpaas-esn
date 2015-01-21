@@ -233,5 +233,8 @@
   "No": "No",
   "Maybe": "Maybe",
   "Unable to get event details from server... sorry": "Unable to get event details from server… sorry",
-  "Source": "Source"
+  "Source": "Source",
+  "to": "to",
+  "all recipients": "all recipients",
+  "and": "and"
 }
