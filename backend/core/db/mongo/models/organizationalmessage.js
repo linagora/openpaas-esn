@@ -10,6 +10,14 @@ var specificSchema = {
     objectType: {type: String, required: true, default: 'organizational'},
     content: {type: String, required: true},
     recipients: {type: [Tuple], validate: [tuple.validateTuples, 'Bad recipient tuple']},
+    title: {type: String, required: true},
+    position: {
+        coords: {
+            latitude: {type: Number, required: false},
+            longitude: {type: Number, required: false}
+        },
+        display_name: {type: String, required: false}
+    },
     published: {type: Date, default: Date.now}
 };
 

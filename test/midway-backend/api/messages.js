@@ -5,6 +5,7 @@ var request = require('supertest'),
   async = require('async');
 
 
+
 describe('The messages API', function() {
   var app;
   var testuser;
@@ -1143,14 +1144,16 @@ describe('The messages API', function() {
       objectType: 'activitystream',
       id: community.activity_stream.uuid
     };
+    var data = {
+      title: 'title',
+      recipients: [{objectType: 'company', id: 'linagora'}]
+    };
     this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
       if (err) { return done(err); }
       var req = loggedInAsUser(request(app).post('/api/messages'));
       req.send({
         object: {
-          data: {
-            recipients: [{objectType: 'company', id: 'linagora'}]
-          },
+          data: data,
           description: message,
           objectType: 'organizational'
         },
@@ -1181,7 +1184,8 @@ describe('The messages API', function() {
       req.send({
         object: {
           data: {
-            recipients: recipients
+            recipients: recipients,
+            title: 'title'
           },
           description: message,
           objectType: 'organizational'
@@ -1233,7 +1237,8 @@ describe('The messages API', function() {
       req.send({
         object: {
           data: {
-            recipients: [{objectType: 'company', id: 'linagora'}]
+            recipients: [{objectType: 'company', id: 'linagora'}],
+            title: 'title'
           },
           description: 'a new organizational message',
           objectType: 'organizational'
