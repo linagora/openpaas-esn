@@ -376,7 +376,7 @@ describe('The esn.message Angular module', function() {
           done();
         };
         this.scope.messageContent = 'Hey Oh, let\'s go';
-        this.scope.validationError = { error1 : 'error1' };
+        this.scope.validationError = { error1: 'error1' };
         this.scope.sendMessage();
         this.scope.$digest();
       });
