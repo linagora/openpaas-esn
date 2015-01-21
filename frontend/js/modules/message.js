@@ -25,6 +25,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
     $scope.position = {};
     $scope.attachments = [];
     $scope.uploadService = null;
+    $scope.validators = [];
+    $scope.validationError = {};
 
     $scope.expand = function(event) {
       if ($scope.rows === 1) {
@@ -54,8 +56,15 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
     };
 
     $scope.sendMessage = function() {
-      if (!$scope.whatsupmessage || $scope.whatsupmessage.trim().length === 0) {
+      if (!$scope.messageContent || $scope.messageContent.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
+        return;
+      }
+      $scope.validators.forEach(function(validator) {
+        validator();
+      });
+      if ($scope.validationError && Object.keys($scope.validationError).length > 0) {
+        $scope.displayValidationError();
         return;
       }
 
@@ -64,9 +73,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      var objectType = 'whatsup';
+      var objectType = $scope.type;
       var data = {
-        description: $scope.whatsupmessage
+        description: $scope.messageContent
       };
 
       if ($scope.position.coords) {
@@ -95,7 +104,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
-        messageAPI.post(objectType, data, targets, attachmentsModel).then(
+        var additionalData = $scope.additionalData ? $scope.additionalData : {};
+        messageAPI.post(objectType, data, targets, attachmentsModel, additionalData).then(
           function(response) {
             $rootScope.$emit('message:posted', {
               activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -111,10 +121,11 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       }
 
       function clean() {
-        $scope.whatsupmessage = '';
+        $scope.messageContent = '';
         $scope.rows = 1;
         $scope.attachments = [];
         $scope.uploadService = null;
+        $scope.additionalData = {};
         if ($scope.position.coords) {
           $scope.position = {};
         }
@@ -144,14 +155,23 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
     $scope.resetMessage = function() {
       $scope.rows = 1;
-      $scope.whatsupmessage = '';
+      $scope.messageContent = '';
       $scope.removePosition();
       $scope.uploadService = null;
+      $scope.additionalData = {};
       $q.all(messageAttachmentHelper.deleteAttachments($scope.attachments)).then(function() {
         $scope.attachments = [];
         $scope.uploads = [];
         $scope.complete = 0;
       });
+    };
+
+    $scope.displayValidationError = function() {
+      var errorMsg = '';
+      for (var k in $scope.validationError) {
+        errorMsg = errorMsg + $scope.validationError[k] + ' ';
+      }
+      $scope.displayError(errorMsg);
     };
 
     $scope.displayError = function(err) {
@@ -705,7 +725,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       return Restangular.all('messages').getList(options);
     }
 
-    function post(objectType, data, targets, attachments) {
+    function post(objectType, data, targets, attachments, additionalData) {
       var payload = {};
 
       payload.object = angular.copy(data);
@@ -727,6 +747,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       if (attachments && angular.isArray(attachments)) {
         payload.object.attachments = attachments;
+      }
+
+      if (additionalData) {
+        payload.object.data = angular.copy(additionalData);
       }
 
       return Restangular.all('messages').post(payload);

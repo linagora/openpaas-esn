@@ -340,7 +340,7 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupmessage = undefined;
+        this.scope.messageContent = undefined;
         this.scope.sendMessage();
       });
 
@@ -351,7 +351,7 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupmessage = '';
+        this.scope.messageContent = '';
         this.scope.sendMessage();
         this.scope.$digest();
       });
@@ -363,7 +363,20 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.messageContent = 'Hey Oh, let\'s go';
+        this.scope.sendMessage();
+        this.scope.$digest();
+      });
+
+      it('should not call $messageAPI.post when there is a validation error', function(done) {
+        this.messageAPI.post = function() {
+          return done(new Error('Should not be called'));
+        };
+        this.scope.displayError = function() {
+          done();
+        };
+        this.scope.messageContent = 'Hey Oh, let\'s go';
+        this.scope.validationError = { error1 : 'error1' };
         this.scope.sendMessage();
         this.scope.$digest();
       });
@@ -376,7 +389,7 @@ describe('The esn.message Angular module', function() {
           done(new Error());
         };
         this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
-        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.messageContent = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
       });
@@ -392,7 +405,7 @@ describe('The esn.message Angular module', function() {
           coords: coords
         };
         this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
-        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.messageContent = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
       });
@@ -408,7 +421,7 @@ describe('The esn.message Angular module', function() {
         };
         defer.reject({data: {status: 403}});
         this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
-        this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+        this.scope.messageContent = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
       });
@@ -431,7 +444,7 @@ describe('The esn.message Angular module', function() {
             done(new Error());
           };
           this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
-          this.scope.whatsupmessage = 'Hey Oh, let\'s go';
+          this.scope.messageContent = 'Hey Oh, let\'s go';
           this.rootScope.$on('message:posted', function(evt, data) {
             expect(data.activitystreamUuid).to.equal('0987654321');
             expect(data.id).to.equal('message1');
