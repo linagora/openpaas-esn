@@ -90,7 +90,7 @@ describe('The esn.activitystream Angular module', function() {
         done();
       };
 
-      this.$scope.activitystreamUuid = '0987654321';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
       var html = '<div activity-stream-notification></div>';
       this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
@@ -102,7 +102,7 @@ describe('The esn.activitystream Angular module', function() {
         },
         published: ''
       };
-      callbackOnNotification({room: this.$scope.activitystreamUuid, data: msg});
+      callbackOnNotification({room: this.$scope.activitystream.activity_stream.uuid, data: msg});
     });
 
     it('should not call the method "notificationFactory.weakInfo(title, text)" ' +
@@ -111,7 +111,7 @@ describe('The esn.activitystream Angular module', function() {
         done(new Error('Should not pass here'));
       };
 
-      this.$scope.activitystreamUuid = '0987654321';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
       var html = '<div activity-stream-notification></div>';
       this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
@@ -123,7 +123,7 @@ describe('The esn.activitystream Angular module', function() {
         },
         published: ''
       };
-      callbackOnNotification({room: this.$scope.activitystreamUuid, data: msg});
+      callbackOnNotification({room: this.$scope.activitystream.activity_stream.uuid, data: msg});
       // Wait to see if the callback is called
       setTimeout(function() {
         done();
@@ -136,7 +136,7 @@ describe('The esn.activitystream Angular module', function() {
         done(new Error('Should not pass here'));
       };
 
-      this.$scope.activitystreamUuid = '0987654321';
+      this.$scope.activitystream = {activity_stream: {uuid: '0987654321'}};
       var html = '<div activity-stream-notification></div>';
       this.$compile(html)(this.$scope);
       this.$rootScope.$digest();
