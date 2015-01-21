@@ -180,14 +180,6 @@ exports = module.exports = function(application) {
     communityMiddleware.canLeave,
     communities.leave
   );
-  application.get('/api/communities/:id/members/:user_id',
-    authorize.requiresAPILogin,
-    communities.load,
-    communityMiddleware.canRead,
-    requestMW.castParamToObjectId('user_id'),
-    communities.getMember
-  );
-  application.get('/api/communities/:id/membership', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.getMembershipRequests);
   application.delete('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.removeMembershipRequest);
 
   var collaborations = require('./controllers/collaborations');
@@ -204,12 +196,22 @@ exports = module.exports = function(application) {
     authorize.requiresAPILogin,
     collaborationMW.load,
     collaborationMW.canRead,
-    collaborations.getExternalCompanies
-  );
+    collaborations.getExternalCompanies);
+  application.put('/api/collaborations/:objectType/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    requestMW.castParamToObjectId('user_id'),
+    collaborationMW.flagCollaborationManager,
+    collaborations.join);
   application.get('/api/collaborations/:objectType/:id/invitablepeople',
     authorize.requiresAPILogin,
     collaborationMW.load,
     collaborations.getInvitablePeople);
+  application.get('/api/collaborations/:objectType/:id/membership',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.flagCollaborationManager,
+    collaborations.getMembershipRequests);
   application.put('/api/collaborations/:objectType/:id/membership/:user_id',
     authorize.requiresAPILogin,
     collaborationMW.load,

@@ -542,6 +542,29 @@ module.exports.cancelMembershipRequest = function(objectType, collaboration, mem
   });
 };
 
+function userToMember(document) {
+  var result = {};
+  if (!document || !document.member) {
+    return result;
+  }
+
+  if (typeof(document.member.toObject) === 'function') {
+    result.user = document.member.toObject();
+  } else {
+    result.user = document.member;
+  }
+
+  delete result.user.password;
+  delete result.user.avatars;
+  delete result.user.login;
+
+  result.metadata = {
+    timestamps: document.timestamps
+  };
+
+  return result;
+}
+
 module.exports.getModel = getModel;
 module.exports.getLib = getLib;
 module.exports.getManagers = getManagers;
@@ -564,3 +587,4 @@ module.exports.permission = require('./permission');
 module.exports.hasDomain = hasDomain;
 module.exports.join = join;
 module.exports.leave = leave;
+module.exports.userToMember = userToMember;

@@ -388,7 +388,7 @@ describe('The collaboration module', function() {
 
       var comMock = {
         members: [],
-        _id: 'community1',
+        _id: 'collaboration1',
         save: function(callback) {
           return callback(new Error());
         }
@@ -417,7 +417,7 @@ describe('The collaboration module', function() {
       });
       var comMock = {
         members: [],
-        _id: 'community1',
+        _id: 'collaboration1',
         save: function(callback) {
           this.updated = true;
           return callback(null, this);
@@ -432,7 +432,7 @@ describe('The collaboration module', function() {
       });
     });
 
-    it('should forward message into community:join', function(done) {
+    it('should forward message into collaboration:join', function(done) {
       var result = {_id: 123};
       this.helpers.mock.models({
         Community: {
@@ -448,7 +448,7 @@ describe('The collaboration module', function() {
       var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
       var comMock = {
         members: [],
-        _id: 'community1',
+        _id: 'collaboration1',
         save: function(callback) {
           this.updated = true;
           return callback(null, this);
@@ -461,13 +461,13 @@ describe('The collaboration module', function() {
           author: 456,
           target: 789,
           actor: 'user',
-          collaboration: {objectType: 'community', id: 'community1'}
+          collaboration: {objectType: 'community', id: 'collaboration1'}
         });
         expect(globalstub.topics['collaboration:join'].data[0]).to.deep.equal({
           author: 456,
           target: 789,
           actor: 'user',
-          collaboration: {objectType: 'community', id: 'community1'}
+          collaboration: {objectType: 'community', id: 'collaboration1'}
         });
 
         return done();
@@ -484,21 +484,21 @@ describe('The collaboration module', function() {
         user: 'user1',
         workflow: 'invitation'
       };
-      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.collaboration = {_id: 'collaboration1', membershipRequests: [this.membership]};
       this.user = {_id: 'user1'};
       this.manager = {_id: 'manager1'};
     });
 
-    it('should call cleanMembershipRequest() method, with the community and user._id', function(done) {
+    it('should call cleanMembershipRequest() method, with the collaboration and user._id', function(done) {
       var self = this;
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-      collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-        expect(community).to.deep.equal(self.community);
+      collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+        expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
         expect(callback).to.be.a('function');
         callback();
       };
-      collaborationModule.cancelMembershipInvitation('community', this.community, this.membership, this.manager, done);
+      collaborationModule.cancelMembershipInvitation('community', this.collaboration, this.membership, this.manager, done);
     });
 
     describe('cleanMembershipRequest callback', function() {
@@ -509,7 +509,7 @@ describe('The collaboration module', function() {
 
       it('should fire callback with an error in case of an error', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
         function onResponse(err, resp) {
@@ -517,20 +517,20 @@ describe('The collaboration module', function() {
           expect(err.message).to.equal('test error');
           done();
         }
-        collaborationModule.cancelMembershipInvitation('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.cancelMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:invitation:cancel topic message', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:invitation:cancel');
           expect(localstub.topics['collaboration:membership:invitation:cancel'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:invitation:cancel'].data[0]).to.deep.equal({
             author: 'manager1',
             target: 'user1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:invitation:cancel');
           expect(globalstub.topics['collaboration:membership:invitation:cancel'].data).to.have.length(1);
@@ -538,21 +538,21 @@ describe('The collaboration module', function() {
             author: 'manager1',
             target: 'user1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           done();
         };
         function onResponse(err, resp) {
         }
-        collaborationModule.cancelMembershipInvitation('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.cancelMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire the callback', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
         };
-        collaborationModule.cancelMembershipInvitation('community', this.community, this.membership, this.manager, done);
+        collaborationModule.cancelMembershipInvitation('community', this.collaboration, this.membership, this.manager, done);
       });
 
     });
@@ -567,20 +567,20 @@ describe('The collaboration module', function() {
         user: 'user1',
         workflow: 'invitation'
       };
-      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.collaboration = {_id: 'collaboration1', membershipRequests: [this.membership]};
       this.user = {_id: 'user1'};
       this.manager = {_id: 'manager1'};
     });
 
-    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+    it('should call cleanMembershipRequest() method, with the collaboration and user._id', function() {
       var self = this;
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-      collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-        expect(community).to.deep.equal(self.community);
+      collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+        expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
         expect(callback).to.be.a('function');
       };
-      collaborationModule.refuseMembershipRequest('community', this.community, this.membership, this.manager, function() {});
+      collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, function() {});
     });
 
     describe('cleanMembershipRequest callback', function() {
@@ -591,7 +591,7 @@ describe('The collaboration module', function() {
 
       it('should fire callback with an error in case of an error', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
         function onResponse(err, resp) {
@@ -599,20 +599,20 @@ describe('The collaboration module', function() {
           expect(err.message).to.equal('test error');
           done();
         }
-        collaborationModule.refuseMembershipRequest('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:request:refuse topic message', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:request:refuse');
           expect(localstub.topics['collaboration:membership:request:refuse'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:request:refuse'].data[0]).to.deep.equal({
             author: 'manager1',
             target: 'user1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:request:refuse');
           expect(globalstub.topics['collaboration:membership:request:refuse'].data).to.have.length(1);
@@ -620,21 +620,21 @@ describe('The collaboration module', function() {
             author: 'manager1',
             target: 'user1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           done();
         };
         function onResponse(err, resp) {
         }
-        collaborationModule.refuseMembershipRequest('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire the callback', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
         };
-        collaborationModule.refuseMembershipRequest('community', this.community, this.membership, this.manager, done);
+        collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, done);
       });
 
     });
@@ -649,20 +649,20 @@ describe('The collaboration module', function() {
         user: 'user1',
         workflow: 'invitation'
       };
-      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.collaboration = {_id: 'collaboration1', membershipRequests: [this.membership]};
       this.user = {_id: 'user1'};
       this.manager = {_id: 'manager1'};
     });
 
-    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+    it('should call cleanMembershipRequest() method, with the collaboration and user._id', function() {
       var self = this;
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-      collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-        expect(community).to.deep.equal(self.community);
+      collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+        expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
         expect(callback).to.be.a('function');
       };
-      collaborationModule.declineMembershipInvitation('community', this.community, this.membership, this.manager, function() {});
+      collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, function() {});
     });
 
     describe('cleanMembershipRequest callback', function() {
@@ -673,7 +673,7 @@ describe('The collaboration module', function() {
 
       it('should fire callback with an error in case of an error', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
         function onResponse(err, resp) {
@@ -681,42 +681,42 @@ describe('The collaboration module', function() {
           expect(err.message).to.equal('test error');
           done();
         }
-        collaborationModule.declineMembershipInvitation('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:invitation:decline topic message', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:invitation:decline');
           expect(localstub.topics['collaboration:membership:invitation:decline'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:invitation:decline'].data[0]).to.deep.equal({
             author: 'manager1',
-            target: 'community1',
+            target: 'collaboration1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:invitation:decline');
           expect(globalstub.topics['collaboration:membership:invitation:decline'].data).to.have.length(1);
           expect(globalstub.topics['collaboration:membership:invitation:decline'].data[0]).to.deep.equal({
             author: 'manager1',
-            target: 'community1',
+            target: 'collaboration1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           done();
         };
         function onResponse(err, resp) {
         }
-        collaborationModule.declineMembershipInvitation('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire the callback', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
         };
-        collaborationModule.declineMembershipInvitation('community', this.community, this.membership, this.manager, done);
+        collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, done);
       });
 
     });
@@ -732,20 +732,20 @@ describe('The collaboration module', function() {
         user: 'user1',
         workflow: 'invitation'
       };
-      this.community = {_id: 'community1', membershipRequests: [this.membership]};
+      this.collaboration = {_id: 'collaboration1', membershipRequests: [this.membership]};
       this.user = {_id: 'user1'};
       this.manager = {_id: 'manager1'};
     });
 
-    it('should call cleanMembershipRequest() method, with the community and user._id', function() {
+    it('should call cleanMembershipRequest() method, with the collaboration and user._id', function() {
       var self = this;
       var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-      collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-        expect(community).to.deep.equal(self.community);
+      collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+        expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
         expect(callback).to.be.a('function');
       };
-      collaborationModule.cancelMembershipRequest('community', this.community, this.membership, this.manager, function() {});
+      collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, function() {});
     });
 
     describe('cleanMembershipRequest callback', function() {
@@ -756,7 +756,7 @@ describe('The collaboration module', function() {
 
       it('should fire callback with an error in case of an error', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
         function onResponse(err, resp) {
@@ -764,44 +764,88 @@ describe('The collaboration module', function() {
           expect(err.message).to.equal('test error');
           done();
         }
-        collaborationModule.cancelMembershipRequest('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire a collaboration:membership:request:cancel topic message', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:request:cancel');
           expect(localstub.topics['collaboration:membership:request:cancel'].data).to.have.length(1);
           expect(localstub.topics['collaboration:membership:request:cancel'].data[0]).to.deep.equal({
             author: 'manager1',
-            target: 'community1',
+            target: 'collaboration1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           expect(globalstub.topics).to.have.property('collaboration:membership:request:cancel');
           expect(globalstub.topics['collaboration:membership:request:cancel'].data).to.have.length(1);
           expect(globalstub.topics['collaboration:membership:request:cancel'].data[0]).to.deep.equal({
             author: 'manager1',
-            target: 'community1',
+            target: 'collaboration1',
             membership: { user: 'user1', workflow: 'invitation' },
-            collaboration: {objectType: 'community', id: 'community1'}
+            collaboration: {objectType: 'community', id: 'collaboration1'}
           });
           done();
         };
         function onResponse(err, resp) {
         }
-        collaborationModule.cancelMembershipRequest('community', this.community, this.membership, this.manager, onResponse);
+        collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
       });
 
       it('should fire the callback', function(done) {
         var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
-        collaborationModule.cleanMembershipRequest = function(community, userid, callback) {
-          callback(null, community);
+        collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
+          callback(null, collaboration);
         };
-        collaborationModule.cancelMembershipRequest('community', this.community, this.membership, this.manager, done);
+        collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, done);
       });
 
+    });
+
+  });
+
+  describe('userToMember fn', function() {
+    it('should send back result even if user is null', function(done) {
+      this.helpers.mock.models({});
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var member = collaboration.userToMember(null);
+      expect(member).to.exist;
+      done();
+    });
+
+    it('should send back result even if document.user is null', function(done) {
+      this.helpers.mock.models({});
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var member = collaboration.userToMember({});
+      expect(member).to.exist;
+      done();
+    });
+
+    it('should filter document', function(done) {
+      this.helpers.mock.models({});
+
+      var user = {
+        _id: 1,
+        firstname: 'Me',
+        password: '1234',
+        avatars: [1, 2, 3],
+        login: [4, 5, 6]
+      };
+
+      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var member = collaboration.userToMember({member: user});
+      expect(member).to.exist;
+      expect(member.user).to.exist;
+      expect(member.user._id).to.exist;
+      expect(member.user.firstname).to.exist;
+      expect(member.user.password).to.not.exist;
+      expect(member.user.avatars).to.not.exist;
+      expect(member.user.login).to.not.exist;
+      done();
     });
 
   });

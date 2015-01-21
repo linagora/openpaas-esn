@@ -10,17 +10,30 @@ var async = require('async');
 
 function transform(collaboration, user, callback) {
   if (!collaboration) {
-    return callback({});
+    return {};
   }
+
+  var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
 
   if (typeof(collaboration.toObject) === 'function') {
     collaboration = collaboration.toObject();
   }
 
   collaboration.members_count = collaboration.members ? collaboration.members.length : 0;
-  delete collaboration.members;
-  delete collaboration.membershipRequests;
-  return callback(collaboration);
+  if (membershipRequest) {
+    collaboration.membershipRequest = membershipRequest.timestamp.creation.getTime();
+  }
+
+  collaborationModule.isMember(collaboration, {objectType: 'user', id: user._id + ''}, function(err, membership) {
+    if (membership) {
+      collaboration.member_status = 'member';
+    } else {
+      collaboration.member_status = 'none';
+    }
+    delete collaboration.members;
+    delete collaboration.membershipRequests;
+    return callback(collaboration);
+  });
 }
 
 module.exports.searchWhereMember = function(req, res) {
@@ -234,34 +247,6 @@ function ensureLoginCollaborationAndUserId(req, res) {
 }
 module.exports.ensureLoginCollaborationAndUserId = ensureLoginCollaborationAndUserId;
 
-function transform(collaboration, user, callback) {
-  if (!collaboration) {
-    return {};
-  }
-
-  var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
-
-  if (typeof(collaboration.toObject) === 'function') {
-    collaboration = collaboration.toObject();
-  }
-
-  collaboration.members_count = collaboration.members ? collaboration.members.length : 0;
-  if (membershipRequest) {
-    collaboration.membershipRequest = membershipRequest.timestamp.creation.getTime();
-  }
-
-  collaborationModule.isMember(collaboration, {objectType: 'user', id: user._id + ''}, function(err, membership) {
-    if (membership) {
-      collaboration.member_status = 'member';
-    } else {
-      collaboration.member_status = 'none';
-    }
-    delete collaboration.members;
-    delete collaboration.membershipRequests;
-    return callback(collaboration);
-  });
-}
-
 function addMembershipRequest(req, res) {
   if (!ensureLoginCollaborationAndUserId(req, res)) {
     return;
@@ -297,3 +282,119 @@ function addMembershipRequest(req, res) {
   }
 }
 module.exports.addMembershipRequest = addMembershipRequest;
+
+function getMembershipRequests(req, res) {
+  var collaboration = req.collaboration;
+
+  if (!collaboration) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
+  }
+
+  if (!req.isCollaborationManager) {
+    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Only collaboration managers can get requests'}});
+  }
+
+  var query = {};
+  if (req.param('limit')) {
+    var limit = parseInt(req.param('limit'));
+    if (!isNaN(limit)) {
+      query.limit = limit;
+    }
+  }
+
+  if (req.param('offset')) {
+    var offset = parseInt(req.param('offset'));
+    if (!isNaN(offset)) {
+      query.offset = offset;
+    }
+  }
+
+  collaborationModule.getMembershipRequests(req.params.objectType, collaboration, query, function(err, membershipRequests) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    res.header('X-ESN-Items-Count', req.collaboration.membershipRequests ? req.collaboration.membershipRequests.length : 0);
+    var result = membershipRequests.map(function(request) {
+      var result = collaborationModule.userToMember({member: request.user, timestamp: request.timestamp});
+      result.workflow = request.workflow;
+      result.timestamp = request.timestamp;
+      return result;
+    });
+    return res.json(200, result || []);
+  });
+}
+module.exports.getMembershipRequests = getMembershipRequests;
+
+function join(req, res) {
+  if (!ensureLoginCollaborationAndUserId(req, res)) {
+    return;
+  }
+
+  var collaboration = req.collaboration;
+  var user = req.user;
+  var targetUserId = req.params.user_id;
+
+  if (req.isCollaborationManager) {
+
+    if (user._id.equals(targetUserId)) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a collaboration'}});
+    }
+
+    if (!collaborationModule.getMembershipRequest(collaboration, {_id: targetUserId})) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User did not request to join collaboration'}});
+    }
+
+    collaborationModule.join(req.params.objectType, collaboration, user, targetUserId, 'manager', function(err) {
+      if (err) {
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+      }
+
+      collaborationModule.cleanMembershipRequest(collaboration, targetUserId, function(err) {
+        if (err) {
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+        }
+        return res.send(204);
+      });
+    });
+
+  } else {
+
+    if (!user._id.equals(targetUserId)) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
+    }
+
+    if (req.collaboration.type !== 'open') {
+      var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
+      if (!membershipRequest) {
+        return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User was not invited to join collaboration'}});
+      }
+
+      collaborationModule.join(req.params.objectType, collaboration, user, user, null, function(err) {
+        if (err) {
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+        }
+
+        collaborationModule.cleanMembershipRequest(collaboration, user, function(err) {
+          if (err) {
+            return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+          }
+          return res.send(204);
+        });
+      });
+    } else {
+      collaborationModule.join(req.params.objectType, collaboration, user, targetUserId, 'user', function(err) {
+        if (err) {
+          return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+        }
+
+        collaborationModule.cleanMembershipRequest(collaboration, user, function(err) {
+          if (err) {
+            return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+          }
+          return res.send(204);
+        });
+      });
+    }
+  }
+}
+module.exports.join = join;
