@@ -6,6 +6,8 @@
 // Send the message to all the collaboration members even the message creator.
 //
 
-module.exports = function(collaboration, message, callback) {
-  return callback(null, collaboration.members);
+module.exports = function(lib, dependencies) {
+  return function all(collaboration, message, options, callback) {
+    return callback(null, collaboration.members);
+  };
 };

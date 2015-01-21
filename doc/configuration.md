@@ -37,6 +37,17 @@ The configuration of the ESN is stored in MongoDB under the configuration collec
           "dir": "/tmp",
           "browser": true
         }
+      },
+      "rules": {
+        "organizational": {
+          "active": true,
+          "options": {
+            "foo": "bar"
+          }
+        },
+        "all": {
+          "active": false
+        }
       }
     }
 
@@ -52,6 +63,10 @@ nodemailer is used to send emails, the config section follows the same format.
 - module: You can specifiy a npm module to be used as transport
 - type: The type of transport
 - config: The transport configuration
+
+### Rules
+
+Configure the email messaging rules to be used when new messages are added in an activity stream.
 
 ## Session
 

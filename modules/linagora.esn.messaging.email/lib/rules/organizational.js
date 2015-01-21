@@ -42,22 +42,22 @@ module.exports = function(lib, dependencies) {
     });
   }
 
-  return function(collaboration, message, callback) {
+  return function(collaboration, message, options, callback) {
 
     if (!message || message.objectType !== 'organizational') {
       logger.debug('Message is not organizational one, skipping');
-      return;
+      return callback();
     }
 
     var out = collaboration.members;
     var recipients = message.recipients || [];
 
-    async.map(recipients, function(recipient, callback) {
+    async.map(recipients, function(recipient, done) {
       if (recipient.objectType === 'company') {
-        return getUsersInCompany(collaboration, recipient.id, callback);
+        return getUsersInCompany(collaboration, recipient.id, done);
       } else {
         logger.debug('Recipient is not a company');
-        return callback();
+        return done();
       }
     }, function(err, results) {
       results.forEach(function(result) {

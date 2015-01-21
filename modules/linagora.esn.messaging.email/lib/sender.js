@@ -3,6 +3,7 @@
 var async = require('async');
 var DEFAULT_DOMAIN = 'localhost';
 var rules = [];
+var fs = require('fs');
 
 module.exports = function(lib, dependencies) {
 
@@ -14,9 +15,20 @@ module.exports = function(lib, dependencies) {
     }
     rules.push({
       name: name,
-      active: true,
       rule: fn
     });
+  }
+
+  function initRules(callback) {
+    fs.readdirSync(__dirname + '/rules').forEach(function(filename) {
+      var stat = fs.statSync(__dirname + '/rules/' + filename);
+      if (!stat.isFile()) { return; }
+      var name = filename.split('.')[0];
+      logger.debug('Initializing rule %s', name);
+      var rule = require('./rules/' + filename)(lib, dependencies);
+      addSenderRule(name, rule);
+    });
+    return callback();
   }
 
   function getUsers(members, callback) {
@@ -133,116 +145,145 @@ module.exports = function(lib, dependencies) {
   }
 
   function listen() {
-    var pubsub = dependencies('pubsub').local;
-    pubsub.topic('message:activity').subscribe(function(activity) {
 
-      if (!rules || rules.length === 0) {
-        logger.debug('No rules to apply to message');
-        return;
-      }
+    initRules(function() {
+      var pubsub = dependencies('pubsub').local;
+      pubsub.topic('message:activity').subscribe(function(activity) {
 
-      var messageModule = dependencies('message');
-      var collaborationModule = dependencies('collaboration');
-      var messageTuple = activity.object;
-
-      messageModule.get(messageTuple._id, function(err, message) {
-        if (err) {
-          logger.info('Can not load message %s', err.message);
+        if (!rules || rules.length === 0) {
+          logger.debug('No rules to apply to message');
           return;
         }
 
-        if (!message) {
-          logger.info('Can not find message');
-          return;
-        }
+        var messageModule = dependencies('message');
+        var collaborationModule = dependencies('collaboration');
+        var messageTuple = activity.object;
 
-        var recipients = [];
-
-        function addRecipients(members) {
-          if (!members || members.length === 0) {
-            return;
-          }
-
-          function equals(a, b) {
-            return a.member.id + '' === b.member.id + '' && a.member.objectType === b.member.objectType;
-          }
-
-          function isIn(array, element) {
-            for (var i = 0; i < array.length; i++) {
-              if (equals(array[i], element)) {
-                return true;
-              }
-            }
-            return false;
-          }
-
-          members.forEach(function(member) {
-            if (!isIn(recipients, member)) {
-              recipients.push(member);
-            }
-          });
-        }
-
-        function applyRules(collaboration, callback) {
-          async.forEach(rules, function(rule, done) {
-
-            if (!rule.active) {
-              logger.debug('Rule %s is not active', rule.name);
-              return done();
-            }
-
-            rule.rule(collaboration, message, function(err, members) {
-              if (err) {
-                logger.info('Error while applying the rule %s', err.message);
-              }
-
-              if (members && members.length > 0) {
-                addRecipients(members);
-              }
-              done();
-            });
-          }, callback);
-        }
-
-        async.forEach(activity.target, function(target, callback) {
-          collaborationModule.findCollaborationFromActivityStreamID(target._id, function(err, collaboration) {
-            if (err) {
-              logger.info('Error while loading collaboration %s', err.message);
-            }
-
-            if (!collaboration) {
-              logger.info('Can not get any collabotation');
-            }
-
-            if (!err && collaboration) {
-              applyRules(collaboration[0], function() {
-                return callback();
-              });
-            } else {
-              return callback();
-            }
-          });
-        }, function(err) {
-
+        messageModule.get(messageTuple._id, function(err, message) {
           if (err) {
-            logger.info('Error while applying rules %s', err.message);
+            logger.info('Can not load message %s', err.message);
             return;
           }
 
-          getUsers(recipients, function(err, users) {
-            if (err) {
-              return logger.info('Can not get users %s', err.message);
+          if (!message) {
+            logger.info('Can not find message');
+            return;
+          }
+
+          var recipients = [];
+
+          function addRecipients(members) {
+            if (!members || members.length === 0) {
+              return;
             }
 
-            if (!users) {
-              return logger.info('Can not get users from recipients', recipients);
+            function equals(a, b) {
+              return a.member.id + '' === b.member.id + '' && a.member.objectType === b.member.objectType;
             }
 
-            sendMessageAsEmails(message, users, function(err) {
-              if (err) {
-                return logger.info('Can not send message as email %s', err.message);
+            function isIn(array, element) {
+              for (var i = 0; i < array.length; i++) {
+                if (equals(array[i], element)) {
+                  return true;
+                }
               }
-              logger.info('Message has been sent has email');
+              return false;
+            }
+
+            members.forEach(function(member) {
+              if (!isIn(recipients, member)) {
+                recipients.push(member);
+              }
+            });
+          }
+
+          function getRuleConfig(name, callback) {
+            if (!name) {
+              return callback(new Error('Can not get config from undefined rule name'));
+            }
+
+            var esnconfig = dependencies('esn-config');
+
+            esnconfig('mail').get('rules', function(err, data) {
+              if (err) {
+                return callback(err);
+              }
+
+              if (!data || !data[name]) {
+                return callback(null, {active: false});
+              }
+
+              return callback(null, data[name]);
+            });
+          }
+
+          function applyRules(collaboration, callback) {
+            async.forEach(rules, function(rule, done) {
+              getRuleConfig(rule.name, function(err, config) {
+                if (err) {
+                  logger.debug('Error while getting rule %s config: Error %e', rule.name, err);
+                  return done();
+                }
+
+                if (!config || !config.active) {
+                  logger.debug('Rule "%s" is not configured or not active', rule.name);
+                  return done();
+                }
+
+                rule.rule(collaboration, message, config.options || {}, function(err, members) {
+                  if (err) {
+                    logger.info('Error while applying the rule %s', err.message);
+                  }
+
+                  if (members && members.length > 0) {
+                    addRecipients(members);
+                  } else {
+                    logger.debug('The rule does not add members to the recipients list');
+                  }
+                  return done();
+                });
+              });
+            }, callback);
+          }
+
+          async.forEach(activity.target, function(target, callback) {
+            collaborationModule.findCollaborationFromActivityStreamID(target._id, function(err, collaboration) {
+              if (err) {
+                logger.info('Error while loading collaboration %s', err.message);
+              }
+
+              if (!collaboration) {
+                logger.info('Can not get any collaboration');
+              }
+
+              if (!err && collaboration) {
+                return applyRules(collaboration[0], callback);
+              } else {
+                return callback();
+              }
+            });
+          }, function(err) {
+
+            if (err) {
+              logger.info('Error while applying rules %s', err.message);
+              return;
+            }
+
+            getUsers(recipients, function(err, users) {
+              if (err) {
+                return logger.info('Can not get users %s', err.message);
+              }
+
+              if (!users) {
+                return logger.info('Can not get users from recipients', recipients);
+              }
+
+              sendMessageAsEmails(message, users, function(err) {
+                if (err) {
+                  return logger.info('Can not send message as email %s', err.message);
+                }
+                logger.info('Message has been sent has email');
+              });
             });
           });
         });
