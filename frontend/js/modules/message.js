@@ -19,6 +19,49 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/messageEdition.html'
     };
   })
+  .directive('validateOrganizationalTitle', function() {
+    return {
+      restrict: 'A',
+      link: function(scope) {
+
+        scope.validators.push(function() {
+          var title = scope.additionalData.title;
+          if (!title || title === '') {
+            scope.validationError.title = 'A title is required. ';
+          }
+          else {
+            delete scope.validationError.title;
+          }
+        });
+      }
+    };
+  })
+  .directive('organizationalRecipients', ['$q', 'collaborationAPI', function($q, collaborationAPI) {
+    return {
+      restrict: 'A',
+      link: function(scope) {
+        scope.validationError.recipients = 'At least one external company is required.';
+
+        scope.getCompanies = function(query) {
+          var options = {};
+          if (query) {
+            options.search = query;
+          }
+          return collaborationAPI.getExternalCompanies('community', scope.activitystream._id, options);
+        };
+
+        scope.validators.push(function() {
+          var recipients = scope.additionalData.recipients;
+          if (!recipients || recipients.length === 0) {
+            scope.validationError.recipients = 'At least one external company is required.';
+          }
+          else {
+            delete scope.validationError.recipients;
+          }
+        });
+      }
+    };
+  }])
   .controller('messageController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
 
     $scope.rows = 1;
@@ -414,6 +457,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/whatsup/whatsupAddComment.html'
     };
   })
+  .directive('organizationalEdition', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/organizational/organizationalEdition.html'
+    };
+  })
   .directive('messagesDisplay', function() {
     return {
       restrict: 'E',
@@ -736,6 +786,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         payload.object.attachments = attachments;
       }
 
+      if (additionalData) {
+        payload.object.data = angular.copy(additionalData);
+      }
+
       return Restangular.all('messages').post(payload);
     }
 
@@ -747,10 +801,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       if (attachments && angular.isArray(attachments)) {
         payload.object.attachments = attachments;
-      }
-
-      if (additionalData) {
-        payload.object.data = angular.copy(additionalData);
       }
 
       return Restangular.all('messages').post(payload);

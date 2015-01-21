@@ -163,6 +163,7 @@ describe('The esn.activitystream Angular module', function() {
     beforeEach(function() {
       module('jadeTemplates');
       angular.mock.module('esn.activitystream');
+      angular.mock.module('esn.collaboration');
     });
     beforeEach(inject(['$compile', '$rootScope', '$timeout', '$httpBackend', 'Restangular', function($c, $r, $t, $h, R) {
       this.$compile = $c;
