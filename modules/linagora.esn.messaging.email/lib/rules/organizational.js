@@ -54,7 +54,21 @@ module.exports = function(lib, dependencies) {
 
     async.map(recipients, function(recipient, done) {
       if (recipient.objectType === 'company') {
-        return getUsersInCompany(collaboration, recipient.id, done);
+        return getUsersInCompany(collaboration, recipient.id, function(err, users) {
+          if (err) {
+            logger.warning('Error while getting users in company %s: %e', recipient.id, err);
+            return done();
+          }
+
+          users = users.map(function(user) {
+            return {
+              user: user,
+              recipient: recipient
+            };
+          });
+
+          return done(null, users);
+        });
       } else {
         logger.debug('Recipient is not a company');
         return done();
@@ -65,7 +79,11 @@ module.exports = function(lib, dependencies) {
           return {
             member: {
               objectType: 'user',
-              id: result._id + ''
+              id: result.user._id + '',
+              user: result.user,
+              data: {
+                recipient: result.recipient
+              }
             }
           };
         });

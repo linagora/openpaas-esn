@@ -8,6 +8,7 @@ var fs = require('fs');
 module.exports = function(lib, dependencies) {
 
   var logger = dependencies('logger');
+  var handlers = require('./handlers')(lib, dependencies);
 
   function addSenderRule(name, fn) {
     if (!fn) {
@@ -31,7 +32,7 @@ module.exports = function(lib, dependencies) {
     return callback();
   }
 
-  function getUsers(members, callback) {
+  function getUsersData(members, callback) {
 
     var userModule = dependencies('user');
 
@@ -45,7 +46,15 @@ module.exports = function(lib, dependencies) {
             logger.info('Error while getting user', err);
           }
           if (user) {
-            result.push(user);
+            var userData = {
+              user: user
+            };
+
+            if (member.member.data) {
+              userData.data = member.member.data;
+            }
+
+            result.push(userData);
           }
           return callback();
         });
@@ -77,16 +86,14 @@ module.exports = function(lib, dependencies) {
   }
 
   function sendMail(from, user, message, callback) {
-    var mail = dependencies('email');
-    var data = {
-      message: message.content,
-      firstname: user.firstname,
-      lastname: user.lastname
-    };
-    return mail.sendHTML(from, user.emails[0], 'New message', 'new-message-notification', data, callback);
+    if (!handlers[message.objectType]) {
+      return callback(new Error('No email handler for %s message', message.objectType));
+    }
+
+    return handlers[message.objectType].sendMessageAsEMail(from, user, message, callback);
   }
 
-  function notify(user, message, callback) {
+  function notify(user, message, data, callback) {
 
     if (!user) {
       return callback(new Error('User is required'));
@@ -96,13 +103,19 @@ module.exports = function(lib, dependencies) {
       return callback(new Error('Message is required'));
     }
 
-    lib.token.generateToken({
+    var tokenData = {
       user: user,
       message: {
         objectType: message.objectType,
         id: message._id
       }
-    }, function(err, token) {
+    };
+
+    if (data) {
+      tokenData.data = data;
+    }
+
+    lib.token.generateToken(tokenData, function(err, token) {
       if (err) {
         return callback(err);
       }
@@ -116,17 +129,19 @@ module.exports = function(lib, dependencies) {
     });
   }
 
-  function sendMessageAsEmails(message, users, callback) {
+  function sendMessageAsEmails(message, usersData, callback) {
     if (!message) {
       return callback(new Error('Message is required'));
     }
 
-    if (!users) {
+    if (!usersData) {
       return callback(new Error('Users are required'));
     }
 
-    async.forEach(users, function(user, callback) {
-      notify(user, message, function(err, sent) {
+    async.forEach(usersData, function(userData, callback) {
+      var user = userData.user;
+      var data = userData.data;
+      notify(user, message, data, function(err, sent) {
         if (err) {
           logger.info('Can not notify user %s: %s', user._id, err.message);
           return;
@@ -269,16 +284,16 @@ module.exports = function(lib, dependencies) {
               return;
             }
 
-            getUsers(recipients, function(err, users) {
+            getUsersData(recipients, function(err, usersData) {
               if (err) {
                 return logger.info('Can not get users %s', err.message);
               }
 
-              if (!users) {
-                return logger.info('Can not get users from recipients', recipients);
+              if (!usersData) {
+                return logger.info('Can not get users data from recipients', recipients);
               }
 
-              sendMessageAsEmails(message, users, function(err) {
+              sendMessageAsEmails(message, usersData, function(err) {
                 if (err) {
                   return logger.info('Can not send message as email %s', err.message);
                 }
