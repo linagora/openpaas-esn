@@ -37,13 +37,29 @@ angular.module('esn.collaboration', ['restangular'])
       return Restangular.one('collaborations').one(objectType, id).one('membership', member).put();
     }
 
+    function cancelRequestMembership(objectType, id, member) {
+      return Restangular.one('collaborations').one(objectType, id).one('membership', member).remove();
+    }
+
+    function join(objectType, id, member) {
+      return Restangular.one('collaborations').one(objectType, id).one('members', member).put();
+    }
+
+    function getRequestMemberships(objectType, id, options) {
+      var query = options || {};
+      return Restangular.one('collaborations').one(objectType, id).all('membership').getList(query);
+    }
+
     return {
       getMembers: getMembers,
       getMember: getMember,
       getWhereMember: getWhereMember,
       getExternalCompanies: getExternalCompanies,
       getInvitablePeople: getInvitablePeople,
-      requestMembership: requestMembership
+      requestMembership: requestMembership,
+      cancelRequestMembership: cancelRequestMembership,
+      join: join,
+      getRequestMemberships: getRequestMemberships
     };
   }])
   .controller('collaborationListController', ['$scope', 'domain', 'user', function($scope, domain, user) {
@@ -291,5 +307,97 @@ angular.module('esn.collaboration', ['restangular'])
           }
         }
       };
-    }]);
+    }])
+  .directive('collaborationMembershipRequestsWidget', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        objectType: '@',
+        collaboration: '='
+      },
+      templateUrl: '/views/modules/collaboration/collaboration-membership-requests-widget.html',
+      controller: function($scope) {
+
+        $scope.error = false;
+        $scope.loading = false;
+
+        $scope.updateRequests = function() {
+          $scope.loading = true;
+          $scope.error = false;
+          collaborationAPI.getRequestMemberships($scope.objectType, $scope.collaboration._id).then(function(response) {
+            $scope.requests = response.data || [];
+          }, function() {
+            $scope.error = true;
+          }).finally (function() {
+            $scope.loading = false;
+          });
+        };
+
+        $scope.updateRequests();
+
+        var removeRequestEntry = function(event, data) {
+          if (!data.collaboration || data.collaboration.id !== $scope.collaboration._id) {
+            return;
+          }
+          $scope.requests = $scope.requests.filter(function(request) {
+            return request.user._id !== data.user;
+          });
+        };
+
+        $rootScope.$on('collaboration:request:declined', removeRequestEntry);
+        $rootScope.$on('collaboration:request:accepted', removeRequestEntry);
+      }
+    };
+  }])
+  .directive('collaborationMembershipRequestsActions', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        objectType: '@',
+        collaboration: '=',
+        user: '='
+      },
+      templateUrl: '/views/modules/collaboration/collaboration-membership-requests-actions.html',
+      controller: function($scope) {
+
+        $scope.error = false;
+        $scope.sending = false;
+        $scope.done = false;
+
+        $scope.accept = function() {
+          $scope.sending = true;
+          $scope.error = false;
+          collaborationAPI.join($scope.objectType, $scope.collaboration._id, $scope.user._id).then(function() {
+            $scope.done = true;
+            $rootScope.$emit('collaboration:request:accepted', {
+              collaboration: {objectType: $scope.objectType, id: $scope.collaboration._id},
+              user: $scope.user._id
+            });
+          }, function() {
+            $scope.error = true;
+          }).finally (function() {
+            $scope.sending = false;
+          });
+        };
+
+        $scope.decline = function() {
+          $scope.sending = true;
+          $scope.error = false;
+          collaborationAPI.cancelRequestMembership($scope.objectType, $scope.collaboration._id, $scope.user._id).then(function() {
+            $scope.done = true;
+            $rootScope.$emit('collaboration:request:declined', {
+              collaboration: {objectType: $scope.objectType, id: $scope.collaboration._id},
+              user: $scope.user._id
+            });
+          }, function() {
+            $scope.error = true;
+          }).finally (function() {
+            $scope.sending = false;
+          });
+        };
+      }
+    };
+  }]);
 

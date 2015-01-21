@@ -469,6 +469,79 @@ function join(objectType, collaboration, userAuthor, userTarget, actor, callback
   });
 }
 
+module.exports.cleanMembershipRequest = function(collaboration, user, callback) {
+  if (!user) {
+    return callback(new Error('User author object is required'));
+  }
+
+  if (!collaboration) {
+    return callback(new Error('Community object is required'));
+  }
+
+  var userId = user._id || user;
+
+
+  var otherUserRequests = collaboration.membershipRequests.filter(function(request) {
+    var requestUserId = request.user._id || request.user;
+    return !requestUserId.equals(userId);
+  });
+
+  collaboration.membershipRequests = otherUserRequests;
+  collaboration.save(callback);
+};
+
+module.exports.cancelMembershipInvitation = function(objectType, collaboration, membership, manager, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:invitation:cancel').forward(globalpubsub, {
+      author: manager._id,
+      target: membership.user,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+module.exports.refuseMembershipRequest = function(objectType, collaboration, membership, manager, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:request:refuse').forward(globalpubsub, {
+      author: manager._id,
+      target: membership.user,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+module.exports.declineMembershipInvitation = function(objectType, collaboration, membership, user, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:invitation:decline').forward(globalpubsub, {
+      author: user._id,
+      target: collaboration._id,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+module.exports.cancelMembershipRequest = function(objectType, collaboration, membership, user, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:request:cancel').forward(globalpubsub, {
+      author: user._id,
+      target: collaboration._id,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
 module.exports.getModel = getModel;
 module.exports.getLib = getLib;
 module.exports.getManagers = getManagers;

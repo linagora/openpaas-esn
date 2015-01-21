@@ -4,8 +4,6 @@ var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var User = mongoose.model('User');
 var logger = require('../logger');
-var localpubsub = require('../pubsub').local;
-var globalpubsub = require('../pubsub').global;
 var permission = require('./permission');
 var async = require('async');
 var collaborationModule = require('../collaboration');
@@ -258,76 +256,23 @@ module.exports.getMembershipRequest = function(community, user) {
 };
 
 module.exports.cancelMembershipInvitation = function(community, membership, manager, onResponse) {
-  this.cleanMembershipRequest(community, membership.user, function(err) {
-    if (err) { return onResponse(err); }
-    localpubsub.topic('community:membership:invitation:cancel').forward(globalpubsub, {
-      author: manager._id,
-      target: membership.user,
-      membership: membership,
-      community: community._id
-    });
-    onResponse(err, community);
-  });
+  return collaborationModule.cancelMembershipInvitation(communityObjectType, community, membership, manager, onResponse);
 };
 
 module.exports.refuseMembershipRequest = function(community, membership, manager, onResponse) {
-  this.cleanMembershipRequest(community, membership.user, function(err) {
-    if (err) { return onResponse(err); }
-    localpubsub.topic('community:membership:request:refuse').forward(globalpubsub, {
-      author: manager._id,
-      target: membership.user,
-      membership: membership,
-      community: community._id
-    });
-    onResponse(err, community);
-  });
+  return collaborationModule.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
 };
 
 module.exports.declineMembershipInvitation = function(community, membership, user, onResponse) {
-  this.cleanMembershipRequest(community, membership.user, function(err) {
-    if (err) { return onResponse(err); }
-    localpubsub.topic('community:membership:invitation:decline').forward(globalpubsub, {
-      author: user._id,
-      target: community._id,
-      membership: membership,
-      community: community._id
-    });
-    onResponse(err, community);
-  });
+  return collaborationModule.declineMembershipInvitation(communityObjectType, community, membership, user, onResponse);
 };
 
 module.exports.cancelMembershipRequest = function(community, membership, user, onResponse) {
-  this.cleanMembershipRequest(community, membership.user, function(err) {
-    if (err) { return onResponse(err); }
-    localpubsub.topic('community:membership:request:cancel').forward(globalpubsub, {
-      author: user._id,
-      target: community._id,
-      membership: membership,
-      community: community._id
-    });
-    onResponse(err, community);
-  });
+  return collaborationModule.cancelMembershipRequest(communityObjectType, community, membership, user, onResponse);
 };
 
 module.exports.cleanMembershipRequest = function(community, user, callback) {
-  if (!user) {
-    return callback(new Error('User author object is required'));
-  }
-
-  if (!community) {
-    return callback(new Error('Community object is required'));
-  }
-
-  var userId = user._id || user;
-
-
-  var otherUserRequests = community.membershipRequests.filter(function(request) {
-    var requestUserId = request.user._id || request.user;
-    return !requestUserId.equals(userId);
-  });
-
-  community.membershipRequests = otherUserRequests;
-  community.save(callback);
+  return collaborationModule.cleanMembershipRequest(community, user, callback);
 };
 
 module.exports.search = require('./search');

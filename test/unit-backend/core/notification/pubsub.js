@@ -29,7 +29,7 @@ describe('The notification pubsub module', function() {
       var data = {
         author: '123',
         target: '456',
-        community: '789',
+        collaboration: {objectType: 'community', id: '789'},
         actor: 'manager'
       };
       var usernotificationMocked = {
@@ -54,7 +54,7 @@ describe('The notification pubsub module', function() {
           context: null,
           description: null,
           icon: {objectType: 'icon', id: 'fa-users'},
-          category: 'community:membership:accepted',
+          category: 'collaboration:membership:accepted',
           read: false,
           interactive: false,
           target: data.target
@@ -74,7 +74,7 @@ describe('The notification pubsub module', function() {
       var data = {
         author: '123',
         target: '456',
-        community: '789'
+        collaboration: {objectType: 'community', id: '789'}
       };
       var usernotificationMocked = {
         create: function(data, callback) {
@@ -98,7 +98,7 @@ describe('The notification pubsub module', function() {
           context: null,
           description: null,
           icon: {objectType: 'icon', id: 'fa-users'},
-          category: 'community:membership:invite',
+          category: 'collaboration:membership:invite',
           interactive: true,
           target: data.target
         });

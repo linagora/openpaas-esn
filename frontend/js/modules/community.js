@@ -638,7 +638,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       return objectTypeAdapter.adapt(collaboration);
     });
 
-    $scope.$on('community:membership', function(data) {
+    $scope.$on('collaboration:membership', function(data) {
       communityAPI.get($scope.community._id).then(function(response) {
         $scope.writable = response.data.writable;
       });

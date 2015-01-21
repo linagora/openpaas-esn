@@ -38,11 +38,11 @@ function augmentToMembershipAccepted(data, callback) {
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
-    complement: {objectType: 'community', id: id},
+    complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:membership:accepted',
+    category: 'collaboration:membership:accepted',
     read: false,
     interactive: false,
     target: data.target
@@ -51,10 +51,11 @@ function augmentToMembershipAccepted(data, callback) {
 }
 
 function augmentToCollaborationJoin(data, callback) {
+  var id = data.community || data.collaboration.id;
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_COMMUNITY_JOIN', text: 'has joined'},
-    complement: {objectType: data.collaboration.objectType, id: data.collaboration.id},
+    complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
@@ -95,14 +96,15 @@ function collaborationJoinHandler(data, callback) {
 module.exports.collaborationJoinHandler = collaborationJoinHandler;
 
 function augmentToMembershipInvite(data, callback) {
+  var id = data.community || data.collaboration.id;
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_MEMBERSHIP_INVITE', text: 'has invited you in'},
-    complement: {objectType: 'community', id: data.community},
+    complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:membership:invite',
+    category: 'collaboration:membership:invite',
     interactive: true,
     target: data.target
   };
@@ -128,14 +130,15 @@ function membershipAcceptedHandler(data, callback) {
 module.exports.membershipAcceptedHandler = membershipAcceptedHandler;
 
 function augmentToMembershipRefused(data, callback) {
+  var id = data.community || data.collaboration.id;
   var notification = {
     subject: {objectType: 'user', id: data.author},
     verb: {label: 'ESN_MEMBERSHIP_REFUSED', text: 'declined your request to join'},
-    complement: {objectType: 'community', id: data.community},
+    complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
     icon: {objectType: 'icon', id: 'fa-users'},
-    category: 'community:membership:refused',
+    category: 'collaboration:membership:refused',
     read: false,
     interactive: false,
     target: data.target
@@ -153,10 +156,11 @@ function membershipRequestRefuseHandler(data, callback) {
 module.exports.membershipRequestRefuseHandler = membershipRequestRefuseHandler;
 
 function membershipInvitationCancelHandler(data) {
+  var id = data.community || data.collaboration.id;
   var query = {
-    category: 'community:membership:invite',
-    'complement.objectType': 'community',
-    'complement.id': data.community,
+    category: 'collaboration:membership:invite',
+    'complement.objectType': data.collaboration.objectType,
+    'complement.id': id,
     target: data.target
   };
   usernotification.remove(query, function(err) {
@@ -204,9 +208,9 @@ function init() {
     return;
   }
   localpubsub.topic('collaboration:join').subscribe(collaborationJoinHandler);
-  localpubsub.topic('community:membership:invite').subscribe(membershipInviteHandler);
-  localpubsub.topic('community:membership:invitation:cancel').subscribe(membershipInvitationCancelHandler);
-  localpubsub.topic('community:membership:request:refuse').subscribe(membershipRequestRefuseHandler);
+  localpubsub.topic('collaboration:membership:invite').subscribe(membershipInviteHandler);
+  localpubsub.topic('collaboration:membership:invitation:cancel').subscribe(membershipInvitationCancelHandler);
+  localpubsub.topic('collaboration:membership:request:refuse').subscribe(membershipRequestRefuseHandler);
   localpubsub.topic('notification:external').subscribe(externalNotificationHandler);
   initialized = true;
 }
