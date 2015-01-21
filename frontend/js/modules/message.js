@@ -819,10 +819,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         payload.object.attachments = attachments;
       }
 
-      if (additionalData) {
-        payload.object.data = angular.copy(additionalData);
-      }
-
       return Restangular.all('messages').post(payload);
     }
 
@@ -834,6 +830,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       if (attachments && angular.isArray(attachments)) {
         payload.object.attachments = attachments;
+      }
+
+      if (additionalData) {
+        payload.object.data = angular.copy(additionalData);
       }
 
       return Restangular.all('messages').post(payload);
