@@ -494,6 +494,9 @@ describe('The messages controller', function() {
             }
           ]);
         },
+        filterReadableResponses: function(message, user, callback) {
+          return callback(null, message);
+        },
         permission: {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
@@ -542,6 +545,9 @@ describe('The messages controller', function() {
               }
             }
           ]);
+        },
+        filterReadableResponses: function(message, user, callback) {
+          return callback(null, message);
         },
         permission: {
           canRead: function(message, tuple, callback) {
@@ -641,6 +647,9 @@ describe('The messages controller', function() {
       var mock = {
         findByIds: function(ids, callback) {
           return callback(null, [{_id: 123}]);
+        },
+        filterReadableResponses: function(message, user, callback) {
+          return callback(null, message);
         },
         permission: {
           canRead: function(message, tuple, callback) {

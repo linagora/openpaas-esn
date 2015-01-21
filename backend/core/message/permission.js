@@ -57,6 +57,21 @@ module.exports.canRead = function(message, tuple, callback) {
 };
 
 /**
+ * User can read a response message if he is internal OR he has at least his company in the recipients field.
+ */
+module.exports.canReadResponse = function(response, tuple, callback) {
+  if (response.objectType !== 'organizational') {
+    return callback(null, true);
+  }
+
+  if (tuple.objectType !== 'user') {
+    return callback(null, true);
+  }
+
+  permissionHelpers.checkUserCompany(response.recipients, tuple.id, callback);
+};
+
+/**
  * User can reply to a message if he has at least write access to one of the communities the message has been shared to.
  */
 module.exports.canReply = function(message, user, callback) {

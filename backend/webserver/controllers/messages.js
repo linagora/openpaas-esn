@@ -103,10 +103,10 @@ function create(req, res) {
  * Get messages with its ids.
  *
  * @param {string[]} messageIds the messages ids to find
- * @param {object} tuple who want to read the messages. Object like {objectType: string, id: ObjectId}
+ * @param {User} user who want to read the messages.
  * @param {function} callback fn like callback(err, object) where object is {messages: [object], messagesNotFound: [object]}
  */
-function getMessages(messageIds, tuple, callback) {
+function getMessages(messageIds, user, callback) {
   messageModule.findByIds(messageIds, function(err, messagesFound) {
     if (err) {
       return callback(err);
@@ -126,14 +126,20 @@ function getMessages(messageIds, tuple, callback) {
     });
 
     async.concat(messagesFound, function(message, callback) {
-      messageModule.permission.canRead(message, tuple, function(err, readable) {
+      messageModule.permission.canRead(message, {objectType: 'user', id: user._id}, function(err, readable) {
         if (err) {
           return callback(null, [{ error: { code: 500, message: 'Server Error when checking the read permission', details: err.message}}]);
         }
         if (!readable) {
           return callback(null, [{ error: { code: 403, message: 'Forbidden', details: 'You do not have the permission to read message ' + message._id.toString()}}]);
         }
-        return callback(null, [message]);
+
+        messageModule.filterReadableResponses(message, user, function(err, messageFiltered) {
+          if (err) {
+            return callback(null, [{ error: { code: 500, message: 'Server Error when checking the read permission', details: err.message}}]);
+          }
+          return callback(null, [messageFiltered]);
+        });
       });
     }, function(err, messages) {
       return callback(err, {
@@ -154,7 +160,7 @@ function get(req, res) {
   }
   var messageIds = req.query.ids;
 
-  getMessages(messageIds, {objectType: 'user', id: req.user._id}, function(err, messagesObject) {
+  getMessages(messageIds, req.user, function(err, messagesObject) {
     if (err) {
       return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
     }
@@ -174,7 +180,7 @@ function getOne(req, res) {
 
   var id = req.param('id');
 
-  getMessages([id], {objectType: 'user', id: req.user._id}, function(err, messagesObject) {
+  getMessages([id], req.user, function(err, messagesObject) {
     if (err) {
       return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Cannot get message. ' + err.message}});
     }

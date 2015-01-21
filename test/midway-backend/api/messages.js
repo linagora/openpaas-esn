@@ -97,6 +97,21 @@ describe('The messages API', function() {
             objectType: 'activitystream',
             id: community.activity_stream.uuid
           }],
+          responses: [
+            new Organizational({
+              content: 'message 6 - response 1',
+              author: testuser._id
+            }),
+            new Organizational({
+              content: 'message 6 - response 2',
+              author: testuser._id,
+              recipients: [{objectType: 'company', id: 'linagora.com'}]
+            }),
+            new Organizational({
+              content: 'message 6 - response 3',
+              author: testuser._id
+            })
+          ],
           recipients: [{
             objectType: 'company',
             id: 'linagora.com'
@@ -701,11 +716,13 @@ describe('The messages API', function() {
       req.end(function(err, res) {
         expect(err).to.be.null;
         expect(res.body).to.be.an.array;
-        expect(res.body.length).to.equal(3);
+        expect(res.body).to.have.length(3);
         expect(res.body[0]._id.toString()).to.equal(message1._id.toString());
-        expect(res.body[1]._id.toString()).to.equal(message6._id.toString());
-        expect(res.body[2].error).to.be.an('object');
-        expect(res.body[2].error.code).to.equal(403);
+        expect(res.body[1].error).to.be.an('object');
+        expect(res.body[1].error.code).to.equal(403);
+        expect(res.body[2]._id.toString()).to.equal(message6._id.toString());
+        expect(res.body[2].responses).to.have.length(1);
+        expect(res.body[2].responses[0]._id.toString()).to.equal(message6.responses[1]._id.toString());
         done();
       });
     });

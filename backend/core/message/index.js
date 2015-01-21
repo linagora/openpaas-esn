@@ -255,8 +255,7 @@ function setAttachmentsReferences(message, callback) {
 function specificModelCheckForObjectType(objectType, messageModel, messageTargets, callback) {
   if (!objectType || !type[objectType] || !type[objectType].checkModel) {
     return callback();
-  }
-  else {
+  } else {
     return type[objectType].checkModel(messageModel, messageTargets, callback);
   }
 }
@@ -265,9 +264,17 @@ function typeSpecificReplyPermission(message, user, callback) {
   var objectType = message.objectType;
   if (!objectType || !type[objectType] || !type[objectType].checkReplyPermission) {
     return callback(null, true);
-  }
-  else {
+  } else {
     return type[objectType].checkReplyPermission(message, user, callback);
+  }
+}
+
+function filterReadableResponses(message, user, callback) {
+  var objectType = message.objectType;
+  if (!objectType || !type[objectType] || !type[objectType].filterReadableResponses) {
+    return callback(null, message);
+  } else {
+    return type[objectType].filterReadableResponses(message, user, callback);
   }
 }
 
@@ -283,5 +290,6 @@ module.exports = {
   findByIds: findByIds,
   setAttachmentsReferences: setAttachmentsReferences,
   specificModelCheckForObjectType: specificModelCheckForObjectType,
-  typeSpecificReplyPermission: typeSpecificReplyPermission
+  typeSpecificReplyPermission: typeSpecificReplyPermission,
+  filterReadableResponses: filterReadableResponses
 };
