@@ -49,7 +49,7 @@ module.exports = function(lib, dependencies) {
       return callback();
     }
 
-    var out = collaboration.members;
+    var out = [];
     var recipients = message.recipients || [];
 
     async.map(recipients, function(recipient, done) {
