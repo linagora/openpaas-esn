@@ -20,8 +20,13 @@ module.exports = function(lib, dependencies) {
     return callback(new Error('Not implemented'));
   }
 
-  function replyFromEMail(message, callback) {
-    return callback(new Error('Not implemented'));
+  function generateReplyMessage(user, message, data) {
+    return {
+      content: message.body.text,
+      author: user._id,
+      source: 'email',
+      attachments: message.attachments
+    };
   }
 
   function getUsersForMessage(collaboration, message, options, callback) {
@@ -41,7 +46,7 @@ module.exports = function(lib, dependencies) {
   return {
     sendMessageAsEMail: sendMessageAsEMail,
     sendResponseAsEmail: sendResponseAsEmail,
-    replyFromEMail: replyFromEMail,
+    generateReplyMessage: generateReplyMessage,
     getUsersForMessage: getUsersForMessage
   };
 };

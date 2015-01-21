@@ -23,10 +23,6 @@ module.exports = function(lib, dependencies) {
     return callback(new Error('Not implemented'));
   }
 
-  function replyFromEMail(message, callback) {
-    return callback(new Error('Not implemented'));
-  }
-
   function getUsers(domain, companyname, callback) {
     domainModule.getUsersList([domain], {limit: null, offset: 0}, function(err, users) {
       if (err) {
@@ -89,10 +85,20 @@ module.exports = function(lib, dependencies) {
     }, callback);
   }
 
+  function generateReplyMessage(user, message, data) {
+    return {
+      content: message.body.text,
+      author: user._id,
+      source: 'email',
+      attachments: message.attachments,
+      recipients: [data.recipient]
+    };
+  }
+
   return {
     sendMessageAsEMail: sendMessageAsEMail,
     sendResponseAsEmail: sendResponseAsEmail,
-    replyFromEMail: replyFromEMail,
+    generateReplyMessage: generateReplyMessage,
     getUsersForMessage: getUsersForMessage
   };
 };

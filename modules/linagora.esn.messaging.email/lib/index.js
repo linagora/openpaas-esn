@@ -51,7 +51,12 @@ module.exports = function(dependencies) {
       }
 
       var messageModule = dependencies('message');
-      return messageModule.permission.canReply(m, user, callback);
+      messageModule.permission.canReply(m, user, function(err, result) {
+        if (result) {
+          return messageModule.typeSpecificReplyPermission(m, user, callback);
+        }
+        return callback(null, false);
+      });
     });
   }
 
@@ -78,10 +83,18 @@ module.exports = function(dependencies) {
         return callback(new Error('Invalid user'));
       }
 
-      return callback(null, {
-        objectType: token.message.objectType,
-        _id: token.message.id
-      });
+      var response = {
+        message: {
+          objectType: token.message.objectType,
+          _id: token.message.id
+        }
+      };
+
+      if (token.data) {
+        response.data = token.data;
+      }
+
+      return callback(null, response);
     });
   }
 
@@ -89,9 +102,12 @@ module.exports = function(dependencies) {
     return mail(dependencies).parse(stream, author, callback);
   }
 
-  function reply(message, inReplyTo, user, callback) {
+  function reply(message, replyTo, user, callback) {
     var messageModule = dependencies('message');
     var helpersModule = dependencies('helpers');
+
+    var inReplyTo = replyTo.message;
+    var data = replyTo.data;
 
     var publishCommentActivity = function(parentMessage, childMessage) {
       helpersModule.message.publishCommentActivity(user, inReplyTo, parentMessage, childMessage);
@@ -101,16 +117,16 @@ module.exports = function(dependencies) {
       return callback(new Error('Missing inReplyTo'));
     }
 
-    var replyMessage = {
-      content: message.body.text,
-      author: user._id,
-      source: 'email',
-      attachments: message.attachments
-    };
+    var handler = handlers[inReplyTo.objectType];
+    if (!handler) {
+      return callback(new Error('Can not get mail handler for %s message', inReplyTo.objectType));
+    }
+
+    var replyMessage = handler.generateReplyMessage(user, message, data);
 
     var comment;
     try {
-      comment = messageModule.getInstance('whatsup', replyMessage);
+      comment = messageModule.getInstance(inReplyTo.objectType, replyMessage);
     } catch (e) {
       return callback(e);
     }
