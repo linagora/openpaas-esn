@@ -24,7 +24,7 @@ angular.module('esn.activitystream')
         }
       }
 
-      var socketIORoom = livenotification('/activitystreams', scope.activitystreamUuid)
+      var socketIORoom = livenotification('/activitystreams', scope.activitystream.activity_stream.uuid)
         .on('notification', liveNotificationHandler);
 
       scope.$on('$destroy', function() {
