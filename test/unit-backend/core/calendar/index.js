@@ -216,7 +216,12 @@ describe('The calendar core module', function() {
 
       eventMessageMock._object = {
         _id: '123123',
-        objectType: 'event'
+        objectType: 'event',
+        shares: [{
+          _id: '890890',
+          objectType: 'activitystream',
+          id: collaboration.activity_stream.uuid
+        }]
       };
 
       var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
