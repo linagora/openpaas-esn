@@ -9,6 +9,7 @@ module.exports = function(dependencies) {
   var emailTokenModel = require('../backend/db/models/email-recipient-token');
   var token = require('./token')(lib, dependencies);
   var sender = require('./sender')(lib, dependencies);
+  var handlers = require('./handlers')(lib, dependencies);
 
   function validateTo(to, callback) {
     if (!to) {
@@ -142,6 +143,7 @@ module.exports = function(dependencies) {
   lib.validateTo = validateTo;
   lib.emailTokenModel = emailTokenModel;
   lib.token = token;
+  lib.handlers = handlers;
   lib.sender = sender;
 
   return lib;
