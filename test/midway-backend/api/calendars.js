@@ -38,16 +38,16 @@ describe('The calendars API', function() {
     this.mongoose.disconnect(done);
   });
 
-  it('POST /api/calendars/:id/events should return 401 if not logged in', function(done) {
+  it('POST /api/calendars/:objectType/:id/events should return 401 if not logged in', function(done) {
     request(app)
-      .post('/api/calendars/' + community._id + '/events')
+      .post('/api/calendars/community/' + community._id + '/events')
       .expect(401).end(function(err, res) {
         expect(err).to.not.exist;
         done();
       });
   });
 
-  it('POST /api/calendars/:id/events should return 404 if calendar id is not a community id', function(done) {
+  it('POST /api/calendars/:objectType/:id/events should return 404 if calendar id is not a community id', function(done) {
     var ObjectId = require('bson').ObjectId;
     var id = new ObjectId();
 
@@ -55,7 +55,7 @@ describe('The calendars API', function() {
       if (err) {
         return done(err);
       }
-      var req = requestAsMember(request(app).post('/api/calendars/' + id + '/events'));
+      var req = requestAsMember(request(app).post('/api/calendars/community/' + id + '/events'));
       req.expect(404).end(function(err, res) {
         expect(err).to.not.exist;
         done();
@@ -63,16 +63,16 @@ describe('The calendars API', function() {
     });
   });
 
-  it('POST /api/calendars/:id/events should return 403 if the user have not write permission in the community', function(done) {
+  it('POST /api/calendars/:objectType/:id/events should return 403 if the user have not write permission in the community', function(done) {
     this.helpers.api.loginAsUser(app, user3.emails[0], password, function(err, requestAsMember) {
       if (err) {
         return done(err);
       }
-      var req = requestAsMember(request(app).post('/api/calendars/' + community._id + '/events'));
+      var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
       req.send({
-        event_id: '123',
+        event_id: '/path/to/uid.ics',
         type: 'created',
-        event: 'ICS'
+        event: 'BEGIN:VCALENDAR'
       });
       req.expect(403).end(function(err, res) {
         expect(err).to.not.exist;
@@ -81,12 +81,12 @@ describe('The calendars API', function() {
     });
   });
 
-  it('POST /api/calendars/:id/events should return 400 if type is not equal to "created"', function(done) {
+  it('POST /api/calendars/:objectType/:id/events should return 400 if type is not equal to "created"', function(done) {
     this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
       if (err) {
         return done(err);
       }
-      var req = requestAsMember(request(app).post('/api/calendars/' + community._id + '/events'));
+      var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
       req.send({
         event_id: '123',
         type: 'updated',
@@ -99,12 +99,12 @@ describe('The calendars API', function() {
     });
   });
 
-  it('POST /api/calendars/:id/events should return 201', function(done) {
+  it('POST /api/calendars/:objectType/:id/events should return 201', function(done) {
     this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
       if (err) {
         return done(err);
       }
-      var req = requestAsMember(request(app).post('/api/calendars/' + community._id + '/events'));
+      var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
       req.send({
         event_id: '123',
         type: 'created',
@@ -115,6 +115,7 @@ describe('The calendars API', function() {
         expect(res).to.exist;
         expect(res.body).to.exist;
         expect(res.body._id).to.exist;
+        expect(res.body.objectType).to.equal('event');
         done();
       });
     });

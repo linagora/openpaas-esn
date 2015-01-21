@@ -2,49 +2,32 @@
 
 var calendar = require('../../core/calendar');
 
-function createEvent(req, res) {
-  var user = req.user;
-  var community = req.community;
-
-  if (!user) {
+function dispatchEvent(req, res) {
+  if (!req.user) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
 
-  if (!community) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-  }
-
-  var calendarId = req.params.id;
-  if (!calendarId) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Calendar id is missing'}});
+  if (!req.collaboration) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Collaboration id is missing'}});
   }
 
   if (!req.body.event_id) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Event id is missing'}});
   }
 
-  if (req.body.type !== 'created') {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Only type created is implemented'}});
-  }
-
-  var objectToDispatch = {
-    user: user,
-    community: community,
+  calendar.dispatch({
+    user: req.user,
+    collaboration: req.collaboration,
     event: req.body
-  };
-
-  calendar.dispatch(objectToDispatch, function(err, result) {
+  }, function(err, result) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Event dispatch error', details: err}});
+      return res.json(400, { error: { code: 400, message: 'Event creation error', details: err.message }});
+    } else if (!result) {
+      return res.json(403, { error: { code: 403, message: 'Forbidden', details: 'You may not create the calendar event' }});
     }
-    if (!result) {
-      return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not create message'}});
-    }
-    if (result.type === 'created') {
-      return res.json(201, {_id: result.saved._id});
-    } else {
-      return res.json(200, result);
-    }
+
+    result = { _id: result._id, objectType: result.objectType };
+    return res.json(req.body.type === 'created' ? 201 : 200, result);
   });
 }
-module.exports.createEvent = createEvent;
+module.exports.dispatchEvent = dispatchEvent;

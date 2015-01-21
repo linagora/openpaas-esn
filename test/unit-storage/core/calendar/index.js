@@ -52,7 +52,7 @@ describe('The calendar core module', function() {
     it('should return false if the user does not have write permission', function(done) {
       var data = {
         user: user2,
-        community: community,
+        collaboration: community,
         event: {
           event_id: '1234567',
           type: 'created'
@@ -70,7 +70,7 @@ describe('The calendar core module', function() {
     it('should create a timeline entry in the community', function(done) {
       var data = {
         user: user,
-        community: community,
+        collaboration: community,
         event: {
           event_id: '1234567',
           type: 'created'
@@ -78,12 +78,11 @@ describe('The calendar core module', function() {
       };
 
       var calendar = require(this.testEnv.basePath + '/backend/core/calendar');
-      calendar.dispatch(data, function(err, saved) {
+      calendar.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
-        expect(saved).to.exist;
-        expect(saved.type).to.equal('created');
-        expect(saved.saved.eventId).to.equal('1234567');
-        expect(saved.saved.objectType).to.equal('event');
+        expect(result).to.exist;
+        expect(result._id).to.exist;
+        expect(result.objectType).to.equal('event');
         var timer = setInterval(function() {
           TimelineEntry.find(function(err, results) {
             expect(results).to.have.length(1);
@@ -98,7 +97,8 @@ describe('The calendar core module', function() {
     it('should create a timeline entry in the community with user id and community id', function(done) {
       var data = {
         user: user._id.toString(),
-        community: community._id.toString(),
+        collaboration: community._id.toString(),
+        objectType: 'community',
         event: {
           event_id: '1234567',
           type: 'created'
@@ -106,12 +106,11 @@ describe('The calendar core module', function() {
       };
 
       var calendar = require(this.testEnv.basePath + '/backend/core/calendar');
-      calendar.dispatch(data, function(err, saved) {
+      calendar.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
-        expect(saved).to.exist;
-        expect(saved.type).to.equal('created');
-        expect(saved.saved.eventId).to.equal('1234567');
-        expect(saved.saved.objectType).to.equal('event');
+        expect(result).to.exist;
+        expect(result._id).to.exist;
+        expect(result.objectType).to.equal('event');
         var timer = setInterval(function() {
           TimelineEntry.find(function(err, results) {
             expect(results).to.have.length(1);
