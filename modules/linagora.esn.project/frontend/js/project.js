@@ -4,6 +4,7 @@ angular.module('esn.project', [
   'restangular',
   'esn.avatar',
   'esn.session',
+  'esn.core',
   'esn.activitystreams-tracker',
   'angularFileUpload',
   'mgcrea.ngStrap.tooltip',
@@ -11,22 +12,13 @@ angular.module('esn.project', [
   'mgcrea.ngStrap.helpers.dateParser',
   'mgcrea.ngStrap.datepicker'
 ])
-  .config(function($routeProvider) {
+  .config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
 
     $routeProvider.when('/projects/:project_id', {
       templateUrl: '/projects/views/partials/project',
       controller: 'projectController',
       resolve: {
-        project: function(projectAPI, $route, $location) {
-          return projectAPI.get($route.current.params.project_id).then(
-            function(response) {
-              return response.data;
-            },
-            function(err) {
-              $location.path('/projects');
-            }
-          );
-        }
+        project: routeResolver.api('projectAPI', 'get', 'project_id', '/projects')
       }
     });
 
@@ -34,16 +26,11 @@ angular.module('esn.project', [
       templateUrl: '/projects/views/projects',
       controller: 'projectsController',
       resolve: {
-        domain: ['session', '$q', function(session, $q) {
-          return $q.when(session.domain);
-        }],
-        user: ['session', '$q', function(session, $q) {
-          return $q.when(session.user);
-        }]
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
       }
     });
-
-  })
+  }])
   .run(['projectAdapterService', 'objectTypeAdapter', function(projectAdapterService, objectTypeAdapter) {
     objectTypeAdapter.register('project', projectAdapterService);
   }]);

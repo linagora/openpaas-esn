@@ -91,4 +91,24 @@ angular.module('esn.core', [])
         });
       }
     };
+  })
+  .constant('routeResolver', {
+    session: function(type) {
+      return ['session', '$q', function(session, $q) {
+        return session.ready.then(function(session) {
+          return session[type];
+        });
+      }];
+    },
+
+    api: function(api, method, paramName, target) {
+      return [api, '$route', '$location', function(api, $route, $location) {
+        var routeId = $route.current.params[paramName || 'id'] || undefined;
+        return api[method || 'get'](routeId).then(function(response) {
+          return response.data;
+        }, function(err) {
+          $location.path(target || '/');
+        });
+      }];
+    }
   });
