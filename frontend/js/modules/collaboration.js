@@ -14,10 +14,15 @@ angular.module('esn.collaboration', ['restangular'])
       return Restangular.one('collaborations').one(objectType, id).one('members', member).get();
     }
 
+    function getExternalCompanies(objectType, id, options) {
+      return Restangular.one('collaborations').one(objectType, id).getList('externalcompanies', options);
+    }
+
     return {
       getMembers: getMembers,
       getMember: getMember,
-      getWhereMember: getWhereMember
+      getWhereMember: getWhereMember,
+      getExternalCompanies: getExternalCompanies
     };
   }])
   .controller('collaborationListController', ['$scope', 'domain', 'user', function($scope, domain, user) {
