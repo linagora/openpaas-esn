@@ -208,6 +208,12 @@ exports = module.exports = function(application) {
     collaborationMW.load,
     collaborationMW.canRead,
     collaborations.getMembers);
+  application.get('/api/collaborations/:objectType/:id/externalcompanies',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.canRead,
+    collaborations.getExternalCompanies
+  );
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

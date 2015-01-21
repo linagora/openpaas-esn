@@ -3,11 +3,14 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
+
 describe('getMembers fn', function() {
 
   beforeEach(function() {
     mockery.registerMock('../../core/collaboration/index', {});
     mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user', {});
+    mockery.registerMock('../../helpers/user', {});
   });
 
   it('should send back 500 if req.collaboration is undefined', function(done) {

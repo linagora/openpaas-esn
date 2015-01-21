@@ -76,13 +76,22 @@ module.exports.belongsToCompany = function(user, company, callback) {
   if (!user || !company) {
     return callback(new Error('User and company are required.'));
   }
-  var hasCompany = false;
-  user.emails.forEach(function(email) {
-    var parsedEmail = emailAddresses.parseOneAddress(email);
-    if (parsedEmail.domain === company) {
-      hasCompany = true;
-    }
+  var hasCompany = user.emails.some(function(email) {
+    var domain = emailAddresses.parseOneAddress(email).domain.toLowerCase();
+    var domainWithoutSuffix = domain.split('.')[0].toLowerCase();
+    return domain === company.toLowerCase() || domainWithoutSuffix === company.toLowerCase();
   });
   return callback(null, hasCompany);
+};
+
+module.exports.getCompanies = function(user, callback) {
+  if (!user) {
+    return callback(new Error('User is required.'));
+  }
+  var companies = user.emails.map(function(email) {
+    var parsedEmail = emailAddresses.parseOneAddress(email);
+    return parsedEmail.domain.split('.')[0];
+  });
+  return callback(null, companies);
 };
 
