@@ -2,7 +2,7 @@
 
 angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead'])
   .controller('messageEditionController', ['$scope', function($scope) {
-    var types = ['whatsup', 'event'];
+    var types = ['whatsup', 'event', 'organizational'];
     $scope.type = types[0];
     $scope.show = function(type) {
       if (types.indexOf(type) >= 0) {
