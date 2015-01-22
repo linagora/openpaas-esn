@@ -15,6 +15,7 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       this.id = vevent.getFirstPropertyValue('uid');
       this.title = vevent.getFirstPropertyValue('summary');
+      this.location = vevent.getFirstPropertyValue('location');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
       this.start = vevent.getFirstPropertyValue('dtstart').toJSDate();
       this.end = vevent.getFirstPropertyValue('dtend').toJSDate();

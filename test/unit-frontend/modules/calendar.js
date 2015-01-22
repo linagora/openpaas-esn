@@ -61,6 +61,7 @@ describe('The Calendar Angular module', function() {
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
               ['summary', {}, 'text', 'title'],
+              ['location', {}, 'text', 'location'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
             ], []]
@@ -75,6 +76,7 @@ describe('The Calendar Angular module', function() {
             expect(events.length).to.equal(1);
             expect(events[0].id).to.equal('myuid');
             expect(events[0].title).to.equal('title');
+            expect(events[0].location).to.equal('location');
             expect(events[0].start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
             expect(events[0].end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
             expect(events[0].vcalendar).to.be.an('object');
@@ -98,6 +100,7 @@ describe('The Calendar Angular module', function() {
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
               ['summary', {}, 'text', 'title'],
+              ['location', {}, 'text', 'location'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
               ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
@@ -113,6 +116,7 @@ describe('The Calendar Angular module', function() {
             expect(event).to.be.an('object');
             expect(event.id).to.equal('myuid');
             expect(event.title).to.equal('title');
+            expect(event.location).to.equal('location');
             expect(event.allDay).to.be.false;
             expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
             expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
@@ -344,6 +348,7 @@ describe('The Calendar Angular module', function() {
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
         vevent.addPropertyWithValue('summary', 'test event');
+        vevent.addPropertyWithValue('location', 'test location');
         vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(new Date()));
         vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(new Date()));
         var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
