@@ -8,6 +8,7 @@ var collaborationModule = require('../../core/collaboration');
 var collaborationPermission = require('../../core/collaboration/permission');
 var activityStreamHelper = require('../../core/activitystreams/helpers');
 var user = require('../../core/user');
+var messageHelpers = require('../../helpers/message');
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -27,16 +28,17 @@ function create(user, collaboration, event, callback) {
     if (err || !result) {
       return callback(err, result);
     }
+    var shares = [{
+      objectType: 'activitystream',
+      id: collaboration.activity_stream.uuid
+    }];
 
-    eventMessage.save({ eventId: event.event_id, author: user }, function(err, saved) {
+    eventMessage.save({ eventId: event.event_id, author: user, shares: shares }, function(err, saved) {
       if (err) {
         return callback(err);
       }
 
-      var targets = [{
-        objectType: 'activitystream',
-        _id: collaboration.activity_stream.uuid
-      }];
+      var targets = messageHelpers.messageSharesToTimelineTarget(saved.shares);
       var activity = activityStreamHelper.userMessageToTimelineEntry(saved, 'post', user, targets);
       localpubsub.topic('message:activity').publish(activity);
       globalpubsub.topic('message:activity').publish(activity);

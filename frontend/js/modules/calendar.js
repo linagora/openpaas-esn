@@ -319,7 +319,7 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
         return;
       }
 
-      if (!$scope.activitystreamUuid) {
+      if (!$scope.activitystream || !$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
         $scope.displayError('You can not post to an unknown stream');
         return;
       }
@@ -328,7 +328,7 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       var vcalendar = calendarService.shellToICAL(event);
       calendarService.create(path, vcalendar).then(function(response) {
         $rootScope.$emit('message:posted', {
-          activitystreamUuid: $scope.activitystreamUuid,
+          activitystreamUuid: $scope.activitystream.activity_stream.uuid,
           id: response.headers('ESN-Message-Id')
         });
         $scope.resetEvent();
