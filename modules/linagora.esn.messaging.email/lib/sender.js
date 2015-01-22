@@ -2,46 +2,10 @@
 
 var async = require('async');
 var DEFAULT_DOMAIN = 'localhost';
-var rules = [];
 
 module.exports = function(lib, dependencies) {
 
   var logger = dependencies('logger');
-
-  function addSenderRule(name, fn) {
-    if (!fn) {
-      return;
-    }
-    rules.push({
-      name: name,
-      active: true,
-      rule: fn
-    });
-  }
-
-  function getUsers(members, callback) {
-
-    var userModule = dependencies('user');
-
-    async.filter(members, function(member, callback) {
-      return callback(member.member.objectType === 'user');
-    }, function(members) {
-      var result = [];
-      async.forEach(members, function(member, callback) {
-        userModule.get(member.member.id, function(err, user) {
-          if (err) {
-            logger.info('Error while getting user', err);
-          }
-          if (user) {
-            result.push(user);
-          }
-          return callback();
-        });
-      }, function() {
-        return callback(null, result);
-      });
-    });
-  }
 
   function getSenderAddress(emailtoken, callback) {
     if (!emailtoken || !emailtoken.token) {
@@ -65,16 +29,16 @@ module.exports = function(lib, dependencies) {
   }
 
   function sendMail(from, user, message, callback) {
-    var mail = dependencies('email');
-    var data = {
-      message: message.content,
-      firstname: user.firstname,
-      lastname: user.lastname
-    };
-    return mail.sendHTML(from, user.emails[0], 'New message', 'new-message-notification', data, callback);
+    var handlers = lib.handlers;
+
+    if (!handlers[message.objectType]) {
+      return callback(new Error('No email handler for %s message', message.objectType));
+    }
+
+    return handlers[message.objectType].sendMessageAsEMail(from, user, message, callback);
   }
 
-  function notify(user, message, callback) {
+  function notify(user, message, data, callback) {
 
     if (!user) {
       return callback(new Error('User is required'));
@@ -84,13 +48,19 @@ module.exports = function(lib, dependencies) {
       return callback(new Error('Message is required'));
     }
 
-    lib.token.generateToken({
+    var tokenData = {
       user: user,
       message: {
         objectType: message.objectType,
         id: message._id
       }
-    }, function(err, token) {
+    };
+
+    if (data) {
+      tokenData.data = data;
+    }
+
+    lib.token.generateToken(tokenData, function(err, token) {
       if (err) {
         return callback(err);
       }
@@ -104,17 +74,20 @@ module.exports = function(lib, dependencies) {
     });
   }
 
-  function sendMessageAsEmails(message, users, callback) {
+  function sendMessageAsEmails(message, recipients, callback) {
     if (!message) {
       return callback(new Error('Message is required'));
     }
 
-    if (!users) {
-      return callback(new Error('Users are required'));
+    if (!recipients) {
+      return callback(new Error('Recipients are required'));
     }
 
-    async.forEach(users, function(user, callback) {
-      notify(user, message, function(err, sent) {
+    async.forEach(recipients, function(recipient, callback) {
+      var user = recipient.user;
+      var data = recipient.data;
+
+      notify(user, message, data, function(err, sent) {
         if (err) {
           logger.info('Can not notify user %s: %s', user._id, err.message);
           return;
@@ -132,14 +105,60 @@ module.exports = function(lib, dependencies) {
     });
   }
 
+  function getResolverConfig(name, callback) {
+    if (!name) {
+      return callback(new Error('Can not get config from undefined resolver name'));
+    }
+
+    var esnconfig = dependencies('esn-config');
+
+    esnconfig('mail').get('resolvers', function(err, data) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!data || !data[name]) {
+        return callback(null, {active: false});
+      }
+
+      return callback(null, data[name]);
+    });
+  }
+
+  function getMessageTargets(collaboration, message, callback) {
+    var handlers = lib.handlers;
+    var type = message.objectType;
+
+    var handler = handlers[type];
+    if (!handler) {
+      return callback(new Error('Can not any handler for %s message', type));
+    }
+
+    getResolverConfig(type, function(err, config) {
+      if (err) {
+        logger.debug('Error while getting resolver %s config: Error %e', type, err);
+        return callback();
+      }
+
+      if (!config || !config.active) {
+        logger.debug('Handler "%s" is not configured or not active', type);
+        return callback();
+      }
+
+      handler.getUsersForMessage(collaboration, message, config.options || {}, function(err, result) {
+        if (err) {
+          logger.info('Error while getting user data %e', err);
+        }
+
+        return callback(null, result);
+      });
+    });
+  }
+
   function listen() {
+
     var pubsub = dependencies('pubsub').local;
     pubsub.topic('message:activity').subscribe(function(activity) {
-
-      if (!rules || rules.length === 0) {
-        logger.debug('No rules to apply to message');
-        return;
-      }
 
       var messageModule = dependencies('message');
       var collaborationModule = dependencies('collaboration');
@@ -156,94 +175,41 @@ module.exports = function(lib, dependencies) {
           return;
         }
 
-        var recipients = [];
-
-        function addRecipients(members) {
-          if (!members || members.length === 0) {
-            return;
-          }
-
-          function equals(a, b) {
-            return a.member.id + '' === b.member.id + '' && a.member.objectType === b.member.objectType;
-          }
-
-          function isIn(array, element) {
-            for (var i = 0; i < array.length; i++) {
-              if (equals(array[i], element)) {
-                return true;
-              }
-            }
-            return false;
-          }
-
-          members.forEach(function(member) {
-            if (!isIn(recipients, member)) {
-              recipients.push(member);
-            }
-          });
-        }
-
-        function applyRules(collaboration, callback) {
-          async.forEach(rules, function(rule, done) {
-
-            if (!rule.active) {
-              logger.debug('Rule %s is not active', rule.name);
-              return done();
-            }
-
-            rule.rule(collaboration, message, function(err, members) {
-              if (err) {
-                logger.info('Error while applying the rule %s', err.message);
-              }
-
-              if (members && members.length > 0) {
-                addRecipients(members);
-              }
-              done();
-            });
-          }, callback);
-        }
-
-        async.forEach(activity.target, function(target, callback) {
+        async.concat(activity.target, function(target, callback) {
           collaborationModule.findCollaborationFromActivityStreamID(target._id, function(err, collaboration) {
             if (err) {
               logger.info('Error while loading collaboration %s', err.message);
             }
 
             if (!collaboration) {
-              logger.info('Can not get any collabotation');
+              logger.info('Can not get any collaboration');
             }
 
             if (!err && collaboration) {
-              applyRules(collaboration[0], function() {
-                return callback();
+              return getMessageTargets(collaboration[0], message, function(err, targets) {
+                return callback(null, targets);
               });
             } else {
-              return callback();
+              return callback(null, []);
             }
           });
-        }, function(err) {
+        }, function(err, recipients) {
 
           if (err) {
             logger.info('Error while applying rules %s', err.message);
             return;
           }
 
-          getUsers(recipients, function(err, users) {
+          if (!recipients || recipients.length === 0) {
+            logger.info('No recipients found for message');
+            return;
+          }
+
+          sendMessageAsEmails(message, recipients, function(err) {
             if (err) {
-              return logger.info('Can not get users %s', err.message);
+              return logger.info('Can not send message as email %s', err.message);
             }
-
-            if (!users) {
-              return logger.info('Can not get users from recipients', recipients);
-            }
-
-            sendMessageAsEmails(message, users, function(err) {
-              if (err) {
-                return logger.info('Can not send message as email %s', err.message);
-              }
-              logger.info('Message has been sent has email');
-            });
+            logger.info('Message has been sent has email');
           });
         });
       });
@@ -253,8 +219,7 @@ module.exports = function(lib, dependencies) {
   return {
     listen: listen,
     sendMail: sendMail,
-    notify: notify,
-    addSenderRule: addSenderRule
+    notify: notify
   };
 
 };

@@ -10,6 +10,7 @@ var EmailRecipientToken = new mongoose.Schema({
     objectType: {type: String, required: true, default: 'whatsup'},
     id: {type: Schema.Types.Mixed, required: true}
   },
+  data: {type: mongoose.Schema.Types.Mixed},
   token: {type: String},
   created: {type: Date, default: Date.now },
   schemaVersion: {type: Number, default: 1}

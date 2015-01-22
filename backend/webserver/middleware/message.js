@@ -52,7 +52,7 @@ module.exports.checkMessageModel = function(req, res, next) {
   }
   messageModule.specificModelCheckForObjectType(messageModel.objectType, messageModel, req.message_targets, function(err) {
     if (err) {
-      return res.json(400, {error: {code: 400, message: 'Bad Request', details: err.details}});
+      return res.json(400, {error: {code: 400, message: 'Bad Request', details: err.message}});
     }
     next();
   });

@@ -15,10 +15,10 @@ module.exports = function(dependencies, lib) {
   function replyMessageFromEmail(req, res) {
 
     var user = req.user;
-    var tuple = req.message;
+    var replyTo = req.replyTo;
 
-    if (!user || !tuple) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User or message tuple not found'}});
+    if (!user || !replyTo) {
+      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User or message data not found'}});
     }
 
     async.waterfall([
@@ -26,7 +26,7 @@ module.exports = function(dependencies, lib) {
         lib.parseMessage(req, user, callback);
       },
       function(message, callback) {
-        lib.reply(message, tuple, user, callback);
+        lib.reply(message, req.replyTo, user, callback);
       }
     ], function(err, result) {
       if (err) {
