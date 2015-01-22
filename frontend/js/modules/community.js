@@ -376,7 +376,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
 
     $scope.getAll();
   }])
-  .controller('communityMembersController', ['$scope', 'communityAPI', 'usSpinnerService', function($scope, communityAPI, usSpinnerService) {
+  .controller('communityMembersController', ['$scope', 'communityAPI', 'session', 'companyUserService', 'usSpinnerService',
+                                             function($scope, communityAPI, session, companyUserService, usSpinnerService) {
     var community_id = $scope.community._id;
     $scope.spinnerKey = 'membersSpinner';
 
@@ -386,12 +387,16 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
 
     $scope.total = 0;
+    $scope.domain = session.domain;
+    $scope.prettyCompany = companyUserService.prettyCompany(session.domain.company_name);
 
-    $scope.members = [];
+    $scope.externalMembers = {};
+    $scope.internalMembers = {};
     $scope.restActive = false;
     $scope.error = false;
+    $scope.offset = 0;
 
-    var updateMembersList = function() {
+    function updateMembersList() {
       $scope.error = false;
       if ($scope.restActive) {
         return;
@@ -399,9 +404,20 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         $scope.restActive = true;
         usSpinnerService.spin($scope.spinnerKey);
 
-        communityAPI.getMembers(community_id, opts).then(function(data) {
-          $scope.total = parseInt(data.headers('X-ESN-Items-Count'));
-          $scope.members = $scope.members.concat(data.data);
+        communityAPI.getMembers(community_id, opts).then(function(result) {
+          $scope.total = parseInt(result.headers('X-ESN-Items-Count'));
+          result.data.forEach(function(member) {
+            var user = member.user;
+            var company = companyUserService.getCompany(user.emails[0]);
+            var prettyCompany = companyUserService.prettyCompany(company);
+            if (companyUserService.isInternalUser(user.emails[0], session.domain.company_name)) {
+              $scope.internalMembers[user._id] = user;
+            } else {
+              $scope.externalMembers[prettyCompany] = $scope.externalMembers[prettyCompany] || {};
+              $scope.externalMembers[prettyCompany][user._id] = user;
+            }
+          });
+          $scope.offset += result.data.length;
         }, function() {
           $scope.error = true;
         }).finally (function() {
@@ -409,18 +425,19 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           usSpinnerService.stop($scope.spinnerKey);
         });
       }
-    };
+    }
 
     $scope.init = function() {
       updateMembersList();
     };
 
     $scope.loadMoreElements = function() {
-      if ($scope.members.length === 0 || $scope.members.length < $scope.total) {
-        opts.offset = $scope.members.length;
+      if ($scope.offset === 0 || $scope.offset < $scope.total) {
+        opts.offset = $scope.offset;
         updateMembersList();
       }
     };
+
 
     $scope.init();
   }])

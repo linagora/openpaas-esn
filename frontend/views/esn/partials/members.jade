@@ -10,6 +10,6 @@
           p #{__('Error while searching members')}.
     .members-infinite-list
       infinite-list
-        .row(ng-repeat="member in members")
+        .row.members-list-item(ng-repeat="member in members")
           member-display(member="member")
         .vertiz-space

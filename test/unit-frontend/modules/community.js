@@ -14,6 +14,12 @@ describe('The Community Angular module', function() {
       this.$q = $q;
       this.communityAPI = {};
       this.defer = this.$q.defer();
+      this.session = {
+        domain: {
+          _id: 123123,
+          company_name: 'example.com'
+        }
+      };
       this.communityAPI.getMembers = function(id, opts) {
         return self.defer.promise;
       };
@@ -29,7 +35,8 @@ describe('The Community Angular module', function() {
         $scope: this.scope,
         communityAPI: this.communityAPI,
         $routeParams: this.$routeParams,
-        usSpinnerService: this.usSpinnerService
+        usSpinnerService: this.usSpinnerService,
+        session: this.session
       });
 
     }));
@@ -41,9 +48,12 @@ describe('The Community Angular module', function() {
       });
 
       it('should call the api and update the members array', function(done) {
-        this.defer.resolve({data: [1, 2, 3], headers: function() { return 10;}});
+        var u1 = { user: { _id: 1, emails: ['a@example.com'] } };
+        var u2 = { user: { _id: 2, emails: ['b@example.com'] } };
+        var u3 = { user: { _id: 3, emails: ['c@example.com'] } };
+        this.defer.resolve({data: [u1, u2, u3], headers: function() { return 10;}});
         this.scope.$digest();
-        expect(this.scope.members.length).to.equal(3);
+        expect(Object.keys(this.scope.internalMembers).length).to.equal(3);
         expect(this.scope.total).to.equal(10);
         done();
       });
@@ -75,9 +85,9 @@ describe('The Community Angular module', function() {
         this.scope.restActive = true;
       });
 
-      it('should call the API when scope.members is empty', function(done) {
+      it('should call the API when scope.offet is 0', function(done) {
         this.scope.restActive = false;
-        this.scope.members = [];
+        this.scope.offset = 0;
         this.communityAPI.getMembers = function() {
           return done();
         };
@@ -87,7 +97,7 @@ describe('The Community Angular module', function() {
 
       it('should call the API when not all members are loaded', function(done) {
         this.scope.total = 10;
-        this.scope.members = [1, 2];
+        this.scope.offset = 2;
         this.scope.restActive = false;
         this.communityAPI.getMembers = function() {
           return done();
@@ -98,7 +108,7 @@ describe('The Community Angular module', function() {
 
       it('should call the API with valid offset', function(done) {
         this.scope.total = 10;
-        this.scope.members = [1, 2];
+        this.scope.offset = 2;
         this.scope.restActive = false;
         this.communityAPI.getMembers = function(id, options) {
           expect(options.offset).to.equal(2);
@@ -106,6 +116,21 @@ describe('The Community Angular module', function() {
         };
         this.scope.$digest();
         this.scope.loadMoreElements();
+      });
+
+      it('should split into internal and external members by domain', function() {
+        var u1 = { user: { _id: 'id1', emails: ['a@example.com'] } };
+        var u2 = { user: { _id: 'id2', emails: ['b@lng.net'] } };
+        var u3 = { user: { _id: 'id3', emails: ['c@linagora.com'] } };
+        this.defer.resolve({data: [u1, u2, u3], headers: function() { return 10;}});
+        this.scope.$digest();
+        expect(Object.keys(this.scope.internalMembers).length).to.equal(1);
+        expect(this.scope.internalMembers.id1).to.exist;
+        expect(Object.keys(this.scope.externalMembers).length).to.equal(2);
+        expect(Object.keys(this.scope.externalMembers.Lng).length).to.equal(1);
+        expect(this.scope.externalMembers.Lng.id2).to.exist;
+        expect(Object.keys(this.scope.externalMembers.Linagora).length).to.equal(1);
+        expect(this.scope.externalMembers.Linagora.id3).to.exist;
       });
     });
   });
