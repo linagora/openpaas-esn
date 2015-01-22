@@ -1,7 +1,7 @@
 div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
   form(name='whatsupform')
     .form-group(ng-class='{nopadding: rows !== 5}')
-      textarea.whatsup-input.form-control(ng-model='whatsupmessage', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+      textarea.whatsup-input.form-control(ng-model='messageContent', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
     .form-group
       map-get-display-current-position
     .form-group(ng-show='attachments && attachments.length > 0')

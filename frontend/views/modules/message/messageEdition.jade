@@ -4,9 +4,13 @@ div.esn-panel.message-panel.whatsup-form.form-container(ng-controller='messageEd
     li
       button.btn.btn-link(type='button', ng-click='show("whatsup")')
         i.fa.fa-pencil
+    li
+      button.btn.btn-link(type='button', ng-click='show("organizational")')
+        i.fa.fa-exchange
     li(ng-show='::calendarId')
       button.btn.btn-link(type='button', ng-click='show("event")')
         i.fa.fa-calendar
   div(data-ng-switch='type')
-    whatsup-edition(data-ng-switch-when='whatsup')
+    whatsup-edition(data-ng-switch-when='whatsup', type="type")
+    organizational-edition(data-ng-switch-when='organizational', type="type")
     event-edition(data-ng-switch-when='event')
