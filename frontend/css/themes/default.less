@@ -6,6 +6,7 @@
 @grey: #eff0f4;
 @middle-light-grey: #eeeff3;
 @light-grey: #f8f8f8;
+@very-light-grey: #f5f5f5;
 @middle-grey: #c0c0c0;
 @middle-dark-grey: #bfbfbf;
 @dark-grey: #5C5C5C;
@@ -187,6 +188,23 @@ a:focus {
 .message-date {
   color: @middle-dark-grey;
   padding-left: 1em;
+}
+
+.message-span-company {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.message-recipients-list {
+  display: inline;
+}
+
+.message-recipients-nav {
+  text-align: center;
+  li {
+    background-color: @very-light-grey;
+    min-width: 100px;
+  }
 }
 
 .message-source-email {
