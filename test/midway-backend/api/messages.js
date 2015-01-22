@@ -1272,4 +1272,52 @@ describe('The messages API', function() {
         });
     });
   });
+
+  it('should be able to post a private comment to an organizational message', function(done) {
+    var target = {
+      objectType: 'activitystream',
+      id: community.activity_stream.uuid
+    };
+
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).post('/api/messages'));
+      req.send({
+        object: {
+          data: {
+            recipients: [{objectType: 'company', id: 'linagora'}],
+            title: 'title',
+            visibility: 'private'
+          },
+          description: 'a new organizational message',
+          objectType: 'organizational'
+        },
+        targets: [target]
+      });
+      req.expect(201)
+        .end(function(err, res) {
+          var req = loggedInAsUser(request(app).post('/api/messages'));
+          req.send({
+            object: {
+              data: {
+                recipients: [{objectType: 'company', id: 'linagora'}]
+              },
+              description: 'a new comment to the previous whatsup message',
+              objectType: 'organizational'
+            },
+            inReplyTo: {
+              objectType: 'organizational',
+              _id: res.body._id
+            }
+          }).expect(201).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+            expect(res.body.parentId).to.exist;
+            done();
+          });
+        });
+    });
+  });
 });
