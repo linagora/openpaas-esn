@@ -54,8 +54,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           var recipients = scope.additionalData.recipients;
           if (!recipients || recipients.length === 0) {
             scope.validationError.recipients = 'At least one external company is required.';
-          }
-          else {
+          } else {
             delete scope.validationError.recipients;
           }
         });
@@ -243,8 +242,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
             if (newValues[0]) {
               $scope.additionalData.recipients = $scope.message.recipients;
               $scope.publishTarget = null;
-            }
-            else {
+            } else {
               $scope.additionalData.recipients = [{
                 objectType: 'company',
                 id: newValues[1]
@@ -497,14 +495,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         $scope.companySelected = '';
 
         $scope.selectCompany = function(company) {
-          if (!company) {
-            $scope.allSelected = true;
-            $scope.companySelected = '';
-          }
-          else {
-            $scope.allSelected = false;
-            $scope.companySelected = company;
-          }
+          $scope.allSelected = !company;
+          $scope.companySelected = company || '';
         };
 
         $scope.organizationalCommentFilter = function(comment) {
