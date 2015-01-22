@@ -45,21 +45,26 @@ angular.module('esn.collaboration', ['restangular'])
       return Restangular.one('collaborations').one(objectType, id).one('members', member).put();
     }
 
+    function leave(id, member) {
+      return Restangular.one('collaborations').one(objectType, id).one('members', member).remove();
+    }
+
     function getRequestMemberships(objectType, id, options) {
       var query = options || {};
       return Restangular.one('collaborations').one(objectType, id).all('membership').getList(query);
     }
 
     return {
+      getWhereMember: getWhereMember,
       getMembers: getMembers,
       getMember: getMember,
-      getWhereMember: getWhereMember,
       getExternalCompanies: getExternalCompanies,
-      getInvitablePeople: getInvitablePeople,
+      join: join,
+      leave: leave,
       requestMembership: requestMembership,
       cancelRequestMembership: cancelRequestMembership,
-      join: join,
-      getRequestMemberships: getRequestMemberships
+      getRequestMemberships: getRequestMemberships,
+      getInvitablePeople: getInvitablePeople
     };
   }])
   .controller('collaborationListController', ['$scope', 'domain', 'user', function($scope, domain, user) {
