@@ -26,7 +26,8 @@ var TimelineEntrySchema = new mongoose.Schema({
     objectType: {type: String},
     _id: {type: mongoose.Schema.ObjectId, required: true}
   }],
-  to: {type: [Tuple], validate: [tuple.validateTuples, 'Bad to tuple']}
+  to: {type: [Tuple], validate: [tuple.validateTuples, 'Bad to tuple']},
+  bto: {type: [Tuple], validate: [tuple.validateTuples, 'Bad to tuple']}
 }, {collection: 'timelineentries'});
 
 module.exports = mongoose.model('TimelineEntry', TimelineEntrySchema);
