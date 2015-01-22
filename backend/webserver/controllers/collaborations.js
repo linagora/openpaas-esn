@@ -398,3 +398,73 @@ function join(req, res) {
   }
 }
 module.exports.join = join;
+
+function leave(req, res) {
+  if (!ensureLoginCollaborationAndUserId(req, res)) {
+    return;
+  }
+  var collaboration = req.collaboration;
+  var user = req.user;
+  var targetUserId = req.params.user_id;
+
+  collaborationModule.leave(req.params.objectType, collaboration, user, targetUserId, function(err) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    return res.send(204);
+  });
+}
+module.exports.leave = leave;
+
+function removeMembershipRequest(req, res) {
+  if (!ensureLoginCollaborationAndUserId(req, res)) {
+    return;
+  }
+  if (!req.isCollaborationManager && !req.user._id.equals(req.params.user_id)) {
+    return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
+  }
+
+  if (!req.collaboration.membershipRequests || ! ('filter' in req.collaboration.membershipRequests)) {
+    return res.send(204);
+  }
+
+  var memberships = req.collaboration.membershipRequests.filter(function(mr) {
+    return mr.user.equals(req.params.user_id);
+  });
+
+  if (!memberships.length) {
+    return res.send(204);
+  }
+  var membership = memberships[0];
+
+  function onResponse(err, resp) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+    }
+    res.send(204);
+  }
+
+  /*
+   *      workflow   |   isCommunityManager   |  What does it mean ?
+   *      -----------------------------------------------------------
+   *      INVITATION |           yes          | manager cancel the invitation of the user
+   *      INVITATION |            no          | attendee declines the invitation
+   *      REQUEST    |           yes          | manager refuses the user's request to enter the community
+   *      REQUEST    |            no          | user cancels her request to enter the commity
+   */
+
+  if (req.isCollaborationManager) {
+    if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
+      collaborationModule.cancelMembershipInvitation(req.community, membership, req.user, onResponse);
+    } else {
+      collaborationModule.refuseMembershipRequest(req.community, membership, req.user, onResponse);
+    }
+  } else {
+    if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
+      collaborationModule.declineMembershipInvitation(req.community, membership, req.user, onResponse);
+    } else {
+      collaborationModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
+    }
+  }
+}
+module.exports.removeMembershipRequest = removeMembershipRequest;

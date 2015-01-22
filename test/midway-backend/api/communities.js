@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
 
-// TODO move this when /api/collaborations is done
+// TODO remove this when /api/collaborations is done
 describe.skip('The communities API', function() {
 
   var user;

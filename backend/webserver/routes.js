@@ -163,24 +163,6 @@ exports = module.exports = function(application) {
   application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
 
   application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
-  application.get('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.canRead, communities.getMembers);
-  application.put('/api/communities/:id/members/:user_id',
-    authorize.requiresAPILogin,
-    communities.load,
-    requestMW.castParamToObjectId('user_id'),
-    communityMiddleware.flagCommunityManager,
-    communities.join
-  );
-  application.delete('/api/communities/:id/members/:user_id',
-    authorize.requiresAPILogin,
-    communities.load,
-    requestMW.castParamToObjectId('user_id'),
-    communityMiddleware.checkUserIdParameterIsCurrentUser,
-    communityMiddleware.requiresCommunityMember,
-    communityMiddleware.canLeave,
-    communities.leave
-  );
-  application.delete('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.removeMembershipRequest);
 
   var collaborations = require('./controllers/collaborations');
   var collaborationMW = require('./middleware/collaboration');
@@ -203,6 +185,14 @@ exports = module.exports = function(application) {
     requestMW.castParamToObjectId('user_id'),
     collaborationMW.flagCollaborationManager,
     collaborations.join);
+  application.delete('/api/collaborations/:objectType/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    requestMW.castParamToObjectId('user_id'),
+    collaborationMW.checkUserIdParameterIsCurrentUser,
+    collaborationMW.requiresCollaborationMember,
+    collaborationMW.canLeave,
+    collaborations.leave);
   application.get('/api/collaborations/:objectType/:id/invitablepeople',
     authorize.requiresAPILogin,
     collaborationMW.load,
@@ -219,8 +209,12 @@ exports = module.exports = function(application) {
     collaborationMW.checkUserParamIsNotMember,
     collaborationMW.flagCollaborationManager,
     collaborationMW.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
-    collaborations.addMembershipRequest
-  );
+    collaborations.addMembershipRequest);
+  application.delete('/api/collaborations/:objectType/:id/membership/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.flagCollaborationManager,
+    collaborations.removeMembershipRequest);
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

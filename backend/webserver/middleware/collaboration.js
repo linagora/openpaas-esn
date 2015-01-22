@@ -26,7 +26,28 @@ function load(req, res, next) {
 }
 module.exports.load = load;
 
-function requiresCollaborationMember(req, res, next) {
+function canLeave(req, res, next) {
+  if (!req.collaboration) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing collaboration'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  if (!req.params || !req.params.user_id) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User_id is missing'}});
+  }
+
+  if (req.user._id.equals(req.collaboration.creator)) {
+    return res.json(403, {error: 403, message: 'Forbidden', details: 'Creator can not leave collaboration'});
+  }
+
+  return next();
+}
+module.exports.canLeave = canLeave;
+
+  function requiresCollaborationMember(req, res, next) {
   collaborationModule.isMember(req.collaboration, {objectType: 'user', id: req.user._id}, function(err, isMember) {
     if (err) {
       return res.json(500, {error: 500, message: 'Server error', details: 'Can not define the collaboration membership: ' + err.message});

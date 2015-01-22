@@ -9,13 +9,13 @@
       activity-stream(activitystream='community', writable='community.writable', streams='streams', calendar-id='community._id')
     .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane()
       .esn-panel
-        community-members-widget(community='community' in-slices-of='4')
+        collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
       .vertiz-space
       .esn-panel(ng-if='isCommunityManager()')
-        community-membership-requests-widget(community='community')
+        collaboration-membership-requests-widget(object-type="community", collaboration="community")
       .vertiz-space
       .esn-panel
-        community-invite-users(community="community")
+        collaboration-invite-users(object-type="community", collaboration="community")
       .vertiz-space
       .esn-panel
         injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")

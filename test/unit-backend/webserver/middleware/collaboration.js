@@ -565,3 +565,104 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     middleware(req, res, done);
   });
 });
+
+describe('the canLeave fn', function() {
+
+  beforeEach(function() {
+    this.helpers.mock.models({
+      Community: {}
+    });
+  });
+
+  it('should send back 400 when req.collaboration is not defined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var req = {
+      user: {},
+      params: {
+        user_id: {}
+      }
+    };
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+    middleware(req, res);
+  });
+
+  it('should send back 400 when req.user is not defined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var req = {
+      collaboration: {},
+      params: {
+        user_id: {}
+      }
+    };
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+    middleware(req, res);
+  });
+
+  it('should send back 400 when req.params.user_id is not defined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var req = {
+      user: {},
+      collaboration: {}
+    };
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+    middleware(req, res);
+  });
+
+  it('should send back 403 when user is the collaboration creator', function(done) {
+    var ObjectId = require('bson').ObjectId;
+    var id = new ObjectId();
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var req = {
+      collaboration: {creator: id},
+      user: {_id: id},
+      params: {
+        user_id: id
+      }
+    };
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(403);
+        done();
+      }
+    };
+    middleware(req, res);
+  });
+
+  it('should call next if user can leave collaboration', function(done) {
+    var ObjectId = require('bson').ObjectId;
+    mockery.registerMock('../../core/collaboration', {});
+    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var req = {
+      collaboration: {creator: new ObjectId()},
+      user: {_id: new ObjectId()},
+      params: {
+        user_id: new ObjectId()
+      }
+    };
+    var res = {
+      json: function() {
+        done(new Error());
+      }
+    };
+    middleware(req, res, done);
+  });
+});

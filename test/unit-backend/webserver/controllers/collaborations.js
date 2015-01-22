@@ -316,3 +316,394 @@ describe('The getMembershipRequests fn', function() {
     collaborations.getMembershipRequests(req, res);
   });
 });
+
+describe('The leave fn', function() {
+  beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user/domain', {});
+  });
+
+  it('should send back 400 if req.collaboration is undefined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    var req = {
+      user: {},
+      params: {
+        user_id: {},
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.leave(req, res);
+  });
+
+  it('should send back 400 if req.user is undefined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    var req = {
+      collaboration: {},
+      params: {
+        user_id: {},
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.leave(req, res);
+  });
+
+  it('should send back 400 if req.params.user_id is undefined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    var req = {
+      user: {},
+      collaboration: {},
+      params: {
+      objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.leave(req, res);
+  });
+
+  it('should send back 500 if collaboration module fails', function(done) {
+    mockery.registerMock('../../core/collaboration', {
+      leave: function(collaboration, user, userTarget, cb) {
+        return cb(new Error());
+      }
+    });
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(500);
+        done();
+      }
+    };
+
+    var req = {
+      collaboration: {},
+      user: {},
+      params: {
+        user_id: {},
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.leave(req, res);
+  });
+
+  it('should send back 204 if collaboration module succeed', function(done) {
+    mockery.registerMock('../../core/collaboration', {
+      leave: function(collaboration, user, userTarget, cb) {
+        return cb();
+      }
+    });
+
+    var res = {
+      send: function(code) {
+        expect(code).to.equal(204);
+        done();
+      }
+    };
+
+    var req = {
+      collaboration: {},
+      user: {},
+      params: {
+        user_id: {},
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.leave(req, res);
+  });
+});
+
+describe('removeMembershipRequest() method', function() {
+
+  beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user/domain', {});
+  });
+
+  it('should send back 400 if req.collaboration is undefined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    var req = {
+      user: {},
+      params: {
+        user_id: {},
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.removeMembershipRequest(req, res);
+  });
+
+  it('should send back 400 if req.user is undefined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    var req = {
+      collaboration: {},
+      params: {
+        user_id: {},
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.removeMembershipRequest(req, res);
+  });
+
+  it('should send back 400 if the user_id parameter is undefined', function(done) {
+    mockery.registerMock('../../core/collaboration', {});
+
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(400);
+        done();
+      }
+    };
+
+    var req = {
+      collaboration: {},
+      user: {},
+      params: {
+        objectType: 'community'
+      }
+    };
+
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.removeMembershipRequest(req, res);
+  });
+
+  describe('When current user is not collaboration manager', function() {
+
+    it('should send back 403 when req.params.user_id is not the current user id', function(done) {
+      mockery.registerMock('../../core/collaboration', {});
+
+      var res = {
+        json: function(code, err) {
+          expect(code).to.equal(403);
+          expect(err.error.details).to.match(/Current user is not the target user/);
+          done();
+        }
+      };
+
+      var req = {
+        collaboration: {_id: '1'},
+        user: {
+          _id: {
+            equals: function() {
+              return false;
+            }
+          }
+        },
+        params: {
+          user_id: '2',
+          objectType: 'community'
+        }
+      };
+
+      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      collaborations.removeMembershipRequest(req, res);
+    });
+
+    it('should send back 500 if collaborationModule#removeMembershipRequest fails', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        cancelMembershipRequest: function(collaboration, membership, user, onResponse) {
+          onResponse(new Error('collaboration module error'));
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        collaboration: {
+          _id: '1',
+          membershipRequests: [
+            {
+              user: {equals: function() {return true;}},
+              workflow: 'request'
+            }
+          ]
+        },
+        user: {
+          _id: {
+            equals: function() {
+              return true;
+            }
+          }
+        },
+        params: {
+          user_id: '2',
+          objectType: 'community'
+        }
+      };
+
+      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      collaborations.removeMembershipRequest(req, res);
+    });
+
+    it('should send 204 if collaborationModule#removeMembershipRequest succeeds', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        removeMembershipRequest: function(collaboration, user, target, workflow, actor, callback) {
+          callback(null, {});
+        }
+      });
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(204);
+          done();
+        }
+      };
+
+      var req = {
+        collaboration: {
+          _id: '1',
+          membershipRequests: [
+            {user: this.helpers.objectIdMock('anotherUserrequest')}
+          ]},
+        user: {
+          _id: {
+            equals: function() {
+              return true;
+            }
+          }
+        },
+        params: {
+          user_id: this.helpers.objectIdMock('2'),
+          objectType: 'community'
+        }
+      };
+
+      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      collaborations.removeMembershipRequest(req, res);
+    });
+  });
+
+  describe('when current user is collaboration manager', function() {
+
+    it('should send back 500 when refuseMembershipRequest fails', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        refuseMembershipRequest: function(collaboration, user, foo, callback) {
+          return callback(new Error());
+        }
+      });
+
+      var res = {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      };
+
+      var req = {
+        isCollaborationManager: true,
+        collaboration: {
+          _id: '1',
+          membershipRequests: [
+            {
+              user: {equals: function() {return true;}},
+              workflow: 'request'
+            }
+          ]
+        },
+        user: {
+          _id: {
+            equals: function() {
+              return false;
+            }
+          }
+        },
+        params: {
+          user_id: '2',
+          objectType: 'community'
+        }
+      };
+
+      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      collaborations.removeMembershipRequest(req, res);
+    });
+
+    it('should send back 204 when removeMembershipRequest is ok', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        removeMembershipRequest: function(collaboration, user, target, workflow, actor, callback) {
+          return callback();
+        }
+      });
+
+      var res = {
+        send: function(code) {
+          expect(code).to.equal(204);
+          done();
+        }
+      };
+
+      var req = {
+        isCollaborationManager: true,
+        collaboration: {_id: '1'},
+        user: {
+          _id: {
+            equals: function() {
+              return false;
+            }
+          }
+        },
+        params: {
+          user_id: '2',
+          objectType: 'community'
+        }
+      };
+
+      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      collaborations.removeMembershipRequest(req, res);
+    });
+  });
+});
