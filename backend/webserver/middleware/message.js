@@ -15,7 +15,7 @@ module.exports.canReplyTo = function(req, res, next) {
 
       messagePermission.canReply(message, req.user, function(err, result) {
         if (result) {
-          return messageModule.typeSpecificReplyPermission(message, req.user, function(err, canReply) {
+          return messageModule.typeSpecificReplyPermission(message, req.user, req.body.object, function(err, canReply) {
             if (err) {
               return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
             }
