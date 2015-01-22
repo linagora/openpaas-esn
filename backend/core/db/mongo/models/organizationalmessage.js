@@ -11,6 +11,7 @@ var specificSchema = {
     content: {type: String, required: true},
     recipients: {type: [Tuple], validate: [tuple.validateTuples, 'Bad recipient tuple']},
     title: {type: String, required: true},
+    visibility: {type: String, default: 'public'},
     position: {
         coords: {
             latitude: {type: Number, required: false},
