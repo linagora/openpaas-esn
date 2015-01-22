@@ -147,8 +147,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
-        var additionalData = $scope.additionalData ? $scope.additionalData : {};
-        messageAPI.post(objectType, data, targets, attachmentsModel, additionalData).then(
+        if ($scope.additionalData) {
+          data.data = angular.copy($scope.additionalData);
+        }
+        messageAPI.post(objectType, data, targets, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:posted', {
               activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -232,7 +234,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
   .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
     $scope.attachments = [];
     $scope.uploadService = null;
-    $scope.whatsupcomment = '';
+    $scope.commentContent = '';
     $scope.sending = false;
     $scope.rows = 1;
     $scope.position = {};
@@ -275,14 +277,14 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.whatsupcomment || $scope.whatsupcomment.trim().length === 0) {
+      if (!$scope.commentContent || $scope.commentContent.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
         return;
       }
 
-      var objectType = 'whatsup';
+      var objectType = $scope.message.objectType;
       var data = {
-        description: $scope.whatsupcomment
+        description: $scope.commentContent
       };
       var inReplyTo = {
         objectType: $scope.message.objectType,
@@ -310,6 +312,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
+        if ($scope.additionalData) {
+          data.data = angular.copy($scope.additionalData);
+        }
         messageAPI.addComment(objectType, data, inReplyTo, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:comment', {
@@ -326,7 +331,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       }
 
       function clean() {
-        $scope.whatsupcomment = '';
+        $scope.commentContent = '';
         $scope.shrink();
         $scope.attachments = [];
         $scope.uploadService = null;
@@ -359,7 +364,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
     };
 
     $scope.resetComment = function() {
-      $scope.whatsupcomment = '';
+      $scope.commentContent = '';
       $scope.rows = 1;
       $scope.removePosition();
       $q.all(messageAttachmentHelper.deleteAttachments($scope.attachments)).then(function() {
@@ -808,7 +813,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       return Restangular.all('messages').getList(options);
     }
 
-    function post(objectType, data, targets, attachments, additionalData) {
+    function post(objectType, data, targets, attachments) {
       var payload = {};
 
       payload.object = angular.copy(data);
@@ -830,10 +835,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       if (attachments && angular.isArray(attachments)) {
         payload.object.attachments = attachments;
-      }
-
-      if (additionalData) {
-        payload.object.data = angular.copy(additionalData);
       }
 
       return Restangular.all('messages').post(payload);

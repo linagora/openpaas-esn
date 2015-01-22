@@ -485,15 +485,15 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.commentContent = 'Hey Oh, let\'s go';
         this.scope.addComment();
       });
 
-      it('should not call the addComment API when $scope.whatsupcomment is empty', function(done) {
+      it('should not call the addComment API when $scope.commentContent is empty', function(done) {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupcomment = '';
+        this.scope.commentContent = '';
         this.scope.message = {
           _id: 123,
           objectType: 'whatsup'
@@ -501,11 +501,11 @@ describe('The esn.message Angular module', function() {
         this.scope.addComment();
       });
 
-      it('should not call the addComment API when $scope.whatsupcomment is null', function(done) {
+      it('should not call the addComment API when $scope.commentContent is null', function(done) {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupcomment = null;
+        this.scope.commentContent = null;
         this.scope.message = {
           _id: 123,
           objectType: 'whatsup'
@@ -513,11 +513,11 @@ describe('The esn.message Angular module', function() {
         this.scope.addComment();
       });
 
-      it('should not call the addComment API when $scope.whatsupcomment contains only spaces', function(done) {
+      it('should not call the addComment API when $scope.commentContent contains only spaces', function(done) {
         this.scope.displayError = function() {
           done();
         };
-        this.scope.whatsupcomment = '        ';
+        this.scope.commentContent = '        ';
         this.scope.message = {
           _id: 123,
           objectType: 'whatsup'
@@ -534,7 +534,7 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done(new Error());
         };
-        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.commentContent = 'Hey Oh, let\'s go';
         this.scope.message = {
           _id: 123,
           objectType: 'whatsup'
@@ -550,7 +550,7 @@ describe('The esn.message Angular module', function() {
         this.scope.displayError = function() {
           done(new Error());
         };
-        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.commentContent = 'Hey Oh, let\'s go';
         this.scope.message = {
           _id: 123,
           objectType: 'whatsup'
@@ -571,7 +571,7 @@ describe('The esn.message Angular module', function() {
         this.scope.position = {
           coords: coords
         };
-        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.commentContent = 'Hey Oh, let\'s go';
         this.scope.message = {
           _id: 123,
           objectType: 'whatsup'
@@ -592,7 +592,7 @@ describe('The esn.message Angular module', function() {
           _id: 123,
           objectType: 'whatsup'
         };
-        this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+        this.scope.commentContent = 'Hey Oh, let\'s go';
         this.scope.addComment();
       });
 
@@ -609,7 +609,7 @@ describe('The esn.message Angular module', function() {
           this.scope.displayError = function() {
             done(new Error('Should not call display error'));
           };
-          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.commentContent = 'Hey Oh, let\'s go';
           this.scope.message = {
             _id: 123,
             objectType: 'whatsup'
@@ -629,7 +629,7 @@ describe('The esn.message Angular module', function() {
           this.scope.displayError = function() {
             done(new Error('Should not call display error'));
           };
-          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.commentContent = 'Hey Oh, let\'s go';
           this.scope.message = {
             _id: 123,
             objectType: 'whatsup'
@@ -643,7 +643,7 @@ describe('The esn.message Angular module', function() {
           this.scope.$digest();
         });
 
-        it('should set scope.whatsupcomment to an empty string', function(done) {
+        it('should set scope.commentContent to an empty string', function(done) {
           var defer = this.$q.defer();
           defer.resolve({data: {_id: 1}});
           var scope = this.scope;
@@ -654,7 +654,7 @@ describe('The esn.message Angular module', function() {
           this.scope.displayError = function() {
             done(new Error('Should not call display error'));
           };
-          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.commentContent = 'Hey Oh, let\'s go';
           this.scope.message = {
             _id: 123,
             objectType: 'whatsup'
@@ -662,8 +662,8 @@ describe('The esn.message Angular module', function() {
           this.scope.addComment();
           this.scope.$digest();
           this.$q.when(defer.promise).then(function() {
-            expect(scope.whatsupcomment).to.be.a.string;
-            expect(scope.whatsupcomment).to.have.length(0);
+            expect(scope.commentContent).to.be.a.string;
+            expect(scope.commentContent).to.have.length(0);
             done();
           });
           this.scope.$digest();
@@ -682,7 +682,7 @@ describe('The esn.message Angular module', function() {
           this.scope.displayError = function() {
             done(new Error('Should not call display error'));
           };
-          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.commentContent = 'Hey Oh, let\'s go';
           this.scope.message = {
             _id: 123,
             objectType: 'whatsup'
@@ -707,7 +707,7 @@ describe('The esn.message Angular module', function() {
             expect(err).to.match(/You do not have enough rights to write a response here/);
             done();
           };
-          this.scope.whatsupcomment = 'Hey Oh, let\'s go';
+          this.scope.commentContent = 'Hey Oh, let\'s go';
           this.scope.message = {
             _id: 123,
             objectType: 'whatsup'
