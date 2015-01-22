@@ -106,7 +106,7 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+          tracker.updateLastTimelineEntryRead(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
             if (err) {
               return done(err);
             }
@@ -121,7 +121,7 @@ describe('the TimelineEntriesTracker module', function() {
                   return done(err);
                 }
 
-                tracker.getUnreadTimelineEntriesCount(userId, models3.activityStreamUuid, function(err, count) {
+                tracker.getUnreadTimelineEntriesCount(models.users[0]._id, models3.activityStreamUuid, function(err, count) {
                   expect(err).to.not.exist;
                   expect(count).to.exist;
                   expect(count).to.deep.equal(4);
@@ -151,7 +151,7 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
+          tracker.updateLastTimelineEntryRead(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
             if (err) {
               return done(err);
             }
@@ -166,7 +166,7 @@ describe('the TimelineEntriesTracker module', function() {
                   return done(err);
                 }
 
-                tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
+                tracker.getUnreadTimelineEntriesCount(models.users[0]._id, models2.activityStreamUuid, function(err, count) {
                   expect(err).to.not.exist;
                   expect(count).to.exist;
                   expect(count).to.deep.equal(2);
