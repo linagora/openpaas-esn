@@ -453,29 +453,33 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/templates/organizationalMessage.html',
-      link: function($scope, element, attrs) {
+      link: function($scope) {
         $scope.isInternalUser = companyUserService.isInternalUser(session.user.emails[0], session.domain.company_name);
         $scope.message.allResponses = $scope.message.responses;
         $scope.allSelected = true;
         $scope.companySelected = '';
 
-        $scope.getAllResponses = function() {
-          $scope.allSelected = true;
-          $scope.companySelected = '';
-          $scope.message.responses = $scope.message.allResponses;
+        $scope.selectCompany = function(company) {
+          if (!company) {
+            $scope.allSelected = true;
+            $scope.companySelected = '';
+          }
+          else {
+            $scope.allSelected = false;
+            $scope.companySelected = company;
+          }
         };
 
-        $scope.getResponses = function(company) {
-          $scope.allSelected = false;
-          $scope.companySelected = company;
-          $scope.message.responses = $scope.message.allResponses.filter(function(response) {
-            var recipients = response.recipients;
-            if (!recipients || recipients.length === 0) {
-              return $scope.allSelected;
-            }
-            return recipients.some(function(recipient) {
-              return recipient && recipient.id === company;
-            });
+        $scope.organizationalCommentFilter = function(comment) {
+          var recipients = comment.recipients;
+          if ($scope.allSelected) {
+            return true;
+          }
+          if (!recipients || recipients.length === 0) {
+            return false;
+          }
+          return recipients.some(function(recipient) {
+            return recipient && recipient.id === $scope.companySelected;
           });
         };
       }

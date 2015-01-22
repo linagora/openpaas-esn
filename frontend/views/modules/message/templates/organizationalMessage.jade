@@ -30,8 +30,8 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
     div(ng-if='parentMessage && isInternalUser')
       ul.nav.nav-pills.message-recipients-nav
         li(ng-class='{active: allSelected, disabled: loading}')
-          a(ng-click='getAllResponses()', href='') #{__('All')}
+          a(ng-click='selectCompany()', href='') #{__('All')}
         li(ng-repeat='companyTuple in message.recipients' ng-class='{active: companySelected === companyTuple.id, disabled: loading}')
-          a(ng-click='getResponses(companyTuple.id)', href='') {{::companyTuple.id}}
+          a(ng-click='selectCompany(companyTuple.id)', href='') {{::companyTuple.id}}
 
     include ./includes/comments.jade
