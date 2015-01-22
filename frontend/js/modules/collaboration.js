@@ -45,7 +45,7 @@ angular.module('esn.collaboration', ['restangular'])
       return Restangular.one('collaborations').one(objectType, id).one('members', member).put();
     }
 
-    function leave(id, member) {
+    function leave(objectType, id, member) {
       return Restangular.one('collaborations').one(objectType, id).one('members', member).remove();
     }
 

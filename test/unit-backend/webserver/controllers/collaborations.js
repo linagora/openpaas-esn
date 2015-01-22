@@ -159,7 +159,10 @@ describe('getMembers fn', function() {
 describe('The getMembershipRequests fn', function() {
 
   beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/index', {});
     mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user', {});
+    mockery.registerMock('../../helpers/user', {});
     mockery.registerMock('../../core/user/domain', {});
   });
 
@@ -319,7 +322,10 @@ describe('The getMembershipRequests fn', function() {
 
 describe('The leave fn', function() {
   beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/index', {});
     mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user', {});
+    mockery.registerMock('../../helpers/user', {});
     mockery.registerMock('../../core/user/domain', {});
   });
 
@@ -390,8 +396,8 @@ describe('The leave fn', function() {
   });
 
   it('should send back 500 if collaboration module fails', function(done) {
-    mockery.registerMock('../../core/collaboration', {
-      leave: function(collaboration, user, userTarget, cb) {
+    mockery.registerMock('../../core/collaboration/index', {
+      leave: function(objectType, collaboration, user, userTarget, cb) {
         return cb(new Error());
       }
     });
@@ -417,8 +423,8 @@ describe('The leave fn', function() {
   });
 
   it('should send back 204 if collaboration module succeed', function(done) {
-    mockery.registerMock('../../core/collaboration', {
-      leave: function(collaboration, user, userTarget, cb) {
+    mockery.registerMock('../../core/collaboration/index', {
+      leave: function(objectType, collaboration, user, userTarget, cb) {
         return cb();
       }
     });
@@ -447,12 +453,15 @@ describe('The leave fn', function() {
 describe('removeMembershipRequest() method', function() {
 
   beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/index', {});
     mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user', {});
+    mockery.registerMock('../../helpers/user', {});
     mockery.registerMock('../../core/user/domain', {});
   });
 
   it('should send back 400 if req.collaboration is undefined', function(done) {
-    mockery.registerMock('../../core/collaboration', {});
+    mockery.registerMock('../../core/collaboration/index', {});
 
     var res = {
       json: function(code) {
@@ -474,7 +483,7 @@ describe('removeMembershipRequest() method', function() {
   });
 
   it('should send back 400 if req.user is undefined', function(done) {
-    mockery.registerMock('../../core/collaboration', {});
+    mockery.registerMock('../../core/collaboration/index', {});
 
     var res = {
       json: function(code) {
@@ -496,7 +505,7 @@ describe('removeMembershipRequest() method', function() {
   });
 
   it('should send back 400 if the user_id parameter is undefined', function(done) {
-    mockery.registerMock('../../core/collaboration', {});
+    mockery.registerMock('../../core/collaboration/index', {});
 
     var res = {
       json: function(code) {
@@ -520,7 +529,7 @@ describe('removeMembershipRequest() method', function() {
   describe('When current user is not collaboration manager', function() {
 
     it('should send back 403 when req.params.user_id is not the current user id', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
+      mockery.registerMock('../../core/collaboration/index', {});
 
       var res = {
         json: function(code, err) {
@@ -550,8 +559,8 @@ describe('removeMembershipRequest() method', function() {
     });
 
     it('should send back 500 if collaborationModule#removeMembershipRequest fails', function(done) {
-      mockery.registerMock('../../core/collaboration', {
-        cancelMembershipRequest: function(collaboration, membership, user, onResponse) {
+      mockery.registerMock('../../core/collaboration/index', {
+        cancelMembershipRequest: function(objectType, collaboration, membership, user, onResponse) {
           onResponse(new Error('collaboration module error'));
         }
       });
@@ -591,8 +600,8 @@ describe('removeMembershipRequest() method', function() {
     });
 
     it('should send 204 if collaborationModule#removeMembershipRequest succeeds', function(done) {
-      mockery.registerMock('../../core/collaboration', {
-        removeMembershipRequest: function(collaboration, user, target, workflow, actor, callback) {
+      mockery.registerMock('../../core/collaboration/index', {
+        removeMembershipRequest: function(objectType, collaboration, user, target, workflow, actor, callback) {
           callback(null, {});
         }
       });
@@ -631,8 +640,8 @@ describe('removeMembershipRequest() method', function() {
   describe('when current user is collaboration manager', function() {
 
     it('should send back 500 when refuseMembershipRequest fails', function(done) {
-      mockery.registerMock('../../core/collaboration', {
-        refuseMembershipRequest: function(collaboration, user, foo, callback) {
+      mockery.registerMock('../../core/collaboration/index', {
+        refuseMembershipRequest: function(objectType, collaboration, user, foo, callback) {
           return callback(new Error());
         }
       });
@@ -673,8 +682,8 @@ describe('removeMembershipRequest() method', function() {
     });
 
     it('should send back 204 when removeMembershipRequest is ok', function(done) {
-      mockery.registerMock('../../core/collaboration', {
-        removeMembershipRequest: function(collaboration, user, target, workflow, actor, callback) {
+      mockery.registerMock('../../core/collaboration/index', {
+        removeMembershipRequest: function(objectType, collaboration, user, target, workflow, actor, callback) {
           return callback();
         }
       });

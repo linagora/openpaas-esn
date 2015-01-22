@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The Community Angular module', function() {
+describe.skip('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
   describe('The communityMembersController controller', function() {

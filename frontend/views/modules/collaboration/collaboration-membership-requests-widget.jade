@@ -14,11 +14,11 @@
       .vertiz-space
       .col-xs-12.nopadding
         .col-xs-3.nopadding
-          community-member-avatar(member="request", community="community")
+          collaboration-member-avatar(member="request", collaboration="collaboration")
         .col-xs-9.nopadding
           .col-xs-12.nopadding
             h5.media-heading.ellipsis
               user-profile-link(user="request.user")
           .col-xs-12.nopadding
             span
-              community-membership-requests-actions(user='request.user', community='community')
+              collaboration-membership-requests-actions(user='request.user', collaboration='collaboration', object-type="{{objectType}}")

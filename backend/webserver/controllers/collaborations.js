@@ -455,15 +455,15 @@ function removeMembershipRequest(req, res) {
 
   if (req.isCollaborationManager) {
     if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
-      collaborationModule.cancelMembershipInvitation(req.community, membership, req.user, onResponse);
+      collaborationModule.cancelMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     } else {
-      collaborationModule.refuseMembershipRequest(req.community, membership, req.user, onResponse);
+      collaborationModule.refuseMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     }
   } else {
-    if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
-      collaborationModule.declineMembershipInvitation(req.community, membership, req.user, onResponse);
+    if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
+      collaborationModule.declineMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     } else {
-      collaborationModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
+      collaborationModule.cancelMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     }
   }
 }

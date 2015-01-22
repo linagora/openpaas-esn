@@ -246,7 +246,7 @@ function addMember(target, author, member, callback) {
   }
 
   var isMemberOf = target.members.filter(function(m) {
-    return m.member.id === member.id && m.member.objectType === member.objectType;
+    return (m.member.id.equals ? m.member.id.equals(member.id) : m.member.id === member.id) && m.member.objectType === member.objectType;
   });
 
   if (isMemberOf.length) {

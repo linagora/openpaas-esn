@@ -161,7 +161,13 @@ exports = module.exports = function(application) {
   application.post('/api/communities', authorize.requiresAPILogin, communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);
   application.post('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
   application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
-
+  application.get('/api/communities/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    communities.load,
+    communityMiddleware.canRead,
+    requestMW.castParamToObjectId('user_id'),
+    communities.getMember
+  );
   application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
 
   var collaborations = require('./controllers/collaborations');
