@@ -94,6 +94,7 @@ describe('The messages API', function() {
 
         message6 = new Organizational({
           content: 'message 6',
+          title: 'Title',
           shares: [{
             objectType: 'activitystream',
             id: community.activity_stream.uuid
@@ -121,6 +122,7 @@ describe('The messages API', function() {
 
         message7 = new Organizational({
           content: 'message 7',
+          title: 'Title',
           shares: [{
             objectType: 'activitystream',
             id: community.activity_stream.uuid
