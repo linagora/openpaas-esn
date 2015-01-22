@@ -231,6 +231,43 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       });
     };
   }])
+  .directive('organizationalComment', function(companyUserService, session) {
+    return {
+      restrict: 'A',
+      link: function($scope) {
+        if (!$scope.additionalData) {
+          $scope.additionalData = {};
+        }
+        if ($scope.isInternalUser) {
+          $scope.$watchGroup(['allSelected', 'companySelected'], function(newValues) {
+            if (newValues[0]) {
+              $scope.additionalData.recipients = $scope.message.recipients;
+              $scope.publishTarget = null;
+            }
+            else {
+              $scope.additionalData.recipients = [{
+                objectType: 'company',
+                id: newValues[1]
+              }];
+              $scope.publishTarget = newValues[1];
+            }
+          });
+        }
+        else {
+          var userCompanyTuple = $scope.message.recipients.filter(function(recipient) {
+            return companyUserService.isInternalUser(session.user.emails[0], recipient.id);
+          });
+          $scope.additionalData.recipients = [userCompanyTuple[0]];
+        }
+
+        $scope.addPrivateComment = function(message) {
+          $scope.additionalData.visibility = 'private';
+          $scope.addComment(message);
+          delete $scope.additionalData.visibility;
+        };
+      }
+    };
+  })
   .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
     $scope.attachments = [];
     $scope.uploadService = null;
@@ -504,6 +541,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/organizational/organizationalEdition.html'
+    };
+  })
+  .directive('organizationalAddComment', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/organizational/organizationalAddComment.html'
     };
   })
   .directive('messagesDisplay', function() {

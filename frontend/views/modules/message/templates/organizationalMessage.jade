@@ -17,6 +17,9 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               span.message-span-company {{::companyTuple.id}}
         a.message-date(href="/#messages/{{::message._id}}/activitystreams/{{::activitystream.activity_stream.uuid}}")
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
+      small(ng-if='isInternalUser && message.visibility === "private"')
+        i.fa.fa-lock
+        span #{__('Private')}
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
       display-position(position='message.position')
       p.multilines
