@@ -25,6 +25,7 @@ function projectToStream(project) {
 function projectLib(dependencies) {
   var lib = {};
   var collaboration = dependencies('collaboration');
+  var community = dependencies('community');
 
   lib.models = createModels(dependencies);
 
@@ -73,16 +74,36 @@ function projectLib(dependencies) {
     }
 
     var params = {
-      members: { '$elemMatch': { 'member.objectType': 'user', 'member.id': userId } }
+      members: { '$elemMatch': { 'member.objectType': 'user', 'member.id': userId + '' } }
     };
-    if (options.domainid) {
-      params.domain_ids = options.domainid;
-    }
-    if (options.name) {
-      params.title = options.name;
-    }
 
-    return query(params, callback);
+    community.getUserCommunities(userId, {}, function(err, communities) {
+      var communityTuples = communities.map(function(community) {
+        return { 'member.objectType': 'community', 'member.id': community._id + '' };
+      });
+
+      if (communityTuples.length) {
+        var or = [];
+        communityTuples.forEach(function(communityTuple) {
+          or.push({
+            members: { '$elemMatch': communityTuple }
+          });
+        });
+        or.push(params);
+        params = {
+          $or: or
+        };
+      }
+
+      if (options.domainid) {
+        params.domain_ids = options.domainid;
+      }
+      if (options.name) {
+        params.title = options.name;
+      }
+
+      return query(params, callback);
+    });
   }
 
   function getStreamsForUser(userId, options, callback) {
