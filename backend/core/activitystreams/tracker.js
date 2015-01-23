@@ -2,7 +2,10 @@
 
 var logger = require('../logger');
 var mongoose = require('mongoose');
+var async = require('async');
 var TimelineEntriesTracker = mongoose.model('TimelineEntriesTracker');
+
+var LIMIT = 10;
 
 /**
  * Create a TimelineEntriesTracker
@@ -173,13 +176,25 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
 
       stream.on('close', function() {
         var count = 0;
-        for (var key in hash) {
-          if (hash.hasOwnProperty(key) && hash[key]) {
-            count++;
-          }
-        }
 
-        return callback(null, count);
+        async.eachLimit(Object.keys(hash), LIMIT, function(key, next) {
+          if (hash[key]) {
+            return activityStream.getTimelineEntry(key, function(err, entry) {
+              if (err || !entry) {
+                return next();
+              }
+              return activityStream.permission.canRead(entry, {objectType: 'user', id: userId}, function(err, result) {
+                if (result) {
+                  count++;
+                }
+                return next();
+              });
+            });
+          }
+          return next();
+        }, function() {
+          return callback(null, count);
+        });
       });
     });
   });

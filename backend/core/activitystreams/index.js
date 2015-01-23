@@ -6,6 +6,14 @@ var helpers = require('./helpers');
 var collaboration = require('../collaboration');
 var logger = require('../logger');
 
+function getTimelineEntry(id, callback) {
+  if (!id) {
+    return callback(new Error('Timeline entry ID is required'));
+  }
+  return TimelineEntry.findById(id).exec(callback);
+}
+module.exports.getTimelineEntry = getTimelineEntry;
+
 function getUserStreams(user, options, callback) {
   if (!user) {
     return callback(new Error('User is required'));
