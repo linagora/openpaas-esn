@@ -10,7 +10,7 @@ var async = require('async');
 
 function transform(collaboration, user, callback) {
   if (!collaboration) {
-    return {};
+    return callback({});
   }
 
   var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
@@ -468,3 +468,23 @@ function removeMembershipRequest(req, res) {
   }
 }
 module.exports.removeMembershipRequest = removeMembershipRequest;
+
+function getMember(req, res) {
+  var collaboration = req.collaboration;
+
+  if (!collaboration) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
+  }
+
+  collaborationModule.isMember(collaboration, {objectType: 'user', id: req.params.user_id}, function(err, result) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+    }
+
+    if (result) {
+      return res.json(200);
+    }
+    return res.send(404);
+  });
+}
+module.exports.getMember = getMember;

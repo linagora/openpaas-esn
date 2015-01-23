@@ -12,7 +12,7 @@ describe.skip('The Community Angular module', function() {
     beforeEach(angular.mock.inject(function($controller, $q, $rootScope) {
       var self = this;
       this.$q = $q;
-      this.communityAPI = {};
+      this.collaborationAPI = {};
       this.defer = this.$q.defer();
       this.session = {
         domain: {
@@ -20,7 +20,7 @@ describe.skip('The Community Angular module', function() {
           company_name: 'example.com'
         }
       };
-      this.communityAPI.getMembers = function(id, opts) {
+      this.collaborationAPI.getMembers = function(id, opts) {
         return self.defer.promise;
       };
       this.usSpinnerService = {};
@@ -33,7 +33,7 @@ describe.skip('The Community Angular module', function() {
 
       $controller('communityMembersController', {
         $scope: this.scope,
-        communityAPI: this.communityAPI,
+        collaborationAPI: this.collaborationAPI,
         $routeParams: this.$routeParams,
         usSpinnerService: this.usSpinnerService,
         session: this.session
@@ -71,7 +71,7 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should not call the community API', function(done) {
-          this.communityAPI.getMembers = function() {
+          this.collaborationAPI.getMembers = function() {
             return done(new Error());
           };
           this.scope.init();
@@ -88,7 +88,7 @@ describe.skip('The Community Angular module', function() {
       it('should call the API when scope.offet is 0', function(done) {
         this.scope.restActive = false;
         this.scope.offset = 0;
-        this.communityAPI.getMembers = function() {
+        this.collaborationAPI.getMembers = function() {
           return done();
         };
         this.scope.$digest();
@@ -99,7 +99,7 @@ describe.skip('The Community Angular module', function() {
         this.scope.total = 10;
         this.scope.offset = 2;
         this.scope.restActive = false;
-        this.communityAPI.getMembers = function() {
+        this.collaborationAPI.getMembers = function() {
           return done();
         };
         this.scope.$digest();
@@ -110,7 +110,7 @@ describe.skip('The Community Angular module', function() {
         this.scope.total = 10;
         this.scope.offset = 2;
         this.scope.restActive = false;
-        this.communityAPI.getMembers = function(id, options) {
+        this.collaborationAPI.getMembers = function(id, options) {
           expect(options.offset).to.equal(2);
           return done();
         };
@@ -381,7 +381,7 @@ describe.skip('The Community Angular module', function() {
     });
   });
 
-  describe.skip('communityCreateController controller', function() {
+  describe('communityCreateController controller', function() {
 
     var create;
 

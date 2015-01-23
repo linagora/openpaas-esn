@@ -52,10 +52,7 @@ function isManager(objectType, collaboration, user, callback) {
   }
 
   Model.findOne({_id: id, 'creator': user_id}, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, !!result);
+    return callback(err, !!result);
   });
 }
 
@@ -84,10 +81,7 @@ function getManagers(objectType, collaboration, query, callback) {
   // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
   q.populate('creator');
   q.exec(function(err, collaboration) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, collaboration ? [collaboration.creator] : []);
+    return callback(err, collaboration ? [collaboration.creator] : []);
   });
 }
 

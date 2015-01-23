@@ -281,9 +281,8 @@ angular.module('esn.collaboration', ['restangular'])
             $scope.running = true;
             $scope.showRunning();
 
-            var promises = [];
-            $scope.users.forEach(function(user) {
-              promises.push(collaborationAPI.requestMembership($scope.objectType, $scope.collaboration._id, user._id));
+            var promises = $scope.users.map(function(user) {
+              return collaborationAPI.requestMembership($scope.objectType, $scope.collaboration._id, user._id);
             });
 
             $q.all(promises).then(
