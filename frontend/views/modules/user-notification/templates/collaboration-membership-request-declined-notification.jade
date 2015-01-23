@@ -6,11 +6,11 @@
       i.fa.fa-cog.fa-spin
       | #{__('Loading notifications')}
   div(ng-hide='loading || error')
-    a.pull-left(ng-href='/#/communities/{{::community._id}}')
-      img.media-object(ng-src='/api/avatars?objectType=community&id={{::community._id}}', src='/images/community.png')
+    a.pull-left(ng-href='/#/collaborations/{{::collaboration.objectType}}/{{::collaboration._id}}')
+      img.media-object(ng-src='/api/avatars?objectType={{::collaboration.objectType}}&id={{::collaboration._id}}', src='/images/community.png')
     .media-body
       .notification-head.ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
-        a(ng-href="/#/communities/{{::community._id}}") {{::community.title}}
+        a(ng-href="/#/collaborations/{{::collaboration.objectType}}/{{::collaboration._id}}") {{::collaboration.title}}
       .notification-body
         span #{__('Your request to join the community has been declined')}...

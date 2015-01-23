@@ -161,25 +161,6 @@ exports = module.exports = function(application) {
   application.post('/api/communities', authorize.requiresAPILogin, communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);
   application.post('/api/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
   application.delete('/api/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
-
-  application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
-  application.get('/api/communities/:id/members', authorize.requiresAPILogin, communities.load, communityMiddleware.canRead, communities.getMembers);
-  application.put('/api/communities/:id/members/:user_id',
-    authorize.requiresAPILogin,
-    communities.load,
-    requestMW.castParamToObjectId('user_id'),
-    communityMiddleware.flagCommunityManager,
-    communities.join
-  );
-  application.delete('/api/communities/:id/members/:user_id',
-    authorize.requiresAPILogin,
-    communities.load,
-    requestMW.castParamToObjectId('user_id'),
-    communityMiddleware.checkUserIdParameterIsCurrentUser,
-    communityMiddleware.requiresCommunityMember,
-    communityMiddleware.canLeave,
-    communities.leave
-  );
   application.get('/api/communities/:id/members/:user_id',
     authorize.requiresAPILogin,
     communities.load,
@@ -187,22 +168,13 @@ exports = module.exports = function(application) {
     requestMW.castParamToObjectId('user_id'),
     communities.getMember
   );
-  application.get('/api/communities/:id/membership', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.getMembershipRequests);
-  application.delete('/api/communities/:id/membership/:user_id', authorize.requiresAPILogin, communities.load, communityMiddleware.flagCommunityManager, communities.removeMembershipRequest);
-  application.put('/api/communities/:id/membership/:user_id',
-    authorize.requiresAPILogin,
-    communities.load,
-    requestMW.castParamToObjectId('user_id'),
-    communityMiddleware.checkUserParamIsNotMember,
-    communityMiddleware.flagCommunityManager,
-    communityMiddleware.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser,
-    communities.addMembershipRequest
-  );
-  application.get('/api/communities/:id/invitablepeople', authorize.requiresAPILogin, communities.load, communities.getInvitablePeople);
+  application.get('/api/user/communities', authorize.requiresAPILogin, communities.getMine);
 
   var collaborations = require('./controllers/collaborations');
   var collaborationMW = require('./middleware/collaboration');
-  application.get('/api/collaborations/membersearch', authorize.requiresAPILogin, collaborations.searchWhereMember);
+  application.get('/api/collaborations/membersearch',
+    authorize.requiresAPILogin,
+    collaborations.searchWhereMember);
   application.get('/api/collaborations/:objectType/:id/members',
     authorize.requiresAPILogin,
     collaborationMW.load,
@@ -212,8 +184,50 @@ exports = module.exports = function(application) {
     authorize.requiresAPILogin,
     collaborationMW.load,
     collaborationMW.canRead,
-    collaborations.getExternalCompanies
+    collaborations.getExternalCompanies);
+  application.get('/api/collaborations/:objectType/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.canRead,
+    requestMW.castParamToObjectId('user_id'),
+    collaborations.getMember
   );
+  application.put('/api/collaborations/:objectType/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    requestMW.castParamToObjectId('user_id'),
+    collaborationMW.flagCollaborationManager,
+    collaborations.join);
+  application.delete('/api/collaborations/:objectType/:id/members/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    requestMW.castParamToObjectId('user_id'),
+    collaborationMW.checkUserIdParameterIsCurrentUser,
+    collaborationMW.requiresCollaborationMember,
+    collaborationMW.canLeave,
+    collaborations.leave);
+  application.get('/api/collaborations/:objectType/:id/invitablepeople',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborations.getInvitablePeople);
+  application.get('/api/collaborations/:objectType/:id/membership',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.flagCollaborationManager,
+    collaborations.getMembershipRequests);
+  application.put('/api/collaborations/:objectType/:id/membership/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    requestMW.castParamToObjectId('user_id'),
+    collaborationMW.checkUserParamIsNotMember,
+    collaborationMW.flagCollaborationManager,
+    collaborationMW.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
+    collaborations.addMembershipRequest);
+  application.delete('/api/collaborations/:objectType/:id/membership/:user_id',
+    authorize.requiresAPILogin,
+    collaborationMW.load,
+    collaborationMW.flagCollaborationManager,
+    collaborations.removeMembershipRequest);
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

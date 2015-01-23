@@ -3,8 +3,20 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var async = require('async');
+var permission = require('./permission');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
+
+var WORKFLOW_NOTIFICATIONS_TOPIC = {
+  request: 'collaboration:membership:request',
+  invitation: 'collaboration:membership:invite'
+};
+module.exports.WORKFLOW_NOTIFICATIONS_TOPIC = WORKFLOW_NOTIFICATIONS_TOPIC;
+
+var MEMBERSHIP_TYPE_REQUEST = 'request';
+var MEMBERSHIP_TYPE_INVITATION = 'invitation';
+module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
+module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
 
 var DEFAULT_LIMIT = 50;
 var DEFAULT_OFFSET = 0;
@@ -30,6 +42,20 @@ function getLib(objectType) {
   return collaborationLibs[objectType] || null;
 }
 
+function isManager(objectType, collaboration, user, callback) {
+  var id = collaboration._id || collaboration;
+  var user_id = user._id || user;
+
+  var Model = getModel(objectType);
+  if (!Model) {
+    return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
+  }
+
+  Model.findOne({_id: id, 'creator': user_id}, function(err, result) {
+    return callback(err, !!result);
+  });
+}
+
 function isMember(collaboration, tuple, callback) {
   if (!collaboration || !collaboration._id) {
     return callback(new Error('Collaboration object is required'));
@@ -39,6 +65,24 @@ function isMember(collaboration, tuple, callback) {
     return m.member.objectType === tuple.objectType && m.member.id + '' === tuple.id + '';
   });
   return callback(null, isInMembersArray);
+}
+
+function getManagers(objectType, collaboration, query, callback) {
+  var id = collaboration._id || collaboration;
+
+  var Model = getModel(objectType);
+  if (!Model) {
+    return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
+  }
+
+  var q = Model.findById(id);
+  // TODO Right now creator is the only manager. It will change in the futur.
+  // query = query ||  {};
+  // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
+  q.populate('creator');
+  q.exec(function(err, collaboration) {
+    return callback(err, collaboration ? [collaboration.creator] : []);
+  });
 }
 
 function getMembers(collaboration, objectType, query, callback) {
@@ -77,6 +121,82 @@ function getMembers(collaboration, objectType, query, callback) {
   });
 }
 
+function addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, callback) {
+  if (!userAuthor) {
+    return callback(new Error('Author user object is required'));
+  }
+  var userAuthorId = userAuthor._id || userAuthor;
+
+  if (!userTarget) {
+    return callback(new Error('Target user object is required'));
+  }
+  var userTargetId = userTarget._id || userTarget;
+
+  if (!collaboration) {
+    return callback(new Error('Collaboration object is required'));
+  }
+
+  if (!workflow) {
+    return callback(new Error('Workflow string is required'));
+  }
+
+  var topic = WORKFLOW_NOTIFICATIONS_TOPIC[workflow];
+  if (!topic) {
+    var errorMessage = 'Invalid workflow, must be ';
+    var isFirstLoop = true;
+    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
+      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
+        if (isFirstLoop) {
+          errorMessage += '"' + key + '"';
+          isFirstLoop = false;
+        } else {
+          errorMessage += ' or "' + key + '"';
+        }
+      }
+    }
+    return callback(new Error(errorMessage));
+  }
+
+  if (workflow !== 'invitation' && !permission.supportsMemberShipRequests(collaboration)) {
+    return callback(new Error('Only Restricted and Private collaborations allow membership requests.'));
+  }
+
+  isMember(collaboration, {objectType: 'user', id: userTargetId}, function(err, isMember) {
+    if (err) {
+      return callback(err);
+    }
+    if (isMember) {
+      return callback(new Error('User already member of the collaboration.'));
+    }
+
+    var previousRequests = collaboration.membershipRequests.filter(function(request) {
+      var requestUserId = request.user._id || request.user;
+      return requestUserId.equals(userTargetId);
+    });
+    if (previousRequests.length > 0) {
+      return callback(null, collaboration);
+    }
+
+    collaboration.membershipRequests.push({user: userTargetId, workflow: workflow});
+
+    collaboration.save(function(err, collaborationSaved) {
+      if (err) {
+        return callback(err);
+      }
+
+      localpubsub.topic(topic).forward(globalpubsub, {
+        author: userAuthorId,
+        target: userTargetId,
+        collaboration: {objectType: objectType, id: collaboration._id},
+        workflow: workflow,
+        actor: actor || 'user'
+      });
+
+      return callback(null, collaborationSaved);
+    });
+  });
+}
+
 function getMembershipRequests(objectType, objetId, query, callback) {
   query = query || {};
 
@@ -88,11 +208,11 @@ function getMembershipRequests(objectType, objetId, query, callback) {
   var q = Model.findById(objetId);
   q.slice('membershipRequests', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
   q.populate('membershipRequests.user');
-  q.exec(function(err, community) {
+  q.exec(function(err, collaboration) {
     if (err) {
       return callback(err);
     }
-    return callback(null, community ? community.membershipRequests : []);
+    return callback(null, collaboration ? collaboration.membershipRequests : []);
   });
 }
 
@@ -120,7 +240,7 @@ function addMember(target, author, member, callback) {
   }
 
   var isMemberOf = target.members.filter(function(m) {
-    return m.member.id.equals(member.id) && m.member.objectType === member.objectType;
+    return (m.member.id.equals ? m.member.id.equals(member.id) : m.member.id === member.id) && m.member.objectType === member.objectType;
   });
 
   if (isMemberOf.length) {
@@ -281,26 +401,177 @@ function getStreamsForUser(userId, options, callback) {
   });
 }
 
-function hasDomain(community) {
-  if (!community || !community.domain_ids) {
+function hasDomain(collaboration) {
+  if (!collaboration || !collaboration.domain_ids) {
     return false;
   }
 
-  return community.domain_ids.some(function(domainId) {
+  return collaboration.domain_ids.some(function(domainId) {
     return domainId + '' === domainId + '';
   });
 }
 
+function leave(objectType, collaboration, userAuthor, userTarget, callback) {
+  var id = collaboration._id || collaboration;
+  var userAuthor_id = userAuthor._id || userAuthor;
+  var userTarget_id = userTarget._id || userTarget;
+  var selection = { 'member.objectType': 'user', 'member.id': userTarget_id };
+  var Model = getModel(objectType);
+  Model.update(
+    {_id: id, members: {$elemMatch: selection} },
+    {$pull: {members: selection} },
+    function(err, updated) {
+      if (err) {
+        return callback(err);
+      }
+
+      localpubsub.topic('collaboration:leave').forward(globalpubsub, {
+        author: userAuthor_id,
+        target: userTarget_id,
+        collaboration: {objectType: objectType, id: id}
+      });
+
+      return callback(null, updated);
+    }
+  );
+}
+
+function join(objectType, collaboration, userAuthor, userTarget, actor, callback) {
+
+  var id = collaboration._id || collaboration;
+  var userAuthor_id = userAuthor._id || userAuthor;
+  var userTarget_id = userTarget._id || userTarget;
+
+  var member = {
+    objectType: 'user',
+    id: userTarget_id
+  };
+
+  addMember(collaboration, userAuthor, member, function(err, updated) {
+    if (err) {
+      return callback(err);
+    }
+
+    localpubsub.topic('collaboration:join').forward(globalpubsub, {
+      author: userAuthor_id,
+      target: userTarget_id,
+      actor: actor || 'user',
+      collaboration: {objectType: objectType, id: id}
+    });
+
+    return callback(null, updated);
+  });
+}
+
+module.exports.cleanMembershipRequest = function(collaboration, user, callback) {
+  if (!user) {
+    return callback(new Error('User author object is required'));
+  }
+
+  if (!collaboration) {
+    return callback(new Error('Community object is required'));
+  }
+
+  var userId = user._id || user;
+
+
+  var otherUserRequests = collaboration.membershipRequests.filter(function(request) {
+    var requestUserId = request.user._id || request.user;
+    return !requestUserId.equals(userId);
+  });
+
+  collaboration.membershipRequests = otherUserRequests;
+  collaboration.save(callback);
+};
+
+module.exports.cancelMembershipInvitation = function(objectType, collaboration, membership, manager, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:invitation:cancel').forward(globalpubsub, {
+      author: manager._id,
+      target: membership.user,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+module.exports.refuseMembershipRequest = function(objectType, collaboration, membership, manager, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:request:refuse').forward(globalpubsub, {
+      author: manager._id,
+      target: membership.user,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+module.exports.declineMembershipInvitation = function(objectType, collaboration, membership, user, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:invitation:decline').forward(globalpubsub, {
+      author: user._id,
+      target: collaboration._id,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+module.exports.cancelMembershipRequest = function(objectType, collaboration, membership, user, onResponse) {
+  this.cleanMembershipRequest(collaboration, membership.user, function(err) {
+    if (err) { return onResponse(err); }
+    localpubsub.topic('collaboration:membership:request:cancel').forward(globalpubsub, {
+      author: user._id,
+      target: collaboration._id,
+      membership: membership,
+      collaboration: {objectType: objectType, id: collaboration._id}
+    });
+    onResponse(err, collaboration);
+  });
+};
+
+function userToMember(document) {
+  var result = {};
+  if (!document || !document.member) {
+    return result;
+  }
+
+  if (typeof(document.member.toObject) === 'function') {
+    result.user = document.member.toObject();
+  } else {
+    result.user = document.member;
+  }
+
+  delete result.user.password;
+  delete result.user.avatars;
+  delete result.user.login;
+
+  result.metadata = {
+    timestamps: document.timestamps
+  };
+
+  return result;
+}
+
 module.exports.getModel = getModel;
 module.exports.getLib = getLib;
+module.exports.getManagers = getManagers;
 module.exports.getMembers = getMembers;
 module.exports.query = query;
 module.exports.queryOne = queryOne;
 module.exports.schemaBuilder = require('../db/mongo/models/base-collaboration');
 module.exports.registerCollaborationModel = registerCollaborationModel;
 module.exports.registerCollaborationLib = registerCollaborationLib;
+module.exports.addMembershipRequest = addMembershipRequest;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
+module.exports.isManager = isManager;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
 module.exports.getCollaborationsForTuple = getCollaborationsForTuple;
@@ -308,3 +579,6 @@ module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActi
 module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.permission = require('./permission');
 module.exports.hasDomain = hasDomain;
+module.exports.join = join;
+module.exports.leave = leave;
+module.exports.userToMember = userToMember;

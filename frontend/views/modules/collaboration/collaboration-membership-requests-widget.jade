@@ -1,0 +1,24 @@
+.community-membership-requests-widget
+  .title.ellipsis #{__('Membership requests')}
+  hr
+
+  .row.alert.alert-danger(ng-show="error", role="alert")
+    p #{__('Error while getting memberships')}.
+
+  .row(ng-show="loading")
+    i.fa.fa-cog.fa-spin
+    | #{__("Loading membership requests")}
+
+  .row(ng-show="requests && !error")
+    .row(ng-repeat="request in requests | filter: {workflow: 'request'}")
+      .vertiz-space
+      .col-xs-12.nopadding
+        .col-xs-3.nopadding
+          collaboration-member-avatar(member="request", collaboration="collaboration")
+        .col-xs-9.nopadding
+          .col-xs-12.nopadding
+            h5.media-heading.ellipsis
+              user-profile-link(user="request.user")
+          .col-xs-12.nopadding
+            span
+              collaboration-membership-requests-actions(user='request.user', collaboration='collaboration', object-type="{{objectType}}")

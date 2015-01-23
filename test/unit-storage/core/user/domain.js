@@ -604,7 +604,7 @@ describe('The user domain module', function() {
 
     describe('list users', function() {
       it('should return users in the two domains and not in the community', function(done) {
-        userDomain.getUsersList([domain, domain2], {not_in_community: community}, function(err, users) {
+        userDomain.getUsersList([domain, domain2], {not_in_collaboration: community}, function(err, users) {
           if (err) {
             return done(err);
           }
@@ -626,7 +626,7 @@ describe('The user domain module', function() {
             return done(err);
           }
           community.membershipRequests.push({user: user12._id});
-          userDomain.getUsersList([domain, domain2], {not_in_community: community}, function(err, users) {
+          userDomain.getUsersList([domain, domain2], {not_in_collaboration: community}, function(err, users) {
             if (err) {
               return done(err);
             }
@@ -645,7 +645,7 @@ describe('The user domain module', function() {
 
     describe('search users', function() {
       it('should return users in the two domains, not in the community and matching with search terms', function(done) {
-        userDomain.getUsersSearch([domain, domain2], {search: 'linagora', not_in_community: community}, function(err, users) {
+        userDomain.getUsersSearch([domain, domain2], {search: 'linagora', not_in_collaboration: community}, function(err, users) {
           if (err) {
             return done(err);
           }
@@ -666,7 +666,7 @@ describe('The user domain module', function() {
             return done(err);
           }
           community.membershipRequests.push({user: user4._id});
-          userDomain.getUsersSearch([domain, domain2], {search: 'linagora', not_in_community: community}, function(err, users) {
+          userDomain.getUsersSearch([domain, domain2], {search: 'linagora', not_in_collaboration: community}, function(err, users) {
             if (err) {
               return done(err);
             }

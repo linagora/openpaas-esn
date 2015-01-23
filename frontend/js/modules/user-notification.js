@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.user-notification',
-  ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core', 'esn.object-type', 'esn.session', 'esn.community'])
+  ['restangular', 'esn.paginate', 'esn.websocket', 'esn.core', 'esn.object-type', 'esn.session', 'esn.collaboration'])
   .constant('SCREEN_SM_MIN', 768)
   .constant('USER_NOTIFICATION_ITEM_HEIGHT', 75)
   .constant('MOBILE_BROWSER_URL_BAR', 56)
@@ -187,7 +187,7 @@ angular.module('esn.user-notification',
     $scope.loading = true;
     objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id)
       .then(function(result) {
-        $scope.community = result.data;
+        $scope.collaboration = result.data;
 
         userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
           function() {
@@ -295,17 +295,17 @@ angular.module('esn.user-notification',
       }
     };
   }])
-  .directive('communityMembershipInvitationNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
+  .directive('collaborationMembershipInvitationNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/community-membership-invitation-notification.html',
+      templateUrl: '/views/modules/user-notification/templates/collaboration-membership-invitation-notification.html',
       controller: function($scope) {
         var userResolver = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
-        var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
+        var collaborationResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
 
         this.actionDone = function(action) {
           $scope.notification.actionDone = action;
@@ -314,9 +314,10 @@ angular.module('esn.user-notification',
         $scope.invitedUser = session.user;
         $scope.error = false;
 
-        $q.all({user: userResolver, community: communityResolver}).then(function(result) {
+        $q.all({user: userResolver, collaboration: collaborationResolver}).then(function(result) {
           $scope.invitationSender = result.user.data;
-          $scope.invitationCommunity = result.community.data;
+          $scope.invitationCollaboration = result.collaboration.data;
+          $scope.invitationCollaboration.objectType = $scope.notification.complement.objectType;
         }, function() {
           $scope.error = true;
         }).finally (function() {
@@ -325,39 +326,39 @@ angular.module('esn.user-notification',
       }
     };
   }])
-  .directive('communityMembershipRequestAcceptedNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
+  .directive('collaborationMembershipRequestAcceptedNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/community-membership-request-accepted-notification.html',
+      templateUrl: '/views/modules/user-notification/templates/collaboration-membership-request-accepted-notification.html',
       controller: 'requestMembershipActionNotificationController'
     };
   }])
-  .directive('communityMembershipRequestDeclinedNotification', ['objectTypeResolver', function(objectTypeResolver) {
+  .directive('collaborationMembershipRequestDeclinedNotification', ['objectTypeResolver', function(objectTypeResolver) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/community-membership-request-declined-notification.html',
+      templateUrl: '/views/modules/user-notification/templates/collaboration-membership-request-declined-notification.html',
       controller: 'requestMembershipActionNotificationController'
     };
   }])
-  .directive('communityInvitationAcceptButton', ['communityAPI', 'userNotificationAPI',
-    function(communityAPI, userNotificationAPI) {
+  .directive('collaborationInvitationAcceptButton', ['collaborationAPI', 'userNotificationAPI',
+    function(collaborationAPI, userNotificationAPI) {
     return {
       restrict: 'E',
-      require: '^communityMembershipInvitationNotification',
-      templateUrl: '/views/modules/user-notification/community-invitation/community-invitation-accept-button.html',
+      require: '^collaborationMembershipInvitationNotification',
+      templateUrl: '/views/modules/user-notification/collaboration-invitation/collaboration-invitation-accept-button.html',
       link: function($scope, element, attrs, invitationController) {
         $scope.restActive = false;
         $scope.accept = function() {
           $scope.restActive = true;
-          communityAPI.join($scope.invitationCommunity._id, $scope.invitedUser._id).then(
+          collaborationAPI.join($scope.invitationCollaboration.objectType, $scope.invitationCollaboration._id, $scope.invitedUser._id).then(
             function() {
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
@@ -380,17 +381,17 @@ angular.module('esn.user-notification',
       }
     };
   }])
-  .directive('communityInvitationDeclineButton', ['communityAPI', 'session', 'userNotificationAPI',
-    function(communityAPI, session, userNotificationAPI) {
+  .directive('collaborationInvitationDeclineButton', ['collaborationAPI', 'session', 'userNotificationAPI',
+    function(collaborationAPI, session, userNotificationAPI) {
     return {
       restrict: 'E',
-      require: '^communityMembershipInvitationNotification',
-      templateUrl: '/views/modules/user-notification/community-invitation/community-invitation-decline-button.html',
+      require: '^collaborationMembershipInvitationNotification',
+      templateUrl: '/views/modules/user-notification/collaboration-invitation/collaboration-invitation-decline-button.html',
       link: function($scope, element, attrs, invitationController) {
         $scope.restActive = false;
         $scope.decline = function() {
           $scope.restActive = true;
-          communityAPI.cancelRequestMembership($scope.invitationCommunity._id, session.user._id).then(
+          collaborationAPI.cancelRequestMembership($scope.invitationCollaboration.objectType, $scope.invitationCollaboration._id, session.user._id).then(
             function() {
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
@@ -413,23 +414,24 @@ angular.module('esn.user-notification',
       }
     };
   }])
-  .directive('communityJoinNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
+  .directive('collaborationJoinNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/community-join.html',
+      templateUrl: '/views/modules/user-notification/templates/collaboration-join.html',
       controller: function($scope) {
         var userResolver = objectTypeResolver.resolve($scope.notification.subject.objectType, $scope.notification.subject.id);
-        var communityResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
+        var collaborationResolver = objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id);
 
         $scope.error = false;
 
-        $q.all({user: userResolver, community: communityResolver}).then(function(result) {
+        $q.all({user: userResolver, collaboration: collaborationResolver}).then(function(result) {
           $scope.joiner = result.user.data;
-          $scope.communityJoined = result.community.data;
+          $scope.collaborationJoined = result.collaboration.data;
+          $scope.collaborationJoined.objectType = $scope.notification.complement.objectType;
           userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
             function() {
               $scope.notification.acknowledged = true;

@@ -20,6 +20,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/notifications', initMock());
     mockery.registerMock('./notification/usernotifications', initMock());
     mockery.registerMock('./notification/community', initMock());
+    mockery.registerMock('./notification/collaboration', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
@@ -30,6 +31,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/notifications', initMock());
     mockery.registerMock('./notification/usernotifications', initMock());
     mockery.registerMock('./notification/community', initMock());
+    mockery.registerMock('./notification/collaboration', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
@@ -41,6 +43,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/notifications', initMock(done));
     mockery.registerMock('./notification/usernotifications', initMock());
     mockery.registerMock('./notification/community', initMock());
+    mockery.registerMock('./notification/collaboration', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
@@ -51,6 +54,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/notifications', initMock());
     mockery.registerMock('./notification/usernotifications', initMock(done));
     mockery.registerMock('./notification/community', initMock());
+    mockery.registerMock('./notification/collaboration', initMock());
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
@@ -60,9 +64,20 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/conferences', initMock());
     mockery.registerMock('./notification/notifications', initMock());
     mockery.registerMock('./notification/usernotifications', initMock());
+    mockery.registerMock('./notification/collaboration', initMock());
     mockery.registerMock('./notification/community', initMock(done));
 
     require(this.testEnv.basePath + '/backend/wsserver/events')(io);
   });
 
+  it('should initialize the collaboration event', function(done) {
+    mockery.registerMock('./notification/activitystreams', initMock());
+    mockery.registerMock('./notification/conferences', initMock());
+    mockery.registerMock('./notification/notifications', initMock());
+    mockery.registerMock('./notification/usernotifications', initMock());
+    mockery.registerMock('./notification/community', initMock());
+    mockery.registerMock('./notification/collaboration', initMock(done));
+
+    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+  });
 });

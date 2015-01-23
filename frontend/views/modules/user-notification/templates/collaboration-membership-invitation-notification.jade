@@ -6,20 +6,20 @@
       i.fa.fa-cog.fa-spin
       | #{__('Loading notifications')}
   div(ng-hide='loading || error')
-    a.pull-left(ng-href='/#/communities/{{::invitationCommunity._id}}')
-      img.media-object(ng-src='/api/avatars?objectType=community&id={{::invitationCommunity._id}}', src='/images/community.png')
+    a.pull-left(ng-href='/#/collaborations/{{::invitationCollaboration.objectType}}/{{::invitationCollaboration._id}}')
+      img.media-object(ng-src='/api/avatars?objectType={{::invitationCollaboration.objectType}}&id={{::invitationCollaboration._id}}', src='/images/community.png')
     .media-body
       .notification-head.ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
-        a(ng-href="/#/communities/{{::invitationCommunity._id}}") {{::invitationCommunity.title}}
+        a(ng-href="/#/collaborations/{{::invitationCollaboration.objectType}}/{{::invitationCollaboration._id}}") {{::invitationCollaboration.title}}
       .notification-body
         span
           a(ng-href="/#/profile/{{::invitationSender._id}}") {{::invitationSender.firstname}} {{::invitationSender.lastname}}
           | &nbsp;#{__('invites you to join this community')}
       div(ng-switch='notification.actionDone')
         .notification-actions(ng-switch-default)
-          community-invitation-accept-button
+          collaboration-invitation-accept-button
           &nbsp;
-          community-invitation-decline-button
+          collaboration-invitation-decline-button
         .notification-actions(ng-switch-when='accept') #{__('You have been added to the community, welcome')} !
         .notification-actions(ng-switch-when='decline') #{__('You have declined the invitation')}

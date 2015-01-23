@@ -129,7 +129,6 @@ function requiresCommunityMember(req, res, next) {
     return next();
   });
 }
-
 module.exports.requiresCommunityMember = requiresCommunityMember;
 
 module.exports.checkUserParamIsNotMember = function(req, res, next) {
@@ -182,14 +181,6 @@ module.exports.checkUserIdParameterIsCurrentUser = function(req, res, next) {
     return res.json(400, {error: 400, message: 'Bad request', details: 'Parameters do not match'});
   }
   return next();
-};
-
-module.exports.ifNotCommunityManagerCheckUserIdParameterIsCurrentUser = function(req, res, next) {
-  if (req.isCommunityManager) {
-    return next();
-  }
-
-  module.exports.checkUserIdParameterIsCurrentUser(req, res, next);
 };
 
 module.exports.canRead = function(req, res, next) {

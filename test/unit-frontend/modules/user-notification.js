@@ -325,10 +325,10 @@ describe('The esn.user-notification Angular module', function() {
     });
   });
 
-  describe('communityMembershipInvitationNotification directive', function() {
+  describe('collaborationMembershipInvitationNotification directive', function() {
 
     beforeEach(function() {
-      var communityAPI = {
+      var collaborationAPI = {
         get: function() {},
         join: function() {}
       };
@@ -342,23 +342,23 @@ describe('The esn.user-notification Angular module', function() {
         register: function() {}
       };
 
-      angular.mock.module('esn.community');
+      angular.mock.module('esn.collaboration');
       angular.mock.module('esn.user');
       angular.mock.module('esn.object-type');
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', communityAPI);
+        $provide.value('collaborationAPI', collaborationAPI);
         $provide.value('userAPI', userAPI);
         $provide.value('objectTypeResolver', objectTypeResolver);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, objectTypeResolver, userAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, collaborationAPI, userNotificationAPI, objectTypeResolver, userAPI) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
       this.scope = $rootScope.$new();
-      this.communityAPI = communityAPI;
+      this.collaborationAPI = collaborationAPI;
       this.userNotificationAPI = userNotificationAPI;
       this.objectTypeResolver = objectTypeResolver;
       this.userAPI = userAPI;
@@ -373,24 +373,24 @@ describe('The esn.user-notification Angular module', function() {
           objectType: 'community'
         }
       };
-      this.html = '<community-membership-invitation-notification notification="notification"/>';
+      this.html = '<collaboration-membership-invitation-notification notification="notification"/>';
     }));
 
     describe('The controller', function() {
       it('should resolve notification data', function() {
         var userDefer = this.$q.defer();
-        var communityDefer = this.$q.defer();
+        var collaborationDefer = this.$q.defer();
         this.objectTypeResolver.resolve = function(type) {
           if (type === 'user') {
             return userDefer.promise;
           }
 
           if (type === 'community') {
-            return communityDefer.promise;
+            return collaborationDefer.promise;
           }
         };
         userDefer.resolve({data: {_id: this.scope.notification.subject.id}});
-        communityDefer.resolve({data: {_id: this.scope.notification.complement.id}});
+        collaborationDefer.resolve({data: {_id: this.scope.notification.complement.id}});
         this.$compile(this.html)(this.scope);
         this.scope.$digest();
 
@@ -400,26 +400,26 @@ describe('The esn.user-notification Angular module', function() {
 
         expect(eltScope.invitationSender).to.exist;
         expect(eltScope.invitationSender._id).to.equal(this.scope.notification.subject.id);
-        expect(eltScope.invitationCommunity).to.exist;
-        expect(eltScope.invitationCommunity._id).to.equal(this.scope.notification.complement.id);
+        expect(eltScope.invitationCollaboration).to.exist;
+        expect(eltScope.invitationCollaboration._id).to.equal(this.scope.notification.complement.id);
         expect(eltScope.error).to.be.false;
         expect(eltScope.loading).to.be.false;
       });
 
       it('should set scope.error if community fetch fails', function() {
         var userDefer = this.$q.defer();
-        var communityDefer = this.$q.defer();
+        var collaborationDefer = this.$q.defer();
         this.objectTypeResolver.resolve = function(type) {
           if (type === 'user') {
             return userDefer.promise;
           }
 
           if (type === 'community') {
-            return communityDefer.promise;
+            return collaborationDefer.promise;
           }
         };
         userDefer.resolve({data: {_id: this.scope.notification.subject.id}});
-        communityDefer.reject();
+        collaborationDefer.reject();
         this.$compile(this.html)(this.scope);
         this.scope.$digest();
 
@@ -428,25 +428,25 @@ describe('The esn.user-notification Angular module', function() {
         var eltScope = element.isolateScope();
 
         expect(eltScope.invitationSender).to.not.exist;
-        expect(eltScope.invitationCommunity).to.not.exist;
+        expect(eltScope.invitationCollaboration).to.not.exist;
         expect(eltScope.error).to.be.true;
         expect(eltScope.loading).to.be.false;
       });
 
       it('should set scope.error if user fetch fails', function() {
         var userDefer = this.$q.defer();
-        var communityDefer = this.$q.defer();
+        var collaborationDefer = this.$q.defer();
         this.objectTypeResolver.resolve = function(type) {
           if (type === 'user') {
             return userDefer.promise;
           }
 
           if (type === 'community') {
-            return communityDefer.promise;
+            return collaborationDefer.promise;
           }
         };
         userDefer.reject({});
-        communityDefer.resolve({data: {_id: this.scope.notification.complement.id}});
+        collaborationDefer.resolve({data: {_id: this.scope.notification.complement.id}});
         this.$compile(this.html)(this.scope);
         this.scope.$digest();
 
@@ -455,17 +455,17 @@ describe('The esn.user-notification Angular module', function() {
         var eltScope = element.isolateScope();
 
         expect(eltScope.invitationSender).to.not.exist;
-        expect(eltScope.invitationCommunity).to.not.exist;
+        expect(eltScope.invitationCollaboration).to.not.exist;
         expect(eltScope.error).to.be.true;
         expect(eltScope.loading).to.be.false;
       });
     });
   });
 
-  describe('communityInvitationAcceptButton directive', function() {
+  describe('collaborationInvitationAcceptButton directive', function() {
 
     beforeEach(function() {
-      var communityAPI = {
+      var collaborationAPI = {
         join: function() {
         }
       };
@@ -480,30 +480,30 @@ describe('The esn.user-notification Angular module', function() {
         register: function() {}
       };
 
-      angular.mock.module('esn.community');
+      angular.mock.module('esn.collaboration');
       angular.mock.module('esn.user-notification');
       angular.mock.module('esn.object-type');
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', communityAPI);
+        $provide.value('collaborationAPI', collaborationAPI);
         $provide.value('userNotificationAPI', userNotificationAPI);
         $provide.value('objectTypeResolver', objectTypeResolver);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, communityMembershipInvitationNotificationDirective) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
       this.scope = $rootScope.$new();
-      this.communityAPI = communityAPI;
+      this.collaborationAPI = collaborationAPI;
       this.userNotificationAPI = userNotificationAPI;
-      communityMembershipInvitationNotificationDirective[0].controller = function($scope) {
+      collaborationMembershipInvitationNotificationDirective[0].controller = function($scope) {
         this.actionDone = function() {};
         $scope.invitedUser = {
           _id: '123'
         };
-        $scope.invitationCommunity = {
+        $scope.invitationCollaboration = {
           _id: '456'
         };
         $scope.notification = {
@@ -511,21 +511,21 @@ describe('The esn.user-notification Angular module', function() {
         };
       };
 
-      this.html = '<community-membership-invitation-notification notification="notification"><community-invitation-accept-button/></community-membership-invitation-notification>';
+      this.html = '<collaboration-membership-invitation-notification notification="notification"><collaboration-invitation-accept-button/></collaboration-membership-invitation-notification>';
     }));
 
-    it('should call communityAPI#join', function(done) {
-      this.communityAPI.join = function(communityId, userId) {
+    it('should call collaborationAPI#join', function(done) {
+      this.collaborationAPI.join = function(collaborationId, userId) {
         return done();
       };
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      element.find('community-invitation-accept-button').scope().accept();
+      element.find('collaboration-invitation-accept-button').scope().accept();
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
       var joinDefer = this.$q.defer();
-      this.communityAPI.join = function() {
+      this.collaborationAPI.join = function() {
         joinDefer.resolve({data: {_id: 123}});
         return joinDefer.promise;
       };
@@ -535,15 +535,15 @@ describe('The esn.user-notification Angular module', function() {
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      element.find('community-invitation-accept-button').scope().accept();
+      element.find('collaboration-invitation-accept-button').scope().accept();
       this.scope.$digest();
     });
 
   });
 
-  describe('communityInvitationDeclineButton directive', function() {
+  describe('collaborationInvitationDeclineButton directive', function() {
     beforeEach(function() {
-      var communityAPI = {
+      var collaborationAPI = {
         cancelRequestMembership: function() {
         }
       };
@@ -558,30 +558,30 @@ describe('The esn.user-notification Angular module', function() {
         register: function() {}
       };
 
-      angular.mock.module('esn.community');
+      angular.mock.module('esn.collaboration');
       angular.mock.module('esn.user-notification');
       angular.mock.module('esn.object-type');
       angular.mock.module(function($provide) {
-        $provide.value('communityAPI', communityAPI);
+        $provide.value('collaborationAPI', collaborationAPI);
         $provide.value('userNotificationAPI', userNotificationAPI);
         $provide.value('objectTypeResolver', objectTypeResolver);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, userNotificationAPI, communityMembershipInvitationNotificationDirective) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.$q = $q;
       this.scope = $rootScope.$new();
-      this.communityAPI = communityAPI;
+      this.collaborationAPI = collaborationAPI;
       this.userNotificationAPI = userNotificationAPI;
-      communityMembershipInvitationNotificationDirective[0].controller = function($scope) {
+      collaborationMembershipInvitationNotificationDirective[0].controller = function($scope) {
         this.actionDone = function() {};
         $scope.invitedUser = {
           _id: '123'
         };
-        $scope.invitationCommunity = {
+        $scope.invitationCollaboration = {
           _id: '456'
         };
         $scope.notification = {
@@ -589,21 +589,21 @@ describe('The esn.user-notification Angular module', function() {
         };
       };
 
-      this.html = '<community-membership-invitation-notification notification="notification"><community-invitation-decline-button/></community-membership-invitation-notification>';
+      this.html = '<collaboration-membership-invitation-notification notification="notification"><collaboration-invitation-decline-button/></collaboration-membership-invitation-notification>';
     }));
 
-    it('should call communityAPI#cancelRequestMemberShip', function(done) {
-      this.communityAPI.cancelRequestMembership = function() {
+    it('should call collaborationAPI#cancelRequestMemberShip', function(done) {
+      this.collaborationAPI.cancelRequestMembership = function() {
         return done();
       };
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      element.find('community-invitation-decline-button').scope().decline();
+      element.find('collaboration-invitation-decline-button').scope().decline();
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
       var cancelRequestMemberShipDefer = this.$q.defer();
-      this.communityAPI.cancelRequestMembership = function() {
+      this.collaborationAPI.cancelRequestMembership = function() {
         cancelRequestMemberShipDefer.resolve();
         return cancelRequestMemberShipDefer.promise;
       };
@@ -613,7 +613,7 @@ describe('The esn.user-notification Angular module', function() {
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
-      element.find('community-invitation-decline-button').scope().decline();
+      element.find('collaboration-invitation-decline-button').scope().decline();
       this.scope.$digest();
     });
 

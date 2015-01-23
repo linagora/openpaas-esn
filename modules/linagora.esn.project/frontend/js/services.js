@@ -1,6 +1,22 @@
 'use strict';
 
 angular.module('esn.project')
+.run(['objectTypeResolver', 'objectTypeAdapter', 'projectAPI', 'projectAdapterService', 'Restangular', function(objectTypeResolver, objectTypeAdapter, projectAPI, projectAdapterService, Restangular) {
+  objectTypeResolver.register('project', projectAPI.get);
+  objectTypeAdapter.register('project', projectAdapterService);
+  Restangular.extendModel('projects', function(model) {
+    return projectAdapterService(model);
+  });
+}])
+.factory('projectAdapterService', function() {
+  return function(project) {
+    project.htmlUrl = '/#/projects/' + project._id;
+    project.url = '/#/projects/' + project._id;
+    project.avatarUrl = '/api/projects/' + project._id + '/avatar';
+    project.displayName = project.title;
+    return project;
+  };
+})
 .factory('projectCreationService', ['$q', '$log', '$timeout', 'projectAPI',
 function($q, $log, $timeout, projectAPI) {
 
