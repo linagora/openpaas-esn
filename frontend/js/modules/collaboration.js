@@ -74,7 +74,7 @@ angular.module('esn.collaboration', ['restangular'])
   .directive('collaborationCreateButton', function() {
     return {
       restrict: 'E',
-      templateUrl: '/views/modules/collaboration/create-collaboration-button.html'
+      templateUrl: '/views/modules/collaboration/collaboration-create-button.html'
     };
   })
   .directive('collaborationsEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
