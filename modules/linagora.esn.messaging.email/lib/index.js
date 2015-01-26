@@ -53,7 +53,7 @@ module.exports = function(dependencies) {
       var messageModule = dependencies('message');
       messageModule.permission.canReply(m, user, function(err, result) {
         if (result) {
-          return messageModule.typeSpecificReplyPermission(m, user, callback);
+          return messageModule.typeSpecificReplyPermission(m, user, message, callback);
         }
         return callback(null, false);
       });

@@ -134,7 +134,7 @@ describe('The messages middleware', function() {
         get: function(id, callback) {
           return callback(null, {_id: id});
         },
-        typeSpecificReplyPermission: function(message, user, callback) {
+        typeSpecificReplyPermission: function(message, user, replyData, callback) {
           return callback(null, true);
         }
       });
@@ -167,7 +167,7 @@ describe('The messages middleware', function() {
         get: function(id, callback) {
           return callback(null, {_id: id});
         },
-        typeSpecificReplyPermission: function(message, user, callback) {
+        typeSpecificReplyPermission: function(message, user, replyData, callback) {
           return callback(null, false);
         }
       });
@@ -200,7 +200,7 @@ describe('The messages middleware', function() {
         get: function(id, callback) {
           return callback(null, {_id: id});
         },
-        typeSpecificReplyPermission: function(message, user, callback) {
+        typeSpecificReplyPermission: function(message, user, replyData, callback) {
           return callback(new Error());
         }
       });

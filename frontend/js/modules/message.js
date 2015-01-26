@@ -54,8 +54,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           var recipients = scope.additionalData.recipients;
           if (!recipients || recipients.length === 0) {
             scope.validationError.recipients = 'At least one external company is required.';
-          }
-          else {
+          } else {
             delete scope.validationError.recipients;
           }
         });
@@ -147,8 +146,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
-        var additionalData = $scope.additionalData ? $scope.additionalData : {};
-        messageAPI.post(objectType, data, targets, attachmentsModel, additionalData).then(
+        if ($scope.additionalData) {
+          data.data = angular.copy($scope.additionalData);
+        }
+        messageAPI.post(objectType, data, targets, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:posted', {
               activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -229,10 +230,46 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       });
     };
   }])
+  .directive('organizationalComment', function(companyUserService, session) {
+    return {
+      restrict: 'A',
+      link: function($scope) {
+        if (!$scope.additionalData) {
+          $scope.additionalData = {};
+        }
+        if ($scope.isInternalUser) {
+          $scope.$watchGroup(['allSelected', 'companySelected'], function(newValues) {
+            if (newValues[0]) {
+              $scope.additionalData.recipients = $scope.message.recipients;
+              $scope.publishTarget = null;
+            } else {
+              $scope.additionalData.recipients = [{
+                objectType: 'company',
+                id: newValues[1]
+              }];
+              $scope.publishTarget = newValues[1];
+            }
+          });
+        }
+        else {
+          var userCompanyTuple = $scope.message.recipients.filter(function(recipient) {
+            return companyUserService.isInternalUser(session.user.emails[0], recipient.id);
+          });
+          $scope.additionalData.recipients = [userCompanyTuple[0]];
+        }
+
+        $scope.addPrivateComment = function(message) {
+          $scope.additionalData.visibility = 'private';
+          $scope.addComment(message);
+          delete $scope.additionalData.visibility;
+        };
+      }
+    };
+  })
   .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
     $scope.attachments = [];
     $scope.uploadService = null;
-    $scope.whatsupcomment = '';
+    $scope.commentContent = '';
     $scope.sending = false;
     $scope.rows = 1;
     $scope.position = {};
@@ -275,14 +312,14 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         return;
       }
 
-      if (!$scope.whatsupcomment || $scope.whatsupcomment.trim().length === 0) {
+      if (!$scope.commentContent || $scope.commentContent.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
         return;
       }
 
-      var objectType = 'whatsup';
+      var objectType = $scope.message.objectType;
       var data = {
-        description: $scope.whatsupcomment
+        description: $scope.commentContent
       };
       var inReplyTo = {
         objectType: $scope.message.objectType,
@@ -310,6 +347,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           return {_id: attachment.response._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
+        if ($scope.additionalData) {
+          data.data = angular.copy($scope.additionalData);
+        }
         messageAPI.addComment(objectType, data, inReplyTo, attachmentsModel).then(
           function(response) {
             $rootScope.$emit('message:comment', {
@@ -326,7 +366,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       }
 
       function clean() {
-        $scope.whatsupcomment = '';
+        $scope.commentContent = '';
         $scope.shrink();
         $scope.attachments = [];
         $scope.uploadService = null;
@@ -359,7 +399,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
     };
 
     $scope.resetComment = function() {
-      $scope.whatsupcomment = '';
+      $scope.commentContent = '';
       $scope.rows = 1;
       $scope.removePosition();
       $q.all(messageAttachmentHelper.deleteAttachments($scope.attachments)).then(function() {
@@ -448,29 +488,27 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/templates/organizationalMessage.html',
-      link: function($scope, element, attrs) {
+      link: function($scope) {
         $scope.isInternalUser = companyUserService.isInternalUser(session.user.emails[0], session.domain.company_name);
         $scope.message.allResponses = $scope.message.responses;
         $scope.allSelected = true;
         $scope.companySelected = '';
 
-        $scope.getAllResponses = function() {
-          $scope.allSelected = true;
-          $scope.companySelected = '';
-          $scope.message.responses = $scope.message.allResponses;
+        $scope.selectCompany = function(company) {
+          $scope.allSelected = !company;
+          $scope.companySelected = company || '';
         };
 
-        $scope.getResponses = function(company) {
-          $scope.allSelected = false;
-          $scope.companySelected = company;
-          $scope.message.responses = $scope.message.allResponses.filter(function(response) {
-            var recipients = response.recipients;
-            if (!recipients || recipients.length === 0) {
-              return $scope.allSelected;
-            }
-            return recipients.some(function(recipient) {
-              return recipient && recipient.id === company;
-            });
+        $scope.organizationalCommentFilter = function(comment) {
+          var recipients = comment.recipients;
+          if ($scope.allSelected) {
+            return true;
+          }
+          if (!recipients || recipients.length === 0) {
+            return false;
+          }
+          return recipients.some(function(recipient) {
+            return recipient && recipient.id === $scope.companySelected;
           });
         };
       }
@@ -495,6 +533,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/organizational/organizationalEdition.html'
+    };
+  })
+  .directive('organizationalAddComment', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/organizational/organizationalAddComment.html'
     };
   })
   .directive('messagesDisplay', function() {
@@ -808,7 +853,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       return Restangular.all('messages').getList(options);
     }
 
-    function post(objectType, data, targets, attachments, additionalData) {
+    function post(objectType, data, targets, attachments) {
       var payload = {};
 
       payload.object = angular.copy(data);
@@ -817,10 +862,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
       if (attachments && angular.isArray(attachments)) {
         payload.object.attachments = attachments;
-      }
-
-      if (additionalData) {
-        payload.object.data = angular.copy(additionalData);
       }
 
       return Restangular.all('messages').post(payload);

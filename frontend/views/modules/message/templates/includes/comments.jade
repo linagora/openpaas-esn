@@ -1,5 +1,7 @@
 div
-  div.inner-widget.media.message-comment(ng-repeat='response in message.responses')
+  div.inner-widget.media.message-comment(ng-repeat='response in message.responses | filter: organizationalCommentFilter')
     message-template-displayer(message='response', activitystream='activitystream')
   div.media.message-add-comment(data-ng-if='writable && parentMessage')
-    whatsup-add-comment
+    div(ng-switch='message.objectType')
+      whatsup-add-comment(ng-switch-when='whatsup')
+      organizational-add-comment(ng-switch-when='organizational')

@@ -2,6 +2,7 @@
 
 var collaborationModule = require('../collaboration');
 var permissionHelpers = require('../../helpers/permission');
+var userHelpers = require('../../helpers/user');
 var async = require('async');
 
 /**
@@ -68,7 +69,21 @@ module.exports.canReadResponse = function(response, tuple, callback) {
     return callback(null, true);
   }
 
-  permissionHelpers.checkUserCompany(response.recipients, tuple.id, callback);
+  userHelpers.isInternal(tuple.id, function(err, isInternal) {
+    if (err) {
+      return callback(err);
+    }
+    // If the user is internal he can read
+    if (isInternal) {
+      return callback(null, true);
+    }
+
+    if (response.visibility && response.visibility === 'private') {
+      return callback(null, false);
+    }
+
+    permissionHelpers.checkUserCompany(response.recipients, tuple.id, callback);
+  });
 };
 
 /**

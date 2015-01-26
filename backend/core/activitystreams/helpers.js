@@ -30,7 +30,8 @@ module.exports.userMessageToTimelineEntry = function(message, verb, user, shares
       _id: message._id
     },
     target: shares,
-    to: message.recipients || []
+    to: message.visibility !== 'private' ? message.recipients : [],
+    bto: message.visibility === 'private' ? message.recipients : []
   };
 };
 
