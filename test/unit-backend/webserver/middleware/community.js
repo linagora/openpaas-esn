@@ -698,9 +698,9 @@ describe('The community middleware', function() {
     });
   });
 
-  describe('The requiresWritableTargets fn', function() {
+  describe('The filterWritableTargets fn', function() {
 
-    it('should send back 400 if targets is not set', function(done) {
+    it('should call next if targets is not set', function(done) {
       this.helpers.mock.models({
         Community: {
           getFromActivityStreamID: function(uuid, cb) {
@@ -709,7 +709,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         body: {
         }
@@ -732,7 +732,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         body: {
           targets: []
@@ -756,7 +756,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: undefined
@@ -786,7 +786,7 @@ describe('The community middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -832,7 +832,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -875,7 +875,7 @@ describe('The community middleware', function() {
           return callback(null, community._id > 10);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -934,7 +934,7 @@ describe('The community middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -977,7 +977,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').requiresWritableTargets;
+      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: undefined,

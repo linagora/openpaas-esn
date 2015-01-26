@@ -57,7 +57,7 @@ exports = module.exports = function(application) {
   var messages = require('./controllers/messages');
   var messageMiddleware = require('./middleware/message');
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
-  application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.requiresWritableTargets,
+  application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterWritableTargets,
     messageMiddleware.checkTargets, messageMiddleware.checkMessageModel, messages.createOrReplyToMessage);
   application.get('/api/messages/:id', authorize.requiresAPILogin, messages.getMessage);
   application.post('/api/messages/:id/shares', authorize.requiresAPILogin, messages.copy);

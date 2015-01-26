@@ -29,7 +29,7 @@ module.exports.findStreamResource = function(req, res, next) {
   });
 };
 
-module.exports.requiresWritableTargets = function(req, res, next) {
+module.exports.filterWritableTargets = function(req, res, next) {
   var inReplyTo = req.body.inReplyTo;
   if (inReplyTo) {
     return next();
@@ -37,7 +37,7 @@ module.exports.requiresWritableTargets = function(req, res, next) {
 
   var targets = req.body.targets;
   if (!targets || targets.length === 0) {
-    return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Missing targets'}});
+    return next();
   }
 
   var async = require('async');
@@ -56,7 +56,7 @@ module.exports.requiresWritableTargets = function(req, res, next) {
     },
     function(results) {
       if (!results || results.length === 0) {
-        return res.json(403, {error: {code: 403, message: 'Forbidden', details: 'You can not write this message'}});
+        return next();
       }
 
       if (!req.message_targets) {
