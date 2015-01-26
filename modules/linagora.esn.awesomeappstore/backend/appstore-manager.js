@@ -363,12 +363,21 @@ AwesomeAppManager.prototype.install = function(application, target, callback) {
     callback(null);
   }
 
+  function startApplication(application, callback) {
+    moduleManager.manager.fire('start', application.moduleName).then(function() {
+      return callback(null);
+    }, function(err) {
+      return callback(new Error(err.message));
+    });
+  }
+
   var self = this;
   async.waterfall([
     self.communityModule.load.bind(null, target.id),
     addInstallsToComplicantDeploys.bind(null, application),
     saveApplication.bind(null, application),
-    publishToLocalPubsub
+    publishToLocalPubsub,
+    startApplication.bind(null, application)
   ], function(err) {
     if (err) {
       return callback(err);
