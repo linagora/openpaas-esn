@@ -128,19 +128,24 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
 
   function extractInjectionJson(srcArchive) {
     var stringInjection = '';
+    var stringModuleName = '';
     return srcArchive
       .pipe(zlib.Unzip())
       .pipe(tar.Parse())
       .on('entry', function(entry) {
         var self = this;
         if (/\injection.json$/.test(entry.path)) {
+          stringModuleName = entry.path.split('/')[0];
           entry.on('data', function(chunk) {
             stringInjection += chunk;
           }).on('end', function() {
             if (!stringInjection) {
               self.emit('error', new Error('Unable to find a valid injection.json in the artifact'));
             } else {
-              self.emit('injection', JSON.parse(stringInjection));
+              var metadata = {};
+              metadata.injection = JSON.parse(stringInjection);
+              metadata.moduleName = stringModuleName;
+              self.emit('metadata', metadata);
             }
           });
         }
@@ -148,14 +153,16 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
   }
 
   var injection = {};
+  var moduleName = {};
   var streams = getDuplicates(stream);
   extractInjectionJson(streams[0])
-    .on('injection', function(injectionAsJson) {
-      injection = injectionAsJson;
+    .on('metadata', function(metadata) {
+      injection = metadata.injection;
+      moduleName = metadata.moduleName;
     })
     .on('end', function() {
       async.parallel([
-        updateApplication.bind(null, application, {$push: {'targetInjections': injection}}),
+        updateApplication.bind(null, application, {$push: {'targetInjections': injection}, 'moduleName': moduleName}),
         storeArtifact.bind(null, contentType, metadata, streams[1], options)
       ],
         returnFileMeta

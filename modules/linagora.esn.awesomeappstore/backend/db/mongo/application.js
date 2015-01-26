@@ -41,6 +41,7 @@ module.exports = function(schemas) {
 
   var ApplicationSchema = new mongoose.Schema({
     title: {type: String, required: true, trim: true},
+    moduleName: {type: String, trim: true},
     description: {type: String, trim: true},
     author: {type: String, trim: true},
     website: {type: String, trim: true},
