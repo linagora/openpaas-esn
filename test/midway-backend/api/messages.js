@@ -4,8 +4,6 @@ var request = require('supertest'),
   expect = require('chai').expect,
   async = require('async');
 
-
-
 describe('The messages API', function() {
   var app;
   var testuser;
@@ -274,7 +272,7 @@ describe('The messages API', function() {
           },
           targets: [target]
         });
-        req.expect(403)
+        req.expect(400)
           .end(function(err) {
             expect(err).to.not.exist;
             done();
@@ -552,7 +550,7 @@ describe('The messages API', function() {
           },
           targets: [target]
         });
-        req.expect(403)
+        req.expect(400)
           .end(function(err) {
             expect(err).to.not.exist;
 
@@ -1104,7 +1102,7 @@ describe('The messages API', function() {
         },
         targets: [target]
       });
-      req.expect(403)
+      req.expect(400)
         .end(function(err) {
           expect(err).to.not.exist;
           done();
