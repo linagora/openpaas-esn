@@ -527,7 +527,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           }
         }
         if ($scope.activitystream) {
-          $scope.writable = $scope.activitystream.writable;
+          $scope.writable = $scope.activitystream.writable || false;
         } else {
           $scope.writable = false;
         }
