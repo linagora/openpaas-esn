@@ -524,7 +524,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     middleware(req, res);
   });
 
-  it('should send back 400 when user._id is not equal to the user_id parameter', function(done) {
+  it('should send back 403 when user._id is not equal to the user_id parameter', function(done) {
     var ObjectId = require('bson').ObjectId;
     var id = new ObjectId();
 
@@ -538,7 +538,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     };
     var res = {
       json: function(code) {
-        expect(code).to.equal(400);
+        expect(code).to.equal(403);
         done();
       }
     };
