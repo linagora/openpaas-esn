@@ -8,6 +8,8 @@ var tar = require('tar');
 var fs = require('fs-extra');
 var path = require('path');
 var async = require('async');
+var moduleManager = require('../../../backend/module-manager');
+
 var DEPLOYMENT_DIR = path.join(__dirname, '../../../apps');
 
 function AwesomeAppManager(logger, storage, imageModule, communityModule, localPubsub) {
@@ -191,17 +193,17 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
     return callback(null, application);
   }
 
-  var path = this.getDeploymentDirForApplication(application, deployData.version);
+  var applicationPath = this.getDeploymentDirForApplication(application, deployData.version);
   var deploy = deployData;
 
-  function extractArtifactToPath(path, artifact, callback) {
+  function extractArtifactToPath(applicationPath, artifact, callback) {
     if (!artifact) {
       return callback(new Error('Could not retrieve archive file.'));
     }
 
     artifact
       .pipe(zlib.Unzip())
-      .pipe(tar.Extract({ path: path }))
+      .pipe(tar.Extract({ path: applicationPath }))
       .on('end', function() {
         return callback(null);
       }).on('error', function(err) {
@@ -230,11 +232,29 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
     });
   }
 
+  // We register the application here to gain time while installing it
+  // TODO use applicationPath when we supports version in applicationPath
+  function registerAppIntoManager(application, applicationPath, callback) {
+    var modulePath = path.normalize(
+      path.join(DEPLOYMENT_DIR, application.moduleName)
+    );
+
+    var exists = fs.existsSync(modulePath);
+    if (exists) {
+      moduleManager.manager.registerModule(require(modulePath), false);
+    } else {
+      return callback(new Error('This application does not exist'));
+    }
+
+    return callback(null);
+  }
+
   var self = this;
   async.waterfall([
     getArtifactMetadataFromVersion.bind(null, application, deployData.version),
     getArtifactStream,
-    extractArtifactToPath.bind(null, path)
+    extractArtifactToPath.bind(null, applicationPath),
+    registerAppIntoManager.bind(null, application, applicationPath)
   ], function(err) {
     if (err) {
       return callback(err);
