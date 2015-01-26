@@ -384,11 +384,19 @@ angular.module('esn.activitystream')
         });
     }
 
+    function getMainActivityStream(message) {
+      if (isOriginMessage(message)) {
+        return streamOrigin;
+      }
+      return getStreamOrigins(message)[0];
+    }
+
     return activitystreamMessageDecorator(function(err, items) {
         if (items) {
           items = items.map(function(item) {
             item.object.streamOrigins = getStreamOrigins(item);
             item.object.isOrigin = isOriginMessage(item);
+            item.object.mainActivityStream = getMainActivityStream(item);
             return item;
           });
         }
