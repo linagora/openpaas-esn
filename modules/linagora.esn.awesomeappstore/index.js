@@ -12,31 +12,20 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.community', 'community'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.injection', 'injection'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {
-      var logger = dependencies('logger');
-      var storage = dependencies('filestore');
-      var imageModule = dependencies('image');
-      var communityModule = dependencies('community');
-      var injectionModule = dependencies('injection');
-      var localPubsub = dependencies('pubsub').local;
       var moduleManager = require('../../backend/module-manager');
       var schemas = dependencies('db').mongo.schemas;
 
       require('./backend/db/mongo/application')(schemas);
 
       var AwesomeAppManager = require('./backend/appstore-manager').AwesomeAppManager;
-      var appManager = new AwesomeAppManager(
-        logger,
-        storage,
-        imageModule,
-        communityModule,
-        localPubsub,
-        moduleManager);
-      require('./backend/injection/pubsub').init(localPubsub, injectionModule, logger);
+      var appManager = new AwesomeAppManager(dependencies, moduleManager);
+      require('./backend/injection/pubsub').init(dependencies);
 
       var app = require('./backend/webserver/application')(appManager, dependencies);
 

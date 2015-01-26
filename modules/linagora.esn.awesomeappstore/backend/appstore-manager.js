@@ -8,16 +8,17 @@ var tar = require('tar');
 var fs = require('fs-extra');
 var path = require('path');
 var async = require('async');
-var moduleManager = require('../../../backend/module-manager');
 
 var DEPLOYMENT_DIR = path.join(__dirname, '../../../apps');
 
-function AwesomeAppManager(logger, storage, imageModule, communityModule, localPubsub) {
-  this.logger = logger;
-  this.storage = storage;
-  this.imageModule = imageModule;
-  this.communityModule = communityModule;
-  this.localPubsub = localPubsub;
+function AwesomeAppManager(dependencies, moduleManager) {
+  this.logger = dependencies('logger');
+  this.storage = dependencies('filestore');
+  this.imageModule = dependencies('community');
+  this.communityModule = dependencies('community');
+  this.localPubsub = dependencies('pubsub').local;
+  this.esnconfig = dependencies('esn-config');
+  this.moduleManager = moduleManager;
 }
 
 AwesomeAppManager.prototype.getDeploymentDirForApplication = function(application, version) {
@@ -176,6 +177,8 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
 };
 
 AwesomeAppManager.prototype.deploy = function(application, deployData, callback) {
+  var self = this;
+
   if (!deployData || !deployData.target || !deployData.target.id || !deployData.version) {
     return callback(new Error('Deploy data is not correctly formatted.'));
   }
@@ -241,15 +244,16 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
 
     var exists = fs.existsSync(modulePath);
     if (exists) {
-      moduleManager.manager.registerModule(require(modulePath), false);
+      self.moduleManager.manager.registerModule(require(modulePath), false);
     } else {
       return callback(new Error('This application does not exist'));
     }
 
+
+
     return callback(null);
   }
 
-  var self = this;
   async.waterfall([
     getArtifactMetadataFromVersion.bind(null, application, deployData.version),
     getArtifactStream,
@@ -318,6 +322,8 @@ AwesomeAppManager.prototype.setDeployState = function(application, deployTarget,
 };
 
 AwesomeAppManager.prototype.install = function(application, target, callback) {
+  var self = this;
+
   if (!application) {
     return callback(new Error('Application is required.'));
   }
@@ -364,14 +370,13 @@ AwesomeAppManager.prototype.install = function(application, target, callback) {
   }
 
   function startApplication(application, callback) {
-    moduleManager.manager.fire('start', application.moduleName).then(function() {
+    self.moduleManager.manager.fire('start', application.moduleName).then(function() {
       return callback(null);
     }, function(err) {
       return callback(new Error(err.message));
     });
   }
 
-  var self = this;
   async.waterfall([
     self.communityModule.load.bind(null, target.id),
     addInstallsToComplicantDeploys.bind(null, application),
