@@ -115,7 +115,7 @@ function projectControllers(lib, dependencies) {
       ]
     };
 
-    ['description', 'startDate', 'endDate',
+    ['description', 'startDate', 'endDate', 'type',
      'status', 'avatar'].forEach(copyIfSet);
 
     var startDate = new Date(project.startDate);

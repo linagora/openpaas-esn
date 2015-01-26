@@ -304,6 +304,33 @@ describe('linagora.esn.project module', function() {
         }.bind(this));
       }.bind(this));
     });
+
+    it('should create a restricted project', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(this.app).post('/api/projects'));
+        req.send({title: 'a restricted project', type: 'restricted', domain_ids: [this.models.domain._id.toString()]});
+        req.expect(201).end(function(err, res) {
+          var p = res.body;
+          expect(err).to.not.exist;
+          expect(p).to.be.an('object');
+          expect(p.title).to.equal('a restricted project');
+          expect(p.type).to.equal('restricted');
+          expect(p._id).to.exist;
+          expect(p.creator).to.equal(this.models.users[1]._id.toString());
+          expect(p.activity_stream.uuid).to.exist;
+          expect(p.members.length).to.equal(1);
+          expect(p.members[0].member.id).to.equal(this.models.users[1]._id.toString());
+          expect(p.domain_ids.length).to.equal(1);
+          expect(p.domain_ids[0]).to.equal(this.models.domain._id.toString());
+          done();
+        }.bind(this));
+      }.bind(this));
+    });
   });
 
   describe('POST /api/projects/:id/members', function() {
