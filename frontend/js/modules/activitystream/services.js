@@ -10,7 +10,7 @@ angular.module('esn.activitystream')
   };
 }])
 
-.factory('activityStreamUpdates', ['restcursor', 'activitystreamAPI', 'messageAPI', '$q', function(restcursor, activitystreamAPI, messageAPI, $q) {
+.factory('activityStreamUpdates', ['restcursor', 'activitystreamAPI', 'activitystreamOriginDecorator', '$q', function(restcursor, activitystreamAPI, activitystreamOriginDecorator, $q) {
   function apiWrapper(id) {
     function api(options) {
       return activitystreamAPI.get(id, options);
@@ -28,7 +28,6 @@ angular.module('esn.activitystream')
     };
     return restcursor(apiWrapper(id), limit, restcursorOptions);
   }
-
 
   function getMessageIndex(threads, id) {
     var messageIndex = null;
@@ -49,37 +48,31 @@ angular.module('esn.activitystream')
     }
   }
 
-  function fetchNextTimelineEntries(cursor) {
-    var defer = $q.defer();
-    if (cursor.endOfStream) {
-      defer.resolve();
-    } else {
-      cursor.nextItems(function(err, results) {
-        if (err) {
-          return defer.reject(err);
-        }
-        defer.resolve(results);
-      });
-    }
-    return defer.promise;
-  }
-
   function applyUpdates(uuid, $scope) {
     var cursor = getRestcursor(uuid, 30, $scope.mostRecentActivityID);
 
-    function updateThreads(ids, timelines, $scope) {
-      return messageAPI.get({'ids[]': ids}).then(function(response) {
-        var msgHash = {};
-        response.data.forEach(function(message) {
-          msgHash[message._id] = message;
-        });
-        timelines.forEach(function(timelineentry) {
-          $scope.mostRecentActivityID = timelineentry._id;
-          removeThreadById($scope.threads, timelineentry.threadId);
-          $scope.threads.unshift(msgHash[timelineentry.threadId]);
-        });
-        return nextRound();
+    function updateThreads(timelines, $scope) {
+      timelines.forEach(function(timelineentry) {
+        $scope.mostRecentActivityID = timelineentry._id;
+        removeThreadById($scope.threads, timelineentry.threadId);
+        $scope.threads.unshift(timelineentry.object);
       });
+      return nextRound();
+    }
+
+    function fetchNextTimelineEntries(cursor) {
+      var defer = $q.defer();
+      if (cursor.endOfStream) {
+        defer.resolve();
+      } else {
+        cursor.nextItems(activitystreamOriginDecorator($scope.activitystream, $scope.streams, function(err, results) {
+          if (err) {
+            return defer.reject(err);
+          }
+          defer.resolve(results);
+        }));
+      }
+      return defer.promise;
     }
 
     function onTimelineEntries(items) {
@@ -87,19 +80,16 @@ angular.module('esn.activitystream')
         return $q.when(true);
       }
 
-      var ids = [], timelines = [];
+      var timelines = [];
 
       items.forEach(function(timelineentry) {
         var isComment = timelineentry.inReplyTo && timelineentry.inReplyTo.length;
         var threadId = isComment ? timelineentry.inReplyTo[0]._id : timelineentry.object._id;
-        if (ids.indexOf(threadId) < 0) {
-          ids.push(threadId);
-        }
         timelineentry.threadId = threadId;
         timelines.push(timelineentry);
       });
 
-      return updateThreads(ids, timelines, $scope);
+      return updateThreads(timelines, $scope);
     }
 
     function nextRound() {
@@ -184,8 +174,8 @@ angular.module('esn.activitystream')
 
         callback(null, items);
 
-      }, function(response) {
-        callback(response.data);
+      }, function(error) {
+        callback(error.data);
       });
     };
   };
