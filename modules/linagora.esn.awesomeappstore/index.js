@@ -1,5 +1,6 @@
 'use strict';
 
+var moduleManager = require('../../backend/module-manager');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 
@@ -18,7 +19,6 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
   ],
   states: {
     lib: function(dependencies, callback) {
-      var moduleManager = require('../../backend/module-manager');
       var schemas = dependencies('db').mongo.schemas;
 
       require('./backend/db/mongo/application')(schemas);
@@ -41,6 +41,33 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
       webserverWrapper.injectCSS('appstore', 'styles.css', 'esn');
       webserverWrapper.addApp('appstore', this.app);
       return callback();
+    },
+
+    start: function(dependencies, callback) {
+      var esnconfig = dependencies('esn-config');
+      var logger = dependencies('logger');
+
+      function startEsnModules() {
+        esnconfig('injection').get('modules', function(err, modules) {
+          if (err) {
+            return callback(err);
+          }
+
+          if (!modules) {
+            return callback(null);
+          }
+
+          moduleManager.manager.fire('start', modules).then(function() {
+            callback(null);
+          }, function(err) {
+            // Do not fail if a module is not found.
+            logger.error(err.message);
+            callback(null);
+          });
+        });
+      }
+
+      startEsnModules();
     }
   }
 });
