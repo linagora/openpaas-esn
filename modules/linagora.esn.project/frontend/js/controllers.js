@@ -81,4 +81,60 @@ angular.module('esn.project')
         $scope.load = false;
         $scope.show = result.length > 0;
       });
-  }]);
+  }])
+  .controller('projectMembersController', ['$scope', 'collaborationAPI', 'session', 'usSpinnerService',
+    function($scope, collaborationAPI, session, usSpinnerService) {
+      var project_id = $scope.project._id;
+      $scope.spinnerKey = 'membersSpinner';
+
+      var opts = {
+        offset: 0,
+        limit: 20
+      };
+
+      $scope.total = 0;
+      $scope.domain = session.domain;
+      $scope.members = [];
+      $scope.restActive = false;
+      $scope.error = false;
+      $scope.offset = 0;
+
+      function updateMembersList() {
+        $scope.error = false;
+        if ($scope.restActive) {
+          return;
+        }
+        $scope.restActive = true;
+        usSpinnerService.spin($scope.spinnerKey);
+
+        collaborationAPI.getMembers('project', project_id, opts).then(function(result) {
+          $scope.total = parseInt(result.headers('X-ESN-Items-Count'));
+          $scope.offset += result.data.length;
+
+          var members = result.data.filter(function(member) {
+            return member.user !== undefined;
+          });
+
+          $scope.members = $scope.members.concat(members.map(function(member) {
+            return member.user;
+          }));
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.restActive = false;
+          usSpinnerService.stop($scope.spinnerKey);
+        });
+      }
+
+      $scope.init = function() {
+        updateMembersList();
+      };
+
+      $scope.loadMoreElements = function() {
+        if ($scope.offset === 0 || $scope.offset < $scope.total) {
+          opts.offset = $scope.offset;
+          updateMembersList();
+        }
+      };
+      $scope.init();
+    }]);

@@ -129,7 +129,7 @@ angular.module('esnApp', [
       }
     });
 
-    $routeProvider.when('/communities/:community_id/members', {
+    $routeProvider.when('/collaborations/community/:community_id/members', {
       templateUrl: '/views/modules/community/community-members',
       controller: 'communityController',
       resolve: {
