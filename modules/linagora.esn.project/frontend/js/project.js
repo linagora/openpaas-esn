@@ -31,11 +31,11 @@ angular.module('esn.project', [
       }
     });
 
-    $routeProvider.when('/projects/:project_id/members', {
-      templateUrl: '/views/modules/collaboration/collaboration-members',
-      controller: 'collaborationController',
+    $routeProvider.when('/collaborations/project/:project_id/members', {
+      templateUrl: '/projects/views/project-members',
+      controller: 'projectController',
       resolve: {
-        collaboration: routeResolver.api('projectAPI', 'get', 'project_id', '/projects')
+        project: routeResolver.api('projectAPI', 'get', 'project_id', '/projects')
       }
     });
   }])

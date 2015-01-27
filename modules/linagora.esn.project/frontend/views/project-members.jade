@@ -1,0 +1,19 @@
+.row
+  .row
+    .col-xs-12.esn-panel.community-summary
+      project-description(project="project")
+
+  .vertiz-space
+
+  .row.esn-panel.members-list
+    .col-xs-12
+
+      .row(ng-show='isProjectManager()')
+        ul.nav.nav-pills.nav-justified
+          li(ng-class="{active: selected === 'members' || selected === undefined}")
+            a(ng-click="selected = 'members'", href="") #{__('Members')}
+          li(ng-class="{active: selected === 'membership'}")
+            a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
+
+      .row(ng-if='selected === "members" || selected === undefined')
+        include ./project-members-list
