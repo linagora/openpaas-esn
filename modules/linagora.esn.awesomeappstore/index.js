@@ -1,5 +1,6 @@
 'use strict';
 
+var moduleManager = require('../../backend/module-manager');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 
@@ -12,31 +13,19 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.community', 'community'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.injection', 'injection'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {
-      var logger = dependencies('logger');
-      var storage = dependencies('filestore');
-      var imageModule = dependencies('image');
-      var communityModule = dependencies('community');
-      var injectionModule = dependencies('injection');
-      var localPubsub = dependencies('pubsub').local;
-      var moduleManager = require('../../backend/module-manager');
       var schemas = dependencies('db').mongo.schemas;
 
       require('./backend/db/mongo/application')(schemas);
 
       var AwesomeAppManager = require('./backend/appstore-manager').AwesomeAppManager;
-      var appManager = new AwesomeAppManager(
-        logger,
-        storage,
-        imageModule,
-        communityModule,
-        localPubsub,
-        moduleManager);
-      require('./backend/injection/pubsub').init(localPubsub, injectionModule, logger);
+      var appManager = new AwesomeAppManager(dependencies, moduleManager);
+      require('./backend/injection/pubsub').init(dependencies);
 
       var app = require('./backend/webserver/application')(appManager, dependencies);
 
@@ -52,6 +41,33 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
       webserverWrapper.injectCSS('appstore', 'styles.css', 'esn');
       webserverWrapper.addApp('appstore', this.app);
       return callback();
+    },
+
+    start: function(dependencies, callback) {
+      var esnconfig = dependencies('esn-config');
+      var logger = dependencies('logger');
+
+      function startEsnModules() {
+        esnconfig('injection').get('modules', function(err, modules) {
+          if (err) {
+            return callback(err);
+          }
+
+          if (!modules) {
+            return callback(null);
+          }
+
+          moduleManager.manager.fire('start', modules).then(function() {
+            callback(null);
+          }, function(err) {
+            // Do not fail if a module is not found.
+            logger.error(err.message);
+            callback(null);
+          });
+        });
+      }
+
+      startEsnModules();
     }
   }
 });

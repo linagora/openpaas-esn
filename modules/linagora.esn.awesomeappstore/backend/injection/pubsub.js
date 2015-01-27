@@ -55,13 +55,16 @@ function applicationUninstalledHandler(event) {
   }
 }
 
-function init(localpubsub, injectModule, logger) {
+function init(dependencies) {
+  loggerModule = dependencies('logger');
+  injectionModule = dependencies('injection');
+  var localpubsub = dependencies('pubsub').local;
+
   if (initialized) {
-    logger.warn('Appstore Pubsub is already initialized');
+    loggerModule.warn('Appstore Pubsub is already initialized');
     return;
   }
-  injectionModule = injectModule;
-  loggerModule = logger;
+
   localpubsub.topic('appstore:application:installed').subscribe(applicationInstalledHandler);
   localpubsub.topic('appstore:application:uninstalled').subscribe(applicationUninstalledHandler);
   initialized = true;

@@ -8,14 +8,17 @@ var tar = require('tar');
 var fs = require('fs-extra');
 var path = require('path');
 var async = require('async');
+
 var DEPLOYMENT_DIR = path.join(__dirname, '../../../apps');
 
-function AwesomeAppManager(logger, storage, imageModule, communityModule, localPubsub) {
-  this.logger = logger;
-  this.storage = storage;
-  this.imageModule = imageModule;
-  this.communityModule = communityModule;
-  this.localPubsub = localPubsub;
+function AwesomeAppManager(dependencies, moduleManager) {
+  this.logger = dependencies('logger');
+  this.storage = dependencies('filestore');
+  this.imageModule = dependencies('community');
+  this.communityModule = dependencies('community');
+  this.localPubsub = dependencies('pubsub').local;
+  this.esnconfig = dependencies('esn-config');
+  this.moduleManager = moduleManager;
 }
 
 AwesomeAppManager.prototype.getDeploymentDirForApplication = function(application, version) {
@@ -128,19 +131,24 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
 
   function extractInjectionJson(srcArchive) {
     var stringInjection = '';
+    var stringModuleName = '';
     return srcArchive
       .pipe(zlib.Unzip())
       .pipe(tar.Parse())
       .on('entry', function(entry) {
         var self = this;
         if (/\injection.json$/.test(entry.path)) {
+          stringModuleName = entry.path.split('/')[0];
           entry.on('data', function(chunk) {
             stringInjection += chunk;
           }).on('end', function() {
             if (!stringInjection) {
               self.emit('error', new Error('Unable to find a valid injection.json in the artifact'));
             } else {
-              self.emit('injection', JSON.parse(stringInjection));
+              var metadata = {};
+              metadata.injection = JSON.parse(stringInjection);
+              metadata.moduleName = stringModuleName;
+              self.emit('metadata', metadata);
             }
           });
         }
@@ -148,14 +156,16 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
   }
 
   var injection = {};
+  var moduleName = {};
   var streams = getDuplicates(stream);
   extractInjectionJson(streams[0])
-    .on('injection', function(injectionAsJson) {
-      injection = injectionAsJson;
+    .on('metadata', function(metadata) {
+      injection = metadata.injection;
+      moduleName = metadata.moduleName;
     })
     .on('end', function() {
       async.parallel([
-        updateApplication.bind(null, application, {$push: {'targetInjections': injection}}),
+        updateApplication.bind(null, application, {$push: {'targetInjections': injection}, 'moduleName': moduleName}),
         storeArtifact.bind(null, contentType, metadata, streams[1], options)
       ],
         returnFileMeta
@@ -167,6 +177,8 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
 };
 
 AwesomeAppManager.prototype.deploy = function(application, deployData, callback) {
+  var self = this;
+
   if (!deployData || !deployData.target || !deployData.target.id || !deployData.version) {
     return callback(new Error('Deploy data is not correctly formatted.'));
   }
@@ -184,17 +196,17 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
     return callback(null, application);
   }
 
-  var path = this.getDeploymentDirForApplication(application, deployData.version);
+  var applicationPath = this.getDeploymentDirForApplication(application, deployData.version);
   var deploy = deployData;
 
-  function extractArtifactToPath(path, artifact, callback) {
+  function extractArtifactToPath(applicationPath, artifact, callback) {
     if (!artifact) {
       return callback(new Error('Could not retrieve archive file.'));
     }
 
     artifact
       .pipe(zlib.Unzip())
-      .pipe(tar.Extract({ path: path }))
+      .pipe(tar.Extract({ path: applicationPath }))
       .on('end', function() {
         return callback(null);
       }).on('error', function(err) {
@@ -223,11 +235,51 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
     });
   }
 
-  var self = this;
+  // We register the application here to gain time while installing it
+  // TODO use applicationPath when we supports version in applicationPath
+  function registerAppIntoManager(application, applicationPath, callback) {
+    var modulePath = path.normalize(
+      path.join(DEPLOYMENT_DIR, application.moduleName)
+    );
+
+    var exists = fs.existsSync(modulePath);
+    if (exists) {
+      self.moduleManager.manager.registerModule(require(modulePath), false);
+    } else {
+      return callback(new Error('This application does not exist'));
+    }
+
+
+
+    return callback(null);
+  }
+
+  function registerAppIntoEsnConfig(application, callback) {
+    var configuration = self.esnconfig('injection');
+    configuration.get(function(err, injection) {
+      if (err) {
+        callback(err);
+      }
+      if (!injection) {
+        configuration.store({ modules: [application.moduleName] }, callback);
+      } else {
+        var newModules = injection.modules || [];
+        if (newModules.indexOf(application.moduleName) === -1) {
+          newModules.push(application.moduleName);
+          configuration.set('modules', newModules, callback);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  }
+
   async.waterfall([
     getArtifactMetadataFromVersion.bind(null, application, deployData.version),
     getArtifactStream,
-    extractArtifactToPath.bind(null, path)
+    extractArtifactToPath.bind(null, applicationPath),
+    registerAppIntoManager.bind(null, application, applicationPath),
+    registerAppIntoEsnConfig.bind(null, application)
   ], function(err) {
     if (err) {
       return callback(err);
@@ -238,6 +290,8 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
 };
 
 AwesomeAppManager.prototype.undeploy = function(application, target, callback) {
+  var self = this;
+
   if (!application) {
     return callback(new Error('Application is required.'));
   }
@@ -255,14 +309,43 @@ AwesomeAppManager.prototype.undeploy = function(application, target, callback) {
     return callback(null, application);
   }
 
-  var self = this;
-  fs.remove(self.getDeploymentDirForApplication(application, ''), function(err) {
+  function unregisterAppIntoEsnConfig(application, callback) {
+    var configuration = self.esnconfig('injection');
+    configuration.get(function(err, injection) {
+      if (err) {
+        callback(err);
+      }
+      if (!injection) {
+        callback(null);
+      } else {
+        var modules = injection.modules || [];
+        var newModules = modules.filter(function(module) {
+          return module !== application.moduleName;
+        });
+        configuration.set('modules', newModules, callback);
+      }
+    });
+  }
+
+  function removeAppFromFs(application, callback) {
+    fs.remove(self.getDeploymentDirForApplication(application, ''), function(err) {
+      if (err) {
+        return callback(err);
+      }
+
+      application.deployments = otherTargetDeployments;
+      application.save(callback);
+    });
+  }
+
+  async.series([
+    unregisterAppIntoEsnConfig.bind(null, application),
+    removeAppFromFs.bind(null, application)
+  ], function(err) {
     if (err) {
       return callback(err);
     }
-
-    application.deployments = otherTargetDeployments;
-    application.save(callback);
+    callback(null);
   });
 };
 
@@ -291,6 +374,8 @@ AwesomeAppManager.prototype.setDeployState = function(application, deployTarget,
 };
 
 AwesomeAppManager.prototype.install = function(application, target, callback) {
+  var self = this;
+
   if (!application) {
     return callback(new Error('Application is required.'));
   }
@@ -336,12 +421,20 @@ AwesomeAppManager.prototype.install = function(application, target, callback) {
     callback(null);
   }
 
-  var self = this;
+  function startApplication(application, callback) {
+    self.moduleManager.manager.fire('start', application.moduleName).then(function() {
+      return callback(null);
+    }, function(err) {
+      return callback(new Error(err.message));
+    });
+  }
+
   async.waterfall([
     self.communityModule.load.bind(null, target.id),
     addInstallsToComplicantDeploys.bind(null, application),
     saveApplication.bind(null, application),
-    publishToLocalPubsub
+    publishToLocalPubsub,
+    startApplication.bind(null, application)
   ], function(err) {
     if (err) {
       return callback(err);
