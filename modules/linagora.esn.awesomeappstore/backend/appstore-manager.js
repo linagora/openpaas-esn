@@ -254,11 +254,32 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
     return callback(null);
   }
 
+  function registerAppIntoEsnConfig(application, callback) {
+    var configuration = self.esnconfig('injection');
+    configuration.get(function(err, injection) {
+      if (err) {
+        callback(err);
+      }
+      if (!injection) {
+        configuration.store({ modules: [application.moduleName] }, callback);
+      } else {
+        var newModules = injection.modules || [];
+        if (newModules.indexOf(application.moduleName) === -1) {
+          newModules.push(application.moduleName);
+          configuration.set('modules', newModules, callback);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  }
+
   async.waterfall([
     getArtifactMetadataFromVersion.bind(null, application, deployData.version),
     getArtifactStream,
     extractArtifactToPath.bind(null, applicationPath),
-    registerAppIntoManager.bind(null, application, applicationPath)
+    registerAppIntoManager.bind(null, application, applicationPath),
+    registerAppIntoEsnConfig.bind(null, application)
   ], function(err) {
     if (err) {
       return callback(err);
