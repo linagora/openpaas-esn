@@ -13,7 +13,7 @@
                     .hidden.bg-info(success-container)
                         p #{__('Invitations have been sent. You will be notified when new users join the collaboration')}.
                     .hidden.bg-danger(error-container)
-                        p(ng-show='error') {{error.details || error}}.
+                        p(ng-show='error') {{error.error.details || error}}.
                         p(ng-show='invalidUser') #{__('An invitation has not been sent')} : {{invalidUser}} #{__('is not a valid user')}.
                         p(ng-show='noUser') #{__('Please enter at least one user to send an invitation')}.
             .form-group

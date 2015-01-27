@@ -331,8 +331,8 @@ angular.module('esn.collaboration', ['restangular'])
           $scope.error = false;
           collaborationAPI.getRequestMemberships($scope.objectType, $scope.collaboration._id).then(function(response) {
             $scope.requests = response.data || [];
-          }, function() {
-            $scope.error = true;
+          }, function(err) {
+            $scope.error = err.status;
           }).finally (function() {
             $scope.loading = false;
           });

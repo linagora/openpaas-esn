@@ -811,7 +811,7 @@ describe('The collaborations API', function() {
 
   });
 
-  describe('PUT /api/collaborations/community/:id/membership/:user_id', function() {
+  describe('PUT /api/collaborations/:objectType/:id/membership/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
       request(webserver.application).put('/api/collaborations/community/123/membership/456').expect(401).end(function(err) {
@@ -888,7 +888,7 @@ describe('The collaborations API', function() {
     });
 
     describe('when the current user is not a community manager', function() {
-      it('should return 400 if current user is not equal to :user_id param', function(done) {
+      it('should return 403 if current user is not equal to :user_id param', function(done) {
         var self = this;
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           if (err) { return done(err); }
@@ -899,7 +899,7 @@ describe('The collaborations API', function() {
               return done(err);
             }
             var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + models.users[3]._id));
-            req.expect(400);
+            req.expect(403);
             req.end(function(err, res) {
               expect(err).to.not.exist;
               done();

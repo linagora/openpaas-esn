@@ -2,8 +2,9 @@
   .title.ellipsis #{__('Membership requests')}
   hr
 
-  .row.alert.alert-danger(ng-show="error", role="alert")
-    p #{__('Error while getting memberships')}.
+  .row.alert.alert-danger(ng-show="error", ng-switch="error", role="alert")
+    p(ng-switch-when="403") #{__('Error, you do not have the permission to read memberships')}.
+    p(ng-switch-default) #{__('Error while getting memberships')}.
 
   .row(ng-show="loading")
     i.fa.fa-cog.fa-spin

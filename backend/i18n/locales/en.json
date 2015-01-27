@@ -198,6 +198,7 @@
   "Error while getting notifications": "Error while getting notifications",
   "Membership requests": "Membership requests",
   "Error while getting memberships": "Error while getting memberships",
+  "Error, you do not have the permission to read memberships": "Error, you do not have the permission to read memberships",
   "Loading membership requests": "Loading membership requests",
   "Accept": "Accept",
   "Decline": "Decline",
