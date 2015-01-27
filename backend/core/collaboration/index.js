@@ -1,7 +1,6 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var User = mongoose.model('User');
 var async = require('async');
 var permission = require('./permission');
 var localpubsub = require('../pubsub').local;
@@ -121,7 +120,15 @@ function getMembers(collaboration, objectType, query, callback) {
 
     var offset = query.offset || DEFAULT_OFFSET;
     var limit = query.limit || DEFAULT_LIMIT;
-    var members = collaboration.members.slice(offset, offset + limit);
+
+    var members = collaboration.members;
+    if (query.objectTypeFilter) {
+      members = members.filter(function(m) {
+        return m.member.objectType === query.objectTypeFilter;
+      });
+    }
+
+    members = members.slice(offset, offset + limit);
 
     async.map(members, function(m, callback) {
       return fetchMember(m.member, function(err, loaded) {
