@@ -24,15 +24,21 @@ function transform(collaboration, user, callback) {
     collaboration.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  collaborationModule.isMember(collaboration, {objectType: 'user', id: user._id + ''}, function(err, membership) {
+  var userTuple = {objectType: 'user', id: user._id + ''};
+
+  collaborationModule.isMember(collaboration, userTuple, function(err, membership) {
     if (membership) {
       collaboration.member_status = 'member';
     } else {
       collaboration.member_status = 'none';
     }
-    delete collaboration.members;
-    delete collaboration.membershipRequests;
-    return callback(collaboration);
+
+    permission.canWrite(collaboration, userTuple, function(err, writable) {
+      collaboration.writable = writable || false;
+      delete collaboration.members;
+      delete collaboration.membershipRequests;
+      return callback(collaboration);
+    });
   });
 }
 

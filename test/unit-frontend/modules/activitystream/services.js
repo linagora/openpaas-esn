@@ -518,12 +518,16 @@ describe('The esn.activitystream Angular module', function() {
             endOfStream: false
           };
         };
+        this.activitystreamOriginDecorator = function(stream, streams, callback) {
+          return callback;
+        };
 
         var scope = { mostRecentActivityId: 'message1', threads: [] };
 
         angular.mock.module(function($provide) {
           $provide.value('activitystreamAPI', self.asAPI);
           $provide.value('restcursor', self.restcursor);
+          $provide.value('activitystreamOriginDecorator', self.activitystreamOriginDecorator);
         });
         inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
           Restangular.setFullResponse(true);
@@ -568,12 +572,16 @@ describe('The esn.activitystream Angular module', function() {
             endOfStream: false
           };
         };
+        this.activitystreamOriginDecorator = function(stream, streams, callback) {
+          return callback;
+        };
 
         var scope = {mostRecentActivityId: 'message1', threads: [] };
 
         angular.mock.module(function($provide) {
           $provide.value('activitystreamAPI', self.asAPI);
           $provide.value('restcursor', self.restcursor);
+          $provide.value('activitystreamOriginDecorator', self.activitystreamOriginDecorator);
         });
         inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
           Restangular.setFullResponse(true);
@@ -601,62 +609,14 @@ describe('The esn.activitystream Angular module', function() {
         });
       });
 
-      it('should update the scope, fetching parent when the timeline got a inReplyTo', function(done) {
-        var self = this;
-        var entries = [
-          {_id: 'tl1', object: {_id: 'msg1'}},
-          {_id: 'tl2', object: {_id: 'msg2'}},
-          {_id: 'tl3', object: {_id: 'cmt1'}, inReplyTo: [{_id: 'msg3'}]},
-          {_id: 'tl4', object: {_id: 'msg2'}},
-          {_id: 'tl5', object: {_id: 'cmt2'}, inReplyTo: [{_id: 'msg3'}]},
-          {_id: 'tl6', object: {_id: 'cmt3'}, inReplyTo: [{_id: 'msg1'}]}
-        ];
-        this.restcursor = function(api) {
-          return {
-            nextItems: function(callback) { this.endOfStream = true; return callback(null, entries); },
-            endOfStream: false
-          };
-        };
-
-        var scope = {mostRecentActivityId: 'message1', threads: [] };
-
-        angular.mock.module(function($provide) {
-          $provide.value('activitystreamAPI', self.asAPI);
-          $provide.value('restcursor', self.restcursor);
-        });
-        inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
-          Restangular.setFullResponse(true);
-          $httpBackend.expectGET('/messages?ids%5B%5D=msg1&ids%5B%5D=msg2&ids%5B%5D=msg3')
-          .respond([
-            {_id: 'msg1', contgent: 'message msg1'},
-            {_id: 'msg3', contgent: 'message msg3'},
-            {_id: 'msg2', contgent: 'message msg2'}
-          ]);
-          activityStreamUpdates('0987654321', scope).then(
-            function() {
-              expect(scope.threads).to.have.length(3);
-              expect(scope.threads[0]._id).to.equal('msg1');
-              expect(scope.threads[1]._id).to.equal('msg3');
-              expect(scope.threads[2]._id).to.equal('msg2');
-              done();
-            },
-            function(err) {done(new Error('I should not be called'));}
-          ).catch (function(err) {
-            throw err;
-          });
-          $httpBackend.flush();
-        });
-      });
-
-
       it('should update the scope, recursively fetching timeline entries per batches of 30', function(done) {
         var self = this;
         var entries1 = [
           {_id: 'tl1', object: {_id: 'msg1'}},
           {_id: 'tl2', object: {_id: 'msg2'}},
-          {_id: 'tl3', object: {_id: 'cmt1'}, inReplyTo: [{_id: 'msg3'}]},
+          {_id: 'tl3', object: {_id: 'msg2'}},
           {_id: 'tl4', object: {_id: 'msg2'}},
-          {_id: 'tl5', object: {_id: 'cmt2'}, inReplyTo: [{_id: 'msg4'}]},
+          {_id: 'tl5', object: {_id: 'msg2'}},
           {_id: 'tl6', object: {_id: 'msg2'}},
           {_id: 'tl7', object: {_id: 'msg2'}},
           {_id: 'tl8', object: {_id: 'msg2'}},
@@ -681,7 +641,7 @@ describe('The esn.activitystream Angular module', function() {
           {_id: 'tl27', object: {_id: 'msg2'}},
           {_id: 'tl28', object: {_id: 'msg2'}},
           {_id: 'tl29', object: {_id: 'msg2'}},
-          {_id: 'tl30', object: {_id: 'cmt3'}, inReplyTo: [{_id: 'msg1'}]}
+          {_id: 'tl30', object: {_id: 'msg4'}}
         ];
 
         var entries2 = [
@@ -704,12 +664,16 @@ describe('The esn.activitystream Angular module', function() {
             endOfStream: false
           };
         };
+        this.activitystreamOriginDecorator = function(stream, streams, callback) {
+          return callback;
+        };
 
         var scope = {mostRecentActivityId: 'message1', threads: [] };
 
         angular.mock.module(function($provide) {
           $provide.value('activitystreamAPI', self.asAPI);
           $provide.value('restcursor', self.restcursor);
+          $provide.value('activitystreamOriginDecorator', self.activitystreamOriginDecorator);
         });
         inject(function(activityStreamUpdates, $rootScope, $httpBackend, Restangular) {
           Restangular.setFullResponse(true);
@@ -735,9 +699,9 @@ describe('The esn.activitystream Angular module', function() {
               expect(scope.threads[0]._id).to.equal('msg18');
               expect(scope.threads[1]._id).to.equal('msg2');
               expect(scope.threads[2]._id).to.equal('msg14');
-              expect(scope.threads[3]._id).to.equal('msg1');
+              expect(scope.threads[3]._id).to.equal('msg4');
               expect(scope.threads[4]._id).to.equal('msg3');
-              expect(scope.threads[5]._id).to.equal('msg4');
+              expect(scope.threads[5]._id).to.equal('msg1');
               done();
             },
             function(err) {done(new Error('I should not be called'));}
