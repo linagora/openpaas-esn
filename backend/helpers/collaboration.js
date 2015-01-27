@@ -1,6 +1,6 @@
 'use strict';
 
-function Member(object) {
+function UserMember(object) {
   this._id = object._id;
   this.emails = object.emails;
   this.firstname = object.firstname;
@@ -13,5 +13,13 @@ function Member(object) {
   this.domains = object.domains;
   this.currentAvatar = object.currentAvatar;
 }
+module.exports.UserMember = UserMember;
 
-module.exports.Member = Member;
+var adapters = {
+  user: UserMember
+};
+
+function memberAdapter(objectType) {
+  return adapters[objectType];
+}
+module.exports.memberAdapter = memberAdapter;

@@ -2,7 +2,7 @@
 
 ## GET /api/collaborations/{objectType}/{id}/members
 
-List all users who are members of the {objectType} of id {id}.
+List all members of the {objectType} collaboration of id {id}.
 Currently {objecType} are either **community** or **project**.
 
 **Request Headers:**
@@ -18,6 +18,7 @@ Currently {objecType} are either **community** or **project**.
 
 - limit (int): The number of members to return. This will only keep the N first members (where N=limit). Default value is 50.
 - offset (int): Start the list of members after skipping N members (where N=offset). For example, if the size of the members list is 100 and the offset is 50, the result list will contain only members from 50 to 99 (list index starts at index 0).
+- objectTypeFilter (string): Keep only the members of the given objectType.
 
 **Response Headers:**
 
@@ -71,7 +72,9 @@ Array of {objectType} members.
           "timestamps": {
             "creation": "2014-09-16T20:16:51.449Z"
           }
-        }
+        },
+        "objectType": "user",
+        "id": "5375de9fd684db7f6fbd5010"
       },
       {
         "user": {
@@ -97,7 +100,31 @@ Array of {objectType} members.
           "timestamps": {
             "creation": "2014-09-16T20:17:51.449Z"
           }
-        }
+        },
+        "objectType": "user",
+        "id": "5375de9fd684db7f6fbd5011"
+      },
+      {
+        "community": {
+          "_id": "5375de9fd684db7f6fbd5012",
+          "title": "Mu Awesome Community",
+          "domains": [
+            {
+              "domain_id": "5375de4bd684db7f6fbd4f98",
+              "joined_at": "2014-05-16T10:47:11.732Z"
+            }
+          ],
+          "timestamps": {
+            "creation": "2014-05-16T09:48:11.703Z"
+          }
+        },
+        "metadata": {
+          "timestamps": {
+            "creation": "2014-09-16T20:17:51.449Z"
+          }
+        },
+        "objectType": "community",
+        "id": "5375de9fd684db7f6fbd5012"
       }
     ]
 

@@ -2,7 +2,7 @@
 
 var collaborationModule = require('../../core/collaboration/index');
 var userDomain = require('../../core/user/domain');
-var Member = require('../../helpers/collaboration').Member;
+var memberAdapter = require('../../helpers/collaboration').memberAdapter;
 var permission = require('../../core/collaboration/permission');
 var userHelper = require('../../helpers/user');
 var userModule = require('../../core/user');
@@ -98,6 +98,10 @@ function getMembers(req, res) {
     }
   }
 
+  if (req.query.objectTypeFilter) {
+    query.objectTypeFilter = req.query.objectTypeFilter;
+  }
+
   collaborationModule.getMembers(req.collaboration, req.params.objectType, query, function(err, members) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
@@ -111,7 +115,15 @@ function getMembers(req, res) {
         return result;
       }
 
-      result.user = new Member(member.member || member);
+      result.objectType = member.objectType;
+      result.id = member.id;
+
+      var Adapter = memberAdapter(member.objectType);
+      if (Adapter) {
+        result[member.objectType] = new Adapter(member.member || member);
+      } else {
+        result[member.objectType] = member.member || member;
+      }
 
       result.metadata = {
         timestamps: member.timestamps

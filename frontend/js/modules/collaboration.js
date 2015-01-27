@@ -106,7 +106,8 @@ angular.module('esn.collaboration', ['restangular'])
       replace: true,
       scope: {
         collaboration: '=',
-        objectType: '@'
+        objectType: '@',
+        objectTypeFilter: '@'
       },
       templateUrl: '/views/modules/collaboration/collaboration-members-widget.html',
       link: function($scope, element, attrs) {
@@ -130,8 +131,14 @@ angular.module('esn.collaboration', ['restangular'])
           return array;
         }
 
+        var query = { limit: 16 };
+
+        if ($scope.objectTypeFilter) {
+          query.objectTypeFilter = $scope.objectTypeFilter;
+        }
+
         $scope.updateMembers = function() {
-          collaborationAPI.getMembers($scope.objectType, $scope.collaboration._id, { limit: 16 }).then(function(result) {
+          collaborationAPI.getMembers($scope.objectType, $scope.collaboration._id, query).then(function(result) {
             var total = parseInt(result.headers('X-ESN-Items-Count'), 10);
             var members = result.data;
             $scope.more = total - members.length;

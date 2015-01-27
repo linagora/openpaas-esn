@@ -1,7 +1,6 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var User = mongoose.model('User');
 var async = require('async');
 var permission = require('./permission');
 var localpubsub = require('../pubsub').local;
@@ -27,6 +26,11 @@ var collaborationModels = {
 
 var collaborationLibs = {
   community: require('../community')
+};
+
+var membersMapping = {
+  user: 'User',
+  community: 'Community'
 };
 
 function getModel(objectType) {
@@ -85,6 +89,20 @@ function getManagers(objectType, collaboration, query, callback) {
   });
 }
 
+function fetchMember(tuple, callback) {
+  if (!tuple) {
+    return callback(new Error('Member tuple is required'));
+  }
+
+  var schema = membersMapping[tuple.objectType];
+  if (!schema) {
+    return callback(new Error('No schema to fetch member for objectType ' + tuple.objectType));
+  }
+
+  var Model = mongoose.model(schema);
+  return Model.findOne({_id: tuple.id}, callback);
+}
+
 function getMembers(collaboration, objectType, query, callback) {
   query = query ||  {};
 
@@ -102,22 +120,26 @@ function getMembers(collaboration, objectType, query, callback) {
 
     var offset = query.offset || DEFAULT_OFFSET;
     var limit = query.limit || DEFAULT_LIMIT;
-    var members = collaboration.members.slice(offset, offset + limit);
-    var memberIds = members.map(function(member) { return member.member.id; });
 
-    User.find({_id: {$in: memberIds}}, function(err, users) {
-      if (err) {
-        return callback(err);
-      }
-
-      var hash = {};
-      users.forEach(function(u) { hash[u._id] = u; });
-      members.forEach(function(m) {
-        m.member = hash[m.member.id];
+    var members = collaboration.members;
+    if (query.objectTypeFilter) {
+      members = members.filter(function(m) {
+        return m.member.objectType === query.objectTypeFilter;
       });
+    }
 
-      return callback(null, members);
-    });
+    members = members.slice(offset, offset + limit);
+
+    async.map(members, function(m, callback) {
+      return fetchMember(m.member, function(err, loaded) {
+        if (loaded) {
+          m.objectType = m.member.objectType;
+          m.id = m.member.id;
+          m.member = loaded;
+        }
+        return callback(null, m);
+      });
+    }, callback);
   });
 }
 

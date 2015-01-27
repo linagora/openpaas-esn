@@ -18,7 +18,7 @@ describe('Member object', function() {
       login: [4, 5, 6]
     };
 
-    var member = new collaboration.Member(user);
+    var member = new collaboration.UserMember(user);
     expect(member).to.exist;
     expect(member._id).to.exist;
     expect(member.firstname).to.exist;
