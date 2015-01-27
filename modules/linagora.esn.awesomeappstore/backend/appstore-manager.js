@@ -290,6 +290,8 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
 };
 
 AwesomeAppManager.prototype.undeploy = function(application, target, callback) {
+  var self = this;
+
   if (!application) {
     return callback(new Error('Application is required.'));
   }
@@ -307,14 +309,43 @@ AwesomeAppManager.prototype.undeploy = function(application, target, callback) {
     return callback(null, application);
   }
 
-  var self = this;
-  fs.remove(self.getDeploymentDirForApplication(application, ''), function(err) {
+  function unregisterAppIntoEsnConfig(application, callback) {
+    var configuration = self.esnconfig('injection');
+    configuration.get(function(err, injection) {
+      if (err) {
+        callback(err);
+      }
+      if (!injection) {
+        callback(null);
+      } else {
+        var modules = injection.modules || [];
+        var newModules = modules.filter(function(module) {
+          return module !== application.moduleName;
+        });
+        configuration.set('modules', newModules, callback);
+      }
+    });
+  }
+
+  function removeAppFromFs(application, callback) {
+    fs.remove(self.getDeploymentDirForApplication(application, ''), function(err) {
+      if (err) {
+        return callback(err);
+      }
+
+      application.deployments = otherTargetDeployments;
+      application.save(callback);
+    });
+  }
+
+  async.series([
+    unregisterAppIntoEsnConfig.bind(null, application),
+    removeAppFromFs.bind(null, application)
+  ], function(err) {
     if (err) {
       return callback(err);
     }
-
-    application.deployments = otherTargetDeployments;
-    application.save(callback);
+    callback(null);
   });
 };
 
