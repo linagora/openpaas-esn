@@ -37,28 +37,67 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreButtonDeploy', ['$log', 'session', 'appstoreAPI', 'disableService', function($log, session, appstoreAPI, disableService) {
+  .directive('appstoreCheckboxDomainDeploy', ['$log', 'session', 'disableService', function($log, session, disableService) {
+    return {
+      require: '^appstoreButtonsGroup',
+      restrict: 'E',
+      templateUrl: '/appstore/views/appstore/appstore-checkbox-domain-deploy.html',
+      link: function(scope) {
+        var target = { objectType: 'domain', id: session.domain._id };
+        scope.disabled = disableService(target, scope.application.deployments);
+
+        scope.$on('deployed', function() {
+          scope.disabled = true;
+        });
+
+        scope.$on('undeployed', function() {
+          scope.disabled = false;
+        });
+      }
+    };
+  }])
+  .directive('appstoreButtonDeploy', ['$log', '$q', 'session', 'appstoreAPI', 'disableService', function($log, $q, session, appstoreAPI, disableService) {
     return {
       require: '^appstoreButtonsGroup',
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-deploy.html',
       scope: {
         application: '=',
-        version: '@'
+        version: '@',
+        domainDeployment: '='
       },
       link: function(scope, element, attrs, controllers) {
         var target = { objectType: 'domain', id: session.domain._id };
+        scope.domainDeployment = false;
         scope.loading = false;
         scope.disabled = disableService(target, scope.application.deployments);
 
-        scope.deploy = function() {
-          scope.loading = true;
-          appstoreAPI.deploy(scope.application._id, target, scope.version)
+        function deployAndInstall() {
+          return appstoreAPI.deploy(scope.application._id, target, scope.version)
+            .then(function() {
+              return appstoreAPI.install(scope.application._id, target);
+            })
+            .then(function() {
+              $log.debug('Application deployment success at domain level.');
+            }, function(error) {
+              $log.debug('Application deployment failed at domain level.', error);
+            });
+        }
+
+        function deploy() {
+          return appstoreAPI.deploy(scope.application._id, target, scope.version)
             .then(function() {
               $log.debug('Application deployment success.');
             }, function(error) {
               $log.debug('Application deployment failed.', error);
-            }).finally (function() {
+            });
+        }
+
+        scope.deploy = function() {
+          scope.loading = true;
+          var steps = scope.domainDeployment ? deployAndInstall : deploy;
+          steps()
+            .finally (function() {
               scope.loading = false;
               scope.disabled = true;
               controllers.emit('deployed');
@@ -68,6 +107,10 @@ angular.module('esn.appstore')
 
         scope.$on('undeployed', function() {
           scope.disabled = false;
+        });
+
+        scope.$watch('domainDeployment', function(value) {
+          scope.domainDeployment = value;
         });
       }
     };
@@ -122,6 +165,7 @@ angular.module('esn.appstore')
         var deployment = scope.application.deployments.filter(function(deployment) {
           return angular.equals(deployment.target, targetDomain);
         });
+
         if (deployment[0]) {
           scope.disabled = disableService(target, deployment[0].installs);
         } else {

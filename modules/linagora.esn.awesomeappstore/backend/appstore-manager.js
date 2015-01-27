@@ -16,6 +16,7 @@ function AwesomeAppManager(dependencies, moduleManager) {
   this.storage = dependencies('filestore');
   this.imageModule = dependencies('community');
   this.communityModule = dependencies('community');
+  this.domainModule = dependencies('domain');
   this.localPubsub = dependencies('pubsub').local;
   this.esnconfig = dependencies('esn-config');
   this.moduleManager = moduleManager;
@@ -120,7 +121,17 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
     return self.storage.getMeta(fileId, callback);
   }
 
-  function updateApplication(application, updates, callback) {
+  function updateApplication(application, injection, moduleName, callback) {
+    var updates = Object.create(null);
+    var objectType = injection.objectType;
+    delete injection.objectType;
+
+    if (objectType === 'domain') {
+      updates = {$push: {'domainInjections': injection}, 'moduleName': moduleName};
+    } else {
+      updates = {$push: {'targetInjections': injection}, 'moduleName': moduleName};
+    }
+
     var options = {};
     return application.update(updates, options, callback);
   }
@@ -165,7 +176,7 @@ AwesomeAppManager.prototype.uploadArtifact = function(application, contentType, 
     })
     .on('end', function() {
       async.parallel([
-        updateApplication.bind(null, application, {$push: {'targetInjections': injection}, 'moduleName': moduleName}),
+        updateApplication.bind(null, application, injection, moduleName),
         storeArtifact.bind(null, contentType, metadata, streams[1], options)
       ],
         returnFileMeta
@@ -248,9 +259,6 @@ AwesomeAppManager.prototype.deploy = function(application, deployData, callback)
     } else {
       return callback(new Error('This application does not exist'));
     }
-
-
-
     return callback(null);
   }
 
@@ -384,20 +392,36 @@ AwesomeAppManager.prototype.install = function(application, target, callback) {
     return callback(new Error('Target is required.'));
   }
 
-  if (!target.objectType || target.objectType !== 'community') {
+  if (!target.objectType || (target.objectType !== 'community' && target.objectType !== 'domain')) {
     return callback(new Error('Unsupported install target.'));
   }
 
-  function addInstallsToComplicantDeploys(application, community, callback) {
-    var compliantDeploys = application.deployments.filter(function(deploy) {
-      return self.communityModule.hasDomain(community, deploy.target.id);
-    });
+  function load(targetId, callback) {
+    if (target.objectType === 'community') {
+      self.communityModule.load(targetId, callback);
+    } else if (target.objectType === 'domain') {
+      self.domainModule.load(targetId, callback);
+    }
+  }
+
+  function addInstallsToComplicantDeploys(application, objectType, target, callback) {
+    var compliantDeploys = [];
+
+    if (objectType === 'community') {
+      compliantDeploys = application.deployments.filter(function(deploy) {
+        return self.communityModule.hasDomain(target, deploy.target.id);
+      });
+    } else if (objectType === 'domain') {
+      compliantDeploys = application.deployments.filter(function(deploy) {
+        return deploy.target.id === target.id;
+      });
+    }
 
     if (compliantDeploys.length === 0) {
       return callback(new Error('Cannot install application before it has been deployed.'));
     }
 
-    var install = { objectType: 'community', id: target.id };
+    var install = { objectType: objectType, id: target.id };
     compliantDeploys[0].installs.push(install);
     callback(null, compliantDeploys);
   }
@@ -430,8 +454,8 @@ AwesomeAppManager.prototype.install = function(application, target, callback) {
   }
 
   async.waterfall([
-    self.communityModule.load.bind(null, target.id),
-    addInstallsToComplicantDeploys.bind(null, application),
+    load.bind(null, target.id),
+    addInstallsToComplicantDeploys.bind(null, application, target.objectType),
     saveApplication.bind(null, application),
     publishToLocalPubsub,
     startApplication.bind(null, application)

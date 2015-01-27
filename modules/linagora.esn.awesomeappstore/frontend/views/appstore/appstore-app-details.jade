@@ -17,6 +17,8 @@
     .row
       ul.list-inline(appstore-buttons-group)
         li
-          appstore-button-deploy(application='application', version="1.0.0")
+          appstore-button-deploy(application='application', version="1.0.0", domain-deployment="domainDeployment")
         li
           appstore-button-undeploy(application='application')
+        li
+          appstore-checkbox-domain-deploy

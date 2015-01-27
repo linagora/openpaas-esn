@@ -10,6 +10,7 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.filestore', 'filestore'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.domain', 'domain'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.community', 'community'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.injection', 'injection'),
