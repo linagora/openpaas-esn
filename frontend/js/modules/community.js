@@ -138,6 +138,12 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     }
     return createCommunity;
   }])
+  .directive('communityCreateButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-create-button.html'
+    };
+  })
   .directive('communityCreate',
   ['widget.wizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert',
   function(Wizard, selectionService, communityCreationService, $timeout, $location, $alert) {
