@@ -1,0 +1,5 @@
+div.small(ng-show='message.copyOf && message.copyOf.target')
+    p #{__('This message has been shared to :')}
+        span(ng-repeat='sharedTo in shareTargets')
+            &nbsp;
+            a(href='#/communities/{{::sharedTo._id}}') {{::sharedTo.title}}
