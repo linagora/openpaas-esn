@@ -4,8 +4,8 @@
     hr
     div.form-container
         form(name='form')
-            .form-group
-                .row
+            fieldset
+                .form-group
                     tags-input(ng-disabled='running', ng-model='users', display-property='{{::displayProperty}}',
                     placeholder='{{::placeholder}}', min-tags='1', add-from-autocomplete-only='true',
                     on-tag-added='resetView()', replace-spaces-with-dashes='false')
@@ -16,8 +16,7 @@
                         p(ng-show='error') {{error.error.details || error}}.
                         p(ng-show='invalidUser') #{__('An invitation has not been sent')} : {{invalidUser}} #{__('is not a valid user')}.
                         p(ng-show='noUser') #{__('Please enter at least one user to send an invitation')}.
-            .form-group
-                .row
+                .form-group
                     button.btn.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
                         i.fa.fa-sign-in(button-content) &nbsp;&nbsp;#{__('Send')}
                         span.hidden(running-container)
