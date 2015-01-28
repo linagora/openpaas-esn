@@ -56,7 +56,7 @@ angular.module('esn.appstore')
 
     function uploadAvatar(id, blob, mime) {
       var url = '/appstore/api/apps/' + id + '/avatar';
-      return fileAPIService.upload(url, blob, mime, blob.size);
+      return fileAPIService.uploadBlob(url, blob, mime, blob.size);
     }
 
     function uploadArtifact(id, file, version) {
