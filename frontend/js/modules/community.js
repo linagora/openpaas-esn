@@ -1102,7 +1102,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       });
 
       function joinCommunityNotificationHandler(event, data) {
-        communityAPI.get(data.community).then(function(success) {
+        communityAPI.get(data.collaboration.id).then(function(success) {
           var uuid = success.data.activity_stream.uuid;
           ASTrackerNotificationService.subscribeToStreamNotification(uuid);
 
