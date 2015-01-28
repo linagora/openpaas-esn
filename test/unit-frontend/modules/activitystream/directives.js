@@ -42,7 +42,11 @@ describe('The esn.activitystream Angular module', function() {
 
       var asSession = {
         user: {
-          _id: sessionId
+          _id: sessionId,
+          emails: ['user1@test.com']
+        },
+        domain: {
+          company_name: 'test'
         }
       };
 
