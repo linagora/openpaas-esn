@@ -9,6 +9,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
         a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}")
           small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
+      include ../templates/includes/shareMessage
       display-position(position='message.position')
       p.multilines
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')

@@ -895,4 +895,49 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       share: share
     };
 
+  }])
+  .directive('sharedFrom', ['activitystreamAPI', function(activitystreamAPI) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/message/share/shared-from.html',
+      link: function(scope) {
+        if (scope.message && scope.message.copyOf && scope.message.copyOf.origin) {
+          activitystreamAPI.getResource(scope.message.copyOf.origin.resource.id).then(
+            function(response) {
+              scope.sharedFrom = response.data.object;
+            },
+            function(error) {
+              scope.sharedFromError = error.details || error;
+            });
+        }
+      }
+    };
+  }])
+  .directive('sharedTo', ['activitystreamAPI', '$q', function(activitystreamAPI, $q) {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/message/share/shared-to.html',
+      link: function(scope) {
+        if (scope.message && scope.message.copyOf && scope.message.copyOf.target) {
+          var collaborations = [];
+          var restCalls = scope.message.copyOf.target.map(function(target) {
+            return activitystreamAPI.getResource(target.id).then(
+              function(response) {
+                collaborations.push(response.data);
+              },
+              function(error) {
+                scope.sharedToError = error.details || error;
+              });
+          });
+          $q.all(restCalls).then(function() {
+              scope.shareTargets = collaborations.map(function(collaboration) {
+                return collaboration.object;
+              });
+          },
+          function(error) {
+            scope.sharedToError = error.details || error;
+          });
+        }
+      }
+    };
   }]);
