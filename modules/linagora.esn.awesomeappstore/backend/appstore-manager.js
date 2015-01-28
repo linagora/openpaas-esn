@@ -14,7 +14,7 @@ var DEPLOYMENT_DIR = path.join(__dirname, '../../../apps');
 function AwesomeAppManager(dependencies, moduleManager) {
   this.logger = dependencies('logger');
   this.storage = dependencies('filestore');
-  this.imageModule = dependencies('community');
+  this.imageModule = dependencies('image');
   this.communityModule = dependencies('community');
   this.localPubsub = dependencies('pubsub').local;
   this.esnconfig = dependencies('esn-config');
