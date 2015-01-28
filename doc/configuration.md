@@ -38,7 +38,7 @@ The configuration of the ESN is stored in MongoDB under the configuration collec
           "browser": true
         }
       },
-      "rules": {
+      "resolvers": {
         "organizational": {
           "active": true,
           "options": {
