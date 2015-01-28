@@ -400,7 +400,7 @@ angular.module('esn.activitystream')
       });
     };
 }])
-.factory('activitystreamHelper', function() {
+.factory('activitystreamHelper', function(session, companyUserService) {
 
   function getMessageStreamOrigins(message, streams) {
     if (!message || !angular.isArray(streams)) {
@@ -418,8 +418,31 @@ angular.module('esn.activitystream')
     return getMessageStreamOrigins(message, streams).length > 0;
   }
 
+  function isMessageReadableForUser(timelineentry) {
+    var currentUserEmail = session.user.emails[0];
+
+    if (companyUserService.isInternalUser(currentUserEmail, session.domain.company_name)) {
+      return true;
+    }
+
+    var isAMessageRecipient = false;
+    if (timelineentry.to && angular.isArray(timelineentry.to) && timelineentry.to.length > 0) {
+      isAMessageRecipient = timelineentry.to.some(function(recipient) {
+        if (recipient && recipient.objectType) {
+          if (recipient.objectType === 'company') {
+            return companyUserService.isInternalUser(currentUserEmail, recipient.id);
+          }
+          return false;
+        }
+        return false;
+      });
+    }
+    return isAMessageRecipient;
+  }
+
   return {
     messageIsSharedInStreams: messageIsSharedInStreams,
-    getMessageStreamOrigins: getMessageStreamOrigins
+    getMessageStreamOrigins: getMessageStreamOrigins,
+    isMessageReadableForUser: isMessageReadableForUser
   };
 });
