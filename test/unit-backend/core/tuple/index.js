@@ -6,7 +6,7 @@ var sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 var expect = chai.expect;
 
-describe.only('The tuple core module', function() {
+describe('The tuple core module', function() {
   beforeEach(function() {
     this.modPath = this.testEnv.basePath + '/backend/core/tuple';
   });
@@ -42,7 +42,7 @@ describe.only('The tuple core module', function() {
     it('should send back a user tuple', function() {
       var user = this.mod.user('54524754276624530a930692');
       expect(user.objectType).to.equal('user');
-      expect(user.id + '' ).to.equal('54524754276624530a930692');
+      expect(user.id + '').to.equal('54524754276624530a930692');
       expect(user.id).to.be.an('Object');
       expect(user.id).to.not.be.a('string');
     });
@@ -51,7 +51,7 @@ describe.only('The tuple core module', function() {
       var o = new ObjectID('54524754276624530a930692');
       var user = this.mod.user(o);
       expect(user.objectType).to.equal('user');
-      expect(user.id + '' ).to.equal('54524754276624530a930692');
+      expect(user.id + '').to.equal('54524754276624530a930692');
       expect(user.id).to.be.an('Object');
       expect(user.id).to.not.be.a('string');
     });
@@ -60,7 +60,7 @@ describe.only('The tuple core module', function() {
       var o = new ObjectID('54524754276624530a930692');
       var user = this.mod.user(o);
       expect(user.objectType).to.equal('user');
-      expect(user.id + '' ).to.equal('54524754276624530a930692');
+      expect(user.id + '').to.equal('54524754276624530a930692');
       expect(user.id).to.be.an('Object');
       expect(user.id).to.not.be.a('string');
     });

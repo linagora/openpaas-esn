@@ -393,8 +393,10 @@ describe('The collaboration module', function() {
           return callback(new Error());
         }
       };
+      var ObjectId = require('bson').ObjectId;
+      var user = new ObjectId();
       var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaboration.join('community', comMock, 456, 456, 'user', function(err) {
+      collaboration.join('community', comMock, user, user, 'user', function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -424,8 +426,10 @@ describe('The collaboration module', function() {
         }
       };
 
+      var ObjectId = require('bson').ObjectId;
+      var user = new ObjectId();
       var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
-      collaboration.join('community', comMock, 456, 456, 'user', function(err, update) {
+      collaboration.join('community', comMock, user, user, 'user', function(err, update) {
         expect(err).to.not.exist;
         expect(update.updated).to.be.true;
         return done();
@@ -454,18 +458,22 @@ describe('The collaboration module', function() {
           return callback(null, this);
         }
       };
-      collaboration.join('community', comMock, 456, 789, 'user', function(err, update) {
+      var ObjectId = require('bson').ObjectId;
+      var user = new ObjectId();
+      var target = new ObjectId();
+
+      collaboration.join('community', comMock, user, target, 'user', function(err, update) {
         expect(err).to.not.exist;
 
         expect(localstub.topics['collaboration:join'].data[0]).to.deep.equal({
-          author: 456,
-          target: 789,
+          author: user,
+          target: target,
           actor: 'user',
           collaboration: {objectType: 'community', id: 'collaboration1'}
         });
         expect(globalstub.topics['collaboration:join'].data[0]).to.deep.equal({
-          author: 456,
-          target: 789,
+          author: user,
+          target: target,
           actor: 'user',
           collaboration: {objectType: 'community', id: 'collaboration1'}
         });

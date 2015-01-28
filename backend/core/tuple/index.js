@@ -15,6 +15,10 @@ function vasobjectID(value) {
     throw new Error('ID cannot be null');
 
   }
+
+  if (typeof value.toString === 'function') {
+    value = value.toString();
+  }
   return new ObjectID(value + '');
 }
 

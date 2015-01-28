@@ -123,7 +123,7 @@ describe('The collaborations API', function() {
       var self = this;
       var tuples = [{
         objectType: 'community',
-        id: '' + self.models.communities[0]._id
+        id: self.models.communities[0]._id
       }];
 
       self.helpers.api.addMembersInCommunity(self.models.communities[1], tuples, function(err) {
@@ -153,7 +153,7 @@ describe('The collaborations API', function() {
       var self = this;
       var publicTuples = [{
         objectType: 'community',
-        id: '' + self.models.communities[0]._id
+        id: self.models.communities[0]._id
       }];
 
       function test() {

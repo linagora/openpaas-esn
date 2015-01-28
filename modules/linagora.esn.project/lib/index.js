@@ -74,12 +74,12 @@ function projectLib(dependencies) {
     }
 
     var params = {
-      members: { '$elemMatch': { 'member.objectType': 'user', 'member.id': userId + '' } }
+      members: { '$elemMatch': { 'member.objectType': 'user', 'member.id': userId} }
     };
 
     community.getUserCommunities(userId, {}, function(err, communities) {
       var communityTuples = communities.map(function(community) {
-        return { 'member.objectType': 'community', 'member.id': community._id + '' };
+        return { 'member.objectType': 'community', 'member.id': community._id};
       });
 
       if (communityTuples.length) {

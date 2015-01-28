@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var permission = require('./permission');
+var tupleModule = require('../tuple');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 
@@ -269,6 +270,11 @@ function addMember(target, author, member, callback) {
     return callback(null, target);
   }
 
+  member = tupleModule.get(member.objectType, member.id);
+  if (!member) {
+    return callback(new Error('Unsupported tuple'));
+  }
+
   target.members.push({member: member, status: 'joined'});
   return target.save(function(err, update) {
     if (err) {
@@ -363,6 +369,11 @@ function getCollaborationsForTuple(tuple, callback) {
 
   if (!tuple) {
     return callback(new Error('Tuple is required'));
+  }
+
+  tuple = tupleModule.get(tuple.objectType, tuple.id);
+  if (!tuple) {
+    return callback(new Error('Can not create tuple'));
   }
 
   var finders = [];
