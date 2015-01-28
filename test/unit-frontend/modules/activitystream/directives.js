@@ -159,6 +159,7 @@ describe('The esn.activitystream Angular module', function() {
   describe('activitystream directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
+    beforeEach(module('esn.infinite-list'));
 
     beforeEach(function() {
       module('jadeTemplates');

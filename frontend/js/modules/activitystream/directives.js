@@ -123,13 +123,9 @@ angular.module('esn.activitystream')
             };
           }
         }
-        //initialization code
 
-        // let sub-directives load and register event listeners
-        // before we start fetching the stream
+        // set as read once displayed
         $timeout(function() {
-          scope.reset();
-          scope.loadMoreElements();
           scope.streams.forEach(function(stream) {
             $rootScope.$emit('activitystream:updated', {
               activitystreamUuid: stream.activity_stream.uuid
