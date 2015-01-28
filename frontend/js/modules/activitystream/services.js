@@ -5,8 +5,14 @@ angular.module('esn.activitystream')
   function get(id, options) {
     return Restangular.all('activitystreams/' + id).getList(options);
   }
+
+  function getResource(id) {
+    return Restangular.all('activitystreams/' + id).one('resource').get();
+  }
+
   return {
-    get: get
+    get: get,
+    getResource: getResource
   };
 }])
 
