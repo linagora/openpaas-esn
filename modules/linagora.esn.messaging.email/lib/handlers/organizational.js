@@ -71,7 +71,7 @@ module.exports = function(lib, dependencies) {
             return {
               user: user,
               data: {
-                recipient: recipient
+                recipients: [recipient]
               }
             };
           });
@@ -91,15 +91,20 @@ module.exports = function(lib, dependencies) {
       author: user._id,
       source: 'email',
       attachments: message.attachments,
-      recipients: [data.recipient]
+      recipients: data.recipients || []
     };
+  }
+
+  function getReplyObjectType() {
+    return 'organizational';
   }
 
   return {
     sendMessageAsEMail: sendMessageAsEMail,
     sendResponseAsEmail: sendResponseAsEmail,
     generateReplyMessage: generateReplyMessage,
-    getUsersForMessage: getUsersForMessage
+    getUsersForMessage: getUsersForMessage,
+    getReplyObjectType: getReplyObjectType
   };
 };
 

@@ -24,7 +24,7 @@ module.exports = function(dependencies, lib) {
         return res.json(404, {error: {status: 404, message: 'Not found', details: 'Can not get message from recipient address'}});
       }
 
-      lib.canReply(replyTo.message, req.user, function(err, reply) {
+      lib.canReply(replyTo, req.user, function(err, reply) {
         if (err) {
           return res.json(500, {error: {status: 500, message: 'Server Error', details: err.message}});
         }

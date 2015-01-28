@@ -35,15 +35,24 @@ module.exports = function(dependencies) {
     return messageModule.get(messageId, callback);
   }
 
-  function canReply(message, user, callback) {
+  function canReply(replyTo, user, callback) {
 
     if (!user) {
       return callback(new Error('User is required'));
     }
 
-    if (!message) {
+    if (!replyTo) {
       return callback(new Error('Message is required'));
     }
+
+    var message = replyTo.message;
+
+    var handler = handlers[message.objectType];
+    if (!handler) {
+      return callback(new Error('Can not get mail handler for %s message', message.objectType));
+    }
+
+    replyTo.objectType = handler.getReplyObjectType();
 
     loadMessage(message._id, function(err, m) {
       if (err) {
@@ -53,7 +62,7 @@ module.exports = function(dependencies) {
       var messageModule = dependencies('message');
       messageModule.permission.canReply(m, user, function(err, result) {
         if (result) {
-          return messageModule.typeSpecificReplyPermission(m, user, message, callback);
+          return messageModule.typeSpecificReplyPermission(m, user, replyTo, callback);
         }
         return callback(null, false);
       });

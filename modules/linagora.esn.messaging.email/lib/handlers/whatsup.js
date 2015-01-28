@@ -43,10 +43,15 @@ module.exports = function(lib, dependencies) {
     }, callback);
   }
 
+  function getReplyObjectType() {
+    return 'whatsup';
+  }
+
   return {
     sendMessageAsEMail: sendMessageAsEMail,
     sendResponseAsEmail: sendResponseAsEmail,
     generateReplyMessage: generateReplyMessage,
-    getUsersForMessage: getUsersForMessage
+    getUsersForMessage: getUsersForMessage,
+    getReplyObjectType: getReplyObjectType
   };
 };

@@ -33,7 +33,8 @@ module.exports.checkReplyPermission = function(message, user, replyData, callbac
     if (err) {
       return callback(err);
     }
-    if (replyData.data.recipients) {
+
+    if (replyData.data && replyData.data.recipients) {
       var unknownRecipients = replyData.data.recipients.filter(function(replyRecipient) {
         var isInParentMsgRecipients = message.recipients.some(function(parentMsgRecipient) {
           return parentMsgRecipient.objectType === replyRecipient.objectType && parentMsgRecipient.id === replyRecipient.id;
@@ -45,6 +46,7 @@ module.exports.checkReplyPermission = function(message, user, replyData, callbac
       }
       return callback(null, true);
     }
+    return callback(null, false);
   });
 };
 
