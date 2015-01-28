@@ -200,6 +200,16 @@ module.exports.collaborationMembers = function() {
         type: 'open',
         creator: 'itadmin@lng.net',
         members: []
+      },
+      {
+        title: 'Nested Members',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: [
+          {objectType: 'user', id: 'yolo@lng.net'},
+          {objectType: 'user', id: 'jhendrix@lng.net'},
+          {objectType: 'community', id: 'community@lng.net'}
+        ]
       }
     ],
     projects: [

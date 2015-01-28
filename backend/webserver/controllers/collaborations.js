@@ -113,7 +113,7 @@ function getMembers(req, res) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
     }
 
-    res.header('X-ESN-Items-Count', req.collaboration.members ? req.collaboration.members.length : 0);
+    res.header('X-ESN-Items-Count', members.total_count || 0);
 
     function format(member) {
       var result = Object.create(null);

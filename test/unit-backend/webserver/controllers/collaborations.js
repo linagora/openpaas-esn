@@ -95,7 +95,7 @@ describe('getMembers fn', function() {
 
     var req = {
       params: {
-        objectType: 'communty'
+        objectType: 'community'
       },
       collaboration: {
         members: members
@@ -105,7 +105,51 @@ describe('getMembers fn', function() {
 
     mockery.registerMock('../../core/collaboration/index', {
       getMembers: function(com, objectType, query, callback) {
-        return callback(null, []);
+        var members = [
+          { id: 1, member: { 'objectType': 'user' } },
+          { id: 2, member: { 'objectType': 'user' } },
+          { id: 3, member: { 'objectType': 'user' } }
+        ];
+        members.total_count = members.length;
+        return callback(null, members);
+      }
+    });
+    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    collaborations.getMembers(req, res);
+  });
+
+  it('should filter by object type', function(done) {
+    var res = {
+      json: function(code) {
+        expect(code).to.equal(200);
+        done();
+      },
+      header: function(name, value) {
+        expect(name).to.equal('X-ESN-Items-Count');
+        expect(value).to.equal(1);
+      }
+    };
+
+    var req = {
+      params: {
+        objectType: 'community'
+      },
+      collaboration: {
+        members: [1, 2]
+      },
+      query: {
+        limit: 1,
+        objectTypeFilter: 'user'
+      }
+    };
+
+    mockery.registerMock('../../core/collaboration/index', {
+      getMembers: function(com, objectType, query, callback) {
+        var members = [
+          { id: 2, member: { 'objectType': 'user' } }
+        ];
+        members.total_count = 1;
+        return callback(null, members);
       }
     });
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
@@ -147,7 +191,13 @@ describe('getMembers fn', function() {
         expect(query.limit).to.equal(limit);
         expect(query.offset).to.equal(offset);
 
-        return callback(null, []);
+        var members = [
+          { id: 1, member: { 'objectType': 'user' } },
+          { id: 2, member: { 'objectType': 'user' } },
+          { id: 3, member: { 'objectType': 'user' } }
+        ];
+        members.total_count = members.length;
+        return callback(null, members);
       }
     });
     var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
