@@ -57,6 +57,7 @@
     "superagent": "~0.18.0",
     "toobusy-js": "~0.3.0",
     "trim": "0.0.1",
+    "valid-url": "^1.0.9",
     "winston": "~0.7.2",
     "xml2js": "^0.4.3",
     "dav": "git+https://github.com/GrahamLinagora/dav.git",
@@ -111,6 +112,8 @@
     "nodemon": "1.0.19",
     "open": "0.0.5",
     "requirejs": "~2.1.10",
+    "sinon": "^1.11.1",
+    "sinon-chai": "^2.6.0",
     "supertest": "^0.12.1"
   },
   "scripts": {

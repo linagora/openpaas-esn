@@ -83,6 +83,7 @@ describe('The module manager', function() {
         'linagora.esn.core.pubsub.global',
         'linagora.esn.core.pubsub.local',
         'linagora.esn.core.templates',
+        'linagora.esn.core.tuple',
         'linagora.esn.core.user',
         'linagora.esn.core.webserver.middleware.activitystream',
         'linagora.esn.core.webserver.middleware.authentication',
