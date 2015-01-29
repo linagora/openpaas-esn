@@ -946,6 +946,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
         if (scope.message && scope.message.copyOf && scope.message.copyOf.target) {
           updateShareTargets(scope.message.copyOf.target);
+        } else {
+          scope.shareTargets = [];
         }
 
         scope.$on('message:shared', function(evt, data) {
