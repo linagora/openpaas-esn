@@ -4,11 +4,11 @@
   .row.alert.alert-info(ng-show="loading", role="alert")
     p
       i.fa.fa-cog.fa-spin
-      | #{__('Loading applications...')}
+      | #{__('Loading modules...')}
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
-    p #{__('Error while loading applications!')}
+    p #{__('Error while loading modules !')}
   .row.alert.alert-info(ng-show="!loading && !error && applications.length === 0", role="alert")
-    p #{__('There are no applications yet.')}
+    p #{__('There are no modules yet.')}
   .vertiz-space
 
   .row(ng-if="applications")
