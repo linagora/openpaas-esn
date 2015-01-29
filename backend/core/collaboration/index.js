@@ -129,6 +129,8 @@ function getMembers(collaboration, objectType, query, callback) {
       });
     }
 
+    var total_count = members.length;
+
     members = members.slice(offset, offset + limit);
 
     async.map(members, function(m, callback) {
@@ -141,7 +143,10 @@ function getMembers(collaboration, objectType, query, callback) {
         }
         return callback(null, m);
       });
-    }, callback);
+    }, function(err, members) {
+        members.total_count = total_count;
+        callback(err, members);
+    });
   });
 }
 

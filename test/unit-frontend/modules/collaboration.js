@@ -104,6 +104,26 @@ describe('The Collaboration Angular module', function() {
       done();
     });
 
+    it('should apply the object-type-filter', function(done) {
+      this.html = '<collaboration-members-widget object-type="community" collaboration="collaboration" object-type-filter="user"/>';
+      this.collaborationAPI.getMembers = function(objectType, cid, query) {
+        expect(query.objectTypeFilter).to.equal('user');
+        done();
+      };
+
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+    });
+    it('should omit object-type-filter if not specified', function(done) {
+      this.collaborationAPI.getMembers = function(objectType, cid, query) {
+        expect(query.objectTypeFilter).to.not.exist;
+        done();
+      };
+
+      this.$compile(this.html)(this.scope);
+      this.scope.$digest();
+    });
+
     it('should slice members', function(done) {
       var defer = this.$q.defer();
       this.collaborationAPI.getMembers = function() {
