@@ -188,6 +188,8 @@ angular.module('esn.user-notification',
     objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id)
       .then(function(result) {
         $scope.collaboration = result.data;
+        $scope.collaboration.objectType = $scope.notification.complement.objectType;
+        $scope.collaborationPath = $scope.notification.complement.objectType === 'community' ? 'communities' : 'projects';
 
         userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
           function() {
@@ -318,6 +320,7 @@ angular.module('esn.user-notification',
           $scope.invitationSender = result.user.data;
           $scope.invitationCollaboration = result.collaboration.data;
           $scope.invitationCollaboration.objectType = $scope.notification.complement.objectType;
+          $scope.collaborationPath = $scope.notification.complement.objectType === 'community' ? 'communities' : 'projects';
         }, function() {
           $scope.error = true;
         }).finally (function() {
@@ -432,6 +435,7 @@ angular.module('esn.user-notification',
           $scope.joiner = result.user.data;
           $scope.collaborationJoined = result.collaboration.data;
           $scope.collaborationJoined.objectType = $scope.notification.complement.objectType;
+          $scope.collaborationPath = $scope.notification.complement.objectType === 'community' ? 'communities' : 'projects';
           userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
             function() {
               $scope.notification.acknowledged = true;

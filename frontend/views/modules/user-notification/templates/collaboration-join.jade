@@ -6,12 +6,12 @@
       i.fa.fa-cog.fa-spin
       | #{__('Loading notifications')}
   div(ng-hide='loading || error')
-    a.pull-left(ng-href='/#//collaborations/{{::collaborationJoined.objectType}}/{{::collaborationJoined._id}}')
+    a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::collaborationJoined._id}}')
       img.media-object(ng-src='/api/avatars?objectType={{::collaborationJoined.objectType}}&id={{::collaborationJoined._id}}', src='/images/community.png')
     .media-body
       .notification-head.ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
-        a(ng-href="/#/collaborations/{{::collaborationJoined.objectType}}/{{::collaborationJoined._id}}") {{::collaborationJoined.title}}
+        a(ng-href="/#/{{::collaborationPath}}/{{::collaborationJoined._id}}") {{::collaborationJoined.title}}
       .notification-body
         span
           a(ng-href="/#/profile/{{::joiner._id}}") {{::joiner.firstname}} {{::joiner.lastname}}
