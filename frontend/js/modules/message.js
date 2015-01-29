@@ -801,6 +801,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
 
     $scope.messageShared = function() {
       notificationFactory.weakInfo('Message Sharing', 'Message has been shared to communities!');
+      $scope.$emit('message:shared', {
+        message: $scope.message,
+        shares: $scope.shares
+      });
     };
 
     $scope.displayError = function(err) {
@@ -918,9 +922,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'E',
       templateUrl: '/views/modules/message/share/shared-to.html',
       link: function(scope) {
-        if (scope.message && scope.message.copyOf && scope.message.copyOf.target) {
+
+        function updateShareTargets(target) {
           var collaborations = [];
-          var restCalls = scope.message.copyOf.target.map(function(target) {
+          var restCalls = target.map(function(target) {
             return activitystreamAPI.getResource(target.id).then(
               function(response) {
                 collaborations.push(response.data);
@@ -930,14 +935,30 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
               });
           });
           $q.all(restCalls).then(function() {
-              scope.shareTargets = collaborations.map(function(collaboration) {
-                return collaboration.object;
-              });
+            scope.shareTargets = collaborations.map(function(collaboration) {
+              return collaboration.object;
+            });
           },
           function(error) {
             scope.sharedToError = error.details || error;
           });
         }
+
+        if (scope.message && scope.message.copyOf && scope.message.copyOf.target) {
+          updateShareTargets(scope.message.copyOf.target);
+        }
+
+        scope.$on('message:shared', function(evt, data) {
+          if (data.message._id === scope.message._id) {
+            data.shares.forEach(function(share) {
+              scope.shareTargets.push({
+                title: share.target.displayName,
+                _id: share.target._id,
+                objectType: share.target.objectType
+              });
+            });
+          }
+        });
       }
     };
   }]);
