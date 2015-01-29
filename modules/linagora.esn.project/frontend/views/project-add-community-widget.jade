@@ -1,4 +1,4 @@
-.project-widget
+.default-collaboration-widget
   .title.ellipsis
     | #{__('Add communities')}
   hr
@@ -6,15 +6,16 @@
     p #{__('Error while adding communities')}
   div.form-container
     form(name='form')
-      fieldset
-        .form-group
+      .form-group
+        .row
           tags-input(ng-disabled='running', ng-model='members', display-property='{{::displayProperty}}',
           placeholder='{{::placeholder}}', min-tags='1', add-from-autocomplete-only='true',
           on-tag-added='resetView()', replace-spaces-with-dashes='false')
             auto-complete(source='getInvitableCommunities($query)', min-length='1', debounce-delay='200')
           .row(ng-show='success')
             p #{__('Communities have been added')}.
-        .form-group
+      .form-group
+        .row
           button.btn.btn-primary.pull-right(type='button', ng-click='addMembers()', ng-disabled='running')
             i.fa.fa-sign-in(ng-hide='running') &nbsp;
               | #{__('Add')}
