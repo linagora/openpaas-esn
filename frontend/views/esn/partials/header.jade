@@ -14,7 +14,7 @@ div(ng-controller='selectActiveItem')
               li: a(href='{{"/#/domains/" + domain._id + "/members"}}', ng-click='selectItem(1)') #{__('Members')}
               li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}', ng-click='selectItem(1)') #{__('Invitation')}
               li: a(href='/#/applications', ng-click='selectItem(1)') #{__('Applications')}
-              li: a(href='/#/appstore', ng-click='selectItem(1)') #{__('App store')}
+              li: a(href='/#/appstore', ng-click='selectItem(1)') #{__('Module Manager')}
               injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
               li.divider
               li: a(href='/logout') #{__('Logout')}
