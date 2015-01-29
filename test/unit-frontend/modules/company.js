@@ -101,6 +101,14 @@ describe('The Company Angular module', function() {
         expect(this.companyUserService.isInternalUser('user@linagora.com', this.companyName)).to.be.true;
       });
 
+      it('should return true when company is a in a subdomain of an email', function() {
+        expect(this.companyUserService.isInternalUser('lenhart.esche@freshfood.openpaas-partner.prod1.linagora.com', 'freshfood')).to.be.true;
+      });
+
+      it('should return false when company is not in subdomain of an email', function() {
+        expect(this.companyUserService.isInternalUser('lenhart.esche@freshfood.openpaas-partner.prod1.linagora.com', 'eatgood')).to.be.false;
+      });
+
       it('should return true if user is external', function() {
         expect(this.companyUserService.isInternalUser('user@pipo.com', this.companyName)).to.be.false;
       });

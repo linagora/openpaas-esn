@@ -10,6 +10,8 @@ describe('The messages API', function() {
   var restrictedUser;
   var userNotInPrivateCommunity;
   var userExternal;
+  var userExternal1;
+  var userExternal2;
   var domain;
   var community;
   var restrictedCommunity;
@@ -17,7 +19,7 @@ describe('The messages API', function() {
   var password = 'secret';
   var email;
   var restrictedEmail;
-  var message1, message2, message3, message4, message5, message6, message7;
+  var message1, message2, message3, message4, message5, message6, message7, messageExternal;
 
   beforeEach(function(done) {
     var self = this;
@@ -45,6 +47,8 @@ describe('The messages API', function() {
         restrictedUser = models.users[1];
         userNotInPrivateCommunity = models.users[2];
         userExternal = models.users[3];
+        userExternal1 = models.users[5];
+        userExternal2 = models.users[6];
         community = models.communities[0];
         privateCommunity = models.communities[1];
         restrictedCommunity = models.communities[2];
@@ -118,6 +122,31 @@ describe('The messages API', function() {
           }]
         });
 
+        messageExternal = new Organizational({
+          content: 'message external',
+          title: 'Title',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }],
+          responses: [
+          ],
+          recipients: [
+            {
+              objectType: 'company',
+              id: 'linagora.com'
+            },
+            {
+              objectType: 'company',
+              id: 'externalcompany1.com'
+            },
+            {
+              objectType: 'company',
+              id: 'externalcompany2.com'
+            }
+          ]
+        });
+
         message7 = new Organizational({
           content: 'message 7',
           title: 'Title',
@@ -157,6 +186,10 @@ describe('The messages API', function() {
               saveMessage(message7, callback);
             },
             function(callback) {
+              messageExternal.author = testuser._id;
+              saveMessage(messageExternal, callback);
+            },
+            function(callback) {
               restrictedCommunity.members.splice(0, 1);
               restrictedCommunity.markModified('members');
               restrictedCommunity.save(function(err, saved) {
@@ -169,6 +202,8 @@ describe('The messages API', function() {
             },
             function(callback) {
               community.members.push({member: {objectType: 'user', id: userExternal._id}});
+              community.members.push({member: {objectType: 'user', id: userExternal1._id}});
+              community.members.push({member: {objectType: 'user', id: userExternal2._id}});
               community.markModified('members');
               community.save(function(err, saved) {
                 if (err) {
@@ -1268,6 +1303,58 @@ describe('The messages API', function() {
             done();
           });
         });
+    });
+  });
+
+  describe('As external user', function() {
+    it('should not be able to post a comment to an organizational message on a recipient which is not the current user company', function(done) {
+
+      this.helpers.api.loginAsUser(app, userExternal1.emails[0], password, function(err, loggedInAsExternalUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsExternalUser(request(app).post('/api/messages'));
+        req.send({
+          object: {
+            data: {
+              recipients: [{objectType: 'company', id: 'externalcompany2.com'}]
+            },
+            description: 'a new comment to the previous whatsup message',
+            objectType: 'organizational'
+          },
+          inReplyTo: {
+            objectType: 'organizational',
+            _id: messageExternal._id
+          }
+        });
+        req.expect(403).end(done);
+      });
+    });
+
+    it('should be able to post a comment to an organizational message on a recipient which is his company', function(done) {
+
+      this.helpers.api.loginAsUser(app, userExternal1.emails[0], password, function(err, loggedInAsExternalUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsExternalUser(request(app).post('/api/messages'));
+        req.send({
+          object: {
+            data: {
+              recipients: [{objectType: 'company', id: 'externalcompany1.com'}]
+            },
+            description: 'a new comment to the previous whatsup message',
+            objectType: 'organizational'
+          },
+          inReplyTo: {
+            objectType: 'organizational',
+            _id: messageExternal._id
+          }
+        });
+        req.expect(201).end(done);
+      });
     });
   });
 

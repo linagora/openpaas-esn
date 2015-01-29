@@ -118,7 +118,7 @@ function getMembers(req, res) {
     function format(member) {
       var result = Object.create(null);
       if (!member || !member.member) {
-        return result;
+        return null;
       }
 
       result.objectType = member.objectType;
@@ -140,6 +140,8 @@ function getMembers(req, res) {
 
     var result = members.map(function(member) {
       return format(member);
+    }).filter(function(member) {
+      return member !== null;
     });
 
     return res.json(200, result || []);

@@ -336,6 +336,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         data.position.display_name = $scope.position.display_name;
       }
 
+      if ($scope.additionalData) {
+        data.data = $scope.additionalData;
+      }
+
       function comment(objectType, data, inReplyTo, attachments) {
         var defer = $q.defer();
 
