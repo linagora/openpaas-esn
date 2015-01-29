@@ -17,7 +17,7 @@ function projectToStream(project) {
       _id: project._id,
       displayName: project.title,
       id: 'urn:linagora.com:project:' + project._id,
-      image: ''
+      image: project.avatar || ''
     }
   };
 }
