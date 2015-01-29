@@ -1,5 +1,5 @@
 ul(tabindex="-1" class="typeahead dropdown-menu" ng-show="$isVisible()" role="select")
   li(role="presentation" ng-repeat="match in $matches" ng-class="{active: $index == $activeIndex}")
     a(role="menuitem" tabindex="-1" ng-click="$select($index, $event)")
-      img(ng-src="/api/avatars?objectType={{match.label.target.objectType}}&id={{match.label.target._id}}")
+      img(fallback-src='/images/activitystream.png' ng-src="/api/avatars?objectType={{match.label.target.objectType}}&id={{match.label.target._id}}")
       span {{match.label.target.displayName}}
