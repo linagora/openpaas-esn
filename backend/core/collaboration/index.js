@@ -133,9 +133,10 @@ function getMembers(collaboration, objectType, query, callback) {
 
     async.map(members, function(m, callback) {
       return fetchMember(m.member, function(err, loaded) {
+        m.objectType = m.member.objectType;
+        m.id = m.member.id;
+
         if (loaded) {
-          m.objectType = m.member.objectType;
-          m.id = m.member.id;
           m.member = loaded;
         }
         return callback(null, m);

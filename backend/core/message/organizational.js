@@ -29,24 +29,30 @@ module.exports.checkReplyPermission = function(message, user, replyData, callbac
   if (replyData.objectType !== 'organizational') {
     return callback(new Error('Replies to an organizational message must be an organizational message.'));
   }
-  permissionHelpers.checkUserCompany(message.recipients, user, function(err) {
+
+  if (!replyData.data || !replyData.data.recipients) {
+    return callback(null, false);
+  }
+
+  permissionHelpers.checkUserCompany(replyData.data.recipients, user, function(err, isInCompany) {
     if (err) {
       return callback(err);
     }
 
-    if (replyData.data && replyData.data.recipients) {
-      var unknownRecipients = replyData.data.recipients.filter(function(replyRecipient) {
-        var isInParentMsgRecipients = message.recipients.some(function(parentMsgRecipient) {
-          return parentMsgRecipient.objectType === replyRecipient.objectType && parentMsgRecipient.id === replyRecipient.id;
-        });
-        return !isInParentMsgRecipients;
-      });
-      if (unknownRecipients.length > 0) {
-        return callback(new Error('Replies recipients are not inherited from parent message.'));
-      }
-      return callback(null, true);
+    if (!isInCompany) {
+      return callback(null, false);
     }
-    return callback(null, false);
+
+    var unknownRecipients = replyData.data.recipients.filter(function(replyRecipient) {
+      var isInParentMsgRecipients = message.recipients.some(function(parentMsgRecipient) {
+        return parentMsgRecipient.objectType === replyRecipient.objectType && parentMsgRecipient.id === replyRecipient.id;
+      });
+      return !isInParentMsgRecipients;
+    });
+    if (unknownRecipients.length > 0) {
+      return callback(new Error('Replies recipients are not inherited from parent message.'));
+    }
+    return callback(null, true);
   });
 };
 
