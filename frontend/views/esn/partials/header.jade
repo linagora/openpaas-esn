@@ -15,6 +15,7 @@ div(ng-controller='selectActiveItem')
               li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}', ng-click='selectItem(1)') #{__('Invitation')}
               li: a(href='/#/applications', ng-click='selectItem(1)') #{__('Applications')}
               li: a(href='/#/appstore', ng-click='selectItem(1)') #{__('App store')}
+              injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
               li.divider
               li: a(href='/logout') #{__('Logout')}
 
@@ -31,12 +32,12 @@ div(ng-controller='selectActiveItem')
                 span
                   user-notification-button
                   span.badge(data-ng-hide="!unreadCount.count") {{ unreadCount.count }}
-            div.esn-navbar-main
+            div.esn-navbar-main(ng-controller='currentDomainController')
               .esn-item(ng-class='{active: selected === 1}')
                 span
                   a(href='', ng-click='selectItem(1)')
                     i.fa.fa-comments-o
-                    span.hidden-xs(ng-controller='currentDomainController') {{domain.name}}
+                    span.hidden-xs {{domain.name}}
               .esn-item(ng-class='{active: selected === 2}')
                 span
                   a(href='/#conferences', ng-click='selectItem(2)')
@@ -52,3 +53,4 @@ div(ng-controller='selectActiveItem')
                   a(href='/#projects', ng-click='selectItem(4)')
                     i.fa.fa-suitcase
                     span.hidden-xs #{__('Projects')}
+              injections-widget(injection-anchor-id="domainHeaderNavBar", injection-subject="domain")
