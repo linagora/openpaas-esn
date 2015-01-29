@@ -2,7 +2,7 @@
   a.cancel(href="", ng-click='cancel()')
     i.nomargin.remove.fa.fa-remove
 
-  img.avatar.nopadding(fallback-src='/images/activitystream.png', ng-src="/api/avatars?objectType={{::share.target.objectType}}&id={{::share.target._id}}")
+  img.avatar.nopadding(fallback-src='/images/activitystream.png', ng-src="/api/avatars?objectType=image&id={{::share.target.image}}")
 
   div.ellipsis
     span.name {{::share.target.displayName}}
