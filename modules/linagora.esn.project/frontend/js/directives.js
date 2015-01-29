@@ -184,4 +184,10 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       replace: true,
       templateUrl: '/projects/views/list-project-activity-streams.html'
     };
+  })
+  .directive('projectCreateButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/projects/views/project-create-button.html'
+    };
   });
