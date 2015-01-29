@@ -1,4 +1,4 @@
-div.small(ng-show='message.copyOf && message.copyOf.target')
+div.small(ng-show='message.copyOf && message.copyOf.target || shareTargets.length > 0')
     p #{__('This message has been shared to :')}
         span(ng-repeat='sharedTo in shareTargets')
             &nbsp;
