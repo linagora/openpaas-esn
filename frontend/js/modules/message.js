@@ -803,6 +803,12 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       $scope.shares.push(selected);
     };
 
+    $scope.removeShare = function(target) {
+      $scope.shares = $scope.shares.filter(function(share) {
+        return share.uuid !== target.uuid;
+      });
+    };
+
     $scope.messageShared = function() {
       notificationFactory.weakInfo('Message Sharing', 'Message has been shared to communities!');
       $scope.$emit('message:shared', {

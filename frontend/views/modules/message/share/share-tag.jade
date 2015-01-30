@@ -1,5 +1,5 @@
 .share-widget
-  a.cancel(href="", ng-click='cancel()')
+  a.cancel(href="", ng-click='removeShare(share)')
     i.nomargin.remove.fa.fa-remove
 
   img.avatar.nopadding(fallback-src='/images/activitystream.png', ng-src="/api/avatars?objectType=image&id={{::share.target.image}}")
