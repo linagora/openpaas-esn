@@ -295,7 +295,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         requestAnimationFrame(function() {
           draw(context, video, width, height);
         });
-      }, VIDEO_FRAME_RATE);
+      }, VIDEO_FRAME_RATE, 0, false);
     };
   })
 
