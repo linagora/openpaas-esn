@@ -11,7 +11,7 @@
       .esn-panel
         collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
       .vertiz-space
-      .esn-panel(ng-if='isCommunityManager()')
+      .esn-panel(ng-if="showMembershipRequestsWidget()")
         collaboration-membership-requests-widget(object-type="community", collaboration="community")
       .vertiz-space
       .esn-panel

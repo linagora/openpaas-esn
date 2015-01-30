@@ -674,6 +674,9 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     $scope.isCommunityManager = function() {
       return communityService.isManager(community, session.user);
     };
+    $scope.showMembershipRequestsWidget = function() {
+      return $scope.isCommunityManager() && community.type !== 'open';
+    };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', '$q', function(communityAPI, $q) {
     return {
