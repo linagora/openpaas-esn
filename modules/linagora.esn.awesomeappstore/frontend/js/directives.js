@@ -37,26 +37,20 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreCheckboxDomainDeploy', ['$log', 'session', 'disableService', function($log, session, disableService) {
+  .directive('appstoreLabelDomainDeploy', ['$log', 'applicationService', function($log, applicationService) {
     return {
-      require: '^appstoreButtonsGroup',
       restrict: 'E',
-      templateUrl: '/appstore/views/appstore/appstore-checkbox-domain-deploy.html',
+      templateUrl: '/appstore/views/appstore/appstore-label-domain-deploy.html',
+      scope: {
+        application: '='
+      },
       link: function(scope) {
-        var target = { objectType: 'domain', id: session.domain._id };
-        scope.disabled = disableService(target, scope.application.deployments);
-
-        scope.$on('deployed', function() {
-          scope.disabled = true;
-        });
-
-        scope.$on('undeployed', function() {
-          scope.disabled = false;
-        });
+        scope.domainLevelApplication = applicationService.isDomainLevel(scope.application);
+        $log.info(scope.domainLevelApplication);
       }
     };
   }])
-  .directive('appstoreButtonDeploy', ['$log', '$q', 'session', 'appstoreAPI', 'disableService', function($log, $q, session, appstoreAPI, disableService) {
+  .directive('appstoreButtonDeploy', ['$log', '$q', 'session', 'appstoreAPI', 'applicationService', 'disableService', function($log, $q, session, appstoreAPI, applicationService, disableService) {
     return {
       require: '^appstoreButtonsGroup',
       restrict: 'E',
@@ -68,7 +62,7 @@ angular.module('esn.appstore')
       },
       link: function(scope, element, attrs, controllers) {
         var target = { objectType: 'domain', id: session.domain._id };
-        scope.domainDeployment = false;
+        scope.domainDeployment = applicationService.isDomainLevel(scope.application);
         scope.loading = false;
         scope.disabled = disableService(target, scope.application.deployments);
 
@@ -107,10 +101,6 @@ angular.module('esn.appstore')
 
         scope.$on('undeployed', function() {
           scope.disabled = false;
-        });
-
-        scope.$watch('domainDeployment', function(value) {
-          scope.domainDeployment = value;
         });
       }
     };

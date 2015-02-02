@@ -5,8 +5,10 @@
       .caption
         h3
           a(href='#/appstore/apps/{{::application._id}}')
-            span {{::application.title}} &nbsp;
-            small {{::application.version}}
+            span {{::application.title}}
+            small(data-ng-if="application.version") {{::application.version}}
+          small.esn-app-label
+            appstore-label-domain-deploy(application='application')
 
         p.description.multilines {{::application.description | characters:128 :false }}
 
@@ -15,4 +17,3 @@
             appstore-button-deploy(application="application", version="1.0.0", domain-deployment="domainDeployment")
             &nbsp;
             appstore-button-undeploy(application="application")
-          appstore-checkbox-domain-deploy

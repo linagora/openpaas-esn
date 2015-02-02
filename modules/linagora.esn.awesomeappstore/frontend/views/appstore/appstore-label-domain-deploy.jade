@@ -1,0 +1,15 @@
+span
+  span.label.label-info(
+    data-ng-if="domainLevelApplication",
+    bs-tooltip="tooltip",
+    data-placement="top",
+    data-animation="am-flip-x",
+    data-title="This application is for domains. The deployment will also install the application for each users of the current domain.")
+    | Domain
+  span.label.label-info(
+    data-ng-if="!domainLevelApplication",
+    bs-tooltip="tooltip",
+    data-placement="top",
+    data-animation="am-flip-x",
+    title="This application is for communities. A community manager will have to install the application after the deployment.")
+    | Community
