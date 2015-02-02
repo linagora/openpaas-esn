@@ -35,3 +35,5 @@ div.message-preview
       .row.body
         blockquote
           p.multilines.email-message-body(data-ng-show='message.body.text' ng-bind-html="message.body.text | linky")
+
+    include ../templates/includes/attachments.jade

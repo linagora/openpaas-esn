@@ -7,3 +7,4 @@ div.media.message-preview
         a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
         a.message-date(href="/#messages/{{::message._id}}/activitystreams/{{::activitystreamUuid}}")
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
+    include ../templates/includes/attachments.jade
