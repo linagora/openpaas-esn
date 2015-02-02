@@ -865,7 +865,19 @@ describe('The messages API', function() {
             Whatsup.findOne({_id: res.body._id}, function(err, message) {
               expect(message).to.exist;
               expect(message.responses).to.be.empty;
-              done();
+              Whatsup.findOne({_id: message4._id}, function(err, original) {
+                if (err) {
+                  return done(err);
+                }
+                expect(original).to.exist;
+                expect(original.responses).to.exist;
+                expect(original.responses[0]).to.exist;
+                expect(original.responses[0].copyOf).to.exist;
+                expect(original.responses[0].copyOf.target).to.have.length(1);
+                expect(original.responses[0].copyOf.target[0].id).to.equal('976f55e7-b72f-4ac0-afb2-400a85c50951');
+                expect(original.responses[0].copyOf.target[0].objectType).to.equal('activitystream');
+                done();
+              });
             });
           });
         });

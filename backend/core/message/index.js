@@ -129,20 +129,26 @@ function copy(id, sharerId, resource, target, callback) {
           })
           .pop();
         }
-        return callback(null, targetMessage);
+        return callback(null, {root: message, target: targetMessage});
       });
     });
   }
 
   function update(original, callback) {
-    var copyOf = original.copyOf || {};
-    copyOf.target = original.copyOf ? original.copyOf.target || [] : [];
+
+    var copyOf = original.target.copyOf || {};
+    copyOf.target = original.target.copyOf ? original.target.copyOf.target || [] : [];
     copyOf.target = copyOf.target.concat(target);
-    getModel(original.objectType).update({_id: original._id}, {$set: {copyOf: copyOf} }, function(err) { return callback(err); });
+
+    if (original.root._id.equals(id)) {
+      return getModel(original.target.objectType).update({_id: original.target._id}, {$set: {copyOf: copyOf} }, callback);
+    } else {
+      return getModel(original.target.objectType).update({_id: original.root._id, 'responses._id': mongoose.Types.ObjectId(id)}, {$set: {'responses.$.copyOf': copyOf} }, callback);
+    }
   }
 
   function doCopy(original, callback) {
-    var copy = original;
+    var copy = original.target;
     copy._id = new mongoose.Types.ObjectId();
     copy.copyOf = {
       origin: {
