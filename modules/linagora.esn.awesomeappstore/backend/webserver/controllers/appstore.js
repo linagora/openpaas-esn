@@ -25,6 +25,10 @@ module.exports = function(appstoremanager) {
     }
 
     if (req.query.community) {
+      var isNotDomainLevel = {
+        domainInjections: { $size: 0 }
+      };
+      extend(true, query, isNotDomainLevel);
       delete query.community;
     }
 
