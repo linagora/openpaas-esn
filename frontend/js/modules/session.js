@@ -42,6 +42,17 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   $scope.domain = session.domain;
 }])
 
+.controller('currentCollaborationObjectType', ['$scope', function($scope) {
+  var objectType = '';
+  if ($scope.activitystream.route === 'communities') {
+    objectType = 'community';
+  } else if ($scope.activitystream.route === 'projects') {
+    objectType = 'project';
+  }
+
+  $scope.currentCollaborationObjectType = objectType;
+}])
+
 .controller('sessionInitESNController', ['$scope', 'sessionFactory', '$route', function($scope, sessionFactory) {
 
   $scope.session = {

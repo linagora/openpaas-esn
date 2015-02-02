@@ -47,7 +47,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           if (query) {
             options.search = query;
           }
-          return collaborationAPI.getExternalCompanies('community', scope.activitystream._id, options);
+
+          return collaborationAPI.getExternalCompanies(scope.currentCollaborationObjectType, scope.activitystream._id, options);
         };
 
         scope.validators.push(function() {
