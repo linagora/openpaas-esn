@@ -269,6 +269,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
       $window.msRequestAnimationFrame ||
       $window.webkitRequestAnimationFrame;
 
+    var VIDEO_FRAME_RATE = 1000 / 30;
     var promise;
 
     function draw(context, video, width, height) {
@@ -294,7 +295,7 @@ angular.module('esn.live-conference', ['esn.websocket', 'esn.session', 'esn.doma
         requestAnimationFrame(function() {
           draw(context, video, width, height);
         });
-      }, 1000 / 30);
+      }, VIDEO_FRAME_RATE, 0, false);
     };
   })
 
