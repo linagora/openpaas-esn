@@ -1,15 +1,15 @@
 'use strict';
 
 angular.module('esn.activitystreams-tracker', [
-  'restangular',
   'esn.session',
   'esn.websocket',
-  'esn.activitystream'
+  'esn.activitystream',
+  'esn.user'
 ])
-  .factory('ASTrackerAPI', ['$log', 'Restangular', function($log, Restangular) {
+  .factory('ASTrackerAPI', ['$log', 'userAPI', 'activitystreamAPI', function($log, userAPI, activitystreamAPI) {
 
     function getActivityStreams(domainid, objectType) {
-      return Restangular.one('user').getList('activitystreams', {domainid: domainid}).then(function(response) {
+      return userAPI.getActivityStreams({domainid: domainid, member: true}).then(function(response) {
         response.data = response.data.filter(function(stream) {
           return stream.target && stream.target.objectType === objectType;
         });
@@ -19,8 +19,9 @@ angular.module('esn.activitystreams-tracker', [
 
     function getUnreadCount(id) {
       $log.debug('Get unreads for stream ' + id);
-      return Restangular.one('activitystreams', id).one('unreadcount').get();
+      return activitystreamAPI.getUnreadCount(id);
     }
+
     return {
       getActivityStreams: getActivityStreams,
       getUnreadCount: getUnreadCount

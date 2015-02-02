@@ -73,11 +73,17 @@ function projectLib(dependencies) {
       return callback(new Error('User is required'));
     }
 
-    var params = {
-      members: { '$elemMatch': { 'member.objectType': 'user', 'member.id': userId} }
-    };
+    var params = {};
+    if (options.member) {
+      params.members = {'$elemMatch': { 'member.objectType': 'user', 'member.id': userId}};
+    }
 
-    community.getUserCommunities(userId, {}, function(err, communities) {
+    var communityOptions = {};
+    if (options.member) {
+      communityOptions.member = true;
+    }
+
+    community.getUserCommunities(userId, communityOptions, function(err, communities) {
       var communityTuples = communities.map(function(community) {
         return { 'member.objectType': 'community', 'member.id': community._id};
       });

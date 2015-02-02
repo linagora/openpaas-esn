@@ -28,8 +28,8 @@ describe('The esn.activitystreams-tracker Angular module', function() {
     }));
 
     describe('getActivityStreams() function', function() {
-      it('should send a GET to /user/activitystreams?domainid=:id', function() {
-        this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId).respond(200, []);
+      it('should send a GET to /user/activitystreams?domainid=:id&member=true', function() {
+        this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, []);
         this.ASTrackerAPI.getActivityStreams(domainId);
         this.$httpBackend.flush();
       });
@@ -53,8 +53,8 @@ describe('The esn.activitystreams-tracker Angular module', function() {
       Restangular.setFullResponse(true);
     }));
 
-    it('should receive an error if the HTTP status code is not 20X for /user/activitystreams?domainid=:id', function() {
-      this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId).respond(404, {});
+    it('should receive an error if the HTTP status code is not 20X for /user/activitystreams?domainid=:id&member=true', function() {
+      this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(404, {});
       this.AStrackerHelpers.getActivityStreamsWithUnreadCount('community', function(err, activityStreamsWithUnreadCount) {
         expect(err).to.exist;
         expect(activityStreamsWithUnreadCount).to.not.exist;
@@ -63,7 +63,7 @@ describe('The esn.activitystreams-tracker Angular module', function() {
     });
 
     it('should receive an error if the HTTP status code is not 20X for /activitystreams/:uuid/unreadcount', function() {
-      this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId).respond(200, [
+      this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, [
         {
           uuid: this.activityStreamUuid1,
           target: {
@@ -93,8 +93,8 @@ describe('The esn.activitystreams-tracker Angular module', function() {
       this.$httpBackend.flush();
     });
 
-    it('should send a GET to /user/activitystreams?domainid=:id and 2 GET to /activitystreams/:uuid/unreadcount', function() {
-      this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId).respond(200, [
+    it('should send a GET to /user/activitystreams?domainid=:id&member=true and 2 GET to /activitystreams/:uuid/unreadcount', function() {
+      this.$httpBackend.expectGET('/user/activitystreams?domainid=' + domainId + '&member=true').respond(200, [
         {
           uuid: this.activityStreamUuid1,
           target: {

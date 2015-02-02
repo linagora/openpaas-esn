@@ -27,7 +27,7 @@ function getUserStreams(user, options, callback) {
   var userId = user._id;
   collaboration.getStreamsForUser(userId, options || {}, function(err, streams) {
     if (err) {
-      logger.warn('Problem while getting user collaborations : ' + err.message);
+      logger.warn('Problem while getting user streams : ' + err.message);
     }
     if (!err && streams) {
       return callback(null, streams);
