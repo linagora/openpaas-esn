@@ -1,6 +1,6 @@
 div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
     form(name='organizationalMessageForm')
-        .form-group(ng-controller='currentCollaborationObjectType')
+        .form-group
             tags-input(ng-model='additionalData.recipients', placeholder="#{__('To the internal users and')}", min-tags='1', add-from-autocomplete-only='true',
                 display-property='id', on-tag-added='validate()', on-tag-removed='validate()', replace-spaces-with-dashes='false', organizational-recipients)
                 auto-complete(source='getCompanies($query)', min-length='1', debounce-delay='200')

@@ -41,6 +41,12 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'A',
       link: function(scope) {
         scope.validationError.recipients = 'At least one external company is required.';
+        var objectType = '';
+        if (scope.activitystream.route === 'communities') {
+          objectType = 'community';
+        } else if (scope.activitystream.route === 'projects') {
+          objectType = 'project';
+        }
 
         scope.getCompanies = function(query) {
           var options = {};
@@ -48,7 +54,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
             options.search = query;
           }
 
-          return collaborationAPI.getExternalCompanies(scope.currentCollaborationObjectType, scope.activitystream._id, options);
+          return collaborationAPI.getExternalCompanies(objectType, scope.activitystream._id, options);
         };
 
         scope.validators.push(function() {
