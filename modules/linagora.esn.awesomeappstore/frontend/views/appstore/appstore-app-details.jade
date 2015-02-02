@@ -10,6 +10,7 @@
         a(href='#/appstore/apps/{{::application._id}}')
           strong {{::application.title}}
           small &nbsp;{{::application.version}}
+
     .row
       blockquote
         p.application-description.multilines(ng-show='application.description') {{::application.description}}
@@ -21,4 +22,4 @@
         li
           appstore-button-undeploy(application='application')
         li
-          appstore-checkbox-domain-deploy
+          appstore-label-domain-deploy(application='application')

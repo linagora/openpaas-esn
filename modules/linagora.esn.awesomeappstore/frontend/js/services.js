@@ -19,6 +19,15 @@ angular.module('esn.appstore')
     }
     return disableFn;
   })
+  .factory('applicationService', function() {
+    function isDomainLevel(application) {
+      return application && application.domainInjections && application.domainInjections.length !== 0;
+    }
+
+    return {
+      isDomainLevel: isDomainLevel
+    };
+  })
   .factory('appstoreAPI', ['AppstoreRestangular', 'fileAPIService', function(AppstoreRestangular, fileAPIService) {
 
     function get(id) {
