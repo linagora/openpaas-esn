@@ -245,7 +245,7 @@ An array of community objects the current user belongs to.
 
 ## GET /api/user/activitystreams
 
-Get all the activity streams of the current user.
+Get all the activity streams of the collaborations the current user can access.
 
 **Request Headers:**
 
@@ -256,6 +256,7 @@ Get all the activity streams of the current user.
 - domainid : Optional identifier of the domain in which to get the communities activity streams.
 - writable : Boolean, optional. Get only activitystreams where the use can publish into when set to true.
 - name: String, optional. Get only streams where the attached resource match or contains the given name.
+- member: Boolean, optional. Get only the activitystreams where the current user is member of the linked collaboration.
 
 **Response Headers:**
 

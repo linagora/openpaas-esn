@@ -287,7 +287,7 @@ module.exports.getMine = function(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
   }
 
-  communityModule.getUserCommunities(user._id, null, function(err, communities) {
+  communityModule.getUserCommunities(user._id, {member: true}, function(err, communities) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
     }

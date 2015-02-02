@@ -10,9 +10,14 @@ angular.module('esn.activitystream')
     return Restangular.all('activitystreams/' + id).one('resource').get();
   }
 
+  function getUnreadCount(id) {
+    return Restangular.one('activitystreams', id).one('unreadcount').get();
+  }
+
   return {
     get: get,
-    getResource: getResource
+    getResource: getResource,
+    getUnreadCount: getUnreadCount
   };
 }])
 

@@ -64,6 +64,10 @@ function getMine(req, res) {
     options.name = new RegExp(escapedString, 'i');
   }
 
+  if (req.query && req.query.member && req.query.member === 'true') {
+    options.member = true;
+  }
+
   return activitystreams.getUserStreams(req.user, options, streamsCallback);
 }
 module.exports.getMine = getMine;

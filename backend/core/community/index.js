@@ -198,6 +198,7 @@ function getUserCommunities(user, options, callback) {
           if (writable) {
             return callback(true);
           }
+          return callback(false);
         });
       }, function(results) {
         return callback(null, results);
@@ -207,9 +208,11 @@ function getUserCommunities(user, options, callback) {
     }
   };
 
-  var params = {
-    members: {$elemMatch: { 'member.objectType': 'user', 'member.id': id}}
-  };
+  var params = {};
+
+  if (q.member) {
+    params.members = {$elemMatch: {'member.objectType': 'user', 'member.id': id}};
+  }
 
   if (q.domainid) {
     params.domain_ids = q.domainid;
