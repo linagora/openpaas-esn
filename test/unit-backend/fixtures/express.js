@@ -15,6 +15,7 @@ exports.express = function() {
   expressMock.cookieParser = function() {};
   expressMock.session = function() {};
   expressMock.constructorResponse = {
+    locals: {},
     all: function() {},
     listen: function() {},
     use: function() {},
