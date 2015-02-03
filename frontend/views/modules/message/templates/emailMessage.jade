@@ -4,8 +4,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
   div.esn-email
     h4.media-heading
       a(href="#") {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
-      a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}" title="{{::message.published | amDateFormat:'MMM D YY, h:mm a'}}")
-        small(am-time-ago="message.published")
+      include ./includes/dateLink
     activity-stream-origin(ng-if='parentMessage', streams='streams', message='message', activitystream='streamable')
     div.email-message
       div.message-title
