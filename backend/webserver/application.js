@@ -9,6 +9,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
 var CSS_PATH = FRONTEND_PATH + '/css';
+var config = require('../core').config('default');
 
 var lessMiddlewareConfig = {
   production: {
@@ -71,6 +72,8 @@ application.use(function(req, res, next) {
 application.use(require('./middleware/setup-settings')());
 
 application.use(flash());
+
+application.locals.appName = config.app && config.app.name ? config.app.name : '';
 
 require('./pubsub')(application);
 require('./routes')(application);
