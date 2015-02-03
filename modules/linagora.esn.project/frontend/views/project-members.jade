@@ -16,4 +16,4 @@
             a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
 
       .row(ng-if='selected === "members" || selected === undefined')
-        include ./project-members-list
+        collaboration-members-list(readable='canRead()' collaboration='project' collaboration-type='project' object-type-filter='user' spinner-key='spinnerKey')

@@ -16,7 +16,7 @@
             a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
 
       .row(ng-if='selected === "members" || selected === undefined')
-        include ./community-members-list
+        collaboration-members-list(readable='canRead()', collaboration='community', collaboration-type='community', object-type-filter='user', spinner-key='spinnerKey')
 
       .row(ng-if='selected === "membership"')
         community-pending-invitation-list

@@ -410,5 +410,87 @@ angular.module('esn.collaboration', ['restangular'])
         };
       }
     };
-  }]);
+  }])
+  .controller('collaborationMembersController', ['$scope', 'collaborationAPI', 'session', 'companyUserService', 'usSpinnerService',
+                                                 function($scope, collaborationAPI, session, companyUserService, usSpinnerService) {
+    $scope.spinnerKey = 'membersSpinner';
 
+    var opts = {
+      offset: 0,
+      limit: 20,
+      objectTypeFilter: $scope.objectTypeFilter
+    };
+
+    $scope.total = 0;
+    $scope.domain = session.domain;
+    $scope.prettyCompany = companyUserService.prettyCompany(session.domain.company_name);
+
+    $scope.externalMembers = {};
+    $scope.internalMembers = {};
+    $scope.restActive = false;
+    $scope.error = false;
+    $scope.offset = 0;
+
+    function updateMembersList() {
+      $scope.error = false;
+      if ($scope.restActive) {
+        return;
+      } else {
+        $scope.restActive = true;
+        usSpinnerService.spin($scope.spinnerKey);
+
+        collaborationAPI.getMembers($scope.collaborationType, $scope.collaboration._id, opts).then(function(result) {
+          $scope.total = parseInt(result.headers('X-ESN-Items-Count'), 10);
+          result.data.forEach(function(member) {
+            var memberData = member[member.objectType];
+            memberData.objectType = member.objectType;
+
+            var company = companyUserService.getCompany(memberData.emails[0]);
+            var prettyCompany = companyUserService.prettyCompany(company);
+            if (companyUserService.isInternalUser(memberData.emails[0], session.domain.company_name)) {
+              $scope.internalMembers[memberData._id] = memberData;
+            } else {
+              $scope.externalMembers[prettyCompany] = $scope.externalMembers[prettyCompany] || {};
+              $scope.externalMembers[prettyCompany][memberData._id] = memberData;
+            }
+          });
+          $scope.offset += result.data.length;
+          $scope.hasInternalMembers = Object.keys($scope.internalMembers).length;
+          $scope.hasExternalMembers = Object.keys($scope.externalMembers).length;
+        }, function() {
+          $scope.error = true;
+        }).finally (function() {
+          $scope.restActive = false;
+          usSpinnerService.stop($scope.spinnerKey);
+        });
+      }
+    }
+
+    $scope.init = function() {
+      updateMembersList();
+    };
+
+    $scope.loadMoreElements = function() {
+      if ($scope.offset === 0 || $scope.offset < $scope.total) {
+        opts.offset = $scope.offset;
+        updateMembersList();
+      }
+    };
+
+
+    $scope.init();
+  }])
+  .directive('collaborationMembersList', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        collaboration: '=',
+        collaborationType: '@',
+        objectTypeFilter: '@',
+        spinnerKey: '@',
+        readable: '='
+      },
+      templateUrl: '/views/modules/collaboration/collaboration-members-list.html'
+    };
+  });
