@@ -7,18 +7,14 @@
   .row
     .col-lg-9.col-md-9.col-sm-9.col-xs-12.esn-component-container
       activity-stream(activitystream='community', writable='community.writable', streams='streams', calendar-id='community._id')
-    .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane()
-      .esn-panel
-        collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
+    .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane
+      collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
       .vertiz-space
-      .esn-panel(ng-if="showMembershipRequestsWidget()")
-        collaboration-membership-requests-widget(object-type="community", collaboration="community")
+      collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
       .vertiz-space
-      .esn-panel
-        collaboration-invite-users(object-type="community", collaboration="community")
+      collaboration-invite-users(object-type="community", collaboration="community")
       .vertiz-space
-      .esn-panel
-        injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
+      injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
       .vertiz-space
 .col-xs-12.esn-panel(ng-if='!canRead()')
   p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}
