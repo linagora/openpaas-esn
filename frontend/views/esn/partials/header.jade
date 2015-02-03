@@ -35,22 +35,17 @@ div(ng-controller='selectActiveItem')
             div.esn-navbar-main(ng-controller='currentDomainController')
               .esn-item(ng-class='{active: selected === 1}')
                 span
-                  a(href='', ng-click='selectItem(1)')
-                    i.fa.fa-comments-o
-                    span.hidden-xs {{domain.name}}
-              .esn-item(ng-class='{active: selected === 2}')
-                span
-                  a(href='/#conferences', ng-click='selectItem(2)')
-                    i.fa.fa-video-camera
-                    span.hidden-xs #{__('Conferences')}
-              .esn-item(ng-class='{active: selected === 3}')
-                span
-                  a(href='/#communities', ng-click='selectItem(3)')
+                  a(href='/#communities', ng-click='selectItem(1)')
                     i.fa.fa-users
                     span.hidden-xs #{__('Communities')}
-              .esn-item(ng-class='{active: selected === 4}')
+              .esn-item(ng-class='{active: selected === 2}')
                 span
-                  a(href='/#projects', ng-click='selectItem(4)')
+                  a(href='/#projects', ng-click='selectItem(2)')
                     i.fa.fa-suitcase
                     span.hidden-xs #{__('Projects')}
+              .esn-item(ng-class='{active: selected === 3}')
+                span
+                  a(href='/#conferences', ng-click='selectItem(3)')
+                    i.fa.fa-video-camera
+                    span.hidden-xs #{__('Conferences')}
               injections-widget(injection-anchor-id="domainHeaderNavBar", injection-subject="domain")
