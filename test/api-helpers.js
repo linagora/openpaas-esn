@@ -83,75 +83,47 @@ module.exports = function(mixin, testEnv) {
         });
 
         if (!community.length) {
-          return;
+          throw new Error('Could not find ' + member.id);
         }
         collaboration.members.push({member: {objectType: 'community', id: community[0]._id}});
       }
     };
 
-    function mapCollaborationUsers(models, c) {
-      var d = q.defer();
+    function saveCollaboration(Model, models, c) {
       var collaboration = extend(true, {}, c);
       var creator = models.users.filter(function(u) { return u.emails.indexOf(collaboration.creator) >= 0; });
       if (!creator.length) {
-        d.reject(new Error('Creator ', collaboration.creator, 'cannot be found in domain users'));
-        return d.promise;
+        return q.reject(new Error('Creator ', collaboration.creator, 'cannot be found in domain users'));
       }
       collaboration.creator = creator[0]._id;
       collaboration.domain_ids = [models.domain._id];
       collaboration.members = [{member: {objectType: 'user', id: creator[0]._id}}];
-      c.members.forEach(function(m) {
-        try {
+      try {
+        c.members.forEach(function(m) {
           fillCollaboration[m.objectType](models, collaboration, m);
-        } catch (err) {
-          console.log(err);
-        }
+        });
+      } catch (err) {
+        return q.reject(err);
+      }
+
+      return q.npost(new Model(collaboration), 'save').spread(function(collab) {
+        return collab;
       });
-      d.resolve(collaboration);
-      return d.promise;
     }
 
-    function saveCollaboration(Model, data) {
-      var d = q.defer();
-      var model = new Model(data);
-      model.save(function(err, c) {
-        if (err) {
-          d.reject(err);
-        } else {
-          d.resolve(c);
-        }
-      });
-      return d.promise;
-    }
-
-    function createDomain(deployment) {
-      var d = q.defer();
+    function createDomain() {
       var Domain = require('mongoose').model('Domain');
-      var domain = new Domain(deployment.domain);
-      domain.save(function(err, domain) {
-        if (err) {
-          d.reject(err);
-        } else {
-          deployment.models.domain = domain;
-          d.resolve(deployment);
-        }
+      return q.npost(new Domain(deployment.domain), 'save').spread(function(domain) {
+        deployment.models.domain = domain;
       });
-      return d.promise;
     }
 
-    function createUsers(deployment) {
+    function createUsers() {
       var User = require('mongoose').model('User');
       return q.all(deployment.users.map(function(user) {
-        var u = new User(user);
-        var d = q.defer();
-        u.save(function(err, u) {
-          if (err) {
-            d.reject(err);
-          } else {
-            d.resolve(u);
-          }
+        return q.npost(new User(user), 'save').spread(function(u) {
+          return u;
         });
-        return d.promise;
       }))
       .then(function(users) {
         return q.all(
@@ -169,49 +141,39 @@ module.exports = function(mixin, testEnv) {
       });
     }
 
-    function createCommunities(deployment) {
+    function createCommunities() {
       deployment.communities = deployment.communities ||  [];
+      deployment.models.communities = deployment.models.communities ||  [];
 
-      return q.all(deployment.communities.map(function(c) {
-        return mapCollaborationUsers(deployment.models, c);
-      }))
-      .then(function(communities) {
-        return q.all(communities.map(function(community) {
-          var Community = require('mongoose').model('Community');
-          return saveCollaboration(Community, community);
-        }));
-      })
-      .then(function(communities) {
-        deployment.models.communities = communities;
-        return q(deployment);
-      });
+      var Community = require('mongoose').model('Community');
+      return deployment.communities.reduce(function(sofar, c) {
+        return sofar.then(function() {
+          return saveCollaboration(Community, deployment.models, c);
+        }).then(function(collab) {
+          deployment.models.communities.push(collab);
+        });
+      }, q(true));
     }
 
-    function createProjects(deployment) {
+    function createProjects() {
       deployment.projects = deployment.projects ||  [];
+      deployment.models.projects = deployment.models.projects ||  [];
 
-      return q.all(deployment.projects.map(function(c) {
-        return mapCollaborationUsers(deployment.models, c);
-      }))
-      .then(function(projects) {
-        return q.all(projects.map(function(project) {
+      return deployment.projects.reduce(function(sofar, p) {
+        return sofar.then(function() {
           var Project = require('mongoose').model('Project');
-          return saveCollaboration(Project, project);
-        }));
-      })
-      .then(function(projects) {
-        deployment.models.projects = projects;
-        return q(deployment);
-      });
+          return saveCollaboration(Project, deployment.models, p);
+        }).then(function(collab) {
+          deployment.models.projects.push(collab);
+        });
+      }, q(true));
     }
 
     createDomain(deployment)
     .then(createUsers)
     .then(createCommunities)
     .then(createProjects)
-    .then(function(deployment) {
-      return q(deployment.models);
-    })
+    .then(function() { return q(deployment.models); })
     .nodeify(callback);
   };
 
