@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "Linagora ESN"
+  },
   "webserver": {
     "enabled": true,
     "debugPort": 8081,
