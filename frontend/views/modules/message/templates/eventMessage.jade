@@ -5,8 +5,8 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div
     a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-    a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}")
-        small {{message.published | amDateFormat:'MMM D YY, h:mm a'}}
+    a.message-date(href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}" title="{{::message.published | amDateFormat:'MMM D YY, h:mm a'}}")
+      small(am-time-ago="message.published")
     activity-stream-origin(ng-if='parentMessage', streams='streams', message='message', activitystream='streamable')
     div.loading.text-center
       div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner', spinner-size='0.3', spinner-start-active)

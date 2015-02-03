@@ -15,8 +15,8 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               span(ng-show='!$first && $last') &nbsp;#{__('and')}&nbsp;
               span(ng-show='!$first && !$last') ,&nbsp;
               span.message-span-company {{::companyTuple.id}}
-        a.message-date(href="/#messages/{{::message._id}}/activitystreams/{{::activitystream.activity_stream.uuid}}")
-          small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
+        a.message-date(href="/#messages/{{::message._id}}/activitystreams/{{::activitystream.activity_stream.uuid}}" title="{{::message.published | amDateFormat:'MMM D YY, h:mm a'}}")
+          small(am-time-ago="message.published")
       small(ng-if='isInternalUser && message.visibility === "private"')
         i.fa.fa-lock
         span #{__('Private')}
