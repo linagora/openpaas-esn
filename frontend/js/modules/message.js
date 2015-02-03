@@ -563,7 +563,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/messagesDisplay.html'
     };
   })
-  .directive('messageTemplateDisplayer', ['RecursionHelper', function(RecursionHelper) {
+  .directive('messageTemplateDisplayer', ['RecursionHelper', 'messagePropertiesService', function(RecursionHelper, messagePropertiesService) {
     return {
       restrict: 'E',
       replace: true,
@@ -587,6 +587,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         } else {
           $scope.writable = false;
         }
+
+        $scope.isShareable = function() {
+          return $scope.writable && messagePropertiesService.isShareable($scope.message);
+        };
       },
       compile: function(element) {
         return RecursionHelper.compile(element, function() {});
@@ -917,6 +921,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
     };
 
   }])
+  .factory('messagePropertiesService', function() {
+    return {
+      isShareable: function(message) {
+        return message && message.objectType !== 'organizational';
+      }
+    };
+  })
   .directive('sharedFrom', ['activitystreamAPI', function(activitystreamAPI) {
     return {
       restrict: 'E',
