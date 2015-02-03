@@ -6,13 +6,18 @@ module.exports = function(lib, dependencies) {
 
   var userModule = dependencies('user');
 
-  function sendMessageAsEMail(from, user, message, callback) {
+  function sendMessageAsEMail(from, user, message, context, callback) {
     var mail = dependencies('email');
     var data = {
       message: message.content,
       firstname: user.firstname,
       lastname: user.lastname
     };
+
+    if (context && context.url) {
+      data.url = context.url;
+    }
+
     return mail.sendHTML(from, user.emails[0], message.title || 'New Message', 'new-message-notification', data, callback);
   }
 

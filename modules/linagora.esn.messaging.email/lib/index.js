@@ -160,6 +160,14 @@ module.exports = function(dependencies) {
     });
   }
 
+  function getMessageURL(messageId, streamId, callback) {
+    var esnconfig = dependencies('esn-config');
+    esnconfig('web').get(function(err, config) {
+      var baseURL = config && config.base_url ? config.base_url : 'http://localhost:8080';
+      return callback(baseURL + '/#messages/' + messageId + '/activitystreams/' + streamId);
+    });
+  }
+
   lib.getUser = getUser;
   lib.canReply = canReply;
   lib.parseMessage = parseMessage;
@@ -170,6 +178,7 @@ module.exports = function(dependencies) {
   lib.token = token;
   lib.handlers = handlers;
   lib.sender = sender;
+  lib.getMessageURL = getMessageURL;
 
   return lib;
 };

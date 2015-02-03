@@ -28,17 +28,17 @@ module.exports = function(lib, dependencies) {
     });
   }
 
-  function sendMail(from, user, message, callback) {
+  function sendMail(from, user, message, context, callback) {
     var handlers = lib.handlers;
 
     if (!handlers[message.objectType]) {
       return callback(new Error('No email handler for %s message', message.objectType));
     }
 
-    return handlers[message.objectType].sendMessageAsEMail(from, user, message, callback);
+    return handlers[message.objectType].sendMessageAsEMail(from, user, message, context, callback);
   }
 
-  function notify(user, message, data, callback) {
+  function notify(user, message, data, context, callback) {
 
     if (!user) {
       return callback(new Error('User is required'));
@@ -69,7 +69,13 @@ module.exports = function(lib, dependencies) {
         if (err) {
           return callback(err);
         }
-        sendMail(sender, user, message, callback);
+
+        lib.getMessageURL(message._id, context.activityStreamId, function(url) {
+          if (url) {
+            context.url = url;
+          }
+          sendMail(sender, user, message, context, callback);
+        });
       });
     });
   }
@@ -84,10 +90,12 @@ module.exports = function(lib, dependencies) {
     }
 
     async.forEach(recipients, function(recipient, callback) {
-      var user = recipient.user;
-      var data = recipient.data;
 
-      notify(user, message, data, function(err, sent) {
+      var user = recipient.target.user;
+      var data = recipient.target.data;
+      var context = recipient.context;
+
+      notify(user, message, data, context, function(err, sent) {
         if (err) {
           logger.info('Can not notify user %s: %s', user._id, err.message);
           return;
@@ -176,7 +184,8 @@ module.exports = function(lib, dependencies) {
         }
 
         async.concat(activity.target, function(target, callback) {
-          collaborationModule.findCollaborationFromActivityStreamID(target._id, function(err, collaboration) {
+          var streamId = target._id;
+          collaborationModule.findCollaborationFromActivityStreamID(streamId, function(err, collaboration) {
             if (err) {
               logger.info('Error while loading collaboration %s', err.message);
             }
@@ -187,6 +196,15 @@ module.exports = function(lib, dependencies) {
 
             if (!err && collaboration) {
               return getMessageTargets(collaboration[0], message, function(err, targets) {
+                targets = targets.map(function(target) {
+                  return {
+                    target: target,
+                    context: {
+                      messageId: message._id,
+                      activityStreamId: streamId
+                    }
+                  };
+                });
                 return callback(null, targets);
               });
             } else {
