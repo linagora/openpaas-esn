@@ -98,8 +98,8 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
     }
   };
 }])
-  .directive('projectAddCommunitiesWidget', ['$q', 'projectAPI',
-    function($q, projectAPI) {
+  .directive('projectAddCommunitiesWidget', ['$q', 'projectAPI', 'notificationFactory',
+    function($q, projectAPI, notificationFactory) {
       return {
         restrict: 'E',
         replace: true,
@@ -112,6 +112,10 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
           $scope.displayProperty = 'displayName';
           $scope.running = false;
           $scope.members = [];
+
+          function showSuccess() {
+            notificationFactory.weakInfo('Members update', 'Communities have been added');
+          }
 
           $scope.getInvitableCommunities = function(query) {
             $scope.query = query;
@@ -137,7 +141,6 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
             }
 
             $scope.running = true;
-            $scope.success = false;
 
             var promises = [];
             $scope.members.forEach(function(member) {
@@ -148,13 +151,12 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
               function() {
                 $scope.members = [];
                 $scope.running = false;
-                $scope.success = true;
+                showSuccess();
               },
               function() {
                 $scope.members = [];
                 $scope.error = true;
                 $scope.running = false;
-                $scope.success = false;
               }
             );
           };

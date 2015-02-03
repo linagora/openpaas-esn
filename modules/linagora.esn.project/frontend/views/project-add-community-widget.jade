@@ -12,8 +12,6 @@
           placeholder='{{::placeholder}}', min-tags='1', add-from-autocomplete-only='true',
           on-tag-added='resetView()', replace-spaces-with-dashes='false')
             auto-complete(source='getInvitableCommunities($query)', min-length='1', debounce-delay='200')
-          .row(ng-show='success')
-            p #{__('Communities have been added')}.
       .form-group
         .row
           button.btn.btn-primary.pull-right(type='button', ng-click='addMembers()', ng-disabled='running')

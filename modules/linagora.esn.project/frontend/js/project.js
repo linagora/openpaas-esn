@@ -6,6 +6,7 @@ angular.module('esn.project', [
   'esn.session',
   'esn.core',
   'esn.activitystreams-tracker',
+  'esn.notification',
   'angularFileUpload',
   'mgcrea.ngStrap.tooltip',
   'mgcrea.ngStrap.helpers.dimensions',
