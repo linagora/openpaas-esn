@@ -220,7 +220,7 @@ module.exports.collaborationMembers = function() {
         members: [
           {objectType: 'user', id: 'yolo@lng.net'},
           {objectType: 'user', id: 'jhendrix@lng.net'},
-          {objectType: 'community', id: 'community@lng.net'}
+          {objectType: 'community', id: 'No members'}
         ]
       }
     ],

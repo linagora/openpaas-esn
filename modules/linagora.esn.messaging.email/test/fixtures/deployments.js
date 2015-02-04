@@ -32,7 +32,7 @@ module.exports.linagora_EMAILReply = function() {
         title: 'Restricted Community',
         type: 'restricted',
         creator: 'jdoe@lng.net',
-        members: ['jdoe@lng.net']
+        members: [{ objectType: 'user', id: 'jdoe@lng.net'}]
       }
     ]
   };
