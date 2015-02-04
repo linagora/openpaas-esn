@@ -3,9 +3,15 @@ div.btn-group
     span.caret
   ul.dropdown-menu.dropdown-menu-right(role="menu")
     li
-      a(href="" ng-click="clearStreamSelection()") #{__("All")}
+      a(href="" ng-click="clearStreamSelection()")
+        img(src='/images/activitystream.png')
+        span #{__("All")}
     li
-      a(href="" ng-click="selectCurrentStream()") #{__("Current")}
+      a(href="" ng-click="selectStream(activitystream)")
+        img(ng-src='{{activitystream.avatarUrl}}')
+        span #{__("Current")}
     li.divider
     li(ng-repeat="stream in streams")
-      a(href="" ng-click="selectStream(stream)") {{::stream.displayName}}
+      a(href="" ng-click="selectStream(stream)")
+        img(ng-src='{{stream.avatarUrl}}')
+        span {{::stream.displayName}}
