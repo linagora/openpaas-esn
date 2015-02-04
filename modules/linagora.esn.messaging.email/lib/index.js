@@ -161,10 +161,23 @@ module.exports = function(dependencies) {
   }
 
   function getMessageURL(messageId, streamId, callback) {
-    var esnconfig = dependencies('esn-config');
-    esnconfig('web').get(function(err, config) {
-      var baseURL = config && config.base_url ? config.base_url : 'http://localhost:8080';
-      return callback(baseURL + '/#messages/' + messageId + '/activitystreams/' + streamId);
+    var esnConfig = dependencies('esn-config');
+    var staticConfig = dependencies('config')('default');
+
+    function done(baseUrl) {
+      return callback(baseUrl + '/#/messages/' + messageId + '/activitystreams/' + streamId);
+    }
+
+    esnConfig('web').get(function(err, config) {
+      if (config && config.base_url) {
+        return done(config.base_url);
+      }
+      return done([
+        'http://',
+        staticConfig.webserver.host || staticConfig.webserver.ip || 'localhost',
+        staticConfig.webserver.port && staticConfig.webserver.port !== 80 ? ':' : '',
+        staticConfig.webserver.port && staticConfig.webserver.port !== 80 ? staticConfig.webserver.port : ''
+      ].join(''));
     });
   }
 
