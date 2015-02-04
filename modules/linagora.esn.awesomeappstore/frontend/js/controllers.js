@@ -211,7 +211,9 @@ angular.module('esn.appstore')
             defer.reject();
           }
 
-          appstoreAPI.uploadArtifact(id, $scope.artifact, $scope.version)
+          // TODO hack version because we do not have
+          // any way to deploy a specific version right now.
+          appstoreAPI.uploadArtifact(id, $scope.artifact, '1.0.0')
             .progress(function(evt) {
               var value = parseInt(80.0 * evt.loaded / evt.total);
               $scope.percent = 20 + value;
