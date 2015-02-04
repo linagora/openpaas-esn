@@ -9,7 +9,7 @@
     .col-xs-12
       .members-infinite-list
         infinite-list
-          .row.members-list-section.internal(ng-if='hasInternalMembers')
+          .row.members-list-section.internal(ng-if='internalMemberCount > 0')
             h1 {{prettyCompany}}
             .col-xs-12
               .row.members-list-item(ng-repeat="member in internalMembers")
@@ -18,7 +18,10 @@
             h1 {{company}}
             .col-xs-12
               .row.members-list-item(ng-repeat="member in members")
-                member-display(member="member")
+                //- HACK need to refactor member-display to be able to display collaborations too
+                member-display(ng-if='member.objectType === "user"', member='member')
+                community-display(ng-if='member.objectType === "community"', community='member', actions='false')
+                project-display(ng-if='member.objectType === "project"', project='member')
     .col-xs-12
       .throbber-container.text-center
         div.throbber(openpaas-logo-spinner, spinner-key='membersSpinner')

@@ -444,19 +444,29 @@ angular.module('esn.collaboration', ['restangular'])
           result.data.forEach(function(member) {
             var memberData = member[member.objectType];
             memberData.objectType = member.objectType;
-
-            var company = companyUserService.getCompany(memberData.emails[0]);
-            var prettyCompany = companyUserService.prettyCompany(company);
-            if (companyUserService.isInternalUser(memberData.emails[0], session.domain.company_name)) {
-              $scope.internalMembers[memberData._id] = memberData;
+            if (member.objectType === 'user') {
+              var company = companyUserService.getCompany(memberData.emails[0]);
+              var prettyCompany = companyUserService.prettyCompany(company);
+              if (companyUserService.isInternalUser(memberData.emails[0], session.domain.company_name)) {
+                $scope.internalMembers[memberData._id] = memberData;
+              } else {
+                $scope.externalMembers[prettyCompany] = $scope.externalMembers[prettyCompany] || {};
+                $scope.externalMembers[prettyCompany][memberData._id] = memberData;
+              }
             } else {
-              $scope.externalMembers[prettyCompany] = $scope.externalMembers[prettyCompany] || {};
-              $scope.externalMembers[prettyCompany][memberData._id] = memberData;
+              // HACK need to register the l10n key with the collaboration, also in plural form.
+              var prettyObjectType = member.objectType[0].toUpperCase() + member.objectType.substr(1);
+              memberData.members_count = memberData.members.length;
+
+              $scope.externalMembers[prettyObjectType] = $scope.externalMembers[prettyObjectType] || {};
+              $scope.externalMembers[prettyObjectType][memberData._id] = memberData;
             }
           });
           $scope.offset += result.data.length;
-          $scope.hasInternalMembers = Object.keys($scope.internalMembers).length;
-          $scope.hasExternalMembers = Object.keys($scope.externalMembers).length;
+          $scope.internalMemberCount = Object.keys($scope.internalMembers).length;
+          $scope.externalMemberCompanyCount = Object.keys($scope.externalMembers).length;
+
+          $scope.memberCount = result.data.length;
         }, function() {
           $scope.error = true;
         }).finally (function() {
@@ -488,6 +498,7 @@ angular.module('esn.collaboration', ['restangular'])
         collaboration: '=',
         collaborationType: '@',
         objectTypeFilter: '@',
+        memberCount: '=',
         spinnerKey: '@',
         readable: '='
       },
