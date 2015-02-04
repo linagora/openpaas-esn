@@ -4,6 +4,8 @@ div.btn-group
   ul.dropdown-menu.dropdown-menu-right(role="menu")
     li
       a(href="" ng-click="clearStreamSelection()") #{__("All")}
+    li
+      a(href="" ng-click="selectCurrentStream()") #{__("Current")}
     li.divider
     li(ng-repeat="stream in streams")
       a(href="" ng-click="selectStream(stream)") {{::stream.displayName}}

@@ -195,6 +195,10 @@ angular.module('esn.activitystream')
         });
       };
 
+      $scope.selectCurrentStream = function() {
+        $scope.selectStream($scope.activitystream);
+      };
+
       getCachedStream().then(function(stream) {
         if (stream) {
           var found = $scope.streams.filter(function(item) {
