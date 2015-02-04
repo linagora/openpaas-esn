@@ -1,5 +1,18 @@
 .col-xs-12.esn-panel
+  .row
+    h2.esn-communities-header
+      ul.list-inline
+        li
+          i.fa.fa-cloud
+          | #{__('Module Manager')}
   .vertiz-space
+
+  .row
+    .col-xs-12
+      p.alert.alert-warning
+        | #{__('You are about to install new modules in the community')}
+        strong &nbsp;'{{::community.title}}'
+        | .
 
   .row.alert.alert-info(ng-show="loading", role="alert")
     p
@@ -14,3 +27,10 @@
   .row(ng-if="applications")
     div(ng-repeat="application in applications | orderBy:'title'")
       community-app-display(community="community", application="application")
+
+  .row
+    .col-xs-12
+      a.btn.btn-info(href="/#/communities/{{::community._id}}")
+        i.fa.fa-arrow-left
+        | #{__('Go back to the community')}
+  .vertiz-space

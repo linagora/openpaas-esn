@@ -26,5 +26,6 @@
   "Module Manager": "Module Manager",
   "Loading modules...": "Loading modules...",
   "Error while loading modules !": "Error while loading modules !",
-  "module": "module"
+  "module": "module",
+  "You are about to install new modules in the community": "You are about to install new modules in the community"
 }
