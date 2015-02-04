@@ -60,7 +60,7 @@ angular.module('esn.project')
 
       $scope.getAll();
   }])
-  .controller('projectsAStrackerController', ['$rootScope', '$scope', 'AStrackerHelpers', 'ASTrackerNotificationService', function($rootScope, $scope, AStrackerHelpers, ASTrackerNotificationService) {
+  .controller('projectsAStrackerController', ['$rootScope', '$scope', '$log', 'AStrackerHelpers', 'ASTrackerNotificationService', 'projectAPI', function($rootScope, $scope, $log, AStrackerHelpers, ASTrackerNotificationService, projectAPI) {
       $scope.activityStreams = ASTrackerNotificationService.streams;
       $scope.show = false;
       $scope.load = true;
@@ -80,6 +80,50 @@ angular.module('esn.project')
         });
         $scope.load = false;
         $scope.show = result.length > 0;
+      });
+
+      function joinProjectNotificationHandler(event, data) {
+        if (data.collaboration.objectType !== 'project') {
+          return;
+        }
+
+        projectAPI.get(data.collaboration.id).then(function(success) {
+          var uuid = success.data.activity_stream.uuid;
+          ASTrackerNotificationService.subscribeToStreamNotification(uuid);
+
+          var streamInfo = {
+            uuid: uuid,
+            href: '/#/projects/' + success.data._id,
+            img: '/api/projects/' + success.data._id + '/avatar',
+            display_name: success.data.title,
+            objectType: 'project'
+          };
+          ASTrackerNotificationService.addItem(streamInfo);
+
+        }, function(err) {
+          $log.debug('Error while getting community', err.data);
+        });
+      }
+
+      function leaveProjectNotificationHandler(event, msg) {
+        if (msg && msg.collaboration && msg.collaboration.objectType !== 'project') {
+          return;
+        }
+        projectAPI.get(msg.collaboration.id).then(function(success) {
+          var uuid = success.data.activity_stream.uuid;
+          ASTrackerNotificationService.unsubscribeFromStreamNotification(uuid);
+          ASTrackerNotificationService.removeItem(uuid);
+        }, function(err) {
+          $log.debug('Error while getting the project', err.data);
+        });
+      }
+
+      var joinHandler = $rootScope.$on('collaboration:join', joinProjectNotificationHandler);
+      var leaveHandler = $rootScope.$on('collaboration:leave', leaveProjectNotificationHandler);
+
+      $scope.$on('$destroy', function() {
+        joinHandler();
+        leaveHandler();
       });
   }])
   .controller('projectMembersController', ['$scope', 'collaborationAPI', 'session', 'usSpinnerService',

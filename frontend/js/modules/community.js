@@ -186,6 +186,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         if (!$scope.uploadFailed) {
           $scope.create = { step: 'redirect', percent: 100 };
         }
+        $scope.$emit('collaboration:join', {collaboration: {id: id, objectType: 'community'}});
         $timeout(function() {
           if ($scope.createModal) {
             $scope.createModal.hide();
@@ -1046,6 +1047,10 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       });
 
       function joinCommunityNotificationHandler(event, data) {
+        if (data.collaboration.objectType !== 'community') {
+          return;
+        }
+
         communityAPI.get(data.collaboration.id).then(function(success) {
           var uuid = success.data.activity_stream.uuid;
           ASTrackerNotificationService.subscribeToStreamNotification(uuid);
