@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn.user'])
+angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn.user', 'esn.session'])
   .directive('profileDisplay', function() {
     return {
       restrict: 'E',
@@ -106,7 +106,9 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
           $scope.running.name = false;
           return error.statusText;
         }
-      );
+      ).finally (function() {
+        $scope.$emit('username:updated');
+      });
     };
 
     $scope.updateJob = function(data) {
@@ -162,4 +164,34 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
         $scope.$apply();
       });
     });
+  }])
+  .directive('userNameDisplay', ['$rootScope', '$log', 'session', 'userAPI', function($rootScope, $log, session, userAPI) {
+    return {
+      restrict: 'E',
+      replace: true,
+      template: '<span>{{userName}}</span>',
+      link: function($scope) {
+
+        function setUserName(user) {
+          if (!user) {
+            return;
+          }
+          if (user.firstname || user.lastname) {
+            $scope.userName = (user.firstname || '') + ' ' + (user.lastname || '');
+          } else {
+            $scope.userName = user.emails[0];
+          }
+        }
+
+        setUserName(session.user);
+
+        $rootScope.$on('username:updated', function() {
+          userAPI.currentUser().then(function(response) {
+            setUserName(response.data);
+          }, function() {
+            $log.debug('Can not update the user name');
+          });
+        });
+      }
+    };
   }]);

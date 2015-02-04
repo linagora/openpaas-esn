@@ -5,10 +5,11 @@ div(ng-controller='selectActiveItem')
         img.logo(src="/images/logo.png")
       div.pull-right.avatar
         div.dropdown
-          button.btn-link.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
-            div(ng-controller='avatarController')
-              img.img-circle(ng-src='{{avatarURL}}' width="24px" height="24px")
-              span.caret
+          button.navbar-username.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
+            user-name-display.hidden-xs
+            | &nbsp;
+            img.img-circle(ng-controller='avatarController', ng-src='{{avatarURL}}' width="24px" height="24px")
+            span.caret
           ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
               li: a(href='/#/profile', ng-click='selectItem(1)') #{__('My Account')}
               li: a(href='{{"/#/domains/" + domain._id + "/members"}}', ng-click='selectItem(1)') #{__('Members')}
