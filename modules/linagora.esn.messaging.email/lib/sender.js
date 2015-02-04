@@ -90,15 +90,19 @@ module.exports = function(lib, dependencies) {
     }
 
     async.forEach(recipients, function(recipient, callback) {
+      if (!recipient.target) {
+        logger.info('No target found for recipient');
+        return callback();
+      }
 
       var user = recipient.target.user;
       var data = recipient.target.data;
-      var context = recipient.context;
+      var context = recipient.context || {};
 
       notify(user, message, data, context, function(err, sent) {
         if (err) {
           logger.info('Can not notify user %s: %s', user._id, err.message);
-          return;
+          return callback();
         }
         logger.info('Email has been sent to user %s', user._id);
         callback();
