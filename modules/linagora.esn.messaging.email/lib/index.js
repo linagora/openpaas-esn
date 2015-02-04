@@ -160,6 +160,27 @@ module.exports = function(dependencies) {
     });
   }
 
+  function getMessageURL(messageId, streamId, callback) {
+    var esnConfig = dependencies('esn-config');
+    var staticConfig = dependencies('config')('default');
+
+    function done(baseUrl) {
+      return callback(baseUrl + '/#/messages/' + messageId + '/activitystreams/' + streamId);
+    }
+
+    esnConfig('web').get(function(err, config) {
+      if (config && config.base_url) {
+        return done(config.base_url);
+      }
+      return done([
+        'http://',
+        staticConfig.webserver.host || staticConfig.webserver.ip || 'localhost',
+        staticConfig.webserver.port && staticConfig.webserver.port !== 80 ? ':' : '',
+        staticConfig.webserver.port && staticConfig.webserver.port !== 80 ? staticConfig.webserver.port : ''
+      ].join(''));
+    });
+  }
+
   lib.getUser = getUser;
   lib.canReply = canReply;
   lib.parseMessage = parseMessage;
@@ -170,6 +191,7 @@ module.exports = function(dependencies) {
   lib.token = token;
   lib.handlers = handlers;
   lib.sender = sender;
+  lib.getMessageURL = getMessageURL;
 
   return lib;
 };
