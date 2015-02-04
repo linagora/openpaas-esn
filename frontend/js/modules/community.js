@@ -7,12 +7,13 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       displayProperty: true
     });
   }])
-  .run(['objectTypeResolver', 'objectTypeAdapter', 'communityAPI', 'communityAdapterService', 'Restangular', function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular) {
+  .run(['objectTypeResolver', 'objectTypeAdapter', 'communityAPI', 'communityAdapterService', 'Restangular', 'ASTrackerSubscriptionService', function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);
     objectTypeAdapter.register('community', communityAdapterService);
     Restangular.extendModel('communities', function(model) {
       return communityAdapterService(model);
     });
+    ASTrackerSubscriptionService.register('community', {get: communityAPI.get});
   }])
   .factory('communityAdapterService', function() {
     return function(community) {
@@ -20,6 +21,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       community.url = '/#/communities/' + community._id;
       community.avatarUrl = '/api/avatars?objectType=community&id=' + community._id;
       community.displayName = community.title;
+      community.objectType = 'community';
       return community;
     };
   })
@@ -1044,50 +1046,6 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
           ASTrackerNotificationService.addItem(element);
         });
-      });
-
-      function joinCommunityNotificationHandler(event, data) {
-        if (data.collaboration.objectType !== 'community') {
-          return;
-        }
-
-        communityAPI.get(data.collaboration.id).then(function(success) {
-          var uuid = success.data.activity_stream.uuid;
-          ASTrackerNotificationService.subscribeToStreamNotification(uuid);
-
-          var streamInfo = {
-            uuid: uuid,
-            href: '/#/communities/' + success.data._id,
-            img: '/api/communities/' + success.data._id + '/avatar',
-            display_name: success.data.title,
-            objectType: 'community'
-          };
-          ASTrackerNotificationService.addItem(streamInfo);
-
-        }, function(err) {
-          $log.debug('Error while getting community', err.data);
-        });
-      }
-
-      function leaveCommunityNotificationHandler(event, msg) {
-        if (msg && msg.collaboration && msg.collaboration.objectType !== 'community') {
-          return;
-        }
-        communityAPI.get(msg.collaboration.id).then(function(success) {
-          var uuid = success.data.activity_stream.uuid;
-          ASTrackerNotificationService.unsubscribeFromStreamNotification(uuid);
-          ASTrackerNotificationService.removeItem(uuid);
-        }, function(err) {
-          $log.debug('Error while getting the community', err.data);
-        });
-      }
-
-      var joinHandler = $rootScope.$on('collaboration:join', joinCommunityNotificationHandler);
-      var leaveHandler = $rootScope.$on('collaboration:leave', leaveCommunityNotificationHandler);
-
-      $scope.$on('$destroy', function() {
-        joinHandler();
-        leaveHandler();
       });
   }])
   .directive('listCommunityActivityStreams', function() {

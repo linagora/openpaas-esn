@@ -111,7 +111,7 @@ angular.module('esn.activitystreams-tracker', [
       getActivityStreamsWithUnreadCount: getActivityStreamsWithUnreadCount
     };
   }])
-  .controller('ASTrackerController', ['$rootScope', '$scope', '$timeout', 'ASTrackerNotificationService', 'ASTrackerAPI', function($rootScope, $scope, $timeout, ASTrackerNotificationService, ASTrackerAPI) {
+  .controller('ASTrackerController', ['$rootScope', '$scope', '$timeout', '$log', 'ASTrackerNotificationService', 'ASTrackerAPI', 'ASTrackerSubscriptionService', function($rootScope, $scope, $timeout, $log, ASTrackerNotificationService, ASTrackerAPI, ASTrackerSubscriptionService) {
     $scope.$on('$destroy', function() {
       ASTrackerNotificationService.removeAllListeners();
     });
@@ -128,6 +128,51 @@ angular.module('esn.activitystreams-tracker', [
         }, 1000);
       }
     });
+
+    var joinHandler = $rootScope.$on('collaboration:join', function(evt, data) {
+      $log.debug('Got a join event', data);
+      if (data && data.collaboration && data.collaboration.objectType) {
+        var handlers = ASTrackerSubscriptionService.get(data.collaboration.objectType);
+
+        if (!handlers || handlers.length === 0) {
+          return;
+        }
+
+        handlers.forEach(function(handler) {
+          try {
+            handler.onJoin(data);
+          } catch (e) {
+            $log('Error while calling join handler', e);
+          }
+        });
+      }
+    });
+
+    var leaveHandler = $rootScope.$on('collaboration:leave', function(evt, data) {
+      $log.debug('Got a leave event', data);
+
+      if (data && data.collaboration && data.collaboration.objectType) {
+        var handlers = ASTrackerSubscriptionService.get(data.collaboration.objectType);
+
+        if (!handlers || handlers.length === 0) {
+          return;
+        }
+
+        handlers.forEach(function(handler) {
+          try {
+            handler.onLeave(data);
+          } catch (e) {
+            $log('Error while calling leave handler', e);
+          }
+        });
+      }
+    });
+
+    $scope.$on('$destroy', function() {
+      joinHandler();
+      leaveHandler();
+    });
+
   }])
   .factory('ASTrackerNotificationService',
   ['$rootScope', '$log', '$timeout', 'AStrackerHelpers', 'ASTrackerAPI', 'livenotification', 'session',
@@ -206,4 +251,67 @@ angular.module('esn.activitystreams-tracker', [
         getUnreadUpdate: getUnreadUpdate,
         streams: self.activityStreams
       };
+  }])
+  .factory('ASTrackerSubscriptionService', ['$log', 'objectTypeAdapter', 'ASTrackerNotificationService', function($log, objectTypeAdapter, ASTrackerNotificationService) {
+    var handlers = {};
+
+    function joinLeaveWrapper(objectType, handler) {
+      return {
+        onJoin: function(data) {
+          if (data.collaboration.objectType !== objectType) {
+            return;
+          }
+
+          handler.get(data.collaboration.id).then(function(success) {
+            var uuid = success.data.activity_stream.uuid;
+            ASTrackerNotificationService.subscribeToStreamNotification(uuid);
+            var streamInfo = objectTypeAdapter.adapt(success.data);
+            streamInfo.uuid = uuid;
+            streamInfo.display_name = streamInfo.displayName;
+            streamInfo.href = streamInfo.url;
+            streamInfo.img = streamInfo.avatarUrl;
+            ASTrackerNotificationService.addItem(streamInfo);
+
+          }, function(err) {
+            $log.debug('Error while getting collaboration', err.data);
+          });
+        },
+
+        onLeave: function(data) {
+          if (data.collaboration.objectType !== objectType) {
+            return;
+          }
+          handler.get(data.collaboration.id).then(function(success) {
+            var uuid = success.data.activity_stream.uuid;
+            ASTrackerNotificationService.unsubscribeFromStreamNotification(uuid);
+            ASTrackerNotificationService.removeItem(uuid);
+          }, function(err) {
+            $log.debug('Error while getting the collaboration', err.data);
+          });
+        }
+      };
+    }
+
+    function register(objectType, handler) {
+      if (!objectType || !handler) {
+        return;
+      }
+
+      if (!handlers[objectType]) {
+        handlers[objectType] = [];
+      }
+      handlers[objectType].push(joinLeaveWrapper(objectType, handler));
+    }
+
+    function get(objectType) {
+      if (!objectType || !handlers[objectType]) {
+        return [];
+      }
+      return handlers[objectType];
+    }
+
+    return {
+      register: register,
+      get: get
+    };
   }]);
