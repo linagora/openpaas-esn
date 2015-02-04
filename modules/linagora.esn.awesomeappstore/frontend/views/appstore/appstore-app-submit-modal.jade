@@ -52,34 +52,7 @@
               p #{__('You are about to create the')}
                 strong &nbsp;'{{application.title}}'&nbsp;
                 | #{__('module')}. #{__('You can customize it with an avatar and a description now or do it later on the module page')}.
-            .row
-              label #{__('Avatar')}
-              .btn-group.btn-group-justified
-                .btn-group
-                  span.btn.btn-info.btn-file
-                    i.fa.fa-upload
-                    | #{__('Select an image')}
-                    input(type="file", load-button)
-                .btn-group
-                  button.btn.btn-info.btn-file(data-ng-disabled='!imageselected || imagevalidated', data-ng-click='validateImage()')
-                    i.fa.fa-check
-                    | #{__('Accept picture')}
-            .vertiz-space
-            .row(id='error')
-            .row
-              .col-xs-6.col-xs-offset-3.col-sm-3.col-sm-offset-0.application-img-preview-container
-                div(ng-show='!imageselected')
-                  img(width="128", height="128", src='/appstore/images/application.png')
-                div(ng-show='imageselected')
-                  .img-preview
-                    a(data-ng-click='removeSelectedImage()', href='')
-                      i.fa.fa-times.fa-5.fa-border
-                    canvas(width="128", height="128", id="preview", img-preview)
-              .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='imageselected && !imagevalidated')
-                .hidden-md.hidden-sm.hidden-lg
-                  img-loaded(width="190")
-                .hidden-xs
-                  img-loaded(width="380")
+            avatar-picker
           .form-group(ng-show="step === 1")
             label #{__('Description')}
             textarea.form-control.textarea-fixed(rows="3", ng-model='application.description', name='description')

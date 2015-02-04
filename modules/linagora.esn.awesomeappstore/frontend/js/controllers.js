@@ -24,14 +24,6 @@ angular.module('esn.appstore')
   .controller('appstoreAppSubmitController', ['$rootScope', '$scope', '$q', '$location', '$timeout', '$log', '$alert', 'session', 'appstoreAPI', '$upload', 'selectionService',
     function($rootScope, $scope, $q, $location, $timeout, $log, $alert, session, appstoreAPI, $upload, selectionService) {
       selectionService.clear();
-      var alertInstance;
-
-      function destroyAlertInstance() {
-        if (alertInstance) {
-          alertInstance.destroy();
-          alertInstance = null;
-        }
-      }
 
       var initScope = function() {
         $scope.step = 0;
@@ -48,18 +40,10 @@ angular.module('esn.appstore')
           step: 'none',
           created: false
         };
-        $scope.imageselected = false;
-        $scope.imagevalidated = false;
         $scope.artifactselected = false;
       };
 
       initScope();
-
-      $scope.$on('crop:loaded', function() {
-        $scope.imageselected = true;
-        $scope.imagevalidated = false;
-        $scope.$apply();
-      });
 
       $scope.isTitleEmpty = function() {
         return !$scope.application.title;
@@ -108,15 +92,6 @@ angular.module('esn.appstore')
         $scope.step = 0;
       };
 
-      $scope.validateImage = function() {
-        $scope.imagevalidated = true;
-      };
-
-      $scope.removeSelectedImage = function() {
-        selectionService.clear();
-        $scope.imageselected = false;
-      };
-
       $scope.displayError = function(err) {
         $scope.alert = $alert({
           content: err,
@@ -126,25 +101,6 @@ angular.module('esn.appstore')
           container: '#applicationerror'
         });
       };
-
-      $scope.$on('crop:reset', function() {
-        destroyAlertInstance();
-        selectionService.clear();
-      });
-
-      $scope.$on('crop:error', function(context, error) {
-        if (error) {
-          alertInstance = $alert({
-            title: 'Error',
-            content: error,
-            type: 'danger',
-            show: true,
-            position: 'bottom',
-            container: '#error',
-            animation: 'am-fade'
-          });
-        }
-      });
 
       $scope.submit = function(application) {
         $scope.createStatus.step = 'post';
