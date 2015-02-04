@@ -60,7 +60,7 @@ angular.module('esn.project')
 
       $scope.getAll();
   }])
-  .controller('projectsAStrackerController', ['$rootScope', '$scope', 'AStrackerHelpers', 'ASTrackerNotificationService', function($rootScope, $scope, AStrackerHelpers, ASTrackerNotificationService) {
+  .controller('projectsAStrackerController', ['$rootScope', '$scope', '$log', 'AStrackerHelpers', 'ASTrackerNotificationService', 'projectAPI', function($rootScope, $scope, $log, AStrackerHelpers, ASTrackerNotificationService, projectAPI) {
       $scope.activityStreams = ASTrackerNotificationService.streams;
       $scope.show = false;
       $scope.load = true;

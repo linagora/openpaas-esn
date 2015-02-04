@@ -40,6 +40,7 @@ angular.module('esn.project', [
       }
     });
   }])
-  .run(['projectAdapterService', 'objectTypeAdapter', function(projectAdapterService, objectTypeAdapter) {
+  .run(['projectAdapterService', 'objectTypeAdapter', 'ASTrackerSubscriptionService', 'projectAPI', function(projectAdapterService, objectTypeAdapter, ASTrackerSubscriptionService, projectAPI) {
     objectTypeAdapter.register('project', projectAdapterService);
+    ASTrackerSubscriptionService.register('project', {get: projectAPI.get});
   }]);

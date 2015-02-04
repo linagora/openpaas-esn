@@ -46,6 +46,7 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
         if (!$scope.uploadFailed) {
           $scope.create = { step: 'redirect', percent: 100 };
         }
+        $scope.$emit('collaboration:join', {collaboration: {id: id, objectType: 'project'}});
         $timeout(function() {
           if ($scope.createModal) {
             $scope.createModal.hide();
