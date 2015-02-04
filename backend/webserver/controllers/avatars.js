@@ -1,10 +1,9 @@
 'use strict';
 
 var userModule = require('../../core/user');
+var communityController = require('./communities');
 var userController = require('./users');
 var imageModule = require('../../core/image');
-var collaborationController = require('./collaborations');
-var collaborationMiddleware = require('../middleware/collaboration');
 
 function getUserAvatarFromEmail(req, res) {
   userModule.findByEmail(req.query.email, function(err, user) {
@@ -16,19 +15,18 @@ function getUserAvatarFromEmail(req, res) {
   });
 }
 
-function getCollaborationAvatar(req, res) {
+function getCommunityAvatar(req, res) {
   if (!req.query.id) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Collaboration id is mandatory'}});
+    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Community id is mandatory'}});
   }
 
   req.params.id = req.query.id;
-  req.params.objectType = req.query.objectType;
 
-  collaborationMiddleware.load(req, res, function(err) {
+  communityController.load(req, res, function(err) {
     if (err) {
       return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Error while getting avatar'}});
     }
-    return collaborationController.getAvatar(req, res);
+    return communityController.getAvatar(req, res);
   });
 }
 
@@ -65,8 +63,8 @@ module.exports.get = function(req, res) {
     return getUserAvatarFromEmail(req, res);
   }
 
-  if (req.query.objectType === 'community' || req.query.objectType === 'project') {
-    return getCollaborationAvatar(req, res);
+  if (req.query.objectType === 'community') {
+    return getCommunityAvatar(req, res);
   }
 
   if (req.query.objectType === 'image') {
