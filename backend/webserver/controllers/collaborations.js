@@ -154,39 +154,80 @@ function getExternalCompanies(req, res) {
     return res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
   }
 
+  function getCompaniesFromUserId(id, callback) {
+    userModule.get(id, function(err, user) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!user) {
+        return callback(new Error('Unexpected error while searching member.'));
+      }
+
+      userHelper.isInternal(user, function(err, isInternal) {
+        if (err) {
+          return callback(err);
+        }
+
+        if (isInternal) {
+          return callback();
+        }
+
+        userModule.getCompanies(user, function(err, companies) {
+          callback(err, companies);
+        });
+      });
+    });
+  }
+
+  function pushCompaniesWithoutDuplicateInto(array, companies) {
+    companies.forEach(function(company) {
+      if (array.indexOf(company) === -1) {
+        array.push(company);
+      }
+    });
+  }
+
   var allCompanies = [];
   async.eachSeries(req.collaboration.members,
     function(member, callback) {
       if (member.member.objectType === 'user') {
-        userModule.get(member.member.id, function(err, user) {
+        getCompaniesFromUserId(member.member.id, function(err, companies) {
           if (err) {
             return callback(err);
           }
-          if (!user) {
-            return callback(new Error('Unexpected error while searching member.'));
+
+          if (!companies || !companies.length) {
+            return callback();
           }
-          userHelper.isInternal(user, function(err, isInternal) {
-            if (err) {
-              return callback(err);
-            }
-            if (isInternal) {
-              return callback();
-            }
-            userModule.getCompanies(user, function(err, companies) {
+
+          pushCompaniesWithoutDuplicateInto(allCompanies, companies);
+          return callback();
+        });
+      } else if (member.member.objectType === 'community') {
+        collaborationModule.getMembers(member.member.id, 'community', {}, function(err, members) {
+          if (err) {
+            return callback(err);
+          }
+
+          async.eachSeries(members, function(member, callback) {
+            getCompaniesFromUserId(member.member.id, function(err, companies) {
               if (err) {
                 return callback(err);
               }
-              companies.forEach(function(company) {
-                if (allCompanies.indexOf(company) === -1) {
-                  allCompanies.push(company);
-                }
-              });
+
+              if (!companies || !companies.length) {
+                return callback();
+              }
+
+              pushCompaniesWithoutDuplicateInto(allCompanies, companies);
               return callback();
             });
+          }, function(err) {
+            return callback(err);
           });
         });
-      }
-      else {
+      } else {
         return callback();
       }
     },
@@ -194,17 +235,20 @@ function getExternalCompanies(req, res) {
       if (err) {
         return res.json(500, {error: {code: 500, message: 'Server error', details: err.message}});
       }
+
       if (req.query.search) {
         allCompanies = allCompanies.filter(function(company) {
           return company.indexOf(req.query.search) > -1;
         });
       }
+
       allCompanies = allCompanies.map(function(company) {
         return {
           objectType: 'company',
           id: company
         };
       });
+
       return res.json(200, allCompanies);
     }
   );
