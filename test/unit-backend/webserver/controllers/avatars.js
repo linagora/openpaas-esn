@@ -7,7 +7,8 @@ describe('The avatars controller', function() {
 
   describe('The get function', function() {
     it('should send back 400 when req.query.objectType is not set', function(done) {
-      mockery.registerMock('./communities', {});
+      mockery.registerMock('../middleware/collaboration', {});
+      mockery.registerMock('./collaborations', {});
       mockery.registerMock('./users', {});
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/image', {});
@@ -28,7 +29,8 @@ describe('The avatars controller', function() {
     });
 
     it('send back HTTP 400 when objectType is not recognized', function(done) {
-      mockery.registerMock('./communities', {});
+      mockery.registerMock('../middleware/collaboration', {});
+      mockery.registerMock('./collaborations', {});
       mockery.registerMock('./users', {});
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/image', {});
@@ -52,7 +54,8 @@ describe('The avatars controller', function() {
 
     describe('The community objectType', function() {
       it('should send back HTTP 400 when req.query.id is not set', function(done) {
-        mockery.registerMock('./communities', {});
+        mockery.registerMock('../middleware/collaboration', {});
+        mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
@@ -75,11 +78,12 @@ describe('The avatars controller', function() {
       });
 
       it('should load the community from its id', function(done) {
-        mockery.registerMock('./communities', {
+        mockery.registerMock('../middleware/collaboration', {
           load: function(req, res, next) {
             return done();
           }
         });
+        mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
@@ -100,11 +104,12 @@ describe('The avatars controller', function() {
       });
 
       it('should send back HTTP 500 when community load fails', function(done) {
-        mockery.registerMock('./communities', {
+        mockery.registerMock('../middleware/collaboration', {
           load: function(req, res, next) {
             return next(new Error());
           }
         });
+        mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {});
         mockery.registerMock('../../core/image', {});
@@ -129,10 +134,12 @@ describe('The avatars controller', function() {
       });
 
       it('should call the getAvatar fn when community is found', function(done) {
-        mockery.registerMock('./communities', {
+        mockery.registerMock('../middleware/collaboration', {
           load: function(req, res, next) {
             return next();
-          },
+          }
+        });
+        mockery.registerMock('./collaborations', {
           getAvatar: function() {
             return done();
           }
@@ -162,7 +169,8 @@ describe('The avatars controller', function() {
 
     describe('The user objecType', function() {
       it('should redirect to /images/not_a_user.png when user with query email throws back error', function(done) {
-        mockery.registerMock('./communities', {});
+        mockery.registerMock('../middleware/collaboration', {});
+        mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {
           findByEmail: function(email, callback) {
@@ -190,7 +198,8 @@ describe('The avatars controller', function() {
       });
 
       it('should redirect to /images/not_a_user.png when user with query email can not be found', function(done) {
-        mockery.registerMock('./communities', {});
+        mockery.registerMock('../middleware/collaboration', {});
+        mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {});
         mockery.registerMock('../../core/user', {
           findByEmail: function(email, callback) {
@@ -220,7 +229,8 @@ describe('The avatars controller', function() {
         var user = {
           _id: 123
         };
-        mockery.registerMock('./communities', {});
+        mockery.registerMock('../middleware/collaboration', {});
+        mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {
           getProfileAvatar: function(req, res) {
             expect(req.user).to.deep.equal(user);

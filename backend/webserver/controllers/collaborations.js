@@ -6,6 +6,8 @@ var memberAdapter = require('../../helpers/collaboration').memberAdapter;
 var permission = require('../../core/collaboration/permission');
 var userHelper = require('../../helpers/user');
 var userModule = require('../../core/user');
+var imageModule = require('../../core/image');
+var logger = require('../../core/logger');
 var async = require('async');
 
 function transform(collaboration, user, callback) {
@@ -508,3 +510,34 @@ function getMember(req, res) {
   });
 }
 module.exports.getMember = getMember;
+
+function getAvatar(req, res) {
+  if (!req.collaboration) {
+    return res.json(404, {error: 404, message: 'Not found', details: 'Community not found'});
+  }
+
+  if (!req.collaboration.avatar) {
+    return res.redirect('/images/collaboration.png');
+  }
+
+  imageModule.getAvatar(req.collaboration.avatar, req.query.format, function(err, fileStoreMeta, readable) {
+    if (err) {
+      logger.warn('Can not get collaboration avatar : %s', err.message);
+      return res.redirect('/images/collaboration.png');
+    }
+
+    if (!readable) {
+      logger.warn('Can not retrieve avatar stream for collaboration %s', req.collaboration._id);
+      return res.redirect('/images/collaboration.png');
+    }
+
+    if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+      return res.send(304);
+    } else {
+      res.header('Last-Modified', fileStoreMeta.uploadDate);
+      res.status(200);
+      return readable.pipe(res);
+    }
+  });
+}
+module.exports.getAvatar = getAvatar;
