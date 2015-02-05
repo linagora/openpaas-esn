@@ -135,6 +135,32 @@ describe('The notification API', function() {
       });
   });
 
+  it('should return HTTP 201 with the created notification on POST /api/notifications with community as target', function(done) {
+    request(app)
+      .post('/api/login')
+      .send({username: email, password: password, rememberme: true})
+      .expect(200)
+      .end(function(err, res) {
+        var cookies = res.headers['set-cookie'].pop().split(';')[0];
+        var req = request(app).post('/api/notifications');
+        req.cookies = cookies;
+        req.send({
+          title: 'My notification',
+          level: 'info',
+          action: 'create',
+          object: 'form',
+          link: 'http://localhost:8888',
+          target: [{objectType: 'community', id: community._id}]
+        });
+        req.expect(201)
+          .end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.exist;
+            done();
+          });
+      });
+  });
+
   it('should return HTTP 201 and publish N times in the ', function(done) {
     var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
     var topic = pubsub.topic('notification:external');
