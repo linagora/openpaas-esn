@@ -32,7 +32,7 @@ module.exports = function(lib, dependencies) {
     var handlers = lib.handlers;
 
     if (!handlers[message.objectType]) {
-      return callback(new Error('No email handler for %s message', message.objectType));
+      return callback(new Error('No email handler for message type ' + message.objectType));
     }
 
     return handlers[message.objectType].sendMessageAsEMail(from, user, message, context, callback);
@@ -143,7 +143,7 @@ module.exports = function(lib, dependencies) {
 
     var handler = handlers[type];
     if (!handler) {
-      return callback(new Error('Can not any handler for %s message', type));
+      return callback(new Error('Can not find a handler for ' + type + ' message'));
     }
 
     getResolverConfig(type, function(err, config) {
@@ -200,6 +200,9 @@ module.exports = function(lib, dependencies) {
 
             if (!err && collaboration) {
               return getMessageTargets(collaboration[0], message, function(err, targets) {
+                if (err || !targets) {
+                    return callback(err, targets);
+                }
                 targets = targets.map(function(target) {
                   return {
                     target: target,
