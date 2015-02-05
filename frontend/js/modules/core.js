@@ -56,12 +56,6 @@ angular.module('esn.core', [])
       }
     };
   }])
-  .controller('selectActiveItem', ['$scope', function($scope) {
-    $scope.selected = 1;
-    $scope.selectItem = function(index) {
-      $scope.selected = index;
-    };
-  }])
   .filter('bytes', function() {
     return function(bytes, precision) {
       if (bytes === 0) {
@@ -92,6 +86,32 @@ angular.module('esn.core', [])
       }
     };
   })
+  .directive('esnMainNavbar', ['$location', function($location) {
+
+    function firstPathSegment() {
+      return $location.path().replace(/^\//, '').split('/').shift();
+    }
+
+    function link(scope, element, attrs) {
+      function activateTabItem(segment) {
+        element.find('.esn-item[data-esn-path]').removeClass('active');
+        if (segment) {
+          element.find('.esn-item[data-esn-path="' + segment + '"]').addClass('active');
+        }
+      }
+
+      scope.$on('$routeChangeSuccess', function() {
+        activateTabItem(firstPathSegment());
+      });
+      activateTabItem(firstPathSegment());
+    }
+
+    return {
+      restruct: 'E',
+      templateUrl: '/views/modules/core/esn-main-navbar.html',
+      link: link
+    };
+  }])
   .constant('routeResolver', {
     session: function(type) {
       return ['session', '$q', function(session, $q) {
