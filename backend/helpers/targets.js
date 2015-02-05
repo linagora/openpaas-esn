@@ -42,7 +42,7 @@ module.exports.getUserIds = function(targets, callback) {
           return callback(err);
         }
         members.forEach(function(member) {
-          addUsersIfNotFoundOrContextUndefined(member.user._id.toString(), target.id);
+          addUsersIfNotFoundOrContextUndefined(member.id.toString(), target.id);
         });
         callback();
       });
