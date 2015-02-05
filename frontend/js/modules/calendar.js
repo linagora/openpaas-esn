@@ -138,6 +138,8 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
     function getInvitedAttendees(vcalendar, emails) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       var attendees = vevent.getAllProperties('attendee');
+      var organizer = vevent.getFirstProperty('organizer');
+      var organizerId = organizer && organizer.getFirstValue().toLowerCase();
 
       var emailMap = Object.create(null);
       emails.forEach(function(email) { emailMap['mailto:' + email.toLowerCase()] = true; });
@@ -147,6 +149,11 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
         if (attendees[i].getFirstValue().toLowerCase() in emailMap) {
           invitedAttendees.push(attendees[i]);
         }
+      }
+
+      // We also need the organizer to work around an issue in Lightning
+      if (organizer && organizerId in emailMap) {
+        invitedAttendees.push(organizer);
       }
       return invitedAttendees;
     }
