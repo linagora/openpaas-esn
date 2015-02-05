@@ -50,6 +50,144 @@ angular.module('esn.appstore')
       }
     };
   }])
+  .directive('appstoreSwitchDeploy', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService) {
+    return {
+      restrict: 'E',
+      templateUrl: '/appstore/views/appstore/appstore-switch.html',
+      scope: {
+        application: '=',
+        version: '@',
+        domainDeployment: '='
+      },
+      link: function(scope, element, attrs, controllers) {
+        var target = { objectType: 'domain', id: session.domain._id };
+        scope.domainDeployment = applicationService.isDomainLevel(scope.application);
+        scope.loading = false;
+        scope.switch = {};
+        scope.switch.status = disableService(target, scope.application.deployments);
+        scope.active = true;
+
+        function deployAndInstall() {
+          return appstoreAPI.deploy(scope.application._id, target, scope.version)
+            .then(function() {
+              return appstoreAPI.install(scope.application._id, target);
+            })
+            .then(function() {
+              $log.debug('Application deployment success at domain level.');
+            }, function(error) {
+              $log.debug('Application deployment failed at domain level.', error);
+            });
+        }
+
+        function deploy() {
+          return appstoreAPI.deploy(scope.application._id, target, scope.version)
+            .then(function() {
+              $log.debug('Application deployment success.');
+            }, function(error) {
+              $log.debug('Application deployment failed.', error);
+            });
+        }
+
+        scope.deploy = function() {
+          scope.loading = true;
+          var steps = scope.domainDeployment ? deployAndInstall : deploy;
+          steps()
+            .finally (function() {
+            scope.loading = false;
+            $log.debug('Done.');
+          });
+        };
+
+        scope.undeploy = function() {
+          scope.loading = true;
+          appstoreAPI.undeploy(scope.application._id, target)
+            .then(function() {
+              $log.debug('Application undeployment success.');
+            }, function(error) {
+              $log.debug('Application undeployment failed.', error);
+            }).finally (function() {
+            scope.loading = false;
+            $log.debug('Done.');
+          });
+        };
+
+        var initializing = true;
+        scope.$watch('switch.status', function(value) {
+          if (initializing) {
+            $timeout(function() {
+              initializing = false;
+            });
+          } else {
+            value ? scope.deploy() : scope.undeploy();
+          }
+        });
+      }
+    };
+  }])
+  .directive('appstoreSwitchInstall', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService) {
+    return {
+      restrict: 'E',
+      templateUrl: '/appstore/views/appstore/appstore-switch.html',
+      scope: {
+        application: '=',
+        community: '='
+      },
+      link: function(scope, element, attrs, controllers) {
+        var target = { objectType: 'community', id: scope.community._id };
+        var targetDomain = { objectType: 'domain', id: session.domain._id };
+        var deployment = scope.application.deployments.filter(function(deployment) {
+          return angular.equals(deployment.target, targetDomain);
+        });
+        scope.loading = false;
+        scope.switch = {};
+        scope.switch.status = disableService(target, scope.application.deployments);
+
+        if (deployment[0]) {
+          scope.deploySwitch = disableService(target, deployment[0].installs);
+        } else {
+          scope.active = false;
+        }
+
+        scope.loading = false;
+        scope.install = function() {
+          scope.loading = true;
+          appstoreAPI.install(scope.application._id, target)
+            .then(function() {
+              $log.debug('Application install success.');
+            }, function(error) {
+              $log.debug('Application install failed.', error);
+            }).finally (function() {
+            scope.loading = false;
+            $log.debug('Done.');
+          });
+        };
+
+        scope.uninstall = function() {
+          scope.loading = true;
+          appstoreAPI.uninstall(scope.application._id, target)
+            .then(function() {
+              $log.debug('Application uninstall success.');
+            }, function(error) {
+              $log.debug('Application uninstall failed.', error);
+            }).finally (function() {
+            scope.loading = false;
+            $log.debug('Done.');
+          });
+        };
+
+        var initializing = true;
+        scope.$watch('switch.status', function(value) {
+          if (initializing) {
+            $timeout(function() {
+              initializing = false;
+            });
+          } else {
+            value ? scope.install() : scope.uninstall();
+          }
+        });
+      }
+    };
+  }])
   .directive('appstoreButtonDeploy', ['$log', '$q', 'session', 'appstoreAPI', 'applicationService', 'disableService', function($log, $q, session, appstoreAPI, applicationService, disableService) {
     return {
       require: '^appstoreButtonsGroup',
@@ -257,6 +395,7 @@ angular.module('esn.appstore')
   })
   .directive('appstoreAppDisplay', function() {
     return {
+      replace: true,
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-app-display.html',
       scope: {

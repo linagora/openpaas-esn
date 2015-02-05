@@ -1,4 +1,4 @@
-.esn-app-display
+//.esn-app-display
   .col-lg-4.col-md-6.col-sm-12.col-xs-12
     .thumbnail
       img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png" style="height: 200px; width: 200px; display: block;")
@@ -17,3 +17,18 @@
             appstore-button-deploy(application="application", version="1.0.0", domain-deployment="domainDeployment")
             &nbsp;
             appstore-button-undeploy(application="application")
+
+.card.people
+  .card-top.blue
+    img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png")
+  .card-info
+    .ellipsis
+      a(href='#/appstore/apps/{{::application._id}}').title.text-center
+        span {{::application.title}}
+        small(data-ng-if="application.version") {{::application.version}}
+    .desc {{::application.description | characters:128 :false }}
+  .card-bottom
+    .row
+      appstore-label-domain-deploy(application='application')
+    .row
+      appstore-switch-deploy(application="application", version="1.0.0", domain-deployment="domainDeployment")

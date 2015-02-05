@@ -10,6 +10,7 @@ angular.module('esnApp', [
   'angularMoment',
   'truncate',
   'openpaas-logo',
+  'frapontillo.bootstrap-switch',
   'esn.core',
   'esn.member',
   'esn.domain',

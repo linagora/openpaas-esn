@@ -61,7 +61,9 @@
     "angular-markdown-directive": "~0.3.0",
     "angular-uuid4": "~0.3.0",
     "angular-localforage": "1.2.2",
-    "localforage": "1.2.0"
+    "localforage": "1.2.0",
+    "angular-bootstrap-switch": "~0.3.0",
+    "bootstrap-switch": "~3.3.2"
   },
   "resolutions": {
     "jquery": "2.1.1",
