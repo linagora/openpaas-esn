@@ -6,7 +6,8 @@ angular.module('esn.appstore', [
   'mgcrea.ngStrap.modal',
   'angularFileUpload',
   'restangular',
-  'angularFileUpload'
+  'angularFileUpload',
+  'frapontillo.bootstrap-switch'
 ]).config(function($routeProvider) {
 
     $routeProvider.when('/appstore', {

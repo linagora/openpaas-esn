@@ -20,5 +20,5 @@
   .vertiz-space
 
   .row
-    div(ng-hide="loading", ng-repeat="application in applications | orderBy:'title'")
-      appstore-app-display(application="application")
+    div(ng-hide="loading").controls.text-center
+      appstore-app-display(application="application", ng-repeat="application in applications | orderBy:'title'")
