@@ -8,7 +8,7 @@ describe('The core local pubsub module', function() {
 
   beforeEach(function() {
     counter = 0;
-    pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
+    pubsub = this.helpers.requireBackend('core').pubsub.local;
   });
 
 

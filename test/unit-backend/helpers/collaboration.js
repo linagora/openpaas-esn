@@ -6,7 +6,7 @@ describe('Member object', function() {
   var collaboration;
 
   before(function() {
-    collaboration = require(this.testEnv.basePath + '/backend/helpers/collaboration');
+    collaboration = this.helpers.requireBackend('helpers/collaboration');
   });
 
   it('should filter a user from password, avatars and login', function(done) {

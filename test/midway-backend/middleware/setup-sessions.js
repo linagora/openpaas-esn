@@ -19,8 +19,8 @@ describe('The sessions middleware', function() {
 
     this.testEnv.initCore(function() {
       self.mongoose = require('mongoose'),
-      self.app = require(self.testEnv.basePath + '/backend/webserver/application');
-      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      self.app = self.helpers.requireBackend('webserver/application');
+      var User = self.helpers.requireBackend('core/db/mongo/models/user');
       var u = new User(user);
       u.save(function(err, saved) {
         if (err) {

@@ -5,7 +5,7 @@ var expect = require('chai').expect,
 
 describe('The WebSockets Auth Token module', function() {
   it('should send back error if handshake data is undefined', function(done) {
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth(null, function(err) {
       expect(err).to.exist;
       done();
@@ -13,7 +13,7 @@ describe('The WebSockets Auth Token module', function() {
   });
 
   it('should send back error if handshake query data is undefined', function(done) {
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({}, function(err) {
       expect(err).to.exist;
       done();
@@ -21,7 +21,7 @@ describe('The WebSockets Auth Token module', function() {
   });
 
   it('should send back error if handshake query token is undefined', function(done) {
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({request: {_query: {}}}, function(err) {
       expect(err).to.exist;
       done();
@@ -29,7 +29,7 @@ describe('The WebSockets Auth Token module', function() {
   });
 
   it('should send back error if handshake query user is undefined', function(done) {
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({request: {_query: {token: '123'}}}, function(err) {
       expect(err).to.exist;
       done();
@@ -44,7 +44,7 @@ describe('The WebSockets Auth Token module', function() {
 
     };
     mockery.registerMock('../../core/auth/token', mock);
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({request: {_query: {token: '123', user: 'foo'}}}, function(err, bool) {
       expect(err).to.exist;
       done();
@@ -59,7 +59,7 @@ describe('The WebSockets Auth Token module', function() {
 
     };
     mockery.registerMock('../../core/auth/token', mock);
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({request: {_query: {token: '123', user: 'foo'}}}, function(err, bool) {
       expect(err).to.exist;
       done();
@@ -73,7 +73,7 @@ describe('The WebSockets Auth Token module', function() {
       }
     };
     mockery.registerMock('../../core/auth/token', mock);
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({request: {_query: {token: '123', user: 'foo'}}}, function(err) {
       expect(err).to.exist;
       done();
@@ -88,7 +88,7 @@ describe('The WebSockets Auth Token module', function() {
 
     };
     mockery.registerMock('../../core/auth/token', mock);
-    var auth = require(this.testEnv.basePath + '/backend/wsserver/auth/token');
+    var auth = this.helpers.requireBackend('wsserver/auth/token');
     auth({request: {_query: {token: '123', user: 'foo'}}}, function(err) {
       expect(err).to.not.exist;
       done();

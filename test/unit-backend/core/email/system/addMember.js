@@ -28,7 +28,7 @@ describe('The add member email module', function() {
     mockery.registerMock('../../../i18n', i18nMock);
     mockery.registerMock('../index', emailMock);
 
-    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    var confirmation = this.helpers.requireBackend('core/email/system/addMember');
     confirmation(null, function(err, response) {
       expect(err).to.exist;
       done();
@@ -59,7 +59,7 @@ describe('The add member email module', function() {
     mockery.registerMock('../../../i18n', i18nMock);
     mockery.registerMock('../index', emailMock);
 
-    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    var confirmation = this.helpers.requireBackend('core/email/system/addMember');
     confirmation({}, function(err, response) {
       expect(err).to.exist;
       done();
@@ -95,7 +95,7 @@ describe('The add member email module', function() {
       }
     };
 
-    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    var confirmation = this.helpers.requireBackend('core/email/system/addMember');
     confirmation(invitation, function(err, response) {
       expect(err).to.exist;
       done();
@@ -137,7 +137,7 @@ describe('The add member email module', function() {
       }
     };
 
-    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/addMember');
+    var confirmation = this.helpers.requireBackend('core/email/system/addMember');
     confirmation(invitation, function(err, response) {
       expect(err).to.not.exist;
       expect(response).to.exist;

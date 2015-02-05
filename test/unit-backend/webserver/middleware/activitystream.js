@@ -23,7 +23,7 @@ describe('The activitystream middleware', function() {
       });
       mockery.registerMock('../../core/activitystreams', {});
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').isValidStream;
       var req = {
         query: {
           id: 1
@@ -49,7 +49,7 @@ describe('The activitystream middleware', function() {
       });
       mockery.registerMock('../../core/activitystreams', {});
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').isValidStream;
       var req = {
         query: {
           objectType: 1
@@ -79,7 +79,7 @@ describe('The activitystream middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').isValidStream;
       var req = {
         query: {
           objectType: 1,
@@ -110,7 +110,7 @@ describe('The activitystream middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').isValidStream;
       var req = {
         query: {
           objectType: 1,
@@ -146,7 +146,7 @@ describe('The activitystream middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').isValidStream;
       var req = {
         query: {
           objectType: 1,
@@ -180,7 +180,7 @@ describe('The activitystream middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').isValidStream;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').isValidStream;
       var req = {
         query: {
           objectType: 1,

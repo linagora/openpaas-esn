@@ -30,7 +30,7 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user', userMocked);
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
     middleware(req, {}, next);
   });
 
@@ -61,7 +61,7 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user', userMocked);
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
     middleware(req, {}, next);
   });
 
@@ -90,7 +90,7 @@ describe('The login-rules middleware', function() {
       }
     };
     mockery.registerMock('../../core/user', userMocked);
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
     middleware(req, {}, next);
   });
 
@@ -123,7 +123,7 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user', userMocked);
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
     middleware(req, res, {});
   });
 
@@ -155,7 +155,7 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user', userMocked);
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
     middleware(req, res, {});
   });
 
@@ -187,7 +187,7 @@ describe('The login-rules middleware', function() {
     };
     mockery.registerMock('../../core/user', userMocked);
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/login-rules').checkLoginCount;
+    var middleware = this.helpers.requireBackend('webserver/middleware/login-rules').checkLoginCount;
     middleware(req, res, function() {
       done();
     });

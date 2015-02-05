@@ -7,7 +7,7 @@ describe('The activitystreams helper module', function() {
   describe('getURN fn', function() {
 
     it('should return a string urn:linagora.com:type:value', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       expect(helper.getURN('foo', 'bar')).to.equal('urn:linagora.com:foo:bar');
       done();
     });
@@ -17,13 +17,13 @@ describe('The activitystreams helper module', function() {
   describe('getUserAsActor fn', function() {
 
     it('should return empty hash when user is not set', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       expect(helper.getUserAsActor()).to.deep.equal({});
       done();
     });
 
     it('should return a actor compliant hash', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       var user = {
         _id: 123,
         firstname: 'foo',
@@ -41,7 +41,7 @@ describe('The activitystreams helper module', function() {
   describe('timelineToActivity fn', function() {
 
     it('should return an activity', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       var input = {
         _id: '123',
         verb: 'post',
@@ -75,7 +75,7 @@ describe('The activitystreams helper module', function() {
     });
 
     it('should correctly format the inReplyTo part', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       var input = {
         _id: '123',
         verb: 'post',
@@ -111,7 +111,7 @@ describe('The activitystreams helper module', function() {
     });
 
     it('should support an empty inReplyTo part', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       var input = {
         _id: '123',
         verb: 'post',
@@ -140,7 +140,7 @@ describe('The activitystreams helper module', function() {
     });
 
     it('should support a to part', function() {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
       var input = {
         _id: '123',
         verb: 'post',
@@ -173,7 +173,7 @@ describe('The activitystreams helper module', function() {
   describe('userMessageToTimelineEntry fn', function() {
 
     it('should return a timeline entry', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
 
       var user = {
         firstName: 'foo',
@@ -234,7 +234,7 @@ describe('The activitystreams helper module', function() {
   describe('saveMessageCommentAsActivityEvent fn', function() {
 
     it('should return a timeline entry', function(done) {
-      var helper = require(this.testEnv.basePath + '/backend/core/activitystreams/helpers');
+      var helper = this.helpers.requireBackend('core/activitystreams/helpers');
 
       var user = {
         firstName: 'foo',

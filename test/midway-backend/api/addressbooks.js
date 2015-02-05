@@ -11,16 +11,16 @@ describe('The addressbooks controller', function() {
   var password = 'secret';
 
   before(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/contact');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/addressbook');
+    this.helpers.requireBackend('core/db/mongo/models/contact');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/addressbook');
   });
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
     var self = this;
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+      webserver = self.helpers.requireBackend('webserver').webserver;
 
       User = self.mongoose.model('User');
       AddressBook = self.mongoose.model('AddressBook');

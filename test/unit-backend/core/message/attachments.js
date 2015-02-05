@@ -8,7 +8,7 @@ describe('The attachment module', function() {
   describe('storeAttachment method', function() {
 
     it('should throw an error if name is not defined', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       var metaData = {
         name: null,
         contentType: 'text'
@@ -20,7 +20,7 @@ describe('The attachment module', function() {
     });
 
     it('should throw an error if contentType is not defined', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       var metaData = {
         name: 'file.txt',
         contentType: ''
@@ -32,7 +32,7 @@ describe('The attachment module', function() {
     });
 
     it('should throw an error if stream is not defined', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       var metaData = {
         name: 'file.txt',
         contentType: 'text'
@@ -58,7 +58,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       attachmentModule.storeAttachment(metaData, {}, {}, function(err, savedAttachment) {
         expect(err).to.exist;
         expect(savedAttachment).to.not.exist;
@@ -82,7 +82,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       attachmentModule.storeAttachment(metaData, {}, {}, function(err, attachmentModel) {
         expect(err).to.not.exist;
         expect(attachmentModel.name).to.equal(metaData.name);
@@ -110,7 +110,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       attachmentModule.storeAttachment(metaData, {});
     });
   });
@@ -118,7 +118,7 @@ describe('The attachment module', function() {
   describe('getAttachmentFile method', function() {
 
     it('should throw an error if attachment id is null', function() {
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       attachmentModule.getAttachmentFile(null, function(err, fileMetaData, fileStream) {
         expect(err).to.exist;
         expect(fileMetaData).to.not.exist;
@@ -139,7 +139,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       attachmentModule.getAttachmentFile(attachment, function(err, fileMetaData, fileStream) {
         expect(err).to.exist;
         expect(fileMetaData).to.not.exist;
@@ -164,7 +164,7 @@ describe('The attachment module', function() {
       };
       mockery.registerMock('../filestore', filestoreMock);
 
-      var attachmentModule = require(this.testEnv.basePath + '/backend/core/message/attachments');
+      var attachmentModule = this.helpers.requireBackend('core/message/attachments');
       attachmentModule.getAttachmentFile(attachment, function(err, fileMetaData, fileStream) {
         expect(err).to.not.exist;
         expect(fileMetaData).to.deep.equal(meta);

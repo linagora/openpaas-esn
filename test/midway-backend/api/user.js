@@ -13,7 +13,7 @@ describe('User API', function() {
     var self = this;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+      webserver = self.helpers.requireBackend('webserver').webserver;
       self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         if (err) { return done(err); }
         self.models1 = models;

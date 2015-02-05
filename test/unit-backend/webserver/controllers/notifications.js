@@ -16,7 +16,7 @@ describe('The notification controller', function() {
       };
       mockery.registerMock('../../core/notification/notification', mock);
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         body: {},
@@ -40,7 +40,7 @@ describe('The notification controller', function() {
       };
       mockery.registerMock('../../core/notification/notification', mock);
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         body: {},
@@ -63,7 +63,7 @@ describe('The notification controller', function() {
       };
       mockery.registerMock('../../core/notification/notification', mock);
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         params: {}
@@ -87,7 +87,7 @@ describe('The notification controller', function() {
       };
       mockery.registerMock('../../core/notification/notification', mock);
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         params: {
@@ -112,7 +112,7 @@ describe('The notification controller', function() {
       var notification = {_id: 1234};
       var mock = {};
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         notification: notification
@@ -131,7 +131,7 @@ describe('The notification controller', function() {
     it('should send back 404 if notification is not in request', function(done) {
       var mock = {};
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
       };
@@ -154,7 +154,7 @@ describe('The notification controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         user: {
@@ -178,7 +178,7 @@ describe('The notification controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         user: {
@@ -204,7 +204,7 @@ describe('The notification controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         user: {
@@ -231,7 +231,7 @@ describe('The notification controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         user: {
@@ -257,7 +257,7 @@ describe('The notification controller', function() {
       var mock = {
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
       };
@@ -278,7 +278,7 @@ describe('The notification controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         notification: {_id: 123}
@@ -300,7 +300,7 @@ describe('The notification controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/notification', mock);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/notifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/notifications');
 
       var req = {
         notification: {_id: 123}

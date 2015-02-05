@@ -30,7 +30,7 @@ describe('The community notification WS module', function() {
           };
         }
       };
-      this.logger = require(this.testEnv.fixtures + '/logger-noop');
+      this.logger = this.helpers.requireFixture('logger-noop');
       this.core = {
         logger: this.logger,
         pubsub: {
@@ -45,20 +45,20 @@ describe('The community notification WS module', function() {
     });
 
     it('should register pubsub subscriber for community:join event', function() {
-      var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/community');
+      var mod = this.helpers.requireBackend('wsserver/notification/community');
       mod.init(this.io);
       expect(this.join_callback).to.be.a('function');
     });
 
     it('should register pubsub subscriber for community:leave event', function() {
-      var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/community');
+      var mod = this.helpers.requireBackend('wsserver/notification/community');
       mod.init(this.io);
       expect(this.leave_callback).to.be.a('function');
     });
 
     describe('community:join subscriber', function() {
       beforeEach(function() {
-        var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/community');
+        var mod = this.helpers.requireBackend('wsserver/notification/community');
         mod.init(this.io);
       });
       it('should return the message from the pubsub', function(done) {
@@ -84,7 +84,7 @@ describe('The community notification WS module', function() {
     });
     describe('community:leave subscriber', function() {
       beforeEach(function() {
-        var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/community');
+        var mod = this.helpers.requireBackend('wsserver/notification/community');
         mod.init(this.io);
       });
       it('should return the message from the pubsub', function(done) {

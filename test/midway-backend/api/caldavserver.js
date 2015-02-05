@@ -13,7 +13,7 @@ describe('The caldavserver API', function() {
     var self = this;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
 
       self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {

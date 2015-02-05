@@ -12,12 +12,12 @@ describe('The calendars API', function() {
     var self = this;
 
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
-      require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
-      require(self.testEnv.basePath + '/backend/core/db/mongo/models/eventmessage');
+      self.helpers.requireBackend('core/db/mongo/models/user');
+      self.helpers.requireBackend('core/db/mongo/models/domain');
+      self.helpers.requireBackend('core/db/mongo/models/community');
+      self.helpers.requireBackend('core/db/mongo/models/eventmessage');
 
       self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {

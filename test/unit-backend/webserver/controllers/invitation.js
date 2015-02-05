@@ -6,7 +6,7 @@ var expect = require('chai').expect;
 describe('the invitation controller', function() {
   describe('load method', function() {
     beforeEach(function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       mockery.registerMock('mongoose', this.mongoose);
 
       this.handlerMock = {
@@ -29,7 +29,7 @@ describe('the invitation controller', function() {
         };
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+      var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
       middleware.load({
           params: {
             uuid: invitationId
@@ -52,7 +52,7 @@ describe('the invitation controller', function() {
         };
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+      var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
       middleware.load(
         {params: {uuid: invitationId }},
         {},
@@ -74,7 +74,7 @@ describe('the invitation controller', function() {
         };
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+      var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
       middleware.load(
         {params: {uuid: invitationId }},
         {
@@ -103,7 +103,7 @@ describe('the invitation controller', function() {
         expect(callback).to.be.a.function;
         done();
       };
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+      var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
       middleware.load(
         {params: {uuid: invitationId }},
         {},
@@ -129,7 +129,7 @@ describe('the invitation controller', function() {
       });
 
       it('should return a 500 error if it receive an error', function(done) {
-        var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+        var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
         var err = new Error('it breaks');
         middleware.load(
           {params: {uuid: this.invitationId }},
@@ -146,7 +146,7 @@ describe('the invitation controller', function() {
       });
 
       it('should return a 404 error if the invitation is not valid anymore', function(done) {
-        var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+        var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
         middleware.load(
           {params: {uuid: this.invitationId }},
           {
@@ -162,7 +162,7 @@ describe('the invitation controller', function() {
       });
 
       it('should set req.invitation and call next() is the invitation is still valid', function(done) {
-        var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/invitation');
+        var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
         var req = { params: { uuid: this.invitationId } };
         var invitationId = this.invitationId;
         middleware.load(

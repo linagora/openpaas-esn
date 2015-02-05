@@ -8,7 +8,7 @@ describe('the login controller', function() {
     it('should redirect to / when authenticated', function(done) {
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/user/login', {});
-      var login = require(this.testEnv.basePath + '/backend/webserver/controllers/login');
+      var login = this.helpers.requireBackend('webserver/controllers/login');
 
       var req = {
         user: {},
@@ -27,7 +27,7 @@ describe('the login controller', function() {
     it('should redirect to /login when not authenticated', function(done) {
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/user/login', {});
-      var login = require(this.testEnv.basePath + '/backend/webserver/controllers/login');
+      var login = this.helpers.requireBackend('webserver/controllers/login');
 
       var req = {
         user: null,
@@ -46,7 +46,7 @@ describe('the login controller', function() {
     it('should redirect to / when authenticated despite continue url', function(done) {
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/user/login', {});
-      var login = require(this.testEnv.basePath + '/backend/webserver/controllers/login');
+      var login = this.helpers.requireBackend('webserver/controllers/login');
 
       var req = {
         user: {},
@@ -65,7 +65,7 @@ describe('the login controller', function() {
     it('should use the continue url when not authenticated', function(done) {
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../core/user/login', {});
-      var login = require(this.testEnv.basePath + '/backend/webserver/controllers/login');
+      var login = this.helpers.requireBackend('webserver/controllers/login');
 
       var req = {
         user: null,

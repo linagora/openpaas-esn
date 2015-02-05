@@ -9,7 +9,7 @@ describe('The notification module', function() {
     it('get should send back error if ID is not defined', function(done) {
       this.helpers.mock.models({});
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.get(null, function(err) {
         expect(err).to.exist;
         done();
@@ -29,7 +29,7 @@ describe('The notification module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.get(1);
     });
   });
@@ -48,7 +48,7 @@ describe('The notification module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.find();
     });
 
@@ -65,7 +65,7 @@ describe('The notification module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.find({foo: 'bar'}, function(err, result) {
         expect(err).to.not.exist;
         done();
@@ -77,7 +77,7 @@ describe('The notification module', function() {
     it('should send back error when notification is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.setAsRead(null, function(err) {
         expect(err).to.exist;
         done();
@@ -95,7 +95,7 @@ describe('The notification module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.setAsRead(notification, function() {
         expect(saved).to.be.true;
         expect(notification.read).to.be.true;
@@ -109,7 +109,7 @@ describe('The notification module', function() {
     it('should send back error if notification is not defined', function(done) {
       this.helpers.mock.models({});
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.save(null, function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
@@ -134,7 +134,7 @@ describe('The notification module', function() {
         }
       };
       mockery.registerMock('../pubsub', pubsub);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
 
       var notification = {_id: 123, target: []};
       module.save(notification, function() {
@@ -176,7 +176,7 @@ describe('The notification module', function() {
           {objectType: 'user', id: '3'}
         ],
         timestamps: []};
-      var module = require(this.testEnv.basePath + '/backend/core/notification/notification');
+      var module = this.helpers.requireBackend('core/notification/notification');
       module.save(notification, function() {
         expect(called).to.equal(3);
         done();

@@ -28,7 +28,7 @@ describe('The usernotification middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/usernotifications').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/usernotifications').userCanReadNotification;
       middleware(req, res, function() {});
     });
 
@@ -47,7 +47,7 @@ describe('The usernotification middleware', function() {
       var res = {
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/usernotifications').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/usernotifications').userCanReadNotification;
       middleware(req, res, done);
     });
   });
@@ -73,7 +73,7 @@ describe('The usernotification middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/usernotifications').userCanReadAllNotifications;
+      var middleware = this.helpers.requireBackend('webserver/middleware/usernotifications').userCanReadAllNotifications;
       middleware(req, res, function() {});
     });
 
@@ -90,7 +90,7 @@ describe('The usernotification middleware', function() {
 
       var res = {};
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/usernotifications').userCanReadAllNotifications;
+      var middleware = this.helpers.requireBackend('webserver/middleware/usernotifications').userCanReadAllNotifications;
       middleware(req, res, done);
     });
   });

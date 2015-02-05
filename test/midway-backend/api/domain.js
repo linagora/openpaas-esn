@@ -15,10 +15,10 @@ describe('The domain API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
-      User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      User = self.helpers.requireBackend('core/db/mongo/models/user');
+      Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
 
       foouser = new User({
         password: password,

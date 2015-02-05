@@ -14,7 +14,7 @@ describe('The link middleware', function() {
         }
       };
       mockery.registerMock('mongoose', mongooseMock);
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/link').trackProfileView;
+      var middleware = this.helpers.requireBackend('webserver/middleware/link').trackProfileView;
       var req = {};
       var res = {};
       var next = function() {
@@ -30,7 +30,7 @@ describe('The link middleware', function() {
         }
       };
       mockery.registerMock('mongoose', mongooseMock);
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/link').trackProfileView;
+      var middleware = this.helpers.requireBackend('webserver/middleware/link').trackProfileView;
       var req = {
         user: {},
         params: {}
@@ -66,7 +66,7 @@ describe('The link middleware', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/link').trackProfileView;
+      var middleware = this.helpers.requireBackend('webserver/middleware/link').trackProfileView;
 
       var req = {
         user: 'foouser',

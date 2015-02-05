@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 describe('the websocket store module', function() {
   describe('registerSocket() method', function() {
     beforeEach(function() {
-      this.store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
+      this.store = this.helpers.requireBackend('wsserver/socketstore');
     });
     it('should throw an error if the userId is not set (null)', function(done) {
       try {
@@ -31,7 +31,7 @@ describe('the websocket store module', function() {
 
   describe('getSocketsForUser() method', function() {
     beforeEach(function() {
-      this.store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
+      this.store = this.helpers.requireBackend('wsserver/socketstore');
       var sock1 = {id: 'socket1user1', request: {userId: 'user1'}};
       var sock2 = {id: 'socket2user1', request: {userId: 'user1'}};
       var sock3 = {id: 'socket3user2', request: {userId: 'user2'}};
@@ -52,7 +52,7 @@ describe('the websocket store module', function() {
   });
   describe('unregisterSocket() method', function() {
     beforeEach(function() {
-      this.store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
+      this.store = this.helpers.requireBackend('wsserver/socketstore');
       var sock1 = {id: 'socket1user1', request: {userId: 'user1'}};
       var sock2 = {id: 'socket2user1', request: {userId: 'user1'}};
       var sock3 = {id: 'socket3user2', request: {userId: 'user2'}};

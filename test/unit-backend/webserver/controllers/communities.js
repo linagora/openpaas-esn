@@ -27,7 +27,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.create(req, res);
     });
 
@@ -48,7 +48,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.create(req, res);
     });
 
@@ -77,7 +77,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.create(req, res);
     });
 
@@ -116,7 +116,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.create(req, res);
     });
 
@@ -143,7 +143,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, res);
     });
 
@@ -168,7 +168,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, res);
     });
 
@@ -212,7 +212,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, res);
     });
 
@@ -236,7 +236,7 @@ describe('The communities controller', function() {
       var res = {
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, res);
     });
 
@@ -261,7 +261,7 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community', mock);
       mockery.registerMock('../../core/community/permission', {});
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, {});
     });
 
@@ -286,7 +286,7 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community', mock);
       mockery.registerMock('../../core/community/permission', {});
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, {});
     });
 
@@ -312,7 +312,7 @@ describe('The communities controller', function() {
       mockery.registerMock('../../core/community', mock);
       mockery.registerMock('../../core/community/permission', {});
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, {});
     });
   });
@@ -334,7 +334,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.load(req, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -363,7 +363,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.load(req, res);
     });
 
@@ -388,7 +388,7 @@ describe('The communities controller', function() {
           _id: 1
         }
       };
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.load(req, {}, function(err) {
         expect(err).to.not.exist;
         expect(req.community).to.exist;
@@ -418,7 +418,7 @@ describe('The communities controller', function() {
           id: 1
         }
       };
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.load(req, {}, function(err) {
         expect(err).to.not.exist;
         expect(req.community).to.exist;
@@ -458,7 +458,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.get(req, res);
     });
 
@@ -475,7 +475,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.get(req, res);
     });
   });
@@ -494,7 +494,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.delete(req, res);
     });
 
@@ -516,7 +516,7 @@ describe('The communities controller', function() {
           done();
         }
       };
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.delete(req, res);
     });
 
@@ -538,7 +538,7 @@ describe('The communities controller', function() {
           done();
         }
       };
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.delete(req, res);
     });
   });
@@ -557,7 +557,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -579,7 +579,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -601,7 +601,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -624,7 +624,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -647,7 +647,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -675,7 +675,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -703,7 +703,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -736,7 +736,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -769,7 +769,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, res);
     });
 
@@ -800,7 +800,7 @@ describe('The communities controller', function() {
         user: user
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.uploadAvatar(req, {});
     });
   });
@@ -819,7 +819,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
     });
 
@@ -837,7 +837,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
     });
 
@@ -865,7 +865,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
     });
 
@@ -893,7 +893,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
     });
 
@@ -933,7 +933,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
     });
 
@@ -979,7 +979,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getAvatar(req, res);
     });
   });
@@ -1002,7 +1002,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.loadDomainForCreate(req, res);
     });
   });
@@ -1022,7 +1022,7 @@ describe('The communities controller', function() {
       var req = {
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMine(req, res);
     });
 
@@ -1045,7 +1045,7 @@ describe('The communities controller', function() {
         user: {_id: 123}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMine(req, res);
     });
 
@@ -1079,7 +1079,7 @@ describe('The communities controller', function() {
         user: {_id: 123}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMine(req, res);
     });
 
@@ -1114,7 +1114,7 @@ describe('The communities controller', function() {
         user: {_id: 123}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMine(req, res);
     });
 
@@ -1148,7 +1148,7 @@ describe('The communities controller', function() {
         user: {_id: 'user2'}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMine(req, res);
     });
 
@@ -1169,7 +1169,7 @@ describe('The communities controller', function() {
       var req = {
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembers(req, res);
     });
 
@@ -1193,7 +1193,7 @@ describe('The communities controller', function() {
         param: function() {}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembers(req, res);
     });
 
@@ -1218,7 +1218,7 @@ describe('The communities controller', function() {
         param: function() {}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembers(req, res);
     });
 
@@ -1249,7 +1249,7 @@ describe('The communities controller', function() {
         param: function() {}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembers(req, res);
     });
 
@@ -1293,7 +1293,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembers(req, res);
     });
   });
@@ -1316,7 +1316,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMember(req, res);
     });
 
@@ -1344,7 +1344,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMember(req, res);
     });
 
@@ -1372,7 +1372,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMember(req, res);
     });
 
@@ -1400,7 +1400,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMember(req, res);
     });
   });
@@ -1425,7 +1425,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.join(req, res);
     });
 
@@ -1447,7 +1447,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.join(req, res);
     });
 
@@ -1467,7 +1467,7 @@ describe('The communities controller', function() {
         community: {}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.join(req, res);
     });
 
@@ -1499,7 +1499,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.join(req, res);
       });
 
@@ -1534,7 +1534,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.join(req, res);
       });
 
@@ -1574,7 +1574,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.join(req, res);
       });
 
@@ -1614,7 +1614,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.join(req, res);
       });
 
@@ -1654,7 +1654,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.join(req, res);
       });
     });
@@ -1687,7 +1687,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.join(req, res);
       });
 
@@ -1725,7 +1725,7 @@ describe('The communities controller', function() {
             }
           };
 
-          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          var communities = this.helpers.requireBackend('webserver/controllers/communities');
           communities.join(req, res);
         });
 
@@ -1769,7 +1769,7 @@ describe('The communities controller', function() {
             }
           };
 
-          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          var communities = this.helpers.requireBackend('webserver/controllers/communities');
           communities.join(req, res);
         });
 
@@ -1813,7 +1813,7 @@ describe('The communities controller', function() {
             }
           };
 
-          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          var communities = this.helpers.requireBackend('webserver/controllers/communities');
           communities.join(req, res);
         });
 
@@ -1856,7 +1856,7 @@ describe('The communities controller', function() {
             }
           };
 
-          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          var communities = this.helpers.requireBackend('webserver/controllers/communities');
           communities.join(req, res);
         });
       });
@@ -1893,7 +1893,7 @@ describe('The communities controller', function() {
             }
           };
 
-          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          var communities = this.helpers.requireBackend('webserver/controllers/communities');
           communities.join(req, res);
         });
 
@@ -1931,7 +1931,7 @@ describe('The communities controller', function() {
             }
           };
 
-          var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+          var communities = this.helpers.requireBackend('webserver/controllers/communities');
           communities.join(req, res);
         });
       });
@@ -1957,7 +1957,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.leave(req, res);
     });
 
@@ -1979,7 +1979,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.leave(req, res);
     });
 
@@ -1999,7 +1999,7 @@ describe('The communities controller', function() {
         community: {}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.leave(req, res);
     });
 
@@ -2026,7 +2026,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.leave(req, res);
     });
 
@@ -2053,7 +2053,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.leave(req, res);
     });
   });
@@ -2077,7 +2077,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.removeMembershipRequest(req, res);
     });
 
@@ -2099,7 +2099,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.removeMembershipRequest(req, res);
     });
 
@@ -2119,7 +2119,7 @@ describe('The communities controller', function() {
         user: {}
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.removeMembershipRequest(req, res);
     });
 
@@ -2151,7 +2151,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.removeMembershipRequest(req, res);
       });
 
@@ -2192,7 +2192,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.removeMembershipRequest(req, res);
       });
 
@@ -2229,7 +2229,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.removeMembershipRequest(req, res);
       });
     });
@@ -2274,7 +2274,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.removeMembershipRequest(req, res);
       });
 
@@ -2308,7 +2308,7 @@ describe('The communities controller', function() {
           }
         };
 
-        var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+        var communities = this.helpers.requireBackend('webserver/controllers/communities');
         communities.removeMembershipRequest(req, res);
       });
     });
@@ -2329,7 +2329,7 @@ describe('The communities controller', function() {
       var req = {
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembershipRequests(req, res);
     });
 
@@ -2354,7 +2354,7 @@ describe('The communities controller', function() {
         isCommunityManager: true
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembershipRequests(req, res);
     });
 
@@ -2380,7 +2380,7 @@ describe('The communities controller', function() {
         isCommunityManager: true
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembershipRequests(req, res);
     });
 
@@ -2412,7 +2412,7 @@ describe('The communities controller', function() {
         isCommunityManager: true
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembershipRequests(req, res);
     });
 
@@ -2457,7 +2457,7 @@ describe('The communities controller', function() {
         }
       };
 
-      var communities = require(this.testEnv.basePath + '/backend/webserver/controllers/communities');
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.getMembershipRequests(req, res);
     });
   });

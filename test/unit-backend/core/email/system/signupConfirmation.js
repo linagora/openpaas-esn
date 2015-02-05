@@ -44,7 +44,7 @@ describe('The signup confirmation email module', function() {
       }
     };
 
-    var confirmation = require(this.testEnv.basePath + '/backend/core/email/system/signupConfirmation');
+    var confirmation = this.helpers.requireBackend('core/email/system/signupConfirmation');
     confirmation(invitation, function(err, response) {
       expect(properties).to.deep.equal({
         subject: 'Please activate your account',

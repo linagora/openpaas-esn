@@ -22,7 +22,7 @@ describe.skip('On The Fly provisioning', function() {
       emails: [{value: 'secret@linagora.com'}],
       password: '$2a$05$spm9WF0kAzZwc5jmuVsuYexJ8py8HkkZIs4VsNr3LmDtYZEBJeiSe'
     }] });
-    var template = require(this.testEnv.fixtures + '/user-template').simple();
+    var template = this.helpers.requireFixture('user-template').simple();
     mongoose.connection.collection('templates').insert(template, function() {
       done();
     });
@@ -48,7 +48,7 @@ describe.skip('On The Fly provisioning', function() {
       });
     }
 
-    this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+    this.app = this.helpers.requireBackend('webserver/application');
 
     request(this.app)
       .post('/login')

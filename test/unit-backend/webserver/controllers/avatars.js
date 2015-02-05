@@ -24,7 +24,7 @@ describe('The avatars controller', function() {
         }
       };
 
-      var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+      var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
       avatars.get(req, res);
     });
 
@@ -48,7 +48,7 @@ describe('The avatars controller', function() {
         }
       };
 
-      var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+      var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
       avatars.get(req, res);
     });
 
@@ -73,7 +73,7 @@ describe('The avatars controller', function() {
           }
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
       });
 
@@ -99,7 +99,7 @@ describe('The avatars controller', function() {
         var res = {
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
       });
 
@@ -129,7 +129,7 @@ describe('The avatars controller', function() {
           }
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
       });
 
@@ -162,7 +162,7 @@ describe('The avatars controller', function() {
           }
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
       });
     });
@@ -192,7 +192,7 @@ describe('The avatars controller', function() {
           }
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
 
       });
@@ -221,7 +221,7 @@ describe('The avatars controller', function() {
           }
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
       });
 
@@ -256,7 +256,7 @@ describe('The avatars controller', function() {
           }
         };
 
-        var avatars = require(this.testEnv.basePath + '/backend/webserver/controllers/avatars');
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
         avatars.get(req, res);
       });
     });

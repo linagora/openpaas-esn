@@ -48,10 +48,10 @@ describe('The communities API', function() {
     var self = this;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
-      User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+      Community = self.helpers.requireBackend('core/db/mongo/models/community');
+      User = self.helpers.requireBackend('core/db/mongo/models/user');
+      Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+      webserver = self.helpers.requireBackend('webserver').webserver;
 
       user = new User({password: password, emails: [email]});
       user.save(function(err, saved) {

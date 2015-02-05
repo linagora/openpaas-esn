@@ -15,7 +15,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
+      var helper = this.helpers.requireBackend('core/contact/google');
       helper.saveGoogleContacts('', 'user', function(err) {
         expect(err).to.exist;
         done();
@@ -30,7 +30,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
+      var helper = this.helpers.requireBackend('core/contact/google');
       helper.saveGoogleContacts('<pipo>PIPO</pipo>', null, function(err) {
         expect(err).to.exist;
         done();
@@ -53,7 +53,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('xml2js', xml2jsMock);
 
-      var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
+      var helper = this.helpers.requireBackend('core/contact/google');
       helper.saveGoogleContacts('<pipo>PIPO</pipo>', 'user', function(err) {
         expect(err).to.exist;
         expect(err).to.equal(errorString);
@@ -91,7 +91,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('xml2js', xml2jsMock);
 
-      var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
+      var helper = this.helpers.requireBackend('core/contact/google');
       helper.saveGoogleContacts('<pipo>PIPO</pipo>', user, function(err) {
         expect(err).to.exist;
         done();
@@ -129,7 +129,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('xml2js', xml2jsMock);
 
-      var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
+      var helper = this.helpers.requireBackend('core/contact/google');
       helper.saveGoogleContacts('<pipo>PIPO</pipo>', user, function(err) {
         expect(err).to.exist;
         expect(err).to.equal(errorString);
@@ -177,7 +177,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('xml2js', xml2jsMock);
 
-      var helper = require(this.testEnv.basePath + '/backend/core/contact/google');
+      var helper = this.helpers.requireBackend('core/contact/google');
       helper.saveGoogleContacts('<pipo>PIPO</pipo>', user, function(err) {
         expect(err).to.not.exist;
         expect(contactSaveCount).to.equal(2);
@@ -227,7 +227,7 @@ describe('The contact helper module', function() {
       };
       mockery.registerMock('../esn-config', esnConf);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
+      var contacts = this.helpers.requireBackend('webserver/controllers/import/google');
 
       var req = {
         params: {},

@@ -5,49 +5,49 @@ var mockery = require('mockery');
 
 describe('The message core module', function() {
   beforeEach(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/emailmessage');
+    this.helpers.requireBackend('core/db/mongo/models/whatsup');
+    this.helpers.requireBackend('core/db/mongo/models/community');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/usernotification');
   });
   it('should expose get() method', function() {
-    var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+    var messageModule = this.helpers.requireBackend('core/message');
     expect(messageModule).to.have.property('get');
     expect(messageModule.get).to.be.a('function');
   });
   it('should expose getModel() method', function() {
-    var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+    var messageModule = this.helpers.requireBackend('core/message');
     expect(messageModule).to.have.property('getModel');
     expect(messageModule.getModel).to.be.a('function');
   });
   it('should expose getInstance() method', function() {
-    var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+    var messageModule = this.helpers.requireBackend('core/message');
     expect(messageModule).to.have.property('getInstance');
     expect(messageModule.getInstance).to.be.a('function');
   });
   it('should expose addNewComment() method', function() {
-    var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+    var messageModule = this.helpers.requireBackend('core/message');
     expect(messageModule).to.have.property('addNewComment');
     expect(messageModule.addNewComment).to.be.a('function');
   });
   it('should expose type.whatsup & type.email sub-modules', function() {
-    var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+    var messageModule = this.helpers.requireBackend('core/message');
     expect(messageModule).to.have.property('type');
     expect(messageModule.type).to.be.a('object');
     expect(messageModule.type).to.have.property('whatsup');
     expect(messageModule.type).to.have.property('email');
   });
   it('should expose permission sub-module', function() {
-    var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+    var messageModule = this.helpers.requireBackend('core/message');
     expect(messageModule).to.have.property('permission');
     expect(messageModule.permission).to.be.a('object');
   });
 
   describe('get method', function() {
     beforeEach(function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       mockery.registerMock('mongoose', this.mongoose);
     });
 
@@ -61,7 +61,7 @@ describe('The message core module', function() {
           }
         };
       };
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       messageModule.get('message1', function(err, resp) {});
     });
 
@@ -76,7 +76,7 @@ describe('The message core module', function() {
         };
       };
       this.mongoose.Types.ObjectId = function(name) { return {name: name + 'ObjectId'}; };
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       messageModule.get('message1', function(err, resp) {});
     });
 
@@ -98,7 +98,7 @@ describe('The message core module', function() {
       });
 
       it('should forward an error', function(done) {
-        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        var messageModule = this.helpers.requireBackend('core/message');
         messageModule.get('message1', function(err, resp) {
           expect(err).to.be.ok;
           done();
@@ -107,7 +107,7 @@ describe('The message core module', function() {
       });
 
       it('should return an error on document not found', function(done) {
-        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        var messageModule = this.helpers.requireBackend('core/message');
         messageModule.get('message1', function(err, resp) {
           expect(err).to.be.ok;
           done();
@@ -115,7 +115,7 @@ describe('The message core module', function() {
         this.findOneCb();
       });
       it('should return an error on unknown objectType', function(done) {
-        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        var messageModule = this.helpers.requireBackend('core/message');
         messageModule.get('message1', function(err, resp) {
           expect(err).to.be.ok;
           done();
@@ -125,7 +125,7 @@ describe('The message core module', function() {
 
       it('should return the message instance using the init() method', function(done) {
         var throughInit = false;
-        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        var messageModule = this.helpers.requireBackend('core/message');
         messageModule.get('message1', function(err, resp) {
           expect(err).to.be.not.ok;
           expect(resp).to.deep.equal({ objectType: 'whatsup' });
@@ -156,7 +156,7 @@ describe('The message core module', function() {
 
       it('should expand all authors', function(done) {
         var throughInit = false;
-        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        var messageModule = this.helpers.requireBackend('core/message');
         this.mongoose.Types.ObjectId = function(name) { return name; };
         messageModule.get('message1', function(err, resp) {
           expect(err).to.be.not.ok;
@@ -211,11 +211,11 @@ describe('The message core module', function() {
 
   describe('getModel() method', function() {
     beforeEach(function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       mockery.registerMock('mongoose', this.mongoose);
     });
     it('should throw if the model name is unknown', function(done) {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       try {
         messageModule.getModel('idontexist');
       }catch (e) {
@@ -224,7 +224,7 @@ describe('The message core module', function() {
       done(new Error('No game of thrown ?'));
     });
     it('should call mongoose.model() method with mongoose model name', function(done) {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(name) {
         expect(name).to.equal('Whatsup');
         done();
@@ -235,11 +235,11 @@ describe('The message core module', function() {
 
   describe('getInstance() method', function() {
     beforeEach(function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       mockery.registerMock('mongoose', this.mongoose);
     });
     it('should throw if the model name is unknown', function(done) {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       try {
         messageModule.getinstance('idontexist');
       }catch (e) {
@@ -248,7 +248,7 @@ describe('The message core module', function() {
       done(new Error('No game of thrown ?'));
     });
     it('should return the new mongoose.model(modelname) call', function() {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(name) {
         expect(name).to.equal('Whatsup');
         return function() {
@@ -262,11 +262,11 @@ describe('The message core module', function() {
 
   describe('addNewComment() method', function() {
     beforeEach(function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       mockery.registerMock('mongoose', this.mongoose);
     });
     it('should immediately return if get returns an error', function(done) {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function() {
         function ModelMock() {
           this.init = function() {
@@ -288,7 +288,7 @@ describe('The message core module', function() {
       });
     });
     it('should push the comment in parent.responses & call parent.save', function(done) {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       var responses = [];
       this.mongoose.model = function() {
         function ModelMock() {
@@ -314,7 +314,7 @@ describe('The message core module', function() {
       beforeEach(function(done) {
         var self = this;
         self.published = {};
-        var core = require(this.testEnv.basePath + '/backend/core');
+        var core = this.helpers.requireBackend('core');
         core.pubsub.local = {
           topic: function(name) {
             return {
@@ -325,7 +325,7 @@ describe('The message core module', function() {
             };
           }
         };
-        var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+        var messageModule = this.helpers.requireBackend('core/message');
 
         var responses = [];
         this.mongoose.model = function() {
@@ -377,13 +377,13 @@ describe('The message core module', function() {
 
   describe('findByIds() method', function() {
     beforeEach(function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       this.mongoose.Types.ObjectId = function(name) { return name; };
       mockery.registerMock('mongoose', this.mongoose);
     });
 
     it('should throw an error if the db search fails', function() {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function() {
         return {
           collection: {
@@ -404,7 +404,7 @@ describe('The message core module', function() {
     });
 
     it('should search for messages authors', function(done) {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(modelName) {
         if (modelName === 'User') {
           return {
@@ -436,7 +436,7 @@ describe('The message core module', function() {
     });
 
     it('should fail if message author search fails', function() {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(modelName) {
         if (modelName === 'User') {
           return {
@@ -472,7 +472,7 @@ describe('The message core module', function() {
 
 
     it('should return messages populated with their authors', function() {
-      var messageModule = require(this.testEnv.basePath + '/backend/core/message');
+      var messageModule = this.helpers.requireBackend('core/message');
       var user3 = {
         _id: '3',
         name: 'user3'

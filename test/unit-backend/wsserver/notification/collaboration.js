@@ -31,7 +31,7 @@ describe('The collaboration notification WS module', function() {
           };
         }
       };
-      this.logger = require(this.testEnv.fixtures + '/logger-noop');
+      this.logger = this.helpers.requireFixture('logger-noop');
       this.core = {
         logger: this.logger,
         pubsub: {
@@ -46,13 +46,13 @@ describe('The collaboration notification WS module', function() {
     });
 
     it('should register pubsub subscriber for collaboration:join event', function() {
-      var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/collaboration');
+      var mod = this.helpers.requireBackend('wsserver/notification/collaboration');
       mod.init(this.io);
       expect(this.join_callback).to.be.a('function');
     });
 
     it('should register pubsub subscriber for collaboration:leave event', function() {
-      var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/collaboration');
+      var mod = this.helpers.requireBackend('wsserver/notification/collaboration');
       mod.init(this.io);
       expect(this.leave_callback).to.be.a('function');
     });
@@ -60,7 +60,7 @@ describe('The collaboration notification WS module', function() {
     describe('collaboration:join subscriber', function() {
 
       beforeEach(function() {
-        var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/collaboration');
+        var mod = this.helpers.requireBackend('wsserver/notification/collaboration');
         mod.init(this.io);
       });
 
@@ -89,7 +89,7 @@ describe('The collaboration notification WS module', function() {
     describe('collaboration:leave subscriber', function() {
 
       beforeEach(function() {
-        var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/collaboration');
+        var mod = this.helpers.requireBackend('wsserver/notification/collaboration');
         mod.init(this.io);
       });
 

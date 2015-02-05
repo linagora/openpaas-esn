@@ -7,7 +7,7 @@ describe('The Core module config property', function() {
   var core = null;
 
   beforeEach(function() {
-    core = require(this.testEnv.basePath + '/backend/core');
+    core = this.helpers.requireBackend('core');
   });
 
   it('should exist', function() {

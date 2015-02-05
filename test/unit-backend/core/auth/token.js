@@ -14,7 +14,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getNewToken({}, function(err) {
       expect(err).to.exist;
       done();
@@ -29,7 +29,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getNewToken({}, function(err) {
       expect(err).to.exist;
       done();
@@ -50,7 +50,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getNewToken({}, function(err) {
       expect(called).to.be.true;
       expect(err).to.exist;
@@ -72,7 +72,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getNewToken({}, function(err, options) {
       expect(called).to.be.true;
       expect(err).to.not.exist;
@@ -89,7 +89,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.validateToken('ABC', function(bool) {
       expect(bool).to.be.false;
       done();
@@ -108,7 +108,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.validateToken('ABC', function(bool) {
       expect(bool).to.be.false;
       done();
@@ -127,7 +127,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.validateToken('ABC', function(bool) {
       expect(bool).to.be.false;
       done();
@@ -146,7 +146,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.validateToken('ABC', function(bool) {
       expect(bool).to.be.true;
       done();
@@ -161,7 +161,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getToken('ABC', function(err) {
       expect(err).to.exist;
       done();
@@ -180,7 +180,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getToken('ABC', function(err) {
       expect(err).to.exist;
       done();
@@ -199,7 +199,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getToken('ABC', function(err, token) {
       expect(err).to.not.exist;
       expect(token).to.not.exist;
@@ -219,7 +219,7 @@ describe('The token authentication module', function() {
     };
     mockery.registerMock('../db/redis', redis);
 
-    var token = require(this.testEnv.basePath + '/backend/core/auth/token');
+    var token = this.helpers.requireBackend('core/auth/token');
     token.getToken('ABC', function(err, token) {
       expect(err).to.not.exist;
       expect(token).to.exist;

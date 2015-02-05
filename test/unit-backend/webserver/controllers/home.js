@@ -21,7 +21,7 @@ describe('The home controller', function() {
       };
     };
     mockery.registerMock('../../core/esn-config', coreMock);
-    var index = require(this.testEnv.basePath + '/backend/webserver/controllers/home.js').index;
+    var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
     var res = {
       render: function(url, data) {
@@ -43,7 +43,7 @@ describe('The home controller', function() {
       };
     };
     mockery.registerMock('../../core/esn-config', coreMock);
-    var index = require(this.testEnv.basePath + '/backend/webserver/controllers/home.js').index;
+    var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
     var res = {
       render: function(url, data) {
@@ -65,7 +65,7 @@ describe('The home controller', function() {
       };
     };
     mockery.registerMock('../../core/esn-config', coreMock);
-    var index = require(this.testEnv.basePath + '/backend/webserver/controllers/home.js').index;
+    var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
     var res = {
       json: function(code, data) {

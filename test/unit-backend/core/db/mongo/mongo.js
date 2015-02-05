@@ -9,7 +9,7 @@ describe('The Core DB Mongo module', function() {
     var getConnectionString = null;
 
     beforeEach(function() {
-      getConnectionString = require(this.testEnv.basePath + '/backend/core/db/mongo').getConnectionString;
+      getConnectionString = this.helpers.requireBackend('core/db/mongo').getConnectionString;
     });
 
     it('should return a string mongodb://hostname:port/dbname', function() {
@@ -24,26 +24,26 @@ describe('The Core DB Mongo module', function() {
   describe('connection status listener & emitter', function() {
 
     it('should register a listener on connected and disconnected events', function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       var events = [];
       this.mongoose.connection.on = function(evt) {
         events.push(evt);
       };
       mockery.registerMock('mongoose', this.mongoose);
-      this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
+      this.mongo = this.helpers.requireBackend('core').db.mongo;
       expect(events).to.contain('connected');
       expect(events).to.contain('disconnected');
     });
 
     it('should expose a isConnected() method', function() {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       mockery.registerMock('mongoose', this.mongoose);
-      this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
+      this.mongo = this.helpers.requireBackend('core').db.mongo;
       expect(this.mongo).to.respondTo('isConnected');
     });
 
     it('should publish a mongodb:connectionAvailable event when receiving a connected event', function(done) {
-      this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
       var events = {};
       this.mongoose.connection.on = function(evt, callback) {
         events[evt] = callback;
@@ -57,9 +57,9 @@ describe('The Core DB Mongo module', function() {
         };
       };
       mockery.registerMock('../../../core/esn-config', configmock);
-      this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
-      this.mongo = require(this.testEnv.basePath + '/backend/core').db.redis;
-      this.pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
+      this.mongo = this.helpers.requireBackend('core').db.mongo;
+      this.mongo = this.helpers.requireBackend('core').db.redis;
+      this.pubsub = this.helpers.requireBackend('core').pubsub.local;
       this.pubsub.topic('mongodb:connectionAvailable').subscribe(function() {
         done();
       });
@@ -68,14 +68,14 @@ describe('The Core DB Mongo module', function() {
 
     describe('isConnected() method', function() {
       it('should be false', function() {
-        this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+        this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
         mockery.registerMock('mongoose', this.mongoose);
-        this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
+        this.mongo = this.helpers.requireBackend('core').db.mongo;
         expect(this.mongo.isConnected()).to.be.false;
       });
 
       it('should be true after a connected event', function() {
-        this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+        this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
         var events = {};
         this.mongoose.connection.on = function(evt, callback) {
           events[evt] = callback;
@@ -89,14 +89,14 @@ describe('The Core DB Mongo module', function() {
           };
         };
         mockery.registerMock('../../../core/esn-config', configmock);
-        require(this.testEnv.basePath + '/backend/core').db.redis;
-        this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
+        this.helpers.requireBackend('core').db.redis;
+        this.mongo = this.helpers.requireBackend('core').db.mongo;
         events.connected();
         expect(this.mongo.isConnected()).to.be.true;
       });
 
       it('should be true after a connected and then a disconnected event', function() {
-        this.mongoose = require(this.testEnv.fixtures + '/mongoose').mongoose();
+        this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
         var events = {};
         this.mongoose.connection.on = function(evt, callback) {
           events[evt] = callback;
@@ -110,8 +110,8 @@ describe('The Core DB Mongo module', function() {
           };
         };
         mockery.registerMock('../../../core/esn-config', configmock);
-        require(this.testEnv.basePath + '/backend/core').db.redis;
-        this.mongo = require(this.testEnv.basePath + '/backend/core').db.mongo;
+        this.helpers.requireBackend('core').db.redis;
+        this.mongo = this.helpers.requireBackend('core').db.mongo;
         events.connected();
         events.disconnected();
         expect(this.mongo.isConnected()).to.be.false;

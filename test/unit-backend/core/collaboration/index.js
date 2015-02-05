@@ -8,7 +8,7 @@ describe('The collaboration module', function() {
   describe('query() method', function() {
     it('should fail if the collaboration objectType is unknown', function(done) {
       this.helpers.mock.models({});
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaboration = this.helpers.requireBackend('core/collaboration');
       collaboration.query('i dont exist', {}, function(err) {
         expect(err).to.exist;
         done();
@@ -23,7 +23,7 @@ describe('The collaboration module', function() {
           }
         }
       });
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaboration = this.helpers.requireBackend('core/collaboration');
       collaboration.query('community', 'collaboration', {}, function(err) {});
     });
 
@@ -40,7 +40,7 @@ describe('The collaboration module', function() {
           }
         }
       });
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaboration = this.helpers.requireBackend('core/collaboration');
       collaboration.query('community', theQuery, function(err) {});
     });
   });
@@ -51,7 +51,7 @@ describe('The collaboration module', function() {
     });
 
     it('should send back error when userAuthor is null', function() {
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', {}, null, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -59,7 +59,7 @@ describe('The collaboration module', function() {
     });
 
     it('should send back error when userTarget is null', function() {
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', {}, {}, null, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -67,7 +67,7 @@ describe('The collaboration module', function() {
     });
 
     it('should send back error when collaboration is null', function() {
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', null, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -75,7 +75,7 @@ describe('The collaboration module', function() {
     });
 
     it('should send back error when workflow is null', function() {
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', {}, {}, {}, null, null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -83,7 +83,7 @@ describe('The collaboration module', function() {
     });
 
     it('should send back error when workflow is not "request" or "invitation"', function() {
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', {}, {}, {}, 'test', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -91,7 +91,7 @@ describe('The collaboration module', function() {
     });
 
     it('should send back error if collaboration type is not restricted or private for membership request', function() {
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', {type: 'open'}, {}, {}, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -116,7 +116,7 @@ describe('The collaboration module', function() {
           }
         ]
       };
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', collaboration, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -125,7 +125,7 @@ describe('The collaboration module', function() {
 
     it('should send back error if the check if the target user is member of the collaboration fails', function() {
       var user = { _id: 'uid' };
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', null, {}, user, 'request', null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -148,7 +148,7 @@ describe('The collaboration module', function() {
         ]
       };
       var workflow = 'request';
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipRequest('community', collaboration, {}, user, workflow, null, function(err, c) {
         expect(err).to.not.exist;
         expect(c).to.exist;
@@ -174,7 +174,7 @@ describe('The collaboration module', function() {
           return callback(new Error('save fail'));
         }
       };
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
@@ -203,7 +203,7 @@ describe('The collaboration module', function() {
         }
       };
       var workflow = 'request';
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
@@ -236,7 +236,7 @@ describe('The collaboration module', function() {
         }
       };
       var workflow = 'invitation';
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.addMembershipInviteUserNotification = function(collaboration, userAuthor, userTarget, actor, callback) {
         return callback(null, {});
       };
@@ -263,7 +263,7 @@ describe('The collaboration module', function() {
         }
       });
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.isManager('community', 123, 456, function(err) {
         expect(err).to.exist;
         return done();
@@ -279,7 +279,7 @@ describe('The collaboration module', function() {
         }
       });
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.isManager('community', 123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
@@ -296,7 +296,7 @@ describe('The collaboration module', function() {
         }
       });
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.isManager('community', 123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
@@ -316,7 +316,7 @@ describe('The collaboration module', function() {
         }
       });
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.leave('community', 123, 456, 456, function(err) {
         expect(err).to.exist;
         return done();
@@ -333,7 +333,7 @@ describe('The collaboration module', function() {
         }
       });
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.leave('community', 123, 456, 456, function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
@@ -354,7 +354,7 @@ describe('The collaboration module', function() {
       var localstub = {}, globalstub = {};
       this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.leave('community', 123, 456, 789, function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
@@ -395,7 +395,7 @@ describe('The collaboration module', function() {
       };
       var ObjectId = require('bson').ObjectId;
       var user = new ObjectId();
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.join('community', comMock, user, user, 'user', function(err) {
         expect(err).to.exist;
         return done();
@@ -428,7 +428,7 @@ describe('The collaboration module', function() {
 
       var ObjectId = require('bson').ObjectId;
       var user = new ObjectId();
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       collaboration.join('community', comMock, user, user, 'user', function(err, update) {
         expect(err).to.not.exist;
         expect(update.updated).to.be.true;
@@ -449,7 +449,7 @@ describe('The collaboration module', function() {
       var localstub = {}, globalstub = {};
       this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       var comMock = {
         members: [],
         _id: 'collaboration1',
@@ -499,7 +499,7 @@ describe('The collaboration module', function() {
 
     it('should call cleanMembershipRequest() method, with the collaboration and user._id', function(done) {
       var self = this;
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration');
       collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
         expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
@@ -516,7 +516,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire callback with an error in case of an error', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
@@ -529,7 +529,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire a collaboration:membership:invitation:cancel topic message', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:invitation:cancel');
@@ -556,7 +556,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire the callback', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
         };
@@ -582,7 +582,7 @@ describe('The collaboration module', function() {
 
     it('should call cleanMembershipRequest() method, with the collaboration and user._id', function() {
       var self = this;
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration');
       collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
         expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
@@ -598,7 +598,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire callback with an error in case of an error', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
@@ -611,7 +611,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire a collaboration:membership:request:refuse topic message', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:request:refuse');
@@ -638,7 +638,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire the callback', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
         };
@@ -664,7 +664,7 @@ describe('The collaboration module', function() {
 
     it('should call cleanMembershipRequest() method, with the collaboration and user._id', function() {
       var self = this;
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration');
       collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
         expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
@@ -680,7 +680,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire callback with an error in case of an error', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
@@ -693,7 +693,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire a collaboration:membership:invitation:decline topic message', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:invitation:decline');
@@ -720,7 +720,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire the callback', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
         };
@@ -747,7 +747,7 @@ describe('The collaboration module', function() {
 
     it('should call cleanMembershipRequest() method, with the collaboration and user._id', function() {
       var self = this;
-      var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+      var collaborationModule = this.helpers.requireBackend('core/collaboration');
       collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
         expect(collaboration).to.deep.equal(self.collaboration);
         expect(userid).to.equal('user1');
@@ -763,7 +763,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire callback with an error in case of an error', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
@@ -776,7 +776,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire a collaboration:membership:request:cancel topic message', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
           expect(localstub.topics).to.have.property('collaboration:membership:request:cancel');
@@ -803,7 +803,7 @@ describe('The collaboration module', function() {
       });
 
       it('should fire the callback', function(done) {
-        var collaborationModule = require(this.testEnv.basePath + '/backend/core/collaboration');
+        var collaborationModule = this.helpers.requireBackend('core/collaboration');
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(null, collaboration);
         };
@@ -818,7 +818,7 @@ describe('The collaboration module', function() {
     it('should send back result even if user is null', function(done) {
       this.helpers.mock.models({});
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       var member = collaboration.userToMember(null);
       expect(member).to.exist;
       done();
@@ -827,7 +827,7 @@ describe('The collaboration module', function() {
     it('should send back result even if document.user is null', function(done) {
       this.helpers.mock.models({});
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       var member = collaboration.userToMember({});
       expect(member).to.exist;
       done();
@@ -844,7 +844,7 @@ describe('The collaboration module', function() {
         login: [4, 5, 6]
       };
 
-      var collaboration = require(this.testEnv.basePath + '/backend/core/collaboration/index');
+      var collaboration = this.helpers.requireBackend('core/collaboration/index');
       var member = collaboration.userToMember({member: user});
       expect(member).to.exist;
       expect(member.user).to.exist;

@@ -6,7 +6,7 @@ describe('The global Pubsub object', function() {
   var RedisPubsub = null;
 
   beforeEach(function() {
-    RedisPubsub = require(this.testEnv.basePath + '/backend/core/pubsub/pubsub');
+    RedisPubsub = this.helpers.requireBackend('core/pubsub/pubsub');
   });
 
   it('should have a topic method', function() {

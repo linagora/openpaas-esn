@@ -11,10 +11,10 @@ describe('The WebSockets notification module', function() {
   });
 
   beforeEach(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/community');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/usernotification');
   });
 
   describe('init method', function() {

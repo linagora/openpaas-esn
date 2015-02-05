@@ -6,9 +6,9 @@ describe('The redis pubsub module', function() {
   var handler;
 
   beforeEach(function() {
-    this.localpubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local.topic('redis:configurationAvailable');
-    this.pubsub1 = require(this.testEnv.basePath + '/backend/core/pubsub/global').topic('testTopic');
-    this.pubsub2 = require(this.testEnv.basePath + '/backend/core/pubsub/global').topic('testTopic');
+    this.localpubsub = this.helpers.requireBackend('core').pubsub.local.topic('redis:configurationAvailable');
+    this.pubsub1 = this.helpers.requireBackend('core/pubsub/global').topic('testTopic');
+    this.pubsub2 = this.helpers.requireBackend('core/pubsub/global').topic('testTopic');
     this.localpubsub.publish({
       port: this.testEnv.serversConfig.redis.port
     });

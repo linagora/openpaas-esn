@@ -11,9 +11,9 @@ describe('The activitystreams routes', function() {
   var password = 'secret';
 
   before(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/timelineentry');
   });
 
   beforeEach(function() {
@@ -31,7 +31,7 @@ describe('The activitystreams routes', function() {
       var self = this;
       this.testEnv.initCore(function(err) {
         if (err) { done(err); }
-        webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+        webserver = self.helpers.requireBackend('webserver').webserver;
         done();
       });
     });
@@ -437,7 +437,7 @@ describe('The activitystreams routes', function() {
       it('should return 0 unread TimelineEntry for new user in community', function(done) {
         var self = this;
 
-        var communityCore = require(this.testEnv.basePath + '/backend/core/community');
+        var communityCore = this.helpers.requireBackend('core/community');
 
         // Login
         this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
@@ -537,7 +537,7 @@ describe('The activitystreams routes', function() {
       var self = this;
       this.testEnv.initCore(function(err) {
         if (err) { done(err); }
-        webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+        webserver = self.helpers.requireBackend('webserver').webserver;
 
         self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           if (err) { done(err); }

@@ -10,7 +10,7 @@ describe.skip('Passport Local', function() {
 
   before(function() {
     fs.copySync(this.testEnv.fixtures + '/default.localAuth.json', this.testEnv.tmp + '/default.json');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/user');
   });
 
   after(function() {
@@ -25,7 +25,7 @@ describe.skip('Passport Local', function() {
     };
 
     mockery.registerMock('../../../config/users.json', { users: [user] });
-    var template = require(this.testEnv.fixtures + '/user-template').simple();
+    var template = this.helpers.requireFixture('user-template').simple();
     mongoose.connection.collection('templates').insert(template, function() {
       var mongouser = {
         emails: [user.emails[0].value],
@@ -37,7 +37,7 @@ describe.skip('Passport Local', function() {
         done();
       });
     });
-    app = require(this.testEnv.basePath + '/backend/webserver/application');
+    app = this.helpers.requireBackend('webserver/application');
   });
 
   afterEach(function(done) {

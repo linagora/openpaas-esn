@@ -16,7 +16,7 @@ describe('The notification pubsub module', function() {
     this.helpers.mock.pubsub('../pubsub', localstub, {});
     mockery.registerMock('./usernotification', {});
 
-    var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
+    var module = this.helpers.requireBackend('core/notification/pubsub');
     module.init();
     expect(localstub.topics['collaboration:join'].handler).to.be.a.function;
   });
@@ -42,7 +42,7 @@ describe('The notification pubsub module', function() {
       this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       mockery.registerMock('./usernotification', usernotificationMocked);
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
+      var module = this.helpers.requireBackend('core/notification/pubsub');
       module.collaborationJoinHandler(data, function(err) {
         if (err) {
           return done(err);
@@ -86,7 +86,7 @@ describe('The notification pubsub module', function() {
       this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       mockery.registerMock('./usernotification', usernotificationMocked);
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/pubsub');
+      var module = this.helpers.requireBackend('core/notification/pubsub');
       module.membershipInviteHandler(data, function(err) {
         if (err) {
           return done(err);

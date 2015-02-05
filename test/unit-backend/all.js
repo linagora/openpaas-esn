@@ -48,7 +48,7 @@ after(function() {
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
-  mockery.registerMock('./logger', require(this.testEnv.fixtures + '/logger-noop')());
+  mockery.registerMock('./logger', this.helpers.requireFixture('logger-noop')());
 });
 
 afterEach(function() {

@@ -35,11 +35,11 @@ describe('The email API', function() {
     var self = this;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      EMailMsg = require(self.testEnv.basePath + '/backend/core/db/mongo/models/emailmessage');
-      Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
-      TimelineEntry = require(self.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+      User = self.helpers.requireBackend('core/db/mongo/models/user');
+      EMailMsg = self.helpers.requireBackend('core/db/mongo/models/emailmessage');
+      Community = self.helpers.requireBackend('core/db/mongo/models/community');
+      TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
+      webserver = self.helpers.requireBackend('webserver').webserver;
       user = new User({password: password, emails: [email]});
       user.save(function(err, saved) {
         if (err) {

@@ -20,7 +20,7 @@ describe('The redis module', function() {
     };
     mockery.registerMock('../../../core/esn-config', esnconfig);
 
-    var redis = require(this.testEnv.basePath + '/backend/core').db.redis;
+    var redis = this.helpers.requireBackend('core').db.redis;
     redis.init(function(err) {
       expect(err).to.exist;
       done();
@@ -49,7 +49,7 @@ describe('The redis module', function() {
     };
     mockery.registerMock('../../../core/esn-config', esnconfig);
 
-    var redis = require(this.testEnv.basePath + '/backend/core/db/redis');
+    var redis = this.helpers.requireBackend('core/db/redis');
     redis.init(function(err, client) {
       expect(err).to.not.exist;
       expect(client).to.exist;

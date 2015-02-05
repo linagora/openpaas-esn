@@ -5,12 +5,12 @@ var mockery = require('mockery');
 
 describe('the setup-session middleware', function() {
   it('should be a function', function() {
-    var setupSession = require(this.testEnv.basePath + '/backend/webserver/middleware/setup-sessions');
+    var setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
     expect(setupSession).to.be.a.function;
   });
 
   it('should set the middleware if the datastore is connected', function(done) {
-    var mongooseMock = require(this.testEnv.fixtures + '/mongoose').mongoose();
+    var mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
     mongooseMock.connections = [true];
 
     var coreMock = {
@@ -39,13 +39,13 @@ describe('the setup-session middleware', function() {
     mockery.registerMock('../../core', coreMock);
     mockery.registerMock('connect-mongo', connectMongoMock);
 
-    var setupSession = require(this.testEnv.basePath + '/backend/webserver/middleware/setup-sessions');
+    var setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
     setupSession(session);
 
   });
 
   it('should register a subscription mongodb:connectionAvailable', function() {
-    var mongooseMock = require(this.testEnv.fixtures + '/mongoose').mongoose();
+    var mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
     mongooseMock.connections = [true];
 
     var subscriptions = {};
@@ -75,14 +75,14 @@ describe('the setup-session middleware', function() {
     mockery.registerMock('../../core', coreMock);
     mockery.registerMock('connect-mongo', connectMongoMock);
 
-    var setupSession = require(this.testEnv.basePath + '/backend/webserver/middleware/setup-sessions');
+    var setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
     setupSession(session);
     expect(subscriptions).to.have.property('mongodb:connectionAvailable');
     expect(subscriptions['mongodb:connectionAvailable']).to.be.a.function;
   });
 
   it('should set the session middleware when mongodb:connectionAvailable is published', function(done) {
-    var mongooseMock = require(this.testEnv.fixtures + '/mongoose').mongoose();
+    var mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
     mongooseMock.connections = [true];
 
     var subscriptions = {};
@@ -115,7 +115,7 @@ describe('the setup-session middleware', function() {
     mockery.registerMock('../../core', coreMock);
     mockery.registerMock('connect-mongo', connectMongoMock);
 
-    var setupSession = require(this.testEnv.basePath + '/backend/webserver/middleware/setup-sessions');
+    var setupSession = this.helpers.requireBackend('webserver/middleware/setup-sessions');
     setupSession(session);
     session.setMiddleware = function() {done();};
     subscriptions['mongodb:connectionAvailable']();

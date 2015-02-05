@@ -6,8 +6,8 @@ var expect = require('chai').expect,
 describe('The companies routes', function() {
 
   before(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
   });
 
   beforeEach(function(done) {
@@ -34,7 +34,7 @@ describe('The companies routes', function() {
       User = this.mongoose.model('User');
       emails = ['foo@linagora.com', 'bar@linagora.com'];
 
-      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+      webserver = this.helpers.requireBackend('webserver').webserver;
     });
 
     it('should return a JSON with 404 result when company does not exist', function(done) {
@@ -73,7 +73,7 @@ describe('The companies routes', function() {
       User = this.mongoose.model('User');
       emails = ['foo@linagora.com', 'bar@linagora.com'];
 
-      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+      webserver = this.helpers.requireBackend('webserver').webserver;
     });
 
     it('should return a JSON with 404 result when company does not exist', function(done) {

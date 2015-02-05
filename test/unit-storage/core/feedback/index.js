@@ -30,8 +30,8 @@ describe('The feedback module', function() {
 
     var self = this;
 
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/feedback');
-    require(this.testEnv.basePath + '/backend/core/feedback').save(feedbackObject, function(err, response) {
+    this.helpers.requireBackend('core/db/mongo/models/feedback');
+    this.helpers.requireBackend('core/feedback').save(feedbackObject, function(err, response) {
       expect(err).to.not.exist;
       expect(response).to.exist;
       expect(response.__v).to.deep.equal(0);

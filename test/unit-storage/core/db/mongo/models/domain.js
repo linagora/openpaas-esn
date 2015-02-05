@@ -10,8 +10,8 @@ describe('The domain model module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
     this.testEnv.writeDBConfigFile();
     Domain = this.mongoose.model('Domain');
     User = this.mongoose.model('User');

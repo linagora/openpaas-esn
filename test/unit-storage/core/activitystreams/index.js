@@ -9,7 +9,7 @@ describe('The activitystreams core module', function() {
   it('query should send back error when options is undefined', function(done) {
     this.helpers.mock.models({});
 
-    var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
+    var timeline = this.helpers.requireBackend('core/activitystreams');
     timeline.query(null, function(err) {
       expect(err).to.exist;
       done();
@@ -19,7 +19,7 @@ describe('The activitystreams core module', function() {
   it('query should send back error when options.target is undefined', function(done) {
     this.helpers.mock.models({});
 
-    var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
+    var timeline = this.helpers.requireBackend('core/activitystreams');
     timeline.query({}, function(err) {
       expect(err).to.exist;
       done();
@@ -31,12 +31,12 @@ describe('The activitystreams core module', function() {
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentriestracker');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
+      this.helpers.requireBackend('core/db/mongo/models/timelineentry');
+      this.helpers.requireBackend('core/db/mongo/models/timelineentriestracker');
+      this.helpers.requireBackend('core/db/mongo/models/domain');
+      this.helpers.requireBackend('core/db/mongo/models/user');
+      this.helpers.requireBackend('core/db/mongo/models/community');
+      this.helpers.requireBackend('core/db/mongo/models/usernotification');
       this.testEnv.writeDBConfigFile();
       Domain = this.mongoose.model('Domain');
       TimelineEntry = this.mongoose.model('TimelineEntry');
@@ -102,7 +102,7 @@ describe('The activitystreams core module', function() {
               return done(err);
             }
 
-            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            var timeline = self.helpers.requireBackend('core/activitystreams');
             timeline.query({target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
               expect(err).to.not.exist;
               expect(result).to.exist;
@@ -165,7 +165,7 @@ describe('The activitystreams core module', function() {
 
             var limit = 2;
 
-            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            var timeline = self.helpers.requireBackend('core/activitystreams');
             timeline.query({limit: limit, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
               expect(err).to.not.exist;
               expect(result).to.exist;
@@ -240,7 +240,7 @@ describe('The activitystreams core module', function() {
               return done(err);
             }
 
-            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            var timeline = self.helpers.requireBackend('core/activitystreams');
             timeline.query({before: limitEntry._id, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
               expect(err).to.not.exist;
               expect(result).to.exist;
@@ -320,7 +320,7 @@ describe('The activitystreams core module', function() {
               return done(err);
             }
 
-            var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+            var timeline = self.helpers.requireBackend('core/activitystreams');
             timeline.query({before: limitEntry._id, limit: 2, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
 
               expect(err).to.not.exist;
@@ -400,7 +400,7 @@ describe('The activitystreams core module', function() {
                 return done(err);
               }
 
-              var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+              var timeline = self.helpers.requireBackend('core/activitystreams');
               timeline.query({after: limitEntry._id, target: {objectType: 'domain', _id: domain._id}}, function(err, result) {
                 expect(err).to.not.exist;
                 expect(result).to.exist;
@@ -479,7 +479,7 @@ describe('The activitystreams core module', function() {
                 return done(err);
               }
 
-              var timeline = require(self.testEnv.basePath + '/backend/core/activitystreams');
+              var timeline = self.helpers.requireBackend('core/activitystreams');
               timeline.query({after: limitEntry._id, target: {objectType: 'domain', _id: domain._id}, limit: 2}, function(err, result) {
                 expect(err).to.not.exist;
                 expect(result).to.exist;
@@ -503,7 +503,7 @@ describe('The activitystreams core module', function() {
     it('should send back error when event is not set', function(done) {
       this.helpers.mock.models({});
 
-      var timeline = require(this.testEnv.basePath + '/backend/core/activitystreams');
+      var timeline = this.helpers.requireBackend('core/activitystreams');
       timeline.addTimelineEntry(null, function(err) {
         expect(err).to.exist;
         done();

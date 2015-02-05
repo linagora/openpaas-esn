@@ -14,7 +14,7 @@ describe('The conference module', function() {
       }
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.create(null, function(err) {
       expect(err).to.exist;
       done();
@@ -34,7 +34,7 @@ describe('The conference module', function() {
       }
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     var id = 123;
     conference.create(id, function(err, saved) {
       expect(err).to.not.exist;
@@ -56,7 +56,7 @@ describe('The conference module', function() {
       }
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     var id = 123;
     conference.create({_id: id}, function(err, saved) {
       expect(err).to.not.exist;
@@ -72,7 +72,7 @@ describe('The conference module', function() {
       }
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.invite(null, {}, function(err, saved) {
       expect(err).to.exist;
       done();
@@ -86,7 +86,7 @@ describe('The conference module', function() {
       }
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.invite({}, null, function(err, saved) {
       expect(err).to.exist;
       done();
@@ -100,7 +100,7 @@ describe('The conference module', function() {
       }
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.invite(null, null, function(err, saved) {
       expect(err).to.exist;
       done();
@@ -126,7 +126,7 @@ describe('The conference module', function() {
       attendees: []
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.invite(conf, attendees, function(err) {
       expect(err).to.exist;
       done();
@@ -153,7 +153,7 @@ describe('The conference module', function() {
       }
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.invite(conf, attendees, function(err, updated) {
       expect(err).to.not.exist;
       expect(updated).to.exist;
@@ -188,7 +188,7 @@ describe('The conference module', function() {
       }
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.invite(conf, attendees, function(err, updated) {
       expect(err).to.not.exist;
       expect(updated).to.exist;
@@ -206,7 +206,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userCanJoinConference({}, null, function(err) {
       expect(err).to.exist;
       done();
@@ -221,7 +221,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userCanJoinConference(null, {}, function(err) {
       expect(err).to.exist;
       done();
@@ -246,7 +246,7 @@ describe('The conference module', function() {
       _id: user_id
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userCanJoinConference(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.true;
@@ -283,7 +283,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userCanJoinConference(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.true;
@@ -299,7 +299,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceAttendee({}, null, function(err) {
       expect(err).to.exist;
       done();
@@ -314,7 +314,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceAttendee(null, {}, function(err) {
       expect(err).to.exist;
       done();
@@ -349,7 +349,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceAttendee(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.true;
@@ -383,7 +383,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceAttendee(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.false;
@@ -399,7 +399,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceCreator({}, null, function(err) {
       expect(err).to.exist;
       done();
@@ -414,7 +414,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceCreator(null, {}, function(err) {
       expect(err).to.exist;
       done();
@@ -437,7 +437,7 @@ describe('The conference module', function() {
       _id: conf.creator
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceCreator(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.true;
@@ -461,7 +461,7 @@ describe('The conference module', function() {
       _id: new ObjectId()
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceCreator(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.false;
@@ -496,7 +496,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userCanJoinConference(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.true;
@@ -523,7 +523,7 @@ describe('The conference module', function() {
       _id: new ObjectId()
     };
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.userIsConferenceCreator(conf, user, function(err, status) {
       expect(err).to.not.exist;
       expect(status).to.be.false;
@@ -539,7 +539,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.join(null, {}, function(err, status) {
       expect(err).to.exist;
       done();
@@ -554,7 +554,7 @@ describe('The conference module', function() {
     };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.join({}, null, function(err, status) {
       expect(err).to.exist;
       done();
@@ -590,7 +590,7 @@ describe('The conference module', function() {
     mongoose.Types = { ObjectId: function() {} };
     this.mongoose = mockery.registerMock('mongoose', mongoose);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.join(conf, user, function(err, updated) {
       expect(err).to.not.exist;
       done();
@@ -603,7 +603,7 @@ describe('The conference module', function() {
         return {};
       }
     });
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.addHistory({}, null, 'hey', function(err) {
       expect(err).to.exist;
       done();
@@ -616,7 +616,7 @@ describe('The conference module', function() {
         return {};
       }
     });
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.addHistory(null, {}, 'hey', function(err) {
       expect(err).to.exist;
       done();
@@ -629,7 +629,7 @@ describe('The conference module', function() {
         return {};
       }
     });
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
     conference.addHistory({}, {}, null, function(err) {
       expect(err).to.exist;
       done();
@@ -646,7 +646,7 @@ describe('The conference module', function() {
         };
       }
     });
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
 
     var conf = {
       attendees: [],
@@ -668,7 +668,7 @@ describe('The conference module', function() {
     var localstub = {}, globalstub = {};
     this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
 
     var conf = {
       attendees: [],
@@ -719,7 +719,7 @@ describe('The conference module', function() {
     var localstub = {}, globalstub = {};
     this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
 
     var conf = {
       _id: 12345,
@@ -757,7 +757,7 @@ describe('The conference module', function() {
     var localstub = {}, globalstub = {};
     this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
 
-    var conference = require(this.testEnv.basePath + '/backend/core/conference/index');
+    var conference = this.helpers.requireBackend('core/conference/index');
 
     var conf = {
       _id: 12345,

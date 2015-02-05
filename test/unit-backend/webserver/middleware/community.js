@@ -15,7 +15,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canJoin;
       var req = {
         user: {}
       };
@@ -30,7 +30,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canJoin;
       var req = {
         community: {}
       };
@@ -45,7 +45,7 @@ describe('The community middleware', function() {
 
     it('should send back 403 when community is !== open', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canJoin;
       var req = {
         community: {type: 'foo'},
         user: {},
@@ -64,7 +64,7 @@ describe('The community middleware', function() {
 
     it('should call next if user can join community', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canJoin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canJoin;
       var req = {
         community: {type: 'open'},
         user: {},
@@ -92,7 +92,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canLeave;
       var req = {
         user: {},
         params: {
@@ -110,7 +110,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canLeave;
       var req = {
         community: {},
         params: {
@@ -128,7 +128,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.params.user_id is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canLeave;
       var req = {
         user: {},
         community: {}
@@ -146,7 +146,7 @@ describe('The community middleware', function() {
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canLeave;
       var req = {
         community: {creator: id},
         user: {_id: id},
@@ -166,7 +166,7 @@ describe('The community middleware', function() {
     it('should call next if user can leave community', function(done) {
       var ObjectId = require('bson').ObjectId;
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canLeave;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canLeave;
       var req = {
         community: {creator: new ObjectId()},
         user: {_id: new ObjectId()},
@@ -193,7 +193,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
       var req = {
         user: {}
       };
@@ -208,7 +208,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {}
       };
@@ -227,7 +227,7 @@ describe('The community middleware', function() {
           return callback(new Error());
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {},
         user: {}
@@ -247,7 +247,7 @@ describe('The community middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {},
         user: {}
@@ -267,7 +267,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').requiresCommunityMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
       var req = {
         community: {},
         user: {}
@@ -292,7 +292,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').isCreator;
       var req = {
         user: {}
       };
@@ -307,7 +307,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').isCreator;
       var req = {
         community: {}
       };
@@ -323,7 +323,7 @@ describe('The community middleware', function() {
     it('should send back 400 when user is not the community creator', function(done) {
       var ObjectId = require('bson').ObjectId;
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').isCreator;
       var req = {
         community: {creator: new ObjectId()},
         user: {_id: new ObjectId()}
@@ -341,7 +341,7 @@ describe('The community middleware', function() {
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').isCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').isCreator;
       var req = {
         community: {creator: id},
         user: {_id: id}
@@ -366,7 +366,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserIdParameterIsCurrentUser;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
       };
       var res = {
@@ -380,7 +380,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.param(user_id) is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserIdParameterIsCurrentUser;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
         user: {},
         param: function() {
@@ -401,7 +401,7 @@ describe('The community middleware', function() {
       var id = new ObjectId();
 
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserIdParameterIsCurrentUser;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
         user: {_id: id},
         param: function() {
@@ -422,7 +422,7 @@ describe('The community middleware', function() {
       var id = new ObjectId();
 
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserIdParameterIsCurrentUser;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserIdParameterIsCurrentUser;
       var req = {
         user: {_id: id},
         param: function() {
@@ -448,7 +448,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         param: function() {
           return '123';
@@ -465,7 +465,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.param(user_id) is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
         param: function() {
@@ -487,7 +487,7 @@ describe('The community middleware', function() {
           return callback(new Error());
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
         param: function() {
@@ -509,7 +509,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
         param: function() {
@@ -531,7 +531,7 @@ describe('The community middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').checkUserParamIsNotMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
       var req = {
         community: {},
         param: function() {
@@ -562,7 +562,7 @@ describe('The community middleware', function() {
           done(new Error('I should not be called'));
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
       var req = {
         community: { type: 'open' },
         user: {_id: 'user1'}
@@ -576,7 +576,7 @@ describe('The community middleware', function() {
           done(new Error('I should not be called'));
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
       var req = {
         community: { type: 'restricted' },
         user: {_id: 'user1'}
@@ -590,7 +590,7 @@ describe('The community middleware', function() {
           done();
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
       var req = {
         community: { type: 'private' },
         user: {_id: 'user1'}
@@ -605,7 +605,7 @@ describe('The community middleware', function() {
           done();
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').canRead;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
       var req = {
         community: { type: 'confidential' },
         user: {_id: 'user1'}
@@ -626,7 +626,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.community is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').flagCommunityManager;
       var req = {
         user: {}
       };
@@ -641,7 +641,7 @@ describe('The community middleware', function() {
 
     it('should send back 400 when req.user is not defined', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').flagCommunityManager;
       var req = {
         community: {}
       };
@@ -660,7 +660,7 @@ describe('The community middleware', function() {
           return callback(new Error('Fail'));
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').flagCommunityManager;
       var req = {
         community: {},
         user: {}
@@ -680,7 +680,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').flagCommunityManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').flagCommunityManager;
       var req = {
         community: {},
         user: {}
@@ -709,7 +709,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
       var req = {
         body: {
         }
@@ -732,7 +732,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
       var req = {
         body: {
           targets: []
@@ -756,7 +756,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: undefined
@@ -786,7 +786,7 @@ describe('The community middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -832,7 +832,7 @@ describe('The community middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -875,7 +875,7 @@ describe('The community middleware', function() {
           return callback(null, community._id > 10);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -934,7 +934,7 @@ describe('The community middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/community').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
       var req = {
         user: {},
         body: {
@@ -977,7 +977,7 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').filterWritableTargets;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').filterWritableTargets;
       var req = {
         body: {
           targets: undefined,
@@ -1009,7 +1009,7 @@ describe('The community middleware', function() {
 
       mockery.registerMock('../../core/activitystreams', {});
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').findStreamResource;
       var req = {
         params: {
           uuid: 1
@@ -1042,7 +1042,7 @@ describe('The community middleware', function() {
       });
       mockery.registerMock('../../core/activitystreams', {});
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').findStreamResource;
       var req = {
         params: {
           uuid: 1
@@ -1069,7 +1069,7 @@ describe('The community middleware', function() {
       });
       mockery.registerMock('../../core/activitystreams', {});
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/activitystream').findStreamResource;
+      var middleware = this.helpers.requireBackend('webserver/middleware/activitystream').findStreamResource;
       var req = {
         params: {
           uuid: 1

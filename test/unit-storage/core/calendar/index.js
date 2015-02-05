@@ -14,7 +14,7 @@ describe('The calendar core module', function() {
     this.testEnv.writeDBConfigFile();
     this.mongoose = require('mongoose');
 
-    TimelineEntry = require(self.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
+    TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
 
     this.testEnv.initCore(function(err) {
       if (err) { return done(err); }
@@ -59,7 +59,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var calendar = require(this.testEnv.basePath + '/backend/core/calendar');
+      var calendar = this.helpers.requireBackend('core/calendar');
       calendar.dispatch(data, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.be.false;
@@ -77,7 +77,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var calendar = require(this.testEnv.basePath + '/backend/core/calendar');
+      var calendar = this.helpers.requireBackend('core/calendar');
       calendar.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -105,7 +105,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var calendar = require(this.testEnv.basePath + '/backend/core/calendar');
+      var calendar = this.helpers.requireBackend('core/calendar');
       calendar.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;

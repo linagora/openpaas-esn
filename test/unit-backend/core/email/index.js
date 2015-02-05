@@ -15,7 +15,7 @@ describe('The email module', function() {
   });
 
   it('should throw error if recipient is not defined', function(done) {
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     email.transport = function() {};
     email.send(null, null, 'The subject', 'Hello', function(err) {
       expect(err).to.exist;
@@ -24,7 +24,7 @@ describe('The email module', function() {
   });
 
   it('should call the transport layer when all data is valid', function(done) {
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     var called = false;
     email.setTransport({
       sendMail: function(message, cb) {
@@ -41,7 +41,7 @@ describe('The email module', function() {
 
   it('should send email with sendmail mock (pickup)', function(done) {
     var tmp = this.testEnv.tmp;
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
     var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     email.setTransport(transport);
@@ -64,7 +64,7 @@ describe('The email module', function() {
 
   it('should send email with from as name <address>', function(done) {
     var tmp = this.testEnv.tmp;
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
     var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     email.setTransport(transport);
@@ -92,7 +92,7 @@ describe('The email module', function() {
 
   it('should send email with to as name <address>', function(done) {
     var tmp = this.testEnv.tmp;
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
     var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     email.setTransport(transport);
@@ -119,7 +119,7 @@ describe('The email module', function() {
   });
 
   it('should fail when template does not exist', function(done) {
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
     var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     var templates = path.resolve(__dirname + '/fixtures/templates/');
@@ -136,7 +136,7 @@ describe('The email module', function() {
 
   it('should generate and send HTML email from existing template', function(done) {
     var tmp = this.testEnv.tmp;
-    var email = require(this.testEnv.basePath + '/backend/core/email');
+    var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
     var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
     var templates = path.resolve(__dirname + '/fixtures/templates/');
@@ -188,7 +188,7 @@ describe('The email module', function() {
 
     it('should send an email', function(done) {
       var tmp = this.testEnv.tmp;
-      var email = require(this.testEnv.basePath + '/backend/core/email');
+      var email = this.helpers.requireBackend('core/email');
       var templates = path.resolve(__dirname + '/fixtures/templates/');
       email.setTemplatesDir(templates);
 
@@ -229,7 +229,7 @@ describe('The email module', function() {
     });
 
     it('should fail when transport is not defined', function(done) {
-      var email = require(this.testEnv.basePath + '/backend/core/email');
+      var email = this.helpers.requireBackend('core/email');
       email.send(from, 'to@foo.com', 'None', 'Hello', function(err, message) {
         expect(err).to.exist;
         done();
@@ -254,7 +254,7 @@ describe('The email module', function() {
     });
 
     it('should fail on send', function(done) {
-      var email = require(this.testEnv.basePath + '/backend/core/email');
+      var email = this.helpers.requireBackend('core/email');
       var templates = path.resolve(__dirname + '/fixtures/templates/');
       email.setTemplatesDir(templates);
       email.send('from@foo.com', 'to@foo.com', 'None', 'Hello', function(err, message) {

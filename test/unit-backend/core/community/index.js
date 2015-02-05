@@ -8,7 +8,7 @@ describe('The community module', function() {
     it('should send back error if community is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.save(null, function(err) {
         expect(err).to.exist;
         done();
@@ -18,7 +18,7 @@ describe('The community module', function() {
     it('should send back error if community.title is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.save({domain_id: 123}, function(err) {
         expect(err).to.exist;
         done();
@@ -28,7 +28,7 @@ describe('The community module', function() {
     it('should send back error if community.domain_id is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.save({title: 'title'}, function(err) {
         expect(err).to.exist;
         done();
@@ -38,7 +38,7 @@ describe('The community module', function() {
     it('should send back error if Community.testTitleDomain sends back error', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.save({domain_id: 123, title: 'title'}, function(err) {
         expect(err).to.exist;
         done();
@@ -48,7 +48,7 @@ describe('The community module', function() {
     it('should send back error if Community.testTitleDomain sends back result', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.save({domain_id: 123, title: 'title'}, function(err) {
         expect(err).to.exist;
         done();
@@ -60,7 +60,7 @@ describe('The community module', function() {
     it('should send back error if community is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.load(null, function(err) {
         expect(err).to.exist;
         done();
@@ -74,7 +74,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.load(123, function(err) {
         expect(err).to.not.exist;
       });
@@ -85,7 +85,7 @@ describe('The community module', function() {
     it('should send back error if community is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.loadWithDomains(null, function(err) {
         expect(err).to.exist;
         done();
@@ -109,7 +109,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.loadWithDomains(123, function(err) {
         expect(err).to.not.exist;
       });
@@ -126,7 +126,7 @@ describe('The community module', function() {
       };
       mockery.registerMock('../collaboration', collaborationMock);
       this.helpers.mock.models({});
-      var community = require(this.testEnv.basePath + '/backend/core/community');
+      var community = this.helpers.requireBackend('core/community');
       community.query(null, function() {});
     });
   });
@@ -135,7 +135,7 @@ describe('The community module', function() {
     it('should send back error if community is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.delete(null, function(err) {
         expect(err).to.exist;
         done();
@@ -147,7 +147,7 @@ describe('The community module', function() {
     it('should send back error when community is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.updateAvatar(null, 1, function(err) {
         expect(err).to.exist;
         done();
@@ -157,7 +157,7 @@ describe('The community module', function() {
     it('should send back error when avatar id is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.updateAvatar({}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -176,7 +176,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.isManager(123, 456, function(err) {
         expect(err).to.exist;
         return done();
@@ -192,7 +192,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.isManager(123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
@@ -209,7 +209,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.isManager(123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
@@ -227,7 +227,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.isMember(123, {objectType: 'user', id: 456}, function(err) {
         expect(err).to.exist;
         return done();
@@ -238,7 +238,7 @@ describe('The community module', function() {
       this.helpers.mock.models({});
       var id = 456;
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var comMock = {
         _id: 'community1',
         members: [
@@ -265,7 +265,7 @@ describe('The community module', function() {
 
     it('should send back false when user is not part of the community', function(done) {
       this.helpers.mock.models({});
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var comMock = {
         _id: 'community1',
         members: [
@@ -292,7 +292,7 @@ describe('The community module', function() {
 
     it('should send back false when tuple is invalid', function(done) {
       this.helpers.mock.models({});
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var comMock = {
         _id: 'community1',
         members: [
@@ -312,7 +312,7 @@ describe('The community module', function() {
 
     it('should send back false when tuple is not a user', function(done) {
       this.helpers.mock.models({});
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var comMock = {
         _id: 'community1',
         members: [
@@ -344,7 +344,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembers({_id: 123}, null, function(err) {
         expect(err).to.exist;
         return done();
@@ -365,7 +365,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembers({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
@@ -399,7 +399,7 @@ describe('The community module', function() {
           }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembers({_id: 123}, null, function(err, members) {
         expect(err).to.not.exist;
         expect(members).to.be.an.array;
@@ -438,7 +438,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
 
       community.getMembers({_id: 123}, query, function() {
       });
@@ -472,7 +472,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembers({_id: 123}, null, function() {
         done();
       });
@@ -496,7 +496,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getManagers({_id: 123}, null, function(err) {
         expect(err).to.exist;
         return done();
@@ -518,7 +518,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getManagers({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
@@ -543,7 +543,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getManagers({_id: 123}, null, function(err, managers) {
         expect(err).to.not.exist;
         expect(managers).to.be.an.array;
@@ -558,7 +558,7 @@ describe('The community module', function() {
     it('should send back error when user is null', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getUserCommunities(null, function(err) {
         expect(err).to.exist;
         return done();
@@ -570,7 +570,7 @@ describe('The community module', function() {
     it('should send back result even if user is null', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var member = community.userToMember(null);
       expect(member).to.exist;
       done();
@@ -579,7 +579,7 @@ describe('The community module', function() {
     it('should send back result even if document.user is null', function(done) {
       this.helpers.mock.models({});
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var member = community.userToMember({});
       expect(member).to.exist;
       done();
@@ -596,7 +596,7 @@ describe('The community module', function() {
         login: [4, 5, 6]
       };
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       var member = community.userToMember({member: user});
       expect(member).to.exist;
       expect(member.user).to.exist;
@@ -616,7 +616,7 @@ describe('The community module', function() {
 
       var user = {_id: 'user1'};
       var community = {_id: 'community1'};
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var communityModule = this.helpers.requireBackend('core/community/index');
       var mr = communityModule.getMembershipRequest(community, user);
       expect(mr).to.be.false;
     });
@@ -628,7 +628,7 @@ describe('The community module', function() {
         user: { equals: function() { return false; } },
         timestamp: {creation: new Date()}
       }]};
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var communityModule = this.helpers.requireBackend('core/community/index');
       var mr = communityModule.getMembershipRequest(community, user);
       expect(mr).to.be.not.ok;
     });
@@ -640,7 +640,7 @@ describe('The community module', function() {
         user: { equals: function() { return true; } },
         timestamp: {creation: new Date(1419509532000)}
       }]};
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var communityModule = this.helpers.requireBackend('core/community/index');
       var mr = communityModule.getMembershipRequest(community, user);
       expect(mr).to.be.ok;
       expect(mr.timestamp).to.have.property('creation');
@@ -666,7 +666,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembershipRequests({_id: 123}, null, function(err) {
         expect(err).to.exist;
         return done();
@@ -688,7 +688,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembershipRequests({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
@@ -713,7 +713,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembershipRequests({_id: 123}, null, function(err, requests) {
         expect(err).to.not.exist;
         expect(requests).to.be.an.array;
@@ -746,7 +746,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembershipRequests({_id: 123}, query, function() {
         done();
       });
@@ -772,7 +772,7 @@ describe('The community module', function() {
         }
       });
 
-      var community = require(this.testEnv.basePath + '/backend/core/community/index');
+      var community = this.helpers.requireBackend('core/community/index');
       community.getMembershipRequests({_id: 123}, null, function() {
         done();
       });
@@ -786,7 +786,7 @@ describe('The community module', function() {
     });
 
     it('should send back error when user is not defined', function() {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var communityModule = this.helpers.requireBackend('core/community/index');
       communityModule.cleanMembershipRequest({}, null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
@@ -794,7 +794,7 @@ describe('The community module', function() {
     });
 
     it('should send back error when community is not defined', function() {
-      var communityModule = require(this.testEnv.basePath + '/backend/core/community/index');
+      var communityModule = this.helpers.requireBackend('core/community/index');
       communityModule.cleanMembershipRequest(null, {}, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;

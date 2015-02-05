@@ -26,7 +26,7 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
-      userModule = require(this.testEnv.basePath + '/backend/core').user;
+      userModule = this.helpers.requireBackend('core').user;
     });
 
     it('should save a user if it is not an instance of User model', function(done) {
@@ -43,7 +43,7 @@ describe('The user core module', function() {
     var userModule = null;
 
     beforeEach(function() {
-      var template = require(this.testEnv.fixtures + '/user-template').simple();
+      var template = this.helpers.requireFixture('user-template').simple();
 
       var get = function(callback) {
         callback(null, template);
@@ -65,7 +65,7 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
-      userModule = require(this.testEnv.basePath + '/backend/core').user;
+      userModule = this.helpers.requireBackend('core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;
         expect(user).to.exist;
@@ -93,7 +93,7 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
-      userModule = require(this.testEnv.basePath + '/backend/core').user;
+      userModule = this.helpers.requireBackend('core').user;
     });
 
     it('should lowercased the email array and flatten it into an $or array', function(done) {
@@ -128,7 +128,7 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
-      userModule = require(this.testEnv.basePath + '/backend/core').user;
+      userModule = this.helpers.requireBackend('core').user;
     });
 
     it('should send back an error when user is undefined', function(done) {
@@ -184,7 +184,7 @@ describe('The user core module', function() {
       mockModels({
         User: {}
       });
-      userModule = require(this.testEnv.basePath + '/backend/core').user;
+      userModule = this.helpers.requireBackend('core').user;
     });
 
     it('should send back an error when user is undefined', function(done) {

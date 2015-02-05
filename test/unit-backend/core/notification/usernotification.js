@@ -41,7 +41,7 @@ describe('The core user notifications module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.getForUser(user, query, done);
     });
 
@@ -78,7 +78,7 @@ describe('The core user notifications module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.getForUser(user, query, done);
     });
   });
@@ -109,7 +109,7 @@ describe('The core user notifications module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.countForUser(user, query, done);
     });
 
@@ -137,7 +137,7 @@ describe('The core user notifications module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.countForUser(user, query, done);
     });
   });
@@ -145,7 +145,7 @@ describe('The core user notifications module', function() {
   describe('get method', function() {
     it('should return an error if id is not defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.get(null, function(err) {
         expect(err).to.exists;
         done();
@@ -165,7 +165,7 @@ describe('The core user notifications module', function() {
         }
       };
       this.helpers.mock.models(models);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
 
       module.get(123456, done);
     });
@@ -175,7 +175,7 @@ describe('The core user notifications module', function() {
   describe('getAll method', function() {
     it('should return an error if id is not defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.getAll(null, function(err) {
         expect(err).to.exists;
         done();
@@ -195,7 +195,7 @@ describe('The core user notifications module', function() {
         }
       };
       this.helpers.mock.models(models);
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
 
       module.getAll([123, 456], done);
     });
@@ -205,7 +205,7 @@ describe('The core user notifications module', function() {
   describe('setRead method', function() {
     it('should return an error if usernotification is not defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setRead(null, false, function(err) {
         expect(err).to.exists;
         done();
@@ -219,7 +219,7 @@ describe('The core user notifications module', function() {
         }
       };
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setRead(usernotification, true, function() {
         expect(usernotification.read).to.be.true;
         done();
@@ -230,7 +230,7 @@ describe('The core user notifications module', function() {
   describe('setAllRead method', function() {
     it('should return an error if usernotification is no defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setAllRead(null, false, function(err) {
         expect(err).to.exists;
         done();
@@ -249,7 +249,7 @@ describe('The core user notifications module', function() {
         }
       };
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setAllRead([usernotification1, usernotification2], true, function() {
         expect(usernotification1.read).to.be.true;
         expect(usernotification2.read).to.be.true;
@@ -261,7 +261,7 @@ describe('The core user notifications module', function() {
   describe('setAcknowledged method', function() {
     it('should return an error if usernotification is not defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setAcknowledged(null, false, function(err) {
         expect(err).to.exists;
         done();
@@ -275,7 +275,7 @@ describe('The core user notifications module', function() {
         }
       };
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setAcknowledged(usernotification, true, function() {
         expect(usernotification.acknowledged).to.be.true;
         done();
@@ -286,7 +286,7 @@ describe('The core user notifications module', function() {
   describe('create method', function() {
     it('should return an error if usernotification is not defined', function(done) {
       this.helpers.mock.models({});
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.create(null, function(err) {
         expect(err).to.exists;
         done();
@@ -308,7 +308,7 @@ describe('The core user notifications module', function() {
           return object;
         }
       });
-      var module = require(this.testEnv.basePath + '/backend/core/notification/usernotification');
+      var module = this.helpers.requireBackend('core/notification/usernotification');
       module.create(usernotification, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;

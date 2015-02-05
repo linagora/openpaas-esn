@@ -20,8 +20,8 @@ describe('The authenticationtoken API', function() {
       }
 
       self.testEnv.initCore(function() {
-        User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-        webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+        User = self.helpers.requireBackend('core/db/mongo/models/user');
+        webserver = self.helpers.requireBackend('webserver').webserver;
 
         user = new User({password: password, emails: [email]});
         user.save(function(err, saved) {

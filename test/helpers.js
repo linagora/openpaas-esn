@@ -280,4 +280,11 @@ module.exports = function(mixin, testEnv) {
     pubsub: mockPubSub,
     esnConfig: mockEsnConfig
   };
+
+  mixin.requireBackend = function(path) {
+    return require(testEnv.basePath + '/backend/' + path);
+  };
+  mixin.requireFixture = function(path) {
+    return require(testEnv.fixtures + '/' + path);
+  };
 };

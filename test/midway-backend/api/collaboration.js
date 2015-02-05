@@ -48,10 +48,10 @@ describe('The collaborations API', function() {
     var self = this;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
-      Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
-      User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+      webserver = self.helpers.requireBackend('webserver').webserver;
+      Community = self.helpers.requireBackend('core/db/mongo/models/community');
+      User = self.helpers.requireBackend('core/db/mongo/models/user');
+      Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
 
       user = new User({password: password, emails: [email]});
       user.save(function(err, saved) {
@@ -1463,7 +1463,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:invitation:decline topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:invitation:decline');
           topic.subscribe(function(message) {
             expect(self.jdee._id.equals(message.author)).to.be.true;
@@ -1509,7 +1509,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:request:cancel topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:request:cancel');
           topic.subscribe(function(message) {
             expect(self.kcobain._id.equals(message.author)).to.be.true;
@@ -1579,7 +1579,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:invitation:cancel topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:invitation:cancel');
           topic.subscribe(function(message) {
             expect(self.admin._id.equals(message.author)).to.be.true;
@@ -1626,7 +1626,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:request:refuse topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:request:refuse');
           topic.subscribe(function(message) {
             expect(self.admin._id.equals(message.author)).to.be.true;
@@ -2483,7 +2483,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:invitation:decline topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:invitation:decline');
           topic.subscribe(function(message) {
             expect(self.jdee._id.equals(message.author)).to.be.true;
@@ -2529,7 +2529,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:request:cancel topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:request:cancel');
           topic.subscribe(function(message) {
             expect(self.kcobain._id.equals(message.author)).to.be.true;
@@ -2599,7 +2599,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:invitation:cancel topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:invitation:cancel');
           topic.subscribe(function(message) {
             expect(self.admin._id.equals(message.author)).to.be.true;
@@ -2646,7 +2646,7 @@ describe('The collaborations API', function() {
 
         it('should publish a message in collaboration:membership:request:refuse topic', function(done) {
           var self = this;
-          var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local,
+          var pubsub = this.helpers.requireBackend('core').pubsub.local,
             topic = pubsub.topic('collaboration:membership:request:refuse');
           topic.subscribe(function(message) {
             expect(self.admin._id.equals(message.author)).to.be.true;

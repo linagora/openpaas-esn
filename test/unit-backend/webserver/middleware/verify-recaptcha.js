@@ -30,7 +30,7 @@ describe('The verify-recaptcha middleware', function() {
 
   it('should be pass through and call next() if there is no recaptchaFlag setted to true in req', function(done) {
     delete req.recaptchaFlag;
-    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, {}, next(done));
   });
 
@@ -43,7 +43,7 @@ describe('The verify-recaptcha middleware', function() {
         done();
       }
     };
-    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, res, function() {});
   });
 
@@ -69,7 +69,7 @@ describe('The verify-recaptcha middleware', function() {
     };
     mockery.registerMock('../../core/esn-config', esnConfig);
 
-    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, {}, {});
   });
 
@@ -91,7 +91,7 @@ describe('The verify-recaptcha middleware', function() {
     };
     mockery.registerMock('../../core/esn-config', esnConfig);
 
-    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, {}, next(done));
   });
 
@@ -121,7 +121,7 @@ describe('The verify-recaptcha middleware', function() {
     };
     mockery.registerMock('../../core/esn-config', esnConfig);
 
-    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, res, {});
   });
 
@@ -137,7 +137,7 @@ describe('The verify-recaptcha middleware', function() {
     };
     mockery.registerMock('../../core/esn-config', esnConfig);
 
-    var verify = require(this.testEnv.basePath + '/backend/webserver/middleware/verify-recaptcha').verify;
+    var verify = this.helpers.requireBackend('webserver/middleware/verify-recaptcha').verify;
     verify(req, {}, next(done));
   });
 });

@@ -13,7 +13,7 @@ describe('the contacts controller', function() {
         expect(data.error.status).to.equal(412);
         expect(data.error.message).to.equal('parameter missing');
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
     it('should use mongoose.Types.ObjectId to check if query.owner is a valid mongodb ObjectID', function(done) {
@@ -29,7 +29,7 @@ describe('the contacts controller', function() {
       var req = { query: {owner: '123'} };
       var res = {json: function(code, data) {
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
     it('should return 412 if query.owner is not a valid mongodb ObjectID', function(done) {
@@ -48,7 +48,7 @@ describe('the contacts controller', function() {
         expect(data.error.message).to.equal('Invalid parameter');
         done();
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
     it('should use mongoose.Types.ObjectId to check if query.addressbooks is a valid mongodb ObjectID', function(done) {
@@ -66,7 +66,7 @@ describe('the contacts controller', function() {
       var req = { query: {owner: '123'}, param: function() {return 'addressbook';} };
       var res = {json: function(code, data) {
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
     it('should use mongoose.Types.ObjectId to check if query.addressbooks, as array, is a valid mongodb ObjectID', function(done) {
@@ -97,7 +97,7 @@ describe('the contacts controller', function() {
       };
       var res = {json: function(code, data) {
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
     it('should respond with 400 if addressbooks is not a valid mongodb ObjectID', function(done) {
@@ -127,7 +127,7 @@ describe('the contacts controller', function() {
         expect(data.error.message).to.equal('Server error');
         done();
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
     it('should call the google contact module list function with a query object', function(done) {
@@ -167,7 +167,7 @@ describe('the contacts controller', function() {
       });
       var res = {json: function(code, data) {
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
 
@@ -201,7 +201,7 @@ describe('the contacts controller', function() {
       });
       var res = {json: function(code, data) {
       }};
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var controller = this.helpers.requireBackend('webserver/controllers/contacts');
       controller.getContacts(req, res);
     });
 
@@ -238,7 +238,7 @@ describe('the contacts controller', function() {
           expect(data.error.message).to.equal('Contacts list failed');
           done();
         }};
-        var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+        var controller = this.helpers.requireBackend('webserver/controllers/contacts');
         controller.getContacts(req, res);
       });
       it('should return the total count in headers', function(done) {
@@ -276,7 +276,7 @@ describe('the contacts controller', function() {
             done();
           }
         };
-        var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+        var controller = this.helpers.requireBackend('webserver/controllers/contacts');
         controller.getContacts(req, res);
       });
       it('should return the items in body', function(done) {
@@ -314,7 +314,7 @@ describe('the contacts controller', function() {
           header: function(name, value) {
           }
         };
-        var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+        var controller = this.helpers.requireBackend('webserver/controllers/contacts');
         controller.getContacts(req, res);
       });
     });
@@ -329,7 +329,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         body: {}
       };
@@ -350,7 +350,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         body: {
           domain: 123
@@ -373,7 +373,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         body: {
           domain: 123
@@ -397,7 +397,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         body: {
           domain: 123
@@ -428,7 +428,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
       };
       var res = {
@@ -452,7 +452,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         contact: {
           _id: 123
@@ -479,7 +479,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         contact: {
           _id: 123
@@ -506,7 +506,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         contact: {
           _id: 123
@@ -534,7 +534,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
       };
       var res = {
@@ -557,7 +557,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         query: {}
       };
@@ -586,7 +586,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         query: {
           ids: []
@@ -617,7 +617,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         query: {
           ids: []
@@ -649,7 +649,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('../../core', core);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         params: {
           id: 123
@@ -679,7 +679,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('../../core', core);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         params: {
           id: 123
@@ -713,7 +713,7 @@ describe('the contacts controller', function() {
       };
       mockery.registerMock('../../core', core);
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/contacts');
+      var contacts = this.helpers.requireBackend('webserver/controllers/contacts');
       var req = {
         params: {
           id: 123

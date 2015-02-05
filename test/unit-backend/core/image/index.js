@@ -16,7 +16,7 @@ describe('The core image module', function() {
 
   describe('getSize method', function() {
     it('should return the size of the image and the gmInstance', function(done) {
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
       var rs = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
       image.getSize(rs, function(err, size, gmInstance) {
@@ -31,7 +31,7 @@ describe('The core image module', function() {
 
   describe('checkImageSquare method', function() {
     it('should return an error when the image is not a square', function(done) {
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
       var rs = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
       image.checkImageSquare(rs, function(err, size, gmInstance) {
@@ -43,7 +43,7 @@ describe('The core image module', function() {
     });
 
     it('should return image size and gmInstance when the image is a square', function(done) {
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
       var rs = createReadStream(this.testEnv.fixtures + '/images/square.jpg');
       image.checkImageSquare(rs, function(err, size, gmInstance) {
@@ -82,7 +82,7 @@ describe('The core image module', function() {
       };
 
       mockery.registerMock('../filestore', filestoreMock);
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
@@ -116,7 +116,7 @@ describe('The core image module', function() {
       };
 
       mockery.registerMock('../filestore', filestoreMock);
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
@@ -140,7 +140,7 @@ describe('The core image module', function() {
       };
 
       mockery.registerMock('../filestore', filestoreMock);
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not-an-image.js');
@@ -175,7 +175,7 @@ describe('The core image module', function() {
       };
 
       mockery.registerMock('../filestore', filestoreMock);
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not-an-image.js');
@@ -205,7 +205,7 @@ describe('The core image module', function() {
       };
 
       mockery.registerMock('../filestore', filestoreMock);
-      var core = require(this.testEnv.basePath + '/backend/core'),
+      var core = this.helpers.requireBackend('core'),
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/square.jpg');
@@ -227,7 +227,7 @@ describe('The core image module', function() {
           }
         });
 
-        var module = require(this.testEnv.basePath + '/backend/core/image');
+        var module = this.helpers.requireBackend('core/image');
         module.getAvatar(id, 'original', done);
       });
     });
@@ -253,7 +253,7 @@ describe('The core image module', function() {
           }
         });
 
-        var module = require(this.testEnv.basePath + '/backend/core/image');
+        var module = this.helpers.requireBackend('core/image');
         module.getAvatar(id, null, function() {});
       });
 
@@ -277,7 +277,7 @@ describe('The core image module', function() {
             }
           });
 
-          var module = require(this.testEnv.basePath + '/backend/core/image');
+          var module = this.helpers.requireBackend('core/image');
           module.getAvatar(id, null, function() {});
         });
       });
@@ -301,7 +301,7 @@ describe('The core image module', function() {
             }
           });
 
-          var module = require(this.testEnv.basePath + '/backend/core/image');
+          var module = this.helpers.requireBackend('core/image');
           module.getAvatar(id, null, function() {});
         });
       });
@@ -322,7 +322,7 @@ describe('The core image module', function() {
           return done(new Error());
         }
       });
-      var module = require(this.testEnv.basePath + '/backend/core/image');
+      var module = this.helpers.requireBackend('core/image');
       module.getSmallAvatar(id, function(err) {
         expect(err).to.exist;
         done();
@@ -344,7 +344,7 @@ describe('The core image module', function() {
           return callback(null, {});
         }
       });
-      var module = require(this.testEnv.basePath + '/backend/core/image');
+      var module = this.helpers.requireBackend('core/image');
       module.getSmallAvatar(id, done);
     });
   });

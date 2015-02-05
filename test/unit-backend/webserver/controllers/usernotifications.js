@@ -18,7 +18,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -43,7 +43,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -68,7 +68,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -93,7 +93,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -117,7 +117,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -141,7 +141,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -165,7 +165,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -187,7 +187,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -217,7 +217,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -242,7 +242,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -277,7 +277,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -315,7 +315,7 @@ describe('The user notifications controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         user: {
           _id: 1
@@ -359,7 +359,7 @@ describe('The user notifications controller', function() {
       };
       var userNotificationModuleMocked = {};
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       controller.load(req, res, {});
     });
 
@@ -370,7 +370,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         params: {
           id: 123456
@@ -395,7 +395,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         params: {
           id: 123456
@@ -420,7 +420,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         params: {
           id: 123456
@@ -449,7 +449,7 @@ describe('The user notifications controller', function() {
       };
       var userNotificationModuleMocked = {};
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       controller.loadAll(req, res, {});
     });
 
@@ -468,7 +468,7 @@ describe('The user notifications controller', function() {
       };
       var userNotificationModuleMocked = {};
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       controller.loadAll(req, res, {});
     });
 
@@ -480,7 +480,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         query: {
           ids: '123'
@@ -496,7 +496,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         query: {
           ids: 123456
@@ -521,7 +521,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         query: {
           ids: 123456
@@ -549,7 +549,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         query: {
           ids: ['123', '456']
@@ -567,7 +567,7 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.body is undefined', function(done) {
       mockery.registerMock('../../core/notification/usernotification', {});
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification'
       };
@@ -585,7 +585,7 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.body.value is undefined', function(done) {
       mockery.registerMock('../../core/notification/usernotification', {});
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
         body: {}
@@ -609,7 +609,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
         body: {
@@ -637,7 +637,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
         body: {
@@ -659,7 +659,7 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.body is undefined', function(done) {
       mockery.registerMock('../../core/notification/usernotification', {});
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications'
       };
@@ -677,7 +677,7 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.body.value is undefined', function(done) {
       mockery.registerMock('../../core/notification/usernotification', {});
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications',
         body: {}
@@ -701,7 +701,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications',
         body: {
@@ -729,7 +729,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotifications: 'usernotifications',
         body: {
@@ -751,7 +751,7 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.body is undefined', function(done) {
       mockery.registerMock('../../core/notification/usernotification', {});
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification'
       };
@@ -769,7 +769,7 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.body.value is undefined', function(done) {
       mockery.registerMock('../../core/notification/usernotification', {});
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
         body: {}
@@ -793,7 +793,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
         body: {
@@ -821,7 +821,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var req = {
         usernotification: 'usernotification',
         body: {
@@ -848,7 +848,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var res = {
         json: function(code, message) {
           expect(code).to.equal(500);
@@ -874,7 +874,7 @@ describe('The user notifications controller', function() {
         }
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/usernotifications');
+      var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
       var res = {
         json: function(code, body) {
           expect(code).to.equal(200);

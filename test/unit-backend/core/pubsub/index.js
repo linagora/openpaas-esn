@@ -26,7 +26,7 @@ describe('The pubsub index.js', function() {
     mockery.registerMock('../activitystreams/pubsub', mock);
     mockery.registerMock('../notification/pubsub', stub);
 
-    var module = require(this.testEnv.basePath + '/backend/core/pubsub');
+    var module = this.helpers.requireBackend('core/pubsub');
     module.init();
     expect(called).to.be.true;
   });
@@ -35,7 +35,7 @@ describe('The pubsub index.js', function() {
     mockery.registerMock('../activitystreams/pubsub', stub);
     mockery.registerMock('../notification/pubsub', mock);
 
-    var module = require(this.testEnv.basePath + '/backend/core/pubsub');
+    var module = this.helpers.requireBackend('core/pubsub');
     module.init();
     expect(called).to.be.true;
   });

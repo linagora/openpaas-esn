@@ -24,7 +24,7 @@ describe('The OAuth Core Module', function() {
       }
     };
     mockery.registerMock('mongoose', mongoose);
-    var oauth = require(this.testEnv.basePath + '/backend/core/auth/oauth');
+    var oauth = this.helpers.requireBackend('core/auth/oauth');
 
     oauth.findUserByToken('', function(err) {
       expect(err).to.exist;
@@ -56,7 +56,7 @@ describe('The OAuth Core Module', function() {
       }
     };
     mockery.registerMock('mongoose', mongoose);
-    var oauth = require(this.testEnv.basePath + '/backend/core/auth/oauth');
+    var oauth = this.helpers.requireBackend('core/auth/oauth');
 
     oauth.findUserByToken('', function(err, u) {
       expect(err).to.not.exist;
@@ -85,7 +85,7 @@ describe('The OAuth Core Module', function() {
       }
     };
     mockery.registerMock('mongoose', mongoose);
-    var oauth = require(this.testEnv.basePath + '/backend/core/auth/oauth');
+    var oauth = this.helpers.requireBackend('core/auth/oauth');
 
     oauth.findUserByToken('', function(err, u) {
       expect(err).to.not.exist;

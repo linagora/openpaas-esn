@@ -20,13 +20,13 @@ describe.skip('Passport LDAP', function() {
     var esnconfig = require('../../../backend/core/')['esn-config']('ldap');
     var ldapconf = this.testEnv.fixtures + '/ldap.json';
     var ldapPort = '1389';
-    var template = require(this.testEnv.fixtures + '/user-template').simple();
+    var template = this.helpers.requireFixture('user-template').simple();
 
     function servers(options, callback) {
-      ldap = require(self.testEnv.fixtures + '/ldap');
+      ldap = self.helpers.requireFixture('ldap');
       ldap.start(ldapPort, function() {
         console.log('LDAP started on ', ldapPort);
-        app = require(self.testEnv.basePath + '/backend/webserver/application');
+        app = self.helpers.requireBackend('webserver/application');
         callback();
       });
     }

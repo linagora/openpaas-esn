@@ -8,7 +8,7 @@ describe('The user domain core module', function() {
   describe('The getUserDomains fn', function() {
     it('should send back error when user is undefined', function(done) {
       mockery.registerMock('mongoose', {model: function() {}});
-      var module = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var module = this.helpers.requireBackend('core/user/domain');
       module.getUserDomains(null, function(err) {
         expect(err).to.exist;
         done();
@@ -35,7 +35,7 @@ describe('The user domain core module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
 
-      var module = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var module = this.helpers.requireBackend('core/user/domain');
       module.getUserDomains({_id: 123}, function(err) {
         expect(err).to.exist;
         done();
@@ -62,7 +62,7 @@ describe('The user domain core module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
 
-      var module = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var module = this.helpers.requireBackend('core/user/domain');
       module.getUserDomains({_id: 123}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.not.exist;
@@ -90,7 +90,7 @@ describe('The user domain core module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
 
-      var module = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var module = this.helpers.requireBackend('core/user/domain');
       module.getUserDomains({_id: 123}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.not.exist;
@@ -118,7 +118,7 @@ describe('The user domain core module', function() {
       };
       mockery.registerMock('mongoose', mongoose);
 
-      var module = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var module = this.helpers.requireBackend('core/user/domain');
       module.getUserDomains({_id: 123}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;

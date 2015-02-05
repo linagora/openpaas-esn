@@ -14,7 +14,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -39,7 +39,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -64,7 +64,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -83,7 +83,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', {});
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -111,7 +111,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -140,7 +140,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -169,7 +169,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -198,7 +198,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -226,7 +226,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -256,7 +256,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -284,7 +284,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -313,7 +313,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -342,7 +342,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', {});
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -377,7 +377,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', user);
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -412,7 +412,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', user);
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -447,7 +447,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', user);
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       user: {
         _id: '123'
@@ -484,7 +484,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', user);
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       _loginCalled: false,
       params: {
@@ -525,7 +525,7 @@ describe('The authtoken controller', function() {
     mockery.registerMock('../../core/auth/token', auth);
     mockery.registerMock('../../core/user', user);
 
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/authtoken');
+    var controller = this.helpers.requireBackend('webserver/controllers/authtoken');
     var req = {
       _loginCalled: false,
       user: { _id: 123, password: 456 },

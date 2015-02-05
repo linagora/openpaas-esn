@@ -8,8 +8,8 @@ describe('The AddressBook model', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/addressbook');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/addressbook');
+    this.helpers.requireBackend('core/db/mongo/models/user');
 
     AddressBook = this.mongoose.model('AddressBook');
     User = this.mongoose.model('User');

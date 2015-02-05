@@ -8,7 +8,7 @@ describe('The messages middleware', function() {
     it('should call next if req.body.replyTo is undefined', function(done) {
       mockery.registerMock('../../core/message/permission', {});
       mockery.registerMock('../../core/message', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
         }
@@ -23,7 +23,7 @@ describe('The messages middleware', function() {
           return callback(new Error());
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
@@ -47,7 +47,7 @@ describe('The messages middleware', function() {
           return callback();
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
@@ -75,7 +75,7 @@ describe('The messages middleware', function() {
           return callback(null, {_id: id});
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
@@ -105,7 +105,7 @@ describe('The messages middleware', function() {
           return callback(null, {_id: id});
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
@@ -138,7 +138,7 @@ describe('The messages middleware', function() {
           return callback(null, true);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
@@ -171,7 +171,7 @@ describe('The messages middleware', function() {
           return callback(null, false);
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
@@ -204,7 +204,7 @@ describe('The messages middleware', function() {
           return callback(new Error());
         }
       });
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/message').canReplyTo;
+      var middleware = this.helpers.requireBackend('webserver/middleware/message').canReplyTo;
       var req = {
         body: {
           inReplyTo: {
