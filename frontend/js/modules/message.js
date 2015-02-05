@@ -483,8 +483,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           var vcalendar = event.vcalendar;
           var emails = session.user.emails;
           var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
-          if (attendees.length) {
-            $scope.partstat = attendees[0].getParameter('partstat');
+          var organizer = attendees.filter(function(att) {
+            return att.name === 'organizer' && att.getParameter('partstat');
+          });
+
+          var attendee = organizer[0] || attendees[0];
+          if (attendee) {
+            $scope.partstat = attendee.getParameter('partstat');
           }
         }, function(response) {
           var error = 'Could not retrieve event: ' + response.statusText;
