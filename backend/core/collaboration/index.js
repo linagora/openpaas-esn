@@ -6,6 +6,8 @@ var permission = require('./permission');
 var tupleModule = require('../tuple');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
+var esnconfig = require('../esn-config');
+var request = require('superagent');
 
 var WORKFLOW_NOTIFICATIONS_TOPIC = {
   request: 'collaboration:membership:request',
@@ -58,6 +60,71 @@ function isManager(objectType, collaboration, user, callback) {
 
   Model.findOne({_id: id, 'creator': user_id}, function(err, result) {
     return callback(err, !!result);
+  });
+}
+
+function isManagerWithAaas(objectType, collaboration, user, callback) {
+  var id = collaboration._id || collaboration;
+  var user_id = user._id || user;
+
+  esnconfig('aaas').get(function(err, data) {
+    if (err) {
+      return callback(err);
+    }
+    var aaasInfo = data || {};
+    aaasInfo.host = aaasInfo.host || 'localhost';
+    aaasInfo.port = aaasInfo.port || '8080';
+    aaasInfo.endpoint = aaasInfo.endpoint || '/SaaS/resources/authz';
+
+    request
+      .get('http://' + aaasInfo.host + ':' + aaasInfo.port + aaasInfo.endpoint)
+      .query({ resource: 'A' + id, subject: 'A' + user_id, action: 'GET' })
+      .end(function(err, res) {
+        if (err) {
+          return callback(err);
+        }
+        if (res.notFound) {
+          return isManager(objectType, collaboration, user, callback);
+        }
+        if (!res.ok) {
+          return callback(new Error('Error when requesting the AaaS server, please read the AaaS server log'));
+        }
+        var aaasResult = (res.text === 'true');
+        if (!aaasResult) {
+
+          mongoose.connection.collection('loria').update({_id: user_id}, {$inc: {nb_deny: 1}}, {upsert: true}, function(err, result) {
+            if (err) {
+              return callback(err);
+            }
+
+            mongoose.connection.collection('loria').findOne({_id: user_id}, function(err, doc) {
+              if (err) {
+                return callback(err);
+              }
+
+              esnconfig('audit').get(function(err, data) {
+                if (err) {
+                  return callback(err);
+                }
+
+                var auditInfo = data || {};
+                auditInfo.host = auditInfo.host || 'localhost';
+                auditInfo.port = auditInfo.port || '8080';
+                auditInfo.endpoint = auditInfo.endpoint || '/AuditService/resources/trustComputing';
+
+                request
+                  .get('http://' + auditInfo.host + ':' + auditInfo.port + auditInfo.endpoint)
+                  .query({ subject: '' + user_id, nbDeny: doc.nb_deny + '', comSeverity: '0.01' })
+                  .end(function(err, res) {
+                    // Do nothing (it is the normal behavior)
+                  });
+              });
+            });
+          });
+
+        }
+        return callback(null, aaasResult);
+      });
   });
 }
 
@@ -617,6 +684,7 @@ module.exports.addMembershipRequest = addMembershipRequest;
 module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isManager = isManager;
+module.exports.isManagerWithAaas = isManagerWithAaas;
 module.exports.isMember = isMember;
 module.exports.addMember = addMember;
 module.exports.getCollaborationsForTuple = getCollaborationsForTuple;

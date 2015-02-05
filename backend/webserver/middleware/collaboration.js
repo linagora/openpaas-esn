@@ -108,6 +108,24 @@ module.exports.flagCollaborationManager = function(req, res, next) {
   });
 };
 
+module.exports.flagCollaborationManagerWithAaas = function(req, res, next) {
+  if (!req.collaboration) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing collaboration'});
+  }
+
+  if (!req.user) {
+    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  collaborationModule.isManagerWithAaas(req.params.objectType, req.collaboration, req.user, function(err, manager) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
+    }
+    req.isCollaborationManager = manager;
+    next();
+  });
+};
+
 function checkUserIdParameterIsCurrentUser(req, res, next) {
   if (!req.user) {
     return res.json(400, {error: {code: 400, message: 'Bad request', details: 'Missing user'}});
