@@ -32,7 +32,13 @@ function transform(collaboration, user, callback) {
     if (membership) {
       collaboration.member_status = 'member';
     } else {
-      collaboration.member_status = 'none';
+      collaborationModule.isIndirectMember(collaboration, userTuple, function(err, indirect) {
+        if (indirect) {
+          collaboration.member_status = 'indirect';
+        } else {
+          collaboration.member_status = 'none';
+        }
+      });
     }
 
     permission.canWrite(collaboration, userTuple, function(err, writable) {

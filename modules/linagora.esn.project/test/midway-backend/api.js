@@ -92,7 +92,7 @@ describe('linagora.esn.project module', function() {
           expect(err).to.not.exist;
           expect(res.body).to.exist;
           expect(res.body).to.be.an.array;
-          expect(res.body.length).to.equal(5);
+          expect(res.body.length).to.equal(6);
           done();
         });
       });
@@ -158,6 +158,25 @@ describe('linagora.esn.project module', function() {
           expect(err).to.not.exist;
           expect(res.body).to.be.an('object');
           expect(res.body.title).to.equal('OpenPaaS open');
+          done();
+        });
+      }.bind(this));
+    });
+
+    it('should allow member of a collaboration member to get the project details', function(done) {
+      var self = this;
+
+      self.helpers.api.loginAsUser(this.app, this.models.users[5].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var projectId = this.models.projects[5]._id;
+        var req = loggedInAsUser(request(this.app).get('/api/projects/' + projectId));
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an('object');
+          expect(res.body.member_status).to.equal('indirect');
+          expect(res.body.writable).to.be.true;
           done();
         });
       }.bind(this));

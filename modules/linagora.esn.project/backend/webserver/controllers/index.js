@@ -21,11 +21,18 @@ function transform(lib, project, user, callback) {
     project.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  lib.isMember(project, {objectType: 'user', id: user._id + ''}, function(err, membership) {
+  var tuple = {objectType: 'user', id: user._id + ''};
+  lib.isMember(project, tuple, function(err, membership) {
     if (membership) {
       project.member_status = 'member';
     } else {
-      project.member_status = 'none';
+      lib.isIndirectMember(project, tuple, function(err, isIndirect) {
+        if (isIndirect) {
+          project.member_status = 'indirect';
+        } else {
+          project.member_status = 'none';
+        }
+      });
     }
     delete project.members;
     delete project.membershipRequests;

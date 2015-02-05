@@ -37,6 +37,12 @@ module.exports.linagora_PROJECTS = function() {
       firstname: 'Jimmy',
       lastname: 'Hendrix',
       emails: ['jhendrix@lng.net']
+    },
+    {
+      password: 'secret',
+      firstname: 'Indi',
+      lastname: 'Rect',
+      emails: ['indirect@lng.net']
     }
     ],
     communities: [
@@ -81,6 +87,12 @@ module.exports.linagora_PROJECTS = function() {
         type: 'open',
         creator: 'jdoe@lng.net',
         members: []
+      },
+      {
+        title: 'Community with indirect member',
+        type: 'open',
+        creator: 'jdoe@lng.net',
+        members: [{objectType: 'user', id: 'indirect@lng.net'}]
       }
     ],
     projects: [
@@ -115,6 +127,14 @@ module.exports.linagora_PROJECTS = function() {
         members: [
           {objectType: 'community', id: 'find Community 1 member of project A'},
           {objectType: 'community', id: 'find Community 2 member of project A'}
+        ]
+      },
+      {
+        title: 'OpenPaaS with indirect members',
+        type: 'open',
+        creator: 'itadmin@lng.net',
+        members: [
+          {objectType: 'community', id: 'Community with indirect member'}
         ]
       }
     ]

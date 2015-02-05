@@ -650,7 +650,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       if (!community || !community.member_status) {
         return false;
       }
-      return community.member_status === 'member';
+      return community.member_status === 'member' || community.member_status === 'indirect';
     }
 
     function join(community, user) {

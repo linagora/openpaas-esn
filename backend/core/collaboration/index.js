@@ -47,6 +47,10 @@ function getLib(objectType) {
   return collaborationLibs[objectType] || null;
 }
 
+function isCollaboration(tuple) {
+  return !!collaborationModels[tuple.objectType];
+}
+
 function isManager(objectType, collaboration, user, callback) {
   var id = collaboration._id || collaboration;
   var user_id = user._id || user;
@@ -321,6 +325,37 @@ function queryOne(objectType, q, callback) {
     return callback(new Error('Collaboration model ' + objectType + ' is unknown'));
   }
   return Model.findOne(q, callback);
+}
+
+function isIndirectMember(collaboration, tuple, callback) {
+
+  if (!collaboration || !collaboration._id) {
+    return callback(new Error('Collaboration object is required'));
+  }
+
+  function isInnerMember(members, tupleToFind, callback) {
+    async.some(members, function(tuple, found) {
+
+      var member = tuple.member;
+      if (!isCollaboration(member)) {
+        return found(member.id + '' === tupleToFind.id + '' && member.objectType === tupleToFind.objectType);
+      }
+
+      queryOne(member.objectType, {_id: member.id}, function(err, collaboration) {
+        if (err) {
+          return found(false);
+        }
+
+        isInnerMember(collaboration.members, tupleToFind, function(err, result) {
+          return found(result);
+        });
+
+      });
+    }, function(result) {
+      return callback(null, result);
+    });
+  }
+  return isInnerMember(collaboration.members, tuple, callback);
 }
 
 function registerCollaborationModel(name, modelName, schema) {
@@ -618,6 +653,7 @@ module.exports.getMembershipRequests = getMembershipRequests;
 module.exports.getMembershipRequest = getMembershipRequest;
 module.exports.isManager = isManager;
 module.exports.isMember = isMember;
+module.exports.isIndirectMember = isIndirectMember;
 module.exports.addMember = addMember;
 module.exports.getCollaborationsForTuple = getCollaborationsForTuple;
 module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
