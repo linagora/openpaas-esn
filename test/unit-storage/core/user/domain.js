@@ -286,9 +286,9 @@ describe('The user domain module', function() {
       });
     });
 
-    it('should return Delphine and Philippe with request "interne"', function(done) {
+    it('should return Delphine and Philippe with request "linagora"', function(done) {
 
-      userDomain.getUsersSearch([domain], {search: 'interne'}, function(err, users) {
+      userDomain.getUsersSearch([domain], {search: 'linagora'}, function(err, users) {
         expect(err).to.not.exist;
         expect(users).to.exist;
         expect(users.list.length).to.equal(2);
@@ -298,9 +298,9 @@ describe('The user domain module', function() {
       });
     });
 
-    it('should return only Delphine with request "Delphine Doremi tyrell@interne.fr"', function(done) {
+    it('should return only Delphine with request "Delphine Doremi tyrell@linagora.fr"', function(done) {
 
-      userDomain.getUsersSearch([domain], {search: 'Delphine Doremi tyrell@interne.fr'}, function(err, users) {
+      userDomain.getUsersSearch([domain], {search: 'Delphine Doremi tyrell@linagora.fr'}, function(err, users) {
         expect(err).to.not.exist;
         expect(users).to.exist;
         expect(users.list.length).to.equal(1);
@@ -320,9 +320,9 @@ describe('The user domain module', function() {
       });
     });
 
-    it('should return only Delphine with request "emi ern elp"', function(done) {
+    it('should return only Delphine with request "emi lin elp"', function(done) {
 
-      userDomain.getUsersSearch([domain], {search: 'emi ern elp'}, function(err, users) {
+      userDomain.getUsersSearch([domain], {search: 'emi lin elp'}, function(err, users) {
         expect(err).to.not.exist;
         expect(users).to.exist;
         expect(users.list.length).to.equal(1);
@@ -342,9 +342,9 @@ describe('The user domain module', function() {
       });
     });
 
-    it('should return only Philippe with request "atty@i"', function(done) {
+    it('should return only Philippe with request "atty@li"', function(done) {
 
-      userDomain.getUsersSearch([domain], {search: 'atty@i'}, function(err, users) {
+      userDomain.getUsersSearch([domain], {search: 'atty@li'}, function(err, users) {
         expect(err).to.not.exist;
         expect(users).to.exist;
         expect(users.list.length).to.equal(1);
