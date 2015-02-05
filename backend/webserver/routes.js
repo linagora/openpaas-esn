@@ -222,7 +222,7 @@ exports = module.exports = function(application) {
     collaborationMW.load,
     requestMW.castParamToObjectId('user_id'),
     collaborationMW.checkUserParamIsNotMember,
-    collaborationMW.flagCollaborationManager,
+    collaborationMW.flagCollaborationManagerWithAaas,
     collaborationMW.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
     collaborations.addMembershipRequest);
   application.delete('/api/collaborations/:objectType/:id/membership/:user_id',
