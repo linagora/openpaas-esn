@@ -669,6 +669,26 @@ describe('The collaborations API', function() {
       });
     });
 
+    it('should return the inverse filtered members list', function(done) {
+      var self = this;
+      this.helpers.api.applyDomainDeployment('collaborationMembers', function(err, models) {
+        if (err) { return done(err); }
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) { return done(err); }
+          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[4]._id + '/members?objectTypeFilter=!user&limit=1'));
+          req.expect(200);
+          req.end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.body).to.be.an.array;
+            expect(res.body.length).to.equal(1);
+            expect(res.body[0].objectType).to.equal('community');
+            expect(res.headers['x-esn-items-count']).to.equal('1');
+            done();
+          });
+        });
+      });
+    });
+
     it('should return the sliced members list', function(done) {
       var self = this;
       this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {

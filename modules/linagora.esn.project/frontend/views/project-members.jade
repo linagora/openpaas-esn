@@ -14,6 +14,11 @@
             a(ng-click="selected = 'members'", href="") #{__('Members')}
           li(ng-class="{active: selected === 'membership'}")
             a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
+          li(ng-class="{active: selected === 'nonusermembers'}")
+            a(ng-click="selected = 'nonusermembers'", href="") #{__('Other Participants')}
 
       .row(ng-if='selected === "members" || selected === undefined')
         collaboration-members-list(readable='canRead()' collaboration='project' collaboration-type='project' object-type-filter='user' spinner-key='spinnerKey')
+
+      .row(ng-if='selected === "nonusermembers"')
+        collaboration-members-list(readable='canRead()' collaboration='project' collaboration-type='project' object-type-filter='!user' spinner-key='spinnerKey')

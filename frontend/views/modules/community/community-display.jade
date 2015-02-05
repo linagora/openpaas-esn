@@ -15,7 +15,7 @@ div.nopadding.esn-community
         i.fa.fa-users
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
-      li.pull-right
+      li.pull-right(ng-if='::actions')
         community-button-join(community='community', user='user', on-join='joinSuccess(community)', on-fail='joinFailure(community)')
         community-button-leave(community='community', user='user', on-leave='leaveSuccess(community)', on-fail='leaveFailure(community)')
         community-button-request-membership(community='community', user='user', on-request='requestMembershipSuccess(community)', on-fail='requestMembershipFailure(community)')

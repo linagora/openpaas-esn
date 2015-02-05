@@ -351,6 +351,10 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
   .directive('communityDisplay', function() {
     return {
       restrict: 'E',
+      scope: {
+        community: '=',
+        actions: '='
+      },
       replace: true,
       templateUrl: '/views/modules/community/community-display.html'
     };

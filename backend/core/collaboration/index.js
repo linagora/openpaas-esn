@@ -124,9 +124,15 @@ function getMembers(collaboration, objectType, query, callback) {
 
     var members = collaboration.members;
     if (query.objectTypeFilter) {
-      members = members.filter(function(m) {
-        return m.member.objectType === query.objectTypeFilter;
-      });
+      var operation;
+      if (query.objectTypeFilter[0] === '!') {
+        var objectTypeFilter = query.objectTypeFilter.substr(1);
+        operation = function(m) { return m.member.objectType !== objectTypeFilter; };
+      } else {
+        operation = function(m) { return m.member.objectType === query.objectTypeFilter; };
+      }
+
+      members = members.filter(operation);
     }
 
     var total_count = members.length;
