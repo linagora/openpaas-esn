@@ -65,6 +65,9 @@ describe('The communities permission module', function() {
       mockery.registerMock('./index', {
         isMember: function(community, tuple, callback) {
           return callback(null, false);
+        },
+        isIndirectMember: function(community, tuple, callback) {
+          return callback(null, false);
         }
       });
       mockery.registerMock('../../helpers/user', {
@@ -75,6 +78,27 @@ describe('The communities permission module', function() {
       var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
       permission.canWrite({type: 'open'}, {objectType: 'user', id: '123'}, function(err, result) {
         expect(result).to.be.false;
+        done();
+      });
+    });
+
+    it('should send back true if community type is open and user is external and indirect member', function(done) {
+      mockery.registerMock('./index', {
+        isMember: function(community, tuple, callback) {
+          return callback(null, false);
+        },
+        isIndirectMember: function(community, tuple, callback) {
+          return callback(null, true);
+        }
+      });
+      mockery.registerMock('../../helpers/user', {
+        isInternal: function(id, callback) {
+          return callback(null, false);
+        }
+      });
+      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      permission.canWrite({type: 'open'}, {objectType: 'user', id: '123'}, function(err, result) {
+        expect(result).to.be.true;
         done();
       });
     });

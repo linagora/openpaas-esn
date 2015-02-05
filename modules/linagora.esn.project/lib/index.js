@@ -64,6 +64,10 @@ function projectLib(dependencies) {
     return collaboration.isMember(project, tuple, callback);
   }
 
+  function isIndirectMember(project, tuple, callback) {
+    return collaboration.isIndirectMember(project, tuple, callback);
+  }
+
   function addMember(project, author, member, callback) {
     return collaboration.addMember(project, author, member, callback);
   }
@@ -140,6 +144,7 @@ function projectLib(dependencies) {
   lib.getMembershipRequests = getMembershipRequests;
   lib.getMembershipRequest = getMembershipRequest;
   lib.isMember = isMember;
+  lib.isIndirectMember = isIndirectMember;
   lib.addMember = addMember;
   lib.getUserProjects = getUserProjects;
   lib.getStreamsForUser = getStreamsForUser;

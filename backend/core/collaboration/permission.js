@@ -20,6 +20,8 @@ module.exports.canRead = function(collaboration, tuple, callback) {
       // If the user is internal then he can read in open and restricted collaborations
       if (isInternal && (collaboration.type === 'open' || collaboration.type === 'restricted')) {
         return callback(null, true);
+      } else if (!isInternal) {
+        return collaborationModule.isIndirectMember(collaboration, tuple, callback);
       } else {
         // For other collaboration type he must be a member
         return collaborationModule.isMember(collaboration, tuple, callback);
@@ -50,6 +52,8 @@ module.exports.canWrite = function(collaboration, tuple, callback) {
       // If the user is internal then he can participate in open collaborations
       if (isInternal && collaboration.type === 'open') {
         return callback(null, true);
+      } else if (!isInternal) {
+        return collaborationModule.isIndirectMember(collaboration, tuple, callback);
       } else {
         // For other collaboration type he must be a member
         return collaborationModule.isMember(collaboration, tuple, callback);

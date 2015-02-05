@@ -86,13 +86,13 @@ module.exports.linagora_test_cases = function() {
         password: 'secret',
         firstname: 'Delphine',
         lastname: 'Dorémi',
-        emails: ['tyrell@interne.fr']
+        emails: ['tyrell@linagora.fr']
       },
       {
         password: 'secret',
         firstname: 'Philippe',
         lastname: 'Mifasol',
-        emails: ['roybatty@interne.com']
+        emails: ['roybatty@linagora.com']
       }
     ]
   };
