@@ -1,6 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var tuple = require('../schemas/tuple');
+var Tuple = tuple.Tuple;
 
 var NotificationSchema = new mongoose.Schema({
   parent: {type: mongoose.Schema.ObjectId, ref: 'Notification'},
@@ -14,10 +16,7 @@ var NotificationSchema = new mongoose.Schema({
     creation: {type: Date, default: Date.now}
   },
   read: {type: Boolean, default: false},
-  target: [{
-    objectType: {type: String},
-    id: {type: mongoose.Schema.ObjectId}
-  }],
+  target: {type: [Tuple], validate: [tuple.validateTargetTuples, 'Bad targets']},
   data: mongoose.Schema.Types.Mixed
 });
 

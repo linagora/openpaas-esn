@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 describe('The targets helpers module', function() {
   var communityMock = {};
@@ -52,13 +53,13 @@ describe('The targets helpers module', function() {
 
     it('should send back an array of users with no duplicate and correct context', function(done) {
       var users = [
-        {_id: 'user1'},
-        {_id: 'user2'},
-        {_id: 'user3'}
+        {_id: new ObjectId()},
+        {_id: new ObjectId()},
+        {_id: new ObjectId()}
       ];
 
       communityMock.getMembers = function(community, query, callback) {
-        return callback(null, [{user: users[0]}]);
+        return callback(null, [{id: users[0]._id, objectType: 'user'}]);
       };
 
       var targets = [{
@@ -79,9 +80,9 @@ describe('The targets helpers module', function() {
         expect(err).to.not.exist;
         expect(usersResult).to.exist;
         expect(usersResult).to.have.length(3);
-        expect(usersResult[0]).to.deep.equal({ _id: users[0]._id, context: '123' });
-        expect(usersResult[1]).to.deep.equal({ _id: users[1]._id, context: undefined});
-        expect(usersResult[2]).to.deep.equal({ _id: users[2]._id, context: undefined});
+        expect(usersResult[0]).to.deep.equal({ _id: users[0]._id.toString(), context: '123' });
+        expect(usersResult[1]).to.deep.equal({ _id: users[1]._id.toString(), context: undefined});
+        expect(usersResult[2]).to.deep.equal({ _id: users[2]._id.toString(), context: undefined});
         done();
       });
     });
