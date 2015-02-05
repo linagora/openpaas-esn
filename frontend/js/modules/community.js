@@ -608,16 +608,16 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
 
     $scope.canRead = function() {
-      return communityService.canRead(community);
+      return communityService.canRead($scope.community);
     };
     $scope.isCommunityMember = function() {
-      return communityService.isMember(community);
+      return communityService.isMember($scope.community);
     };
     $scope.isCommunityManager = function() {
-      return communityService.isManager(community, session.user);
+      return communityService.isManager($scope.community, session.user);
     };
     $scope.showMembershipRequestsWidget = function() {
-      return $scope.isCommunityManager() && community.type !== 'open';
+      return $scope.isCommunityManager() && $scope.community.type !== 'open';
     };
   }])
   .directive('ensureUniqueCommunityTitle', ['communityAPI', '$q', function(communityAPI, $q) {
