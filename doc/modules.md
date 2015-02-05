@@ -9,15 +9,15 @@ follow the template example pattern.
 
 #### Template example
 
-        li: a(href='/#/applications', ng-click='selectItem(1)') #{__('Applications')}
+        li: a(href='#/applications') #{__('Applications')}
 
 ### domainHeaderNavBar
 
 #### Template example
 
-        .esn-item(ng-class='{active: selected === 4}')
+        .esn-item(data-esn-path='projects')
           span
-            a(href='/#projects', ng-click='selectItem(4)')
+            a(href='#/projects')
               i.fa.fa-suitcase
               span.hidden-xs #{__('Projects')}
 
