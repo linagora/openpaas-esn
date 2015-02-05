@@ -28,7 +28,7 @@ describe('The contacts controller module', function() {
         }
       });
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
+      var contacts = this.helpers.requireBackend('webserver/controllers/import/google');
       var req = {
         params: {},
         get: function() {
@@ -61,7 +61,7 @@ describe('The contacts controller module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
       mockery.registerMock('../../../core/contacts/google', {});
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
+      var contacts = this.helpers.requireBackend('webserver/controllers/import/google');
       var req = {
         params: {},
         get: function() {
@@ -85,7 +85,7 @@ describe('The contacts controller module', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
       mockery.registerMock('../../../core/contacts/google', {});
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
+      var contacts = this.helpers.requireBackend('webserver/controllers/import/google');
       var req = {
         user: {
           emails: ['pipo1@pipo.com']
@@ -129,7 +129,7 @@ describe('The contacts controller module', function() {
         }
       });
 
-      var contacts = require(this.testEnv.basePath + '/backend/webserver/controllers/import/google');
+      var contacts = this.helpers.requireBackend('webserver/controllers/import/google');
       var req = {
         params: {},
         user: {

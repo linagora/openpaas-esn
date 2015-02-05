@@ -18,7 +18,7 @@ describe('The domains controller', function() {
           done();
         }
       };
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.getDomain(req, res);
     });
 
@@ -34,7 +34,7 @@ describe('The domains controller', function() {
           done();
         }
       };
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.getDomain(req, res);
     });
   });
@@ -54,7 +54,7 @@ describe('The domains controller', function() {
           done();
         }
       };
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
 
@@ -74,7 +74,7 @@ describe('The domains controller', function() {
           done();
         }
       };
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
 
@@ -102,7 +102,7 @@ describe('The domains controller', function() {
           done();
         }
       };
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
 
@@ -151,7 +151,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
         expect(message).to.exist;
         expect(message.user).to.exist;
@@ -159,7 +159,7 @@ describe('The domains controller', function() {
         expect(message.emails).to.exist;
         done();
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
 
@@ -201,7 +201,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
         expect(message).to.exist;
         expect(message.user).to.exist;
@@ -210,7 +210,7 @@ describe('The domains controller', function() {
         expect(message.emails).to.be.empty;
         done();
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
 
@@ -259,7 +259,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var pubsub = require(this.testEnv.basePath + '/backend/core/pubsub').local;
+      var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
         expect(message).to.exist;
         expect(message.user).to.exist;
@@ -268,7 +268,7 @@ describe('The domains controller', function() {
         expect(message.emails).to.be.empty;
         done();
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/domains');
+      var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
   });

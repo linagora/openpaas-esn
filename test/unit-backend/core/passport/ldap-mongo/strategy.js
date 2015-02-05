@@ -17,7 +17,7 @@ describe('The ldap-mongo passport strategy', function() {
   describe('handleAuthentication', function() {
 
     it('should fail if username and password are not set', function(done) {
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -33,7 +33,7 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
     it('should fail if username is not set', function(done) {
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -50,7 +50,7 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
     it('should fail if password is not set', function(done) {
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -113,7 +113,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
 
       var req = {
@@ -158,7 +158,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s._finalize = function() {
         done();
@@ -194,7 +194,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -225,7 +225,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -259,7 +259,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.error = function() {
         done();
@@ -295,7 +295,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -329,7 +329,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.fail = function() {
         done();
@@ -366,7 +366,7 @@ describe('The ldap-mongo passport strategy', function() {
       };
       mockery.registerMock('../../ldap', ldapmock);
 
-      Strategy = require(this.testEnv.basePath + '/backend/core/passport/ldap-mongo/strategy');
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
       var s = new Strategy({});
       s.error = function() {
         done();

@@ -23,7 +23,7 @@ describe('The cookie-lifetime middleware', function() {
       };
       mockery.registerMock('../../core', esnConfigMock);
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+      var middleware = this.helpers.requireBackend('webserver/middleware/cookie-lifetime').set;
 
       var req = {
         body: {
@@ -56,7 +56,7 @@ describe('The cookie-lifetime middleware', function() {
       };
       mockery.registerMock('../../core', esnConfigMock);
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+      var middleware = this.helpers.requireBackend('webserver/middleware/cookie-lifetime').set;
 
       var req = {
         body: {
@@ -90,7 +90,7 @@ describe('The cookie-lifetime middleware', function() {
 
       mockery.registerMock('../../core', esnConfigMock);
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+      var middleware = this.helpers.requireBackend('webserver/middleware/cookie-lifetime').set;
       var req = {
         body: {
           rememberme: true
@@ -112,7 +112,7 @@ describe('The cookie-lifetime middleware', function() {
   });
 
   it('should set the cookie expire to false if rememberme is false', function(done) {
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/cookie-lifetime').set;
+    var middleware = this.helpers.requireBackend('webserver/middleware/cookie-lifetime').set;
     var req = {
       body: {
         rememberme: false

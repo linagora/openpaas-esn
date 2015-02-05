@@ -27,8 +27,8 @@ describe('The mongo-based authentication module', function() {
   });
 
   it('should auth from any registered email', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var mongo = require(this.testEnv.basePath + '/backend/core/auth/mongo');
+    var User = this.helpers.requireBackend('core/db/mongo/models/user');
+    var mongo = this.helpers.requireBackend('core/auth/mongo');
     var password = 'supersecret';
     emails.push(email);
     emails.push(email2);
@@ -47,8 +47,8 @@ describe('The mongo-based authentication module', function() {
   });
 
   it('should not auth from invalid email', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var mongo = require(this.testEnv.basePath + '/backend/core/auth/mongo');
+    var User = this.helpers.requireBackend('core/db/mongo/models/user');
+    var mongo = this.helpers.requireBackend('core/auth/mongo');
 
     var password = 'supersecret';
     emails.push(email);
@@ -66,8 +66,8 @@ describe('The mongo-based authentication module', function() {
   });
 
   it('should not auth from invalid password', function(done) {
-    var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    var mongo = require(this.testEnv.basePath + '/backend/core/auth/mongo');
+    var User = this.helpers.requireBackend('core/db/mongo/models/user');
+    var mongo = this.helpers.requireBackend('core/auth/mongo');
     var password = 'supersecret';
     emails.push(email);
     var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});

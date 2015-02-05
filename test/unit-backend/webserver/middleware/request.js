@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 describe('The request middleware', function() {
   describe('The requireQueryParams function', function() {
     it('should emit a 400 if a parameter is missing', function(done) {
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/request');
+      var middleware = this.helpers.requireBackend('webserver/middleware/request');
       var subject = middleware.requireQueryParams('missing');
       expect(subject).to.be.a.function;
 
@@ -25,7 +25,7 @@ describe('The request middleware', function() {
     });
 
     it('should pass if the query parameter exists', function(done) {
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/request');
+      var middleware = this.helpers.requireBackend('webserver/middleware/request');
       var subject = middleware.requireQueryParams('existing');
       expect(subject).to.be.a.function;
 
@@ -36,13 +36,13 @@ describe('The request middleware', function() {
   });
   describe('The requireBody function', function() {
     it('should pass if there is a body', function(done) {
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/request');
+      var middleware = this.helpers.requireBackend('webserver/middleware/request');
       var req = { body: 'yeah' };
       var res = { json: function(code, detail) { done(new Error('Unexpectedly returned a ' + code)); } };
       middleware.requireBody(req, res, done);
     });
     it('should fail if there is no body', function(done) {
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/request');
+      var middleware = this.helpers.requireBackend('webserver/middleware/request');
       var req = { body: null };
       var res = {
         json: function(code, detail) {

@@ -8,7 +8,7 @@ describe('The authorization middleware', function() {
   describe('The loginAndContinue fn', function() {
     it('does nothing when authenticated', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').loginAndContinue;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').loginAndContinue;
       var redirectTarget = null;
       var req = {
         isAuthenticated: function() {
@@ -29,7 +29,7 @@ describe('The authorization middleware', function() {
 
     it('redirects when not authenticated', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').loginAndContinue;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').loginAndContinue;
       var req = {
         originalUrl: 'http://localhost/oauth/authorize',
         isAuthenticated: function() {
@@ -52,7 +52,7 @@ describe('The authorization middleware', function() {
 
     it('should send an error if user is not autenticated', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresAPILogin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
       var req = {
         isAuthenticated: function() {
           return false;
@@ -70,7 +70,7 @@ describe('The authorization middleware', function() {
 
     it('should call next if user is autenticated', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresAPILogin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
       var req = {
         isAuthenticated: function() {
           return true;
@@ -105,7 +105,7 @@ describe('The authorization middleware', function() {
       };
       mockery.registerMock('passport', passport);
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresAPILogin;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
       var req = {
         isAuthenticated: function() {
           return false;
@@ -122,7 +122,7 @@ describe('The authorization middleware', function() {
   describe('The requiresDomainManager fn', function() {
     it('should return 400 is req.user does not exist', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
       var req = {
         domain: {
           _id: 123456789
@@ -141,7 +141,7 @@ describe('The authorization middleware', function() {
 
     it('should return 400 if req.domain does not exist', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
       var req = {
         user: {
           _id: 123456789
@@ -160,7 +160,7 @@ describe('The authorization middleware', function() {
 
     it('should return 400 if req.user._id does not exist', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
       var req = {
         user: {
         },
@@ -180,7 +180,7 @@ describe('The authorization middleware', function() {
 
     it('should return 400 if req.domain.administrator does not exist', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
       var req = {
         user: {
           _id: 123456789
@@ -203,7 +203,7 @@ describe('The authorization middleware', function() {
 
   it('should return 403 if req.user is not the domain administrator', function(done) {
     mockery.registerMock('../../core/community', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+    var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
 
     var req = {
       user: {
@@ -232,7 +232,7 @@ describe('The authorization middleware', function() {
 
   it('should call next if req.user is the domain administrator', function(done) {
     mockery.registerMock('../../core/community', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainManager;
+    var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainManager;
 
     var req = {
       user: {
@@ -268,7 +268,7 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, next);
     });
 
@@ -284,7 +284,7 @@ describe('The authorization middleware', function() {
           done();
         }
       };
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, next);
     });
 
@@ -302,7 +302,7 @@ describe('The authorization middleware', function() {
       var res = {
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, done);
     });
 
@@ -324,7 +324,7 @@ describe('The authorization middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, function() {});
     });
 
@@ -347,7 +347,7 @@ describe('The authorization middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, function() {});
     });
 
@@ -370,7 +370,7 @@ describe('The authorization middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, function() {});
     });
 
@@ -394,7 +394,7 @@ describe('The authorization middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresDomainMember;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresDomainMember;
       middleware(req, res, done);
     });
   });
@@ -402,7 +402,7 @@ describe('The authorization middleware', function() {
   describe('The requiresCommunityCreator fn', function() {
     it('should send back 400 if user is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
         community: {}
       };
@@ -417,7 +417,7 @@ describe('The authorization middleware', function() {
 
     it('should send back 400 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
         user: {}
       };
@@ -433,7 +433,7 @@ describe('The authorization middleware', function() {
     it('should send back 403 if user is not the community creator', function(done) {
       mockery.registerMock('../../core/community', {});
       var user_id = new ObjectId();
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
         user: {_id: user_id},
         community: {creator: new ObjectId()}
@@ -450,7 +450,7 @@ describe('The authorization middleware', function() {
     it('should call next if user is the community creator', function(done) {
       mockery.registerMock('../../core/community', {});
       var user_id = new ObjectId();
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/authorization').requiresCommunityCreator;
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresCommunityCreator;
       var req = {
         user: {_id: user_id},
         community: {creator: user_id}

@@ -44,11 +44,11 @@ describe('The user notification API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
-      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      var Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      UserNotification = require(self.testEnv.basePath + '/backend/core/db/mongo/models/usernotification');
+      var User = self.helpers.requireBackend('core/db/mongo/models/user');
+      var Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+      UserNotification = self.helpers.requireBackend('core/db/mongo/models/usernotification');
 
       testuser = new User({
         username: 'Foo',

@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 describe('The socketio helper module', function() {
   describe('getUserSocketsFromNamespace() method', function() {
     beforeEach(function() {
-      this.store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
+      this.store = this.helpers.requireBackend('wsserver/socketstore');
       var sock1 = {request: {userId: 'user1'}, id: 'socket1user1'};
       var sock2 = {request: {userId: 'user1'}, id: 'socket2user1'};
       var sock3 = {request: {userId: 'user2'}, id: 'socket3user2'};
@@ -18,7 +18,7 @@ describe('The socketio helper module', function() {
         {id: 'socket1user1', namespace: true},
         {id: 'socket3user2', namespace: true}
       ];
-      var helper = require(this.testEnv.basePath + '/backend/wsserver/helper/socketio');
+      var helper = this.helpers.requireBackend('wsserver/helper/socketio');
       var userSockets = helper.getUserSocketsFromNamespace('user1', nsSockets);
       expect(userSockets).to.be.an.array;
       expect(userSockets).to.have.length(1);
@@ -31,7 +31,7 @@ describe('The socketio helper module', function() {
         {id: 'socket2user1', namespace: true},
         {id: 'socket3user2', namespace: true}
       ];
-      var helper = require(this.testEnv.basePath + '/backend/wsserver/helper/socketio');
+      var helper = this.helpers.requireBackend('wsserver/helper/socketio');
       var userSockets = helper.getUserSocketsFromNamespace('user1', nsSockets);
       expect(userSockets).to.be.an.array;
       expect(userSockets).to.have.length(2);

@@ -31,7 +31,7 @@ describe('The oauthclients controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.list({}, res);
     });
 
@@ -73,7 +73,7 @@ describe('The oauthclients controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.list({}, res);
     });
   });
@@ -104,7 +104,7 @@ describe('The oauthclients controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.created({user: {_id: 1}}, res);
     });
 
@@ -146,7 +146,7 @@ describe('The oauthclients controller', function() {
         }
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.created({user: {_id: 1}}, res);
     });
   });
@@ -176,7 +176,7 @@ describe('The oauthclients controller', function() {
         model: function() {}
       });
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.create({}, res);
     });
 
@@ -198,7 +198,7 @@ describe('The oauthclients controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMocked);
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.create(validReq, res);
     });
 
@@ -223,7 +223,7 @@ describe('The oauthclients controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMocked);
 
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.create(validReq, res);
     });
   });
@@ -255,7 +255,7 @@ describe('The oauthclients controller', function() {
           };
         }
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.get(validReq, res);
     });
 
@@ -276,7 +276,7 @@ describe('The oauthclients controller', function() {
           };
         }
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.get(validReq, res);
     });
 
@@ -302,7 +302,7 @@ describe('The oauthclients controller', function() {
           };
         }
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.get(validReq, res);
     });
   });
@@ -335,7 +335,7 @@ describe('The oauthclients controller', function() {
           };
         }
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.remove(validReq, res);
     });
 
@@ -356,7 +356,7 @@ describe('The oauthclients controller', function() {
           };
         }
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.remove(validReq, res);
     });
 
@@ -382,7 +382,7 @@ describe('The oauthclients controller', function() {
           };
         }
       });
-      var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/oauthclients');
+      var controller = this.helpers.requireBackend('webserver/controllers/oauthclients');
       controller.remove(validReq, res);
     });
   });

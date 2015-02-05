@@ -35,8 +35,8 @@ describe('The invitation controller', function() {
       this.mongoose = require('mongoose');
       this.testEnv.initCore();
       mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      webserver = this.helpers.requireBackend('webserver').webserver;
+      this.helpers.requireBackend('core/db/mongo/models/invitation');
       Invitation = this.mongoose.model('Invitation');
     });
 
@@ -96,8 +96,8 @@ describe('The invitation controller', function() {
       this.testEnv.initCore();
       this.mongoose = require('mongoose');
       mockery.registerMock('../../core/invitation', handler);
-      webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      webserver = this.helpers.requireBackend('webserver').webserver;
+      this.helpers.requireBackend('core/db/mongo/models/invitation');
       Invitation = this.mongoose.model('Invitation');
     });
 
@@ -137,7 +137,7 @@ describe('The invitation controller', function() {
       this.testEnv.initCore(function() {
         this.mongoose = require('mongoose');
         Invitation = this.mongoose.model('Invitation');
-        webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+        webserver = this.helpers.requireBackend('webserver').webserver;
         done();
       }.bind(this));
     });
@@ -238,7 +238,7 @@ describe('The invitation controller', function() {
     });
 
     it('should return 404 for an unknown invitation', function(done) {
-      this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+      this.app = this.helpers.requireBackend('webserver/application');
       request(this.app)
       .get('/api/invitation/' + 'Idontexist')
       .expect(404)
@@ -256,7 +256,7 @@ describe('The invitation controller', function() {
       });
 
 
-      this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+      this.app = this.helpers.requireBackend('webserver/application');
       var app = this.app;
       var admUser = this.models.users[0],
           email = admUser.emails[0],
@@ -292,7 +292,7 @@ describe('The invitation controller', function() {
 
 
 
-      this.app = require(this.testEnv.basePath + '/backend/webserver/application');
+      this.app = this.helpers.requireBackend('webserver/application');
       var app = this.app;
       var admUser = this.models.users[0],
           email = admUser.emails[0],

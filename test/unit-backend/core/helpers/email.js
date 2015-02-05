@@ -10,7 +10,7 @@ describe('The email helpers module', function() {
       'To': 'anotherone@linagora.com',
       'Subject': 'a subject'
     };
-    var formatHeaders = require(this.testEnv.basePath + '/backend/helpers/email').formatHeaders;
+    var formatHeaders = this.helpers.requireBackend('helpers/email').formatHeaders;
 
     var formattedHeaders = formatHeaders(headers);
 
@@ -24,6 +24,6 @@ describe('The email helpers module', function() {
   });
 
   it('should return empty array if no header', function() {
-    expect(require(this.testEnv.basePath + '/backend/helpers/email').formatHeaders(null)).to.deep.equal([]);
+    expect(this.helpers.requireBackend('helpers/email').formatHeaders(null)).to.deep.equal([]);
   });
 });

@@ -9,7 +9,7 @@ describe('The activity streams core module', function() {
     it('should send back error when user is null', function(done) {
       this.helpers.mock.models({});
 
-      var module = require(this.testEnv.basePath + '/backend/core/activitystreams/index');
+      var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getUserStreams(null, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -29,7 +29,7 @@ describe('The activity streams core module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/activitystreams/index');
+      var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getUserStreams({_id: 123}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -59,7 +59,7 @@ describe('The activity streams core module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/activitystreams/index');
+      var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getUserStreams({_id: 123}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -84,7 +84,7 @@ describe('The activity streams core module', function() {
         }
       });
 
-      var module = require(this.testEnv.basePath + '/backend/core/activitystreams/index');
+      var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getUserStreams({_id: 123}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;

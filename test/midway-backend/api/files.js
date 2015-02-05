@@ -9,15 +9,15 @@ describe('The files API', function() {
   var password = 'secret';
 
   beforeEach(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    filestore = require(this.testEnv.basePath + '/backend/core/filestore');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    filestore = this.helpers.requireBackend('core/filestore');
   });
 
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+      webserver = self.helpers.requireBackend('webserver').webserver;
       self.mongoose = require('mongoose');
       done();
     });

@@ -7,7 +7,7 @@ describe('The conference middleware', function() {
 
   it('canJoin should send back HTTP 400 when user is not set in request', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canJoin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').canJoin;
     var req = {
       conference: {}
     };
@@ -23,7 +23,7 @@ describe('The conference middleware', function() {
 
   it('canJoin should send back HTTP 400 when conference is not set in request', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canJoin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').canJoin;
     var req = {
       user: {}
     };
@@ -44,7 +44,7 @@ describe('The conference middleware', function() {
       }
     });
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canJoin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').canJoin;
     var req = {
       user: {},
       conference: {}
@@ -66,7 +66,7 @@ describe('The conference middleware', function() {
       }
     });
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canJoin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').canJoin;
     var req = {
       user: {},
       conference: {}
@@ -88,7 +88,7 @@ describe('The conference middleware', function() {
       }
     });
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canJoin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').canJoin;
     var req = {
       user: {},
       conference: {}
@@ -98,7 +98,7 @@ describe('The conference middleware', function() {
 
   it('isAdmin should send back HTTP 400 when user is not set in request', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').isAdmin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').isAdmin;
     var req = {
       conference: {}
     };
@@ -114,7 +114,7 @@ describe('The conference middleware', function() {
 
   it('isAdmin should send back HTTP 400 when conference is not set in request', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').isAdmin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').isAdmin;
     var req = {
       user: {}
     };
@@ -135,7 +135,7 @@ describe('The conference middleware', function() {
       }
     });
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').isAdmin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').isAdmin;
     var req = {
       user: {},
       conference: {}
@@ -157,7 +157,7 @@ describe('The conference middleware', function() {
       }
     });
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').isAdmin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').isAdmin;
     var req = {
       user: {},
       conference: {}
@@ -179,7 +179,7 @@ describe('The conference middleware', function() {
       }
     });
 
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').isAdmin;
+    var middleware = this.helpers.requireBackend('webserver/middleware/conference').isAdmin;
     var req = {
       user: {},
       conference: {}
@@ -190,7 +190,7 @@ describe('The conference middleware', function() {
   describe('canAddAttendee function', function() {
     it('should send back HTTP 400 when user is not set in request', function(done) {
       mockery.registerMock('../../core/conference', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         conference: {}
       };
@@ -205,7 +205,7 @@ describe('The conference middleware', function() {
 
     it('should send back HTTP 400 when conference is not set in request', function(done) {
       mockery.registerMock('../../core/conference', {});
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         user: {}
       };
@@ -225,7 +225,7 @@ describe('The conference middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         user: {},
         conference: {}
@@ -246,7 +246,7 @@ describe('The conference middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         user: {},
         conference: {}
@@ -270,7 +270,7 @@ describe('The conference middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         user: {},
         conference: {}
@@ -295,7 +295,7 @@ describe('The conference middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         user: {},
         conference: {}
@@ -320,7 +320,7 @@ describe('The conference middleware', function() {
         }
       });
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/conference').canAddAttendee;
+      var middleware = this.helpers.requireBackend('webserver/middleware/conference').canAddAttendee;
       var req = {
         user: {},
         conference: {}

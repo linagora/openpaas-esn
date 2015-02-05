@@ -39,7 +39,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message/whatsup').save({}, callback);
+      this.helpers.requireBackend('core/message/whatsup').save({}, callback);
     });
 
     it('should publish in topic message:stored if there is no error', function(done) {
@@ -76,7 +76,7 @@ describe('The core messages module', function() {
         done();
       }
 
-      require(this.testEnv.basePath + '/backend/core/message/whatsup').save({}, callback);
+      this.helpers.requireBackend('core/message/whatsup').save({}, callback);
     });
 
   });

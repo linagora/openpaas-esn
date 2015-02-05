@@ -12,7 +12,7 @@ describe('The caldav core module', function() {
       };
       this.helpers.mock.esnConfig(get);
 
-      var module = require(this.testEnv.basePath + '/backend/core/caldav');
+      var module = this.helpers.requireBackend('core/caldav');
       module.getCaldavServerUrlForServer(function(err) {
         expect(err).to.exist;
         done();
@@ -25,7 +25,7 @@ describe('The caldav core module', function() {
       };
       this.helpers.mock.esnConfig(get);
 
-      var module = require(this.testEnv.basePath + '/backend/core/caldav');
+      var module = this.helpers.requireBackend('core/caldav');
       module.getCaldavServerUrlForServer(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://localhost:80');
@@ -43,7 +43,7 @@ describe('The caldav core module', function() {
       };
       this.helpers.mock.esnConfig(get);
 
-      var module = require(this.testEnv.basePath + '/backend/core/caldav');
+      var module = this.helpers.requireBackend('core/caldav');
       module.getCaldavServerUrlForServer(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://open-paas.org');
@@ -60,7 +60,7 @@ describe('The caldav core module', function() {
       };
       this.helpers.mock.esnConfig(get);
 
-      var module = require(this.testEnv.basePath + '/backend/core/caldav');
+      var module = this.helpers.requireBackend('core/caldav');
       module.getCaldavServerUrlForClient(function(err) {
         expect(err).to.exist;
         done();
@@ -73,7 +73,7 @@ describe('The caldav core module', function() {
       };
       this.helpers.mock.esnConfig(get);
 
-      var module = require(this.testEnv.basePath + '/backend/core/caldav');
+      var module = this.helpers.requireBackend('core/caldav');
       module.getCaldavServerUrlForClient(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://localhost:80');
@@ -91,7 +91,7 @@ describe('The caldav core module', function() {
       };
       this.helpers.mock.esnConfig(get);
 
-      var module = require(this.testEnv.basePath + '/backend/core/caldav');
+      var module = this.helpers.requireBackend('core/caldav');
       module.getCaldavServerUrlForClient(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://open-paas.org');

@@ -26,7 +26,7 @@ describe('load() method', function() {
         return callback(new Error());
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration');
     collaborationMW.load(req, res, function(err) {
       expect(err).to.exist;
       done();
@@ -54,7 +54,7 @@ describe('load() method', function() {
         return callback();
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration');
     collaborationMW.load(req, res);
   });
 
@@ -79,7 +79,7 @@ describe('load() method', function() {
         return callback(null, true);
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration');
     collaborationMW.load(req, {}, function(err) {
       expect(err).to.not.exist;
       expect(req.collaboration).to.exist;
@@ -109,7 +109,7 @@ describe('load() method', function() {
         return callback(null, true);
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration');
     collaborationMW.load(req, {}, function(err) {
       expect(err).to.not.exist;
       expect(req.collaboration).to.exist;
@@ -134,7 +134,7 @@ describe('canRead() method', function() {
         done(new Error('I should not be called'));
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, done);
   });
 
@@ -149,7 +149,7 @@ describe('canRead() method', function() {
         done(new Error('I should not be called'));
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     var res = {};
     collaborationMW(req, res, done);
   });
@@ -167,7 +167,7 @@ describe('canRead() method', function() {
         done();
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, err);
   });
 
@@ -184,7 +184,7 @@ describe('canRead() method', function() {
         done();
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canRead;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
     collaborationMW(req, res, err);
   });
 });
@@ -209,7 +209,7 @@ describe('requiresCollaborationMember fn', function() {
         return callback(new Error());
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').requiresCollaborationMember;
     collaborationMW(req, res);
   });
 
@@ -230,7 +230,7 @@ describe('requiresCollaborationMember fn', function() {
         return callback(null, false);
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').requiresCollaborationMember;
     collaborationMW(req, res);
   });
 
@@ -250,7 +250,7 @@ describe('requiresCollaborationMember fn', function() {
         return callback(null, true);
       }
     });
-    collaborationMW = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').requiresCollaborationMember;
+    collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').requiresCollaborationMember;
     collaborationMW(req, res, done);
   });
 
@@ -260,7 +260,7 @@ describe('the checkUserParamIsNotMember fn', function() {
 
   it('should send back 400 when req.collaboration is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserParamIsNotMember;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       param: function() {
         return '123';
@@ -277,7 +277,7 @@ describe('the checkUserParamIsNotMember fn', function() {
 
   it('should send back 400 when req.param(user_id) is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserParamIsNotMember;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
       param: function() {
@@ -299,7 +299,7 @@ describe('the checkUserParamIsNotMember fn', function() {
         return callback(new Error());
       }
     });
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserParamIsNotMember;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
       param: function() {
@@ -321,7 +321,7 @@ describe('the checkUserParamIsNotMember fn', function() {
         return callback(null, true);
       }
     });
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserParamIsNotMember;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
       param: function() {
@@ -343,7 +343,7 @@ describe('the checkUserParamIsNotMember fn', function() {
         return callback(null, false);
       }
     });
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserParamIsNotMember;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserParamIsNotMember;
     var req = {
       collaboration: {},
       param: function() {
@@ -364,7 +364,7 @@ describe('flagCollaborationManager() method', function() {
 
   it('should send back 400 when req.collaboration is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').flagCollaborationManager;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
     var req = {
       user: {}
     };
@@ -379,7 +379,7 @@ describe('flagCollaborationManager() method', function() {
 
   it('should send back 400 when req.user is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').flagCollaborationManager;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
     var req = {
       collaboration: {}
     };
@@ -398,7 +398,7 @@ describe('flagCollaborationManager() method', function() {
         return callback(new Error('Fail'));
       }
     });
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').flagCollaborationManager;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
     var req = {
       collaboration: {},
       user: {},
@@ -421,7 +421,7 @@ describe('flagCollaborationManager() method', function() {
         return callback(null, true);
       }
     });
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').flagCollaborationManager;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
     var req = {
       collaboration: {},
       user: {},
@@ -449,7 +449,7 @@ describe('the ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser fn', fu
     var id = new ObjectId();
 
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser;
     var req = {
       user: {_id: id},
       param: function() {
@@ -470,7 +470,7 @@ describe('the ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser fn', fu
     var id = new ObjectId();
 
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration');
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration');
     var req = {
       param: function() {
         return '' + id;
@@ -494,7 +494,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
 
   it('should send back 400 when req.user is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
     };
     var res = {
@@ -508,7 +508,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
 
   it('should send back 400 when req.param(user_id) is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
       user: {},
       param: function() {
@@ -529,7 +529,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     var id = new ObjectId();
 
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
       user: {_id: id},
       param: function() {
@@ -550,7 +550,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
     var id = new ObjectId();
 
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').checkUserIdParameterIsCurrentUser;
     var req = {
       user: {_id: id},
       param: function() {
@@ -576,7 +576,7 @@ describe('the canLeave fn', function() {
 
   it('should send back 400 when req.collaboration is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
       user: {},
       params: {
@@ -594,7 +594,7 @@ describe('the canLeave fn', function() {
 
   it('should send back 400 when req.user is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
       collaboration: {},
       params: {
@@ -612,7 +612,7 @@ describe('the canLeave fn', function() {
 
   it('should send back 400 when req.params.user_id is not defined', function(done) {
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
       user: {},
       collaboration: {}
@@ -630,7 +630,7 @@ describe('the canLeave fn', function() {
     var ObjectId = require('bson').ObjectId;
     var id = new ObjectId();
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
       collaboration: {creator: id},
       user: {_id: id},
@@ -650,7 +650,7 @@ describe('the canLeave fn', function() {
   it('should call next if user can leave collaboration', function(done) {
     var ObjectId = require('bson').ObjectId;
     mockery.registerMock('../../core/collaboration', {});
-    var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/collaboration').canLeave;
+    var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
     var req = {
       collaboration: {creator: new ObjectId()},
       user: {_id: new ObjectId()},

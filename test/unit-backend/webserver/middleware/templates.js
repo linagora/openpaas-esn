@@ -39,7 +39,7 @@ describe('The templates middleware', function() {
       }
     };
     mockery.registerMock('fs-extra', fsExtraMock);
-    middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/templates');
+    middleware = this.helpers.requireBackend('webserver/middleware/templates');
     middleware.alterViewsFolder(req, {}, next);
   });
 
@@ -58,7 +58,7 @@ describe('The templates middleware', function() {
     };
     mockery.registerMock('fs-extra', fsExtraMock);
 
-    middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/templates');
+    middleware = this.helpers.requireBackend('webserver/middleware/templates');
     middleware.alterViewsFolder(req, {}, next);
   });
 
@@ -77,7 +77,7 @@ describe('The templates middleware', function() {
     };
     mockery.registerMock('fs-extra', fsExtraMock);
 
-    middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/templates');
+    middleware = this.helpers.requireBackend('webserver/middleware/templates');
     middleware.alterViewsFolder(req, {}, next);
   });
 
@@ -106,7 +106,7 @@ describe('The templates middleware', function() {
     };
     mockery.registerMock('fs-extra', fsExtraMock);
 
-    middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/templates');
+    middleware = this.helpers.requireBackend('webserver/middleware/templates');
     middleware.alterViewsFolder(req, {}, next);
   });
 
@@ -128,7 +128,7 @@ describe('The templates middleware', function() {
     };
     mockery.registerMock('fs-extra', fsExtraMock);
 
-    middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/templates');
+    middleware = this.helpers.requireBackend('webserver/middleware/templates');
     middleware.alterViewsFolder(req, {}, next);
   });
 });

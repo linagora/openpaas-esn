@@ -51,7 +51,7 @@ after(function(done) {
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
-  mockery.registerMock('./logger', require(this.testEnv.fixtures + '/logger-noop')());
+  mockery.registerMock('./logger', this.helpers.requireFixture('logger-noop')());
 });
 
 afterEach(function() {
@@ -59,7 +59,7 @@ afterEach(function() {
     require('mongoose').disconnect();
   } catch (e) {}
   try {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/file-watcher').clear();
+    this.helpers.requireBackend('core/db/mongo/file-watcher').clear();
   } catch (e) {}
   mockery.resetCache();
   mockery.deregisterAll();

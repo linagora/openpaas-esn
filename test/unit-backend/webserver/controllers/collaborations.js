@@ -24,7 +24,7 @@ describe('getMembers fn', function() {
 
     var req = {};
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
@@ -49,7 +49,7 @@ describe('getMembers fn', function() {
         return callback(new Error());
       }
     });
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
@@ -75,7 +75,7 @@ describe('getMembers fn', function() {
         return callback(null, []);
       }
     });
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
@@ -114,7 +114,7 @@ describe('getMembers fn', function() {
         return callback(null, members);
       }
     });
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
@@ -152,7 +152,7 @@ describe('getMembers fn', function() {
         return callback(null, members);
       }
     });
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
@@ -200,7 +200,7 @@ describe('getMembers fn', function() {
         return callback(null, members);
       }
     });
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembers(req, res);
   });
 
@@ -229,7 +229,7 @@ describe('The getMembershipRequests fn', function() {
     var req = {
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembershipRequests(req, res);
   });
 
@@ -256,7 +256,7 @@ describe('The getMembershipRequests fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembershipRequests(req, res);
   });
 
@@ -284,7 +284,7 @@ describe('The getMembershipRequests fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembershipRequests(req, res);
   });
 
@@ -318,7 +318,7 @@ describe('The getMembershipRequests fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembershipRequests(req, res);
   });
 
@@ -365,7 +365,7 @@ describe('The getMembershipRequests fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.getMembershipRequests(req, res);
   });
 });
@@ -397,7 +397,7 @@ describe('The leave fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.leave(req, res);
   });
 
@@ -419,7 +419,7 @@ describe('The leave fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.leave(req, res);
   });
 
@@ -441,7 +441,7 @@ describe('The leave fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.leave(req, res);
   });
 
@@ -468,7 +468,7 @@ describe('The leave fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.leave(req, res);
   });
 
@@ -495,7 +495,7 @@ describe('The leave fn', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.leave(req, res);
   });
 });
@@ -528,7 +528,7 @@ describe('removeMembershipRequest() method', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.removeMembershipRequest(req, res);
   });
 
@@ -550,7 +550,7 @@ describe('removeMembershipRequest() method', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.removeMembershipRequest(req, res);
   });
 
@@ -572,7 +572,7 @@ describe('removeMembershipRequest() method', function() {
       }
     };
 
-    var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
     collaborations.removeMembershipRequest(req, res);
   });
 
@@ -604,7 +604,7 @@ describe('removeMembershipRequest() method', function() {
         }
       };
 
-      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
       collaborations.removeMembershipRequest(req, res);
     });
 
@@ -645,7 +645,7 @@ describe('removeMembershipRequest() method', function() {
         }
       };
 
-      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
       collaborations.removeMembershipRequest(req, res);
     });
 
@@ -682,7 +682,7 @@ describe('removeMembershipRequest() method', function() {
         }
       };
 
-      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
       collaborations.removeMembershipRequest(req, res);
     });
   });
@@ -727,7 +727,7 @@ describe('removeMembershipRequest() method', function() {
         }
       };
 
-      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
       collaborations.removeMembershipRequest(req, res);
     });
 
@@ -761,7 +761,7 @@ describe('removeMembershipRequest() method', function() {
         }
       };
 
-      var collaborations = require(this.testEnv.basePath + '/backend/webserver/controllers/collaborations');
+      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
       collaborations.removeMembershipRequest(req, res);
     });
   });

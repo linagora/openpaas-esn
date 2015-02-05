@@ -19,14 +19,14 @@ describe('The targets helpers module', function() {
 
   describe('the getUserIds fn', function() {
     it('should send back an error if targets is undefined', function(done) {
-      require(this.testEnv.basePath + '/backend/helpers/targets').getUserIds(null, function(err) {
+      this.helpers.requireBackend('helpers/targets').getUserIds(null, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should send back an error if targets is not an array', function(done) {
-      require(this.testEnv.basePath + '/backend/helpers/targets').getUserIds('test', function(err) {
+      this.helpers.requireBackend('helpers/targets').getUserIds('test', function(err) {
         expect(err).to.exist;
         done();
       });
@@ -43,7 +43,7 @@ describe('The targets helpers module', function() {
         objectType: 'community'
       }];
 
-      require(this.testEnv.basePath + '/backend/helpers/targets').getUserIds(targets, function(err) {
+      this.helpers.requireBackend('helpers/targets').getUserIds(targets, function(err) {
         expect(err).to.exist;
         expect(isPassedByGetMembers).to.be.true;
         done();
@@ -75,7 +75,7 @@ describe('The targets helpers module', function() {
         id: users[2]._id
       }];
 
-      require(this.testEnv.basePath + '/backend/helpers/targets').getUserIds(targets, function(err, usersResult) {
+      this.helpers.requireBackend('helpers/targets').getUserIds(targets, function(err, usersResult) {
         expect(err).to.not.exist;
         expect(usersResult).to.exist;
         expect(usersResult).to.have.length(3);

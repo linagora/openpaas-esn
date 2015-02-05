@@ -7,7 +7,7 @@ describe('The pubsub object', function() {
   var localstub, globalstub, localpubsub, globalpubsub, topic;
 
   beforeEach(function() {
-    var PubSub = require(this.testEnv.basePath + '/backend/core/pubsub/pubsub');
+    var PubSub = this.helpers.requireBackend('core/pubsub/pubsub');
     localstub = {};
     globalstub = {};
     localpubsub = new PubSub();

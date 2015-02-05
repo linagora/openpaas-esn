@@ -8,9 +8,9 @@ describe('The Contact model', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/contact');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/addressbook');
+    this.helpers.requireBackend('core/db/mongo/models/contact');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/addressbook');
 
     Contact = this.mongoose.model('Contact');
     User = this.mongoose.model('User');

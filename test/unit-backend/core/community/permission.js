@@ -10,7 +10,7 @@ describe('The communities permission module', function() {
     it('should send back error if community is undefined', function(done) {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite(null, null, function(err) {
         expect(err).to.exist;
         done();
@@ -20,7 +20,7 @@ describe('The communities permission module', function() {
     it('should send back error if community does not have type property', function(done) {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({foo: 'bar'}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -30,7 +30,7 @@ describe('The communities permission module', function() {
     it('should send back error if tuple is undefined', function(done) {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'open'}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -40,7 +40,7 @@ describe('The communities permission module', function() {
     it('should send back error if community type is unsupported and user undefined', function(done) {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'unsupportedtype'}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -54,7 +54,7 @@ describe('The communities permission module', function() {
           return callback(null, true);
         }
       });
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'open'}, {objectType: 'user', id: '123'}, function(err, result) {
         expect(result).to.be.true;
         done();
@@ -72,7 +72,7 @@ describe('The communities permission module', function() {
           return callback(null, false);
         }
       });
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'open'}, {objectType: 'user', id: '123'}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -91,7 +91,7 @@ describe('The communities permission module', function() {
         }
       });
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'restricted'}, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -105,7 +105,7 @@ describe('The communities permission module', function() {
         }
       });
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'restricted'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
@@ -120,7 +120,7 @@ describe('The communities permission module', function() {
         }
       });
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       permission.canWrite({type: 'restricted'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
@@ -135,7 +135,7 @@ describe('The communities permission module', function() {
     it('should return false if community is undefined', function() {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       var result = permission.supportsMemberShipRequests(null);
       expect(result).to.be.false;
     });
@@ -143,7 +143,7 @@ describe('The communities permission module', function() {
     it('should return false if community does not have type property', function() {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       var result = permission.supportsMemberShipRequests({foo: 'bar'});
       expect(result).to.be.false;
     });
@@ -151,7 +151,7 @@ describe('The communities permission module', function() {
     it('should return false if community is not private or restricted', function() {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       var result = permission.supportsMemberShipRequests({type: 'bar'});
       expect(result).to.be.false;
     });
@@ -159,7 +159,7 @@ describe('The communities permission module', function() {
     it('should return false if community is private', function() {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       var result = permission.supportsMemberShipRequests({type: 'private'});
       expect(result).to.be.true;
     });
@@ -167,7 +167,7 @@ describe('The communities permission module', function() {
     it('should return false if community is restricted', function() {
       mockery.registerMock('./index', {});
       mockery.registerMock('../../helpers/user', {});
-      var permission = require(this.testEnv.basePath + '/backend/core/community/permission');
+      var permission = this.helpers.requireBackend('core/community/permission');
       var result = permission.supportsMemberShipRequests({type: 'restricted'});
       expect(result).to.be.true;
     });

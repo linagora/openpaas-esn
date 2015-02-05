@@ -13,7 +13,7 @@ describe('The activitystreams controller module', function() {
         }
       }
     });
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       params: {}
     };
@@ -48,7 +48,7 @@ describe('The activitystreams controller module', function() {
     };
     mockery.registerMock('../../core/activitystreams', timelineMock);
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       params: {
         uuid: '12345'
@@ -96,7 +96,7 @@ describe('The activitystreams controller module', function() {
     };
     mockery.registerMock('../../core/activitystreams', timelineMock);
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       params: {
         uuid: '12345'
@@ -126,7 +126,7 @@ describe('The activitystreams controller module', function() {
         }
       }
     });
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       params: {
         uuid: '12345'
@@ -158,7 +158,7 @@ describe('The activitystreams controller module', function() {
       throw new Error('mock error');
     });
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       params: {
         uuid: '12345'
@@ -180,7 +180,7 @@ describe('The activitystreams controller module', function() {
   it('getMine should return 400 when req.user is undefined', function(done) {
     this.helpers.mock.models({});
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       params: {
         uuid: '12345'
@@ -206,7 +206,7 @@ describe('The activitystreams controller module', function() {
       }
     });
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       user: {
         _id: '12345'
@@ -231,7 +231,7 @@ describe('The activitystreams controller module', function() {
       }
     });
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       user: {
         _id: '12345'
@@ -258,7 +258,7 @@ describe('The activitystreams controller module', function() {
       }
     });
 
-    var activitystreams = require(this.testEnv.basePath + '/backend/webserver/controllers/activitystreams');
+    var activitystreams = this.helpers.requireBackend('webserver/controllers/activitystreams');
     var req = {
       user: {
         _id: '12345'

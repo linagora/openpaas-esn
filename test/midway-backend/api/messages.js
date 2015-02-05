@@ -24,10 +24,10 @@ describe('The messages API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
-      var Whatsup = require(self.testEnv.basePath + '/backend/core/db/mongo/models/whatsup');
-      var Organizational = require(self.testEnv.basePath + '/backend/core/db/mongo/models/organizationalmessage');
+      var Whatsup = self.helpers.requireBackend('core/db/mongo/models/whatsup');
+      var Organizational = self.helpers.requireBackend('core/db/mongo/models/organizationalmessage');
 
       function saveMessage(message, cb) {
         message.save(function(err, saved) {
@@ -978,7 +978,7 @@ describe('The messages API', function() {
   it('should update the attachment references when posting a message with existing attachments', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
     var Whatsup = this.mongoose.model('Whatsup');
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore');
+    var filestore = this.helpers.requireBackend('core/filestore');
     var self = this;
 
     var message = 'Hey, check out these files!';

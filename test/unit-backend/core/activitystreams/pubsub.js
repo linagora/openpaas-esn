@@ -24,7 +24,7 @@ describe('The activitystreams pubsub module', function() {
         }
       };
       mockery.registerMock('./index', mock);
-      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.createActivity(null);
       expect(called).to.be.false;
       done();
@@ -38,7 +38,7 @@ describe('The activitystreams pubsub module', function() {
       };
 
       mockery.registerMock('./index', mock);
-      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.createActivity({});
     });
 
@@ -50,7 +50,7 @@ describe('The activitystreams pubsub module', function() {
       };
 
       mockery.registerMock('./index', mock);
-      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.createActivity({}, function() {
         done();
       });
@@ -71,7 +71,7 @@ describe('The activitystreams pubsub module', function() {
       };
       mockery.registerMock('../logger', logger);
 
-      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.createActivity({});
     });
 
@@ -90,7 +90,7 @@ describe('The activitystreams pubsub module', function() {
       };
       mockery.registerMock('../logger', logger);
 
-      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.createActivity({});
     });
   });
@@ -111,7 +111,7 @@ describe('The activitystreams pubsub module', function() {
       };
 
       mockery.registerMock('../pubsub', mock);
-      var pubsub = require(this.testEnv.basePath + '/backend/core/activitystreams/pubsub');
+      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.init();
       pubsub.init();
       expect(nbCalls).to.equal(2);

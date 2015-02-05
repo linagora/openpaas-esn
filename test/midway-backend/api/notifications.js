@@ -22,11 +22,11 @@ describe('The notification API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
-      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      var Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      Notification = require(self.testEnv.basePath + '/backend/core/db/mongo/models/notification');
+      var User = self.helpers.requireBackend('core/db/mongo/models/user');
+      var Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+      Notification = self.helpers.requireBackend('core/db/mongo/models/notification');
 
       testuser = new User({
         username: 'Foo',
@@ -136,7 +136,7 @@ describe('The notification API', function() {
   });
 
   it('should return HTTP 201 and publish N times in the ', function(done) {
-    var pubsub = require(this.testEnv.basePath + '/backend/core').pubsub.local;
+    var pubsub = this.helpers.requireBackend('core').pubsub.local;
     var topic = pubsub.topic('notification:external');
     var calls = 0;
     topic.subscribe(function() {

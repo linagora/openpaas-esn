@@ -7,7 +7,7 @@ var expect = require('chai').expect,
 
 describe('The document store Settings module', function() {
   it('should exist', function() {
-    var settings = require(this.testEnv.basePath + '/backend/webserver/controllers/document-store');
+    var settings = this.helpers.requireBackend('webserver/controllers/document-store');
     expect(settings).to.exists;
   });
 });
@@ -30,7 +30,7 @@ describe('The document store routes resource', function() {
 
     beforeEach(function(done) {
       this.testEnv.initCore(function() {
-        webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+        webserver = this.helpers.requireBackend('webserver').webserver;
         done();
       }.bind(this));
     });
@@ -211,12 +211,12 @@ describe('The document store routes resource', function() {
     });
 
     it('should fail if the file is not written', function(done) {
-      var config = require(this.testEnv.basePath + '/backend/core').config('default');
+      var config = this.helpers.requireBackend('core').config('default');
       config.core = config.core || {};
       config.core.config = config.core.config || {};
       config.core.config.db = 'somewhere/not/writable';
 
-      var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+      var webserver = this.helpers.requireBackend('webserver').webserver;
       webserver.port = config.webserver.port;
       webserver.ip = config.webserver.ip;
       webserver.ipv6 = config.webserver.ipv6;
@@ -242,10 +242,10 @@ describe('The document store routes resource', function() {
     });
 
     it('should call the mongo init() method after the file is written', function(done) {
-      var mongoModule = require(this.testEnv.basePath + '/backend/core').db.mongo;
+      var mongoModule = this.helpers.requireBackend('core').db.mongo;
 
-      var config = require(this.testEnv.basePath + '/backend/core').config('default');
-      var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+      var config = this.helpers.requireBackend('core').config('default');
+      var webserver = this.helpers.requireBackend('webserver').webserver;
       webserver.port = config.webserver.port;
       webserver.ip = config.webserver.ip;
       webserver.ipv6 = config.webserver.ipv6;
@@ -263,7 +263,7 @@ describe('The document store routes resource', function() {
 
     it('should be successful with test database parameters', function(done) {
       this.testEnv.initCore(function() {
-        var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+        var webserver = this.helpers.requireBackend('webserver').webserver;
         var uri = '/api/document-store/connection/localhost/' +
             this.testEnv.serversConfig.mongodb.port + '/' +
             this.testEnv.serversConfig.mongodb.dbname;
@@ -278,8 +278,8 @@ describe('The document store routes resource', function() {
       this.testEnv.initCore(function() {
         // set higher timeout than the mongo one so we can catch error
         this.timeout(30000);
-        var config = require(this.testEnv.basePath + '/backend/core').config('default');
-        var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+        var config = this.helpers.requireBackend('core').config('default');
+        var webserver = this.helpers.requireBackend('webserver').webserver;
         webserver.port = config.webserver.port;
         webserver.ip = config.webserver.ip;
         webserver.ipv6 = config.webserver.ipv6;
@@ -324,7 +324,7 @@ describe('The document store routes resource', function() {
       mockery.registerMock('./mongo', this.mongoDbMock);
       mockery.registerMock('./pubsub', this.pubsubMock);
       this.testEnv.initCore(function() {
-        var middleware = require(this.testEnv.basePath + '/backend/webserver/controllers/document-store');
+        var middleware = this.helpers.requireBackend('webserver/controllers/document-store');
         var requestMock = {
           params: {
             hostname: 'localhost',

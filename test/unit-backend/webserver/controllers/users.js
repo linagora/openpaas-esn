@@ -11,7 +11,7 @@ describe('The User controller', function() {
 
   describe('The logout fn', function() {
     it('should call req.logout()', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         logout: done
       };
@@ -22,7 +22,7 @@ describe('The User controller', function() {
       users.logout(req, res);
     });
     it('should redirect to "/"', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         logout: function() {}
       };
@@ -38,7 +38,7 @@ describe('The User controller', function() {
 
   describe('The logmein fn', function() {
     it('should redirect to / if user is set in request', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
           emails: ['foo@bar.com']
@@ -54,7 +54,7 @@ describe('The User controller', function() {
     });
 
     it('should return HTTP 500 if user email is not defined', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
         }
@@ -69,7 +69,7 @@ describe('The User controller', function() {
     });
 
     it('should return HTTP 500 if user is not set in request', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
       var res = {
         send: function(status) {
@@ -83,7 +83,7 @@ describe('The User controller', function() {
 
   describe('The user fn', function() {
     it('should return the request user if available', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
           emails: ['foo@bar.com']
@@ -100,7 +100,7 @@ describe('The User controller', function() {
     });
 
     it('should return HTTP 404 if user is not defined in the request', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
       };
       var res = {
@@ -127,7 +127,7 @@ describe('The User controller', function() {
     });
 
     it('should send back 404 if user is not set', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
       };
       var res = {
@@ -140,7 +140,7 @@ describe('The User controller', function() {
     });
 
     it('should send back error if parameter is not set', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         params: {},
         user: {
@@ -158,7 +158,7 @@ describe('The User controller', function() {
     });
 
     it('should send back error if parameter is unknown', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         params: {
           attribute: 'foobarbazqix'
@@ -180,7 +180,7 @@ describe('The User controller', function() {
     });
 
     it('should send back error if firstname is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -204,7 +204,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if firstname is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -225,7 +225,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if firstname is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -248,7 +248,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if firstname is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -271,7 +271,7 @@ describe('The User controller', function() {
     // lastname
 
     it('should send back error if lastname is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -295,7 +295,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if lastname is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -316,7 +316,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if lastname is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -337,7 +337,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if lastname is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -358,7 +358,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if lastname is set with special characters in it', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -381,7 +381,7 @@ describe('The User controller', function() {
     // job_title
 
     it('should send back error if job_title is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -405,7 +405,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if job_title is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -426,7 +426,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if job_title is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -447,7 +447,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if job_title is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -470,7 +470,7 @@ describe('The User controller', function() {
     // service
 
     it('should send back error if service is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -494,7 +494,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if service is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -515,7 +515,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if service is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -536,7 +536,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if service is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -559,7 +559,7 @@ describe('The User controller', function() {
     // building_location
 
     it('should send back error if building_location is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -583,7 +583,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if building_location is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -604,7 +604,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if building_location is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -625,7 +625,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if building_location is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -648,7 +648,7 @@ describe('The User controller', function() {
     // office_location
 
     it('should not back error if office_location is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -672,7 +672,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if office_location is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -693,7 +693,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if office_location is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -714,7 +714,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if office_location is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -737,7 +737,7 @@ describe('The User controller', function() {
     // main_phone
 
     it('should not send back error if main_phone is not set in body', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -761,7 +761,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if main_phone is empty', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -782,7 +782,7 @@ describe('The User controller', function() {
     });
 
     it('should not send back error if main_phone is too long', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -803,7 +803,7 @@ describe('The User controller', function() {
     });
 
     it('should be OK if main_phone is set with valid value', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var req = {
         params: {
@@ -826,7 +826,7 @@ describe('The User controller', function() {
 
   describe('postProfileAvatar() function', function() {
     it('should return 404 if the user is not actually logged in', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
       var res = {
         json: function(code, data) {
@@ -841,7 +841,7 @@ describe('The User controller', function() {
     });
 
     it('should return 400 if the mimetype argument is not set', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {}};
       var res = {
         json: function(code, data) {
@@ -856,7 +856,7 @@ describe('The User controller', function() {
     });
 
     it('should return 400 if the mimetype argument is not an image mimetype', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'application/yolo'}};
       var res = {
         json: function(code, data) {
@@ -871,7 +871,7 @@ describe('The User controller', function() {
     });
 
     it('should return 400 if the size argument is not set', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png'}};
       var res = {
         json: function(code, data) {
@@ -886,7 +886,7 @@ describe('The User controller', function() {
     });
 
     it('should return 400 if the size argument is not an integer', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 'yolo'}};
       var res = {
         json: function(code, data) {
@@ -910,7 +910,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = {
       };
@@ -932,7 +932,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: user, query: {mimetype: 'image/png', size: 42}};
       var res = {
       };
@@ -948,7 +948,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
@@ -971,7 +971,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
@@ -993,7 +993,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
@@ -1014,7 +1014,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = {
         json: function(code, data) {
@@ -1044,7 +1044,7 @@ describe('The User controller', function() {
       };
       mockery.registerMock('../../core', moduleMock);
 
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var usermock = {
         avatars: [],
@@ -1074,7 +1074,7 @@ describe('The User controller', function() {
       };
       mockery.registerMock('../../core', moduleMock);
 
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var usermock = {
         avatars: [],
@@ -1108,7 +1108,7 @@ describe('The User controller', function() {
       };
       mockery.registerMock('../../core', moduleMock);
 
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
 
       var usermock = {
         avatars: [],
@@ -1129,7 +1129,7 @@ describe('The User controller', function() {
 
   describe('the getProfileAvatar function', function() {
     it('should return 404 if the user is not logged in', function(done) {
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
       var res = {
         json: function(code, data) {
@@ -1151,7 +1151,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageModuleMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
           currentAvatar: 'id'
@@ -1177,7 +1177,7 @@ describe('The User controller', function() {
         }
       };
       mockery.registerMock('./image', imageModuleMock);
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
           currentAvatar: 'id'
@@ -1210,7 +1210,7 @@ describe('The User controller', function() {
       };
       mockery.registerMock('./image', imageModuleMock);
 
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         headers: {
         },
@@ -1255,7 +1255,7 @@ describe('The User controller', function() {
       };
       mockery.registerMock('./image', imageModuleMock);
 
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         headers: {
           'if-modified-since': 'Thu Apr 17 2013 11:13:15 GMT+0200 (CEST)'
@@ -1298,7 +1298,7 @@ describe('The User controller', function() {
       };
       mockery.registerMock('./image', imageModuleMock);
 
-      var users = require(this.testEnv.basePath + '/backend/webserver/controllers/users');
+      var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         headers: {
           'if-modified-since': 'Thu Apr 17 2014 11:13:15 GMT+0200 (CEST)'

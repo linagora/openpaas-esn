@@ -8,8 +8,8 @@ describe('The oauthclient model module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/oauthclient');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/oauthclient');
     this.testEnv.writeDBConfigFile();
     User = this.mongoose.model('User');
     OAuthClient = this.mongoose.model('OAuthClient');

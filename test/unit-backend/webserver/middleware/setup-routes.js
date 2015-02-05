@@ -24,7 +24,7 @@ describe('The webserver setup-route middleware', function() {
       put: function() {}
     };
 
-    require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+    this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
 
     expect(registered).to.have.property('/');
     expect(registered['/']).to.be.a.function;
@@ -40,7 +40,7 @@ describe('The webserver setup-route middleware', function() {
       get: function() {}
     };
 
-    require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+    this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
   });
 
   it('should register a callback on the GET /api/document-store/connection/:hostname/:port/:dbname endpoint', function() {
@@ -53,7 +53,7 @@ describe('The webserver setup-route middleware', function() {
       put: function() {}
     };
 
-    require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+    this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
 
     expect(registered).to.have.property('/api/document-store/connection/:hostname/:port/:dbname');
     expect(registered['/api/document-store/connection/:hostname/:port/:dbname']).to.be.a.function;
@@ -79,7 +79,7 @@ describe('The webserver setup-route middleware', function() {
         }
       };
 
-      require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
 
     it('should call next() if the system is configured', function(done) {
@@ -96,7 +96,7 @@ describe('The webserver setup-route middleware', function() {
         }
       };
 
-      require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
   });
 
@@ -114,7 +114,7 @@ describe('The webserver setup-route middleware', function() {
         }
       };
 
-      require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
 
     it('should call res.json(400) if the system is configured', function(done) {
@@ -133,7 +133,7 @@ describe('The webserver setup-route middleware', function() {
         }
       };
 
-      require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
 
   });
@@ -154,7 +154,7 @@ describe('The webserver setup-route middleware', function() {
         }
       };
 
-      require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
 
 
@@ -177,7 +177,7 @@ describe('The webserver setup-route middleware', function() {
         }
       };
 
-      require(this.testEnv.basePath + '/backend/webserver/middleware/setup-routes')(appMock);
+      this.helpers.requireBackend('webserver/middleware/setup-routes')(appMock);
     });
 
   });

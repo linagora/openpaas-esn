@@ -33,7 +33,7 @@ describe('The filestore gridfs module', function() {
 
   it('should fail if metadata is not defined', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
 
     hash_file(file, 'md5', function(err, hash) {
@@ -52,7 +52,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should fail if metadata.creator is not defined', function(done) {
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var ObjectId = this.mongoose.Types.ObjectId;
 
@@ -72,7 +72,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should fail if id is not a valid mongodb ObjectId', function(done) {
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
 
     hash_file(file, 'md5', function(err, hash) {
@@ -91,7 +91,7 @@ describe('The filestore gridfs module', function() {
 
   it('should store the file without error', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
 
@@ -105,7 +105,7 @@ describe('The filestore gridfs module', function() {
 
   it('should store the file and return valid values', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
 
     hash_file(file, 'md5', function(err, hash) {
@@ -130,7 +130,7 @@ describe('The filestore gridfs module', function() {
 
   it('should fail to store when input stream is not set', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var id = new ObjectId();
     filestore.store(id, 'application/text', {creator: creator}, null, null, function(err, data) {
       expect(err).to.exist;
@@ -139,7 +139,7 @@ describe('The filestore gridfs module', function() {
   });
 
   it('should fail to store when input id is not set', function(done) {
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     filestore.store(null, 'application/text', {creator: creator}, null, null, function(err, data) {
       expect(err).to.exist;
       done();
@@ -149,7 +149,7 @@ describe('The filestore gridfs module', function() {
   // META
 
   it('should fail to get meta when input id is not set', function(done) {
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     filestore.getMeta(null, function(err, data) {
       expect(err).to.exist;
       expect(data).to.not.exist;
@@ -159,7 +159,7 @@ describe('The filestore gridfs module', function() {
 
   it('should return valid metadata', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
     var userMeta = {
@@ -190,7 +190,7 @@ describe('The filestore gridfs module', function() {
 
   it('should contain a valid filename', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
     var userMeta = {
@@ -216,7 +216,7 @@ describe('The filestore gridfs module', function() {
 
   it('should return null when trying to get metadata from unknown file', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var id = new ObjectId();
     filestore.getMeta(id, function(err, data) {
       expect(err).to.not.exist;
@@ -228,7 +228,7 @@ describe('The filestore gridfs module', function() {
   describe('addMeta() method', function() {
     it('should add metadata ', function(done) {
       var ObjectId = this.mongoose.Types.ObjectId;
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       var file = path.resolve(this.testEnv.fixtures + '/README.md');
       var stream = require('fs').createReadStream(file);
       var userMeta = {
@@ -269,7 +269,7 @@ describe('The filestore gridfs module', function() {
 
   // DELETE
   it('should fail to delete when input id is not set', function(done) {
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     filestore.delete(null, function(err, data) {
       expect(err).to.exist;
       done();
@@ -278,7 +278,7 @@ describe('The filestore gridfs module', function() {
 
   it('should send back null when trying to get delete from an unknown id', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var id = new ObjectId();
     filestore.delete(id, function(err) {
       expect(err).to.not.exist;
@@ -288,7 +288,7 @@ describe('The filestore gridfs module', function() {
 
   it('should delete a file from its id', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
 
@@ -313,7 +313,7 @@ describe('The filestore gridfs module', function() {
 
   // GET
   it('should send back an error when trying to get a file from a null id', function(done) {
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     filestore.get(null, function(err, meta, stream) {
       expect(err).to.exist;
       done();
@@ -322,7 +322,7 @@ describe('The filestore gridfs module', function() {
 
   it('should send back the file from its id', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var stream = require('fs').createReadStream(file);
     require('mongoose').set('debug', true);
@@ -353,7 +353,7 @@ describe('The filestore gridfs module', function() {
 
   it('should return a valid content', function(done) {
     var ObjectId = this.mongoose.Types.ObjectId;
-    var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+    var filestore = this.helpers.requireBackend('core/filestore/gridfs');
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var fs = require('fs');
     var stream = fs.createReadStream(file);
@@ -397,7 +397,7 @@ describe('The filestore gridfs module', function() {
   // getFileStream
   describe('getFileStream method', function() {
     it('should send back an error when trying to get a file from a null id', function(done) {
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       filestore.getFileStream(null, function(err, meta, stream) {
         expect(err).to.exist;
         done();
@@ -406,7 +406,7 @@ describe('The filestore gridfs module', function() {
 
     it('should send back error if the file does not exist', function(done) {
       var ObjectId = this.mongoose.Types.ObjectId;
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       var id = new ObjectId();
       filestore.getFileStream(id, function(err, meta, stream) {
         expect(err).to.exist;
@@ -416,7 +416,7 @@ describe('The filestore gridfs module', function() {
 
     it('should send back the stream when the file exists', function(done) {
       var ObjectId = this.mongoose.Types.ObjectId;
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       var file = path.resolve(this.testEnv.fixtures + '/README.md');
       var fs = require('fs');
       var stream = fs.createReadStream(file);
@@ -461,7 +461,7 @@ describe('The filestore gridfs module', function() {
   describe('find() method', function() {
     beforeEach(function(done) {
       var ObjectId = this.mongoose.Types.ObjectId;
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       var file = path.resolve(this.testEnv.fixtures + '/README.md');
       var stream = require('fs').createReadStream(file);
       var self = this;
@@ -498,7 +498,7 @@ describe('The filestore gridfs module', function() {
     });
 
     it('should return an array of matching files ObjectIds', function(done) {
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       var ObjectId = this.mongoose.Types.ObjectId;
       filestore.find({}, function(err, resp) {
         expect(err).to.be.not.ok;
@@ -512,7 +512,7 @@ describe('The filestore gridfs module', function() {
     });
 
     it('should return an array of matching files ObjectIds (filename)', function(done) {
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       var self = this;
       filestore.find({filename: 'other.md'}, function(err, resp) {
         expect(err).to.be.not.ok;
@@ -524,7 +524,7 @@ describe('The filestore gridfs module', function() {
     });
 
     it('should return an array of matching files ObjectIds (metadata)', function(done) {
-      var filestore = require(this.testEnv.basePath + '/backend/core/filestore/gridfs');
+      var filestore = this.helpers.requireBackend('core/filestore/gridfs');
       filestore.find({'metadata.label': 'test'}, function(err, resp) {
         expect(err).to.be.not.ok;
         expect(resp).to.be.an('array');

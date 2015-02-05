@@ -36,9 +36,9 @@ describe('The user domain module', function() {
     });
 
     it('should return users which belong to the given domain when calling getUsersList', function(done) {
-      var User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      var User = this.helpers.requireBackend('core/db/mongo/models/user');
 
-      var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         if (err) { return done(err); }
@@ -58,8 +58,8 @@ describe('The user domain module', function() {
     });
 
     it('should return an array where limit === size when calling getUsersList with limit option', function(done) {
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      this.helpers.requireBackend('core/db/mongo/models/user');
+      var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         if (err) { return done(err); }
@@ -74,8 +74,8 @@ describe('The user domain module', function() {
     });
 
     it('should return an array which contains the last 2 elements when calling getUsersList with offset option = 2 on domain members = 4', function(done) {
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      this.helpers.requireBackend('core/db/mongo/models/user');
+      var userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         if (err) { return done(err); }
@@ -93,8 +93,8 @@ describe('The user domain module', function() {
     });
 
     it('should return the users which belong to a domain and which contain the search term', function(done) {
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      this.helpers.requireBackend('core/db/mongo/models/user');
+      var userDomain = this.helpers.requireBackend('core/user/domain');
       var self = this;
 
       this.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
@@ -120,9 +120,9 @@ describe('The user domain module', function() {
     });
 
     it('should return an error when calling getUsersList with a null domain', function(done) {
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      var userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      this.helpers.requireBackend('core/db/mongo/models/user');
+      this.helpers.requireBackend('core/db/mongo/models/domain');
+      var userDomain = this.helpers.requireBackend('core/user/domain');
 
       userDomain.getUsersList(null, null, function(err, users) {
         expect(err).to.exist;
@@ -154,8 +154,8 @@ describe('The user domain module', function() {
         }, function(err) {
           if (err) { done(err); }
 
-          User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-          Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+          User = self.helpers.requireBackend('core/db/mongo/models/user');
+          Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
             if (err) { return done(err); }
@@ -186,8 +186,8 @@ describe('The user domain module', function() {
     });
 
     beforeEach(function(done) {
-      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
+      User = this.helpers.requireBackend('core/db/mongo/models/user');
+      userDomain = this.helpers.requireBackend('core/user/domain');
 
       this.mongoose = require('mongoose');
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {
@@ -400,10 +400,10 @@ describe('The user domain module', function() {
         }, function(err) {
           if (err) { done(err); }
 
-          User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-          Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
+          User = self.helpers.requireBackend('core/db/mongo/models/user');
+          Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
 
-          userDomain = require(self.testEnv.basePath + '/backend/core/user/domain');
+          userDomain = self.helpers.requireBackend('core/user/domain');
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases_extra', function(err, models) {
             if (err) { return done(err); }
@@ -514,9 +514,9 @@ describe('The user domain module', function() {
             done(err);
           }
 
-          User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
-          Domain = require(self.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-          Community = require(self.testEnv.basePath + '/backend/core/db/mongo/models/community');
+          User = self.helpers.requireBackend('core/db/mongo/models/user');
+          Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+          Community = self.helpers.requireBackend('core/db/mongo/models/community');
 
           self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
             if (err) {
@@ -588,9 +588,9 @@ describe('The user domain module', function() {
     });
 
     beforeEach(function(done) {
-      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      userDomain = require(this.testEnv.basePath + '/backend/core/user/domain');
-      Community = require(this.testEnv.basePath + '/backend/core/db/mongo/models/community');
+      User = this.helpers.requireBackend('core/db/mongo/models/user');
+      userDomain = this.helpers.requireBackend('core/user/domain');
+      Community = this.helpers.requireBackend('core/db/mongo/models/community');
 
       this.mongoose = require('mongoose');
       this.mongoose.connect(this.testEnv.mongoUrl, function(err) {

@@ -7,7 +7,7 @@ describe('The conferences controller', function() {
 
   it('load should call next if id is not set', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     controller.load({params: {}}, {}, function() {
       done();
     });
@@ -23,7 +23,7 @@ describe('The conferences controller', function() {
       }
     };
     mockery.registerMock('../../core/conference', conference);
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var req = {
       params: {
         id: 123
@@ -40,7 +40,7 @@ describe('The conferences controller', function() {
 
   it('loadWithAttendees should call next if id is not set', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     controller.loadWithAttendees({params: {}}, {}, function() {
       done();
     });
@@ -56,7 +56,7 @@ describe('The conferences controller', function() {
       }
     };
     mockery.registerMock('../../core/conference', conference);
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var req = {
       params: {
         id: 123
@@ -73,7 +73,7 @@ describe('The conferences controller', function() {
 
   it('get should send back HTTP 200 when conference is in request', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var req = {
       conference: {
         creator: 123
@@ -90,7 +90,7 @@ describe('The conferences controller', function() {
 
   it('get should send back HTTP 400 when conference is not in request', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -106,7 +106,7 @@ describe('The conferences controller', function() {
         return callback(new Error());
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(500);
@@ -122,7 +122,7 @@ describe('The conferences controller', function() {
         return callback(null, []);
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(200);
@@ -134,7 +134,7 @@ describe('The conferences controller', function() {
 
   it('create should send back HTTP 400 when user is not defined in req', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -150,7 +150,7 @@ describe('The conferences controller', function() {
         return callback(new Error());
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(500);
@@ -166,7 +166,7 @@ describe('The conferences controller', function() {
         return callback(null, {});
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(201);
@@ -178,7 +178,7 @@ describe('The conferences controller', function() {
 
   it('join should send back HTTP 400 when user is not defined in req', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -190,7 +190,7 @@ describe('The conferences controller', function() {
 
   it('join should send back HTTP 400 when conference is not defined in req', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -206,7 +206,7 @@ describe('The conferences controller', function() {
         return callback(new Error());
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(500);
@@ -222,7 +222,7 @@ describe('The conferences controller', function() {
         return callback(null, {});
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(204);
@@ -234,7 +234,7 @@ describe('The conferences controller', function() {
 
   it('leave should send back HTTP 400 when user is not defined in req', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -246,7 +246,7 @@ describe('The conferences controller', function() {
 
   it('leave should send back HTTP 400 when conference is not defined in req', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -262,7 +262,7 @@ describe('The conferences controller', function() {
         return callback(new Error());
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(500);
@@ -278,7 +278,7 @@ describe('The conferences controller', function() {
         return callback(null, {});
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(204);
@@ -290,7 +290,7 @@ describe('The conferences controller', function() {
 
   it('updateAttendee should send HTTP 400 when action is not defined', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status, error) {
         expect(status).to.equal(400);
@@ -311,7 +311,7 @@ describe('The conferences controller', function() {
 
   it('updateAttendee should send HTTP 400 when action is unknown', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status, error) {
         expect(status).to.equal(400);
@@ -336,7 +336,7 @@ describe('The conferences controller', function() {
         done();
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
     };
     var req = {
@@ -355,7 +355,7 @@ describe('The conferences controller', function() {
         done();
       }
     });
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
     };
     var req = {
@@ -370,7 +370,7 @@ describe('The conferences controller', function() {
 
   it('getAttendees should send back HTTP 400 when conference is not defined in req', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(400);
@@ -382,7 +382,7 @@ describe('The conferences controller', function() {
 
   it('getAttendees should send back HTTP 200 with empty array if conference has undefined attendees', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(200);
@@ -397,7 +397,7 @@ describe('The conferences controller', function() {
 
   it('getAttendees should send back HTTP 200 with empty array if conference has empty attendees', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status) {
         expect(status).to.equal(200);
@@ -414,7 +414,7 @@ describe('The conferences controller', function() {
 
   it('getAttendees should send back HTTP 200 with attendees array', function(done) {
     mockery.registerMock('../../core/conference', {});
-    var controller = require(this.testEnv.basePath + '/backend/webserver/controllers/conferences');
+    var controller = this.helpers.requireBackend('webserver/controllers/conferences');
     var res = {
       json: function(status, users) {
         expect(status).to.equal(200);

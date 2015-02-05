@@ -14,7 +14,7 @@ describe('the webserver-wrapper', function() {
     mockery.registerMock('./', {
       webserver: { on: function() {} }
     });
-    module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       expect(err).to.be.null;
       expect(api.injectJS).to.exist;
@@ -42,7 +42,7 @@ describe('the webserver-wrapper', function() {
       }
     };
     mockery.registerMock('./', webserverMock);
-    module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       api.injectJS('myModule', 'mymodule.js', 'esn');
     });
@@ -61,7 +61,7 @@ describe('the webserver-wrapper', function() {
       }
     };
     mockery.registerMock('./', webserverMock);
-    module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       api.injectCSS('myModule', 'mymodule.css', 'esn');
     });
@@ -81,7 +81,7 @@ describe('the webserver-wrapper', function() {
       }
     };
     mockery.registerMock('./', webserverMock);
-    module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       api.injectAngularModules('myModule', 'mymodule.js', 'myAngularModule', 'esn');
     });
@@ -100,7 +100,7 @@ describe('the webserver-wrapper', function() {
       }
     };
     mockery.registerMock('./', webserverMock);
-    module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       api.addApp('myModule', 'module');
     });
@@ -108,7 +108,7 @@ describe('the webserver-wrapper', function() {
 
   describe('proxy method', function() {
     beforeEach(function() {
-      module = require(this.testEnv.basePath + '/backend/webserver/webserver-wrapper');
+      module = this.helpers.requireBackend('webserver/webserver-wrapper');
       this.proxy = module.settings.proxy;
     });
 

@@ -15,7 +15,7 @@ describe('The email message module', function() {
         MailParser: function() {}
       });
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(null, {}, [], function(err) {
         expect(err).to.exist;
         done();
@@ -29,7 +29,7 @@ describe('The email message module', function() {
         MailParser: function() {}
       });
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail({}, null, [], function(err) {
         expect(err).to.exist;
         done();
@@ -59,7 +59,7 @@ describe('The email message module', function() {
         }
       };
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(stream, {}, [], function(err) {
         expect(err).to.not.exist;
         done();
@@ -89,7 +89,7 @@ describe('The email message module', function() {
         }
       };
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(stream, {}, [], function(err) {
         expect(err).to.exist;
         done();
@@ -154,7 +154,7 @@ describe('The email message module', function() {
         }
       };
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(stream, author, [], function(err) {
         expect(err).to.not.exist;
       });
@@ -250,7 +250,7 @@ describe('The email message module', function() {
         }
       };
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(stream, author, [], function(err) {
         expect(err).to.not.exist;
         expect(calls).to.equal(2);
@@ -352,7 +352,7 @@ describe('The email message module', function() {
         }
       };
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(stream, author, [], function(err) {
         expect(err).to.not.exist;
         expect(calls).to.equal(2);
@@ -410,7 +410,7 @@ describe('The email message module', function() {
         }
       };
 
-      var emailModule = require(this.testEnv.basePath + '/backend/core/message/email');
+      var emailModule = this.helpers.requireBackend('core/message/email');
       emailModule.saveEmail(stream, author, [], function(err) {
         expect(err).to.exist;
         done();

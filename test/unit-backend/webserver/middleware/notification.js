@@ -18,7 +18,7 @@ describe('The notification middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/notification').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, function() {});
     });
 
@@ -34,7 +34,7 @@ describe('The notification middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/notification').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, function() {});
     });
 
@@ -52,7 +52,7 @@ describe('The notification middleware', function() {
       var res = {
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/notification').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, done);
     });
 
@@ -75,7 +75,7 @@ describe('The notification middleware', function() {
         }
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/notification').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, function() {});
     });
 
@@ -94,7 +94,7 @@ describe('The notification middleware', function() {
       var res = {
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/notification').userCanReadNotification;
+      var middleware = this.helpers.requireBackend('webserver/middleware/notification').userCanReadNotification;
       middleware(req, res, done);
     });
   });

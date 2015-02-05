@@ -31,7 +31,7 @@ describe('The domain middleware', function() {
         done();
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var middleware = this.helpers.requireBackend('webserver/middleware/domain');
       middleware.load(req, res, next);
     });
 
@@ -62,7 +62,7 @@ describe('The domain middleware', function() {
       };
       var next = function() {};
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var middleware = this.helpers.requireBackend('webserver/middleware/domain');
       middleware.load(req, res, next);
     });
 
@@ -94,7 +94,7 @@ describe('The domain middleware', function() {
         done();
       };
 
-      var middleware = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var middleware = this.helpers.requireBackend('webserver/middleware/domain');
       middleware.load(req, res, next);
     });
   });
@@ -114,7 +114,7 @@ describe('The domain middleware', function() {
           done();
         }
       };
-      var mw = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res);
     });
 
@@ -138,7 +138,7 @@ describe('The domain middleware', function() {
         done();
       };
 
-      var mw = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res, next);
     });
 
@@ -165,7 +165,7 @@ describe('The domain middleware', function() {
       };
       var next = function() {};
 
-      var mw = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res, next);
     });
 
@@ -194,7 +194,7 @@ describe('The domain middleware', function() {
         done();
       };
 
-      var mw = require(this.testEnv.basePath + '/backend/webserver/middleware/domain');
+      var mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res, next);
     });
 

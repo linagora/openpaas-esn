@@ -7,7 +7,7 @@ describe('the file-watcher module', function() {
 
   beforeEach(function() {
     this.modulePath = this.testEnv.basePath + '/backend/core/db/mongo/file-watcher';
-    this.logger = require(this.testEnv.fixtures + '/logger-noop')();
+    this.logger = this.helpers.requireFixture('logger-noop')();
   });
 
   it('should be a function', function() {

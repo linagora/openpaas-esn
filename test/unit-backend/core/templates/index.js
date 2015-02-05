@@ -31,7 +31,7 @@ describe('The template module', function() {
 
       mockery.registerMock('./user', userMock);
       mockery.registerMock('..', coreMock);
-      var templates = require(this.testEnv.basePath + '/backend/core').templates;
+      var templates = this.helpers.requireBackend('core').templates;
       templates.inject(function() {
       });
     });
@@ -62,7 +62,7 @@ describe('The template module', function() {
       };
 
       mockery.registerMock('..', coreMock);
-      var templates = require(this.testEnv.basePath + '/backend/core').templates;
+      var templates = this.helpers.requireBackend('core').templates;
       templates.inject(function() {
         expect(subscriptions).to.have.property('mongodb:connectionAvailable');
         done();
@@ -101,7 +101,7 @@ describe('The template module', function() {
 
       mockery.registerMock('./user', userMock);
       mockery.registerMock('..', coreMock);
-      var templates = require(this.testEnv.basePath + '/backend/core').templates;
+      var templates = this.helpers.requireBackend('core').templates;
       templates.inject(function() {
         subscriptions['mongodb:connectionAvailable'](function() {
         });

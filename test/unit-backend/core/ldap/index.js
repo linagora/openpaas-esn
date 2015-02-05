@@ -19,7 +19,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.exist;
         done();
@@ -39,7 +39,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.exist;
         done();
@@ -59,7 +59,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.exist;
         done();
@@ -92,7 +92,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;
         expect(ldaps).to.exist;
@@ -111,7 +111,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.emailExists(null, 'secret', function(err) {
         expect(err).to.exist;
         done();
@@ -125,7 +125,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.emailExists('foo@bar.com', null, function(err) {
         expect(err).to.exist;
         done();
@@ -148,7 +148,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.emailExists('foo@bar.com', {}, function() {
         done();
       });
@@ -164,7 +164,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate(null, 'secret', {}, function(err) {
         expect(err).to.exist;
         done();
@@ -178,7 +178,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', null, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -192,7 +192,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', 'secret', null, function(err) {
         expect(err).to.exist;
         done();
@@ -217,7 +217,7 @@ describe('The ldap core module', function() {
       mockery.registerMock('ldapauth-fork', ldapmock);
 
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.not.exist;
         expect(user).to.exist;
@@ -243,7 +243,7 @@ describe('The ldap core module', function() {
       mockery.registerMock('ldapauth-fork', ldapmock);
 
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.exist;
         expect(user).to.not.exist;
@@ -268,7 +268,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.exist;
         expect(user).to.not.exist;
@@ -286,7 +286,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForDomain(null, function(err) {
         expect(err).to.exist;
         done();
@@ -307,7 +307,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForDomain(domain);
     });
 
@@ -325,7 +325,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.findLDAPForDomain(domain);
     });
   });
@@ -339,7 +339,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.save(null, function(err) {
         expect(err).to.exist;
         done();
@@ -353,7 +353,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.save({domain: 123}, function(err) {
         expect(err).to.exist;
         done();
@@ -367,7 +367,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.save({configuration: 123}, function(err) {
         expect(err).to.exist;
         done();
@@ -384,7 +384,7 @@ describe('The ldap core module', function() {
       };
       mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = require(this.testEnv.basePath + '/backend/core/ldap');
+      var ldap = this.helpers.requireBackend('core/ldap');
       ldap.loadFromID(null, function(err) {
         expect(err).to.exist;
         done();

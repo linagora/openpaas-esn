@@ -39,7 +39,7 @@ describe('The setup settings middleware', function() {
     };
     mockery.registerMock('../../core/esn-config', esnConf);
 
-    var setupSettings = require(this.testEnv.basePath + '/backend/webserver/middleware/setup-settings');
+    var setupSettings = this.helpers.requireBackend('webserver/middleware/setup-settings');
     var req = {};
     var res = {};
     setupSettings()(req, res, function() {
@@ -86,7 +86,7 @@ describe('The setup settings middleware', function() {
     };
     mockery.registerMock('../../core/esn-config', esnConf);
 
-    var setupSettings = require(this.testEnv.basePath + '/backend/webserver/middleware/setup-settings');
+    var setupSettings = this.helpers.requireBackend('webserver/middleware/setup-settings');
     var req = {
       protocol: 'http',
       get: function() {

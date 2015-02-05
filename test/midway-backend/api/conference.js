@@ -8,14 +8,14 @@ describe('The conference API', function() {
   var creator, attendee, user, conferenceId;
 
   beforeEach(function() {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-    require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
   });
 
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      webserver = require(self.testEnv.basePath + '/backend/webserver').webserver;
+      webserver = self.helpers.requireBackend('webserver').webserver;
       self.mongoose = require('mongoose');
       done();
     });

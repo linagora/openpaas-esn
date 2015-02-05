@@ -10,7 +10,7 @@ describe('The addmember handler', function() {
   describe('The validate fn', function() {
 
     it('should fail if invitation data is not set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.validate({}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -18,7 +18,7 @@ describe('The addmember handler', function() {
     });
 
     it('should fail if email is not set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.validate({data: {user: {}, domain: {}, foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -26,7 +26,7 @@ describe('The addmember handler', function() {
     });
 
     it('should be ok if required data is set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.validate({data: {user: {}, domain: {}, email: 'baz@me.org'}}, function(err, result) {
         expect(result).to.be.true;
         done();
@@ -34,7 +34,7 @@ describe('The addmember handler', function() {
     });
 
     it('should fail is email is not an email', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.validate({data: {user: {}, domain: {}, email: 'baz'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -45,7 +45,7 @@ describe('The addmember handler', function() {
   describe('The init fn', function() {
 
     it('should fail if invitation uuid is not set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.init({}, function(err, result) {
         expect(err).to.exist;
         done();
@@ -53,7 +53,7 @@ describe('The addmember handler', function() {
     });
 
     it('should fail if invitation url is not set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.init({uuid: 123, data: {}}, function(err, result) {
         expect(err).to.exist;
         done();
@@ -74,7 +74,7 @@ describe('The addmember handler', function() {
         }
       };
 
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.init(invitation, function(err, response) {
         expect(err).to.not.exist;
         expect(response).to.be.true;
@@ -86,7 +86,7 @@ describe('The addmember handler', function() {
   describe('The process fn', function() {
 
     it('should redirect to the invitation app if invitation is found', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
 
       var invitation = {
         uuid: 12345678
@@ -101,7 +101,7 @@ describe('The addmember handler', function() {
     });
 
     it('should send back error if invitation is not found', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.process(null, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -127,11 +127,11 @@ describe('The addmember handler', function() {
       this.mongoose = require('mongoose');
       this.mongoose.connect(this.testEnv.mongoUrl);
 
-      Domain = require(this.testEnv.basePath + '/backend/core/db/mongo/models/domain');
-      User = require(this.testEnv.basePath + '/backend/core/db/mongo/models/user');
-      Invitation = require(this.testEnv.basePath + '/backend/core/db/mongo/models/invitation');
+      Domain = this.helpers.requireBackend('core/db/mongo/models/domain');
+      User = this.helpers.requireBackend('core/db/mongo/models/user');
+      Invitation = this.helpers.requireBackend('core/db/mongo/models/invitation');
 
-      var template = require(this.testEnv.basePath + '/backend/core/templates');
+      var template = this.helpers.requireBackend('core/templates');
       template.user.store(done);
     });
 
@@ -141,7 +141,7 @@ describe('The addmember handler', function() {
     });
 
     it('should send back error if invitation is not set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.finalize(null, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -150,7 +150,7 @@ describe('The addmember handler', function() {
 
 
     it('should send back error if data is not set', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       addmember.finalize({}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -159,7 +159,7 @@ describe('The addmember handler', function() {
 
 
     it('should send back error if invitation is already finalized', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
 
       var invitation = {
         type: 'test',
@@ -186,7 +186,7 @@ describe('The addmember handler', function() {
 
 
     it('should send back error when domain / company do not exist', function(done) {
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
 
       var invitation = {
         data: {
@@ -216,7 +216,7 @@ describe('The addmember handler', function() {
 
     it('should create a user if invitation and form data are set', function(done) {
       var mongoUrl = this.testEnv.mongoUrl;
-      var addmember = require(this.testEnv.basePath + '/backend/core/invitation/handlers/addmember');
+      var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
       var invitation = {
         type: 'test',
         data: {

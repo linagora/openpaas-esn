@@ -22,7 +22,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/community', initMock());
     mockery.registerMock('./notification/collaboration', initMock());
 
-    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+    this.helpers.requireBackend('wsserver/events')(io);
   });
 
   it('should initialize the conferences event', function(done) {
@@ -33,7 +33,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/community', initMock());
     mockery.registerMock('./notification/collaboration', initMock());
 
-    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+    this.helpers.requireBackend('wsserver/events')(io);
   });
 
 
@@ -45,7 +45,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/community', initMock());
     mockery.registerMock('./notification/collaboration', initMock());
 
-    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+    this.helpers.requireBackend('wsserver/events')(io);
   });
 
   it('should initialize the community event', function(done) {
@@ -56,7 +56,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/community', initMock());
     mockery.registerMock('./notification/collaboration', initMock());
 
-    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+    this.helpers.requireBackend('wsserver/events')(io);
   });
 
   it('should initialize the usernotifications event', function(done) {
@@ -67,7 +67,7 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/collaboration', initMock());
     mockery.registerMock('./notification/community', initMock(done));
 
-    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+    this.helpers.requireBackend('wsserver/events')(io);
   });
 
   it('should initialize the collaboration event', function(done) {
@@ -78,6 +78,6 @@ describe('The WebSockets Event module', function() {
     mockery.registerMock('./notification/community', initMock());
     mockery.registerMock('./notification/collaboration', initMock(done));
 
-    require(this.testEnv.basePath + '/backend/wsserver/events')(io);
+    this.helpers.requireBackend('wsserver/events')(io);
   });
 });

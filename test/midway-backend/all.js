@@ -77,7 +77,7 @@ beforeEach(function() {
 
 afterEach(function() {
   try {
-    require(this.testEnv.basePath + '/backend/core/db/mongo/file-watcher').clear();
+    this.helpers.requireBackend('core/db/mongo/file-watcher').clear();
     this.testEnv.removeDBConfigFile();
   } catch (e) {}
   mockery.resetCache();

@@ -27,7 +27,7 @@ describe('The user helpers module', function() {
 
   describe('the getUserIds fn', function() {
     it('should send back an error if user is undefined', function(done) {
-      require(this.testEnv.basePath + '/backend/helpers/user').isInternal(null, function(err) {
+      this.helpers.requireBackend('helpers/user').isInternal(null, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -53,7 +53,7 @@ describe('The user helpers module', function() {
         });
       };
 
-      require(this.testEnv.basePath + '/backend/helpers/user').isInternal('123', function(err, isInternal) {
+      this.helpers.requireBackend('helpers/user').isInternal('123', function(err, isInternal) {
         expect(err).to.not.exist;
         expect(isInternal).to.be.true;
         done();
@@ -80,7 +80,7 @@ describe('The user helpers module', function() {
         });
       };
 
-      require(this.testEnv.basePath + '/backend/helpers/user').isInternal(user, function(err, isInternal) {
+      this.helpers.requireBackend('helpers/user').isInternal(user, function(err, isInternal) {
         expect(err).to.not.exist;
         expect(isInternal).to.be.true;
         done();

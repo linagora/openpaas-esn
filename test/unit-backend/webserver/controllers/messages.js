@@ -41,7 +41,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage({}, res);
     });
 
@@ -62,7 +62,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(req, res);
     });
 
@@ -92,7 +92,7 @@ describe('The messages controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -122,7 +122,7 @@ describe('The messages controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -160,7 +160,7 @@ describe('The messages controller', function() {
       this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
       this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -196,7 +196,7 @@ describe('The messages controller', function() {
 
       this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -225,7 +225,7 @@ describe('The messages controller', function() {
       };
       mockery.registerMock('mongoose', mongooseMock);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
   });
@@ -269,7 +269,7 @@ describe('The messages controller', function() {
         }
       });
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -293,7 +293,7 @@ describe('The messages controller', function() {
         }
       });
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -316,7 +316,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -346,7 +346,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', messageModuleMocked);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -375,7 +375,7 @@ describe('The messages controller', function() {
 
       this.helpers.mock.pubsub('../core/pubsub', localstub, globalstub);
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createOrReplyToMessage(validReq, res);
     });
 
@@ -407,7 +407,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessages({}, res);
     });
 
@@ -428,7 +428,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessages(req, res);
     });
 
@@ -454,7 +454,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessages(validReq, res);
     });
 
@@ -506,7 +506,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessages(validReq, res);
     });
 
@@ -558,7 +558,7 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', messageModuleMocked);
       mockery.registerMock('../../core/message/email', {});
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessages(validReq, res);
     });
   });
@@ -581,7 +581,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
     });
 
@@ -610,7 +610,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
     });
 
@@ -639,7 +639,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
     });
 
@@ -676,7 +676,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
     });
 
@@ -700,7 +700,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
     });
 
@@ -721,7 +721,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
     });
 
@@ -747,7 +747,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
     });
 
@@ -773,7 +773,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
     });
 
@@ -812,7 +812,7 @@ describe('The messages controller', function() {
         }
       };
 
-      var messages = require(this.testEnv.basePath + '/backend/webserver/controllers/messages');
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
     });
   });

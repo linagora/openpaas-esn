@@ -14,8 +14,8 @@ describe('the TimelineEntriesTracker module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    TimelineEntriesTracker = require(this.testEnv.basePath + '/backend/core/db/mongo/models/timelineentriestracker');
-    tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+    TimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/timelineentriestracker');
+    tracker = this.helpers.requireBackend('core/activitystreams/tracker');
     this.testEnv.writeDBConfigFile();
     this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
@@ -156,7 +156,7 @@ describe('the TimelineEntriesTracker module', function() {
               return done(err);
             }
 
-            var TimelineEntry = require(self.testEnv.basePath + '/backend/core/db/mongo/models/timelineentry');
+            var TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
             TimelineEntry.update({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
               if (err) {
                 return done(err);

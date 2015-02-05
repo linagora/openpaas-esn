@@ -13,8 +13,8 @@ describe('The User template module', function() {
 
     it('should inject the user template in the templates collection', function(done) {
       var self = this;
-      var userInject = require(this.testEnv.basePath + '/backend/core/templates/user');
-      var template = require(this.testEnv.basePath + '/backend/core/templates/data/user-template').simple();
+      var userInject = this.helpers.requireBackend('core/templates/user');
+      var template = this.helpers.requireBackend('core/templates/data/user-template').simple();
       this.testEnv.initCore();
       template._id = 'user';
       userInject.store(function(err) {

@@ -10,7 +10,7 @@ describe('The passport configuration module', function() {
   });
 
   it('should not fail with default configuration settings (file)', function(done) {
-    require(this.testEnv.basePath + '/backend/webserver/passport');
+    this.helpers.requireBackend('webserver/passport');
     var passport = require('passport');
     expect(passport._strategy('local')).to.exist;
     done();
@@ -38,7 +38,7 @@ describe('The passport configuration module', function() {
         }
       };
       mockery.registerMock('../core', configMock);
-      require(this.testEnv.basePath + '/backend/webserver/passport');
+      this.helpers.requireBackend('webserver/passport');
       var passport = require('passport');
       expect(passport._strategy('foobar')).to.be.undefined;
     });
@@ -49,7 +49,7 @@ describe('The passport configuration module', function() {
     var passport;
 
     beforeEach(function() {
-      require(this.testEnv.basePath + '/backend/webserver/passport');
+      this.helpers.requireBackend('webserver/passport');
       passport = require('passport');
     });
 

@@ -11,7 +11,7 @@ describe('The feedback API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
 
       self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) { return done(err); }

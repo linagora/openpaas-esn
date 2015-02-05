@@ -11,7 +11,7 @@ describe('The WebSockets server module', function() {
   });
 
   it('should contains all needed properties.', function() {
-    var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
+    var wsserver = this.helpers.requireBackend('wsserver').wsserver;
     expect(wsserver).to.exist;
     expect(wsserver).to.be.an.Object;
     expect(wsserver.namespaces).to.exist;
@@ -58,7 +58,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('../webserver', webserverMock);
         mockery.registerMock('express', expressMock);
 
-        var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
+        var wsserver = this.helpers.requireBackend('wsserver').wsserver;
 
         wsserver.start(1234, function() {});
       });
@@ -84,7 +84,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('../webserver', webserverMock);
 
-        var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
+        var wsserver = this.helpers.requireBackend('wsserver').wsserver;
 
         wsserver.start(8080, function() {});
       });
@@ -110,7 +110,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('../webserver', webserverMock);
 
-        var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
+        var wsserver = this.helpers.requireBackend('wsserver').wsserver;
 
         wsserver.start(443, function() {});
       });
@@ -127,7 +127,7 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
-      var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
+      var wsserver = this.helpers.requireBackend('wsserver').wsserver;
 
       wsserver.start(function() {done();});
     });
@@ -147,8 +147,8 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
-      var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
-      var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
+      var wsserver = this.helpers.requireBackend('wsserver').wsserver;
+      var store = this.helpers.requireBackend('wsserver/socketstore');
       wsserver.start(function() {
         var socket = {
           id: 'socket1',
@@ -188,8 +188,8 @@ describe('The WebSockets server module', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', ioMock);
 
-      var wsserver = require(this.testEnv.basePath + '/backend/wsserver').wsserver;
-      var store = require(this.testEnv.basePath + '/backend/wsserver/socketstore');
+      var wsserver = this.helpers.requireBackend('wsserver').wsserver;
+      var store = this.helpers.requireBackend('wsserver/socketstore');
       wsserver.start(function() {
         var socket = new Socket({userId: '123'});
         socket.id = 'socket1';
@@ -210,7 +210,7 @@ describe('The WebSockets server module', function() {
     it('should provide a start state', function() {
       mockery.registerMock('./middleware/setup-sessions', function() {});
       mockery.registerMock('socket.io', function() {});
-      var module = require(this.testEnv.basePath + '/backend/wsserver').awesomeWsServer;
+      var module = this.helpers.requireBackend('wsserver').awesomeWsServer;
       expect(module.settings.states.start).to.exist;
       expect(module.settings.states.start).to.be.a('function');
     });

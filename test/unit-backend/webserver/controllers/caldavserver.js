@@ -22,7 +22,7 @@ describe('The caldavserver controller', function() {
         }
       };
 
-      var caldavserver = require(this.testEnv.basePath + '/backend/webserver/controllers/caldavserver');
+      var caldavserver = this.helpers.requireBackend('webserver/controllers/caldavserver');
       caldavserver.getCaldavUrl(null, res);
     });
 
@@ -45,7 +45,7 @@ describe('The caldavserver controller', function() {
         }
       };
 
-      var caldavserver = require(this.testEnv.basePath + '/backend/webserver/controllers/caldavserver');
+      var caldavserver = this.helpers.requireBackend('webserver/controllers/caldavserver');
       caldavserver.getCaldavUrl(null, res);
     });
   });

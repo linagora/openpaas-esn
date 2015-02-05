@@ -18,7 +18,7 @@ describe('The Core configured module', function() {
       }
     };
     mockery.registerMock('..', coreMock);
-    isConfigured = require(this.testEnv.basePath + '/backend/core').configured;
+    isConfigured = this.helpers.requireBackend('core').configured;
     expect(isConfigured()).to.be.false;
   });
 
@@ -31,7 +31,7 @@ describe('The Core configured module', function() {
       }
     };
     mockery.registerMock('..', coreMock);
-    isConfigured = require(this.testEnv.basePath + '/backend/core').configured;
+    isConfigured = this.helpers.requireBackend('core').configured;
     expect(isConfigured()).to.be.false;
   });
 
@@ -48,7 +48,7 @@ describe('The Core configured module', function() {
     var stub = {};
     mockPubSub('../pubsub', stub);
 
-    isConfigured = require(this.testEnv.basePath + '/backend/core').configured;
+    isConfigured = this.helpers.requireBackend('core').configured;
     expect(isConfigured()).to.be.true;
     expect(stub.topics['mongodb:configurationAvailable'].data[0]).to.deep.equal({
         connectionString: 'url'

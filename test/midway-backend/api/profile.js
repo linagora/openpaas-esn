@@ -11,9 +11,9 @@ describe('The profile API', function() {
   beforeEach(function(done) {
     var self = this;
     this.testEnv.initCore(function() {
-      app = require(self.testEnv.basePath + '/backend/webserver/application');
+      app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
-      var User = require(self.testEnv.basePath + '/backend/core/db/mongo/models/user');
+      var User = self.helpers.requireBackend('core/db/mongo/models/user');
 
       foouser = new User({
         firstname: 'John',

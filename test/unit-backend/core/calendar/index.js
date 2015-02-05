@@ -53,7 +53,7 @@ describe('The calendar core module', function() {
 
   describe('The dispatch fn', function() {
     it('should return an error if data is undefined', function(done) {
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(null, function(err, result) {
         expect(err).to.exist;
         done();
@@ -61,7 +61,7 @@ describe('The calendar core module', function() {
     });
 
     it('should return an error if data is not an object', function(done) {
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch('test', function(err, result) {
         expect(err).to.exist;
         done();
@@ -77,7 +77,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -93,7 +93,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -107,7 +107,7 @@ describe('The calendar core module', function() {
         event: 'test'
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -123,7 +123,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -139,7 +139,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -156,7 +156,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -185,7 +185,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -224,7 +224,7 @@ describe('The calendar core module', function() {
         }]
       };
 
-      var module = require(this.testEnv.basePath + '/backend/core/calendar/index');
+      var module = this.helpers.requireBackend('core/calendar/index');
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;

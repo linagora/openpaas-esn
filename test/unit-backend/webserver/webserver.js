@@ -51,7 +51,7 @@ describe('The Webserver module', function() {
   }
 
   it('should contains all needed properties', function() {
-    var webserver = require(this.testEnv.basePath + '/backend/webserver').webserver;
+    var webserver = this.helpers.requireBackend('webserver').webserver;
     expect(webserver).to.exist;
     expect(webserver).to.be.an.Object;
     expect(webserver.application).to.exist;
@@ -92,8 +92,8 @@ describe('The Webserver module', function() {
   });
 
   before(function() {
-    config = require(this.testEnv.basePath + '/backend/core').config('default');
-    var expressFixtures = require(this.testEnv.fixtures + '/express');
+    config = this.helpers.requireBackend('core').config('default');
+    var expressFixtures = this.helpers.requireFixture('express');
     expressMock = expressFixtures.express();
     httpMock = expressFixtures.http();
     httpsMock = expressFixtures.https();
@@ -256,7 +256,7 @@ describe('The Webserver module', function() {
 
   describe('AwesomeWebServer', function() {
     it('should provide a start state', function() {
-      var module = require(this.testEnv.basePath + '/backend/webserver').awesomeWebServer;
+      var module = this.helpers.requireBackend('webserver').awesomeWebServer;
       expect(module.settings.states.start).to.exist;
       expect(module.settings.states.start).to.be.a('function');
     });

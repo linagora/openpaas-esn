@@ -8,7 +8,7 @@ describe('The activity streams tracker core module', function() {
 
     it('should send back error when a parameter is null', function(done) {
       mockery.registerMock('mongoose', {model: function() {}});
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.updateLastTimelineEntryRead(null, '', '', function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
@@ -35,7 +35,7 @@ describe('The activity streams tracker core module', function() {
         }
       });
 
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.updateLastTimelineEntryRead('', '', '', function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
@@ -62,7 +62,7 @@ describe('The activity streams tracker core module', function() {
         }
       });
 
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.updateLastTimelineEntryRead('12345', '98765', '34567', function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;
@@ -92,7 +92,7 @@ describe('The activity streams tracker core module', function() {
         }
       });
 
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.updateLastTimelineEntryRead('12345', '98765', '34567', function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;
@@ -103,7 +103,7 @@ describe('The activity streams tracker core module', function() {
   describe('The getLastTimelineEntryRead fn', function() {
     it('should send back error when a parameter is null', function(done) {
       mockery.registerMock('mongoose', {model: function() {}});
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.getLastTimelineEntryRead(null, '', function(err, objectId) {
         expect(err).to.exist;
         expect(objectId).to.not.exist;
@@ -126,7 +126,7 @@ describe('The activity streams tracker core module', function() {
         }
       });
 
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.getLastTimelineEntryRead('', '', function(err, objectId) {
         expect(err).to.exist;
         expect(objectId).to.not.exist;
@@ -150,7 +150,7 @@ describe('The activity streams tracker core module', function() {
         }
       });
 
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.getLastTimelineEntryRead('12345', '98765', function(err, objectId) {
         expect(err).to.not.exist;
         expect(objectId).to.exist;
@@ -163,7 +163,7 @@ describe('The activity streams tracker core module', function() {
   describe('The getUnreadTimelineEntriesCount fn', function() {
     it('should send back error when a parameter is null', function(done) {
       mockery.registerMock('mongoose', {model: function() {}});
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.getUnreadTimelineEntriesCount(null, '', function(err, count) {
         expect(err).to.exist;
         expect(count).to.not.exist;
@@ -199,7 +199,7 @@ describe('The activity streams tracker core module', function() {
         }
       });
 
-      var tracker = require(this.testEnv.basePath + '/backend/core/activitystreams/tracker');
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.getUnreadTimelineEntriesCount('12345', '98765', function(err, count) {
         expect(err).to.not.exist;
         expect(count).to.exist;

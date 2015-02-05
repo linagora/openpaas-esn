@@ -39,7 +39,7 @@ describe('The conferences notification WS module', function() {
           };
         }
       };
-      this.logger = require(this.testEnv.fixtures + '/logger-noop');
+      this.logger = this.helpers.requireFixture('logger-noop');
       this.core = {
         logger: this.logger,
         user: this.userModule,
@@ -51,20 +51,20 @@ describe('The conferences notification WS module', function() {
     });
 
     it('should register pubsub subscriber for conference:join event', function() {
-      var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/conferences');
+      var mod = this.helpers.requireBackend('wsserver/notification/conferences');
       mod.init(this.io);
       expect(this.joiner_callback).to.be.a.function;
     });
 
     it('should register pubsub subscriber for conference:leave event', function() {
-      var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/conferences');
+      var mod = this.helpers.requireBackend('wsserver/notification/conferences');
       mod.init(this.io);
       expect(this.leaver_callback).to.be.a.function;
     });
 
     describe('conference:join subscriber', function() {
       beforeEach(function() {
-        var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/conferences');
+        var mod = this.helpers.requireBackend('wsserver/notification/conferences');
         mod.init(this.io);
       });
       it('should return the display name of the user in the message', function(done) {
@@ -85,7 +85,7 @@ describe('The conferences notification WS module', function() {
     });
     describe('conference:leave subscriber', function() {
       beforeEach(function() {
-        var mod = require(this.testEnv.basePath + '/backend/wsserver/notification/conferences');
+        var mod = this.helpers.requireBackend('wsserver/notification/conferences');
         mod.init(this.io);
       });
       it('should return the display name of the user in the message', function(done) {

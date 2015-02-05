@@ -23,7 +23,7 @@ describe('The files controller', function() {
           done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
@@ -37,7 +37,7 @@ describe('The files controller', function() {
           done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
@@ -72,7 +72,7 @@ describe('The files controller', function() {
           done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
@@ -108,7 +108,7 @@ describe('The files controller', function() {
           done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
@@ -147,7 +147,7 @@ describe('The files controller', function() {
           done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
@@ -183,7 +183,7 @@ describe('The files controller', function() {
           done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
 
@@ -215,7 +215,7 @@ describe('The files controller', function() {
           return done(new Error());
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
   });
@@ -238,7 +238,7 @@ describe('The files controller', function() {
             done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
@@ -252,7 +252,7 @@ describe('The files controller', function() {
             done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
@@ -274,7 +274,7 @@ describe('The files controller', function() {
             done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
@@ -301,7 +301,7 @@ describe('The files controller', function() {
           expect(code).to.equal(404);
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
@@ -329,7 +329,7 @@ describe('The files controller', function() {
           expect(code).to.equal(200);
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
@@ -371,7 +371,7 @@ describe('The files controller', function() {
           expect(code).to.equal(200);
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
 
@@ -404,7 +404,7 @@ describe('The files controller', function() {
             done();
         }
       };
-      var files = require(this.testEnv.basePath + '/backend/webserver/controllers/files');
+      var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
   });
