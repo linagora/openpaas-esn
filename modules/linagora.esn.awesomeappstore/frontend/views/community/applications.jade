@@ -24,7 +24,7 @@
     p #{__('There are no modules yet.')}
   .vertiz-space
 
-  .row(ng-if="applications")
+  .row.text-center(ng-if="applications")
     div(ng-repeat="application in applications | orderBy:'title'")
       community-app-display(community="community", application="application")
 
