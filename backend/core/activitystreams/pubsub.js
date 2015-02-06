@@ -7,24 +7,34 @@ var tracker = require('./tracker');
 var collaborationModule = require('../collaboration');
 var initialized = false;
 
-function createActivity(data, callback) {
-  if (!data) {
-    logger.warn('Can not create activity from null data');
-    return;
-  }
-
+/**
+ * Handler for the message:activity notification.
+ *
+ * @param {object} data             Notification event data
+ * @param {function} callback       The callback function
+ */
+function processActivity(data, callback) {
   callback = callback || function(err, saved) {
     if (err) {
-      logger.warn('Error while adding timeline entry : ', + err.message);
-    } else {
-      if (saved) {
-        logger.debug('Activity has been saved into the timeline : ' + saved._id);
-      }
+      logger.warn('Error processing message:activity: ', + err.message);
     }
   };
-  activitystream.addTimelineEntry(data, callback);
+
+  if (!data) {
+    return callback(new Error('Can not create activity from null data'));
+  }
+
+  switch (data.verb) {
+    case 'post':
+      return activitystream.addTimelineEntry(data, callback);
+    case 'update':
+      // This case should be accepted, but doesn't require a specific action
+      return callback(null, null);
+    default:
+      return callback(new Error('Invalid activity verb' + data.verb));
+  }
 }
-module.exports.createActivity = createActivity;
+module.exports.processActivity = processActivity;
 
 function updateTimelineEntriesTracker(data, callback) {
   if (!data) {
@@ -79,7 +89,7 @@ function init() {
     logger.warn('Activity Stream Pubsub is already initialized');
     return;
   }
-  pubsub.topic('message:activity').subscribe(createActivity);
+  pubsub.topic('message:activity').subscribe(processActivity);
   pubsub.topic('collaboration:join').subscribe(updateTimelineEntriesTracker);
   initialized = true;
 }

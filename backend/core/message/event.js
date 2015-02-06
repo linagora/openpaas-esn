@@ -5,6 +5,13 @@ var logger = require(__dirname + '/../../core').logger,
   EventMessage = mongoose.model('EventMessage'),
   pubsub = require('../pubsub').local;
 
+/**
+ * Saves a new event message to the database, also publishing a message:stored
+ * pubsub notification.
+ *
+ * @param {object} message          The message to be saved in the database.
+ * @param {function} callback       The callback function, called with the result.
+ */
 module.exports.save = function(message, callback) {
   var eventMessage = new EventMessage(message),
     topic = pubsub.topic('message:stored');
@@ -17,4 +24,16 @@ module.exports.save = function(message, callback) {
     }
     callback(err, response);
   });
+};
+
+/**
+ * Find an EventMessage by its calendar eventId. This will only find calendar
+ * event messages.
+ *
+ * @param {String} eventId          The event id to search for.
+ * @param {function} callback       The callback function, called with the result.
+ */
+module.exports.findByEventId = function(eventId, callback) {
+  var query = { objectType: 'event', eventId: eventId };
+  return EventMessage.findOne(query).exec(callback);
 };

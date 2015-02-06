@@ -452,7 +452,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/templates/emailMessage.html'
     };
   })
-  .directive('eventMessage', ['calendarService', 'session', 'moment', function(calendarService, session, moment) {
+  .directive('eventMessage', ['$rootScope', 'calendarService', 'session', 'moment', function($rootScope, calendarService, session, moment) {
     return {
       restrict: 'E',
       replace: true,
@@ -472,30 +472,39 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
           });
         };
 
-        // Initialization
-        calendarService.getEvent($scope.message.eventId).then(function(event) {
-          // Set up dom nodes
-          $scope.event = event;
-          element.find('>div>div.loading').addClass('hidden');
-          element.find('>div>div.message').removeClass('hidden');
+        function updateEvent() {
+          calendarService.getEvent($scope.message.eventId).then(function(event) {
+            // Set up dom nodes
+            $scope.event = event;
+            element.find('>div>div.loading').addClass('hidden');
+            element.find('>div>div.message').removeClass('hidden');
 
-          // Load participation status
-          var vcalendar = event.vcalendar;
-          var emails = session.user.emails;
-          var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
-          var organizer = attendees.filter(function(att) {
-            return att.name === 'organizer' && att.getParameter('partstat');
+            // Load participation status
+            var vcalendar = event.vcalendar;
+            var emails = session.user.emails;
+            var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
+            var organizer = attendees.filter(function(att) {
+              return att.name === 'organizer' && att.getParameter('partstat');
+            });
+
+            var attendee = organizer[0] || attendees[0];
+            if (attendee) {
+              $scope.partstat = attendee.getParameter('partstat');
+            }
+          }, function(response) {
+            var error = 'Could not retrieve event: ' + response.statusText;
+            element.find('>div>.loading').addClass('hidden');
+            element.find('>div>.error').text(error).removeClass('hidden');
           });
+        }
 
-          var attendee = organizer[0] || attendees[0];
-          if (attendee) {
-            $scope.partstat = attendee.getParameter('partstat');
+        $rootScope.$on('activitystream:updateMessage', function(evt, data) {
+          if (data.object._id === $scope.message._id) {
+            updateEvent();
           }
-        }, function(response) {
-          var error = 'Could not retrieve event: ' + response.statusText;
-          element.find('>div>.loading').addClass('hidden');
-          element.find('>div>.error').text(error).removeClass('hidden');
         });
+
+        updateEvent();
       }
     };
   }])

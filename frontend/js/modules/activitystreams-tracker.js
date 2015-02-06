@@ -197,6 +197,10 @@ angular.module('esn.activitystreams-tracker', [
       function liveNotificationHandler(data) {
         var activityStreamUuid = data.target[0]._id;
 
+        if (data.verb === 'update') {
+          $rootScope.$emit('activitystream:updateMessage', data);
+        }
+
         if (data.actor._id !== session.user._id) {
           ASTrackerAPI.getUnreadCount(activityStreamUuid).then(function(response) {
             updateUnread(activityStreamUuid, response.data.unread_count);

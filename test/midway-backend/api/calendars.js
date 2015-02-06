@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var request = require('supertest');
+var async = require('async');
 
 describe('The calendars API', function() {
   var app;
@@ -99,7 +100,7 @@ describe('The calendars API', function() {
     });
   });
 
-  it('POST /api/calendars/:objectType/:id/events should return 201', function(done) {
+  it('POST /api/calendars/:objectType/:id/events should return 201 for creates', function(done) {
     this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
       if (err) {
         return done(err);
@@ -119,5 +120,51 @@ describe('The calendars API', function() {
         done();
       });
     });
+  });
+
+  it('POST /api/calendars/:objectType/:id/events should return 200 for modifications', function(done) {
+    var pubsub = this.helpers.requireBackend('core').pubsub.local;
+    var topic = pubsub.topic('message:activity');
+    async.series([function(callback) {
+      this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
+        req.send({
+          event_id: '123',
+          type: 'created',
+          event: 'ICS'
+        }).end(callback);
+      });
+    }.bind(this), function(callback) {
+      this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+        var called = false;
+        topic.subscribe(function(message) {
+          expect(message.verb).to.equal('update');
+          called = true;
+        });
+
+        var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
+        req.send({
+          event_id: '123',
+          type: 'updated',
+          event: 'ICS'
+        });
+        req.expect(200).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(called).to.equal(true);
+          expect(res).to.exist;
+          expect(res.body).to.exist;
+          expect(res.body._id).to.exist;
+          expect(res.body.objectType).to.equal('event');
+          done();
+        });
+      });
+    }.bind(this)]);
   });
 });
