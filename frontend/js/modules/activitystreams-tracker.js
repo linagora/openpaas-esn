@@ -218,8 +218,12 @@ angular.module('esn.activitystreams-tracker', [
       }
 
       function subscribeToStreamNotification(streamId) {
+        if (self.notifications[streamId]) {
+          return false;
+        }
         var socketIORoom = livenotification('/activitystreams', streamId).on('notification', liveNotificationHandler);
         self.notifications[streamId] = socketIORoom;
+        return true;
       }
 
       function unsubscribeFromStreamNotification(streamId) {
@@ -264,13 +268,15 @@ angular.module('esn.activitystreams-tracker', [
 
           handler.get(data.collaboration.id).then(function(success) {
             var uuid = success.data.activity_stream.uuid;
-            ASTrackerNotificationService.subscribeToStreamNotification(uuid);
             var streamInfo = objectTypeAdapter.adapt(success.data);
             streamInfo.uuid = uuid;
             streamInfo.display_name = streamInfo.displayName;
             streamInfo.href = streamInfo.url;
             streamInfo.img = streamInfo.avatarUrl;
-            ASTrackerNotificationService.addItem(streamInfo);
+            var registered = ASTrackerNotificationService.subscribeToStreamNotification(uuid);
+            if (registered) {
+              ASTrackerNotificationService.addItem(streamInfo);
+            }
 
           }, function(err) {
             $log.debug('Error while getting collaboration', err.data);

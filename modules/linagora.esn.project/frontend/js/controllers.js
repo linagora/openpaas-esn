@@ -71,15 +71,21 @@ angular.module('esn.project')
           return;
         }
 
+        var tracked = 0;
+
         result.forEach(function(element) {
           element.objectType = 'project';
           element.href = '/#/projects/' + element.target._id;
           element.img = '/api/projects/' + element.target._id + '/avatar';
-          ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
-          ASTrackerNotificationService.addItem(element);
+
+          var registered = ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
+          if (registered) {
+            tracked++;
+            ASTrackerNotificationService.addItem(element);
+          }
         });
         $scope.load = false;
-        $scope.show = result.length > 0;
+        $scope.show = tracked > 0;
       });
   }])
   .controller('projectMembersController', ['$scope', 'collaborationAPI', 'session', 'usSpinnerService',
