@@ -59,7 +59,7 @@ describe('The targets helpers module', function() {
       ];
 
       communityMock.getMembers = function(community, query, callback) {
-        return callback(null, [{id: users[0]._id, objectType: 'user'}]);
+        return callback(null, [{member: {id: users[0]._id, objectType: 'user'}}]);
       };
 
       var targets = [{
