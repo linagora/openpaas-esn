@@ -12,7 +12,7 @@ angular.module('esn.widget.helper', ['mgcrea.ngStrap.modal'])
         modal.destroy();
       });
       $scope.showModal = function() {
-        $scope.modal = $modal({scope: $scope, template: template});
+        $scope.modal = $modal({scope: $scope, template: template, backdrop: 'static'});
       };
     }
   };
