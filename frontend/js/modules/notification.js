@@ -2,10 +2,11 @@
 
 angular.module('esn.notification', ['ui.notify', 'angularMoment'])
   .factory('notificationFactory', ['notificationService', function(notificationService) {
-    function weakInfo(title, text) {
-      var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
+    var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
+    var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
 
-      notificationService.notify({
+    function weakOf(stack_placement, title, text, type) {
+      return {
         title: title,
         text: text,
         nonblock: {
@@ -13,15 +14,26 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
           nonblock_opacity: 0.2
         },
         addclass: 'stack-bottomright',
-        stack: stack_bottomright,
-        type: 'info',
+        stack: stack_placement,
+        type: type,
         delay: 3000,
         styling: 'fontawesome'
-      });
+      };
     }
-    function strongInfo(title, text) {
-      var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
 
+    function weakInfo(title, text) {
+      notificationService.notify(weakOf(stack_bottomright, title, text, 'info'));
+    }
+
+    function weakSuccess(title, text) {
+      notificationService.notify(weakOf(stack_bottomright, title, text, 'success'));
+    }
+
+    function weakError(title, text) {
+      notificationService.notify(weakOf(stack_bottomright, title, text, 'error'));
+    }
+
+    function strongInfo(title, text) {
       notificationService.notify({
         title: title,
         text: text,
@@ -83,6 +95,8 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
     }
     return {
       weakInfo: weakInfo,
+      weakError: weakError,
+      weakSuccess: weakSuccess,
       strongInfo: strongInfo,
       confirm: confirm
     };
