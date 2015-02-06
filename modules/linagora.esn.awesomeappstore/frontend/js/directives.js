@@ -143,7 +143,7 @@ angular.module('esn.appstore')
         scope.switch.status = disableService(target, scope.application.deployments);
 
         if (deployment[0]) {
-          scope.deploySwitch = disableService(target, deployment[0].installs);
+          scope.switch.status = disableService(target, deployment[0].installs);
         } else {
           scope.active = false;
         }
