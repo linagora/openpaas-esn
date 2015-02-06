@@ -1047,8 +1047,10 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           element.objectType = 'community';
           element.href = '/#/communities/' + element.target._id;
           element.img = '/api/communities/' + element.target._id + '/avatar';
-          ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
-          ASTrackerNotificationService.addItem(element);
+          var registered = ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
+          if (registered) {
+            ASTrackerNotificationService.addItem(element);
+          }
         });
       });
   }])
