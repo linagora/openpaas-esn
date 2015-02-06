@@ -203,7 +203,11 @@
   "Accept": "Accept",
   "Decline": "Decline",
   "Your request has been accepted, welcome to the community": "Your request has been accepted, welcome to the community",
+  "Your request has been accepted, welcome to the project": "Your request has been accepted, welcome to the project",
+  "Your request has been accepted, welcome to the collaboration": "Your request has been accepted, welcome to the collaboration",
   "Your request to join the community has been declined": "Your request to join the community has been declined",
+  "Your request to join the project has been declined": "Your request to join the project has been declined",
+  "Your request has been declined": "Your request has been declined",
   "Loading sent invitations": "Loading sent invitations",
   "Error while loading sent invitations": "Error while loading sent invitations",
   "No invitations sent": "No invitations sent",
@@ -216,6 +220,8 @@
   "Your browser either does not support geolocation or you are not connected to the internet": "Your browser either does not support geolocation or you are not connected to the internet",
   "Near": "Near",
   "You have been added to the community, welcome": "You have been added to the community, welcome",
+  "You have been added to the project, welcome": "You have been added to the project, welcome",
+  "You have been added to the collaboration, welcome": "You have been added to the collaboration, welcome",
   "You have declined the invitation": "You have declined the invitation",
   "Calendar": "Calendar",
   "Create Event": "Create Event",
@@ -244,5 +250,8 @@
   "all recipients": "all recipients",
   "and": "and",
   "Module Manager": "Module Manager",
-  "Current": "Current"
+  "Current": "Current",
+  "invites you to join this community": "invites you to join this community",
+  "invites you to join this project": "invites you to join this project",
+  "invites you to join this collaboration": "invites you to join this collaboration"
 }

@@ -7,10 +7,12 @@
       | #{__('Loading notifications')}
   div(ng-hide='loading || error')
     a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::collaboration._id}}')
-      img.media-object(ng-src='/api/avatars?objectType={{::collaboration.objectType}}&id={{::collaboration._id}}', src='/images/community.png')
+      img.media-object(ng-src='/api/avatars?objectType={{::collaboration.objectType}}&id={{::collaboration._id}}', fallback-src='/images/collaboration.png')
     .media-body
       .notification-head.ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
         a(ng-href="/#/{{::collaborationPath}}/{{::collaboration._id}}") {{::collaboration.title}}
-      .notification-body
-        span #{__('Your request to join the community has been declined')}...
+      .notification-body(ng-switch='collaboration.objectType')
+        span(ng-switch-when='community') #{__('Your request to join the community has been declined')}...
+        span(ng-switch-when='project') #{__('Your request to join the project has been declined')}...
+        span(ng-switch-default) #{__('Your request has been declined')}...

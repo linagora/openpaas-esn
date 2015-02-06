@@ -7,7 +7,7 @@
       | #{__('Loading notifications')}
   div(ng-hide='loading || error')
     a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::collaborationJoined._id}}')
-      img.media-object(ng-src='/api/avatars?objectType={{::collaborationJoined.objectType}}&id={{::collaborationJoined._id}}', src='/images/community.png')
+      img.media-object(ng-src='/api/avatars?objectType={{::collaborationJoined.objectType}}&id={{::collaborationJoined._id}}', fallback-src='/images/collaboration.png')
     .media-body
       .notification-head.ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
