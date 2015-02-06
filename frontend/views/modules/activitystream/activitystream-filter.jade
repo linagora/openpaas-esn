@@ -1,5 +1,9 @@
 div.btn-group
-  button.btn.btn-info.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false") {{selectedStream.displayName || 'All'}}&nbsp;
+  button.btn.btn-info.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false")
+    span(ng-if='selectedStream.activity_stream.uuid === activitystream.activity_stream.uuid') #{__("Current")}
+    span(ng-if='selectedStream && selectedStream.activity_stream.uuid !== activitystream.activity_stream.uuid') {{selectedStream.displayName}}
+    span(ng-if='!selectedStream') #{__("All")}
+    span &nbsp;
     span.caret
   ul.dropdown-menu.dropdown-menu-right(role="menu")
     li
@@ -11,7 +15,7 @@ div.btn-group
         img(ng-src='{{activitystream.avatarUrl}}')
         span #{__("Current")}
     li.divider
-    li(ng-repeat="stream in streams")
+    li(ng-repeat="stream in displayList")
       a(href="" ng-click="selectStream(stream)")
         img(ng-src='{{stream.avatarUrl}}')
         span {{::stream.displayName}}
