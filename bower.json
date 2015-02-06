@@ -70,6 +70,7 @@
     "angular": "1.3.0",
     "bootstrap": "~3.1.0",
     "fullcalendar": "~2.1.1",
-    "showdown": "053288f2feb6b1db36044b212bb24294fb305df1"
+    "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
+    "bootstrap-switch": "~3.3.2"
   }
 }
