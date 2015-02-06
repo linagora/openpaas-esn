@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.collaboration', ['restangular'])
+angular.module('esn.collaboration', ['restangular', 'esn.notification'])
   .factory('collaborationService', function() {
 
     function isManager(collaboration, user) {
@@ -185,8 +185,8 @@ angular.module('esn.collaboration', ['restangular'])
       }
     };
   })
-  .directive('collaborationInviteUsers', ['$q', 'collaborationAPI', 'collaborationService', 'session',
-    function($q, collaborationAPI, collaborationService, session) {
+  .directive('collaborationInviteUsers', ['$q', 'collaborationAPI', 'collaborationService', 'session', 'notificationFactory',
+    function($q, collaborationAPI, collaborationService, session, notificationFactory) {
       return {
         restrict: 'E',
         replace: true,
@@ -209,9 +209,6 @@ angular.module('esn.collaboration', ['restangular'])
           $scope.getButtonContent = function() {
             return $element.children('.form-container').children('form').find('[button-content]');
           };
-          $scope.getSuccessDiv = function() {
-            return $element.children('.form-container').children('form').find('[success-container]');
-          };
 
           $scope.showErrorMessage = function() {
             $scope.getErrorDiv().removeClass('hidden');
@@ -230,15 +227,11 @@ angular.module('esn.collaboration', ['restangular'])
           };
 
           $scope.showSuccessMessage = function() {
-            $scope.getSuccessDiv().removeClass('hidden');
-          };
-          $scope.hideSuccessMessage = function() {
-            $scope.getSuccessDiv().addClass('hidden');
+            notificationFactory.weakInfo('Invitations have been sent', 'You will be notified when new users join the collaboration.');
           };
 
           $scope.resetMessages = function() {
             $scope.hideErrorMessage();
-            $scope.hideSuccessMessage();
           };
 
           $scope.getInvitablePeople = function(query) {
@@ -265,7 +258,6 @@ angular.module('esn.collaboration', ['restangular'])
           };
 
           $scope.inviteUsers = function() {
-            $scope.hideSuccessMessage();
             $scope.hideErrorMessage();
             $scope.noUser = false;
             $scope.invalidUser = false;
