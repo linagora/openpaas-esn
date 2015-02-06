@@ -171,6 +171,10 @@ angular.module('esn.activitystream')
 
       var storage = localStorageService.getOrCreateInstance('streamFilters');
 
+      $scope.displayList = $scope.streams.filter(function(stream) {
+        return stream.activity_stream.uuid !== $scope.activitystream.activity_stream.uuid;
+      });
+
       function getKeyName() {
         return $scope.activitystream._id;
       }
