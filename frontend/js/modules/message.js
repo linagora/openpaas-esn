@@ -1,8 +1,11 @@
 'use strict';
 
-angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead'])
+angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
+'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap',
+'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
+'esn.poll'])
   .controller('messageEditionController', ['$scope', function($scope) {
-    var types = ['whatsup', 'event', 'organizational'];
+    var types = ['whatsup', 'event', 'organizational', 'poll'];
     $scope.type = types[0];
     $scope.show = function(type) {
       if (types.indexOf(type) >= 0) {
@@ -123,9 +126,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       }
 
       var objectType = $scope.type;
-      var data = {
-        description: $scope.messageContent
-      };
+      var data = { description: $scope.messageContent };
 
       if ($scope.position.coords) {
         data.position = {
@@ -177,13 +178,17 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         $scope.attachments = [];
         $scope.uploadService = null;
         $scope.additionalData = {};
+        $scope.data = {};
         if ($scope.position.coords) {
           $scope.position = {};
         }
       }
 
       if ((!$scope.uploadService) || ($scope.uploadService && $scope.uploadService.isComplete())) {
-        return send(objectType, data, [target], $scope.attachments).then(clean, function(err) {
+        return send(objectType, data, [target], $scope.attachments).then(function() {
+          clean();
+          $scope.show('whatsup');
+        }, function(err) {
           if (err.data.status === 403) {
             $scope.displayError('You do not have enough rights to write a new message here');
           } else {
@@ -201,6 +206,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
         };
         backgroundProcessorService.add($scope.uploadService.await(done));
         clean();
+        $scope.show('whatsup');
       }
     };
 
@@ -445,6 +451,72 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       templateUrl: '/views/modules/message/templates/whatsupMessage.html'
     };
   })
+  .directive('pollMessage', ['session', 'pollAPI', function(session, pollAPI) {
+    function link(scope, element, attrs) {
+      var results, choices;
+
+      function refreshScopeData() {
+        results = scope.message.pollResults;
+        choices = scope.message.pollChoices;
+        scope.pollContext = {
+          vote: null,
+          isCreator: session.user._id === scope.message.author._id,
+          hasVoted: results.filter(function(result) {
+            return result.actor.objectType === 'user' && result.actor.id === session.user._id;
+          }).length > 0
+        };
+        computeResults();
+      }
+
+      function computeResults() {
+        scope.pollContext.results = {};
+        scope.pollContext.d3results = {};
+        choices.forEach(function(choice) {
+          scope.pollContext.results[choice.label] = 0;
+        });
+        results.forEach(function(result) {
+          var label = choices[result.vote].label;
+          scope.pollContext.results[label]++;
+        });
+      }
+
+      function onVoteSuccess(response) {
+        console.log('vote succedded');
+        scope.pollContext.hasVoted = true;
+        scope.message = response.data;
+        refreshScopeData();
+      }
+
+      function onVoteFailure() {
+        console.log('vote failed');
+      }
+
+      scope.recordVote = function() {
+        var button = element.find('.vote-button');
+        var vote = scope.pollContext.vote;
+        console.log(scope.pollContext.vote);
+
+        if (vote === null || !choices[vote]) {
+          console.log('cannot vote: vote is invalid', vote);
+        }
+        button.attr('disabled', 'true');
+        pollAPI.vote(scope.message._id, vote)
+        .then(onVoteSuccess, onVoteFailure)
+        .finally (function() {
+          button.removeAttr('disabled');
+        });
+      };
+
+      refreshScopeData();
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/templates/pollMessage.html',
+      link: link
+    };
+  }])
   .directive('emailMessage', function() {
     return {
       restrict: 'E',
@@ -549,6 +621,40 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar', 'esn.back
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/organizational/organizationalEdition.html'
+    };
+  })
+  .directive('pollEdition', function() {
+    function link(scope, element, attrs) {
+      scope.additionalData = {
+        pollChoices: [
+          {label: ''},
+          {label: ''}
+        ]
+      };
+
+      scope.validators.push(function() {
+        var choices = scope.additionalData.pollChoices.filter(function(choice) {
+          return choice.label && choice.label.length;
+        });
+        if (!choices || choices.length < 2) {
+          scope.validationError.title = 'Your poll should contain at least two choices.';
+        } else if (!scope.messageContent ||   !scope.messageContent.length) {
+          scope.validationError.title = 'Your poll should have a description.';
+        } else {
+          delete scope.validationError.title;
+        }
+      });
+
+      scope.appendChoice = function() {
+        scope.additionalData.pollChoices.push({label: ''});
+      };
+    }
+
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/poll/pollEdition.html',
+      link: link
     };
   })
   .directive('organizationalAddComment', function() {
