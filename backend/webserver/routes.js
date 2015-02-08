@@ -55,6 +55,7 @@ exports = module.exports = function(application) {
   application.get('/api/user/profile/avatar', authorize.requiresAPILogin, users.getProfileAvatar);
 
   var messages = require('./controllers/messages');
+  var pollMessages = require('./controllers/poll-messages');
   var messageMiddleware = require('./middleware/message');
   application.get('/api/messages', authorize.requiresAPILogin, messages.getMessages);
   application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterWritableTargets,
@@ -62,6 +63,7 @@ exports = module.exports = function(application) {
   application.get('/api/messages/:id', authorize.requiresAPILogin, messages.getMessage);
   application.post('/api/messages/:id/shares', authorize.requiresAPILogin, messages.copy);
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
+  application.put('/api/messages/:id/vote/:vote', authorize.requiresAPILogin, requestMW.castParamToObjectId('id'), pollMessages.vote);
 
   var files = require('./controllers/files');
   var fileMiddleware = require('./middleware/file');
