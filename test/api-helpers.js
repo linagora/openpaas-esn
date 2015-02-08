@@ -373,6 +373,21 @@ module.exports = function(mixin, testEnv) {
     });
   };
 
+  api.recordNextTimelineEntry = function(entry, verb, callback) {
+    require(testEnv.basePath + '/backend/core').db.mongo;
+    var mongoose = require('mongoose');
+    var TimelineEntry = mongoose.model('TimelineEntry');
+    entry = entry.toJSON();
+    var e = new TimelineEntry({
+      verb: verb,
+      language: 'en',
+      actor: entry.actor,
+      object: entry.object,
+      target: entry.target
+    });
+    e.save(callback);
+  };
+
   api.createMessage = function(type, content, author, activitystreams, callback) {
     var module = require(testEnv.basePath + '/backend/core/message');
 

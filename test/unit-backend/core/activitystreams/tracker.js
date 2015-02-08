@@ -7,7 +7,7 @@ describe('The activity streams tracker core module', function() {
   describe('The updateLastTimelineEntryRead fn', function() {
 
     it('should send back error when a parameter is null', function(done) {
-      mockery.registerMock('mongoose', {model: function() {}});
+      this.helpers.mock.models({});
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.updateLastTimelineEntryRead(null, '', '', function(err, saved) {
         expect(err).to.exist;
@@ -25,13 +25,11 @@ describe('The activity streams tracker core module', function() {
     });
 
     it('should send back error when mongoose request send back an error', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(new Error('Error test'));
-            }
-          };
+      this.helpers.mock.models({
+        TimelineEntry: {
+          findById: function(id, callback) {
+            return callback(new Error('Error test'));
+          }
         }
       });
 
@@ -162,7 +160,7 @@ describe('The activity streams tracker core module', function() {
 
   describe('The getUnreadTimelineEntriesCount fn', function() {
     it('should send back error when a parameter is null', function(done) {
-      mockery.registerMock('mongoose', {model: function() {}});
+      this.helpers.mock.models({});
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker');
       tracker.getUnreadTimelineEntriesCount(null, '', function(err, count) {
         expect(err).to.exist;
@@ -211,4 +209,3 @@ describe('The activity streams tracker core module', function() {
     });
   });
 });
-
