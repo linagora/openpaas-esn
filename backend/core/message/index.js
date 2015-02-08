@@ -289,6 +289,7 @@ module.exports = {
   permission: require('./permission'),
   attachments: attachments,
   get: getWithAuthors,
+  dryGet: get,
   copy: copy,
   getModel: getModel,
   getInstance: getInstance,
