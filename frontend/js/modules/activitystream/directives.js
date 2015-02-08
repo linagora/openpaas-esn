@@ -18,9 +18,19 @@ angular.module('esn.activitystream')
           var m = moment(new Date(msg.published).getTime());
           notificationFactory.weakInfo('Activity Stream updated',
               msg.actor.displayName + ' added a message ' + m.fromNow());
-
-          scope.updates = scope.updates || [];
-          scope.updates.push(msg);
+          scope.asMessagesUpdates = scope.asMessagesUpdates || {post: [], update: []};
+          if (msg.verb === 'post') {
+            scope.asMessagesUpdates.post.push(msg);
+          } else if (msg.verb === 'update') {
+            var alreadyKnown = scope.asMessagesUpdates.update
+            .concat(scope.asMessagesUpdates.post)
+            .some(function(m) {
+              return m.object._id === msg.object._id;
+            });
+            if (!alreadyKnown) {
+              scope.asMessagesUpdates.update.push(msg);
+            }
+          }
         }
       }
 
