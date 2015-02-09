@@ -1,6 +1,23 @@
 'use strict';
 
 angular.module('esn.appstore')
+  .constant('NOTIFICATION', {
+    title: 'Module Manager',
+    success: {
+      deployment: function(title) { return title + ' has successfully been deployed.'; },
+      deploymentAndInstall: function(title) { return title + ' has successfully been deployed and installed.';},
+      undeployment: function(title) { return title + ' has successfully been undeployed.'; },
+      install: function(title) { return title + ' has successfully been installed'; },
+      uninstall: function(title) { return title + ' has successfully been uninstalled'; }
+    },
+    error: {
+      deployment: function(title, message) { return 'Failed to deploy ' + title + ' : ' + message; },
+      deploymentAndInstall: function(title, message) { return 'Failed to deploy and install ' + title + ' : ' + message; },
+      undeployment: function(title, message) { return 'Failed to undeploy ' + title + ' : ' + message; },
+      install: function(title, message) { return 'Failed to install ' + title + ' : ' + message; },
+      uninstall: function(title, message) { return 'Failed to uninstall ' + title + ' : ' + message; }
+    }
+  })
   .directive('appstoreButtonSubmit', ['$modal', function($modal) {
     return {
       restrict: 'E',
@@ -50,7 +67,7 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreSwitchDeploy', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService) {
+  .directive('appstoreSwitchDeploy', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', 'notificationFactory', 'NOTIFICATION', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService, notificationFactory, NOTIFICATION) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-switch.html',
@@ -74,8 +91,10 @@ angular.module('esn.appstore')
             })
             .then(function() {
               $log.debug('Application deployment success at domain level.');
+              notificationFactory.weakSuccess(NOTIFICATION.title, NOTIFICATION.success.deploymentAndInstall(scope.application.title));
             }, function(error) {
               $log.debug('Application deployment failed at domain level.', error);
+              notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.deploymentAndInstall(scope.application.title, error.data.error.details));
             });
         }
 
@@ -83,8 +102,10 @@ angular.module('esn.appstore')
           return appstoreAPI.deploy(scope.application._id, target, scope.version)
             .then(function() {
               $log.debug('Application deployment success.');
+              notificationFactory.weakSuccess(NOTIFICATION.title, NOTIFICATION.success.deployment(scope.application.title));
             }, function(error) {
               $log.debug('Application deployment failed.', error);
+              notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.deployment(scope.application.title, error.data.error.details));
             });
         }
 
@@ -103,8 +124,10 @@ angular.module('esn.appstore')
           appstoreAPI.undeploy(scope.application._id, target)
             .then(function() {
               $log.debug('Application undeployment success.');
+              notificationFactory.weakSuccess(NOTIFICATION.title, NOTIFICATION.success.undeployment(scope.application.title));
             }, function(error) {
               $log.debug('Application undeployment failed.', error);
+              notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.undeployment(scope.application.title, error.data.error.details));
             }).finally (function() {
             scope.loading = false;
             $log.debug('Done.');
@@ -124,7 +147,7 @@ angular.module('esn.appstore')
       }
     };
   }])
-  .directive('appstoreSwitchInstall', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService) {
+  .directive('appstoreSwitchInstall', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', 'notificationFactory', 'NOTIFICATION', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService, notificationFactory, NOTIFICATION) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-switch.html',
@@ -154,8 +177,10 @@ angular.module('esn.appstore')
           appstoreAPI.install(scope.application._id, target)
             .then(function() {
               $log.debug('Application install success.');
+              notificationFactory.weakSuccess(NOTIFICATION.title, NOTIFICATION.success.install(scope.application.title));
             }, function(error) {
               $log.debug('Application install failed.', error);
+              notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.install(scope.application.title, error.data.error.details));
             }).finally (function() {
             scope.loading = false;
             $log.debug('Done.');
@@ -167,8 +192,10 @@ angular.module('esn.appstore')
           appstoreAPI.uninstall(scope.application._id, target)
             .then(function() {
               $log.debug('Application uninstall success.');
+              notificationFactory.weakSuccess(NOTIFICATION.title, NOTIFICATION.success.uninstall(scope.application.title));
             }, function(error) {
               $log.debug('Application uninstall failed.', error);
+              notificationFactory.weakError(NOTIFICATION.title, NOTIFICATION.error.uninstall(scope.application.title, error.data.error.details));
             }).finally (function() {
             scope.loading = false;
             $log.debug('Done.');
