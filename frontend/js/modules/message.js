@@ -939,7 +939,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
     };
 
     $scope.messageShared = function() {
-      notificationFactory.weakInfo('Message Sharing', 'Message has been shared to communities!');
+      notificationFactory.weakInfo('Message Sharing', 'Message has been shared!');
       $scope.$emit('message:shared', {
         message: $scope.message,
         shares: $scope.shares
