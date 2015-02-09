@@ -1,3 +1,3 @@
 div.small(ng-show='message.copyOf && message.copyOf.origin')
     p #{__('This message has been shared from ')}
-        a(href='#/communities/{{::sharedFrom._id}}') {{::sharedFrom.title}}
+        a(ng-href='{{::sharedFrom.htmlUrl}}') {{::sharedFrom.displayName}}
