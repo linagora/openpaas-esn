@@ -1,0 +1,12 @@
+div.media.message-preview
+  a.media-left.pull-left.message-avatar(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+  div.media-body
+    div
+      h4.media-heading
+        a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
+        a.message-date(ng-href="/#/messages/{{::message._id}}/activitystreams/{{activitystreamUuid}}")
+          small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
+      display-position(position='message.position')
+      p.multilines.scrollable(ng-bind-html="message.content | linky:'_blank'")
+    include ../templates/includes/attachments.jade
