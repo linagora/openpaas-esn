@@ -434,6 +434,49 @@ describe('The activitystreams routes', function() {
         });
       });
 
+      describe('when there is an update timelineentry', function() {
+        it('should return 3 unread timeline entries', function(done) {
+          var self = this;
+
+          // Login
+          this.helpers.api.loginAsUser(webserver.application, user.emails[0], password, function(err, loggedInAsUser) {
+            // Add one Timeline Entry
+            self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err, models) {
+              if (err) { return done(err); }
+
+              // Get the Activity Stream (will update the last unread Timeline Entry)
+              var req = loggedInAsUser(request(webserver.application).get('/api/activitystreams/' + activitystreamId));
+              req.expect(200);
+              req.end(function(err, res) {
+                if (err) { return done(err); }
+
+                // Add 3 new Timeline Entries
+                self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
+                  if (err) { return done(err); }
+                  // add an update on the second timeline entry
+                  self.helpers.api.recordNextTimelineEntry(models.timelineEntries[1], 'update', function(err, model) {
+                    if (err) {
+                      return done(err);
+                    }
+                    // Get the number of unread Timeline Entries
+                    req = loggedInAsUser(request(webserver.application).get(
+                      '/api/activitystreams/' + activitystreamId + '/unreadcount'));
+                    req.expect(200);
+                    req.end(function(err, res) {
+                      expect(err).to.not.exist;
+                      expect(res.body).to.exist;
+                      expect(res.body._id).to.deep.equal(activitystreamId);
+                      expect(res.body.unread_count).to.equal(3);
+                      done();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
       it('should return 0 unread TimelineEntry for new user in community', function(done) {
         var self = this;
 

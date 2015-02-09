@@ -34,7 +34,7 @@ angular.module('esn.activitystream')
         return;
       }
       $scope.restActive[streamUuid] = true;
-      $scope.updates = [];
+      delete $scope.asMessagesUpdates;
       activityStreamUpdates(streamUuid, $scope).then(function() {
       }, function(err) {
       }).finally (function() {

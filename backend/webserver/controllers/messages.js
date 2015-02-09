@@ -17,7 +17,7 @@ function createNewMessage(message, req, res) {
       logger.warn('Can not set attachment references', err);
     }
 
-    publishMessageEvents(savedMessage, req.body.targets, req.user);
+    publishMessageEvents(savedMessage, req.body.targets, req.user, 'post');
     res.json(201, { _id: savedMessage._id });
   }
 
@@ -215,7 +215,7 @@ function copy(req, res) {
       return res.json(404, { error: { code: 404, message: 'Message not found', details: 'Message has not been found ' + id}});
     }
 
-    publishMessageEvents(copy, req.body.target, req.user);
+    publishMessageEvents(copy, req.body.target, req.user, 'post');
     res.json(201, { _id: copy._id});
   });
 }

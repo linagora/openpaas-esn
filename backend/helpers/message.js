@@ -51,9 +51,9 @@ module.exports.publishCommentActivity = function(user, inReplyTo, parentMessage,
   globalpubsub.topic('message:activity').publish(activity);
 };
 
-function publishMessageEvents(message, targets, user) {
+function publishMessageEvents(message, targets, user, verb) {
   var timelineTargets = messageSharesToTimelineTarget(targets);
-  var activity = require('../core/activitystreams/helpers').userMessageToTimelineEntry(message, 'post', user, timelineTargets);
+  var activity = require('../core/activitystreams/helpers').userMessageToTimelineEntry(message, verb, user, timelineTargets);
 
   localpubsub.topic('message:stored').publish(message);
   globalpubsub.topic('message:stored').publish(message);
@@ -61,6 +61,3 @@ function publishMessageEvents(message, targets, user) {
   globalpubsub.topic('message:activity').publish(activity);
 }
 module.exports.publishMessageEvents = publishMessageEvents;
-
-
-

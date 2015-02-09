@@ -2,10 +2,9 @@
 
 var logger = require('../logger');
 var mongoose = require('mongoose');
-var async = require('async');
 var TimelineEntriesTracker = mongoose.model('TimelineEntriesTracker');
+var q = require('q');
 
-var LIMIT = 10;
 
 /**
  * Create a TimelineEntriesTracker
@@ -137,11 +136,66 @@ module.exports.getLastTimelineEntryRead = getLastTimelineEntryRead;
  * @param {function} callback fn like callback(err, count) (count is a number)
  */
 function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
+  var userTuple = {objectType: 'user', id: userId};
+  var activityStream = require('./');
+
+
   if (!userId) {
     return callback(new Error('User is required'));
   }
   if (!activityStreamUuid) {
     return callback(new Error('Activity Stream UUID is required'));
+  }
+
+  function removeDeletedActivities(hash) {
+    var nonDeleted = Object.keys(hash).filter(function(k) {
+      return hash[k].every(function(activity) {
+        return activity.verb !== 'remove';
+      });
+    });
+    var newHash = {};
+    nonDeleted.forEach(function(k) {
+      newHash[k] = hash[k];
+    });
+    return newHash;
+  }
+
+  function hasRightToReadAtLeastOne(entries) {
+    return q.all(
+      entries.map(function(entry) {
+        var d = q.defer();
+        activityStream.getTimelineEntry(entry.id, function(err, entry) {
+          if (err || !entry) {
+            return d.resolve(0);
+          }
+          return activityStream.permission.canRead(entry, userTuple, function(err, result) {
+            return d.resolve(result ? 1 : 0);
+          });
+        });
+        return d.promise;
+      })
+    )
+    .then(function(results) {
+      var sum = results.reduce(function(prev, current) { return prev + current;});
+      return q(sum ? true : false);
+    });
+  }
+
+  function countObjectsUpdate(hash, callback) {
+    q.all(
+      Object.keys(hash)
+      .map(function(key) {
+        return hasRightToReadAtLeastOne(hash[key]).then(function(res) {
+          return q(res);
+        });
+      })
+    )
+    .then(function(responses) {
+      var count = responses.filter(Boolean).length;
+      return callback(null, count);
+    }, function(err) {
+      return callback(err);
+    });
   }
 
   getLastTimelineEntryRead(userId, activityStreamUuid, function(err, lastTimelineEntryRead) {
@@ -156,17 +210,13 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
       stream: true
     };
 
-    var activityStream = require('./');
     activityStream.query(options, function(err, stream) {
 
       var hash = {};
       stream.on('data', function(doc) {
-        if ((doc.actor._id + '') === (userId + '')) {
-          hash[doc._id] = false;
-        } else if (doc.verb === 'post') {
-          hash[doc._id] = true;
-        } else if (doc.verb === 'remove') {
-          hash[doc._id] = false;
+        if ((doc.actor._id + '') !== (userId + '')) {
+          hash[doc.object._id] = hash[doc.object._id] || [];
+          hash[doc.object._id].push({verb: doc.verb, id: doc._id});
         }
       });
 
@@ -175,26 +225,8 @@ function getUnreadTimelineEntriesCount(userId, activityStreamUuid, callback) {
       });
 
       stream.on('close', function() {
-        var count = 0;
-
-        async.eachLimit(Object.keys(hash), LIMIT, function(key, next) {
-          if (hash[key]) {
-            return activityStream.getTimelineEntry(key, function(err, entry) {
-              if (err || !entry) {
-                return next();
-              }
-              return activityStream.permission.canRead(entry, {objectType: 'user', id: userId}, function(err, result) {
-                if (result) {
-                  count++;
-                }
-                return next();
-              });
-            });
-          }
-          return next();
-        }, function() {
-          return callback(null, count);
-        });
+        var elligibleEntries = removeDeletedActivities(hash);
+        countObjectsUpdate(elligibleEntries, callback);
       });
     });
   });

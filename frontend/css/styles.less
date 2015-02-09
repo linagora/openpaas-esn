@@ -67,6 +67,9 @@ html.no-websockets body.esn-welcome-app #unsupported img {
   margin: auto auto 10px auto;
   padding: 0.2em;
   user-select: none;
+  span:not(:last-child):after {
+    content: ", ";
+  }
 }
 
 .just-posted {

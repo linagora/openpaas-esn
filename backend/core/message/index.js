@@ -6,6 +6,7 @@ var attachments = require('./attachments');
 var emailMessageModule = require('./email');
 var whatsupMessageModule = require('./whatsup');
 var organizationalMessageModule = require('./organizational');
+var pollMessageModule = require('./poll');
 var pubsub = require('../').pubsub.local;
 
 var MESSAGES_COLLECTION = 'messages';
@@ -14,13 +15,15 @@ var objectTypeToSchemaName = {
   email: 'EmailMessage',
   whatsup: 'Whatsup',
   event: 'EventMessage',
-  organizational: 'OrganizationalMessage'
+  organizational: 'OrganizationalMessage',
+  poll: 'PollMessage'
 };
 
 var type = {
   email: emailMessageModule,
   whatsup: whatsupMessageModule,
-  organizational: organizationalMessageModule
+  organizational: organizationalMessageModule,
+  poll: pollMessageModule
 };
 
 function getModel(objectType) {
@@ -289,6 +292,7 @@ module.exports = {
   permission: require('./permission'),
   attachments: attachments,
   get: getWithAuthors,
+  dryGet: get,
   copy: copy,
   getModel: getModel,
   getInstance: getInstance,
