@@ -3,8 +3,8 @@
 angular.module('esn.project')
 
 .directive('projectCreate',
-['widget.wizard', 'selectionService', 'projectCreationService', '$timeout', '$location', '$alert',
-function(Wizard, selectionService, projectCreationService, $timeout, $location, $alert) {
+['widget.wizard', 'selectionService', 'projectCreationService', '$timeout', '$location', '$alert', '$rootScope',
+function(Wizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
   function link($scope, element, attrs) {
     $scope.wizard = new Wizard([
       '/projects/views/project-creation-wizard-1',
@@ -12,6 +12,10 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       '/projects/views/project-creation-wizard-3'
       ]);
       selectionService.clear();
+
+      $rootScope.$on('modal.show', function() {
+        element.find('#title').focus();
+      });
 
       $scope.project = {
         domain_ids: [$scope.domain._id],

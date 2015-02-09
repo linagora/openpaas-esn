@@ -147,8 +147,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
   })
   .directive('communityCreate',
-  ['widget.wizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert',
-  function(Wizard, selectionService, communityCreationService, $timeout, $location, $alert) {
+  ['widget.wizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert', '$rootScope',
+  function(Wizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
     function link($scope, element, attrs) {
       $scope.wizard = new Wizard([
         '/views/modules/community/community-creation-wizard-1',
@@ -156,6 +156,10 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         '/views/modules/community/community-creation-wizard-3'
       ]);
       selectionService.clear();
+
+      $rootScope.$on('modal.show', function() {
+        element.find('#title').focus();
+      });
 
       $scope.community = {
         domain_ids: [$scope.domain._id],
