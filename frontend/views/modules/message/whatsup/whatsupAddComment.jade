@@ -15,6 +15,6 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
         a(href='', ng-disabled='sending', fill-position)
           i.fa.fa-map-marker
         &nbsp;
-        button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
+        button.btn.btn-primary(type='submit', ng-click='addComment("whatsup")', ng-disabled='sending') #{__('Comment')}
         &nbsp;
         button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}

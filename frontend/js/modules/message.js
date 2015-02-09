@@ -271,9 +271,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
           $scope.additionalData.recipients = [userCompanyTuple[0]];
         }
 
-        $scope.addPrivateComment = function(message) {
+        $scope.addPrivateComment = function(objectType) {
           $scope.additionalData.visibility = 'private';
-          $scope.addComment(message);
+          $scope.addComment(objectType);
           delete $scope.additionalData.visibility;
         };
       }
@@ -314,7 +314,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       });
     };
 
-    $scope.addComment = function() {
+    $scope.addComment = function(objectType) {
       if ($scope.sending) {
         $scope.displayError('Client problem, unexpected action!');
         return;
@@ -330,7 +330,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         return;
       }
 
-      var objectType = $scope.message.objectType;
+      objectType = objectType || $scope.message.objectType;
       var data = {
         description: $scope.commentContent
       };

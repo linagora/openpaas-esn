@@ -19,13 +19,13 @@ div.inner-widget.form-container(ng-controller='messageCommentController' organiz
                 a(href='', ng-disabled='sending', fill-position)
                     i.fa.fa-map-marker
                 &nbsp;
-                button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending', ng-show='!isInternalUser') #{__('Comment')}
+                button.btn.btn-primary(type='submit', ng-click='addComment("organizational")', ng-disabled='sending', ng-show='!isInternalUser') #{__('Comment')}
                 .btn-group.dropup(ng-show='isInternalUser')
-                  button.btn.btn-primary(type='submit', ng-click='addComment(message)', ng-disabled='sending') #{__('Comment')}
+                  button.btn.btn-primary(type='submit', ng-click='addComment("organizational")', ng-disabled='sending') #{__('Comment')}
                   button.btn.btn-primary.dropdown-toggle(ng-disabled='sending' data-toggle="dropdown")
                     span.caret
                   ul.dropdown-menu(role="menu")
                     li
-                      a(href='', ng-click='addPrivateComment(message)') #{__('Private Comment')}
+                      a(href='', ng-click='addPrivateComment("organizational")') #{__('Private Comment')}
                 &nbsp;
                 button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}
