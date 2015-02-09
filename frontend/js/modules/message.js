@@ -451,7 +451,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       templateUrl: '/views/modules/message/templates/whatsupMessage.html'
     };
   })
-  .directive('pollMessage', ['session', 'pollAPI', function(session, pollAPI) {
+  .directive('pollMessage', ['$log', 'session', 'pollAPI', function($log, session, pollAPI) {
     function link(scope, element, attrs) {
       var results, choices;
 
@@ -481,24 +481,24 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       }
 
       function onVoteSuccess(response) {
-        console.log('vote succedded');
+        $log.debug('Vote succedded');
         scope.pollContext.hasVoted = true;
         scope.message = response.data;
         refreshScopeData();
       }
 
       function onVoteFailure() {
-        console.log('vote failed');
+        $log.debug('Vote failed');
       }
 
       scope.recordVote = function() {
         var button = element.find('.vote-button');
         var vote = scope.pollContext.vote;
-        console.log(scope.pollContext.vote);
 
         if (vote === null || !choices[vote]) {
-          console.log('cannot vote: vote is invalid', vote);
+          return $log.warn('Cannot vote: vote is invalid ' + vote);
         }
+
         button.attr('disabled', 'true');
         pollAPI.vote(scope.message._id, vote)
         .then(onVoteSuccess, onVoteFailure)
