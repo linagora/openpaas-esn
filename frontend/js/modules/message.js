@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
-'esn.background', 'esn.notification', 'restangular', 'mgcrea.ngStrap',
+'esn.background', 'esn.notification', 'esn.object-type', 'restangular', 'mgcrea.ngStrap',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
   .controller('messageEditionController', ['$scope', function($scope) {
@@ -1046,7 +1046,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       }
     };
   })
-  .directive('sharedFrom', ['activitystreamAPI', function(activitystreamAPI) {
+  .directive('sharedFrom', ['activitystreamAPI', 'objectTypeAdapter', function(activitystreamAPI, objectTypeAdapter) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/share/shared-from.html',
@@ -1054,7 +1054,9 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         if (scope.message && scope.message.copyOf && scope.message.copyOf.origin) {
           activitystreamAPI.getResource(scope.message.copyOf.origin.resource.id).then(
             function(response) {
-              scope.sharedFrom = response.data.object;
+              var collaboration = response.data;
+              collaboration.object.objectType = collaboration.objectType;
+              scope.sharedFrom = objectTypeAdapter.adapt(collaboration.object);
             },
             function(error) {
               scope.sharedFromError = error.details || error;
@@ -1063,7 +1065,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       }
     };
   }])
-  .directive('sharedTo', ['activitystreamAPI', '$q', function(activitystreamAPI, $q) {
+  .directive('sharedTo', ['activitystreamAPI', 'objectTypeAdapter', '$q', function(activitystreamAPI, objectTypeAdapter, $q) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/share/shared-to.html',
@@ -1082,7 +1084,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
           });
           $q.all(restCalls).then(function() {
             scope.shareTargets = collaborations.map(function(collaboration) {
-              return collaboration.object;
+              collaboration.object.objectType = collaboration.objectType;
+              return objectTypeAdapter.adapt(collaboration.object);
             });
           },
           function(error) {
@@ -1099,11 +1102,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         scope.$on('message:shared', function(evt, data) {
           if (data.message._id === scope.message._id) {
             data.shares.forEach(function(share) {
-              scope.shareTargets.push({
-                title: share.target.displayName,
-                _id: share.target._id,
-                objectType: share.target.objectType
-              });
+              return scope.shareTargets.push(objectTypeAdapter.adapt(
+                {
+                  title: share.target.displayName,
+                  _id: share.target._id,
+                  objectType: share.target.objectType
+                }
+              ));
             });
           }
         });
