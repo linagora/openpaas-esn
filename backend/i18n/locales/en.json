@@ -253,5 +253,17 @@
   "Current": "Current",
   "invites you to join this community": "invites you to join this community",
   "invites you to join this project": "invites you to join this project",
-  "invites you to join this collaboration": "invites you to join this collaboration"
+  "invites you to join this collaboration": "invites you to join this collaboration",
+  "people have already voted": "people have already voted",
+  "Your vote": "Your vote",
+  "Vote": "Vote",
+  "Poll results": "Poll results",
+  "Choice": "Choice",
+  "Votes": "Votes",
+  "Enter your poll description and question": "Enter your poll description and question",
+  "Your poll options": "Your poll options",
+  "Option": "Option",
+  "Poll option description...": "Poll option description...",
+  "Add another option": "Add another option",
+  "landed a poll": "landed a poll"
 }
