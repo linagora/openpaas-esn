@@ -735,6 +735,13 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       templateUrl: '/views/modules/message/previews/emailMessage.html'
     };
   })
+  .directive('pollMessagePreview', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/modules/message/previews/pollMessage.html'
+    };
+  })
   .directive('messagePreview', function() {
     return {
       restrict: 'E',
