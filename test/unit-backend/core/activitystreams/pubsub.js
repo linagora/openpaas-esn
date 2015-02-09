@@ -4,33 +4,28 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('The activitystreams pubsub module', function() {
-
   beforeEach(function() {
     this.helpers.mock.models({});
   });
 
-  describe('createActivity fn', function() {
-
+  describe('processActivity fn', function() {
     beforeEach(function() {
       mockery.registerMock('../collaboration', {});
     });
 
-
     it('should call nothing when data is not set', function(done) {
-      var called = false;
-      var mock = {
-        addTimelineEntry: function() {
-          called = true;
-        }
-      };
-      mockery.registerMock('./index', mock);
+      function callback(err, result) {
+        expect(err.message).to.equal('Can not create activity from null data');
+        done();
+      }
       var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
-      pubsub.createActivity(null);
-      expect(called).to.be.false;
-      done();
+      pubsub.processActivity(null, callback);
     });
 
-    it('should call the activitystream module when data is set', function(done) {
+    it('should call the activitystream module when data is set and verb is post', function(done) {
+      function callback(err, result) {
+        done(err);
+      }
       var mock = {
         addTimelineEntry: function() {
           done();
@@ -39,21 +34,7 @@ describe('The activitystreams pubsub module', function() {
 
       mockery.registerMock('./index', mock);
       var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
-      pubsub.createActivity({});
-    });
-
-    it('should call the callback if set', function(done) {
-      var mock = {
-        addTimelineEntry: function(data, callback) {
-          return callback();
-        }
-      };
-
-      mockery.registerMock('./index', mock);
-      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
-      pubsub.createActivity({}, function() {
-        done();
-      });
+      pubsub.processActivity({ verb: 'post' }, callback);
     });
 
     it('should display a warn if the callback is not set and if activitystream returns error', function(done) {
@@ -70,28 +51,8 @@ describe('The activitystreams pubsub module', function() {
         }
       };
       mockery.registerMock('../logger', logger);
-
       var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
-      pubsub.createActivity({});
-    });
-
-    it('should display a debug if the callback is not set and if activitystream saved the activity', function(done) {
-      var mock = {
-        addTimelineEntry: function(data, callback) {
-          return callback(null, {});
-        }
-      };
-      mockery.registerMock('./index', mock);
-
-      var logger = {
-        debug: function() {
-          done();
-        }
-      };
-      mockery.registerMock('../logger', logger);
-
-      var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
-      pubsub.createActivity({});
+      pubsub.processActivity({});
     });
   });
 

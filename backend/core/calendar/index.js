@@ -40,13 +40,38 @@ function create(user, collaboration, event, callback) {
 
       var targets = messageHelpers.messageSharesToTimelineTarget(saved.shares);
       var activity = activityStreamHelper.userMessageToTimelineEntry(saved, 'post', user, targets);
-      localpubsub.topic('message:activity').publish(activity);
-      globalpubsub.topic('message:activity').publish(activity);
+      localpubsub.topic('message:activity').forward(globalpubsub, activity);
       return callback(null, saved);
     });
   });
 }
 module.exports.create = create;
+
+/**
+ * Update the event message belonging to the specified calendar event
+ *
+ * @param {object} user             The user object from req.user
+ * @param {object} collaboration    The collaboration object from req.collaboration
+ * @param {object} event            The event data, see REST_calendars.md
+ * @param {function} callback       The callback function
+ */
+function update(user, collaboration, event, callback) {
+  eventMessage.findByEventId(event.event_id, function(err, message) {
+    if (err) {
+      return callback(err);
+    }
+    if (!message) {
+      return callback(new Error('Could not find matching event message'));
+    }
+
+    // For now all we will do is send a new message:activity notification, but
+    // with verb |update| instead of |post| to denote the update.
+    var targets = messageHelpers.messageSharesToTimelineTarget(message.shares);
+    var activity = activityStreamHelper.userMessageToTimelineEntry(message, 'update', user, targets);
+    localpubsub.topic('message:activity').forward(globalpubsub, activity);
+    return callback(null, message);
+  });
+}
 
 /**
  * Validate the data structure and forward it to the right handler. This method
@@ -113,6 +138,8 @@ function dispatch(data, callback) {
     switch (data.event.type) {
       case 'created':
         return create(data.user, data.collaboration, data.event, callback);
+      case 'updated':
+        return update(data.user, data.collaboration, data.event, callback);
       default:
         return callback(new Error('Invalid type specified'));
     }
