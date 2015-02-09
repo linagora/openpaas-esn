@@ -395,7 +395,7 @@ describe('The esn.message Angular module', function() {
       });
 
       it('should call $messageAPI.post with position when set', function(done) {
-        var coords = 123;
+        var coords = {latitude: 123, longitude: 456};
         this.messageAPI.post = function(type, data, target) {
           expect(data.position).to.exist;
           expect(data.position.coords).to.deep.equal(coords);
@@ -560,7 +560,7 @@ describe('The esn.message Angular module', function() {
       });
 
       it('should call the addComment API with position when set', function(done) {
-        var coords = 123;
+        var coords = {latitude: 123, longitude: 456};
 
         this.messageAPI.addComment = function(type, data, reply) {
           expect(data.position).to.exist;
