@@ -130,7 +130,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
 
       if ($scope.position.coords) {
         data.position = {
-          coords: $scope.position.coords
+          coords: {
+            latitude: $scope.position.coords.latitude,
+            longitude: $scope.position.coords.longitude
+          }
         };
       }
 
@@ -341,7 +344,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
 
       if ($scope.position.coords) {
         data.position = {
-          coords: $scope.position.coords
+          coords: {
+            latitude: $scope.position.coords.latitude,
+            longitude: $scope.position.coords.longitude
+          }
         };
       }
 
