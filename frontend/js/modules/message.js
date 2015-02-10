@@ -576,12 +576,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
           });
         }
 
-        $rootScope.$on('activitystream:updateMessage', function(evt, data) {
-          if (data.object._id === $scope.message._id) {
-            updateEvent();
-          }
-        });
-
         updateEvent();
       }
     };
