@@ -6,3 +6,6 @@
 
   div.ellipsis
     span.name {{::share.target.displayName}}
+
+  div
+    i.nopadding.already-shared.fa.fa-exclamation-triangle(ng-if="share.already" data-html="true" data-title='This message has<br>already been shared here', data-animation="am-flip-x", data-placement="bottom", bs-tooltip="tooltip")

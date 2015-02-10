@@ -958,14 +958,18 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
     $scope.getTargets = function(str) {
       return userAPI.getActivityStreams({name: str, writable: true}).then(function(response) {
         return response.data.filter(function(target) {
-          return !isAlreadyInShares(target) && !isCurrentActivityStream(target) && !isAlreadyShared(target);
+          return !isAlreadyInShares(target) && !isCurrentActivityStream(target);
         });
       });
     };
 
     $scope.addTarget = function(selected) {
-      if (isAlreadyInShares(selected) || isCurrentActivityStream(selected) || isAlreadyShared(selected)) {
+      if (isAlreadyInShares(selected) || isCurrentActivityStream(selected)) {
         return;
+      }
+
+      if (isAlreadyShared(selected)) {
+        selected.already = true;
       }
       $scope.shares.push(selected);
     };
