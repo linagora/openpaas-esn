@@ -15,4 +15,7 @@
       .notification-body
         span
           a(ng-href="/#/profile/{{::joiner._id}}") {{::joiner.firstname}} {{::joiner.lastname}}
-          | &nbsp;#{__('joined this community')}
+          span(ng-switch='collaborationJoined.objectType')
+            span(ng-switch-when='community') &nbsp; #{__('joined this community')}
+            span(ng-switch-when='project') &nbsp; #{__('joined this project')}
+            span(ng-switch-default) &nbsp; #{__('joined this collaboration')}
