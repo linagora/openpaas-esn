@@ -17,10 +17,9 @@ div
               li: a(href='/#/appstore') #{__('Module Manager')}
               li.divider
               li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}') #{__('Invitation')}
-              li: a(href='/api/activiti', target='_blanck') Demande de déplacement
+              li: a(href='/api/activiti', target='_blanck') #{__('Travel Request')}
               injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
               li: a(href='', data-template='/views/modules/feedback/feedback.html', data-placement='left', data-animation='am-slide-left', bs-aside='aside', data-container='body') #{__('Feedback')}
-
               li.divider
               li: a(href='/logout') #{__('Logout')}
 
