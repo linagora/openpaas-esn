@@ -26,10 +26,8 @@ function processActivity(data, callback) {
 
   switch (data.verb) {
     case 'post':
-      return activitystream.addTimelineEntry(data, callback);
     case 'update':
-      // This case should be accepted, but doesn't require a specific action
-      return callback(null, null);
+      return activitystream.addTimelineEntry(data, callback);
     default:
       return callback(new Error('Invalid activity verb' + data.verb));
   }
