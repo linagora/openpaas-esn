@@ -61,8 +61,24 @@ angular.module('esnApp', [
 
     $routeProvider.when('/messages/:id/activitystreams/:asuuid', {
       templateUrl: '/views/esn/partials/message',
-      controller: 'whatsupMessageDisplayController',
-      resolve: { message: routeResolver.api('messageAPI') }
+      controller: 'singleMessageDisplayController',
+      resolve: {
+        message: routeResolver.api('messageAPI'),
+        activitystream: function($route, $location, activitystreamAPI, objectTypeResolver) {
+          return activitystreamAPI.getResource($route.current.params.asuuid).then(function(response) {
+            var objectType = response.data.objectType;
+            var id = response.data.object._id;
+            return objectTypeResolver.resolve(objectType, id).then(function(collaboration) {
+              return collaboration.data;
+            }, function() {
+              $location.path('/');
+            });
+
+          }, function(err) {
+            $location.path('/');
+          });
+        }
+      }
     });
 
     $routeProvider.when('/profile', {

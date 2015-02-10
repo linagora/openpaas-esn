@@ -445,10 +445,28 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
     };
 
   }])
-  .controller('whatsupMessageDisplayController', ['$scope', 'message', '$routeParams', function($scope, message, $routeParams) {
+  .controller('singleMessageDisplayController', ['$rootScope', '$scope', 'messageAPI', 'message', 'activitystream', function($rootScope, $scope, messageAPI, message, activitystream) {
     $scope.message = message;
     $scope.parentMessage = true;
-    $scope.activitystreamUuid = $routeParams.asuuid;
+    $scope.streams = [];
+    $scope.activitystream = activitystream;
+
+    function onCommentPosted(evt, msgMeta) {
+      if (msgMeta.parent._id !== $scope.message._id) {
+        return;
+      }
+
+      messageAPI.get(message._id).then(function(response) {
+        $scope.message.responses = response.data.responses || $scope.message.responses;
+      });
+    }
+
+    var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
+
+    $scope.$on('$destroy', function() {
+      unregCmtPostedListener();
+    });
+
   }])
   .directive('whatsupMessage', function() {
     return {
