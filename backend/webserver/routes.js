@@ -244,4 +244,7 @@ exports = module.exports = function(application) {
     collaborationMW.load,
     collaborationMW.requiresCollaborationMember,
     calendars.dispatchEvent);
+
+  var activiti = require('./controllers/activiti');
+  application.get('/api/activiti', authorize.requiresAPILogin, activiti.createInstance);
 };
