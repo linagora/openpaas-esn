@@ -475,14 +475,20 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       }
 
       function computeResults() {
-        scope.pollContext.results = {};
-        scope.pollContext.d3results = {};
+        scope.pollContext.results = [];
+        var cache = {};
+
         choices.forEach(function(choice) {
-          scope.pollContext.results[choice.label] = 0;
+          cache[choice.label] = 0;
         });
+
         results.forEach(function(result) {
           var label = choices[result.vote].label;
-          scope.pollContext.results[label]++;
+          cache[label]++;
+        });
+
+        scope.pollContext.results = choices.map(function(choice) {
+          return {label: choice.label, votes: cache[choice.label]};
         });
       }
 

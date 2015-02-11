@@ -29,10 +29,10 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               th #{__('Choice')}
               th #{__('Votes')}
           tbody
-            tr(ng-repeat='(label, votes) in pollContext.results')
-              td {{label}}
+            tr(ng-repeat='result in pollContext.results')
+              td {{result.label}}
               td 
-                strong {{votes}}
+                strong {{result.votes}}
     include ./includes/messagesBottomLinks
     include ./includes/attachments.jade
     include ./includes/oembed.jade
