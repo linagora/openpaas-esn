@@ -185,12 +185,14 @@ function augmentToExternalNotification(data, callback) {
     category: 'external',
     read: false,
     interactive: false,
-    target: data.target,
-    action: [{
+    target: data.target
+  };
+  if (data.link) {
+    notification.action = [{
       url: data.link,
       display: {label: 'ESN_LINK', text: 'link'}
-    }]
-  };
+    }];
+  }
   return callback(null, notification);
 }
 
