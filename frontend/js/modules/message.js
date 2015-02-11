@@ -949,13 +949,40 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       $scope.addTarget(index);
     });
 
+    function isAlreadyInShares(target) {
+      return $scope.shares.some(function(share) {
+        return share.uuid === target.uuid;
+      });
+    }
+
+    function isCurrentActivityStream(target) {
+      return target.uuid === $scope.activitystream.activity_stream.uuid;
+    }
+
+    function isAlreadyShared(target) {
+      return $scope.message.copyOf &&
+        $scope.message.copyOf.target &&
+        $scope.message.copyOf.target.some(function(shared) {
+          return shared.id === target.uuid;
+        });
+    }
+
     $scope.getTargets = function(str) {
       return userAPI.getActivityStreams({name: str, writable: true}).then(function(response) {
-        return response.data;
+        return response.data.filter(function(target) {
+          return !isAlreadyInShares(target) && !isCurrentActivityStream(target);
+        });
       });
     };
 
     $scope.addTarget = function(selected) {
+      if (isAlreadyInShares(selected) || isCurrentActivityStream(selected)) {
+        return;
+      }
+
+      if (isAlreadyShared(selected)) {
+        selected.already = true;
+      }
       $scope.shares.push(selected);
     };
 
@@ -1092,15 +1119,28 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       }
     };
   }])
-  .directive('sharedTo', ['activitystreamAPI', 'objectTypeAdapter', '$q', function(activitystreamAPI, objectTypeAdapter, $q) {
+  .directive('sharedTo', ['activitystreamAPI', 'messageAPI', 'objectTypeAdapter', '$q', function(activitystreamAPI, messageAPI, objectTypeAdapter, $q) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/share/shared-to.html',
       link: function(scope) {
 
         function updateShareTargets(target) {
+          if (!target) {
+            return;
+          }
+
+          var cache = [];
+          var targets = [];
+          target.forEach(function(target) {
+            if (cache.indexOf(target.id) === -1) {
+              cache.push(target.id);
+              targets.push(target);
+            }
+          });
+
           var collaborations = [];
-          var restCalls = target.map(function(target) {
+          var restCalls = targets.map(function(target) {
             return activitystreamAPI.getResource(target.id).then(
               function(response) {
                 collaborations.push(response.data);
@@ -1128,14 +1168,11 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
 
         scope.$on('message:shared', function(evt, data) {
           if (data.message._id === scope.message._id) {
-            data.shares.forEach(function(share) {
-              return scope.shareTargets.push(objectTypeAdapter.adapt(
-                {
-                  title: share.target.displayName,
-                  _id: share.target._id,
-                  objectType: share.target.objectType
-                }
-              ));
+            messageAPI.get(data.message._id).then(function(response) {
+              if (response.data.copyOf) {
+                scope.message.copyOf = response.data.copyOf;
+                updateShareTargets(scope.message.copyOf.target);
+              }
             });
           }
         });
