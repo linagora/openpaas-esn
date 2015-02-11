@@ -235,58 +235,6 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     $scope.domain = domain;
     $scope.selected = '';
 
-    function refreshCommunity(community) {
-      communityAPI.get(community._id).then(
-        function(response) {
-          var updatedCommunity = response.data;
-          for (var i = 0, len = $scope.communities.length; i < len; i++) {
-            if ($scope.communities[i]._id === community._id) {
-              $scope.communities[i] = updatedCommunity;
-            }
-          }
-        },
-        function(err) {
-          $log.error('Error while loading community', err);
-        }
-      );
-    }
-
-    $scope.joinSuccess = function(community) {
-      $location.path('/communities/' + community._id);
-    };
-
-    $scope.joinFailure = function(community) {
-      $log.error('failed to join community', community);
-      refreshCommunity(community);
-    };
-
-    $scope.leaveSuccess = function(community) {
-      refreshCommunity(community);
-    };
-
-    $scope.leaveFailure = function(community) {
-      $log.error('failed to leave community', community);
-      refreshCommunity(community);
-    };
-
-    $scope.requestMembershipSuccess = function(community) {
-      refreshCommunity(community);
-    };
-
-    $scope.requestMembershipFailure = function(community) {
-      $log.error('failed to request membership to the community', community);
-      refreshCommunity(community);
-    };
-
-    $scope.cancelRequestMembershipSuccess = function(community) {
-      refreshCommunity(community);
-    };
-
-    $scope.cancelRequestMembershipFailure = function(community) {
-      $log.error('failed to cancel request membership to the community', community);
-      refreshCommunity(community);
-    };
-
     $scope.getAll = function() {
       $scope.selected = 'all';
       $scope.loading = true;
@@ -352,7 +300,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
 
     $scope.getAll();
   }])
-  .directive('communityDisplay', function() {
+  .directive('communityDisplay', ['communityAPI', 'session', '$log', '$location', function(communityAPI, session, $log, $location) {
     return {
       restrict: 'E',
       scope: {
@@ -360,9 +308,59 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         actions: '='
       },
       replace: true,
-      templateUrl: '/views/modules/community/community-display.html'
+      templateUrl: '/views/modules/community/community-display.html',
+      link: function($scope) {
+        $scope.user = session.user;
+
+        function refreshCommunity() {
+          communityAPI.get($scope.community._id).then(
+            function(response) {
+              $scope.community = response.data;
+            },
+            function(err) {
+              $log.error('Error while loading community', err);
+            }
+          );
+        }
+
+        $scope.joinSuccess = function() {
+          $location.path('/communities/' + $scope.community._id);
+        };
+
+        $scope.joinFailure = function() {
+          $log.error('failed to join community', $scope.community);
+          refreshCommunity();
+        };
+
+        $scope.leaveSuccess = function() {
+          refreshCommunity();
+        };
+
+        $scope.leaveFailure = function() {
+          $log.error('failed to leave community', $scope.community);
+          refreshCommunity();
+        };
+
+        $scope.requestMembershipSuccess = function() {
+          refreshCommunity();
+        };
+
+        $scope.requestMembershipFailure = function() {
+          $log.error('failed to request membership to the community', $scope.community);
+          refreshCommunity();
+        };
+
+        $scope.cancelRequestMembershipSuccess = function() {
+          refreshCommunity();
+        };
+
+        $scope.cancelRequestMembershipFailure = function() {
+          $log.error('failed to cancel request membership to the community', $scope.community);
+          refreshCommunity();
+        };
+      }
     };
-  })
+  }])
   .directive('communityPendingInvitationList', ['collaborationAPI', '$animate', function(collaborationAPI, $animate) {
     return {
       restrict: 'E',
