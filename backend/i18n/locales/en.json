@@ -265,5 +265,8 @@
   "Option": "Option",
   "Poll option description...": "Poll option description...",
   "Add another option": "Add another option",
-  "landed a poll": "landed a poll"
+  "landed a poll": "landed a poll",
+  "joined this community": "joined this community",
+  "joined this project": "joined this project",
+  "joined this collaboration": "joined this collaboration"
 }
