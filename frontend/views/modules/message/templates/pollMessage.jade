@@ -33,6 +33,13 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               td {{result.label}}
               td 
                 strong {{result.votes}}
+        .row(ng-show='pollContext.hasVoted === true')
+          .col-xs-12
+            a.chart(href='', ng-click='toggleChartDisplay()')
+              i.fa.fa-pie-chart
+              span(ng-show='!showMeChart') #{__('Show results as chart')}
+              span(ng-show='showMeChart') #{__('Hide chart')}
+            canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
     include ./includes/messagesBottomLinks
     include ./includes/attachments.jade
     include ./includes/oembed.jade

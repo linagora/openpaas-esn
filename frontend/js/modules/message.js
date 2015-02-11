@@ -479,6 +479,11 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
     function link(scope, element, attrs) {
       var results, choices;
 
+      scope.showMeChart = false;
+      scope.toggleChartDisplay = function() {
+        scope.showMeChart = !scope.showMeChart;
+      };
+
       function refreshScopeData() {
         results = scope.message.pollResults;
         choices = scope.message.pollChoices;
@@ -508,6 +513,15 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         scope.pollContext.results = choices.map(function(choice) {
           return {label: choice.label, votes: cache[choice.label]};
         });
+
+        scope.pollContext.chart = scope.pollContext.results.map(function(result) {
+          return result.votes;
+        });
+
+        scope.pollContext.labels = scope.pollContext.results.map(function(result) {
+          return result.label;
+        });
+
       }
 
       function onVoteSuccess(response) {
