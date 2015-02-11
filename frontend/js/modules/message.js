@@ -1114,8 +1114,21 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       link: function(scope) {
 
         function updateShareTargets(target) {
+          if (!target) {
+            return;
+          }
+
+          var cache = [];
+          var targets = [];
+          target.forEach(function(target) {
+            if (cache.indexOf(target.id) === -1) {
+              cache.push(target.id);
+              targets.push(target);
+            }
+          });
+
           var collaborations = [];
-          var restCalls = target.map(function(target) {
+          var restCalls = targets.map(function(target) {
             return activitystreamAPI.getResource(target.id).then(
               function(response) {
                 collaborations.push(response.data);
