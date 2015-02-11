@@ -511,7 +511,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         });
 
         scope.pollContext.results = choices.map(function(choice) {
-          return {label: choice.label, votes: cache[choice.label]};
+          return {label: choice.label, votes: cache[choice.label], ratio: cache[choice.label] > 0 ? Math.round((cache[choice.label] * 100) / results.length) : 0};
         });
 
         scope.pollContext.chart = scope.pollContext.results.map(function(result) {
