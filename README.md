@@ -8,15 +8,19 @@ Installation
 
 1. clone the repository
 
-        git clone http://ci-openpaas.linagora.com/stash/scm/or/rse.git
+        git clone https://ci.open-paas.org/stash/scm/or/rse.git
 
-2. install node.js
+2. You may need some additional packages. For example with a Debian installation, as an administrator you should use the following commands:
 
-3. install the npm dependencies
+	apt-get install build-essential redis-server mongodb npm python-setuptools graphicsmagick graphicsmagick-imagemagick-compat
+
+You also need node.js. Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
+
+3. Install the npm dependencies (as an administrator)
 
         npm install -g mocha grunt-cli bower karma-cli
     
-4. install the gjslint dependency
+4. Install the gjslint dependency (as an administrator)
 
         easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
 
@@ -61,9 +65,15 @@ Note that this will override all the current configuration resources with the fi
 Starting the server
 ------------------
 
-Use npm start to start the server !
+You should first start mongodb and redis-server.
 
+Then npm start to start the ESN server !
+ 
     npm start
+
+
+Your ESN can be reached at the following address: http://<ip>:8080. Now simply follow the wizard to 
+prepare your working ESN with MongoDB port (default is 27017)
     
 
 Develop the ESN
