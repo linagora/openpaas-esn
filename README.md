@@ -10,23 +10,62 @@ Installation
 
         git clone https://ci.open-paas.org/stash/scm/or/rse.git
 
-2. You may need some additional packages. For example with a Debian installation, as an administrator you should use the following commands:
+2. Install and configure ElasticSearch and MongoDB
 
-	apt-get install build-essential redis-server mongodb npm python-setuptools graphicsmagick graphicsmagick-imagemagick-compat
+First install ElasticSearch 1.3.5, then MongoDB 2.6.5.
 
-You also need node.js. Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
+Retrieve source code of rse-scripts:
 
-3. Install the npm dependencies (as an administrator)
+        git clone https://ci.open-paas.org/stash/scm/or/rse-scripts.git
+
+Follow [documentation](https://ci.open-paas.org/stash/projects/OR/repos/rse-scripts/browse/elasticsearch).
+
+You may have to specify the path to ElasticSearch plugin:
+        export ES_BIN_PLUGIN=/usr/share/elasticsearch/bin/plugin
+
+Then run the scripts (curl and java are needed) in the correct order:
+        1_elasticsearch_river_install.sh
+        2_config_elasticsearch_analyser.sh
+
+Before running step 3, you must configure MongoDB cluster in replica set. Open `/etc/mongod.conf` and modify replSet
+        replSet=rs
+        
+Then restart MongoDB
+        service mongod restart
+
+Change the hostname of the machine to 127.0.0.1
+        hostname 127.0.0.1
+
+Open the mongo shell (with `mongo`) and launch
+        > rs.initiate()
+
+About a minute later, you will have a PRIMARY prompt that will appear when checking the status of MongoDB
+        > rs.status()
+        
+Then continue with 3rd script (when the cluster is running as a PRIMARY node)
+        3_config_elasticsearch_mongodb_river.sh
+
+If you missed something during the previous steps, a script `delete_elasticsearch_mongodb_river.sh` is available. After using it, please go back to step 2 again.
+
+3. Install node.js
+
+Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
+
+4. You may need some additional packages. For example with a Debian installation, as an administrator you should use the following commands (as an administrator):
+
+        apt-get install build-essential redis-server npm python-setuptools graphicsmagick graphicsmagick-imagemagick-compat
+
+5. Install the npm dependencies (as an administrator)
 
         npm install -g mocha grunt-cli bower karma-cli
     
-4. Install the gjslint dependency (as an administrator)
+6. Install the gjslint dependency (as an administrator)
 
         easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
 
     more informations [can be found here](https://developers.google.com/closure/utilities/docs/linter_howto)
     
-5. Go into the project directory and install project dependencies
+7. Go into the project directory and install project dependencies (not as an administrator)
 
         cd rse
         npm install
