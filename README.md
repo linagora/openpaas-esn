@@ -21,28 +21,36 @@ Retrieve source code of rse-scripts:
 Follow [documentation](https://ci.open-paas.org/stash/projects/OR/repos/rse-scripts/browse/elasticsearch).
 
 You may have to specify the path to ElasticSearch plugin:
+
         export ES_BIN_PLUGIN=/usr/share/elasticsearch/bin/plugin
 
 Then run the scripts (curl and java are needed) in the correct order:
+
         1_elasticsearch_river_install.sh
         2_config_elasticsearch_analyser.sh
 
 Before running step 3, you must configure MongoDB cluster in replica set. Open `/etc/mongod.conf` and modify replSet
+
         replSet=rs
         
 Then restart MongoDB
+
         service mongod restart
 
 Change the hostname of the machine to 127.0.0.1
+
         hostname 127.0.0.1
 
 Open the mongo shell (with `mongo`) and launch
+
         > rs.initiate()
 
 About a minute later, you will have a PRIMARY prompt that will appear when checking the status of MongoDB
+
         > rs.status()
         
 Then continue with 3rd script (when the cluster is running as a PRIMARY node)
+
         3_config_elasticsearch_mongodb_river.sh
 
 If you missed something during the previous steps, a script `delete_elasticsearch_mongodb_river.sh` is available. After using it, please go back to step 2 again.
