@@ -486,9 +486,11 @@ describe('The esn.message Angular module', function() {
         this.controller = $controller;
       }));
 
-      it('should attach the error with the message id', function() {
+      it('should attach the error with the message id', function(done) {
         this.alert = function(alertObj) {
-          expect(alertObj).to.have.deep.property('container', '[error-message-id="123"]');
+          expect(alertObj).to.exist;
+          expect(alertObj.container).to.equal('[error-message-id="123"]');
+          done();
         };
 
         this.controller('messageCommentController', {
