@@ -438,7 +438,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         type: 'danger',
         show: true,
         position: 'bottom',
-        container: '#commenterror',
+        container: '[error-message-id="' + $scope.message._id + '"]',
         duration: '3',
         animation: 'am-fade'
       });
