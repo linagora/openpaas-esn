@@ -8,13 +8,14 @@ div.inner-widget.form-container(ng-controller='messageCommentController')
         map-get-display-current-position
       .form-group(ng-show='attachments && attachments.length > 0')
         message-edition-attachments
-      .form-group.text-right(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
+      .form-group.text-left(ng-hide='rows !== 4', ng-class='{nopadding: rows !== 4}')
+        button.btn.btn-primary(type='submit', ng-click='addComment("whatsup")', ng-disabled='sending') #{__('Comment')}
+        &nbsp;
+        button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}
+        &nbsp;
         button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
           i.fa.fa-paperclip
         &nbsp;
         a(href='', ng-disabled='sending', fill-position)
           i.fa.fa-map-marker
         &nbsp;
-        button.btn.btn-primary(type='submit', ng-click='addComment("whatsup")', ng-disabled='sending') #{__('Comment')}
-        &nbsp;
-        button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}
