@@ -480,6 +480,36 @@ describe('The esn.message Angular module', function() {
       });
     }));
 
+    describe('displayError() method', function() {
+
+      beforeEach(inject(function($controller) {
+        this.controller = $controller;
+      }));
+
+      it('should attach the error with the message id', function(done) {
+        this.alert = function(alertObj) {
+          expect(alertObj).to.exist;
+          expect(alertObj.container).to.equal('[error-message-id="123"]');
+          done();
+        };
+
+        this.controller('messageCommentController', {
+            $scope: this.scope,
+            $q: this.$q,
+            messageAPI: this.messageAPI,
+            $alert: this.alert,
+            $rootScope: this.rootScope,
+            geoAPI: this.geoAPI
+          });
+
+        this.scope.message = {
+          _id: 123,
+          objectType: 'whatsup'
+        };
+        this.scope.displayError('an error');
+      });
+    });
+
     describe('addComment() directive', function() {
       it('should not call the addComment API when $scope.message is undefined', function(done) {
         this.scope.displayError = function() {
