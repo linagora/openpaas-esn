@@ -1055,3 +1055,17 @@ a.cancel:hover {
   width: 32px;
   height: 32px;
 }
+
+.btn-primary {
+  background: @button-standard-background;
+  border-color: @button-standard-border-color;
+  color: @defaultFontColor;
+  .RoundedShape();
+  .ShadowedShape();
+  &:hover,
+  &:focus {
+    background: @secondary-yellow;
+    border-color: @button-standard-border-color;
+    color: @defaultFontColor;
+  }
+}
