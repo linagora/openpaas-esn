@@ -13,6 +13,7 @@
 @blue: #4982eb;
 @secondary-blue: #428BCA;
 @yellow: #eecb25;
+@secondary-yellow: #E9C200;
 @green: #abc85c;
 @red: #bc015c;
 @secondary-red: #e40c24;
@@ -82,8 +83,8 @@ a:focus {
     border-color: @button-standard-border-color;
     color: @defaultFontColor;
   }
-  .btn-primary:hover {
-    background: @button-standard-background;
+  .btn-primary:hover, .btn-primary:focus {
+    background: @secondary-yellow;
     border-color: @button-standard-border-color;
     color: @defaultFontColor;
   }
@@ -335,6 +336,11 @@ a:focus {
     width: 100%;
     margin-bottom: 20px;
   }
+  .btn-primary:hover, .btn-primary:focus {
+    background: @secondary-yellow;
+    border-color: @button-standard-border-color;
+    color: @defaultFontColor;
+  }
   .cancel-request-membership {
     text-align: center;
     >div {
@@ -580,6 +586,11 @@ a:focus {
     .ShadowedShape();
     margin: 10px;
   };
+  .btn-primary:hover, .btn-primary:focus {
+    background: @secondary-yellow;
+    border-color: @button-standard-border-color;
+    color: @defaultFontColor;
+  }
   padding-top: 10px;
   padding-bottom: 10px;
   box-shadow: none;
@@ -610,6 +621,11 @@ a:focus {
     white-space: normal;
     .RoundedShape();
     .ShadowedShape();
+  }
+  .btn-primary:hover, .btn-primary:focus {
+    background: @secondary-yellow;
+    border-color: @button-standard-border-color;
+    color: @defaultFontColor;
   }
 }
 
