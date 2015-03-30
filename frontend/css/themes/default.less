@@ -13,6 +13,7 @@
 @blue: #4982eb;
 @secondary-blue: #428BCA;
 @yellow: #eecb25;
+@secondary-yellow: #E9C200;
 @green: #abc85c;
 @red: #bc015c;
 @secondary-red: #e40c24;
@@ -70,19 +71,7 @@ a:focus {
   .ResizeImage(@defaultImageSizeMedium, auto);
   .RoundedShape();
   .ShadowedShape();
-  .btn-primary {
-    background: @button-standard-background;
-    border-color: @button-standard-border-color;
-    color: @defaultFontColor;
-    .RoundedShape();
-    .ShadowedShape();
-  }
   .btn-primary.dropdown-toggle {
-    background: @button-standard-background;
-    border-color: @button-standard-border-color;
-    color: @defaultFontColor;
-  }
-  .btn-primary:hover {
     background: @button-standard-background;
     border-color: @button-standard-border-color;
     color: @defaultFontColor;
@@ -573,11 +562,6 @@ a:focus {
     width: 175px;
   };
   .btn-primary {
-    background: @button-standard-background;
-    border-color: @button-standard-border-color;
-    color: @defaultFontColor;
-    .RoundedShape();
-    .ShadowedShape();
     margin: 10px;
   };
   padding-top: 10px;
@@ -608,8 +592,6 @@ a:focus {
     border-color: @btn-primary-color;
     color: @btn-primary-color;
     white-space: normal;
-    .RoundedShape();
-    .ShadowedShape();
   }
 }
 
