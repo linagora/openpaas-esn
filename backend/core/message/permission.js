@@ -29,26 +29,7 @@ module.exports.canRead = function(message, tuple, callback) {
 
       // Check if the tuple can read in the collaboration
       collaborationModule.permission.canRead(collaborations[0], tuple, function(err, readable) {
-        if (err || !readable) {
-          return canReadShare(false);
-        }
-
-        // If the message is NOT an organizational message then return the collaboration permission
-        if (message.objectType !== 'organizational') {
-          return canReadShare(true);
-        }
-
-        // If the tuple is NOT a user then return the collaboration permission
-        if (tuple.objectType !== 'user') {
-          return canReadShare(true);
-        }
-
-        permissionHelpers.checkUserCompany(message.recipients, tuple.id, function(err, canRead) {
-          if (err) {
-            return canReadShare(false);
-          }
-          return canReadShare(canRead);
-        });
+        return canReadShare(!err && readable === true);
       });
     });
 
