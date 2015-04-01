@@ -431,20 +431,16 @@ angular.module('esn.activitystream')
     }
 
     var isAMessageRecipient = false;
-    if (timelineentry.object && timelineentry.object.objectType === 'organizational') {
-      if (timelineentry.to && angular.isArray(timelineentry.to) && timelineentry.to.length > 0) {
-        isAMessageRecipient = timelineentry.to.some(function(recipient) {
-          if (recipient && recipient.objectType) {
-            if (recipient.objectType === 'company') {
-              return companyUserService.isInternalUser(currentUserEmail, recipient.id);
-            }
-            return false;
+    if (timelineentry.to && angular.isArray(timelineentry.to) && timelineentry.to.length > 0) {
+      isAMessageRecipient = timelineentry.to.some(function(recipient) {
+        if (recipient && recipient.objectType) {
+          if (recipient.objectType === 'company') {
+            return companyUserService.isInternalUser(currentUserEmail, recipient.id);
           }
           return false;
-        });
-      }
-    } else {
-      isAMessageRecipient = true;
+        }
+        return false;
+      });
     }
     return isAMessageRecipient;
   }
