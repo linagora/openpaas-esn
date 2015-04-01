@@ -5,7 +5,6 @@ var async = require('async');
 var attachments = require('./attachments');
 var emailMessageModule = require('./email');
 var whatsupMessageModule = require('./whatsup');
-var organizationalMessageModule = require('./organizational');
 var pollMessageModule = require('./poll');
 var pubsub = require('../').pubsub.local;
 
@@ -15,14 +14,12 @@ var objectTypeToSchemaName = {
   email: 'EmailMessage',
   whatsup: 'Whatsup',
   event: 'EventMessage',
-  organizational: 'OrganizationalMessage',
   poll: 'PollMessage'
 };
 
 var type = {
   email: emailMessageModule,
   whatsup: whatsupMessageModule,
-  organizational: organizationalMessageModule,
   poll: pollMessageModule
 };
 
