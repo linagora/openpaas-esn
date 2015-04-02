@@ -113,18 +113,5 @@ describe('The Company Angular module', function() {
         expect(this.companyUserService.isInternalUser('user@pipo.com', this.companyName)).to.be.false;
       });
     });
-    describe('getCompany method', function() {
-      it('should return the company part of the email', function() {
-        expect(this.companyUserService.getCompany('user@linagora.com')).to.equal('linagora.com');
-      });
-    });
-    describe('prettyCompany method', function() {
-      it('should make users pretty', function() {
-        expect(this.companyUserService.prettyCompany('user@linagora.com')).to.equal('Linagora');
-      });
-      it('should make the company pretty', function() {
-        expect(this.companyUserService.prettyCompany('linagora.com')).to.equal('Linagora');
-      });
-    });
   });
 });

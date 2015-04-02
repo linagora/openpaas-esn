@@ -62,18 +62,7 @@ angular.module('esn.company', ['restangular'])
     return emailDomain === company || emailDomainWithoutSuffix === company;
   }
 
-  function getCompany(userEmail) {
-    return userEmail.replace(/.*@/, '');
-  }
-
-  function prettyCompany(companyOrMail) {
-    var c = companyOrMail.indexOf('@') < 0 ? companyOrMail : getCompany(companyOrMail);
-    return c && c.length ? c[0].toUpperCase() + c.substr(1).split('.')[0] : '';
-  }
-
   return {
-    isInternalUser: isInternalUser,
-    getCompany: getCompany,
-    prettyCompany: prettyCompany
+    isInternalUser: isInternalUser
   };
 });

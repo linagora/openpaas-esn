@@ -14,12 +14,6 @@ describe.skip('The Community Angular module', function() {
       this.$q = $q;
       this.collaborationAPI = {};
       this.defer = this.$q.defer();
-      this.session = {
-        domain: {
-          _id: 123123,
-          company_name: 'example.com'
-        }
-      };
       this.collaborationAPI.getMembers = function(id, opts) {
         return self.defer.promise;
       };
@@ -35,8 +29,7 @@ describe.skip('The Community Angular module', function() {
         $scope: this.scope,
         collaborationAPI: this.collaborationAPI,
         $routeParams: this.$routeParams,
-        usSpinnerService: this.usSpinnerService,
-        session: this.session
+        usSpinnerService: this.usSpinnerService
       });
 
     }));
@@ -85,7 +78,7 @@ describe.skip('The Community Angular module', function() {
         this.scope.restActive = true;
       });
 
-      it('should call the API when scope.offet is 0', function(done) {
+      it('should call the API when scope.offset is 0', function(done) {
         this.scope.restActive = false;
         this.scope.offset = 0;
         this.collaborationAPI.getMembers = function() {
@@ -116,21 +109,6 @@ describe.skip('The Community Angular module', function() {
         };
         this.scope.$digest();
         this.scope.loadMoreElements();
-      });
-
-      it('should split into internal and external members by domain', function() {
-        var u1 = { user: { _id: 'id1', emails: ['a@example.com'] } };
-        var u2 = { user: { _id: 'id2', emails: ['b@lng.net'] } };
-        var u3 = { user: { _id: 'id3', emails: ['c@linagora.com'] } };
-        this.defer.resolve({data: [u1, u2, u3], headers: function() { return 10;}});
-        this.scope.$digest();
-        expect(Object.keys(this.scope.internalMembers).length).to.equal(1);
-        expect(this.scope.internalMembers.id1).to.exist;
-        expect(Object.keys(this.scope.externalMembers).length).to.equal(2);
-        expect(Object.keys(this.scope.externalMembers.Lng).length).to.equal(1);
-        expect(this.scope.externalMembers.Lng.id2).to.exist;
-        expect(Object.keys(this.scope.externalMembers.Linagora).length).to.equal(1);
-        expect(this.scope.externalMembers.Linagora.id3).to.exist;
       });
     });
   });
