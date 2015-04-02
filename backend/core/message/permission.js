@@ -1,8 +1,6 @@
 'use strict';
 
 var collaborationModule = require('../collaboration');
-var permissionHelpers = require('../../helpers/permission');
-var userHelpers = require('../../helpers/user');
 var async = require('async');
 
 /**
@@ -39,28 +37,10 @@ module.exports.canRead = function(message, tuple, callback) {
 };
 
 /**
- * User can read a response message if he is internal OR he has at least his company in the recipients field.
+ * User can always read response message.
  */
 module.exports.canReadResponse = function(response, tuple, callback) {
-  if (tuple.objectType !== 'user') {
-    return callback(null, true);
-  }
-
-  userHelpers.isInternal(tuple.id, function(err, isInternal) {
-    if (err) {
-      return callback(err);
-    }
-    // If the user is internal he can read
-    if (isInternal) {
-      return callback(null, true);
-    }
-
-    if (response.visibility && response.visibility === 'private') {
-      return callback(null, false);
-    }
-
-    permissionHelpers.checkUserCompany(response.recipients, tuple.id, callback);
-  });
+  return callback(null, true);
 };
 
 /**
