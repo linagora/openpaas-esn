@@ -24,10 +24,6 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       return Restangular.one('collaborations').one(objectType, id).one('members', member).get();
     }
 
-    function getExternalCompanies(objectType, id, options) {
-      return Restangular.one('collaborations').one(objectType, id).getList('externalcompanies', options);
-    }
-
     function getInvitablePeople(objectType, id, options) {
       var query = options || {};
       return Restangular.one('collaborations').one(objectType, id).all('invitablepeople').getList(query);
@@ -58,7 +54,6 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       getWhereMember: getWhereMember,
       getMembers: getMembers,
       getMember: getMember,
-      getExternalCompanies: getExternalCompanies,
       join: join,
       leave: leave,
       requestMembership: requestMembership,
