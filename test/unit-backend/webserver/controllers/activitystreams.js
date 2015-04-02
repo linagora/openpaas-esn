@@ -5,6 +5,14 @@ var mockery = require('mockery');
 
 describe('The activitystreams controller module', function() {
 
+  beforeEach(function() {
+    mockery.registerMock('../../core/activitystreams/tracker', {getTracker: function() {
+      return {
+        updateLastTimelineEntry: function() {}
+      };
+    }});
+  });
+
   it('get should return HTTP 400 when activity_stream is not set', function(done) {
     this.helpers.mock.models({
       Community: {

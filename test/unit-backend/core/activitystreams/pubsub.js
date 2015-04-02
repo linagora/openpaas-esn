@@ -3,9 +3,14 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
+var tracker = {
+  getTracker: function() {}
+};
+
 describe('The activitystreams pubsub module', function() {
   beforeEach(function() {
     this.helpers.mock.models({});
+    mockery.registerMock('./tracker', tracker);
   });
 
   describe('processActivity fn', function() {

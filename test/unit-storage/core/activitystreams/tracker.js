@@ -15,7 +15,7 @@ describe('the TimelineEntriesTracker module', function() {
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
     TimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/timelineentriestracker');
-    tracker = this.helpers.requireBackend('core/activitystreams/tracker');
+    tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
     this.testEnv.writeDBConfigFile();
     this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
@@ -27,7 +27,7 @@ describe('the TimelineEntriesTracker module', function() {
   });
 
   it('should create a new TimelineEntriesTracker with the init values', function(done) {
-    tracker.updateLastTimelineEntryRead(userId, activityStreamUuid, timelineEntryId, function(err, saved) {
+    tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId, function(err, saved) {
       expect(err).to.not.exist;
       expect(saved).to.exist;
       expect(userId.equals(saved._id)).to.be.true;
@@ -47,7 +47,7 @@ describe('the TimelineEntriesTracker module', function() {
       if (err) { done(err); }
 
       var timelineEntryId_2 = new ObjectId('538d87b37779021a1acf1b13');
-      tracker.updateLastTimelineEntryRead(userId, activityStreamUuid, timelineEntryId_2, function(err, saved) {
+      tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId_2, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;
         expect(userId.equals(saved._id)).to.be.true;
@@ -73,12 +73,12 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntryRead(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+          tracker.updateLastTimelineEntry(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
             if (err) {
               return done(err);
             }
 
-            tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
+            tracker.countSinceLastTimelineEntry(userId, models2.activityStreamUuid, function(err, count) {
               expect(err).to.not.exist;
               expect(count).to.exist;
               expect(count).to.deep.equal(0);
@@ -106,12 +106,12 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntryRead(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
             if (err) {
               return done(err);
             }
 
-            tracker.getUnreadTimelineEntriesCount(userId, models2.activityStreamUuid, function(err, count) {
+            tracker.countSinceLastTimelineEntry(userId, models2.activityStreamUuid, function(err, count) {
               expect(err).to.not.exist;
               expect(count).to.exist;
               expect(count).to.deep.equal(0);
@@ -121,7 +121,7 @@ describe('the TimelineEntriesTracker module', function() {
                   return done(err);
                 }
 
-                tracker.getUnreadTimelineEntriesCount(models.users[0]._id, models3.activityStreamUuid, function(err, count) {
+                tracker.countSinceLastTimelineEntry(models.users[0]._id, models3.activityStreamUuid, function(err, count) {
                   expect(err).to.not.exist;
                   expect(count).to.exist;
                   expect(count).to.deep.equal(4);
@@ -151,7 +151,7 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntryRead(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
+          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
             if (err) {
               return done(err);
             }
@@ -166,7 +166,7 @@ describe('the TimelineEntriesTracker module', function() {
                   return done(err);
                 }
 
-                tracker.getUnreadTimelineEntriesCount(models.users[0]._id, models2.activityStreamUuid, function(err, count) {
+                tracker.countSinceLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, function(err, count) {
                   expect(err).to.not.exist;
                   expect(count).to.exist;
                   expect(count).to.deep.equal(2);

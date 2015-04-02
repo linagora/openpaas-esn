@@ -571,11 +571,11 @@ describe('The activitystreams routes', function() {
 
     beforeEach(function(done) {
       tracker = {
-        getUnreadTimelineEntriesCount: function(userId, activityStreamUuid, callback) {
+        countSinceLastTimelineEntry: function(userId, activityStreamUuid, callback) {
           return callback(new Error('server error'));
         }
       };
-      mockery.registerMock('../../core/activitystreams/tracker', tracker);
+      mockery.registerMock('../../core/activitystreams/tracker', {getTracker: function() {return tracker;}});
 
       var self = this;
       this.testEnv.initCore(function(err) {

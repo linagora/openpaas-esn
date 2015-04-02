@@ -3,7 +3,7 @@
 var pubsub = require('../pubsub').local;
 var logger = require('../logger');
 var activitystream = require('./index');
-var tracker = require('./tracker');
+var tracker = require('./tracker').getTracker('read');
 var collaborationModule = require('../collaboration');
 var initialized = false;
 
@@ -70,7 +70,7 @@ function updateTimelineEntriesTracker(data, callback) {
         return callback(null, null);
       }
 
-      tracker.updateLastTimelineEntryRead(data.target, community.activity_stream.uuid, results[0]._id, function(err, saved) {
+      tracker.updateLastTimelineEntry(data.target, community.activity_stream.uuid, results[0]._id, function(err, saved) {
         if (err) {
           return callback(err);
         }
