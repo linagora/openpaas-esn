@@ -24,6 +24,12 @@ module.exports = function(dependencies) {
     });
   }
 
+  function isJobRunning(id, callback) {
+    registry.get(id, function(err, job) {
+      callback(err, job && job.state && job.state === 'running');
+    });
+  }
+
   function abort(id, callback) {
     registry.get(id, function(err, job) {
       if (err) {
@@ -44,7 +50,6 @@ module.exports = function(dependencies) {
   }
 
   function submit(description, cronTime, job, onStopped, callback) {
-
     description = description || 'No description';
 
     if (!cronTime) {
@@ -70,16 +75,38 @@ module.exports = function(dependencies) {
     var CronJob = cron.CronJob;
     var id = uuid.v4();
 
-    var cronjob = new CronJob(cronTime, function() {
-        logger.info('Starting the cronjob %s', id);
-        setJobState(id, 'running', function(err) {
+    var jobWrapper = function() {
+      logger.info('Job %s is starting', id);
+
+      setJobState(id, 'running', function(err) {
+        if (err) {
+          logger.warning('Can not update the job state', err);
+        }
+
+        job(function(err) {
+          logger.info('Job %s is complete', id);
           if (err) {
-            logger.warning('Can not update the job state', err);
+            logger.error('Job %s failed', id, err);
           }
-          job();
+          setJobState(id, err ? 'failed' : 'complete', function(err) {
+            if (err) {
+              logger.warning('Can not update the job state', err);
+            }
+          });
+        });
+      });
+    };
+
+    var cronjob = new CronJob(cronTime, function() {
+        isJobRunning(id, function(err, running) {
+          if (running) {
+            logger.error('Job %s is already running, skipping', id);
+          } else {
+            jobWrapper();
+          }
         });
       }, function() {
-        logger.info('Cronjob %s is stoped', id);
+        logger.info('Job %s is stoped', id);
         setJobState(id, 'stopped', function(err) {
           if (err) {
             logger.warning('Can not update the job state', err);

@@ -47,6 +47,108 @@ describe('The Cron Module', function() {
     return deps[name];
   };
 
+  describe('The module', function() {
+
+    it('should not run the job if already running', function(done) {
+
+      mockRegistry();
+      var module = require('../../../lib/index')(dependencies);
+
+      var clock = sinon.useFakeTimers();
+
+      var called = 0;
+      var job = function() {
+        setTimeout(function() {
+          called++;
+        }, 1500);
+      };
+
+      // first launch will occurs at t0 + 1000 and will finish at t0 + 1000 + 1500
+      // second launch will occurs at t0 + 2000
+      module.submit('Awesome Job', '* * * * * *', job, function() {
+      }, function(err) {
+        clock.tick(2900);
+        expect(err).to.not.exist;
+        expect(called).to.equal(1);
+        done();
+      });
+    });
+
+    it('should update the state of the job', function(done) {
+
+      var states = {
+        running: 0,
+        complete: 0
+      };
+
+      mockRegistry({
+        update: function(job, callback) {
+          states[job.state] ++;
+          return callback();
+        },
+        get: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+
+      var module = require('../../../lib/index')(dependencies);
+      var clock = sinon.useFakeTimers();
+
+      var called = 0;
+      var job = function(callback) {
+        called++;
+        return callback();
+      };
+
+      module.submit('Awesome Job', '* * * * * *', job, function() {
+      }, function(err) {
+        clock.tick(3000);
+        expect(err).to.not.exist;
+        expect(states.running).to.equal(called);
+        expect(states.complete).to.equal(called);
+        done();
+      });
+    });
+
+    it('should set the state as failed when job failed', function(done) {
+
+      var states = {
+        running: 0,
+        complete: 0,
+        failed: 0
+      };
+
+      mockRegistry({
+        update: function(job, callback) {
+          states[job.state] ++;
+          return callback();
+        },
+        get: function(id, callback) {
+          return callback(null, {});
+        }
+      });
+
+      var module = require('../../../lib/index')(dependencies);
+      var clock = sinon.useFakeTimers();
+
+      var called = 0;
+      var job = function(callback) {
+        called++;
+        return callback(new Error());
+      };
+
+      module.submit('Awesome Job', '* * * * * *', job, function() {
+      }, function(err) {
+        clock.tick(3000);
+        expect(err).to.not.exist;
+        expect(states.running).to.equal(called);
+        expect(states.complete).to.equal(0);
+        expect(states.failed).to.equal(called);
+        done();
+      });
+    });
+  });
+
   describe('The submit function', function() {
 
     var module;

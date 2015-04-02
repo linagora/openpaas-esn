@@ -3,7 +3,7 @@
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 
-var dailyDigest = new AwesomeModule('linagora.esn.cron', {
+var cronModule = new AwesomeModule('linagora.esn.cron', {
 
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger')
@@ -15,4 +15,4 @@ var dailyDigest = new AwesomeModule('linagora.esn.cron', {
     }
   }
 });
-module.exports = dailyDigest;
+module.exports = cronModule;
