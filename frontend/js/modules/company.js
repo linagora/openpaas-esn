@@ -51,18 +51,4 @@ angular.module('esn.company', ['restangular'])
       });
     }
   };
-}])
-.factory('companyUserService', function() {
-  function isInternalUser(userEmail, company) {
-    if (!userEmail || !company) {
-      return false;
-    }
-    var emailDomain = userEmail.replace(/.*@/, '');
-    var emailDomainWithoutSuffix = emailDomain.split('.')[0];
-    return emailDomain === company || emailDomainWithoutSuffix === company;
-  }
-
-  return {
-    isInternalUser: isInternalUser
-  };
-});
+}]);
