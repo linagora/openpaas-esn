@@ -1,0 +1,7 @@
+{
+  "dailydigest": {
+    "active": true,
+    "expression": "00 30 06 * * 1-5",
+    "description": "Daily Digest fires every weekday at 6:30 AM"
+  }
+}
