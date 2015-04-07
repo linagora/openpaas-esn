@@ -32,7 +32,7 @@ describe('The activitystreams core module', function() {
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
       this.helpers.requireBackend('core/db/mongo/models/timelineentry');
-      this.helpers.requireBackend('core/db/mongo/models/timelineentriestracker');
+      this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
       this.helpers.requireBackend('core/db/mongo/models/domain');
       this.helpers.requireBackend('core/db/mongo/models/user');
       this.helpers.requireBackend('core/db/mongo/models/community');

@@ -1,7 +1,7 @@
 'use strict';
 
 var activitystreams = require('../../core/activitystreams');
-var tracker = require('../../core/activitystreams/tracker');
+var tracker = require('../../core/activitystreams/tracker').getTracker('read');
 var mongoose = require('mongoose');
 var escapeStringRegexp = require('escape-string-regexp');
 var async = require('async');
@@ -31,9 +31,9 @@ function updateTracker(req, timelineEntriesReadable) {
   if (req && req.user && !req.query.before && timelineEntriesReadable && timelineEntriesReadable[0]) {
     // When req.query.after, the last timeline entry is the last element in the result array
     if (req.query.after && timelineEntriesReadable[timelineEntriesReadable.length - 1]) {
-      tracker.updateLastTimelineEntryRead(req.user._id, req.activity_stream._id, timelineEntriesReadable[timelineEntriesReadable.length - 1]._id, function(err) {});
+      tracker.updateLastTimelineEntry(req.user._id, req.activity_stream._id, timelineEntriesReadable[timelineEntriesReadable.length - 1]._id, function(err) {});
     } else {
-      tracker.updateLastTimelineEntryRead(req.user._id, req.activity_stream._id, timelineEntriesReadable[0]._id, function(err) {});
+      tracker.updateLastTimelineEntry(req.user._id, req.activity_stream._id, timelineEntriesReadable[0]._id, function(err) {});
     }
   }
 }
@@ -128,7 +128,7 @@ function getUnreadCount(req, res) {
     return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Activity Stream is missing'}});
   }
 
-  tracker.getUnreadTimelineEntriesCount(req.user._id, req.activity_stream._id, function(err, count) {
+  tracker.countSinceLastTimelineEntry(req.user._id, req.activity_stream._id, function(err, count) {
     if (err) {
       return res.json(500, {error: {code: 500, message: 'Internal error',
         details: 'Fail to get the number of unread timeline entries for this activity stream ( ' +
