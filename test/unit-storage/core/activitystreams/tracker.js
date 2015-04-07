@@ -4,7 +4,7 @@ var chai = require('chai');
 var expect = chai.expect;
 
 describe('the TimelineEntriesTracker module', function() {
-  var TimelineEntriesTracker;
+  var ReadTimelineEntriesTracker;
   var tracker;
 
   var ObjectId = require('bson').ObjectId;
@@ -14,7 +14,7 @@ describe('the TimelineEntriesTracker module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    TimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/timelineentriestracker');
+    ReadTimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
     tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
     this.testEnv.writeDBConfigFile();
     this.mongoose.connect(this.testEnv.mongoUrl, done);

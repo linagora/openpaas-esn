@@ -6,7 +6,7 @@ var q = require('q');
 
 var models = {
   push: 'PushTimeLineEntriesTracker',
-  read: 'TimeLineEntriesTracker'
+  read: 'ReadTimeLineEntriesTracker'
 };
 
 function getModel(type) {

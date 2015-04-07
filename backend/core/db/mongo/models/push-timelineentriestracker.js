@@ -7,5 +7,5 @@
 var mongoose = require('mongoose');
 var baseSchema = require('./base-timelineentriestracker');
 
-var PushSpecificSchema = new mongoose.Schema(baseSchema, { collection: 'pushtimelineentriestracker' });
+var PushSpecificSchema = new mongoose.Schema(baseSchema, { collection: 'pushtimelineentriestrackers' });
 module.exports = mongoose.model('PushTimelineEntriesTracker', PushSpecificSchema);
