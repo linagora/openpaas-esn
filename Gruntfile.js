@@ -371,6 +371,29 @@ module.exports = function(grunt) {
           task: ['test-modules-midway-backend']
         },
         src: ['Gruntfile-tests.js']
+      },
+      modules_unit_backend: {
+        options: {
+          log: true,
+          stdout: function(data) {
+            grunt.log.write(data);
+          },
+          stderr: function(data) {
+            grunt.log.error(data);
+          },
+          args: testArgs,
+          process: function(res) {
+            if (res.fail) {
+              grunt.config.set('esn.tests.success', false);
+              grunt.log.writeln('failed');
+            } else {
+              grunt.config.set('esn.tests.success', true);
+              grunt.log.writeln('succeeded');
+            }
+          },
+          task: ['test-modules-unit-backend']
+        },
+        src: ['Gruntfile-tests.js']
       }
     },
     watch: {
@@ -669,6 +692,7 @@ module.exports = function(grunt) {
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'elasticsearchIndexUsersSettings', 'mongoElasticsearchRivers']);
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
+  grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);
   grunt.registerTask('test-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);

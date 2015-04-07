@@ -58,6 +58,7 @@
     "linagora.esn.core.wsserver",
     "linagora.esn.core.webrtcserver",
     "linagora.esn.project",
-    "linagora.esn.messaging.email"
+    "linagora.esn.messaging.email",
+    "linagora.esn.cron"
   ]
 }
