@@ -5,5 +5,5 @@
 var mongoose = require('mongoose');
 var baseSchema = require('./base-timelineentriestracker');
 
-var ReadlineEntriesTrackerSchema = new mongoose.Schema(baseSchema, { collection: 'readtimelineentriestrackers' });
-module.exports = mongoose.model('ReadTimeLineEntriesTracker', ReadlineEntriesTrackerSchema);
+var ReadSpecificSchema = new mongoose.Schema(baseSchema, { collection: 'readtimelineentriestrackers' });
+module.exports = mongoose.model('ReadTimeLineEntriesTracker', ReadSpecificSchema);
