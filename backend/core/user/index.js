@@ -96,6 +96,3 @@ module.exports.getCompanies = function(user, callback) {
 };
 
 module.exports.domain = require('./domain');
-module.exports.helpers = {
-  user: require('../../helpers/user')
-};

@@ -195,35 +195,34 @@ describe('The messages API', function() {
       });
     });
     describe('PUT /api/messages/:id/vote/:vote', function() {
-      beforeEach(function(done) {
-        var self = this;
-        var target = {
-          objectType: 'activitystream',
-          id: this.models.communities[2].activity_stream.uuid
-        };
-        this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
-          if (err) {
-            return done(err);
-          }
-          var req = loggedInAsUser(request(app).post('/api/messages'));
-          req.send({
-            object: {
-              description: 'poll1',
-              objectType: 'poll',
-              data: {
-                pollChoices: [{label: 'one'}, {label: 'two'}, {label: 'three'}]
-              }
-            },
-            targets: [target]
-          }).expect(201)
-          .end(function(err, res) {
-            self.messageId = res.body._id;
-            done();
+      describe('when user does not have read right on the message', function() {
+        beforeEach(function(done) {
+          var self = this;
+          var target = {
+            objectType: 'activitystream',
+            id: this.models.communities[1].activity_stream.uuid
+          };
+          this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(app).post('/api/messages'));
+            req.send({
+              object: {
+                description: 'poll1',
+                objectType: 'poll',
+                data: {
+                  pollChoices: [{label: 'one'}, {label: 'two'}, {label: 'three'}]
+                }
+              },
+              targets: [target]
+            }).expect(201)
+              .end(function(err, res) {
+                self.messageId = res.body._id;
+                done();
+              });
           });
         });
-      });
-
-      describe('when user does not have read right on the message', function() {
         beforeEach(function(done) {
           var self = this;
           this.helpers.api.loginAsUser(app, this.models.users[3].emails[0], 'secret', function(err, loggedInAsUser) {
@@ -239,6 +238,33 @@ describe('The messages API', function() {
         });
       });
       describe('when user have read right on the message', function() {
+        beforeEach(function(done) {
+          var self = this;
+          var target = {
+            objectType: 'activitystream',
+            id: this.models.communities[2].activity_stream.uuid
+          };
+          this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(app).post('/api/messages'));
+            req.send({
+              object: {
+                description: 'poll1',
+                objectType: 'poll',
+                data: {
+                  pollChoices: [{label: 'one'}, {label: 'two'}, {label: 'three'}]
+                }
+              },
+              targets: [target]
+            }).expect(201)
+              .end(function(err, res) {
+                self.messageId = res.body._id;
+                done();
+              });
+          });
+        });
         beforeEach(function(done) {
           var self = this;
           this.helpers.api.loginAsUser(app, this.models.users[1].emails[0], 'secret', function(err, loggedInAsUser) {

@@ -5,7 +5,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
   .controller('messageEditionController', ['$scope', function($scope) {
-    var types = ['whatsup', 'event', 'organizational', 'poll'];
+    var types = ['whatsup', 'event', 'poll'];
     $scope.type = types[0];
     $scope.show = function(type) {
       if (types.indexOf(type) >= 0) {
@@ -22,55 +22,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       templateUrl: '/views/modules/message/messageEdition.html'
     };
   })
-  .directive('validateOrganizationalTitle', function() {
-    return {
-      restrict: 'A',
-      link: function(scope) {
-
-        scope.validators.push(function() {
-          var title = scope.additionalData.title;
-          if (!title || title === '') {
-            scope.validationError.title = 'A title is required. ';
-          }
-          else {
-            delete scope.validationError.title;
-          }
-        });
-      }
-    };
-  })
-  .directive('organizationalRecipients', ['$q', 'collaborationAPI', function($q, collaborationAPI) {
-    return {
-      restrict: 'A',
-      link: function(scope) {
-        scope.validationError.recipients = 'At least one external company is required.';
-        var objectType = '';
-        if (scope.activitystream.route === 'communities') {
-          objectType = 'community';
-        } else if (scope.activitystream.route === 'projects') {
-          objectType = 'project';
-        }
-
-        scope.getCompanies = function(query) {
-          var options = {};
-          if (query) {
-            options.search = query;
-          }
-
-          return collaborationAPI.getExternalCompanies(objectType, scope.activitystream._id, options);
-        };
-
-        scope.validators.push(function() {
-          var recipients = scope.additionalData.recipients;
-          if (!recipients || recipients.length === 0) {
-            scope.validationError.recipients = 'At least one external company is required.';
-          } else {
-            delete scope.validationError.recipients;
-          }
-        });
-      }
-    };
-  }])
   .controller('messageController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
 
     $scope.rows = 1;
@@ -246,42 +197,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       });
     };
   }])
-  .directive('organizationalComment', function(companyUserService, session) {
-    return {
-      restrict: 'A',
-      link: function($scope) {
-        if (!$scope.additionalData) {
-          $scope.additionalData = {};
-        }
-        if ($scope.isInternalUser) {
-          $scope.$watchGroup(['allSelected', 'companySelected'], function(newValues) {
-            if (newValues[0]) {
-              $scope.additionalData.recipients = $scope.message.recipients;
-              $scope.publishTarget = null;
-            } else {
-              $scope.additionalData.recipients = [{
-                objectType: 'company',
-                id: newValues[1]
-              }];
-              $scope.publishTarget = newValues[1];
-            }
-          });
-        }
-        else {
-          var userCompanyTuple = $scope.message.recipients.filter(function(recipient) {
-            return companyUserService.isInternalUser(session.user.emails[0], recipient.id);
-          });
-          $scope.additionalData.recipients = [userCompanyTuple[0]];
-        }
-
-        $scope.addPrivateComment = function(objectType) {
-          $scope.additionalData.visibility = 'private';
-          $scope.addComment(objectType);
-          delete $scope.additionalData.visibility;
-        };
-      }
-    };
-  })
   .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
     $scope.attachments = [];
     $scope.uploadService = null;
@@ -604,37 +519,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       }
     };
   }])
-  .directive('organizationalMessage', ['session', 'companyUserService', function(session, companyUserService) {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/message/templates/organizationalMessage.html',
-      link: function($scope) {
-        $scope.isInternalUser = companyUserService.isInternalUser(session.user.emails[0], session.domain.company_name);
-        $scope.message.allResponses = $scope.message.responses;
-        $scope.allSelected = true;
-        $scope.companySelected = '';
-
-        $scope.selectCompany = function(company) {
-          $scope.allSelected = !company;
-          $scope.companySelected = company || '';
-        };
-
-        $scope.organizationalCommentFilter = function(comment) {
-          var recipients = comment.recipients;
-          if ($scope.allSelected) {
-            return true;
-          }
-          if (!recipients || recipients.length === 0) {
-            return false;
-          }
-          return recipients.some(function(recipient) {
-            return recipient && recipient.id === $scope.companySelected;
-          });
-        };
-      }
-    };
-  }])
   .directive('whatsupEdition', function() {
     return {
       restrict: 'E',
@@ -647,13 +531,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/whatsup/whatsupAddComment.html'
-    };
-  })
-  .directive('organizationalEdition', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/message/organizational/organizationalEdition.html'
     };
   })
   .directive('pollEdition', function() {
@@ -690,13 +567,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       link: link
     };
   })
-  .directive('organizationalAddComment', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/message/organizational/organizationalAddComment.html'
-    };
-  })
   .directive('messagesDisplay', function() {
     return {
       restrict: 'E',
@@ -707,7 +577,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       templateUrl: '/views/modules/message/messagesDisplay.html'
     };
   })
-  .directive('messageTemplateDisplayer', ['RecursionHelper', 'messagePropertiesService', function(RecursionHelper, messagePropertiesService) {
+  .directive('messageTemplateDisplayer', ['RecursionHelper', function(RecursionHelper) {
     return {
       restrict: 'E',
       replace: true,
@@ -731,10 +601,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
         } else {
           $scope.writable = false;
         }
-
-        $scope.isShareable = function() {
-          return $scope.writable && messagePropertiesService.isShareable($scope.message);
-        };
       },
       compile: function(element) {
         return RecursionHelper.compile(element, function() {});
@@ -1099,13 +965,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
     };
 
   }])
-  .factory('messagePropertiesService', function() {
-    return {
-      isShareable: function(message) {
-        return message && message.objectType !== 'organizational';
-      }
-    };
-  })
   .directive('sharedFrom', ['activitystreamAPI', 'objectTypeAdapter', function(activitystreamAPI, objectTypeAdapter) {
     return {
       restrict: 'E',

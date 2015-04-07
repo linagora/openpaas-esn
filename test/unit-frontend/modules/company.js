@@ -89,42 +89,4 @@ describe('The Company Angular module', function() {
       expect(scope.form.company.$error.unique).to.be.undefined;
     });
   });
-
-
-  describe('companyUser service', function() {
-    beforeEach(angular.mock.inject(function(companyUserService) {
-      this.companyUserService = companyUserService;
-      this.companyName = 'linagora';
-    }));
-    describe('isInternalUser() method', function() {
-      it('should return true if user is internal', function() {
-        expect(this.companyUserService.isInternalUser('user@linagora.com', this.companyName)).to.be.true;
-      });
-
-      it('should return true when company is a in a subdomain of an email', function() {
-        expect(this.companyUserService.isInternalUser('lenhart.esche@freshfood.openpaas-partner.prod1.linagora.com', 'freshfood')).to.be.true;
-      });
-
-      it('should return false when company is not in subdomain of an email', function() {
-        expect(this.companyUserService.isInternalUser('lenhart.esche@freshfood.openpaas-partner.prod1.linagora.com', 'eatgood')).to.be.false;
-      });
-
-      it('should return true if user is external', function() {
-        expect(this.companyUserService.isInternalUser('user@pipo.com', this.companyName)).to.be.false;
-      });
-    });
-    describe('getCompany method', function() {
-      it('should return the company part of the email', function() {
-        expect(this.companyUserService.getCompany('user@linagora.com')).to.equal('linagora.com');
-      });
-    });
-    describe('prettyCompany method', function() {
-      it('should make users pretty', function() {
-        expect(this.companyUserService.prettyCompany('user@linagora.com')).to.equal('Linagora');
-      });
-      it('should make the company pretty', function() {
-        expect(this.companyUserService.prettyCompany('linagora.com')).to.equal('Linagora');
-      });
-    });
-  });
 });

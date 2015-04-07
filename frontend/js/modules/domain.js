@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.company'])
+angular.module('esn.domain', ['restangular', 'ngTagsInput'])
   .factory('domainAPI', ['Restangular', function(Restangular) {
 
     /**
@@ -74,6 +74,9 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.company'])
 
         $scope.validateTags = function() {
           $scope.error = undefined;
+          if (!$scope.validateEmail) {
+            return;
+          }
           $scope.emails.forEach(function(tag) {
             var validationError = $scope.validateEmail(tag.email);
             if (validationError) {
@@ -107,20 +110,6 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput', 'esn.company'])
       }
     };
   })
-  .controller('inviteMembers', ['$scope', 'domain', 'companyUserService', function($scope, domain, companyUserService) {
+  .controller('inviteMembers', ['$scope', 'domain', function($scope, domain) {
     $scope.domain = domain;
-
-    $scope.validateEmailForInternalUser = function(email) {
-      if (companyUserService.isInternalUser(email, $scope.domain.company_name)) {
-        return null;
-      }
-      return email + ' is not an email from this domain (' + $scope.domain.company_name + '). ';
-    };
-
-    $scope.validateEmailForExternalUser = function(email) {
-      if (companyUserService.isInternalUser(email, $scope.domain.company_name)) {
-        return email + ' is not an email of an external people. ';
-      }
-      return null;
-    };
   }]);

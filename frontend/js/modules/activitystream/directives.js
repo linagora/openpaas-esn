@@ -8,13 +8,13 @@ angular.module('esn.activitystream')
     templateUrl: '/views/modules/activitystream/updates-notifier.html'
   };
 })
-.directive('activityStreamNotification', ['moment', 'session', 'livenotification', 'notificationFactory', 'activitystreamHelper',
-  function(moment, session, livenotification, notificationFactory, activitystreamHelper) {
+.directive('activityStreamNotification', ['moment', 'session', 'livenotification', 'notificationFactory',
+  function(moment, session, livenotification, notificationFactory) {
   return {
     restrict: 'A',
     link: function(scope) {
       function liveNotificationHandler(msg) {
-        if (msg.actor && msg.actor._id !== session.user._id && activitystreamHelper.isMessageReadableForUser(msg)) {
+        if (msg.actor && msg.actor._id !== session.user._id) {
           var m = moment(new Date(msg.published).getTime());
           notificationFactory.weakInfo('Activity Stream updated',
               msg.actor.displayName + ' added a message ' + m.fromNow());

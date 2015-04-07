@@ -182,11 +182,6 @@ exports = module.exports = function(application) {
     collaborationMW.load,
     collaborationMW.canRead,
     collaborations.getMembers);
-  application.get('/api/collaborations/:objectType/:id/externalcompanies',
-    authorize.requiresAPILogin,
-    collaborationMW.load,
-    collaborationMW.canRead,
-    collaborations.getExternalCompanies);
   application.get('/api/collaborations/:objectType/:id/members/:user_id',
     authorize.requiresAPILogin,
     collaborationMW.load,

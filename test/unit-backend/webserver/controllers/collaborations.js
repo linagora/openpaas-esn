@@ -9,8 +9,6 @@ describe('getMembers fn', function() {
   beforeEach(function() {
     mockery.registerMock('../../core/collaboration/index', {});
     mockery.registerMock('../../core/collaboration/permission', {});
-    mockery.registerMock('../../core/user', {});
-    mockery.registerMock('../../helpers/user', {});
     mockery.registerMock('../../core/user/domain', {});
   });
 

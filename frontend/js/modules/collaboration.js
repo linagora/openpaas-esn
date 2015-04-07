@@ -24,10 +24,6 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       return Restangular.one('collaborations').one(objectType, id).one('members', member).get();
     }
 
-    function getExternalCompanies(objectType, id, options) {
-      return Restangular.one('collaborations').one(objectType, id).getList('externalcompanies', options);
-    }
-
     function getInvitablePeople(objectType, id, options) {
       var query = options || {};
       return Restangular.one('collaborations').one(objectType, id).all('invitablepeople').getList(query);
@@ -58,7 +54,6 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       getWhereMember: getWhereMember,
       getMembers: getMembers,
       getMember: getMember,
-      getExternalCompanies: getExternalCompanies,
       join: join,
       leave: leave,
       requestMembership: requestMembership,
@@ -409,8 +404,8 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       }
     };
   }])
-  .controller('collaborationMembersController', ['$scope', 'collaborationAPI', 'session', 'companyUserService', 'usSpinnerService',
-                                                 function($scope, collaborationAPI, session, companyUserService, usSpinnerService) {
+  .controller('collaborationMembersController', ['$scope', 'collaborationAPI', 'usSpinnerService',
+                                                 function($scope, collaborationAPI, usSpinnerService) {
     $scope.spinnerKey = 'membersSpinner';
 
     var opts = {
@@ -420,11 +415,8 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
     };
 
     $scope.total = 0;
-    $scope.domain = session.domain;
-    $scope.prettyCompany = companyUserService.prettyCompany(session.domain.company_name);
 
-    $scope.externalMembers = {};
-    $scope.internalMembers = {};
+    $scope.members = [];
     $scope.restActive = false;
     $scope.error = false;
     $scope.offset = 0;
@@ -439,31 +431,18 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
 
         collaborationAPI.getMembers($scope.collaborationType, $scope.collaboration._id, opts).then(function(result) {
           $scope.total = parseInt(result.headers('X-ESN-Items-Count'), 10);
-          result.data.forEach(function(member) {
+
+          // Loop over member just for adding the `members_count` field required by the community and project template
+          var members = result.data.map(function(member) {
             var memberData = member[member.objectType];
-            memberData.objectType = member.objectType;
-            if (member.objectType === 'user') {
-              var company = companyUserService.getCompany(memberData.emails[0]);
-              var prettyCompany = companyUserService.prettyCompany(company);
-              if (companyUserService.isInternalUser(memberData.emails[0], session.domain.company_name)) {
-                $scope.internalMembers[memberData._id] = memberData;
-              } else {
-                $scope.externalMembers[prettyCompany] = $scope.externalMembers[prettyCompany] || {};
-                $scope.externalMembers[prettyCompany][memberData._id] = memberData;
-              }
-            } else {
-              // HACK need to register the l10n key with the collaboration, also in plural form.
-              var prettyObjectType = member.objectType[0].toUpperCase() + member.objectType.substr(1);
-              memberData.members_count = memberData.members.length;
-
-              $scope.externalMembers[prettyObjectType] = $scope.externalMembers[prettyObjectType] || {};
-              $scope.externalMembers[prettyObjectType][memberData._id] = memberData;
+            if (memberData && Array.isArray(memberData.members)) {
+              member[member.objectType].members_count = memberData.members.length;
             }
+            return member;
           });
-          $scope.offset += result.data.length;
-          $scope.internalMemberCount = Object.keys($scope.internalMembers).length;
-          $scope.externalMemberCompanyCount = Object.keys($scope.externalMembers).length;
+          $scope.members = $scope.members.concat(members);
 
+          $scope.offset += result.data.length;
           $scope.memberCount = result.data.length;
         }, function() {
           $scope.error = true;

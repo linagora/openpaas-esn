@@ -3,8 +3,7 @@
 var expect = require('chai').expect,
   request = require('supertest'),
   uuid = require('node-uuid'),
-  mockery = require('mockery'),
-  async = require('async');
+  mockery = require('mockery');
 
 describe('The activitystreams routes', function() {
   var webserver;
@@ -39,7 +38,7 @@ describe('The activitystreams routes', function() {
     describe('Activity Stream tests', function() {
       var Domain, User, TimelineEntry, Community;
       var activitystreamId, savedTimelineEntry, community, privateCommunity, privateActivitystreamId;
-      var user, userNotInPrivateCommunity, userExternal;
+      var user, userNotInPrivateCommunity;
       var email = 'itadmin@lng.net';
       password = 'secret';
 
@@ -51,7 +50,6 @@ describe('The activitystreams routes', function() {
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           user = models.users[0];
           userNotInPrivateCommunity = models.users[2];
-          userExternal = models.users[3];
           community = models.communities[0];
           privateCommunity = models.communities[1];
           activitystreamId = models.communities[0].activity_stream.uuid;
@@ -211,97 +209,6 @@ describe('The activitystreams routes', function() {
                 done();
               });
             });
-        });
-
-        it('should return a JSON with 200 result when activitystream exists and not return timeline entries where' +
-        ' an external user have not his company in the "to" field', function(done) {
-          var self = this;
-
-          var timelineentryForLinagoraCompany = {
-            actor: {
-              objectType: 'user',
-              _id: user._id
-            },
-            object: {
-              objectType: 'organizational',
-              _id: user._id
-            },
-            target: [
-              {objectType: 'activitystream', _id: activitystreamId}
-            ],
-            to: [
-              {objectType: 'company', id: 'linagora.com'}
-            ]
-          };
-          var timelineentryForAwesomeCompany = {
-            actor: {
-              objectType: 'user',
-              _id: user._id
-            },
-            object: {
-              objectType: 'organizational',
-              _id: user._id
-            },
-            target: [
-              {objectType: 'activitystream', _id: activitystreamId}
-            ],
-            to: [
-              {objectType: 'company', id: 'awesome.io'}
-            ]
-          };
-          async.series([
-            function(callback) {
-              community.members.push({member: {objectType: 'user', id: userExternal._id}});
-              community.markModified('members');
-              community.save(callback);
-            },
-            function(callback) {
-              var timelineEntry = new TimelineEntry(timelineentryForLinagoraCompany);
-              timelineEntry.save(callback);
-            },
-            function(callback) {
-              var timelineEntry = new TimelineEntry(timelineentryForAwesomeCompany);
-              timelineEntry.save(callback);
-            }
-          ], function(err, results) {
-            if (err) {
-              return done(err);
-            }
-            timelineentryForLinagoraCompany = results[1][0];
-            timelineentryForAwesomeCompany = results[2][0];
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-              if (err) { return done(err); }
-
-              var req = loggedInAsUser(request(webserver.application).get('/api/activitystreams/' + activitystreamId + '?limit=10'));
-              req.expect(200);
-              req.end(function(err, res) {
-                expect(err).to.not.exist;
-                var entryArray = res.body;
-                expect(entryArray).to.be.not.null;
-                expect(entryArray.length).to.equal(3);
-                expect(entryArray[0]._id.toString()).to.equal(timelineentryForAwesomeCompany._id.toString());
-                expect(entryArray[1]._id.toString()).to.equal(timelineentryForLinagoraCompany._id.toString());
-                expect(entryArray[2]._id.toString()).to.equal(savedTimelineEntry._id.toString());
-
-                self.helpers.api.loginAsUser(webserver.application, userExternal.emails[0], password, function(err, loggedInAsUserExternal) {
-                  if (err) { return done(err); }
-
-                  var req = loggedInAsUserExternal(request(webserver.application).get('/api/activitystreams/' + activitystreamId + '?limit=10'));
-                  req.expect(200);
-                  req.end(function(err, res) {
-                    expect(err).to.not.exist;
-                    var entryArray = res.body;
-                    expect(entryArray).to.be.not.null;
-                    expect(entryArray.length).to.equal(2);
-                    expect(entryArray[0]._id.toString()).to.equal(timelineentryForLinagoraCompany._id.toString());
-                    expect(entryArray[1]._id.toString()).to.equal(savedTimelineEntry._id.toString());
-
-                    done();
-                  });
-                });
-              });
-            });
-          });
         });
       });
 

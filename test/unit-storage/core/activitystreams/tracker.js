@@ -73,12 +73,12 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntry(userId, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
             if (err) {
               return done(err);
             }
 
-            tracker.countSinceLastTimelineEntry(userId, models2.activityStreamUuid, function(err, count) {
+            tracker.countSinceLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, function(err, count) {
               expect(err).to.not.exist;
               expect(count).to.exist;
               expect(count).to.deep.equal(0);
@@ -111,7 +111,7 @@ describe('the TimelineEntriesTracker module', function() {
               return done(err);
             }
 
-            tracker.countSinceLastTimelineEntry(userId, models2.activityStreamUuid, function(err, count) {
+            tracker.countSinceLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, function(err, count) {
               expect(err).to.not.exist;
               expect(count).to.exist;
               expect(count).to.deep.equal(0);

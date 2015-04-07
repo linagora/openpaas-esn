@@ -39,7 +39,7 @@ The configuration of the ESN is stored in MongoDB under the configuration collec
         }
       },
       "resolvers": {
-        "organizational": {
+        "whatsup": {
           "active": true,
           "options": {
             "foo": "bar"
