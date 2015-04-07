@@ -22,18 +22,25 @@ function transform(lib, project, user, callback) {
   }
 
   var tuple = {objectType: 'user', id: user._id + ''};
-  lib.isMember(project, tuple, function(err, membership) {
-    if (membership) {
-      project.member_status = 'member';
-    } else {
-      lib.isIndirectMember(project, tuple, function(err, isIndirect) {
-        if (isIndirect) {
-          project.member_status = 'indirect';
-        } else {
-          project.member_status = 'none';
-        }
-      });
+  async.waterfall([
+    function(callback) {
+      lib.isMember(project, tuple, callback);
+    },
+    function(membership, callback) {
+      if (membership) {
+        project.member_status = 'member';
+        return callback(null, null);
+      } else {
+        lib.isIndirectMember(project, tuple, callback);
+      }
+    },
+    function(isIndirect, callback) {
+      if (isIndirect) {
+        project.member_status = 'indirect';
+      }
+      return callback();
     }
+  ], function() {
     delete project.members;
     delete project.membershipRequests;
     return callback(project);
