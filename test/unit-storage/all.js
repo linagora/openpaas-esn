@@ -1,6 +1,7 @@
 'use strict';
 
 var mockery = require('mockery'),
+    chai = require('chai'),
     path = require('path'),
     fs = require('fs-extra'),
     helpers = require('../helpers'),
@@ -10,6 +11,7 @@ var mockery = require('mockery'),
 var testConfig = require('../config/servers-conf.js');
 
 before(function() {
+  chai.use(require('chai-shallow-deep-equal'));
   var basePath = path.resolve(__dirname + '/../..');
   var tmpPath = path.resolve(basePath, testConfig.tmp);
   this.testEnv = {
