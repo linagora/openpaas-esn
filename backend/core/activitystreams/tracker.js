@@ -145,6 +145,41 @@ module.exports.getTracker = function(type) {
   }
 
   /**
+   * Count the number of TimelineEntries only when tracked.
+   * If not tracked, send back undefined.
+   *
+   * @param {String} userId
+   * @param {String} activityStreamUuid
+   * @param {Function} callback
+   */
+  function countSinceLastTimelineEntryWhenTracked(userId, activityStreamUuid, callback) {
+    getLastTimelineEntry(userId, activityStreamUuid, function(err, last) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!last) {
+        return callback();
+      }
+
+      countSinceLastTimelineEntry(userId, activityStreamUuid, callback);
+    });
+  }
+
+  function removeDeletedActivities(hash) {
+    var nonDeleted = Object.keys(hash).filter(function(k) {
+      return hash[k].every(function(activity) {
+        return activity.verb !== 'remove';
+      });
+    });
+    var newHash = {};
+    nonDeleted.forEach(function(k) {
+      newHash[k] = hash[k];
+    });
+    return newHash;
+  }
+
+  /**
    * Count the number of TimelineEntries since last id
    *
    * @param {User, ObjectId} userId
@@ -160,19 +195,6 @@ module.exports.getTracker = function(type) {
     }
     if (!activityStreamUuid) {
       return callback(new Error('Activity Stream UUID is required'));
-    }
-
-    function removeDeletedActivities(hash) {
-      var nonDeleted = Object.keys(hash).filter(function(k) {
-        return hash[k].every(function(activity) {
-          return activity.verb !== 'remove';
-        });
-      });
-      var newHash = {};
-      nonDeleted.forEach(function(k) {
-        newHash[k] = hash[k];
-      });
-      return newHash;
     }
 
     function hasRightToReadAtLeastOne(entries) {
@@ -251,10 +273,68 @@ module.exports.getTracker = function(type) {
     });
   }
 
+  /**
+   * Build a view of a message thread from the last tracked timeline entry.
+   * The thread contains all the references to messages which have not been already processed by/for the user.
+   */
+  function buildThreadViewSinceLastTimelineEntry(userId, activityStreamUuid, callback) {
+
+    if (!userId) {
+      return callback(new Error('User is required'));
+    }
+    if (!activityStreamUuid) {
+      return callback(new Error('Activity Stream UUID is required'));
+    }
+
+    getLastTimelineEntry(userId, activityStreamUuid, function(err, lastTimelineEntryRead) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!lastTimelineEntryRead) {
+        return callback(null, {});
+      }
+
+      var options = {
+        target: {
+          objectType: 'activitystream',
+          _id: activityStreamUuid
+        },
+        after: lastTimelineEntryRead,
+        stream: true
+      };
+      var activityStream = require('./');
+
+      activityStream.query(options, function(err, stream) {
+        var hash = {};
+        stream.on('data', function(doc) {
+
+          var isReply = doc.inReplyTo && doc.inReplyTo.length > 0;
+          var tuple = isReply ? doc.inReplyTo[0] : doc.object;
+          hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published} , responses: []};
+
+          if (isReply) {
+            hash[tuple._id].responses.push({message: doc.object, timelineentry: {_id: doc._id, published: doc.published}});
+          }
+        });
+
+        stream.on('error', function(err) {
+          return callback(err);
+        });
+
+        stream.on('close', function() {
+          return callback(null, hash);
+        });
+      });
+    });
+  }
+
   return {
     updateLastTimelineEntry: updateLastTimelineEntry,
     getLastTimelineEntry: getLastTimelineEntry,
-    countSinceLastTimelineEntry: countSinceLastTimelineEntry
+    countSinceLastTimelineEntry: countSinceLastTimelineEntry,
+    countSinceLastTimelineEntryWhenTracked: countSinceLastTimelineEntryWhenTracked,
+    buildThreadViewSinceLastTimelineEntry: buildThreadViewSinceLastTimelineEntry
   };
 };
 

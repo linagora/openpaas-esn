@@ -114,6 +114,7 @@
     "nodemon": "1.0.19",
     "open": "0.0.5",
     "requirejs": "~2.1.10",
+    "rewire": "^2.3.1",
     "sinon": "^1.11.1",
     "sinon-chai": "^2.6.0",
     "supertest": "^0.12.1"

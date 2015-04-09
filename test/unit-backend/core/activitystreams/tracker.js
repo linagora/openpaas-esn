@@ -80,6 +80,7 @@ describe('The activity streams tracker core module', function() {
           return object;
         }
       });
+      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.updateLastTimelineEntry('12345', '98765', '34567', function(err, saved) {
@@ -110,6 +111,7 @@ describe('The activity streams tracker core module', function() {
           return object;
         }
       });
+      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.updateLastTimelineEntry('12345', '98765', '34567', function(err, saved) {
@@ -144,6 +146,7 @@ describe('The activity streams tracker core module', function() {
           };
         }
       });
+      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.getLastTimelineEntry('', '', function(err, objectId) {
@@ -168,6 +171,7 @@ describe('The activity streams tracker core module', function() {
           };
         }
       });
+      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.getLastTimelineEntry('12345', '98765', function(err, objectId) {
@@ -223,6 +227,160 @@ describe('The activity streams tracker core module', function() {
         expect(err).to.not.exist;
         expect(count).to.exist;
         expect(count).to.deep.equal(0);
+        done();
+      });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
+    });
+  });
+
+  describe('The buildThreadViewSinceLastTimelineEntry fn', function() {
+
+    beforeEach(function() {
+      mockery.registerMock('./', {});
+    });
+
+    it('should send back error when a parameter is null', function(done) {
+      this.helpers.mock.models({ReadTimeLineEntriesTracker: {}});
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.buildThreadViewSinceLastTimelineEntry(null, '', function(err, count) {
+        expect(err).to.exist;
+        expect(count).to.not.exist;
+        tracker.buildThreadViewSinceLastTimelineEntry('', null, function(err, count) {
+          expect(err).to.exist;
+          expect(count).to.not.exist;
+          done();
+        });
+      });
+    });
+
+    it('should return empty result if there is no last timeline entries', function(done) {
+
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            findById: function(id, callback) {
+              return callback(null, null);
+            }
+          };
+        }
+      });
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event) {
+            }
+          });
+        }
+      });
+
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.buildThreadViewSinceLastTimelineEntry('12345', '98765', function(err, threads) {
+        expect(err).to.not.exist;
+        expect(threads).to.exist;
+        expect(threads).to.deep.equal({});
+        done();
+      });
+    });
+
+    it('should set the replyTo as key if timeline entry is a reply', function(done) {
+      var handlerClose = null;
+      var replyTo = 456;
+      var id = '123';
+      var message = 234;
+      var userId = 1;
+      var asId = 123456789;
+      var timelines = {timelines: {}};
+      timelines.timelines[asId] = message;
+
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            findById: function(id, callback) {
+              return callback(null, timelines);
+            }
+          };
+        }
+      });
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event, handler) {
+
+              if (event === 'close') {
+                handlerClose = handler;
+              }
+
+              if (event === 'data') {
+                return handler({
+                  _id: id,
+                  object: {objectType: 'whatsup', _id: message},
+                  inReplyTo: [{_id: replyTo}]
+                });
+              }
+            }
+          });
+        }
+      });
+
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
+        expect(threads).to.exist;
+        expect(threads[replyTo]).to.exist;
+        expect(threads[replyTo].responses).to.exist;
+        expect(threads[replyTo].responses).to.be.an.array;
+        expect(threads[replyTo].responses.length).to.equal(1);
+        done();
+      });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
+    });
+
+    it('should set the message as key if timeline entry is not a reply', function(done) {
+      var handlerClose = null;
+      var id = '123';
+      var message = 234;
+      var userId = 1;
+      var asId = 123456789;
+      var timelines = {timelines: {}};
+      timelines.timelines[asId] = message;
+
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            findById: function(id, callback) {
+              return callback(null, timelines);
+            }
+          };
+        }
+      });
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event, handler) {
+
+              if (event === 'close') {
+                handlerClose = handler;
+              }
+
+              if (event === 'data') {
+                return handler({
+                  _id: id,
+                  object: {objectType: 'whatsup', _id: message},
+                  inReplyTo: []
+                });
+              }
+            }
+          });
+        }
+      });
+
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
+        expect(threads).to.exist;
+        expect(threads[message]).to.exists;
+        expect(threads[message].responses).to.be.an.array;
+        expect(threads[message].responses).to.be.empty;
         done();
       });
       expect(handlerClose).to.be.a('function');

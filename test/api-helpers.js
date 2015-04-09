@@ -373,6 +373,71 @@ module.exports = function(mixin, testEnv) {
     });
   };
 
+  api.applyMultipleTimelineEntriesWithReplies = function(activityStreamUuid, replies, callback) {
+    require(testEnv.basePath + '/backend/core').db.mongo;
+    var mongoose = require('mongoose');
+    var async = require('async'),
+      TimelineEntry = mongoose.model('TimelineEntry');
+
+    var inReplyToMessageId = mongoose.Types.ObjectId();
+
+    function createTimelineEntry(callback) {
+      var timelineEntry = {
+        verb: 'post',
+        language: 'en',
+        actor: {
+          objectType: 'user',
+          _id: mongoose.Types.ObjectId(),
+          image: '123456789',
+          displayName: 'foo bar baz'
+        },
+        object: {
+          objectType: 'message',
+          _id: mongoose.Types.ObjectId()
+        },
+        target: [
+          {
+            objectType: 'activitystream',
+            _id: activityStreamUuid
+          }
+        ],
+        inReplyTo: [{objectType: 'whatsup', _id: inReplyToMessageId}]
+      };
+
+      if (replies > 0) {
+        timelineEntry.inReplyTo = [{objectType: 'whatsup', _id: inReplyToMessageId}];
+      }
+
+      var e = new TimelineEntry(timelineEntry);
+      e.save(function(err, saved) {
+        if (err) { return callback(err); }
+        return callback(null, e);
+      });
+    }
+
+    function createTimelineEntryJob(callback) {
+      createTimelineEntry(callback);
+    }
+
+    var arrayJobs = [];
+
+    for (var i = 0; i < replies; i++) {
+      arrayJobs.push(createTimelineEntryJob);
+    }
+
+    var models = {};
+    models.activityStreamUuid = activityStreamUuid;
+    models.inReplyToMessageId = inReplyToMessageId;
+
+    async.parallel(arrayJobs, function(err, timelineEntries) {
+      if (err) {
+        return callback(err);
+      }
+      models.timelineEntries = timelineEntries;
+      return callback(null, models);
+    });
+  };
+
   api.recordNextTimelineEntry = function(entry, verb, callback) {
     require(testEnv.basePath + '/backend/core').db.mongo;
     var mongoose = require('mongoose');
