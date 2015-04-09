@@ -287,4 +287,26 @@ module.exports = function(mixin, testEnv) {
   mixin.requireFixture = function(path) {
     return require(testEnv.fixtures + '/' + path);
   };
+
+  mixin.callbacks = {
+    noError: function(done) {
+      return function(err) {
+        expect(err).to.not.exists;
+        done();
+      };
+    },
+    error: function(done) {
+      return function(err) {
+        expect(err).to.exists;
+        done();
+      };
+    },
+    errorWithMessage: function(done, message) {
+      return function(err) {
+        expect(err).to.exists;
+        expect(err.message).to.equals(message);
+        done();
+      };
+    }
+  };
 };
