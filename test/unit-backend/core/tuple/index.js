@@ -1,10 +1,7 @@
 'use strict';
 
-var chai = require('chai');
 var sinon = require('sinon');
-var sinonChai = require('sinon-chai');
-chai.use(sinonChai);
-var expect = chai.expect;
+var expect = require('chai').expect;
 
 describe('The tuple core module', function() {
   beforeEach(function() {
