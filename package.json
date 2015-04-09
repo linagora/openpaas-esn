@@ -120,7 +120,7 @@
     "supertest": "^0.12.1"
   },
   "scripts": {
-    "postinstall": "./node_modules/bower/bin/bower install"
+    "postinstall": "./node_modules/bower/bin/bower install --allow-root"
   },
   "author": "",
   "license": "AGPLv3"
