@@ -36,6 +36,46 @@ Create an ESN domain.
 
     HTTP/1.1 201 Created
 
+## GET /api/domains/{domain_id}
+
+Get the domain information.
+
+**Parameters**
+
+- domain_id: The domain ID
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers**
+
+- Content-Length: Document size
+
+**Response JSON Object:**
+
+- The domain object
+
+**Status Codes:**
+
+- 200 OK
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden. The user is not a member of the domain.
+
+**Request:**
+
+    GET /api/domains/538e3bd6654d7c3307f990fa
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    {
+      "name": "foo",
+      "company_name": "bar"
+    }
+
 ## GET /api/domains/{domain_id}/members
 
 Get the list of members for a domain.
@@ -68,7 +108,7 @@ Get the list of members for a domain.
 
 **Request:**
 
-    GET /api/domains/34560130/members
+    GET /api/domains/538e3bd6654d7c3307f990fa/members
     Accept: application/json
     Host: localhost:8080
 
@@ -78,13 +118,13 @@ Get the list of members for a domain.
     X-ESN-Items-Count: 2
     [
         {
-            _id: 123456789,
+            _id: 537e3db7654d7d592ef679e5,
             firstname: "John",
             lastname: "Doe",
             emails: ["johndoe@linagora.com"]
         },
         {
-            _id: 987654321,
+            _id: 537e3db7654d7d592ef679e6,
             firstname: "Foo",
             lastname: "Bar",
             emails: ["foobar@linagora.com"]
@@ -116,7 +156,7 @@ Only the domain manager is able to invite people to join a domain.
 
 **Request:**
 
-    POST /api/domains/123456789/invitations
+    POST /api/domains/538e3bd6654d7c3307f990fa/invitations
     Accept: application/json
     Host: localhost:8080
     ['foo@bar.com', 'bar@baz.com', 'baz']
@@ -124,45 +164,6 @@ Only the domain manager is able to invite people to join a domain.
 **Response:**
 
     HTTP/1.1 202 Accepted
-
-## GET /api/domains/{domain_id}
-
-Get the domain information.
-
-**Parameters**
-
-- domain_id: The domain ID
-
-**Request Headers:**
-
-- Accept: application/json
-
-**Response Headers**
-
-- Content-Length: Document size
-
-**Response JSON Object:**
-
-- The domain object
-
-**Status Codes:**
-
-- 200 OK
-- 401 Unauthorized. The user is not authenticated on the platform.
-
-**Request:**
-
-    GET /api/domains/123456789
-    Accept: application/json
-    Host: localhost:8080
-
-**Response:**
-
-    HTTP/1.1 200 OK
-    {
-      "name": "foo",
-      "company_name": "bar"
-    }
 
 ## GET /api/domains/{domain_id}/manager
 
@@ -191,7 +192,7 @@ Check if the authenticated user is the domain manager
 
 **Request:**
 
-    GET /api/domains/123456789/manager
+    GET /api/domains/538e3bd6654d7c3307f990fa/manager
     Accept: application/json
     Host: localhost:8080
 

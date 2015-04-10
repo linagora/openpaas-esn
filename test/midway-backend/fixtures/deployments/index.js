@@ -80,7 +80,8 @@ module.exports.linagora_test_domain = function() {
   return {
     domain: {
       name: 'TestDomain',
-      company_name: 'Linagora'
+      company_name: 'Linagora',
+      administrator: 'user1@lng.net'
     },
     users: [
       {
