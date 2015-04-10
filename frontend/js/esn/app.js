@@ -165,7 +165,14 @@ angular.module('esnApp', [
       }
     });
 
-    $routeProvider.otherwise({redirectTo: '/communities'});
+    $routeProvider.otherwise({
+      redirectTo: function(params, path, search) {
+        if (search && search.continue) {
+          return search.continue;
+        }
+        return '/communities';
+      }
+    });
 
     RestangularProvider.setBaseUrl('/api');
     RestangularProvider.setFullResponse(true);

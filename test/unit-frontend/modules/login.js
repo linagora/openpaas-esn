@@ -59,9 +59,7 @@ describe('The Login Angular module', function() {
           }
         },
         $window: {
-          location: {
-            href: ''
-          }
+          location: {}
         },
         loginAPI: this.loginAPI
       };
@@ -92,48 +90,25 @@ describe('The Login Angular module', function() {
         this.scope.login();
       });
 
-      it('should redirect after continue', function(done) {
+      it('should reload the page after login', function(done) {
         this.scope.form = {$invalid: false};
         this.searchObject = {
           continue: '/dummy'
         };
 
-        var self = this;
+        this.locals.$window.location.reload = done;
+
         this.loginAPI.login = function() {
           return {
             then: function(next) {
               next();
-              var href = self.locals.$window.location.href;
-              expect(href).to.equal(self.searchObject.continue);
-              expect(self.scope.loginIn).to.be.true;
-              done();
             }
           };
         };
 
         this.scope.login();
       });
-      it('should not be subject to open redirects', function(done) {
-        this.scope.form = {$invalid: false};
-        this.searchObject = {
-          continue: 'http://somewhere/else'
-        };
 
-        var self = this;
-        this.loginAPI.login = function() {
-          return {
-            then: function(next) {
-              next();
-              var href = self.locals.$window.location.href;
-              expect(href).to.equal('/');
-              expect(self.scope.loginIn).to.be.true;
-              done();
-            }
-          };
-        };
-
-        this.scope.login();
-      });
     });
   });
 

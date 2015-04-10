@@ -49,14 +49,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
           $scope.loginIn = true;
           $scope.loginTask.running = false;
 
-          var continueUrl = $location.search()['continue'];
-
-          // only allow urls relative to base to avoid open redirects
-          if (continueUrl && continueUrl.substr(0, 1) !== '/') {
-            continueUrl = null;
-          }
-
-          $window.location.href = continueUrl || '/';
+          $window.location.reload();
         },
         function(err) {
           $scope.loginButton.label = $scope.loginButton.notRunning;
