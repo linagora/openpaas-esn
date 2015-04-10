@@ -10,28 +10,63 @@ var readTracker = tracker.getTracker('read');
 var pushTracker = tracker.getTracker('push');
 var weight = require('./weight');
 
-function createMessageContext(thread) {
+function setReadFlags(message) {
+
+  function isInThread(originalResponse) {
+    for (var i = 0; i < message.thread.responses.length; i++) {
+      if (originalResponse._id + '' === message.thread.responses[i].message._id + '') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function flagReadResponse(originalResponse) {
+    if (!message.thread.responses || message.thread.responses.length === 0) {
+      originalResponse.read = true;
+    } else {
+      originalResponse.read = !isInThread(originalResponse);
+    }
+  }
+
+  if (message.original.responses && message.original.responses.length > 0) {
+    message.original.responses.forEach(flagReadResponse);
+  }
+
+  message.original.read = message.thread.responses.length !== 0;
+
+  return q(message);
+}
+module.exports.setReadFlags = setReadFlags;
+
+function buildMessageContext(thread) {
   if (!thread) {
     return q.reject(new Error('Thread is required'));
   }
 
+  function process(message) {
+    return setReadFlags(message).then(function(result) {
+      return result.original;
+    });
+  }
+
   return q.nfcall(messageModule.dryGet, thread.message._id).then(
     function(message) {
-      return {
-        original: message,
+      return process({
+        original: message.toObject(),
         thread: thread
-      };
+      });
     },
     function(err) {
-      return {
+      return process({
         original: {},
         thread: thread,
         status: err.message
-      };
+      });
     }
   );
 }
-module.exports.createMessageContext = createMessageContext;
+module.exports.buildMessageContext = buildMessageContext;
 
 function loadUserDataForCollaboration(user, collaboration, tracker) {
 
@@ -49,13 +84,13 @@ function loadUserDataForCollaboration(user, collaboration, tracker) {
 
     var messagesContext = [];
     Object.keys(threads).forEach(function(messageId) {
-      messagesContext.push(createMessageContext(threads[messageId]));
+      messagesContext.push(buildMessageContext(threads[messageId]));
     });
 
     return q.all(messagesContext).then(function(context) {
       return {
         messages: context,
-        collaboration: {_id: collaboration._id, activity_stream: collaboration.activity_stream}
+        collaboration: collaboration
       };
     });
   });

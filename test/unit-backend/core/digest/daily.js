@@ -260,7 +260,7 @@ describe('The daily digest core module', function() {
         }, notCalled(done));
       });
 
-      it('should call createMessageContext as many times as there are threads', function(done) {
+      it('should call buildMessageContext as many times as there are threads', function(done) {
         var threads = {'1': {}, '2': {}, '3': {}};
         var call = 0;
 
@@ -271,17 +271,17 @@ describe('The daily digest core module', function() {
         };
 
         var module = rewire('../../../../backend/core/digest/daily');
-        var createMessageContext = function(t) {
+        var buildMessageContext = function(t) {
           call++;
           return q({original: {}, thread: {}});
         };
-        module.__set__('createMessageContext', createMessageContext);
+        module.__set__('buildMessageContext', buildMessageContext);
         module.loadUserDataForCollaboration(user, collaboration, tracker).then(called(done), notCalled(done));
       });
     });
   });
 
-  describe('The createMessageContext function', function() {
+  describe('The buildMessageContext function', function() {
 
     var id = 123;
     var thread = {
@@ -302,11 +302,12 @@ describe('The daily digest core module', function() {
 
     it('should reject when thread is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.createMessageContext().then(notCalled(done), called(done));
+      module.buildMessageContext().then(notCalled(done), called(done));
     });
 
     it('should resolve with message and thread when message#dryGet is ok', function(done) {
-      var message = {_id: 1, content: 'YOLO'};
+      var m = {_id: 1, content: 'YOLO'};
+      var message = {toObject: function() {return m;}};
 
       mockery.registerMock('../message', {
         dryGet: function(id, callback) {
@@ -314,10 +315,13 @@ describe('The daily digest core module', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('core/digest/daily');
-      module.createMessageContext(thread).then(function(result) {
-        expect(result.original).to.deep.equal(message);
-        expect(result.thread).to.deep.equal(thread);
+      var module = rewire('../../../../backend/core/digest/daily');
+      var setReadFlags = function(message) {
+        return q(message);
+      };
+      module.__set__('setReadFlags', setReadFlags);
+      module.buildMessageContext(thread).then(function(result) {
+        expect(result).to.deep.equal(m);
         done();
       }, notCalled(done));
     });
@@ -329,12 +333,14 @@ describe('The daily digest core module', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('core/digest/daily');
-      module.createMessageContext(thread).then(function(result) {
-        console.log(result);
-        expect(result.original).to.deep.equal({});
-        expect(result.thread).to.deep.equal(thread);
-        expect(result.status).to.match(/KO/);
+      var module = rewire('../../../../backend/core/digest/daily');
+      var setReadFlags = function(message) {
+        return q(message);
+      };
+      module.__set__('setReadFlags', setReadFlags);
+
+      module.buildMessageContext(thread).then(function(result) {
+        expect(result).to.deep.equal({});
         done();
       }, notCalled(done));
     });
