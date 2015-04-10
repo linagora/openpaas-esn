@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var rewire = require('rewire');
 var q = require('q');
 
-describe.only('The daily digest core module', function() {
+describe('The daily digest core module', function() {
 
   function notCalled(done) {
     return function(result) {

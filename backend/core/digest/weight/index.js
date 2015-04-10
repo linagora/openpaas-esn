@@ -26,20 +26,12 @@ function compute(user, data) {
   }
 
   var individual = data.messages.map(function(message) {
-    return strategy.computeIndividualMessageWeight(user, message);
+    return strategy.computeMessageWeight(user, message, data.messages);
   });
 
-  return q.all(individual).then(function(individualResults) {
-    data.messages = individualResults;
-
-    var collaborationWeight = data.messages.map(function(message) {
-      return strategy.computeMessageWeightInCollaboration(user, message, data.collaboration, data.messages);
-    });
-
-    return q.all(collaborationWeight).then(function(collaborationResults) {
-      data.messages = collaborationResults;
-      return data;
-    });
+  return q.all(individual).then(function(results) {
+    data.messages = results;
+    return data;
   });
 }
 module.exports.compute = compute;
