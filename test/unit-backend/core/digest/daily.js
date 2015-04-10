@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var rewire = require('rewire');
 var q = require('q');
 
-describe('The daily digest core module', function() {
+describe.only('The daily digest core module', function() {
 
   function notCalled(done) {
     return function(result) {
@@ -305,12 +305,11 @@ describe('The daily digest core module', function() {
       module.buildMessageContext().then(notCalled(done), called(done));
     });
 
-    it('should resolve with message and thread when message#dryGet is ok', function(done) {
-      var m = {_id: 1, content: 'YOLO'};
-      var message = {toObject: function() {return m;}};
+    it('should resolve with message and thread when message#get is ok', function(done) {
+      var message = {_id: 1, content: 'YOLO'};
 
       mockery.registerMock('../message', {
-        dryGet: function(id, callback) {
+        get: function(id, callback) {
           return callback(null, message);
         }
       });
@@ -321,14 +320,14 @@ describe('The daily digest core module', function() {
       };
       module.__set__('setReadFlags', setReadFlags);
       module.buildMessageContext(thread).then(function(result) {
-        expect(result).to.deep.equal(m);
+        expect(result).to.deep.equal(message);
         done();
       }, notCalled(done));
     });
 
-    it('should resolve with empty message and thread when message#dryGet is ko', function(done) {
+    it('should resolve with empty message and thread when message#get is ko', function(done) {
       mockery.registerMock('../message', {
-        dryGet: function(id, callback) {
+        get: function(id, callback) {
           return callback(new Error('KO'));
         }
       });

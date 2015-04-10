@@ -50,10 +50,10 @@ function buildMessageContext(thread) {
     });
   }
 
-  return q.nfcall(messageModule.dryGet, thread.message._id).then(
+  return q.nfcall(messageModule.get, thread.message._id).then(
     function(message) {
       return process({
-        original: message.toObject(),
+        original: message,
         thread: thread
       });
     },
