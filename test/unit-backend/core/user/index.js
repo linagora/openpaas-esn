@@ -218,4 +218,20 @@ describe('The user core module', function() {
     });
   });
 
+  describe('list function', function() {
+
+    it('should call mongoose#find', function(done) {
+      var User = {
+        find: function(callback) {
+          callback();
+        }
+      };
+      mockModels({
+        User: User
+      });
+      var userModule = this.helpers.requireBackend('core').user;
+      userModule.list(done);
+    });
+  });
+
 });
