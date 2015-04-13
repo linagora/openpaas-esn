@@ -24,22 +24,6 @@ module.exports.getTracker = function(type) {
     throw new Error(type + ' is not a valid tracker type');
   }
 
-  function getTimelineEntries(userId, callback) {
-    userId = userId._id || userId;
-    Tracker.findById(userId, function(err, doc) {
-      if (err) {
-        logger.warn('Error while getting timelineentries for user %s', userId, err.message);
-        return callback(err);
-      }
-
-      if (!doc) {
-        return callback(null, {});
-      }
-
-      return callback(null, doc.timelines);
-    });
-  }
-
   /**
    * Create a TimelineEntriesTracker
    *
@@ -157,28 +141,6 @@ module.exports.getTracker = function(type) {
       }
 
       return callback(null, doc && doc.timelines[activityStreamUuid]);
-    });
-  }
-
-  /**
-   * Count the number of TimelineEntries only when tracked.
-   * If not tracked, send back undefined.
-   *
-   * @param {String} userId
-   * @param {String} activityStreamUuid
-   * @param {Function} callback
-   */
-  function countSinceLastTimelineEntryWhenTracked(userId, activityStreamUuid, callback) {
-    getLastTimelineEntry(userId, activityStreamUuid, function(err, last) {
-      if (err) {
-        return callback(err);
-      }
-
-      if (!last) {
-        return callback();
-      }
-
-      countSinceLastTimelineEntry(userId, activityStreamUuid, callback);
     });
   }
 
@@ -346,11 +308,9 @@ module.exports.getTracker = function(type) {
   }
 
   return {
-    getTimelineEntries: getTimelineEntries,
     updateLastTimelineEntry: updateLastTimelineEntry,
     getLastTimelineEntry: getLastTimelineEntry,
     countSinceLastTimelineEntry: countSinceLastTimelineEntry,
-    countSinceLastTimelineEntryWhenTracked: countSinceLastTimelineEntryWhenTracked,
     buildThreadViewSinceLastTimelineEntry: buildThreadViewSinceLastTimelineEntry
   };
 };
