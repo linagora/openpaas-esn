@@ -309,4 +309,22 @@ module.exports = function(mixin, testEnv) {
       };
     }
   };
+
+  mixin.toComparableObject = function(object) {
+    return JSON.parse(JSON.stringify(typeof object.toObject === 'function' ? object.toObject() : object));
+  };
+
+  mixin.mail = {
+    saveTestConfiguration: function(callback) {
+      mixin.mongo.saveDoc('configuration', {
+        _id: 'mail',
+        mail: {
+          noreply: 'noreply@open-paas.org'
+        },
+        transport: {
+          type: 'Stub'
+        }
+      }, callback);
+    }
+  };
 };

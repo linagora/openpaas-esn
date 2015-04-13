@@ -2,6 +2,7 @@
 
 var extend = require('extend');
 var q = require('q');
+var request = require('supertest');
 
 module.exports = function(mixin, testEnv) {
   var api = {};
@@ -113,7 +114,20 @@ module.exports = function(mixin, testEnv) {
 
     function createDomain() {
       var Domain = require('mongoose').model('Domain');
-      return q.npost(new Domain(deployment.domain), 'save').spread(function(domain) {
+      var domain = extend(true, {}, deployment.domain);
+      delete domain.administrator;
+      return q.npost(new Domain(domain), 'save').spread(function(domain) {
+        deployment.models.domain = domain;
+      });
+    }
+
+    function updateDomainAdministrator() {
+      var domain = deployment.models.domain;
+      var administrator = deployment.models.users.filter(function(u) { return u.emails.indexOf(deployment.domain.administrator) >= 0; });
+      if (administrator.length) {
+        domain.administrator = administrator[0]._id;
+      }
+      return q.npost(domain, 'save').spread(function(domain) {
         deployment.models.domain = domain;
       });
     }
@@ -171,6 +185,7 @@ module.exports = function(mixin, testEnv) {
 
     createDomain(deployment)
     .then(createUsers)
+    .then(updateDomainAdministrator)
     .then(createCommunities)
     .then(createProjects)
     .then(function() { return q(deployment.models); })
@@ -408,5 +423,11 @@ module.exports = function(mixin, testEnv) {
   api.loadMessage = function(id, callback) {
     var module = require(testEnv.basePath + '/backend/core/message');
     return module.get(id, callback);
+  };
+
+  api.requireLogin = function(app, method, apiUrl, done) {
+    request(app)[method](apiUrl)
+      .expect(401)
+      .end(mixin.callbacks.noError(done));
   };
 };

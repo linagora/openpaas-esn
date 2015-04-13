@@ -29,9 +29,9 @@ exports = module.exports = function(application) {
   var domains = require('./controllers/domains');
   var domainMiddleware = require('./middleware/domain');
   application.get('/api/companies', companies.search);
-  application.get('/api/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.getMembers);
-  application.get('/api/domains/:uuid', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.getDomain);
   application.post('/api/domains', domains.createDomain);
+  application.get('/api/domains/:uuid', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.getDomain);
+  application.get('/api/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.getMembers);
   application.post('/api/domains/:uuid/invitations', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.sendInvitations);
   application.get('/api/domains/:uuid/manager', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainManager, domains.getDomain);
 
