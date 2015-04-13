@@ -34,8 +34,7 @@ function setReadFlags(message) {
     message.original.responses.forEach(flagReadResponse);
   }
 
-  message.original.read = message.thread.responses.length !== 0;
-
+  message.original.read = message.thread.responses ? message.thread.responses.length !== 0 : false;
   return q(message);
 }
 module.exports.setReadFlags = setReadFlags;

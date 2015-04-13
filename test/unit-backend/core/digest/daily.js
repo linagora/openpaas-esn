@@ -656,4 +656,134 @@ describe('The daily digest core module', function() {
       }, notCalled(done));
     });
   });
+
+  describe('setReadFlags function', function() {
+    beforeEach(function() {
+      mockery.registerMock('../message', {});
+      mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
+      mockery.registerMock('../user', {});
+      mockery.registerMock('./weight', {});
+      mockery.registerMock('../activitystreams/tracker', {
+        getTracker: function() {}
+      });
+    });
+
+    it('should set original message read flag to true on original when it does have responses', function(done) {
+
+      var message = {
+        original: {
+        },
+        thread: {
+          responses: [1, 2, 3]
+        }
+      };
+
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.setReadFlags(message).then(function(result) {
+        expect(result.original.read).to.be.true;
+        done();
+      }, notCalled(done));
+    });
+
+    it('should set original message read flag to false on original when it does have undefined responses', function(done) {
+
+      var message = {
+        original: {
+        },
+        thread: {
+        }
+      };
+
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.setReadFlags(message).then(function(result) {
+        expect(result.original.read).to.be.false;
+        done();
+      }, notCalled(done));
+    });
+
+    it('should set original message read flag to false on original when it does have empty responses', function(done) {
+
+      var message = {
+        original: {
+        },
+        thread: {
+          responses: []
+        }
+      };
+
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.setReadFlags(message).then(function(result) {
+        expect(result.original.read).to.be.false;
+        done();
+      }, notCalled(done));
+    });
+
+    describe('when processing responses', function() {
+
+      it('should set flag to true when thread does not have responses', function(done) {
+        var message = {
+          original: {
+            responses: [
+              {_id: 1}
+            ]
+          },
+          thread: {
+            responses: []
+          }
+        };
+
+        var module = this.helpers.requireBackend('core/digest/daily');
+        module.setReadFlags(message).then(function(result) {
+          expect(result.original.responses[0].read).to.be.true;
+          done();
+        }, notCalled(done));
+      });
+
+      it('should set read flag to false when thread contains response', function(done) {
+        var id = 1;
+        var message = {
+          original: {
+            responses: [
+              {_id: id}
+            ]
+          },
+          thread: {
+            responses: [
+              {message: {_id: id}}
+            ]
+          }
+        };
+
+        var module = this.helpers.requireBackend('core/digest/daily');
+        module.setReadFlags(message).then(function(result) {
+          expect(result.original.responses[0].read).to.be.false;
+          done();
+        }, notCalled(done));
+      });
+
+      it('should set read flag to true when thread does not contains response', function(done) {
+        var message = {
+          original: {
+            responses: [
+              {_id: 1}
+            ]
+          },
+          thread: {
+            responses: [
+              {message: {_id: 2}}
+            ]
+          }
+        };
+
+        var module = this.helpers.requireBackend('core/digest/daily');
+        module.setReadFlags(message).then(function(result) {
+          expect(result.original.responses[0].read).to.be.true;
+          done();
+        }, notCalled(done));
+      });
+
+    });
+
+  });
 });
