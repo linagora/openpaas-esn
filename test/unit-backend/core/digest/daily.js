@@ -21,6 +21,7 @@ describe('The daily digest core module', function() {
 
     beforeEach(function() {
       mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
       mockery.registerMock('../message', {});
       mockery.registerMock('./weight', {});
       mockery.registerMock('../activitystreams/tracker', {
@@ -100,6 +101,7 @@ describe('The daily digest core module', function() {
     it('should reject when user is undefined', function(done) {
 
       mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
       mockery.registerMock('../message', {});
       mockery.registerMock('../user', {});
       mockery.registerMock('./weight', {});
@@ -116,6 +118,7 @@ describe('The daily digest core module', function() {
 
       beforeEach(function() {
         mockery.registerMock('../message', {});
+        mockery.registerMock('../activitystreams', {});
         mockery.registerMock('../user', {});
         mockery.registerMock('./weight', {});
         mockery.registerMock('../activitystreams/tracker', {
@@ -204,6 +207,7 @@ describe('The daily digest core module', function() {
     beforeEach(function() {
       mockery.registerMock('../message', {});
       mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
       mockery.registerMock('../user', {});
       mockery.registerMock('./weight', {});
       mockery.registerMock('../activitystreams/tracker', {
@@ -213,17 +217,23 @@ describe('The daily digest core module', function() {
 
     it('should reject when user is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.loadUserDataForCollaboration(null, {}, {}).then(notCalled(done), called(done));
+      module.loadUserDataForCollaboration(null, {}).then(notCalled(done), called(done));
     });
 
     it('should reject when collaboration is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.loadUserDataForCollaboration({}, null, {}).then(notCalled(done), called(done));
+      module.loadUserDataForCollaboration({}, null).then(notCalled(done), called(done));
     });
 
-    it('should reject when tracker is undefined', function(done) {
-      var module = this.helpers.requireBackend('core/digest/daily');
-      module.loadUserDataForCollaboration({}, {}, null).then(notCalled(done), called(done));
+    describe('When getting tracker', function() {
+      it('should reject when getTracker sends back error', function(done) {
+        var module = rewire('../../../../backend/core/digest/daily');
+        var getTracker = function() {
+          return q.reject(new Error());
+        };
+        module.__set__('getTracker', getTracker);
+        module.loadUserDataForCollaboration({}, {}).then(notCalled(done), called(done));
+      });
     });
 
     describe('when loading thread', function() {
@@ -242,8 +252,12 @@ describe('The daily digest core module', function() {
           }
         };
 
-        var module = this.helpers.requireBackend('core/digest/daily');
-        module.loadUserDataForCollaboration(user, collaboration, tracker).then(notCalled(done), called(done));
+        var module = rewire('../../../../backend/core/digest/daily');
+        var getTracker = function() {
+          return q(tracker);
+        };
+        module.__set__('getTracker', getTracker);
+        module.loadUserDataForCollaboration(user, collaboration).then(notCalled(done), called(done));
       });
 
       it('should resolve when buildThreadViewSinceLastTimelineEntry sends back empty thread', function(done) {
@@ -253,9 +267,16 @@ describe('The daily digest core module', function() {
           }
         };
 
-        var module = this.helpers.requireBackend('core/digest/daily');
-        module.loadUserDataForCollaboration(user, collaboration, tracker).then(function(result) {
-          expect(result).to.deep.equal({});
+        var module = rewire('../../../../backend/core/digest/daily');
+        var getTracker = function() {
+          return q(tracker);
+        };
+        module.__set__('getTracker', getTracker);
+        module.loadUserDataForCollaboration(user, collaboration).then(function(result) {
+          expect(result).to.deep.equal({
+            messages: [],
+            collaboration: collaboration
+          });
           done();
         }, notCalled(done));
       });
@@ -271,7 +292,11 @@ describe('The daily digest core module', function() {
         };
 
         var module = rewire('../../../../backend/core/digest/daily');
-        var buildMessageContext = function(t) {
+        var getTracker = function() {
+          return q(tracker);
+        };
+        module.__set__('getTracker', getTracker);
+        var buildMessageContext = function() {
           call++;
           return q({original: {}, thread: {}});
         };
@@ -293,6 +318,7 @@ describe('The daily digest core module', function() {
     beforeEach(function() {
       mockery.registerMock('../message', {});
       mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
       mockery.registerMock('../user', {});
       mockery.registerMock('./weight', {});
       mockery.registerMock('../activitystreams/tracker', {
@@ -340,6 +366,292 @@ describe('The daily digest core module', function() {
 
       module.buildMessageContext(thread).then(function(result) {
         expect(result).to.deep.equal({});
+        done();
+      }, notCalled(done));
+    });
+  });
+
+  describe('getTracker function', function() {
+    beforeEach(function() {
+      mockery.registerMock('../message', {});
+      mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
+      mockery.registerMock('../user', {});
+      mockery.registerMock('./weight', {});
+      mockery.registerMock('../activitystreams/tracker', {
+        getTracker: function() {
+        }
+      });
+    });
+
+    it('should reject when user is undefined', function(done) {
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getTracker(null, {}).then(notCalled(done), called(done));
+    });
+
+    it('should reject when collaboration is undefined', function(done) {
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getTracker({}).then(notCalled(done), called(done));
+    });
+
+    it('should call getLastTimelineEntry on each tracker', function(done) {
+
+      var read = 0;
+      var push = 0;
+
+      var lastRead = 1;
+      var lastPush = 2;
+
+      var trackers = {
+        read: {
+          getLastTimelineEntry: function(user, uuid, callback) {
+            read++;
+            return callback(null, lastRead);
+          }
+        },
+
+        push: {
+          getLastTimelineEntry: function(user, uuid, callback) {
+            push++;
+            return callback(null, lastPush);
+          }
+        }
+      };
+
+      mockery.registerMock('../activitystreams/tracker', {
+        getTracker: function(type) {
+          return trackers[type];
+        }
+      });
+
+
+      var getMostRecentTimelineEntry = function(id1, id2) {
+        return q(id1);
+      };
+
+      var module = rewire('../../../../backend/core/digest/daily');
+      module.__set__('getMostRecentTimelineEntry', getMostRecentTimelineEntry);
+
+      module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
+        expect(read).to.equal(1);
+        expect(push).to.equal(1);
+        done();
+      }, notCalled(done));
+    });
+
+    describe('When calling getMostRecentTimelineEntry', function() {
+
+      var trackers = {
+        read: {
+          getLastTimelineEntry: function(user, uuid, callback) {
+            return callback(null, 1);
+          }
+        },
+
+        push: {
+          getLastTimelineEntry: function(user, uuid, callback) {
+            return callback(null, 2);
+          }
+        }
+      };
+
+      beforeEach(function() {
+        mockery.registerMock('../activitystreams/tracker', {
+          getTracker: function(type) {
+            return trackers[type];
+          }
+        });
+
+      });
+
+      it('should resolve with read tracker when no result is returned from getMostRecentTimelineEntry', function(done) {
+        var getMostRecentTimelineEntry = function(id1, id2) {
+          return q();
+        };
+
+        var module = rewire('../../../../backend/core/digest/daily');
+        module.__set__('getMostRecentTimelineEntry', getMostRecentTimelineEntry);
+
+        module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
+          expect(result).to.deep.equal(trackers.read);
+          done();
+        }, notCalled(done));
+      });
+
+      it('should resolve with read tracker when read is most recent than push', function(done) {
+        var getMostRecentTimelineEntry = function(id1, id2) {
+          return q(id1);
+        };
+
+        var module = rewire('../../../../backend/core/digest/daily');
+        module.__set__('getMostRecentTimelineEntry', getMostRecentTimelineEntry);
+
+        module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
+          expect(result).to.deep.equal(trackers.read);
+          done();
+        }, notCalled(done));
+      });
+
+      it('should resolve with push tracker when push is most recent than read', function(done) {
+        var getMostRecentTimelineEntry = function(id1, id2) {
+          return q(id2);
+        };
+
+        var module = rewire('../../../../backend/core/digest/daily');
+        module.__set__('getMostRecentTimelineEntry', getMostRecentTimelineEntry);
+
+        module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
+          expect(result).to.deep.equal(trackers.push);
+          done();
+        }, notCalled(done));
+      });
+    });
+  });
+
+  describe('getMostRecentTimelineEntry function', function() {
+
+    beforeEach(function() {
+      mockery.registerMock('../message', {});
+      mockery.registerMock('../collaboration', {});
+      mockery.registerMock('../activitystreams', {});
+      mockery.registerMock('../user', {});
+      mockery.registerMock('./weight', {});
+      mockery.registerMock('../activitystreams/tracker', {
+        getTracker: function() {}
+      });
+    });
+
+    it('should resolve empty when timelineentries are null', function(done) {
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry().then(function(result) {
+        expect(result).to.not.be.defined;
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with timelineEntryId1 when timelineEntryId2 is not defined', function(done) {
+      var id = 1;
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(id).then(function(result) {
+        expect(result).to.be.equal(id);
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with timelineEntryId2 when timelineEntryId1 is not defined', function(done) {
+      var id = 1;
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(null, id).then(function(result) {
+        expect(result).to.be.equal(id);
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with empty when timelinesEntries are not found', function(done) {
+      var id1 = 1, id2 = 2;
+      mockery.registerMock('../activitystreams', {
+        getTimelineEntry: function(id, callback) {
+          return callback();
+        }
+      });
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
+        expect(result).to.be.undefined;
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with timelineEntryId1 when getTimelineEntry does not return timelineEntryId2', function(done) {
+      var id1 = 1, id2 = 2;
+      mockery.registerMock('../activitystreams', {
+        getTimelineEntry: function(id, callback) {
+          if (id === id1) {
+            return callback(null, {id: id});
+          }
+          return callback();
+        }
+      });
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
+        expect(result).to.equal(id1);
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with timelineEntryId2 when getTimelineEntry does not return timelineEntryId1', function(done) {
+      var id1 = 1, id2 = 2;
+      mockery.registerMock('../activitystreams', {
+        getTimelineEntry: function(id, callback) {
+          if (id === id2) {
+            return callback(null, {id: id});
+          }
+          return callback();
+        }
+      });
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
+        expect(result).to.equal(id2);
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with timelineEntryId2 if published date is bigger than timelineEntryId1 one', function(done) {
+      var id1 = 1, id2 = 2;
+      var date = new Date();
+      var date2 = new Date();
+      date2.setSeconds(date.getSeconds() + 10);
+
+      var tl1 = {
+        id: id1,
+        published: date
+      };
+
+      var tl2 = {
+        id: id2,
+        published: date2
+      };
+
+      mockery.registerMock('../activitystreams', {
+        getTimelineEntry: function(id, callback) {
+          if (id === id1) {
+            return callback(null, tl1);
+          }
+          return callback(null, tl2);
+        }
+      });
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
+        expect(result).to.equal(id2);
+        done();
+      }, notCalled(done));
+    });
+
+    it('should resolve with timelineEntryId1 if published date is bigger than timelineEntryId2 one', function(done) {
+      var id1 = 1, id2 = 2;
+      var date = new Date();
+      var date2 = new Date();
+      date2.setSeconds(date.getSeconds() + 10);
+      var tl2 = {
+        id: id2,
+        published: date
+      };
+
+      var tl1 = {
+        id: id1,
+        published: date2
+      };
+
+      mockery.registerMock('../activitystreams', {
+        getTimelineEntry: function(id, callback) {
+          if (id === id1) {
+            return callback(null, tl1);
+          }
+          return callback(null, tl2);
+        }
+      });
+      var module = this.helpers.requireBackend('core/digest/daily');
+      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
+        expect(result).to.equal(id1);
         done();
       }, notCalled(done));
     });

@@ -24,6 +24,22 @@ module.exports.getTracker = function(type) {
     throw new Error(type + ' is not a valid tracker type');
   }
 
+  function getTimelineEntries(userId, callback) {
+    userId = userId._id || userId;
+    Tracker.findById(userId, function(err, doc) {
+      if (err) {
+        logger.warn('Error while getting timelineentries for user %s', userId, err.message);
+        return callback(err);
+      }
+
+      if (!doc) {
+        return callback(null, {});
+      }
+
+      return callback(null, doc.timelines);
+    });
+  }
+
   /**
    * Create a TimelineEntriesTracker
    *
@@ -291,18 +307,18 @@ module.exports.getTracker = function(type) {
         return callback(err);
       }
 
-      if (!lastTimelineEntryRead) {
-        return callback(null, {});
-      }
-
       var options = {
         target: {
           objectType: 'activitystream',
           _id: activityStreamUuid
         },
-        after: lastTimelineEntryRead,
         stream: true
       };
+
+      if (lastTimelineEntryRead) {
+        options.after = lastTimelineEntryRead;
+      }
+
       var activityStream = require('./');
 
       activityStream.query(options, function(err, stream) {
@@ -330,6 +346,7 @@ module.exports.getTracker = function(type) {
   }
 
   return {
+    getTimelineEntries: getTimelineEntries,
     updateLastTimelineEntry: updateLastTimelineEntry,
     getLastTimelineEntry: getLastTimelineEntry,
     countSinceLastTimelineEntry: countSinceLastTimelineEntry,

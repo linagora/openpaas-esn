@@ -5,6 +5,7 @@ var q = require('q');
 var collaborationModule = require('../collaboration');
 var messageModule = require('../message');
 var userModule = require('../user');
+var activitystreamsModule = require('../activitystreams');
 var tracker = require('../activitystreams/tracker');
 var readTracker = tracker.getTracker('read');
 var pushTracker = tracker.getTracker('push');
@@ -68,30 +69,86 @@ function buildMessageContext(thread) {
 }
 module.exports.buildMessageContext = buildMessageContext;
 
-function loadUserDataForCollaboration(user, collaboration, tracker) {
+function getMostRecentTimelineEntry(timelineEntryId1, timelineEntryId2) {
 
-  if (!user || !collaboration || !tracker) {
-    return q.reject(new Error('User, collaboration and tracker are required'));
+  if (!timelineEntryId1 && !timelineEntryId2) {
+    return q();
   }
 
-  var userId = user._id;
-  var uuid = collaboration.activity_stream.uuid;
+  if (!timelineEntryId1 && timelineEntryId2) {
+    return q(timelineEntryId2);
+  }
 
-  return q.nfcall(tracker.buildThreadViewSinceLastTimelineEntry, userId, uuid).then(function(threads) {
-    if (!threads) {
-      return q({});
-    }
+  if (!timelineEntryId2 && timelineEntryId1) {
+    return q(timelineEntryId1);
+  }
 
-    var messagesContext = [];
-    Object.keys(threads).forEach(function(messageId) {
-      messagesContext.push(buildMessageContext(threads[messageId]));
+  return q.spread([q.nfcall(activitystreamsModule.getTimelineEntry, timelineEntryId1), q.nfcall(activitystreamsModule.getTimelineEntry, timelineEntryId2)],
+    function(timelineEntry1, timelineEntry2) {
+      if (!timelineEntry1 && !timelineEntry2) {
+        return;
+      }
+
+      if (!timelineEntry1) {
+        return timelineEntryId2;
+      }
+
+      if (!timelineEntry2) {
+        return timelineEntryId1;
+      }
+
+      return timelineEntry1.published > timelineEntry2.published ? timelineEntryId1 : timelineEntryId2;
     });
+}
+module.exports.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-    return q.all(messagesContext).then(function(context) {
-      return {
-        messages: context,
-        collaboration: collaboration
-      };
+// if push date > read date skip
+// if read date > push date -> get all message since read date
+// if read date && !push date -> get all messages since read date
+// if !read date && ! push date -> not tracked, we have to check the collaboration and load all messages
+
+
+function getTracker(user, collaboration) {
+
+  if (!user || !collaboration) {
+    return q.reject(new Error('User and collaboration are required'));
+  }
+
+  return q.spread([q.nfcall(readTracker.getLastTimelineEntry, user, collaboration.activity_stream.uuid), q.nfcall(pushTracker.getLastTimelineEntry, user, collaboration.activity_stream.uuid)],
+    function(read, push) {
+      return getMostRecentTimelineEntry(read, push).then(function(result) {
+        return !result || result === read ? readTracker : pushTracker;
+      });
+    });
+}
+module.exports.getTracker = getTracker;
+
+function loadUserDataForCollaboration(user, collaboration) {
+
+  if (!user || !collaboration) {
+    return q.reject(new Error('User and collaboration are required'));
+  }
+
+  return getTracker(user, collaboration).then(function(tracker) {
+    return q.nfcall(tracker.buildThreadViewSinceLastTimelineEntry, user._id, collaboration.activity_stream.uuid).then(function(threads) {
+      if (!threads) {
+        return q({
+          messages: [],
+          collaboration: collaboration
+        });
+      }
+
+      var messagesContext = [];
+      Object.keys(threads).forEach(function(messageId) {
+        messagesContext.push(buildMessageContext(threads[messageId]));
+      });
+
+      return q.all(messagesContext).then(function(context) {
+        return {
+          messages: context,
+          collaboration: collaboration
+        };
+      });
     });
   });
 }
@@ -102,7 +159,10 @@ function userDailyDigest(user) {
     return q.reject(new Error('User is required'));
   }
 
-  return q.nfcall(collaborationModule.getCollaborationsForTuple, {id: user._id, objectType: 'user'}).then(function(collaborations) {
+  return q.nfcall(collaborationModule.getCollaborationsForTuple, {
+    id: user._id,
+    objectType: 'user'
+  }).then(function(collaborations) {
 
     if (!collaborations || collaborations.length === 0) {
       return q({user: user, data: [], status: 'No collaborations found'});
@@ -110,7 +170,7 @@ function userDailyDigest(user) {
 
     var collaborationData = collaborations.map(function(collaboration) {
       // TODO : Tracker
-      return loadUserDataForCollaboration(user, collaboration, readTracker);
+      return loadUserDataForCollaboration(user, collaboration);
     });
 
     function send(data) {

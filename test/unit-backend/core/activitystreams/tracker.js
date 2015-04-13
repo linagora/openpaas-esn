@@ -254,8 +254,9 @@ describe('The activity streams tracker core module', function() {
       });
     });
 
-    it('should return empty result if there is no last timeline entries', function(done) {
+    it('should return result with all messages if there is no last timeline entries', function(done) {
 
+      var handlerClose;
       mockery.registerMock('mongoose', {
         model: function() {
           return {
@@ -267,8 +268,12 @@ describe('The activity streams tracker core module', function() {
       });
       mockery.registerMock('./', {
         query: function(options, callback) {
+          expect(options.after).to.not.exist;
           callback(null, {
-            on: function(event) {
+            on: function(event, handler) {
+              if (event === 'close') {
+                handlerClose = handler;
+              }
             }
           });
         }
@@ -278,9 +283,10 @@ describe('The activity streams tracker core module', function() {
       tracker.buildThreadViewSinceLastTimelineEntry('12345', '98765', function(err, threads) {
         expect(err).to.not.exist;
         expect(threads).to.exist;
-        expect(threads).to.deep.equal({});
         done();
       });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
     });
 
     it('should set the replyTo as key if timeline entry is a reply', function(done) {
