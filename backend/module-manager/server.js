@@ -24,5 +24,4 @@ module.exports = function setupServer(moduleManager) {
   moduleManager.manager.registerModule(require('../webserver/webserver-wrapper'), true);
   moduleManager.manager.registerModule(require('../webserver').awesomeWebServer, true);
   moduleManager.manager.registerModule(require('../wsserver').awesomeWsServer, true);
-  moduleManager.manager.registerModule(require('../webrtc').awesomeWebRTCServer, true);
 };

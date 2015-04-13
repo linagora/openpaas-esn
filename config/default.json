@@ -23,10 +23,6 @@
     "enabled": true,
     "port": 8080
   },
-  "webrtc": {
-    "enabled": true,
-    "level": "debug"
-  },
   "db": {
     "reconnectOnConfigurationChange": true
   },
@@ -56,7 +52,6 @@
     "linagora.esn.awesomeappstore",
     "linagora.esn.core.webserver",
     "linagora.esn.core.wsserver",
-    "linagora.esn.core.webrtcserver",
     "linagora.esn.project",
     "linagora.esn.messaging.email",
     "linagora.esn.cron",
