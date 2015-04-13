@@ -101,12 +101,6 @@ function getMostRecentTimelineEntry(timelineEntryId1, timelineEntryId2) {
 }
 module.exports.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-// if push date > read date skip
-// if read date > push date -> get all message since read date
-// if read date && !push date -> get all messages since read date
-// if !read date && ! push date -> not tracked, we have to check the collaboration and load all messages
-
-
 function getTracker(user, collaboration) {
 
   if (!user || !collaboration) {
