@@ -58,22 +58,6 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   });
 }])
 
-.controller('sessionInitLiveConfController', ['$scope', 'sessionFactory', '$route', function($scope, sessionFactory) {
-
-    $scope.session = {
-      template: '/views/commons/loading.html'
-    };
-
-    sessionFactory.fetchUser(function(error) {
-      if (error) {
-        $scope.session.error = error.data;
-        $scope.session.template = '/views/commons/loading-error.html';
-      } else {
-        $scope.session.template = '/views/live-conference/partials/application.html';
-      }
-    });
-  }])
-
 .factory('sessionFactory', ['$log', '$q', 'userAPI', 'domainAPI', 'session',
     function($log, $q, userAPI, domainAPI, session) {
 
