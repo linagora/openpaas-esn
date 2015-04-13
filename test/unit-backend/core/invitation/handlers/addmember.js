@@ -1,8 +1,14 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The addmember invitation handler', function() {
+
+  beforeEach(function() {
+    mockery.registerMock('../../email/system/addMember', {});
+  });
+
   describe('isStillValid method', function() {
     it('should return true is the invitation creation date is less than 7 days old', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');

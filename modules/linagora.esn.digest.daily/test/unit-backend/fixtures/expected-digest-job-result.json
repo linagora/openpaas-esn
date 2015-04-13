@@ -1,0 +1,148 @@
+{
+  "from": {
+    "objectType": "email",
+    "id": "OpenPaaS <noreply@mycompany.com>"
+  },
+  "to": {
+    "objectType": "email",
+    "id": "johndoe@anonymous.net"
+  },
+  "content": {
+    "subject": "There are 5 new messages in your communities in domainA",
+    "header": {
+      "domain": {
+        "name": "domainA",
+        "id": "537f0c2f7334bece4564c684"
+      },
+      "user": {
+        "displayName": "John Doe",
+        "id": "537f0c2f7334bece4564c683"
+      },
+      "total": {
+        "unreadMessages": 5,
+        "unreadNotifications": 0
+      }
+    },
+    "content": [
+      {
+        "id": "54b7ab5d814a5e00001ae823",
+        "title": "Collaboration with no messages",
+        "messages": [],
+        "unreadMessages": 0
+      },
+      {
+        "id": "54b7a921814a5e00001ae81c",
+        "title": "Collaboration with mixed messages",
+        "messages": [
+          {
+            "content": "Message 2",
+            "author": {
+              "id": "54b68988ce89cbdd998e2746",
+              "firstname": "Christophe",
+              "lastname": "Hamerling",
+              "displayName": "Christophe Hamerling",
+              "emails": [
+                "chamerling@open-paas.dev"
+              ]
+            },
+            "responses": [
+              {
+                "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                },
+                "responses": [],
+                "published": "2015-01-15T14:13:02.480Z",
+                "objectType": "whatsup"
+              },
+              {
+                "content": "woooot",
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                },
+                "responses": [],
+                "published": "2015-01-15T15:40:30.820Z",
+                "objectType": "whatsup"
+              }
+            ],
+            "published": "2015-01-15T14:11:44.601Z",
+            "objectType": "whatsup",
+            "weight": 3
+          },
+          {
+            "content": "Message 1",
+            "author": {
+              "id": "54b68988ce89cbdd998e2746",
+              "firstname": "Christophe",
+              "lastname": "Hamerling",
+              "displayName": "Christophe Hamerling",
+              "emails": [
+                "chamerling@open-paas.dev"
+              ]
+            },
+            "responses": [
+              {
+                "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                },
+                "responses": [],
+                "published": "2015-01-15T14:13:02.480Z",
+                "objectType": "whatsup"
+              },
+              {
+                "content": "woooot",
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                },
+                "responses": [],
+                "published": "2015-01-15T15:40:30.820Z",
+                "objectType": "whatsup"
+              }
+            ],
+            "published": "2015-01-15T14:11:44.601Z",
+            "objectType": "whatsup",
+            "weight": 2
+          }
+        ],
+        "unreadMessages": 5
+      },
+      {
+        "id": "54b7a921814a5e00001ae81c",
+        "title": "Collaboration with all messages read",
+        "messages": [],
+        "unreadMessages": 0
+      }
+    ],
+    "footer": {}
+  },
+  "options": {
+    "subject": "There are 5 new messages in your communities in domainA",
+    "template": "digest.daily",
+    "noreply": "noreply@mycompany.com"
+  }
+}

@@ -15,6 +15,7 @@ module.exports = function(dependencies) {
   var readTracker = tracker.getTracker('read');
   var pushTracker = tracker.getTracker('push');
   var weight = require('./weight')(dependencies);
+  var job = require('./job')(dependencies);
 
   return {
 
@@ -177,8 +178,7 @@ module.exports = function(dependencies) {
 
         function send(data) {
           logger.info('Sending digest to user', user._id);
-          // TODO, really send digest
-          return data;
+          return job.process(data);
         }
 
         function processUserData(data) {
@@ -197,7 +197,8 @@ module.exports = function(dependencies) {
         return q.all(collaborationData)
           .then(processUserData)
           .then(send)
-          .then(updateTrackers).then(function(data) {
+          .then(updateTrackers)
+          .then(function(data) {
             return q({user: user, data: data});
           });
       });
