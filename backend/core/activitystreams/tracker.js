@@ -144,19 +144,6 @@ module.exports.getTracker = function(type) {
     });
   }
 
-  function removeDeletedActivities(hash) {
-    var nonDeleted = Object.keys(hash).filter(function(k) {
-      return hash[k].every(function(activity) {
-        return activity.verb !== 'remove';
-      });
-    });
-    var newHash = {};
-    nonDeleted.forEach(function(k) {
-      newHash[k] = hash[k];
-    });
-    return newHash;
-  }
-
   /**
    * Count the number of TimelineEntries since last id
    *
@@ -173,6 +160,19 @@ module.exports.getTracker = function(type) {
     }
     if (!activityStreamUuid) {
       return callback(new Error('Activity Stream UUID is required'));
+    }
+
+    function removeDeletedActivities(hash) {
+      var nonDeleted = Object.keys(hash).filter(function(k) {
+        return hash[k].every(function(activity) {
+          return activity.verb !== 'remove';
+        });
+      });
+      var newHash = {};
+      nonDeleted.forEach(function(k) {
+        newHash[k] = hash[k];
+      });
+      return newHash;
     }
 
     function hasRightToReadAtLeastOne(entries) {
