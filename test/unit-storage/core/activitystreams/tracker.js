@@ -15,6 +15,10 @@ describe('the TimelineEntriesTracker module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
+    this.helpers.requireBackend('core/db/mongo/models/timelineentry');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/community');
     ReadTimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
     tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
     this.testEnv.writeDBConfigFile();
