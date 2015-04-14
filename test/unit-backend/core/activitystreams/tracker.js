@@ -332,10 +332,7 @@ describe('The activity streams tracker core module', function() {
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
         expect(threads).to.exist;
-        expect(threads[replyTo]).to.exist;
-        expect(threads[replyTo].responses).to.exist;
-        expect(threads[replyTo].responses).to.be.an.array;
-        expect(threads[replyTo].responses.length).to.equal(1);
+        expect(threads[replyTo].responses).have.length(1);
         done();
       });
       expect(handlerClose).to.be.a('function');
@@ -384,9 +381,7 @@ describe('The activity streams tracker core module', function() {
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
         expect(threads).to.exist;
-        expect(threads[message]).to.exists;
-        expect(threads[message].responses).to.be.an.array;
-        expect(threads[message].responses).to.be.empty;
+        expect(threads[message].responses).to.deep.equal([]);
         done();
       });
       expect(handlerClose).to.be.a('function');
