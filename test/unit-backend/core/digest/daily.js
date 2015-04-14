@@ -9,12 +9,12 @@ describe('The daily digest core module', function() {
 
   function notCalled(done) {
     return function(result) {
-      return done(new Error('Should not be called' + result));
+      done(new Error('Should not be called' + result));
     };
   }
 
   function called(done) {
-    return done();
+    done();
   }
 
   describe('The digest fn', function() {
