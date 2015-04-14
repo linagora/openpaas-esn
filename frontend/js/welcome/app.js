@@ -43,7 +43,11 @@ angular.module('welcomeApp', [
       templateUrl: '/views/welcome/partials/confirm'
     });
 
-    $routeProvider.otherwise({redirectTo: '/'});
+    $routeProvider.otherwise({
+      redirectTo: function(params, path) {
+        return '/?continue=' + path;
+      }
+    });
 
     RestangularProvider.setBaseUrl('/api');
   });
