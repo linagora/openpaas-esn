@@ -19,12 +19,12 @@ function computeMessagesWeight(messages) {
   messages.forEach(function(message) {
     message.compute = {};
 
-    if (!message.read && message.responses.length === 0) {
+    if (!message.read && message.responses && message.responses.length === 0) {
       message.compute.top = true;
       message.compute.weightDate = message.published;
     }
 
-    if (message.read && message.responses.length > 0) {
+    if (message.read && message.responses && message.responses.length > 0) {
       var first = findFirstUnread(message.responses);
       if (first) {
         message.compute.top = false;

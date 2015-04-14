@@ -13,24 +13,21 @@ var weight = require('./weight');
 
 function setReadFlags(message) {
 
+  function isEmptyArray(array) {
+    return !array || array.length === 0;
+  }
+
   function isInThread(originalResponse) {
-    for (var i = 0; i < message.thread.responses.length; i++) {
-      if (originalResponse._id + '' === message.thread.responses[i].message._id + '') {
-        return true;
-      }
-    }
-    return false;
+    return message.thread.responses.some(function(response) {
+      return originalResponse._id + '' === response.message._id + '';
+    });
   }
 
   function flagReadResponse(originalResponse) {
-    if (!message.thread.responses || message.thread.responses.length === 0) {
-      originalResponse.read = true;
-    } else {
-      originalResponse.read = !isInThread(originalResponse);
-    }
+    originalResponse.read = isEmptyArray(message.thread.responses) || !isInThread(originalResponse);
   }
 
-  if (message.original.responses && message.original.responses.length > 0) {
+  if (!isEmptyArray(message.original.responses)) {
     message.original.responses.forEach(flagReadResponse);
   }
 
@@ -82,7 +79,8 @@ function getMostRecentTimelineEntry(timelineEntryId1, timelineEntryId2) {
     return q(timelineEntryId1);
   }
 
-  return q.spread([q.nfcall(activitystreamsModule.getTimelineEntry, timelineEntryId1), q.nfcall(activitystreamsModule.getTimelineEntry, timelineEntryId2)],
+  var _getTimelineEntry = q.denodeify(activitystreamsModule.getTimelineEntry);
+  return q.spread([_getTimelineEntry(timelineEntryId1), _getTimelineEntry(timelineEntryId2)],
     function(timelineEntry1, timelineEntry2) {
       if (!timelineEntry1 && !timelineEntry2) {
         return;
@@ -107,8 +105,13 @@ function getTracker(user, collaboration) {
     return q.reject(new Error('User and collaboration are required'));
   }
 
-  return q.spread([q.nfcall(readTracker.getLastTimelineEntry, user, collaboration.activity_stream.uuid), q.nfcall(pushTracker.getLastTimelineEntry, user, collaboration.activity_stream.uuid)],
-    function(read, push) {
+  var readTrackerGetLastTimelineEntry = q.denodeify(readTracker.getLastTimelineEntry);
+  var pushTrackerGetLastTimelineEntry = q.denodeify(pushTracker.getLastTimelineEntry);
+
+  return q.spread([
+      readTrackerGetLastTimelineEntry(user, collaboration.activity_stream.uuid),
+      pushTrackerGetLastTimelineEntry(user, collaboration.activity_stream.uuid)
+    ], function(read, push) {
       return getMostRecentTimelineEntry(read, push).then(function(result) {
         return !result || result === read ? readTracker : pushTracker;
       });
@@ -162,7 +165,6 @@ function userDailyDigest(user) {
     }
 
     var collaborationData = collaborations.map(function(collaboration) {
-      // TODO : Tracker
       return loadUserDataForCollaboration(user, collaboration);
     });
 
@@ -194,14 +196,7 @@ module.exports.userDailyDigest = userDailyDigest;
 
 function digest() {
   return q.nfcall(userModule.list).then(function(users) {
-    if (!users || users.length === 0) {
-      return [];
-    }
-
-    var digests = users.map(function(user) {
-      return userDailyDigest(user);
-    });
-    return q.all(digests);
+    return q.all((users || []).map(userDailyDigest));
   });
 }
 module.exports.digest = digest;
