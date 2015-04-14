@@ -1,0 +1,40 @@
+doctype html
+html.mail
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    style
+      include ../css/media.less
+
+  body
+    div.wrapper
+
+      header
+        div.logo
+          a(href=content.header.domain.link)
+            img(srv="")
+        h1
+          p Hello #{content.header.user.displayName}
+          p There are #{content.header.total.unreadMessages} unread messages in you communities
+          | and #{content.header.total.unreadNotifications} pending notifications.
+
+      each collaboration in content.content
+        section
+          a(href="")
+            h1 #{collaboration.title}
+            p #{collaboration.unreadMessages} new messages
+          each message in collaboration.messages
+            article
+              header
+                a(href="")
+                  h2 #{message.published} #{message.author.displayName}
+              p !{message.content}
+              each response in message.responses
+                aside
+                  p #{response.published} #{response.author.displayName}
+                  p !{response.content}
+
+      footer
+        .producer
+          | OpenPaas is coded with love by&nbsp;
+          a.linagora(href="http://linagora.com") Linagora
