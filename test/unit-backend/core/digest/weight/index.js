@@ -15,12 +15,12 @@ describe('The weight module', function() {
 
   function notCalled(done) {
     return function(result) {
-      return done(new Error('Should not be called' + result));
+      done(new Error('Should not be called' + result));
     };
   }
 
   function called(done) {
-    return done();
+    done();
   }
 
   describe('The compute fn', function() {
@@ -47,24 +47,22 @@ describe('The weight module', function() {
       module.compute({}, data).then(expectReturnDataInput(data, done));
     });
 
-    it('should call weight#computeMessageWeight as many times as there are messages', function(done) {
+    it('should call the startegy#computeMessagesWeight', function(done) {
       var messages = [1, 2, 3];
       var data = {a: 1, b: 2, c: 3, messages: messages};
       var user = {_id: 1};
       var count = 0;
 
-      mockery.registerMock('./simple', {
-        computeMessageWeight: function(u, m) {
-          expect(u).to.deep.equal(user);
-          expect(messages).to.contain(m);
+      mockery.registerMock('./strategies/date', {
+        computeMessagesWeight: function(messages) {
           count++;
-          return q(m);
+          return q(messages);
         }
       });
       var module = this.helpers.requireBackend('core/digest/weight');
       module.compute(user, data).then(function(result) {
         expect(result).to.exist;
-        expect(count).to.equal(messages.length);
+        expect(count).to.equal(1);
         done();
       }, notCalled(done));
     });

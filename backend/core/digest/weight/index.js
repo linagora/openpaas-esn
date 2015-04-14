@@ -1,15 +1,13 @@
 'use strict';
 
 var q = require('q');
-var strategy = require('./simple');
+var DEFAULT_STRATEGY = require('./strategies/date');
 
-/**
- * Compute messages weight based on the message, its unread responses, etc...
- * The current strategy is to compute several weights:
- *
- * - The individual message weight. For example, a thread with 3 unread responses out of 8, a single message without responses.
- * - The collaboration message weight. A message may have a priority based on the collaboration context.
- *
+function getStrategy() {
+  return DEFAULT_STRATEGY;
+}
+
+ /**
  * The input data contains:
  *
  * - messages: Array of messages.
@@ -25,13 +23,8 @@ function compute(user, data) {
     return q(data);
   }
 
-  var individual = data.messages.map(function(message) {
-    return strategy.computeMessageWeight(user, message, data.messages);
-  });
-
-  return q.all(individual).then(function(results) {
-    data.messages = results;
-    return data;
-  });
+  var strategy = getStrategy(user, data);
+  data.messages = strategy.computeMessagesWeight(data.messages);
+  return q(data);
 }
 module.exports.compute = compute;
