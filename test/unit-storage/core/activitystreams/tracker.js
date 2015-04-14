@@ -213,7 +213,6 @@ describe('the TimelineEntriesTracker module', function() {
               createTimeline(community.activity_stream.uuid, 15, callback);
             }
           ], function(err, results) {
-            console.log('results', results);
             if (err) {
               return done(err);
             }
@@ -229,16 +228,9 @@ describe('the TimelineEntriesTracker module', function() {
                 }
 
                 expect(threads).to.exists;
-                console.log(threads);
-                expect(threads[results[1].inReplyToMessageId]).to.exists;
-                expect(threads[results[1].inReplyToMessageId].responses).to.be.an.array;
-                expect(threads[results[1].inReplyToMessageId].responses.length).to.equals(results[1].timelineEntries.length);
-                expect(threads[results[2].inReplyToMessageId]).to.exists;
-                expect(threads[results[2].inReplyToMessageId].responses).to.be.an.array;
-                expect(threads[results[2].inReplyToMessageId].responses.length).to.equals(results[2].timelineEntries.length);
-                expect(threads[results[3].inReplyToMessageId]).to.exists;
-                expect(threads[results[3].inReplyToMessageId].responses).to.be.an.array;
-                expect(threads[results[3].inReplyToMessageId].responses.length).to.equals(results[3].timelineEntries.length);
+                expect(threads[results[1].inReplyToMessageId].responses).to.have.length(results[1].timelineEntries.length);
+                expect(threads[results[2].inReplyToMessageId].responses).to.have.length(results[2].timelineEntries.length);
+                expect(threads[results[3].inReplyToMessageId].responses).to.have.length(results[3].timelineEntries.length);
                 done();
               });
             });
