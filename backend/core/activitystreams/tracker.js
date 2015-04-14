@@ -1,5 +1,6 @@
 'use strict';
 
+var activityStream = require('./');
 var logger = require('../logger');
 var mongoose = require('mongoose');
 var q = require('q');
@@ -153,7 +154,6 @@ module.exports.getTracker = function(type) {
    */
   function countSinceLastTimelineEntry(userId, activityStreamUuid, callback) {
     var userTuple = {objectType: 'user', id: userId};
-    var activityStream = require('./');
 
     if (!userId) {
       return callback(new Error('User is required'));
@@ -239,9 +239,7 @@ module.exports.getTracker = function(type) {
           }
         });
 
-        stream.on('error', function(err) {
-          return callback(err);
-        });
+        stream.on('error', callback);
 
         stream.on('close', function() {
           var elligibleEntries = removeDeletedActivities(hash);
@@ -281,12 +279,10 @@ module.exports.getTracker = function(type) {
         options.after = lastTimelineEntryRead;
       }
 
-      var activityStream = require('./');
-
       activityStream.query(options, function(err, stream) {
         var hash = {};
-        stream.on('data', function(doc) {
 
+        stream.on('data', function(doc) {
           var isReply = doc.inReplyTo && doc.inReplyTo.length > 0;
           var tuple = isReply ? doc.inReplyTo[0] : doc.object;
           hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published} , responses: []};
@@ -296,9 +292,7 @@ module.exports.getTracker = function(type) {
           }
         });
 
-        stream.on('error', function(err) {
-          return callback(err);
-        });
+        stream.on('error', callback);
 
         stream.on('close', function() {
           return callback(null, hash);
