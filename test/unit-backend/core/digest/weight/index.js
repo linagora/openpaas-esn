@@ -13,26 +13,16 @@ describe('The weight module', function() {
     };
   }
 
-  function notCalled(done) {
-    return function(result) {
-      done(new Error('Should not be called' + result));
-    };
-  }
-
-  function called(done) {
-    done();
-  }
-
   describe('The compute fn', function() {
 
     it('should reject when user is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/weight');
-      module.compute(null, {}).then(notCalled(done), called(done));
+      module.compute(null, {}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
     });
 
     it('should reject when data is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/weight');
-      module.compute({}).then(notCalled(done), called(done));
+      module.compute({}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
     });
 
     it('should return data when data does not contain messages', function(done) {
@@ -64,7 +54,7 @@ describe('The weight module', function() {
         expect(result).to.exist;
         expect(count).to.equal(1);
         done();
-      }, notCalled(done));
+      }, this.helpers.callback.notCalled(done));
     });
   });
 });
