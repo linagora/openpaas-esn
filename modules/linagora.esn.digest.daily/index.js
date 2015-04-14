@@ -13,7 +13,8 @@ var dailyDigest = new AwesomeModule('linagora.esn.digest.daily', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.activitystreams', 'activitystreams'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
+    new Dependency(Dependency.TYPE_NAME, 'awm.content-sender', 'content-sender')
   ],
   states: {
     lib: function(dependencies, callback) {

@@ -56,5 +56,8 @@
     "linagora.esn.messaging.email",
     "linagora.esn.cron",
     "linagora.esn.digest.daily"
-  ]
+  ],
+  "email": {
+    "templatesDir": "./templates/email"
+  }
 }

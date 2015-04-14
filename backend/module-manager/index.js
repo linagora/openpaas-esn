@@ -29,7 +29,8 @@ function mockCoreModule(name) {
       lib: function(deps, callback) {
         return callback(null, core[name]);
       }
-    }
+    },
+    abilities: [name]
   });
   var loader = manager.loaders.code(mock, true);
   manager.appendLoader(loader);

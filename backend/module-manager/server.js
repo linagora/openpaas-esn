@@ -21,6 +21,8 @@ module.exports = function setupServer(moduleManager) {
   var untrustedModulesLoader = moduleManager.manager.loaders.filesystem(pluginsPath, false);
   moduleManager.manager.appendLoader(untrustedModulesLoader);
 
+  moduleManager.manager.registerModule(require('om-mailer'), true);
+  moduleManager.manager.registerModule(require('awesome-content-sender'), true);
   moduleManager.manager.registerModule(require('../webserver/webserver-wrapper'), true);
   moduleManager.manager.registerModule(require('../webserver').awesomeWebServer, true);
   moduleManager.manager.registerModule(require('../wsserver').awesomeWsServer, true);
