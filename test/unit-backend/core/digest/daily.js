@@ -28,7 +28,7 @@ describe('The daily digest core module', function() {
           }
         });
         var module = this.helpers.requireBackend('core/digest/daily');
-        module.digest().then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+        module.digest().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
       });
 
       it('should send back empty array if user list returns empty array', function(done) {
@@ -42,7 +42,7 @@ describe('The daily digest core module', function() {
         module.digest().then(function(result) {
           expect(result).to.deep.equal(users);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('should send back empty array if user list returns undefined', function(done) {
@@ -55,7 +55,7 @@ describe('The daily digest core module', function() {
         module.digest().then(function(result) {
           expect(result).to.be.an.empty.array;
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
     });
 
@@ -81,7 +81,7 @@ describe('The daily digest core module', function() {
         module.digest().then(function() {
           expect(called).to.equal(users.length);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
     });
   });
@@ -100,7 +100,7 @@ describe('The daily digest core module', function() {
       });
 
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.userDailyDigest().then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.userDailyDigest().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     describe('when collaborationModule.getCollaborationsForTuple sends back', function() {
@@ -124,7 +124,7 @@ describe('The daily digest core module', function() {
         });
 
         var module = this.helpers.requireBackend('core/digest/daily');
-        module.userDailyDigest(user).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+        module.userDailyDigest(user).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
       });
 
       it('undefined collaborations', function(done) {
@@ -139,7 +139,7 @@ describe('The daily digest core module', function() {
           expect(result.data.length).to.equal(0);
           expect(result.status).to.match(/No collaborations found/);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('empty collaborations', function(done) {
@@ -154,7 +154,7 @@ describe('The daily digest core module', function() {
           expect(result.data.length).to.equal(0);
           expect(result.status).to.match(/No collaborations found/);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       describe('collaboration list', function() {
@@ -185,7 +185,7 @@ describe('The daily digest core module', function() {
             expect(result.status).to.not.exist;
             expect(called).to.equal(collaborations.length);
             done();
-          }, this.helpers.callback.notCalled(done));
+          }, this.helpers.callbacks.notCalled(done));
         });
       });
     });
@@ -207,12 +207,12 @@ describe('The daily digest core module', function() {
 
     it('should reject when user is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.loadUserDataForCollaboration(null, {}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.loadUserDataForCollaboration(null, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     it('should reject when collaboration is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.loadUserDataForCollaboration({}, null).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.loadUserDataForCollaboration({}, null).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     describe('When getting tracker', function() {
@@ -222,7 +222,7 @@ describe('The daily digest core module', function() {
           return q.reject(new Error());
         };
         module.__set__('getTracker', getTracker);
-        module.loadUserDataForCollaboration({}, {}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+        module.loadUserDataForCollaboration({}, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
       });
     });
 
@@ -247,7 +247,7 @@ describe('The daily digest core module', function() {
           return q(tracker);
         };
         module.__set__('getTracker', getTracker);
-        module.loadUserDataForCollaboration(user, collaboration).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+        module.loadUserDataForCollaboration(user, collaboration).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
       });
 
       it('should resolve when buildThreadViewSinceLastTimelineEntry sends back empty thread', function(done) {
@@ -268,7 +268,7 @@ describe('The daily digest core module', function() {
             collaboration: collaboration
           });
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('should call buildMessageContext as many times as there are threads', function(done) {
@@ -291,7 +291,7 @@ describe('The daily digest core module', function() {
           return q({original: {}, thread: {}});
         };
         module.__set__('buildMessageContext', buildMessageContext);
-        module.loadUserDataForCollaboration(user, collaboration, tracker).then(this.helpers.callback.called(done), this.helpers.callback.notCalled(done));
+        module.loadUserDataForCollaboration(user, collaboration, tracker).then(this.helpers.callbacks.called(done), this.helpers.callbacks.notCalled(done));
       });
     });
   });
@@ -318,7 +318,7 @@ describe('The daily digest core module', function() {
 
     it('should reject when thread is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.buildMessageContext().then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.buildMessageContext().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     it('should resolve with message and thread when message#get is ok', function(done) {
@@ -338,7 +338,7 @@ describe('The daily digest core module', function() {
       module.buildMessageContext(thread).then(function(result) {
         expect(result).to.deep.equal(message);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with empty message and thread when message#get is ko', function(done) {
@@ -357,7 +357,7 @@ describe('The daily digest core module', function() {
       module.buildMessageContext(thread).then(function(result) {
         expect(result).to.deep.equal({});
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
   });
 
@@ -376,12 +376,12 @@ describe('The daily digest core module', function() {
 
     it('should reject when user is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.getTracker(null, {}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.getTracker(null, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     it('should reject when collaboration is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/daily');
-      module.getTracker({}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.getTracker({}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     it('should call getLastTimelineEntry on each tracker', function(done) {
@@ -426,7 +426,7 @@ describe('The daily digest core module', function() {
         expect(read).to.equal(1);
         expect(push).to.equal(1);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     describe('When calling getMostRecentTimelineEntry', function() {
@@ -465,7 +465,7 @@ describe('The daily digest core module', function() {
         module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
           expect(result).to.deep.equal(trackers.read);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('should resolve with read tracker when read is most recent than push', function(done) {
@@ -479,7 +479,7 @@ describe('The daily digest core module', function() {
         module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
           expect(result).to.deep.equal(trackers.read);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('should resolve with push tracker when push is most recent than read', function(done) {
@@ -493,7 +493,7 @@ describe('The daily digest core module', function() {
         module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
           expect(result).to.deep.equal(trackers.push);
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
     });
   });
@@ -516,7 +516,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry().then(function(result) {
         expect(result).to.not.be.defined;
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with timelineEntryId1 when timelineEntryId2 is not defined', function(done) {
@@ -525,7 +525,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(id).then(function(result) {
         expect(result).to.be.equal(id);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with timelineEntryId2 when timelineEntryId1 is not defined', function(done) {
@@ -534,7 +534,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(null, id).then(function(result) {
         expect(result).to.be.equal(id);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with empty when timelinesEntries are not found', function(done) {
@@ -548,7 +548,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
         expect(result).to.be.undefined;
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with timelineEntryId1 when getTimelineEntry does not return timelineEntryId2', function(done) {
@@ -565,7 +565,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
         expect(result).to.equal(id1);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with timelineEntryId2 when getTimelineEntry does not return timelineEntryId1', function(done) {
@@ -582,7 +582,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
         expect(result).to.equal(id2);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with timelineEntryId2 if published date is bigger than timelineEntryId1 one', function(done) {
@@ -613,7 +613,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
         expect(result).to.equal(id2);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should resolve with timelineEntryId1 if published date is bigger than timelineEntryId2 one', function(done) {
@@ -643,7 +643,7 @@ describe('The daily digest core module', function() {
       module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
         expect(result).to.equal(id1);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
   });
 
@@ -673,7 +673,7 @@ describe('The daily digest core module', function() {
       module.setReadFlags(message).then(function(result) {
         expect(result.original.read).to.be.true;
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should set original message read flag to false on original when it does have undefined responses', function(done) {
@@ -689,7 +689,7 @@ describe('The daily digest core module', function() {
       module.setReadFlags(message).then(function(result) {
         expect(result.original.read).to.be.false;
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     it('should set original message read flag to false on original when it does have empty responses', function(done) {
@@ -706,7 +706,7 @@ describe('The daily digest core module', function() {
       module.setReadFlags(message).then(function(result) {
         expect(result.original.read).to.be.false;
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
 
     describe('when processing responses', function() {
@@ -727,7 +727,7 @@ describe('The daily digest core module', function() {
         module.setReadFlags(message).then(function(result) {
           expect(result.original.responses[0].read).to.be.true;
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('should set read flag to false when thread contains response', function(done) {
@@ -749,7 +749,7 @@ describe('The daily digest core module', function() {
         module.setReadFlags(message).then(function(result) {
           expect(result.original.responses[0].read).to.be.false;
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
       it('should set read flag to true when thread does not contains response', function(done) {
@@ -770,7 +770,7 @@ describe('The daily digest core module', function() {
         module.setReadFlags(message).then(function(result) {
           expect(result.original.responses[0].read).to.be.true;
           done();
-        }, this.helpers.callback.notCalled(done));
+        }, this.helpers.callbacks.notCalled(done));
       });
 
     });

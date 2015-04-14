@@ -17,12 +17,12 @@ describe('The weight module', function() {
 
     it('should reject when user is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/weight');
-      module.compute(null, {}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.compute(null, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     it('should reject when data is undefined', function(done) {
       var module = this.helpers.requireBackend('core/digest/weight');
-      module.compute({}).then(this.helpers.callback.notCalled(done), this.helpers.callback.called(done));
+      module.compute({}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
     });
 
     it('should return data when data does not contain messages', function(done) {
@@ -54,7 +54,7 @@ describe('The weight module', function() {
         expect(result).to.exist;
         expect(count).to.equal(1);
         done();
-      }, this.helpers.callback.notCalled(done));
+      }, this.helpers.callbacks.notCalled(done));
     });
   });
 });
