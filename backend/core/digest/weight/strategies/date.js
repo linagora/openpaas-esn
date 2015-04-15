@@ -1,5 +1,7 @@
 'use strict';
 
+var arrayHelper = require('../../../../helpers/array');
+
 // The message weight will be ordered based on these ordered rules:
 //
 // 1. Unread thread with no responses
@@ -16,66 +18,60 @@ function findFirstUnread(responses) {
 
 function computeMessagesWeight(messages) {
 
+  function compareWeightDate(a, b) {
+    return (a > b) - (b > a);
+  }
+
+  function compareCompute(a, b) {
+    var computeA = a.compute;
+    var computeB = b.compute;
+
+    if (computeA.top && computeB.top) {
+      // when both are root messages, compare on their date
+      return compareWeightDate(computeA.weightDate, computeB.weightDate);
+    }
+
+    if (computeA.root && !computeB.root) {
+      // when A is root message and not B, A has more weight
+      return 1;
+    }
+
+    if (!computeA.root && computeB.root) {
+      // when B is root message and not A, B has more weight
+      return -1;
+    }
+
+    if (!computeA.root && !computeB.root) {
+      // when A and B are not root messages, compare the date of the responses
+      return compareWeightDate(computeA.weightDate, computeB.weightDate);
+    }
+
+    return 0;
+  }
+
   messages.forEach(function(message) {
     message.compute = {};
 
-    if (!message.read && message.responses && message.responses.length === 0) {
-      message.compute.top = true;
+    if (!message.read && arrayHelper.isNullOrEmpty(message.responses)) {
+      message.compute.root = true;
       message.compute.weightDate = message.published;
     }
 
-    if (message.read && message.responses && message.responses.length > 0) {
+    if (message.read && !arrayHelper.isNullOrEmpty(message.responses)) {
       var first = findFirstUnread(message.responses);
       if (first) {
-        message.compute.top = false;
+        message.compute.root = false;
         message.compute.weightDate = first.published;
       }
     }
   });
 
-  messages.sort(function(a, b) {
-    var computeA = a.compute;
-    var computeB = b.compute;
+  messages.sort(compareCompute);
 
-    if (computeA.top && computeB.top) {
-      if (computeA.weightDate > computeB.weightDate) {
-        return 1;
-      }
-
-      if (computeB.weightDate > computeA.weightDate) {
-        return -1;
-      }
-
-      return 0;
-    }
-
-    if (computeA.top && !computeB.top) {
-      return 1;
-    }
-
-    if (!computeA.top && computeB.top) {
-      return -1;
-    }
-
-    if (!computeA.top && !computeB.top) {
-      if (computeA.weightDate > computeB.weightDate) {
-        return 1;
-      }
-
-      if (computeB.weightDate > computeA.weightDate) {
-        return -1;
-      }
-      return 0;
-    }
-
-    return 0;
-  });
-
-  for (var i = 0; i < messages.length; i++) {
-    var message = messages[i];
+  messages.forEach(function(message, i) {
     message.weight = i;
     delete message.compute;
-  }
+  });
 
   return messages;
 }

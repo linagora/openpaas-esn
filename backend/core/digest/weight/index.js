@@ -2,6 +2,7 @@
 
 var q = require('q');
 var DEFAULT_STRATEGY = require('./strategies/date');
+var arrayHelper = require('../../../helpers/array');
 
 function getStrategy() {
   return DEFAULT_STRATEGY;
@@ -19,7 +20,7 @@ function compute(user, data) {
     return q.reject(new Error('User and data are required'));
   }
 
-  if (!data.messages || data.messages.length === 0) {
+  if (arrayHelper.isNullOrEmpty(data.messages)) {
     return q(data);
   }
 

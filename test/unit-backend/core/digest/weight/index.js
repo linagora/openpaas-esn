@@ -37,7 +37,7 @@ describe('The weight module', function() {
       module.compute({}, data).then(expectReturnDataInput(data, done));
     });
 
-    it('should call the startegy#computeMessagesWeight', function(done) {
+    it('should call the strategy#computeMessagesWeight', function(done) {
       var messages = [1, 2, 3];
       var data = {a: 1, b: 2, c: 3, messages: messages};
       var user = {_id: 1};

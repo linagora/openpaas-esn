@@ -25,8 +25,6 @@ describe('Simple digest weight strategy', function() {
 
     var module = this.helpers.requireBackend('core/digest/weight/strategies/response');
     var result = module.computeMessagesWeight(messages);
-    expect(result[0].weight).to.equal(0);
-    expect(result[1].weight).to.equal(1);
-    expect(result[2].weight).to.equal(3);
+    expect(result).to.shallowDeepEqual([{weight: 0}, {weight: 1}, {weight: 3}]);
   });
 });

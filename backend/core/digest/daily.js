@@ -2,6 +2,7 @@
 
 var q = require('q');
 
+var arrayHelper = require('../../helpers/array');
 var collaborationModule = require('../collaboration');
 var messageModule = require('../message');
 var userModule = require('../user');
@@ -13,10 +14,6 @@ var weight = require('./weight');
 
 function setReadFlags(message) {
 
-  function isEmptyArray(array) {
-    return !array || array.length === 0;
-  }
-
   function isInThread(originalResponse) {
     return message.thread.responses.some(function(response) {
       return originalResponse._id + '' === response.message._id + '';
@@ -24,10 +21,10 @@ function setReadFlags(message) {
   }
 
   function flagReadResponse(originalResponse) {
-    originalResponse.read = isEmptyArray(message.thread.responses) || !isInThread(originalResponse);
+    originalResponse.read = arrayHelper.isNullOrEmpty(message.thread.responses) || !isInThread(originalResponse);
   }
 
-  if (!isEmptyArray(message.original.responses)) {
+  if (!arrayHelper.isNullOrEmpty(message.original.responses)) {
     message.original.responses.forEach(flagReadResponse);
   }
 

@@ -241,16 +241,13 @@ describe('The activity streams tracker core module', function() {
     });
 
     it('should send back error when a parameter is null', function(done) {
+      var self = this;
       this.helpers.mock.models({ReadTimeLineEntriesTracker: {}});
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.buildThreadViewSinceLastTimelineEntry(null, '', function(err, count) {
         expect(err).to.exist;
         expect(count).to.not.exist;
-        tracker.buildThreadViewSinceLastTimelineEntry('', null, function(err, count) {
-          expect(err).to.exist;
-          expect(count).to.not.exist;
-          done();
-        });
+        tracker.buildThreadViewSinceLastTimelineEntry('', null, self.helpers.callbacks.error(done));
       });
     });
 
@@ -282,7 +279,7 @@ describe('The activity streams tracker core module', function() {
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.buildThreadViewSinceLastTimelineEntry('12345', '98765', function(err, threads) {
         expect(err).to.not.exist;
-        expect(threads).to.exist;
+        expect(threads).to.deep.equal({});
         done();
       });
       expect(handlerClose).to.be.a('function');
@@ -332,7 +329,7 @@ describe('The activity streams tracker core module', function() {
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
       tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
         expect(threads).to.exist;
-        expect(threads[replyTo].responses).have.length(1);
+        expect(threads[replyTo].responses).to.have.length(1);
         done();
       });
       expect(handlerClose).to.be.a('function');

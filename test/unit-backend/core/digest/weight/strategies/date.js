@@ -188,14 +188,11 @@ describe('Date digest weight strategy', function() {
       var m4 = getMessageFromId(4, result);
       var m5 = getMessageFromId(5, result);
       var m6 = getMessageFromId(6, result);
-
-      console.log(result);
-
       expect(m6.weight > m5.weight, '1').to.be.true;
       expect(m6.weight > m4.weight, '2').to.be.true;
       expect(m4.weight > m3.weight, '3').to.be.true;
       expect(m3.weight > m1.weight, '4').to.be.true;
-      expect(m1.weight > m2.weight, '5').to.be.true;
+      expect(m3.weight > m2.weight, '5').to.be.true;
     });
   });
 
