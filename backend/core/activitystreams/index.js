@@ -125,3 +125,5 @@ function addTimelineEntry(entry, cb) {
 module.exports.addTimelineEntry = addTimelineEntry;
 
 module.exports.permission = require('./permission');
+
+module.exports.tracker = require('./tracker');

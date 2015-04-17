@@ -3,5 +3,6 @@
 module.exports = {
   email: require('./email'),
   message: require('./message'),
-  targets: require('./targets')
+  targets: require('./targets'),
+  array: require('./array')
 };

@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The Daily Digest Module', function() {
 
@@ -32,6 +33,7 @@ describe('The Daily Digest Module', function() {
   describe('The init function', function() {
 
     beforeEach(function() {
+      mockery.registerMock('./daily', function() {});
       module = require('../../../lib/index')(dependencies);
     });
 

@@ -4,6 +4,24 @@ var expect = require('chai').expect;
 
 describe('Date digest weight strategy', function() {
 
+  var deps = {};
+  var dependencies = function(name) {
+    return deps[name];
+  };
+  var helpers = {
+    array: require('../../../../../../../backend/helpers/array')
+  };
+
+  function initDependencies() {
+    deps = {
+      helpers: helpers
+    };
+  }
+
+  beforeEach(function() {
+    initDependencies();
+  });
+
   function getMessageFromId(id, messages) {
     return messages.filter(function(message) {
       return message.id === id;
@@ -41,7 +59,7 @@ describe('Date digest weight strategy', function() {
         }
       ];
 
-      var module = this.helpers.requireBackend('core/digest/weight/strategies/date');
+      var module = require('../../../../../lib/weight/strategies/date')(dependencies);
       var result = module.computeMessagesWeight(messages);
       var m1 = getMessageFromId(1, result);
       var m2 = getMessageFromId(2, result);
@@ -89,7 +107,7 @@ describe('Date digest weight strategy', function() {
         }
       ];
 
-      var module = this.helpers.requireBackend('core/digest/weight/strategies/date');
+      var module = require('../../../../../lib/weight/strategies/date')(dependencies);
       var result = module.computeMessagesWeight(messages);
       var m1 = getMessageFromId(1, result);
       var m2 = getMessageFromId(2, result);
@@ -180,7 +198,7 @@ describe('Date digest weight strategy', function() {
         }
       ];
 
-      var module = this.helpers.requireBackend('core/digest/weight/strategies/date');
+      var module = require('../../../../../lib/weight/strategies/date')(dependencies);
       var result = module.computeMessagesWeight(messages);
       var m1 = getMessageFromId(1, result);
       var m2 = getMessageFromId(2, result);
@@ -226,7 +244,7 @@ describe('Date digest weight strategy', function() {
       }
     ];
 
-    var module = this.helpers.requireBackend('core/digest/weight/strategies/date');
+    var module = require('../../../../../lib/weight/strategies/date')(dependencies);
     var result = module.computeMessagesWeight(messages);
     var m1 = getMessageFromId(1, result);
     var m2 = getMessageFromId(2, result);

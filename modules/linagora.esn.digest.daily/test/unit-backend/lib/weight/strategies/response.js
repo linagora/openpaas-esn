@@ -23,7 +23,7 @@ describe('Simple digest weight strategy', function() {
       }
     ];
 
-    var module = this.helpers.requireBackend('core/digest/weight/strategies/response');
+    var module = require('../../../../../lib/weight/strategies/response')();
     var result = module.computeMessagesWeight(messages);
     expect(result).to.shallowDeepEqual([{weight: 0}, {weight: 1}, {weight: 3}]);
   });

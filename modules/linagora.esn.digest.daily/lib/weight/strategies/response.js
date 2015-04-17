@@ -2,6 +2,8 @@
 
 // Assign the weight of a message based on the number of unread responses
 
+module.exports = function() {
+
 function computeMessagesWeight(messages) {
 
   messages.forEach(function(message) {
@@ -17,4 +19,7 @@ function computeMessagesWeight(messages) {
   });
   return messages;
 }
-module.exports.computeMessagesWeight = computeMessagesWeight;
+  return {
+    computeMessagesWeight: computeMessagesWeight
+  };
+};
