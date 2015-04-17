@@ -8,6 +8,7 @@ module.exports = function(dependencies) {
   var cron = dependencies('cron');
   var logger = dependencies('logger');
   var config = dependencies('config')('cronjob');
+  var daily = require('./daily')(dependencies);
 
   function getCronExpression() {
     if (!config || !config.dailydigest || !config.dailydigest.expression) {
@@ -25,9 +26,14 @@ module.exports = function(dependencies) {
   }
 
   function process(callback) {
-    // To be filled
-    logger.info('I am the job');
-    return callback();
+    logger.info('Running the daily digest job');
+    daily.digest().then(function(result) {
+      logger.debug('Daily digest has been run successfully');
+      return callback(null, result);
+    }, function(err) {
+      logger.error('Got an error while running the daily digest', err);
+      return callback(err);
+    });
   }
 
   function init(callback) {
