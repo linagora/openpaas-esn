@@ -4,7 +4,6 @@ var logger = require('../core/logger'),
     activitystreams = require('./notification/activitystreams'),
     notifications = require('./notification/notifications'),
     usernotifications = require('./notification/usernotifications'),
-    conferences = require('./notification/conferences'),
     collaboration = require('./notification/collaboration'),
     community = require('./notification/community');
 
@@ -13,7 +12,6 @@ module.exports = function(io) {
     logger.info('Got a connection in the events module on socket');
   });
   activitystreams.init(io);
-  conferences.init(io);
   notifications.init(io);
   usernotifications.init(io);
   collaboration.init(io);

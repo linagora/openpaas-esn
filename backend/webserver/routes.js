@@ -116,17 +116,6 @@ exports = module.exports = function(application) {
   application.get('/api/authenticationtoken/:token', authorize.requiresAPILogin, authentication.getToken);
   application.get('/api/authenticationtoken/:token/user', authentication.authenticateByToken);
 
-  var conferenceController = require('./controllers/conferences');
-  var liveConferenceController = require('./controllers/live-conference');
-  var conferenceMiddleware = require('./middleware/conference');
-  application.get('/conferences/:id', authorize.requiresAPILogin, liveConferenceController.open);
-  application.get('/api/conferences/:id', authorize.requiresAPILogin, conferenceController.load, conferenceController.get);
-  application.get('/api/conferences', authorize.requiresAPILogin, conferenceController.list);
-  application.post('/api/conferences', authorize.requiresAPILogin, conferenceController.create);
-  application.get('/api/conferences/:id/attendees', authorize.requiresAPILogin, conferenceController.loadWithAttendees, conferenceMiddleware.canJoin, conferenceController.getAttendees);
-  application.put('/api/conferences/:id/attendees', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.canJoin, conferenceController.updateAttendee);
-  application.put('/api/conferences/:id/attendees/:user_id', authorize.requiresAPILogin, conferenceController.load, conferenceMiddleware.canAddAttendee, conferenceController.addAttendee);
-
   var contactsController = require('./controllers/contacts');
   var googleImportController = require('./controllers/import/google');
   application.get('/api/contacts', authorize.requiresAPILogin, contactsController.getContacts);

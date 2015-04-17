@@ -40,8 +40,6 @@ Here is a list of the available topics with their associated data.
 - message:comment(message). Fired when a new comment is added to a message responses attribut in the datastore layer.
                             Note that the message (which is the comment) contains a new 'inReplyTo' field.
 - message:activity({source, targets, message, date, verb}). Fired when there is an activity on a message (create, comment, ...).
-- conference:join({conference_id, user_id}). Fired when a user joins a conference.
-- conference:leave({conference_id, user_id}). Fired when a user leaves a conference.
 
 - community:join({author, target, community}). Fired when a user joins a community.
 - community:leave({author, target, community}). Fired when a user leaves a community.
@@ -111,8 +109,6 @@ For example, when a user 123 has sent a message 456 to the user 789:
 | Modules                   |                                         |                                        |                          |           |       |
 | activitystreams           |                                         | message:activity                       |                          |           |       |
 |                           |                                         | community:join                         |                          |           |       |
-| conference                | conference:join                         |                                        |                          |           |       |
-|                           | conference:leave                        |                                        |                          |           |       |
 | community                 | community:join                          |                                        |                          |           |       |
 |                           | community:leave                         |                                        |                          |           |       |
 |                           | community:membership:invitation:cancel  |                                        |                          |           |       |

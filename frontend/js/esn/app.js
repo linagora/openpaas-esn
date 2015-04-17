@@ -21,7 +21,6 @@ angular.module('esnApp', [
   'esn.session',
   'esn.activitystream',
   'esn.websocket',
-  'esn.conference',
   'esn.contact',
   'esn.community',
   'esn.collaboration',
@@ -29,7 +28,6 @@ angular.module('esnApp', [
   'esn.authentication',
   'esn.feedback',
   'esn.activitystreams-tracker',
-  'esn.conference-notification',
   'esn.api-notification',
   'esn.user-notification',
   'esn.calendar',
@@ -95,12 +93,6 @@ angular.module('esnApp', [
     $routeProvider.when('/domains/:domain_id/members', {
       templateUrl: '/views/esn/partials/members',
       controller: 'memberscontroller'
-    });
-
-    $routeProvider.when('/conferences', {
-      templateUrl: '/views/esn/partials/conference',
-      controller: 'conferencesController',
-      resolve: { conferences: routeResolver.api('conferenceAPI', 'list') }
     });
 
     $routeProvider.when('/applications', {

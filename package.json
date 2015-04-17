@@ -22,7 +22,6 @@
     "cron": "^1.0.9",
     "dav": "git+https://github.com/GrahamLinagora/dav.git",
     "dotty": "0.0.2",
-    "easyrtc": "git+https://github.com/priologic/easyrtc.git#79c7cee0e1b3cfdc390799caa89ced491f4dbb02",
     "elasticsearch": "~2.1.4",
     "email-addresses": "~1.1.1",
     "email-templates": "~0.1.1",
