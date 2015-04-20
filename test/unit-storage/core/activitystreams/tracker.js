@@ -2,6 +2,7 @@
 
 var chai = require('chai');
 var expect = chai.expect;
+var async = require('async');
 
 describe('the TimelineEntriesTracker module', function() {
   var ReadTimelineEntriesTracker;
@@ -14,6 +15,10 @@ describe('the TimelineEntriesTracker module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
+    this.helpers.requireBackend('core/db/mongo/models/timelineentry');
+    this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/community');
     ReadTimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
     tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
     this.testEnv.writeDBConfigFile();
@@ -179,4 +184,62 @@ describe('the TimelineEntriesTracker module', function() {
       });
     });
   });
+
+    it('should rebuild the threads with their responses', function(done) {
+
+      var self = this;
+
+      var createTimeline = function(uuid, size, callback) {
+        self.helpers.api.applyMultipleTimelineEntriesWithReplies(uuid, size, callback);
+      };
+
+      this.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+
+        self.helpers.api.createCommunity('Node', models.users[0], models.domain, function(err, community) {
+          if (err) {
+            return done(err);
+          }
+
+          async.parallel([
+            function(callback) {
+              createTimeline(community.activity_stream.uuid, 1, callback);
+            },
+            function(callback) {
+              createTimeline(community.activity_stream.uuid, 5, callback);
+            },
+            function(callback) {
+              createTimeline(community.activity_stream.uuid, 10, callback);
+            },
+            function(callback) {
+              createTimeline(community.activity_stream.uuid, 15, callback);
+            }
+          ], function(err, results) {
+            if (err) {
+              return done(err);
+            }
+
+            tracker.updateLastTimelineEntry(models.users[0]._id, community.activity_stream.uuid, results[0].timelineEntries[0], function(err) {
+              if (err) {
+                return done(err);
+              }
+
+              tracker.buildThreadViewSinceLastTimelineEntry(models.users[0]._id, community.activity_stream.uuid, function(err, threads) {
+                if (err) {
+                  return done(err);
+                }
+
+                expect(threads).to.exists;
+                expect(threads[results[1].inReplyToMessageId].responses).to.have.length(results[1].timelineEntries.length);
+                expect(threads[results[2].inReplyToMessageId].responses).to.have.length(results[2].timelineEntries.length);
+                expect(threads[results[3].inReplyToMessageId].responses).to.have.length(results[3].timelineEntries.length);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
 });

@@ -60,6 +60,10 @@ module.exports.get = function(uuid, callback) {
   User.findOne({_id: uuid}, callback);
 };
 
+module.exports.list = function(callback) {
+  User.find(callback);
+};
+
 module.exports.updateProfile = function(user, parameter, value, callback) {
   //unlike user and parameter, value cannot be null but can be empty
   if (!user || !parameter || value === undefined) {

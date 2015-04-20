@@ -1,5 +1,6 @@
 'use strict';
 
+var activityStream = require('./');
 var logger = require('../logger');
 var mongoose = require('mongoose');
 var q = require('q');
@@ -153,7 +154,6 @@ module.exports.getTracker = function(type) {
    */
   function countSinceLastTimelineEntry(userId, activityStreamUuid, callback) {
     var userTuple = {objectType: 'user', id: userId};
-    var activityStream = require('./');
 
     if (!userId) {
       return callback(new Error('User is required'));
@@ -239,9 +239,7 @@ module.exports.getTracker = function(type) {
           }
         });
 
-        stream.on('error', function(err) {
-          return callback(err);
-        });
+        stream.on('error', callback);
 
         stream.on('close', function() {
           var elligibleEntries = removeDeletedActivities(hash);
@@ -251,10 +249,63 @@ module.exports.getTracker = function(type) {
     });
   }
 
+  /**
+   * Build a view of a message thread from the last tracked timeline entry.
+   * The thread contains all the references to messages which have not been already processed by/for the user.
+   */
+  function buildThreadViewSinceLastTimelineEntry(userId, activityStreamUuid, callback) {
+
+    if (!userId) {
+      return callback(new Error('User is required'));
+    }
+    if (!activityStreamUuid) {
+      return callback(new Error('Activity Stream UUID is required'));
+    }
+
+    getLastTimelineEntry(userId, activityStreamUuid, function(err, lastTimelineEntryRead) {
+      if (err) {
+        return callback(err);
+      }
+
+      var options = {
+        target: {
+          objectType: 'activitystream',
+          _id: activityStreamUuid
+        },
+        stream: true
+      };
+
+      if (lastTimelineEntryRead) {
+        options.after = lastTimelineEntryRead;
+      }
+
+      activityStream.query(options, function(err, stream) {
+        var hash = {};
+
+        stream.on('data', function(doc) {
+          var isReply = doc.inReplyTo && doc.inReplyTo.length > 0;
+          var tuple = isReply ? doc.inReplyTo[0] : doc.object;
+          hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published} , responses: []};
+
+          if (isReply) {
+            hash[tuple._id].responses.push({message: doc.object, timelineentry: {_id: doc._id, published: doc.published}});
+          }
+        });
+
+        stream.on('error', callback);
+
+        stream.on('close', function() {
+          return callback(null, hash);
+        });
+      });
+    });
+  }
+
   return {
     updateLastTimelineEntry: updateLastTimelineEntry,
     getLastTimelineEntry: getLastTimelineEntry,
-    countSinceLastTimelineEntry: countSinceLastTimelineEntry
+    countSinceLastTimelineEntry: countSinceLastTimelineEntry,
+    buildThreadViewSinceLastTimelineEntry: buildThreadViewSinceLastTimelineEntry
   };
 };
 

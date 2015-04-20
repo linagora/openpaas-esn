@@ -307,6 +307,14 @@ module.exports = function(mixin, testEnv) {
         expect(err.message).to.equals(message);
         done();
       };
+    },
+    notCalled: function(done) {
+      return function(result) {
+        done(new Error('Should not be called' + result));
+      };
+    },
+    called: function(done) {
+      done();
     }
   };
 
