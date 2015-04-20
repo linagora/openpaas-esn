@@ -1,9 +1,8 @@
 'use strict';
 
 var util = require('util');
-var q = require('q');
 
-var NOREPLY = 'noreply@mycompany.com';
+var NOREPLY = 'noreply@openpaas.org';
 var TEMPLATE = 'digest.daily';
 
 function _prune(header, collaboration, message) {
@@ -25,7 +24,8 @@ function _prune(header, collaboration, message) {
     responses: message.responses.map(_prune.bind(null, header, collaboration)),
     published: message.published,
     objectType: message.objectType,
-    weight: message.weight
+    weight: message.weight,
+    read: message.read
   };
 }
 
@@ -98,24 +98,25 @@ function _buildContent(user, data) {
   };
 }
 
-function process(dependencies, digest) {
+function process(dependencies, user, digest) {
   var contentSender = dependencies('content-sender');
+  var esnconfig = dependencies('esn-config');
 
-  var user = digest.user;
-  var data = digest.data;
+  return esnconfig('mail').get('mail', function(err, mail) {
+    var noreply = mail.noreply || NOREPLY;
+    var from = { objectType: 'email', id: 'OpenPaaS <' + noreply + '>' };
+    var to = { objectType: 'email', id: user.emails[0] };
 
-  var from = { objectType: 'email', id: 'OpenPaaS <' + NOREPLY + '>' };
-  var to = { objectType: 'email', id: user.emails[0] };
+    var content = _buildContent(user, digest);
 
-  var content = _buildContent(user, data);
+    var options = {
+      subject: content.subject,
+      template: TEMPLATE,
+      noreply: noreply
+    };
 
-  var options = {
-    subject: content.subject,
-    template: TEMPLATE,
-    noreply: NOREPLY
-  };
-
-  return contentSender.send(from, to, content, options, 'email');
+    return contentSender.send(from, to, content, options, 'email');
+  });
 }
 
 module.exports = function(dependencies) {

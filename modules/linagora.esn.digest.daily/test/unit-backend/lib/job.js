@@ -2,9 +2,8 @@
 
 var expect = require('chai').expect;
 var q = require('q');
-var mockery = require('mockery');
 
-describe.only('The daily digest Job', function() {
+describe('The daily digest Job', function() {
 
   var module, resultedJson;
 
@@ -22,6 +21,13 @@ describe.only('The daily digest Job', function() {
         defer.resolve();
         return defer.promise;
       }
+    },
+    'esn-config': function() {
+      return {
+        get: function(key, callback) {
+          return callback(null, { noreply: 'noreply@open-paas.org' });
+        }
+      };
     }
   };
 
@@ -32,15 +38,16 @@ describe.only('The daily digest Job', function() {
   describe('The process function', function() {
 
     it('should transform digest json into a proper content send by om-email', function(done) {
-      mockery.registerMock('./digest.json', require('../fixtures/digest.json'));
+      var digest = require('../fixtures/digest.json');
+      var user = require('../fixtures/user.json');
       module = require('../../../lib/job')(dependencies);
-      module.process(function() {
+      module.process(user, digest).then(function() {
         try {
           expect(
             JSON.stringify(resultedJson)).to.deep.equal(
             JSON.stringify(require('../fixtures/expected-digest-job-result.json')));
           done();
-        } catch(err) {
+        } catch (err) {
           done(err);
         }
       });

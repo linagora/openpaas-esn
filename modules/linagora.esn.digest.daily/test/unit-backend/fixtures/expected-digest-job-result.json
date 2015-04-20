@@ -1,7 +1,7 @@
 {
   "from": {
     "objectType": "email",
-    "id": "OpenPaaS <noreply@mycompany.com>"
+    "id": "OpenPaaS <noreply@open-paas.org>"
   },
   "to": {
     "objectType": "email",
@@ -59,7 +59,8 @@
                 },
                 "responses": [],
                 "published": "2015-01-15T14:13:02.480Z",
-                "objectType": "whatsup"
+                "objectType": "whatsup",
+                "read": false
               },
               {
                 "content": "woooot",
@@ -74,12 +75,14 @@
                 },
                 "responses": [],
                 "published": "2015-01-15T15:40:30.820Z",
-                "objectType": "whatsup"
+                "objectType": "whatsup",
+                "read": false
               }
             ],
             "published": "2015-01-15T14:11:44.601Z",
             "objectType": "whatsup",
-            "weight": 3
+            "weight": 3,
+            "read": false
           },
           {
             "content": "Message 1",
@@ -106,7 +109,8 @@
                 },
                 "responses": [],
                 "published": "2015-01-15T14:13:02.480Z",
-                "objectType": "whatsup"
+                "objectType": "whatsup",
+                "read": false
               },
               {
                 "content": "woooot",
@@ -121,12 +125,14 @@
                 },
                 "responses": [],
                 "published": "2015-01-15T15:40:30.820Z",
-                "objectType": "whatsup"
+                "objectType": "whatsup",
+                "read": false
               }
             ],
             "published": "2015-01-15T14:11:44.601Z",
             "objectType": "whatsup",
-            "weight": 2
+            "weight": 2,
+            "read": true
           }
         ],
         "unreadMessages": 5
@@ -143,6 +149,6 @@
   "options": {
     "subject": "There are 5 new messages in your communities in domainA",
     "template": "digest.daily",
-    "noreply": "noreply@mycompany.com"
+    "noreply": "noreply@open-paas.org"
   }
 }

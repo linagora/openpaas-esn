@@ -1,0 +1,22 @@
+{
+  "_id": "537f0c2f7334bece4564c683",
+  "__v": 1,
+  "firstname": "John",
+  "lastname": "Doe",
+  "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+  "avatars": [],
+  "schemaVersion": 1,
+  "login": {
+    "success": "2014-06-12T09:46:51.133Z",
+    "failures": []
+  },
+  "domains": [
+    {
+      "name": "domainA",
+      "_id": "537f0c2f7334bece4564c684",
+      "joined_at": "2014-05-23T08:51:59.140Z"
+    }
+  ],
+  "timestamps": {"creation": "2014-05-23T08:51:59.073Z"},
+  "emails": ["johndoe@anonymous.net"]
+}
