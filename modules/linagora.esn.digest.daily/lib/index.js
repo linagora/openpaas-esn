@@ -53,7 +53,7 @@ module.exports = function(dependencies) {
         logger.error('Error while submitting the daily digest job', err);
         return callback(err);
       }
-      logger.info('Daily Digest Job has been submitted', job);
+      logger.info('Daily Digest Job has been submitted', { id: job.id, description: job.description });
       return callback();
     });
   }
