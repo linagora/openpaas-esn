@@ -97,7 +97,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "content": "Lorem ipsum...",
             "read": false
           },
           {
@@ -134,7 +134,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "woooot",
+            "content": "Lorem ipsum...",
             "read": false
           }
         ],
@@ -219,7 +219,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "content": "Lorem ipsum...",
             "read": false
           },
           {
@@ -256,7 +256,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "woooot",
+            "content": "Lorem ipsum...",
             "read": false
           }
         ],
@@ -381,7 +381,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "content": "Lorem ipsum...",
             "read": true
           },
           {
@@ -418,7 +418,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "woooot",
+            "content": "Lorem ipsum...",
             "read": true
           }
         ],
@@ -503,7 +503,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "content": "Lorem ipsum...",
             "read": true
           },
           {
@@ -540,7 +540,7 @@
               "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
               "emails": ["chamerling@open-paas.dev"]
             },
-            "content": "woooot",
+            "content": "Lorem ipsum...",
             "read": true
           }
         ],

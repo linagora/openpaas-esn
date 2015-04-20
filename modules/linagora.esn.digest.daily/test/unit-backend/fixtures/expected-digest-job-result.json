@@ -47,7 +47,7 @@
             },
             "responses": [
               {
-                "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+                "content": "Lorem ipsum...",
                 "author": {
                   "id": "54b68988ce89cbdd998e2746",
                   "firstname": "Christophe",
@@ -63,7 +63,7 @@
                 "read": false
               },
               {
-                "content": "woooot",
+                "content": "Lorem ipsum...",
                 "author": {
                   "id": "54b68988ce89cbdd998e2746",
                   "firstname": "Christophe",
@@ -97,7 +97,7 @@
             },
             "responses": [
               {
-                "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+                "content": "Lorem ipsum...",
                 "author": {
                   "id": "54b68988ce89cbdd998e2746",
                   "firstname": "Christophe",
@@ -113,7 +113,7 @@
                 "read": false
               },
               {
-                "content": "woooot",
+                "content": "Lorem ipsum...",
                 "author": {
                   "id": "54b68988ce89cbdd998e2746",
                   "firstname": "Christophe",
