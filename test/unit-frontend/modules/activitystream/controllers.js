@@ -11,9 +11,44 @@ describe('The esn.activitystream Angular module', function() {
       angular.mock.module('esn.activitystream');
     });
 
+    beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      this.rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+      this.controller = $controller;
+    }));
+
+    describe('at instantiation', function() {
+      it('should initialize a listener on rootScope', function(done) {
+        this.rootScope.$on = function(topic, callback) {
+          expect(topic).to.equal('activitystream:userUpdateRequest');
+          expect(callback).to.exist;
+          done();
+        };
+        this.controller('activitystreamController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+      });
+    });
+
+    describe('reset method', function() {
+      it('should reset scope variables', function() {
+        this.controller('activitystreamController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+
+        this.scope.reset();
+        expect(this.scope.restActive).to.deep.equal({});
+        expect(this.scope.updateMessagesActive).to.be.false;
+        expect(this.scope.threads).to.deep.equal([]);
+        expect(this.scope.mostRecentActivityID).to.be.null;
+      });
+    });
+
     describe('loadMoreElements method', function() {
 
-      beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(function() {
         this.usSpinnerService = {};
         this.usSpinnerService.spin = function(id) {};
         this.usSpinnerService.stop = function(id) {};
@@ -30,17 +65,15 @@ describe('The esn.activitystream Angular module', function() {
           };
         };
 
-        this.$controller = $controller;
-        this.scope = $rootScope.$new();
         this.alert = function(msgObject) {};
-        $controller('activitystreamController', {
-          $rootScope: $rootScope,
+        this.controller('activitystreamController', {
+          $rootScope: this.rootScope,
           $scope: this.scope,
           activitystreamAggregatorCreator: this.aggregatorService,
           usSpinnerService: this.usSpinnerService,
           alert: this.alert
         });
-      }));
+      });
 
       it('should not call the aggregator loadMoreElements method if a rest request is active', function() {
         this.loadCount = 0;
@@ -155,24 +188,21 @@ describe('The esn.activitystream Angular module', function() {
     });
 
     describe('getStreamUpdates() method', function() {
-      beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      beforeEach(function() {
         this.usSpinnerService = {};
         this.usSpinnerService.spin = function(id) {};
         this.usSpinnerService.stop = function(id) {};
         this.aggregatorService = function(id, limit) {};
         this.activityStreamUpdates = function() {};
-        this.$controller = $controller;
-        this.scope = $rootScope.$new();
         this.alert = function(msgObject) {};
-
-      }));
+      });
 
       describe('when a rest query is active for current stream', function() {
         beforeEach(function() {
           this.activityStreamUpdates = function() {
             throw new Error('I should not be called');
           };
-          this.$controller('activitystreamController', {
+          this.controller('activitystreamController', {
             $scope: this.scope,
             activitystreamAggregatorCreator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
@@ -193,7 +223,7 @@ describe('The esn.activitystream Angular module', function() {
             expect(self.scope.restActive['123']).to.be.true;
             done();
           };
-          this.$controller('activitystreamController', {
+          this.controller('activitystreamController', {
             $scope: this.scope,
             activitystreamAggregatorCreator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
@@ -218,7 +248,7 @@ describe('The esn.activitystream Angular module', function() {
               }
             };
           };
-          this.$controller('activitystreamController', {
+          this.controller('activitystreamController', {
             $scope: this.scope,
             activitystreamAggregatorCreator: this.aggregatorService,
             usSpinnerService: this.usSpinnerService,
@@ -232,7 +262,35 @@ describe('The esn.activitystream Angular module', function() {
 
     });
 
-  });
+    describe('filterMessagesInSelectedStream() method', function() {
+      beforeEach(function() {
+        this.activityStreamHelper = {};
+        this.controller('activitystreamController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope,
+          activitystreamHelper: this.activityStreamHelper
+        });
+      });
 
+      it('should return true if scope.selectedStream is falsy', function() {
+        this.scope.selectedStream = false;
+        expect(this.scope.filterMessagesInSelectedStream()).to.be.true;
+      });
+
+      it('should return the result of activityStreamHelper#messageIsSharedInStreams if scope.selectedStream exists', function() {
+        this.scope.selectedStream = 'selectedStream';
+        var testThread = 'testThread';
+        var result = 'testResult';
+        var self = this;
+        this.activityStreamHelper.messageIsSharedInStreams = function(thread, arrayOfStream) {
+          expect(thread).to.equal(testThread);
+          expect(arrayOfStream).to.deep.equal([self.scope.selectedStream]);
+          return result;
+        };
+        expect(this.scope.filterMessagesInSelectedStream(testThread)).to.equal(result);
+      });
+    });
+
+  });
 
 });
