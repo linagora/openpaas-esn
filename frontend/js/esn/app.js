@@ -11,6 +11,7 @@ angular.module('esnApp', [
   'truncate',
   'openpaas-logo',
   'frapontillo.bootstrap-switch',
+  'chart.js',
   'esn.core',
   'esn.member',
   'esn.domain',

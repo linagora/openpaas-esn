@@ -63,7 +63,9 @@
     "angular-localforage": "1.2.2",
     "localforage": "1.2.0",
     "angular-bootstrap-switch": "~0.3.0",
-    "bootstrap-switch": "~3.3.2"
+    "bootstrap-switch": "~3.3.2",
+    "angular-chart.js": "~0.5.1",
+    "Chart.js": "nnnick/Chart.js#~1.0.1"
   },
   "resolutions": {
     "jquery": "2.1.1",
