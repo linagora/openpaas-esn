@@ -225,6 +225,7 @@ function getUserCommunities(user, options, callback) {
   return query(params, done);
 }
 module.exports.getUserCommunities = getUserCommunities;
+module.exports.getCollaborationsForUser = getUserCommunities;
 
 function communityToStream(community) {
   return {
