@@ -110,7 +110,7 @@ describe('The daily digest core module', function() {
     });
 
     describe('when collaborationModule.getCollaborationsForTuple sends back', function() {
-      var user = {_id: 1};
+      var user = {_id: Number('1'), emails: ['anEmail'] };
 
       it('error', function(done) {
         deps.collaboration = {
@@ -172,6 +172,15 @@ describe('The daily digest core module', function() {
                 }
               };
           });
+
+          mockery.registerMock('./job',
+            function() {
+              return {
+                process: function() {
+                  return q({});
+                }
+              };
+            });
 
           var module = require('../../../lib/daily')(dependencies);
           var loadUserDataForCollaboration = function(u, c, t) {

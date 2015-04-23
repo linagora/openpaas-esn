@@ -1,0 +1,95 @@
+doctype html
+html.mail
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    style
+      include ../css/media.less
+
+  body
+    div.wrapper
+      br
+      div.mail-content
+        header.mail-header
+          table
+            tr
+              td
+                div.logo
+                  a(href="#{content.header.domain.link}")
+                    img(src="cid:logo", alt="open-paas logo")
+              td
+                h2
+                  br
+                  | Hello #{content.header.user.displayName}
+            tr
+              td(colspan="2")
+                h3
+                  if (content.header.total.unreadMessages > 0 && content.header.total.unreadNotifications > 0)
+                    | There are #{content.header.total.unreadMessages} unread messages in your communities
+                    br
+                    | and #{content.header.total.unreadNotifications} pending notifications.
+                  else
+                    if content.header.total.unreadNotifications > 0
+                      | There are #{content.header.total.unreadNotifications} pending notifications.
+                    else
+                      | There are #{content.header.total.unreadMessages} unread messages in your communities
+
+        each collaboration in content.content
+          if collaboration.unreadMessages > 0
+            section
+              header.collaboration-title
+                table
+                  tr
+                    td
+                      img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                    td
+                      a(href="#{collaboration.title}", alt="#{collaboration.title}")
+                        h2 #{collaboration.title}
+                          span.badge #{collaboration.unreadMessages}
+                div.arrow-up
+
+              each message in collaboration.messages
+                article
+                  if !message.read
+                    header.unread
+                      table
+                        tr
+                          td
+                            img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                          td
+                            a(href="")
+                              h3
+                                span.message-author #{message.author.displayName}
+                                span  post a new message!
+                                span.message-published  (#{message.published})
+                      p !{message.content}
+                  else
+                    header.read
+                      a(href="")
+                        h3 New responses to
+                          span.message-author  #{message.author.displayName}
+                          span.message-published  (#{message.published})
+                      p !{message.content}
+
+                  if message.responses
+                    aside
+                      each response in message.responses
+                        div.response
+                          table
+                            tr
+                              td
+                                img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                              td
+                                span.response-author  #{response.author.displayName}
+                                span  -
+                                span.response-publised  (#{response.published})
+                                p.response-content !{response.content}
+              div.collaboration-footer
+                a(href="#{collaboration.title}") See more in
+                  span.collaboration-title  #{collaboration.title}
+
+
+      footer
+        .producer
+          | OpenPaas is coded with love by&nbsp;
+          a.linagora(href="http://linagora.com") Linagora

@@ -1,0 +1,600 @@
+[
+  {
+    "messages": [],
+    "collaboration": {
+      "_id": "54b7ab5d814a5e00001ae823",
+      "title": "Collaboration with no messages",
+      "creator": "537f0c2f7334bece4564c683",
+      "__v": 0,
+      "membershipRequests": [],
+      "type": "private",
+      "schemaVersion": 1,
+      "injections": [],
+      "activity_stream": {
+        "uuid": "80d90bba-e036-450c-91fc-93bca20e8598",
+        "timestamps": {"creation": "2015-01-15T11:58:21.114Z"}
+      },
+      "members": [
+        {
+          "member": {
+            "id": "537f0c2f7334bece4564c683",
+            "objectType": "user"
+          },
+          "_id": "54b7ab5d814a5e00001ae824",
+          "timestamps": {"creation": "2015-01-15T11:58:21.115Z"}
+        }
+      ],
+      "timestamps": {"creation": "2015-01-15T11:58:21.114Z"},
+      "domain_ids": ["537f0c2f7334bece4564c684"],
+      "objectType": "community"
+    }
+  },
+  {
+    "messages": [
+      {
+        "content": "Message 1",
+        "author": {
+          "_id": "54b68988ce89cbdd998e2746",
+          "building_location": "Montpellier",
+          "firstname": "Christophe",
+          "job_title": "Serial Coder",
+          "lastname": "Hamerling",
+          "main_phone": "+3366666666666",
+          "office_location": "Near the coffee machine",
+          "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+          "service": "YOLO",
+          "avatars": [],
+          "schemaVersion": 1,
+          "login": {
+            "success": "2014-12-19T14:41:44.549Z",
+            "failures": []
+          },
+          "domains": [
+            {
+              "domain_id": "537f0c2f7334bece4564c684",
+              "joined_at": "2014-05-16T09:45:47.307Z"
+            }
+          ],
+          "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+          "emails": ["chamerling@open-paas.dev"]
+        },
+        "__v": 2,
+        "_id": "54b7caa024023b00004c2a69",
+        "parsers": [],
+        "responses": [
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T14:13:02.480Z",
+            "timestamps": {"creation": "2015-01-15T14:13:02.480Z"},
+            "source": "email",
+            "attachments": [],
+            "shares": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7caee24023b00004c2a71",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "read": false
+          },
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T15:40:30.820Z",
+            "timestamps": {"creation": "2015-01-15T15:40:30.820Z"},
+            "source": "web",
+            "attachments": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7df6e150fcd070331ef83",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "woooot",
+            "read": false
+          }
+        ],
+        "shares": [
+          {
+            "objectType": "activitystream",
+            "id": "9e329867-9dfb-473c-a7e8-e79ba0c98ca2",
+            "_id": "54b7caa024023b00004c2a6a"
+          }
+        ],
+        "attachments": [],
+        "source": "web",
+        "timestamps": {"creation": "2015-01-15T14:11:44.601Z"},
+        "published": "2015-01-15T14:11:44.601Z",
+        "objectType": "whatsup",
+        "read": true,
+        "weight": 2
+      },
+      {
+        "content": "Message 2",
+        "author": {
+          "_id": "54b68988ce89cbdd998e2746",
+          "building_location": "Montpellier",
+          "firstname": "Christophe",
+          "job_title": "Serial Coder",
+          "lastname": "Hamerling",
+          "main_phone": "+3366666666666",
+          "office_location": "Near the coffee machine",
+          "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+          "service": "YOLO",
+          "avatars": [],
+          "schemaVersion": 1,
+          "login": {
+            "success": "2014-12-19T14:41:44.549Z",
+            "failures": []
+          },
+          "domains": [
+            {
+              "domain_id": "537f0c2f7334bece4564c684",
+              "joined_at": "2014-05-16T09:45:47.307Z"
+            }
+          ],
+          "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+          "emails": ["chamerling@open-paas.dev"]
+        },
+        "__v": 2,
+        "_id": "54b7caa024023b00004c2a69",
+        "parsers": [],
+        "responses": [
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T14:13:02.480Z",
+            "timestamps": {"creation": "2015-01-15T14:13:02.480Z"},
+            "source": "email",
+            "attachments": [],
+            "shares": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7caee24023b00004c2a71",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "read": false
+          },
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T15:40:30.820Z",
+            "timestamps": {"creation": "2015-01-15T15:40:30.820Z"},
+            "source": "web",
+            "attachments": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7df6e150fcd070331ef83",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "woooot",
+            "read": false
+          }
+        ],
+        "shares": [
+          {
+            "objectType": "activitystream",
+            "id": "9e329867-9dfb-473c-a7e8-e79ba0c98ca2",
+            "_id": "54b7caa024023b00004c2a6a"
+          }
+        ],
+        "attachments": [],
+        "source": "web",
+        "timestamps": {"creation": "2015-01-15T14:11:44.601Z"},
+        "published": "2015-01-15T14:11:44.601Z",
+        "objectType": "whatsup",
+        "read": false,
+        "weight": 3
+      }
+    ],
+    "collaboration": {
+      "_id": "54b7a921814a5e00001ae81c",
+      "title": "Collaboration with mixed messages",
+      "creator": "54b68988ce89cbdd998e2746",
+      "__v": 1,
+      "membershipRequests": [],
+      "type": "open",
+      "schemaVersion": 1,
+      "injections": [],
+      "activity_stream": {
+        "uuid": "9e329867-9dfb-473c-a7e8-e79ba0c98ca2",
+        "timestamps": {"creation": "2015-01-15T11:48:49.951Z"}
+      },
+      "members": [
+        {
+          "member": {
+            "id": "54b68988ce89cbdd998e2746",
+            "objectType": "user"
+          },
+          "_id": "54b7a921814a5e00001ae81d",
+          "timestamps": {"creation": "2015-01-15T11:48:49.951Z"}
+        },
+        {
+          "member": {
+            "objectType": "user",
+            "id": "537f0c2f7334bece4564c683"
+          },
+          "status": "joined",
+          "_id": "54b7abd0814a5e00001ae825",
+          "timestamps": {"creation": "2015-01-15T12:00:16.561Z"}
+        }
+      ],
+      "timestamps": {"creation": "2015-01-15T11:48:49.951Z"},
+      "domain_ids": ["537f0c2f7334bece4564c684"],
+      "objectType": "community"
+    }
+  },
+  {
+    "messages": [
+      {
+        "content": "Message 1",
+        "author": {
+          "_id": "54b68988ce89cbdd998e2746",
+          "building_location": "Montpellier",
+          "firstname": "Christophe",
+          "job_title": "Serial Coder",
+          "lastname": "Hamerling",
+          "main_phone": "+3366666666666",
+          "office_location": "Near the coffee machine",
+          "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+          "service": "YOLO",
+          "avatars": [],
+          "schemaVersion": 1,
+          "login": {
+            "success": "2014-12-19T14:41:44.549Z",
+            "failures": []
+          },
+          "domains": [
+            {
+              "domain_id": "537f0c2f7334bece4564c684",
+              "joined_at": "2014-05-16T09:45:47.307Z"
+            }
+          ],
+          "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+          "emails": ["chamerling@open-paas.dev"]
+        },
+        "__v": 2,
+        "_id": "54b7caa024023b00004c2a69",
+        "parsers": [],
+        "responses": [
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T14:13:02.480Z",
+            "timestamps": {"creation": "2015-01-15T14:13:02.480Z"},
+            "source": "email",
+            "attachments": [],
+            "shares": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7caee24023b00004c2a71",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "read": true
+          },
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T15:40:30.820Z",
+            "timestamps": {"creation": "2015-01-15T15:40:30.820Z"},
+            "source": "web",
+            "attachments": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7df6e150fcd070331ef83",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "woooot",
+            "read": true
+          }
+        ],
+        "shares": [
+          {
+            "objectType": "activitystream",
+            "id": "9e329867-9dfb-473c-a7e8-e79ba0c98ca2",
+            "_id": "54b7caa024023b00004c2a6a"
+          }
+        ],
+        "attachments": [],
+        "source": "web",
+        "timestamps": {"creation": "2015-01-15T14:11:44.601Z"},
+        "published": "2015-01-15T14:11:44.601Z",
+        "objectType": "whatsup",
+        "read": true,
+        "weight": 2
+      },
+      {
+        "content": "Message 2",
+        "author": {
+          "_id": "54b68988ce89cbdd998e2746",
+          "building_location": "Montpellier",
+          "firstname": "Christophe",
+          "job_title": "Serial Coder",
+          "lastname": "Hamerling",
+          "main_phone": "+3366666666666",
+          "office_location": "Near the coffee machine",
+          "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+          "service": "YOLO",
+          "avatars": [],
+          "schemaVersion": 1,
+          "login": {
+            "success": "2014-12-19T14:41:44.549Z",
+            "failures": []
+          },
+          "domains": [
+            {
+              "domain_id": "537f0c2f7334bece4564c684",
+              "joined_at": "2014-05-16T09:45:47.307Z"
+            }
+          ],
+          "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+          "emails": ["chamerling@open-paas.dev"]
+        },
+        "__v": 2,
+        "_id": "54b7caa024023b00004c2a69",
+        "parsers": [],
+        "responses": [
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T14:13:02.480Z",
+            "timestamps": {"creation": "2015-01-15T14:13:02.480Z"},
+            "source": "email",
+            "attachments": [],
+            "shares": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7caee24023b00004c2a71",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "Wooooooot\n\nLe 15/01/2015 15:11, OpenPaaS Bot a ÃƒÂ©crit :\n>\n> Hi Christophe Hamerling!\n>\n> A new message is available in the ESN:\n>\n>    Test delay\n>    > Sincerely, The OpenPaas Team!\n> Reply to this email directly to answer the message.\n>\n\n",
+            "read": true
+          },
+          {
+            "objectType": "whatsup",
+            "published": "2015-01-15T15:40:30.820Z",
+            "timestamps": {"creation": "2015-01-15T15:40:30.820Z"},
+            "source": "web",
+            "attachments": [],
+            "responses": [],
+            "parsers": [],
+            "_id": "54b7df6e150fcd070331ef83",
+            "author": {
+              "_id": "54b68988ce89cbdd998e2746",
+              "building_location": "Montpellier",
+              "firstname": "Christophe",
+              "job_title": "Serial Coder",
+              "lastname": "Hamerling",
+              "main_phone": "+3366666666666",
+              "office_location": "Near the coffee machine",
+              "password": "$2a$05$zSTUyV8eRjjdx7jcFki2ruFW0ZlJBOm7BCAgcm1CGAFaEJ5hwGY5C",
+              "service": "YOLO",
+              "avatars": [],
+              "schemaVersion": 1,
+              "login": {
+                "success": "2014-12-19T14:41:44.549Z",
+                "failures": []
+              },
+              "domains": [
+                {
+                  "domain_id": "537f0c2f7334bece4564c684",
+                  "joined_at": "2014-05-16T09:45:47.307Z"
+                }
+              ],
+              "timestamps": {"creation": "2014-05-16T09:45:47.231Z"},
+              "emails": ["chamerling@open-paas.dev"]
+            },
+            "content": "woooot",
+            "read": true
+          }
+        ],
+        "shares": [
+          {
+            "objectType": "activitystream",
+            "id": "9e329867-9dfb-473c-a7e8-e79ba0c98ca2",
+            "_id": "54b7caa024023b00004c2a6a"
+          }
+        ],
+        "attachments": [],
+        "source": "web",
+        "timestamps": {"creation": "2015-01-15T14:11:44.601Z"},
+        "published": "2015-01-15T14:11:44.601Z",
+        "objectType": "whatsup",
+        "read": true,
+        "weight": 3
+      }
+    ],
+    "collaboration": {
+      "_id": "54b7a921814a5e00001ae81c",
+      "title": "Collaboration with all messages read",
+      "creator": "54b68988ce89cbdd998e2746",
+      "__v": 1,
+      "membershipRequests": [],
+      "type": "open",
+      "schemaVersion": 1,
+      "injections": [],
+      "activity_stream": {
+        "uuid": "9e329867-9dfb-473c-a7e8-e79ba0c98ca2",
+        "timestamps": {"creation": "2015-01-15T11:48:49.951Z"}
+      },
+      "members": [
+        {
+          "member": {
+            "id": "54b68988ce89cbdd998e2746",
+            "objectType": "user"
+          },
+          "_id": "54b7a921814a5e00001ae81d",
+          "timestamps": {"creation": "2015-01-15T11:48:49.951Z"}
+        },
+        {
+          "member": {
+            "objectType": "user",
+            "id": "537f0c2f7334bece4564c683"
+          },
+          "status": "joined",
+          "_id": "54b7abd0814a5e00001ae825",
+          "timestamps": {"creation": "2015-01-15T12:00:16.561Z"}
+        }
+      ],
+      "timestamps": {"creation": "2015-01-15T11:48:49.951Z"},
+      "domain_ids": ["537f0c2f7334bece4564c684"],
+      "objectType": "community"
+    }
+  }
+]

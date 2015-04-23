@@ -100,7 +100,7 @@ describe('The Daily Digest Module', function() {
       };
 
       cron.submit = function(desc, exp, job, onComplete, callback) {
-        return callback();
+        return callback(null, {id: '123', description: '1234'});
       };
 
       module.init(function(err) {

@@ -15,6 +15,7 @@ module.exports = function(dependencies) {
   var readTracker = tracker.getTracker('read');
   var pushTracker = tracker.getTracker('push');
   var weight = require('./weight')(dependencies);
+  var job = require('./job')(dependencies);
 
   return {
 
@@ -160,7 +161,7 @@ module.exports = function(dependencies) {
 
       var self = this;
 
-      logger.info('Processing daily digest for user', user._id);
+      logger.info('Processing daily digest for user', user._id.toString(), user.emails[0]);
 
       return q.nfcall(collaborationModule.getCollaborationsForTuple, {
         id: user._id,
@@ -176,20 +177,19 @@ module.exports = function(dependencies) {
         });
 
         function send(data) {
-          logger.info('Sending digest to user', user._id);
-          // TODO, really send digest
-          return data;
+          logger.info('Sending digest to user', user._id.toString(), user.emails[0]);
+          return job.process(user, data);
         }
 
         function processUserData(data) {
-          logger.info('Processing data for user', user._id);
+          logger.info('Processing data for user', user._id.toString(), user.emails[0]);
           return q.all(data.map(function(d) {
             return weight.compute(user, d);
           }));
         }
 
         function updateTrackers(data) {
-          logger.info('Updating push tracker for user', user._id);
+          logger.info('Updating push tracker for user', user._id.toString(), user.emails[0]);
           // TODO : Update the push tracker
           return data;
         }
@@ -197,7 +197,8 @@ module.exports = function(dependencies) {
         return q.all(collaborationData)
           .then(processUserData)
           .then(send)
-          .then(updateTrackers).then(function(data) {
+          .then(updateTrackers)
+          .then(function(data) {
             return q({user: user, data: data});
           });
       });
