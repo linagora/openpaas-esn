@@ -214,6 +214,9 @@ exports = module.exports = function(application) {
     collaborationMW.load,
     collaborationMW.flagCollaborationManager,
     collaborations.removeMembershipRequest);
+  application.get('/api/collaborations/writable',
+    authorize.requiresAPILogin,
+    collaborations.getWritable);
 
   var avatars = require('./controllers/avatars');
   application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);

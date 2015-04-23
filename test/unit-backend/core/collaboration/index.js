@@ -864,10 +864,8 @@ describe('The collaboration module', function() {
     });
 
     it('should return nothing if no collaboration lib has a getCollaborationsForUser function', function(done) {
-      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
-
       mockery.registerMock('../community', {});
-
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
       collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
         expect(err).to.not.exist;
         expect(collaborations).to.deep.equal([]);
@@ -886,7 +884,7 @@ describe('The collaboration module', function() {
       mockery.registerMock('../community', {
         getCollaborationsForUser: function(id, options, callback) {
           expect(id).to.equal(userId);
-          expect(options).to.equal(testOptions);
+          expect(options).to.deep.equal(testOptions);
           libCalled.push('community');
           return callback(null, null);
         }
@@ -941,7 +939,30 @@ describe('The collaboration module', function() {
       });
     });
 
-    it('should silent errors in libs getCollaborationsForUser', function(done) {
+    it('should return the aggregated results of libs getCollaborationsForUser even if some are null', function(done) {
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, null);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      var otherCollaborations = [{_id: 'other1'}, {_id: 'other2'}];
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, otherCollaborations);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.not.exist;
+        expect(collaborations).to.deep.equal(otherCollaborations);
+        done();
+      });
+    });
+
+    it('should return the aggregated results of libs getCollaborationsForUser even if some are empty', function(done) {
       var communities = [{_id: 'comm1'}, {_id: 'comm2'}];
 
       mockery.registerMock('../community', {
@@ -954,13 +975,37 @@ describe('The collaboration module', function() {
 
       collaborationModule.registerCollaborationLib('otherLib', {
         getCollaborationsForUser: function(id, options, callback) {
-          return callback(new Error('error in other'));
+          return callback(null, []);
         }
       });
 
       collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
         expect(err).to.not.exist;
         expect(collaborations).to.deep.equal(communities);
+        done();
+      });
+    });
+
+    it('should return if there are errors in libs getCollaborationsForUser', function(done) {
+      var communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, communities);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      var errorInOther = new Error('error in other');
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(errorInOther);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.deep.equal(errorInOther);
         done();
       });
     });

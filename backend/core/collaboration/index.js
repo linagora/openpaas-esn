@@ -487,11 +487,13 @@ function getCollaborationsForUser(userId, options, callback) {
 
   function finder(type, callback) {
     collaborationLibs[type].getCollaborationsForUser(userId, options, function(err, collaborations) {
-      if (err || !collaborations || !collaborations.length) {
-        return callback();
+      if (err) {
+        return callback(err);
       }
-      results = results.concat(collaborations);
-      return callback(null, null);
+      if (collaborations && collaborations.length) {
+        results = results.concat(collaborations);
+      }
+      return callback();
     });
   }
 
@@ -502,10 +504,7 @@ function getCollaborationsForUser(userId, options, callback) {
   }
 
   async.parallel(finders, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, results);
+    return callback(err, results);
   });
 }
 
