@@ -21,7 +21,7 @@ var communityJSON = {
   ]
 };
 
-var CommunitySchema = baseCollaboration(communityJSON);
+var CommunitySchema = baseCollaboration(communityJSON, 'community');
 
 CommunitySchema.statics.testTitleDomain = function(title, domains, cb) {
   var query = {title: title, domain_ids: domains};
