@@ -4,56 +4,59 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('The calendar core module', function() {
-  var localStub = {}, globalStub = {};
 
-  var collaborationPermissionMock = {
-    _write: true,
-    canWrite: function(collaboration, user, callback) {
-      return callback(null, this._write);
+  var collaborationMock = {
+    permission: {
+      _write: true,
+      canWrite: function(collaboration, user, callback) {
+        return callback(null, this._write);
+      }
     }
   };
-  var eventMessageMock = {
-    _object: null,
-    _err: null,
-    save: function(object, callback) {
-      return callback(this._err, this._object || object);
-    }
+  var eventMessageMock = function() {
+    return {};
   };
   var userMock = {
     _user: {},
     _err: null,
-    get: function(id, callback) {
+    get: function (id, callback) {
       return callback(this._err, this._user);
     }
   };
   var activityStreamHelperMock = {
-    userMessageToTimelineEntry: function() {}
+    helpers: {
+      userMessageToTimelineEntry: function () {
+      }
+    }
+  };
+  var helpersMock = {
+    message: {
+      messageSharesToTimelineTarget: function() {}
+    }
+  };
+  var pubsubMock = {
+    local: {
+      topic: function() {
+        return {
+          forward: function() {}
+        };
+      }
+    },
+    global: {}
   };
 
   beforeEach(function() {
-    // Reset mocks
-    collaborationPermissionMock._write = true;
-    eventMessageMock._err = null;
-    eventMessageMock._object = null;
-    userMock._user = {};
-    userMock._err = null;
-
-    // Register mocks and models
-    mockery.registerMock('../../core/message/event', eventMessageMock);
-    mockery.registerMock('../../core/collaboration/permission', collaborationPermissionMock);
-    mockery.registerMock('../../core/activitystreams/helpers', activityStreamHelperMock);
-    mockery.registerMock('../../core/user', userMock);
-    this.helpers.mock.models({});
-
-    // Set up pubsub
-    localStub = {};
-    globalStub = {};
-    this.helpers.mock.pubsub('../../core/pubsub', localStub, globalStub);
+    mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
+    this.moduleHelpers.addDep('user', userMock);
+    this.moduleHelpers.addDep('collaboration', collaborationMock);
+    this.moduleHelpers.addDep('activitystreams', activityStreamHelperMock);
+    this.moduleHelpers.addDep('helpers', helpersMock);
+    this.moduleHelpers.addDep('pubsub', pubsubMock);
   });
 
   describe('The dispatch fn', function() {
     it('should return an error if data is undefined', function(done) {
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(null, function(err, result) {
         expect(err).to.exist;
         done();
@@ -61,7 +64,7 @@ describe('The calendar core module', function() {
     });
 
     it('should return an error if data is not an object', function(done) {
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch('test', function(err, result) {
         expect(err).to.exist;
         done();
@@ -77,7 +80,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -93,7 +96,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -107,7 +110,7 @@ describe('The calendar core module', function() {
         event: 'test'
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -123,7 +126,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -139,7 +142,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -156,7 +159,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -164,7 +167,8 @@ describe('The calendar core module', function() {
     });
 
     it('should return false if the user does not have write permission', function(done) {
-      collaborationPermissionMock._write = false;
+      collaborationMock.permission._write = false;
+      this.moduleHelpers.addDep('collaboration', collaborationMock);
 
       var user = {
         _id: '123',
@@ -185,7 +189,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -195,6 +199,7 @@ describe('The calendar core module', function() {
     });
 
     it('should call the create function', function(done) {
+      collaborationMock.permission._write = true;
       var user = {
         _id: '123',
         firstname: 'test'
@@ -214,17 +219,25 @@ describe('The calendar core module', function() {
         }
       };
 
-      eventMessageMock._object = {
-        _id: '123123',
-        objectType: 'event',
-        shares: [{
-          _id: '890890',
-          objectType: 'activitystream',
-          id: collaboration.activity_stream.uuid
-        }]
+      eventMessageMock = function() {
+        return {
+          _object: {
+            _id: '123123',
+            objectType: 'event',
+            shares: [{
+              _id: '890890',
+              objectType: 'activitystream',
+              id: collaboration.activity_stream.uuid
+            }]
+          },
+          save: function(message, callback) {
+            callback(null, this._object);
+          }
+        };
       };
+      mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
 
-      var module = this.helpers.requireBackend('core/calendar/index');
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;

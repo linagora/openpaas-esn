@@ -13,7 +13,6 @@ var MESSAGES_COLLECTION = 'messages';
 var objectTypeToSchemaName = {
   email: 'EmailMessage',
   whatsup: 'Whatsup',
-  event: 'EventMessage',
   poll: 'PollMessage'
 };
 

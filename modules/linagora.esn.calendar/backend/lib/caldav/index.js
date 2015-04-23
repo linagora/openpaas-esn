@@ -1,11 +1,11 @@
 'use strict';
 
-var logger = require('../logger');
+var logger;
 var dav = require('dav');
 
 var EVENTS_PATH = '/events';
 
-function getDavClient(url, user) {
+function _getDavClient(url, user) {
   var client = new dav.Client(
     new dav.transport.Basic(
       new dav.Credentials({
@@ -20,7 +20,7 @@ function getDavClient(url, user) {
   return client;
 }
 
-module.exports = function(url) {
+function _getClient(url) {
   return {
     createCalendar: function(calendar, creator, callback) {
       logger.debug('Calling createCalendar on caldav server at', url);
@@ -33,7 +33,7 @@ module.exports = function(url) {
         return callback(new Error('Calendar id is required'));
       }
 
-      var davClient = getDavClient(url, creator);
+      var davClient = _getDavClient(url, creator);
       var opts = {
         props: [
           {
@@ -97,4 +97,9 @@ module.exports = function(url) {
       return callback(null, {});
     }
   };
+}
+
+module.exports = function(dependencies) {
+  logger = dependencies('logger');
+  return _getClient;
 };

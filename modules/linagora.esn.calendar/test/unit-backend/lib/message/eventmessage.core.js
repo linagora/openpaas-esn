@@ -1,8 +1,17 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The event message module', function() {
+  var module, localstub, globalstub;
+
+  beforeEach(function() {
+    localstub = {};
+    globalstub = {};
+    this.moduleHelpers.addDep('pubsub', this.helpers.mock.pubsub('', localstub, globalstub));
+    mockery.registerMock('./eventmessage.model', function() {});
+  });
 
   describe('The save fn', function() {
 
@@ -18,10 +27,8 @@ describe('The event message module', function() {
         EventMessage: eventMessageMock
       });
 
-      var localstub = {}, globalstub = {};
-      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
-
-      this.helpers.requireBackend('core/message/event').save({}, function(err, saved) {
+      module = require(this.moduleHelpers.backendPath + '/lib/message/eventmessage.core')(this.moduleHelpers.dependencies);
+      module.save({}, function(err, saved) {
         expect(err).to.exist;
         expect(localstub.topics['message:stored'].data).to.have.length(0);
         done();
@@ -45,10 +52,8 @@ describe('The event message module', function() {
         EventMessage: eventMessageMock
       });
 
-      var localstub = {}, globalstub = {};
-      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
-
-      this.helpers.requireBackend('core/message/event').save({}, function(err, saved) {
+      module = require(this.moduleHelpers.backendPath + '/lib/message/eventmessage.core')(this.moduleHelpers.dependencies);
+      module.save({}, function(err, saved) {
         expect(err).to.not.exist;
         expect(saved).to.exist;
         expect(localstub.topics['message:stored'].data[0]).to.deep.equal(messageSaved);

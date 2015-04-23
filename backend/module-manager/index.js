@@ -67,6 +67,7 @@ function mockMiddlewares() {
     'activitystream',
     'authentication',
     'authorization',
+    'collaboration',
     'community',
     'cookie-lifetime',
     'domain',

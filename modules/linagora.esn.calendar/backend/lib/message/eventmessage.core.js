@@ -1,9 +1,7 @@
 'use strict';
 
-var logger = require(__dirname + '/../../core').logger,
-  mongoose = require('mongoose'),
-  EventMessage = mongoose.model('EventMessage'),
-  pubsub = require('../pubsub').local;
+var localpubsub, logger, EventMessage;
+var mongoose = require('mongoose');
 
 /**
  * Saves a new event message to the database, also publishing a message:stored
@@ -12,9 +10,9 @@ var logger = require(__dirname + '/../../core').logger,
  * @param {object} message          The message to be saved in the database.
  * @param {function} callback       The callback function, called with the result.
  */
-module.exports.save = function(message, callback) {
+function save(message, callback) {
   var eventMessage = new EventMessage(message),
-    topic = pubsub.topic('message:stored');
+      topic = localpubsub.topic('message:stored');
   eventMessage.save(function(err, response) {
     if (!err) {
       topic.publish(response);
@@ -24,7 +22,7 @@ module.exports.save = function(message, callback) {
     }
     callback(err, response);
   });
-};
+}
 
 /**
  * Find an EventMessage by its calendar eventId. This will only find calendar
@@ -33,7 +31,19 @@ module.exports.save = function(message, callback) {
  * @param {String} eventId          The event id to search for.
  * @param {function} callback       The callback function, called with the result.
  */
-module.exports.findByEventId = function(eventId, callback) {
+function findByEventId(eventId, callback) {
   var query = { objectType: 'event', eventId: eventId };
   return EventMessage.findOne(query).exec(callback);
+}
+
+module.exports = function(dependencies) {
+  localpubsub = dependencies('pubsub').local;
+  logger = dependencies('logger');
+  require('./eventmessage.model')(dependencies);
+  EventMessage = mongoose.model('EventMessage');
+
+  return {
+    findByEventId: findByEventId,
+    save: save
+  };
 };

@@ -1,14 +1,14 @@
 'use strict';
 
 var async = require('async');
-var eventMessage = require('../../core/message/event');
-var localpubsub = require('../../core/pubsub').local;
-var globalpubsub = require('../../core/pubsub').global;
-var collaborationModule = require('../../core/collaboration');
-var collaborationPermission = require('../../core/collaboration/permission');
-var activityStreamHelper = require('../../core/activitystreams/helpers');
-var user = require('../../core/user');
-var messageHelpers = require('../../helpers/message');
+var eventMessage,
+    userModule,
+    collaborationModule,
+    messageHelpers,
+    activityStreamHelper,
+    localpubsub,
+    globalpubsub,
+    collaborationPermission;
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -21,10 +21,10 @@ var messageHelpers = require('../../helpers/message');
  * @param {object} event            The event data, see REST_calendars.md
  * @param {function} callback       The callback function
  */
-function create(user, collaboration, event, callback) {
-  var userData = { objectType: 'user', id: user._id };
+function _create(user, collaboration, event, callback) {
+  var userData = {objectType: 'user', id: user._id};
 
-  collaborationPermission.canWrite(collaboration, userData, function(err, result) {
+  collaborationPermission.canWrite(collaboration, userData, function (err, result) {
     if (err || !result) {
       return callback(err, result);
     }
@@ -33,7 +33,7 @@ function create(user, collaboration, event, callback) {
       id: collaboration.activity_stream.uuid
     }];
 
-    eventMessage.save({ eventId: event.event_id, author: user, shares: shares }, function(err, saved) {
+    eventMessage.save({eventId: event.event_id, author: user, shares: shares}, function (err, saved) {
       if (err) {
         return callback(err);
       }
@@ -45,7 +45,6 @@ function create(user, collaboration, event, callback) {
     });
   });
 }
-module.exports.create = create;
 
 /**
  * Update the event message belonging to the specified calendar event
@@ -55,7 +54,7 @@ module.exports.create = create;
  * @param {object} event            The event data, see REST_calendars.md
  * @param {function} callback       The callback function
  */
-function update(user, collaboration, event, callback) {
+function _update(user, collaboration, event, callback) {
   eventMessage.findByEventId(event.event_id, function(err, message) {
     if (err) {
       return callback(err);
@@ -113,7 +112,7 @@ function dispatch(data, callback) {
       if (typeof data.user === 'object') {
         return callback(null, data.user);
       } else if (typeof data.user === 'string') {
-        user.get(data.user, callback);
+        userModule.get(data.user, callback);
       } else {
         return callback('Invalid user data');
       }
@@ -137,12 +136,27 @@ function dispatch(data, callback) {
 
     switch (data.event.type) {
       case 'created':
-        return create(data.user, data.collaboration, data.event, callback);
+        return _create(data.user, data.collaboration, data.event, callback);
       case 'updated':
-        return update(data.user, data.collaboration, data.event, callback);
+        return _update(data.user, data.collaboration, data.event, callback);
       default:
         return callback(new Error('Invalid type specified'));
     }
   });
 }
 module.exports.dispatch = dispatch;
+
+module.exports = function(dependencies) {
+  eventMessage = require('./../../../lib/message/eventmessage.core')(dependencies);
+  userModule = dependencies('user');
+  collaborationModule = dependencies('collaboration');
+  messageHelpers = dependencies('helpers').message;
+  activityStreamHelper = dependencies('activitystreams').helpers;
+  localpubsub = dependencies('pubsub').local;
+  globalpubsub = dependencies('pubsub').global;
+  collaborationPermission = dependencies('collaboration').permission;
+
+  return {
+    dispatch: dispatch
+  };
+};

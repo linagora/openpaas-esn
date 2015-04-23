@@ -1,7 +1,5 @@
 'use strict';
 
-var mockery = require('mockery');
-
 beforeEach(function() {
   var depsStore = {
     logger: require('../fixtures/logger-noop'),

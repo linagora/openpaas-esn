@@ -1,7 +1,6 @@
 'use strict';
 
-var esnconfig = require('../esn-config');
-var client = require('./client');
+var esnconfig, client;
 
 /**
  * Get the caldav server URL for the server
@@ -19,7 +18,6 @@ function getCaldavServerUrlForServer(callback) {
     return callback(null, 'http://localhost:80');
   });
 }
-module.exports.getCaldavServerUrlForServer = getCaldavServerUrlForServer;
 
 /**
  * Get the caldav server URL for the browser (client)
@@ -37,9 +35,8 @@ function getCaldavServerUrlForClient(callback) {
     return callback(null, 'http://localhost:80');
   });
 }
-module.exports.getCaldavServerUrlForClient = getCaldavServerUrlForClient;
 
-module.exports.createCalendar = function(calendar, user, callback) {
+function createCalendar(calendar, user, callback) {
   if (!calendar) {
     return callback(new Error('Calendar is required to create a calendar'));
   }
@@ -50,7 +47,7 @@ module.exports.createCalendar = function(calendar, user, callback) {
 
   getCaldavServerUrlForServer(function(err, url) {
     if (err) {
-     return callback(err);
+      return callback(err);
     }
 
     if (!url) {
@@ -59,4 +56,15 @@ module.exports.createCalendar = function(calendar, user, callback) {
 
     return client(url).createCalendar(calendar, user, callback);
   });
+}
+
+module.exports = function(dependencies) {
+  esnconfig = dependencies('esn-config');
+  client = require('../../../lib/caldav')(dependencies);
+
+  return {
+    getCaldavServerUrlForServer: getCaldavServerUrlForServer,
+    getCaldavServerUrlForClient: getCaldavServerUrlForClient,
+    createCalendar: createCalendar
+  };
 };

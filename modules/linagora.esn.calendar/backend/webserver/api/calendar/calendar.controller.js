@@ -1,6 +1,6 @@
 'use strict';
 
-var calendar = require('../../core/calendar');
+var calendar;
 
 function dispatchEvent(req, res) {
   if (!req.user) {
@@ -30,4 +30,10 @@ function dispatchEvent(req, res) {
     return res.json(req.body.type === 'created' ? 201 : 200, result);
   });
 }
-module.exports.dispatchEvent = dispatchEvent;
+
+module.exports = function(dependencies) {
+  calendar = require('./calendar.core')(dependencies);
+  return {
+    dispatchEvent: dispatchEvent
+  };
+};
