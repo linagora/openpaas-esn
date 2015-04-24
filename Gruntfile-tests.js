@@ -83,6 +83,11 @@ module.exports = function(grunt) {
         options: {
           files: ['test/unit-storage/all.js', grunt.option('test') || 'test/unit-storage/**/*.js']
         }
+      },
+      modulesStorage: {
+        options: {
+          files: ['test/unit-storage/all.js', grunt.option('test') || 'modules/**/test/unit-storage/**/*.js']
+        }
       }
     },
     karma: {
