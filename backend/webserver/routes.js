@@ -40,7 +40,7 @@ exports = module.exports = function(application) {
   application.get('/api/activitystreams/:uuid', authorize.requiresAPILogin, requestMW.requireRouteParams('uuid'), asMiddleware.findStreamResource, requestMW.assertRequestElementNotNull('activity_stream'), activitystreams.get);
   application.get('/api/activitystreams/:uuid/unreadcount', authorize.requiresAPILogin, requestMW.requireRouteParams('uuid'), asMiddleware.findStreamResource, requestMW.assertRequestElementNotNull('activity_stream'), activitystreams.getUnreadCount);
   application.get('/api/user/activitystreams', authorize.requiresAPILogin, activitystreams.getMine);
-  application.get('/api/activitystreams/:uuid/resource', authorize.requiresAPILogin, requestMW.requireRouteParams('uuid'), asMiddleware.findStreamResource, activitystreams.getResource);
+  application.get('/api/activitystreams/:uuid/resource', authorize.requiresAPILogin, requestMW.requireRouteParams('uuid'), asMiddleware.findStreamResource, requestMW.assertRequestElementNotNull('activity_stream'), activitystreams.getResource);
 
   var users = require('./controllers/users');
   application.get('/logout', users.logout);

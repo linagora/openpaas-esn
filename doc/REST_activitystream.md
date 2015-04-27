@@ -31,6 +31,7 @@ Array of activities.
 
 - 200 OK
 - 400 Bad Request. Invalid request body or parameters
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 404 Not Found. The activity stream has not been found.
 
 **Request:**
@@ -121,7 +122,7 @@ The last timeline entry read is updated each time `GET /api/activitystreams/{uui
 
 - 200 Ok.
 - 400 Bad Request. Invalid request body or parameters
-- 401 Unauthorized. The current request does not contains any valid data to be used for authentication.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 404 Not Found. The activity stream has not been found.
 - 500 Internal server error.
 
@@ -158,12 +159,13 @@ Get the resource associated with the activitystream
 
 **Response JSON Object:**
 
-The resource associated to an acitivty stream. For now it can only be a collaboration
+The resource associated to an activity stream. For now it can only be a collaboration
 
 **Status Codes:**
 
 - 200 OK
-- 400 Bad Request. Invalid request body or parameters
+- 400 Bad Request. Invalid request body or parameters.
+- 401 Unauthorized. The user is not authenticated on the platform.
 - 404 Not Found. The activity stream resource has not been found.
 
 **Request:**

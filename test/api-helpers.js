@@ -477,7 +477,6 @@ module.exports = function(mixin, testEnv) {
 
   api.requireLogin = function(app, method, apiUrl, done) {
     request(app)[method](apiUrl)
-      .expect(401)
-      .end(mixin.callbacks.noError(done));
+      .expect(401, done);
   };
 };
