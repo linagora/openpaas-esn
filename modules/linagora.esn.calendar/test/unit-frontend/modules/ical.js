@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The ICAL Angular module', function() {
+describe.skip('The ICAL Angular module', function() {
   beforeEach(angular.mock.module('esn.ical'));
 
   describe('icalParserService service', function() {

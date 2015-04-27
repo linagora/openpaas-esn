@@ -1,5 +1,7 @@
 .col-xs-12.nopadding.esn-community
-  a.btn.btn-info(ng-href='/#/communities/{{community._id}}/calendar')
+  // TODO Remove this when the injection module has
+  // the method to inject inside all domains.
+  a.btn.btn-info(ng-href='/#/calendar/communities/{{community._id}}')
     | #{__('Calendar')} &nbsp;
     i.fa.fa-calendar
   &nbsp;

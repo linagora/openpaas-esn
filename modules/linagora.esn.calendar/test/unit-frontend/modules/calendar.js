@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The Calendar Angular module', function() {
+describe.skip('The Calendar Angular module', function() {
 
   describe('The calendarService service', function() {
     var ICAL;

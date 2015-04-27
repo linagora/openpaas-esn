@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', 'esn.user', 'esn.avatar', 'esn.calendar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'ui.calendar', 'esn.widget.helper'])
+angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'esn.widget.helper'])
   .config(['tagsInputConfigProvider', function(tagsInputConfigProvider) {
     tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
       placeholder: true,
@@ -991,47 +991,6 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       templateUrl: '/views/modules/community/community-actions-toolbar.html'
     };
   })
-  .directive('communityButtonEventCreate', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        community: '='
-      },
-      templateUrl: '/views/modules/community/community-button-event-create.html'
-    };
-  })
-  .controller('communityCalendarController', ['$scope', 'community', 'calendarService', function($scope, community, calendarService) {
-
-    $scope.changeView = function(view, calendar) {
-      calendar.fullCalendar('changeView', view);
-    };
-
-    $scope.renderCalender = function(calendar) {
-      calendar.fullCalendar('render');
-    };
-
-    $scope.uiConfig = {
-      calendar: {
-        height: 450,
-        editable: false,
-        weekNumbers: true,
-        firstDay: 1,
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        }
-      }
-    };
-
-    function communityEventSource(start, end, timezone, callback) {
-      var path = '/calendars/' + community._id + '/events/';
-      return calendarService.list(path, start, end, timezone).then(callback);
-    }
-
-    $scope.eventSources = [communityEventSource];
-  }])
   .controller('communityAStrackerController',
   ['$rootScope', '$scope', '$log', 'AStrackerHelpers', 'communityAPI', 'ASTrackerNotificationService',
     function($rootScope, $scope, $log, AStrackerHelpers, communityAPI, ASTrackerNotificationService) {

@@ -7,10 +7,16 @@ div.esn-panel.message-panel.whatsup-form.form-container(ng-controller='messageEd
     li
       button.btn.btn-link(type='button', ng-click='show("poll")')
         i.fa.fa-bar-chart
+    // TODO Remove this when the injection module has
+    // the method to inject inside all domains.
     li(ng-show='::calendarId')
       button.btn.btn-link(type='button', ng-click='show("event")')
         i.fa.fa-calendar
+    injections-widget(injection-anchor-id="messageEditionMessageTypeButton", injection-subject="community")
   div(data-ng-switch='type')
     whatsup-edition(data-ng-switch-when='whatsup', type="type")
     poll-edition(data-ng-switch-when='poll', type="type")
+    // TODO Remove this when the injection module has
+    // the method to inject inside all domains.
     event-edition(data-ng-switch-when='event')
+    injections-widget(injection-anchor-id="messageEditionMessageTypeSwitch", injection-subject="community")

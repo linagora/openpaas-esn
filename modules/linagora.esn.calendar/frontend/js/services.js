@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular', 'mgcrea.ngStrap.datepicker', 'angularMoment', 'uuid4'])
+angular.module('esn.calendar')
   .factory('calendarService', ['Restangular', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(Restangular, moment, tokenAPI, uuid4, ICAL, $q, $http) {
 
     /**
@@ -169,8 +169,8 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
     function list(calendarPath, start, end, timezone) {
       var req = {
         match: {
-           start: moment(start).format('YYYYMMDD[T]HHmmss'),
-           end: moment(end).format('YYYYMMDD[T]HHmmss')
+          start: moment(start).format('YYYYMMDD[T]HHmmss'),
+          end: moment(end).format('YYYYMMDD[T]HHmmss')
         },
         scope: {
           calendars: [calendarPath]
@@ -223,7 +223,7 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
           var vcalendar = new ICAL.Component(response.data);
           return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
         } else if (response.status === 204) {
-            return getEvent(eventPath);
+          return getEvent(eventPath);
         } else {
           return $q.reject(response);
         }
@@ -410,11 +410,4 @@ angular.module('esn.calendar', ['esn.authentication', 'esn.ical', 'restangular',
       }
     };
 
-  }])
-  .directive('eventEdition', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/message/event/eventEdition.html'
-    };
-  });
+  }]);
