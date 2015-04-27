@@ -2694,4 +2694,47 @@ describe('The collaborations API', function() {
     });
 
   });
+
+  describe('GET /api/collaborations/writable', function() {
+
+    beforeEach(function(done) {
+      var self = this;
+      this.helpers.api.applyDomainDeployment('openAndPrivateCommunities', function(err, models) {
+        if (err) { return done(err); }
+        self.models = models;
+        var jobs = models.users.map(function(user) {
+          return function(done) {
+            user.domains.push({domain_id: self.models.domain._id});
+            user.save(done);
+          };
+        });
+        async.parallel(jobs, done);
+      });
+    });
+
+    it('should return 401 if user is not authenticated', function(done) {
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/writable', done);
+    });
+
+    it('should return the list of collaborations the user can write into', function(done) {
+      var self = this;
+      var correctIds = [self.models.communities[0]._id + '', self.models.communities[1]._id + '', self.models.communities[3]._id + ''];
+      self.helpers.api.loginAsUser(webserver.application, self.models.users[2].emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+        var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/writable'));
+        req.expect(200);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.an.array;
+          expect(res.body).to.have.length(correctIds.length);
+          res.body.forEach(function(returnedCollaboration) {
+            expect(correctIds).to.contain(returnedCollaboration._id + '');
+          });
+          done();
+        });
+      });
+    });
+  });
 });

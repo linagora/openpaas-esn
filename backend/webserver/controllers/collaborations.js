@@ -90,6 +90,27 @@ module.exports.searchWhereMember = function(req, res) {
   });
 };
 
+module.exports.getWritable = function(req, res) {
+  var user = req.user;
+
+  if (!user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
+  }
+
+  collaborationModule.getCollaborationsForUser(user._id, {writable: true}, function(err, collaborations) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Server Error', details: err.details}});
+    }
+    async.map(collaborations, function(collaboration, callback) {
+      transform(collaboration, req.user, function(transformed) {
+        return callback(null, transformed);
+      });
+    }, function(err, results) {
+      return res.json(200, results);
+    });
+  });
+};
+
 function getMembers(req, res) {
   if (!req.collaboration) {
     return res.json(500, {error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});

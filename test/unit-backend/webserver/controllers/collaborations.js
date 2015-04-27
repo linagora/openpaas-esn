@@ -764,3 +764,122 @@ describe('removeMembershipRequest() method', function() {
     });
   });
 });
+
+describe('getWritable fn', function() {
+
+  beforeEach(function() {
+    mockery.registerMock('../../core/collaboration/index', {});
+    mockery.registerMock('../../core/collaboration/permission', {});
+    mockery.registerMock('../../core/user', {});
+    mockery.registerMock('../../helpers/user', {});
+    mockery.registerMock('../../core/user/domain', {});
+  });
+
+  it('should send back 400 when req.user does not exist', function(done) {
+    mockery.registerMock('../../core/collaboration/index', {});
+
+    var res = {
+      json: function(code, err) {
+        expect(code).to.equal(400);
+        expect(err).to.exist;
+        done();
+      }
+    };
+
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
+    collaborations.getWritable({}, res);
+  });
+
+  it('should call collaborationModule#getCollaborationsForUser and send back 500 if there is an error', function(done) {
+    mockery.registerMock('../../core/collaboration/index', {
+      getCollaborationsForUser: function(userId, opts, callback) {
+        return callback(new Error('testError'));
+      }
+    });
+
+    var res = {
+      json: function(code, err) {
+        expect(code).to.equal(500);
+        expect(err).to.exist;
+        done();
+      }
+    };
+
+    var req = {
+      user: '123'
+    };
+
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
+    collaborations.getWritable(req, res);
+  });
+
+  it('should call collaborationModule#getCollaborationsForUser and send back 200 with empty array if there is no collaboration returned', function(done) {
+    mockery.registerMock('../../core/collaboration/index', {
+      getCollaborationsForUser: function(userId, opts, callback) {
+        return callback(null, []);
+      }
+    });
+
+    var res = {
+      json: function(code, results) {
+        expect(code).to.equal(200);
+        expect(results).to.deep.equal([]);
+        done();
+      }
+    };
+
+    var req = {
+      user: '123'
+    };
+
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
+    collaborations.getWritable(req, res);
+  });
+
+  it('should call collaborationModule#getCollaborationsForUser and send back 200 with transformed collaborations', function(done) {
+    var testCollaborations = [
+      {
+        _id: 'collab1'
+      },
+      {
+        _id: 'collab2'
+      }
+    ];
+
+    mockery.registerMock('../../core/collaboration/index', {
+      getCollaborationsForUser: function(userId, opts, callback) {
+        return callback(null, testCollaborations);
+      },
+      getMembershipRequest: function() {
+        return null;
+      },
+      isMember: function(coll, userTuple, callback) {
+        return callback(null, true);
+      }
+    });
+
+    mockery.registerMock('../../core/collaboration/permission', {
+      canWrite: function(coll, userTuple, callback) {
+        return callback(null, true);
+      }
+    });
+
+    var res = {
+      json: function(code, results) {
+        expect(code).to.equal(200);
+        expect(results).to.deep.equal(testCollaborations);
+        done();
+      }
+    };
+
+    var req = {
+      user: {
+        _id: '123'
+      }
+    };
+
+    var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
+    collaborations.getWritable(req, res);
+  });
+
+});

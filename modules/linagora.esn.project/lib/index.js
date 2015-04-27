@@ -147,6 +147,7 @@ function projectLib(dependencies) {
   lib.isIndirectMember = isIndirectMember;
   lib.addMember = addMember;
   lib.getUserProjects = getUserProjects;
+  lib.getCollaborationsForUser = getUserProjects;
   lib.getStreamsForUser = getStreamsForUser;
   lib.getFromActivityStreamID = getFromActivityStreamID;
   lib.updateAvatar = updateAvatar;

@@ -21,7 +21,7 @@ function project(collaboration) {
     }]
   };
 
-  var ProjectSchema = collaboration.schemaBuilder(projectJSON);
+  var ProjectSchema = collaboration.schemaBuilder(projectJSON, 'project');
 
   ProjectSchema.statics.testTitleDomain = function(title, domains, cb) {
     var query = {title: title, domain_ids: domains};

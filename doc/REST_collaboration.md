@@ -388,3 +388,69 @@ Array of membership requests with user information.
           }
         }
       ]
+
+## /api/collaborations/writable
+
+Get all the collaborations in which the connected user has write permission.
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers**
+
+- Accept: application/json
+
+**Response JSON Object:**
+
+- An array of collaborations where the given tuple has write permission
+
+**Status Codes:**
+
+- 200 OK
+- 401 Unauthorized
+- 500 Internal server error
+
+**Request:**
+
+    GET /api/collaborations/writable
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    [{
+      "_id": "987654321",
+      "objectType: "project",
+      "title": "Mean Project",
+      "description": "The Awesome MEAN stack project",
+      "type": "open"
+      "domain_ids": ["8292903883939282"],
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      }
+    },
+    {
+      "_id": "123456789",
+      "objectType: "community",
+      "title": "Node.js",
+      "description": "All about node.js",
+      "type": "open",
+      "domain_ids": ["8292903883939282"],
+      "timestamps": {
+        "creation": "2014-05-16T09:47:11.703Z"
+      },
+      activity_stream: {
+        uuid: "9330-0393-7373-7280",
+        "timestamps": {
+          "creation": "2014-05-16T09:47:11.704Z"
+        }
+      }
+    }]

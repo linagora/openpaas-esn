@@ -35,8 +35,9 @@ var collaborationBaseSchema = {
   schemaVersion: {type: Number, default: 1}
 };
 
-function buildBaseCollaborationSchema(json) {
+function buildBaseCollaborationSchema(json, collaborationType) {
   var schema = extend(true, collaborationBaseSchema, json);
+  schema.objectType = {type: String, required: true, default: collaborationType};
   var CollaborationSchema = new Schema(schema);
   CollaborationSchema.pre('save', function(next) {
     this.activity_stream = this.activity_stream || {};

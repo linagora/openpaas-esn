@@ -481,6 +481,33 @@ function getStreamsForUser(userId, options, callback) {
   });
 }
 
+function getCollaborationsForUser(userId, options, callback) {
+  var finders = [];
+  var results = [];
+
+  function finder(type, callback) {
+    collaborationLibs[type].getCollaborationsForUser(userId, options, function(err, collaborations) {
+      if (err) {
+        return callback(err);
+      }
+      if (collaborations && collaborations.length) {
+        results = results.concat(collaborations);
+      }
+      return callback();
+    });
+  }
+
+  for (var type in collaborationLibs) {
+    if (collaborationLibs[type] && collaborationLibs[type].getCollaborationsForUser) {
+      finders.push(async.apply(finder, type));
+    }
+  }
+
+  async.parallel(finders, function(err) {
+    return callback(err, results);
+  });
+}
+
 function hasDomain(collaboration) {
   if (!collaboration || !collaboration.domain_ids) {
     return false;
@@ -658,6 +685,7 @@ module.exports.addMember = addMember;
 module.exports.getCollaborationsForTuple = getCollaborationsForTuple;
 module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActivityStreamID;
 module.exports.getStreamsForUser = getStreamsForUser;
+module.exports.getCollaborationsForUser = getCollaborationsForUser;
 module.exports.permission = require('./permission');
 module.exports.hasDomain = hasDomain;
 module.exports.join = join;

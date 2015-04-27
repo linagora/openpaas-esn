@@ -857,4 +857,157 @@ describe('The collaboration module', function() {
     });
 
   });
+
+  describe('getCollaborationsForUser function', function() {
+    beforeEach(function() {
+      this.helpers.mock.models({});
+    });
+
+    it('should return nothing if no collaboration lib has a getCollaborationsForUser function', function(done) {
+      mockery.registerMock('../community', {});
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.not.exist;
+        expect(collaborations).to.deep.equal([]);
+        done();
+      });
+    });
+
+    it('should call all libs getCollaborationsForUser function with the right options', function(done) {
+      var libCalled = [];
+      var userId = 'userId';
+      var testOptions = {
+        opt1: 'test',
+        opt2: []
+      };
+
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          expect(id).to.equal(userId);
+          expect(options).to.deep.equal(testOptions);
+          libCalled.push('community');
+          return callback(null, null);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          expect(id).to.equal(userId);
+          expect(options).to.equal(testOptions);
+          libCalled.push('otherLib');
+          return callback(null, null);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser(userId, testOptions, function(err, collaborations) {
+        expect(err).to.not.exist;
+        expect(collaborations).to.deep.equal([]);
+        expect(libCalled).to.deep.equal(['community', 'otherLib']);
+        done();
+      });
+    });
+
+    it('should return the aggregated results of libs getCollaborationsForUser', function(done) {
+      var communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+      var otherCollaborations = [{_id: 'other1'}, {_id: 'other2'}];
+
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, communities);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, otherCollaborations);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.not.exist;
+        communities.forEach(function(comm) {
+          expect(collaborations).to.contain(comm);
+        });
+        otherCollaborations.forEach(function(other) {
+          expect(collaborations).to.contain(other);
+        });
+        done();
+      });
+    });
+
+    it('should return the aggregated results of libs getCollaborationsForUser even if some are null', function(done) {
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, null);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      var otherCollaborations = [{_id: 'other1'}, {_id: 'other2'}];
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, otherCollaborations);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.not.exist;
+        expect(collaborations).to.deep.equal(otherCollaborations);
+        done();
+      });
+    });
+
+    it('should return the aggregated results of libs getCollaborationsForUser even if some are empty', function(done) {
+      var communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, communities);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, []);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.not.exist;
+        expect(collaborations).to.deep.equal(communities);
+        done();
+      });
+    });
+
+    it('should return if there are errors in libs getCollaborationsForUser', function(done) {
+      var communities = [{_id: 'comm1'}, {_id: 'comm2'}];
+
+      mockery.registerMock('../community', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(null, communities);
+        }
+      });
+
+      var collaborationModule = this.helpers.requireBackend('core/collaboration/index');
+
+      var errorInOther = new Error('error in other');
+      collaborationModule.registerCollaborationLib('otherLib', {
+        getCollaborationsForUser: function(id, options, callback) {
+          return callback(errorInOther);
+        }
+      });
+
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+        expect(err).to.deep.equal(errorInOther);
+        done();
+      });
+    });
+  });
 });
