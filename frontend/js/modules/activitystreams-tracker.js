@@ -142,7 +142,7 @@ angular.module('esn.activitystreams-tracker', [
           try {
             handler.onJoin(data);
           } catch (e) {
-            $log('Error while calling join handler', e);
+            $log.error('Error while calling join handler', e);
           }
         });
       }
@@ -162,7 +162,7 @@ angular.module('esn.activitystreams-tracker', [
           try {
             handler.onLeave(data);
           } catch (e) {
-            $log('Error while calling leave handler', e);
+            $log.error('Error while calling leave handler', e);
           }
         });
       }
