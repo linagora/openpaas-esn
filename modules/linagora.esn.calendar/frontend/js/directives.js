@@ -72,10 +72,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      scope: {
-        calendarId: '='
-      },
-      templateUrl: '/calendar/views/modules/message/message-edition-event-button.html'
+      templateUrl: '/calendar/views/modules/message/event/message-edition-event-button.html'
     };
   })
   .directive('eventEdition', function() {

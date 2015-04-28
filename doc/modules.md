@@ -34,7 +34,6 @@ follow the template example pattern.
 
 #### Template example
 
-        &nbsp;
         a.btn.btn-info(ng-href='/#/appstore/communities/{{community._id}}/apps')
           | #{__('App store')} &nbsp;
           i.fa.fa-cubes
