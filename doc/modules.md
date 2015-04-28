@@ -38,3 +38,17 @@ follow the template example pattern.
         a.btn.btn-info(ng-href='/#/appstore/communities/{{community._id}}/apps')
           | #{__('App store')} &nbsp;
           i.fa.fa-cubes
+
+### messageEditionMessageTypeButton
+
+#### Template example
+
+        li(ng-show='::calendarId')
+          button.btn.btn-link(type='button', ng-click='show("event")')
+            i.fa.fa-calendar
+
+### messageEditionMessageTypeSwitch
+
+#### Template example
+
+        poll-edition(data-ng-switch-when='poll', type="type")
