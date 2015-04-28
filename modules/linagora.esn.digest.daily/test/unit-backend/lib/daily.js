@@ -182,6 +182,15 @@ describe('The daily digest core module', function() {
               };
             });
 
+          mockery.registerMock('./tracker',
+            function() {
+              return {
+                updateTracker: function() {
+                  return q({});
+                }
+              };
+            });
+
           var module = require('../../../lib/daily')(dependencies);
           var loadUserDataForCollaboration = function(u, c, t) {
             expect(u).to.deep.equal(user);

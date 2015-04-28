@@ -16,6 +16,7 @@ module.exports = function(dependencies) {
   var pushTracker = tracker.getTracker('push');
   var weight = require('./weight')(dependencies);
   var job = require('./job')(dependencies);
+  var trackerUpdater = require('./tracker')(dependencies);
 
   return {
 
@@ -169,37 +170,44 @@ module.exports = function(dependencies) {
       }).then(function(collaborations) {
 
         if (!collaborations || collaborations.length === 0) {
-          return q({user: user, data: [], status: 'No collaborations found'});
+          return q.resolve({user: user, data: [], status: 'No collaborations found'});
         }
 
         var collaborationData = collaborations.map(function(collaboration) {
           return self.loadUserDataForCollaboration(user, collaboration);
         });
 
-        function send(data) {
-          logger.info('Sending digest to user', user._id.toString(), user.emails[0]);
-          return job.process(user, data);
+        function sendDigest(data) {
+          logger.info('Sending digest to user %s %s', user._id.toString(), user.emails[0]);
+          return job.process(user, data).then(function() {
+            return data;
+          });
         }
 
         function processUserData(data) {
-          logger.info('Processing data for user', user._id.toString(), user.emails[0]);
+          logger.info('Processing data for user %s %s', user._id.toString(), user.emails[0]);
           return q.all(data.map(function(d) {
             return weight.compute(user, d);
           }));
         }
 
+        function sendFailure(err) {
+          logger.error('Failed to send digest for user %s', user._id, err.stack);
+          return q.reject(err);
+        }
+
         function updateTrackers(data) {
-          logger.info('Updating push tracker for user', user._id.toString(), user.emails[0]);
-          // TODO : Update the push tracker
-          return data;
+          return trackerUpdater.updateTracker(user, data);
         }
 
         return q.all(collaborationData)
           .then(processUserData)
-          .then(send)
-          .then(updateTrackers)
+          .then(sendDigest)
+          .then(updateTrackers, sendFailure)
           .then(function(data) {
-            return q({user: user, data: data});
+            return {user: user, data: data};
+          }, function(err) {
+            console.log('ERROR: ', err);
           });
       });
     },
