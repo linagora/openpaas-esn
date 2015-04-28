@@ -61,20 +61,28 @@ module.exports = function(dependencies) {
     function update() {
       var updateLastTimelineEntry = q.denodeify(pushTracker.updateLastTimelineEntry);
 
-      var updates = data.map(function(element) {
-        return getLastTimelineEntry(element.messages, element.collaboration.activity_stream).then(function(lastEntry) {
-          if (!lastEntry) {
-            return _resolve(data);
-          }
+      function resolved() {
+        return _resolve(data);
+      }
 
-          return updateLastTimelineEntry(user._id, element.collaboration.activity_stream.uuid, lastEntry).then(function() {
-            return _resolve(data);
-          }, function() {
-            return _resolve(data);
-          });
-        }, function() {
-          return _resolve(data);
-        });
+      var updates = data.map(function(element) {
+        var stream = element.collaboration.activity_stream;
+
+        logger.debug('Updating tracker on stream %s for user %s', stream.uuid, user._id);
+        return getLastTimelineEntry(element.messages, stream).then(
+          function(lastEntry) {
+            if (!lastEntry) {
+              logger.debug('Can not find the last timelineentry on stream %s for user %s', stream.uuid, user._id);
+              return resolved();
+            }
+
+            return updateLastTimelineEntry(user._id, stream.uuid, lastEntry).then(resolved, resolved);
+          },
+          function(err) {
+            logger.debug('Error while getting last timeline entry on stream %s for user %s', stream.uuid, user._id, err);
+            return resolved();
+          }
+        );
       });
 
       return q.all(updates);
@@ -86,5 +94,4 @@ module.exports = function(dependencies) {
   return {
     updateTracker: updateTracker
   };
-
 };

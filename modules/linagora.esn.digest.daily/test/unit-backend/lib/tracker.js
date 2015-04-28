@@ -30,6 +30,7 @@ describe('The daily digest tracker module', function() {
     deps = {
       activitystreams: activitystreams,
       logger: {
+        debug: function() {},
         error: function() {},
         info: function() {},
         warning: function() {}
