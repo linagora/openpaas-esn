@@ -25,6 +25,16 @@ module.exports.getTracker = function(type) {
     throw new Error(type + ' is not a valid tracker type');
   }
 
+  function exists(userId, callback) {
+    userId = userId._id || userId;
+    Tracker.findById(userId, function(err, doc) {
+      if (err) {
+        return callback(err);
+      }
+      return callback(null, !!doc);
+    });
+  }
+
   /**
    * Create a TimelineEntriesTracker
    *
@@ -100,20 +110,15 @@ module.exports.getTracker = function(type) {
       }
 
       if (doc) {
-        changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryReadId, doc, function(err, saved) {
-          return callback(err, saved);
-        });
+        return changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryReadId, doc, callback);
       }
-      else {
-        createTimelineEntriesTracker(userId, function(err, saved) {
-          if (err) {
-            return callback(err);
-          }
-          changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryReadId, saved, function(err, saved) {
-            return callback(err, saved);
-          });
-        });
-      }
+
+      createTimelineEntriesTracker(userId, function(err, saved) {
+        if (err) {
+          return callback(err);
+        }
+        changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryReadId, saved, callback);
+      });
 
     });
   }
@@ -302,6 +307,7 @@ module.exports.getTracker = function(type) {
   }
 
   return {
+    exists: exists,
     updateLastTimelineEntry: updateLastTimelineEntry,
     getLastTimelineEntry: getLastTimelineEntry,
     countSinceLastTimelineEntry: countSinceLastTimelineEntry,

@@ -93,4 +93,52 @@ describe('The activity streams core module', function() {
       });
     });
   });
+
+  describe('getTimelineEntryFromStreamMessage', function() {
+    it('should send back error when activitystream is undefined', function(done) {
+      this.helpers.mock.models({});
+      var module = this.helpers.requireBackend('core/activitystreams/index');
+      module.getTimelineEntryFromStreamMessage(null, {}, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should send back error when message is undefined', function(done) {
+      this.helpers.mock.models({});
+      var module = this.helpers.requireBackend('core/activitystreams/index');
+      module.getTimelineEntryFromStreamMessage({}, null, function(err) {
+        expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should call TimelineEntry.findOne', function(done) {
+      var message = {_id: 1, objectType: 'whatsup'};
+      var stream = {uuid: 123456};
+      var expected = {
+        target: {
+          objectType: 'activitystream',
+          _id: stream.uuid
+
+        },
+        object: {
+          objectType: message.objectType,
+          _id: message._id
+        }
+      };
+
+      this.helpers.mock.models({
+        'TimelineEntry': {
+          findOne: function(query) {
+            expect(query).to.deep.equal(expected);
+            done();
+          }
+        }
+      });
+      var module = this.helpers.requireBackend('core/activitystreams/index');
+      module.getTimelineEntryFromStreamMessage(stream, message);
+    });
+
+  });
 });

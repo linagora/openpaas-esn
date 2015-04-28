@@ -385,4 +385,62 @@ describe('The activity streams tracker core module', function() {
       handlerClose();
     });
   });
+
+  describe('The exists function', function() {
+    it('should send back error when mongoose request send back an error', function(done) {
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            findById: function(id, callback) {
+              return callback(new Error('Error test'));
+            }
+          };
+        }
+      });
+      mockery.registerMock('./', {});
+
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.exists({}, this.helpers.callbacks.error(done));
+    });
+
+    it('should send true when document is found', function(done) {
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            findById: function(id, callback) {
+              return callback(null, {});
+            }
+          };
+        }
+      });
+      mockery.registerMock('./', {});
+
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.exists({}, function(err, exists) {
+        expect(err).to.not.exists;
+        expect(exists).to.be.true;
+        done();
+      });
+    });
+
+    it('should send false when document is not found', function(done) {
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            findById: function(id, callback) {
+              return callback();
+            }
+          };
+        }
+      });
+      mockery.registerMock('./', {});
+
+      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
+      tracker.exists({}, function(err, exists) {
+        expect(err).to.not.exists;
+        expect(exists).to.be.false;
+        done();
+      });
+    });
+  });
 });
