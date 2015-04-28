@@ -1,7 +1,13 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('calendarService', ['Restangular', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(Restangular, moment, tokenAPI, uuid4, ICAL, $q, $http) {
+  .factory('CalendarRestangular', function(Restangular) {
+    return Restangular.withConfig(function(RestangularConfigurer) {
+      RestangularConfigurer.setBaseUrl('/calendar/api');
+      RestangularConfigurer.setFullResponse(true);
+    });
+  })
+  .factory('calendarService', ['CalendarRestangular', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, moment, tokenAPI, uuid4, ICAL, $q, $http) {
 
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -67,7 +73,7 @@ angular.module('esn.calendar')
       }
 
       serverUrlCache = $q.defer();
-      Restangular.one('caldavserver').get().then(
+      CalendarRestangular.one('caldavserver').get().then(
         function(response) {
           serverUrlCache.resolve(response.data.url);
         },
