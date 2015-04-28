@@ -24,7 +24,7 @@ var eventMessage,
 function _create(user, collaboration, event, callback) {
   var userData = {objectType: 'user', id: user._id};
 
-  collaborationPermission.canWrite(collaboration, userData, function (err, result) {
+  collaborationPermission.canWrite(collaboration, userData, function(err, result) {
     if (err || !result) {
       return callback(err, result);
     }
@@ -33,7 +33,7 @@ function _create(user, collaboration, event, callback) {
       id: collaboration.activity_stream.uuid
     }];
 
-    eventMessage.save({eventId: event.event_id, author: user, shares: shares}, function (err, saved) {
+    eventMessage.save({eventId: event.event_id, author: user, shares: shares}, function(err, saved) {
       if (err) {
         return callback(err);
       }

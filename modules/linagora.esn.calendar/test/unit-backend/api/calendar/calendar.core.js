@@ -19,13 +19,13 @@ describe('The calendar core module', function() {
   var userMock = {
     _user: {},
     _err: null,
-    get: function (id, callback) {
+    get: function(id, callback) {
       return callback(this._err, this._user);
     }
   };
   var activityStreamHelperMock = {
     helpers: {
-      userMessageToTimelineEntry: function () {
+      userMessageToTimelineEntry: function() {
       }
     }
   };
