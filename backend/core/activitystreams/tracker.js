@@ -25,13 +25,9 @@ module.exports.getTracker = function(type) {
     throw new Error(type + ' is not a valid tracker type');
   }
 
-  function exists(userId, callback) {
-    userId = userId._id || userId;
-    Tracker.findById(userId, function(err, doc) {
-      if (err) {
-        return callback(err);
-      }
-      return callback(null, !!doc);
+  function exists(user, callback) {
+    Tracker.findById(user._id, function(err, doc) {
+      return callback(err, !!doc);
     });
   }
 

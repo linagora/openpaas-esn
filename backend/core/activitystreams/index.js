@@ -137,7 +137,6 @@ function getTimelineEntryFromStreamMessage(activitystream, message, callback) {
     target: {
       objectType: 'activitystream',
       _id: activitystream.uuid
-
     },
     object: {
       objectType: message.objectType,

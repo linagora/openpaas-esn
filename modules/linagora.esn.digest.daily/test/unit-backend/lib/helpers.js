@@ -58,6 +58,12 @@ describe('The daily digest helpers module', function() {
       var result = require('../../../lib/helpers').getMostRecentMessage([messageA, messageB, messageC, messageD]);
       expect(result).to.deep.equal(messageA);
     });
+
+    it('should return input message if messages is undefined', function() {
+      var messageA = {_id: 1, published: new Date()};
+      var result = require('../../../lib/helpers').getMostRecentMessage(null, messageA);
+      expect(result).to.deep.equal(messageA);
+    });
   });
 
 });

@@ -128,12 +128,7 @@ function process(dependencies, user, digest) {
       template: TEMPLATE,
       noreply: noreply
     };
-
-    contentSender.send(from, to, content, options, 'email').then(function(result) {
-      return defer.resolve(result);
-    }, function(err) {
-      return defer.reject(err);
-    });
+    contentSender.send(from, to, content, options, 'email').then(defer.resolve, defer.reject);
   });
   return defer.promise;
 }
