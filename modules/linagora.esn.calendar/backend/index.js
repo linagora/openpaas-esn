@@ -13,6 +13,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.activitystreams', 'activitystreams'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.collaboration', 'collaborationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
@@ -34,6 +35,10 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     },
 
     deploy: function(dependencies, callback) {
+      // Register the new message type event
+      var message = dependencies('message');
+      message.registerMessageType('event', 'EventMessage');
+
       // Register the webapp
       var app = require('./webserver/application')(dependencies);
       app.use('/', this.api.caldavserver);

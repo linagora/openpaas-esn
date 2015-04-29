@@ -36,6 +36,13 @@ function getInstance(objectType, message) {
   return new Model(message);
 }
 
+function registerMessageType(objectType, schemaName, messageModule) {
+  objectTypeToSchemaName[objectType] = schemaName;
+  if (messageModule) {
+    type.event = messageModule;
+  }
+}
+
 function collectAuthors(messages, authorsMap) {
   var authors = authorsMap || Object.create(null);
 
@@ -292,6 +299,7 @@ module.exports = {
   copy: copy,
   getModel: getModel,
   getInstance: getInstance,
+  registerMessageType: registerMessageType,
   addNewComment: addNewComment,
   findByIds: findByIds,
   setAttachmentsReferences: setAttachmentsReferences,
