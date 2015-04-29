@@ -22,7 +22,6 @@ angular.module('esnApp', [
   'esn.session',
   'esn.activitystream',
   'esn.websocket',
-  'esn.contact',
   'esn.community',
   'esn.collaboration',
   'esn.application',
@@ -81,12 +80,6 @@ angular.module('esnApp', [
     $routeProvider.when('/profile', {
       templateUrl: '/views/esn/partials/profile',
       controller: 'profilecontroller'
-    });
-
-    $routeProvider.when('/contacts', {
-      templateUrl: '/views/esn/partials/contacts',
-      controller: 'contactsController',
-      resolve: { user: routeResolver.session('user') }
     });
 
     $routeProvider.when('/domains/:domain_id/members', {
