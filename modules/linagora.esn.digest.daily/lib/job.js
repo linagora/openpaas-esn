@@ -1,6 +1,7 @@
 'use strict';
 
 var util = require('util');
+var q = require('q');
 
 var NOREPLY = 'noreply@openpaas.org';
 var TEMPLATE = 'digest.daily';
@@ -11,22 +12,30 @@ function _prune(header, collaboration, message) {
     header.total.unreadMessages++;
   }
 
-  return {
+  var result = {
     content: message.content,
-    author: {
-      id: message.author._id,
-      firstname: message.author.firstname,
-      lastname: message.author.lastname,
-      displayName: util.format('%s %s', message.author.firstname, message.author.lastname),
-      avatar: message.author.avatar,
-      emails: message.author.emails
-    },
-    responses: message.responses.map(_prune.bind(null, header, collaboration)),
     published: message.published,
     objectType: message.objectType,
     weight: message.weight,
     read: message.read
   };
+
+  if (message.responses) {
+    result.responses = message.responses.map(_prune.bind(null, header, collaboration));
+  }
+
+  if (message.author) {
+    result.author = {
+      id: message.author._id,
+      firstname: message.author.firstname,
+      lastname: message.author.lastname,
+      displayName: util.format('%s %s', message.author.firstname, message.author.lastname),
+      avatar: message.author.currentAvatar,
+      emails: message.author.emails
+    };
+  }
+
+  return result;
 }
 
 function _isUnread(message) {
@@ -34,6 +43,10 @@ function _isUnread(message) {
 }
 
 function _hasUnreadResponses(message) {
+  if (!message.responses) {
+    return false;
+  }
+
   return message.responses.some(function(response) {
     return !response.read;
   });
@@ -101,8 +114,9 @@ function _buildContent(user, data) {
 function process(dependencies, user, digest) {
   var contentSender = dependencies('content-sender');
   var esnconfig = dependencies('esn-config');
+  var defer = q.defer();
 
-  return esnconfig('mail').get('mail', function(err, mail) {
+  esnconfig('mail').get('mail', function(err, mail) {
     var noreply = mail.noreply || NOREPLY;
     var from = { objectType: 'email', id: 'OpenPaaS <' + noreply + '>' };
     var to = { objectType: 'email', id: user.emails[0] };
@@ -114,9 +128,9 @@ function process(dependencies, user, digest) {
       template: TEMPLATE,
       noreply: noreply
     };
-
-    return contentSender.send(from, to, content, options, 'email');
+    contentSender.send(from, to, content, options, 'email').then(defer.resolve, defer.reject);
   });
+  return defer.promise;
 }
 
 module.exports = function(dependencies) {

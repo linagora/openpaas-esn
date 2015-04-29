@@ -36,56 +36,44 @@
         "messages": [
           {
             "content": "Message 2",
-            "author": {
-              "id": "54b68988ce89cbdd998e2746",
-              "firstname": "Christophe",
-              "lastname": "Hamerling",
-              "displayName": "Christophe Hamerling",
-              "emails": [
-                "chamerling@open-paas.dev"
-              ]
-            },
-            "responses": [
-              {
-                "content": "Lorem ipsum...",
-                "author": {
-                  "id": "54b68988ce89cbdd998e2746",
-                  "firstname": "Christophe",
-                  "lastname": "Hamerling",
-                  "displayName": "Christophe Hamerling",
-                  "emails": [
-                    "chamerling@open-paas.dev"
-                  ]
-                },
-                "responses": [],
-                "published": "2015-01-15T14:13:02.480Z",
-                "objectType": "whatsup",
-                "read": false
-              },
-              {
-                "content": "Lorem ipsum...",
-                "author": {
-                  "id": "54b68988ce89cbdd998e2746",
-                  "firstname": "Christophe",
-                  "lastname": "Hamerling",
-                  "displayName": "Christophe Hamerling",
-                  "emails": [
-                    "chamerling@open-paas.dev"
-                  ]
-                },
-                "responses": [],
-                "published": "2015-01-15T15:40:30.820Z",
-                "objectType": "whatsup",
-                "read": false
-              }
-            ],
             "published": "2015-01-15T14:11:44.601Z",
             "objectType": "whatsup",
             "weight": 3,
-            "read": false
-          },
-          {
-            "content": "Message 1",
+            "read": false,
+            "responses": [
+              {
+                "content": "Lorem ipsum...",
+                "published": "2015-01-15T14:13:02.480Z",
+                "objectType": "whatsup",
+                "read": false,
+                "responses": [],
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                }
+              },
+              {
+                "content": "Lorem ipsum...",
+                "published": "2015-01-15T15:40:30.820Z",
+                "objectType": "whatsup",
+                "read": false,
+                "responses": [],
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                }
+              }
+            ],
             "author": {
               "id": "54b68988ce89cbdd998e2746",
               "firstname": "Christophe",
@@ -94,45 +82,57 @@
               "emails": [
                 "chamerling@open-paas.dev"
               ]
-            },
-            "responses": [
-              {
-                "content": "Lorem ipsum...",
-                "author": {
-                  "id": "54b68988ce89cbdd998e2746",
-                  "firstname": "Christophe",
-                  "lastname": "Hamerling",
-                  "displayName": "Christophe Hamerling",
-                  "emails": [
-                    "chamerling@open-paas.dev"
-                  ]
-                },
-                "responses": [],
-                "published": "2015-01-15T14:13:02.480Z",
-                "objectType": "whatsup",
-                "read": false
-              },
-              {
-                "content": "Lorem ipsum...",
-                "author": {
-                  "id": "54b68988ce89cbdd998e2746",
-                  "firstname": "Christophe",
-                  "lastname": "Hamerling",
-                  "displayName": "Christophe Hamerling",
-                  "emails": [
-                    "chamerling@open-paas.dev"
-                  ]
-                },
-                "responses": [],
-                "published": "2015-01-15T15:40:30.820Z",
-                "objectType": "whatsup",
-                "read": false
-              }
-            ],
+            }
+          },
+          {
+            "content": "Message 1",
             "published": "2015-01-15T14:11:44.601Z",
             "objectType": "whatsup",
             "weight": 2,
-            "read": true
+            "read": true,
+            "responses": [
+              {
+                "content": "Lorem ipsum...",
+                "published": "2015-01-15T14:13:02.480Z",
+                "objectType": "whatsup",
+                "read": false,
+                "responses": [],
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                }
+              },
+              {
+                "content": "Lorem ipsum...",
+                "published": "2015-01-15T15:40:30.820Z",
+                "objectType": "whatsup",
+                "read": false,
+                "responses": [],
+                "author": {
+                  "id": "54b68988ce89cbdd998e2746",
+                  "firstname": "Christophe",
+                  "lastname": "Hamerling",
+                  "displayName": "Christophe Hamerling",
+                  "emails": [
+                    "chamerling@open-paas.dev"
+                  ]
+                }
+              }
+            ],
+            "author": {
+              "id": "54b68988ce89cbdd998e2746",
+              "firstname": "Christophe",
+              "lastname": "Hamerling",
+              "displayName": "Christophe Hamerling",
+              "emails": [
+                "chamerling@open-paas.dev"
+              ]
+            }
           }
         ],
         "unreadMessages": 5

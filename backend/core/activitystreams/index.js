@@ -124,6 +124,29 @@ function addTimelineEntry(entry, cb) {
 }
 module.exports.addTimelineEntry = addTimelineEntry;
 
+function getTimelineEntryFromStreamMessage(activitystream, message, callback) {
+  if (!activitystream) {
+    return callback(new Error('Activitystream is required'));
+  }
+
+  if (!message) {
+    return callback(new Error('Message is required'));
+  }
+
+  var query = {
+    target: {
+      objectType: 'activitystream',
+      _id: activitystream.uuid
+    },
+    object: {
+      objectType: message.objectType,
+      _id: message._id
+    }
+  };
+  return TimelineEntry.findOne(query, callback);
+}
+module.exports.getTimelineEntryFromStreamMessage = getTimelineEntryFromStreamMessage;
+
 module.exports.permission = require('./permission');
 
 module.exports.tracker = require('./tracker');

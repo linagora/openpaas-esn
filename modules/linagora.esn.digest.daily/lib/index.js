@@ -48,7 +48,7 @@ module.exports = function(dependencies) {
       logger.info('Daily Digest Job has been stopped');
     };
 
-    cron.submit(getCronDescription(), getCronExpression(), process.bind(null, dependencies), onComplete, function(err, job) {
+    cron.submit(getCronDescription(), getCronExpression(), process, onComplete, function(err, job) {
       if (err) {
         logger.error('Error while submitting the daily digest job', err);
         return callback(err);
