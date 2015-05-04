@@ -19,7 +19,7 @@ describe('The messages API', function() {
   var password = 'secret';
   var email;
   var restrictedEmail;
-  var message1, message2, message3, message4, message5;
+  var message1, message2, message3, message4, message5, message6, comment;
 
   beforeEach(function(done) {
     var self = this;
@@ -93,6 +93,20 @@ describe('The messages API', function() {
           }]
         });
 
+        comment = new Whatsup({
+          content: 'My comment',
+          author: testuser._id
+        });
+
+        message6 = new Whatsup({
+          content: 'message 6',
+          responses: [comment],
+          shares: [{
+            objectType: 'activitystream',
+            id: privateCommunity.activity_stream.uuid
+          }]
+        });
+
         async.series([
             function(callback) {
               message1.author = testuser._id;
@@ -113,6 +127,10 @@ describe('The messages API', function() {
             function(callback) {
               message5.author = testuser._id;
               saveMessage(message5, callback);
+            },
+            function(callback) {
+              message6.author = testuser._id;
+              saveMessage(message6, callback);
             },
             function(callback) {
               restrictedCommunity.members.splice(0, 1);
@@ -644,6 +662,39 @@ describe('The messages API', function() {
         expect(res.body).to.be.an('object');
         expect(res.body.author).to.be.an('object');
         expect(res.body.author._id).to.equal(testuser._id.toString());
+        done();
+      });
+    });
+  });
+
+  it('should be able to retrieve a message which is a response from its id', function(done) {
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages/' + comment._id));
+      req.expect(200);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.an('object');
+        expect(res.body._id).to.equal(comment._id.toString());
+        expect(res.body.content).to.equal(comment.content);
+        done();
+      });
+    });
+  });
+
+  it('should retrieve multiple messages and responses from their ids', function(done) {
+    this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+      if (err) { return done(err); }
+
+      var req = loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id + '&ids[]=' + comment._id));
+      req.expect(200);
+      req.end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res.body).to.be.an.array;
+        expect(res.body.length).to.equal(2);
+        expect(res.body[0]._id).to.equal(message1._id.toString());
+        expect(res.body[1]._id).to.equal(comment._id.toString());
         done();
       });
     });

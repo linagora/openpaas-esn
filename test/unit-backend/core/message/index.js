@@ -404,6 +404,49 @@ describe('The message core module', function() {
       });
     });
 
+    it('should search for messages and their responses', function(done) {
+      var response = {_id: '5', author: '1'};
+      var messageA = {_id: '1', author: '1', responses: []};
+      var messageB = {_id: '2', author: '1', responses: []};
+      var messageC = {_id: '4', author: '1', responses: [response]};
+
+      var messageModule = this.helpers.requireBackend('core/message');
+      this.mongoose.model = function(modelName) {
+        if (modelName === 'User') {
+          return {
+            find: function() {
+              return {
+                exec: function(callback) {
+                  return callback(null, []);
+                }
+              };
+            }
+          };
+        }
+        return {
+          collection: {
+            find: function() {
+              return {
+                toArray: function(callback) {
+                  callback(null, [messageA, messageB, messageC]);
+                }
+              };
+            }
+          }
+        };
+      };
+
+      messageModule.findByIds(['1', '2', '5'], function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.exist;
+        expect(result.length).to.equal(3);
+        expect(result[0]._id).to.equal(messageA._id);
+        expect(result[1]._id).to.equal(messageB._id);
+        expect(result[2]._id).to.equal(response._id);
+        done();
+      });
+    });
+
     it('should search for messages authors', function(done) {
       var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(modelName) {

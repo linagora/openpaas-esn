@@ -192,14 +192,36 @@ function findByIds(ids, callback) {
   var formattedIds = ids.map(function(id) {
     return mongoose.Types.ObjectId(id);
   });
-  var query = { _id: { $in: formattedIds } };
+
+  var query = {
+    $or: [
+      {_id: { $in: formattedIds }},
+      {'responses._id': { $in: formattedIds }}
+    ]
+  };
+
+  function getMessage(message) {
+    if (ids.indexOf(message._id + '') >= 0) {
+      return message;
+    }
+    var result = message.responses.filter(function(response) {
+      return ids.indexOf(response._id + '') >= 0;
+    }).pop();
+
+    if (result) {
+      result.shares = message.shares;
+    }
+    return result;
+  }
 
   whatsupModel.collection.find(query).toArray(function(err, foundMessages) {
     if (err) {
       return callback(err);
     }
 
-    var authorsMap = collectAuthors(foundMessages);
+    var messages = foundMessages.map(getMessage);
+
+    var authorsMap = collectAuthors(messages);
     var ids = Object.keys(authorsMap).map(function(id) {
       return mongoose.Types.ObjectId(id);
     });
@@ -210,7 +232,7 @@ function findByIds(ids, callback) {
       if (err) { return callback(err); }
 
       applyAuthors(authorsMap, authors);
-      return callback(null, foundMessages);
+      return callback(null, messages);
     });
   });
 }
