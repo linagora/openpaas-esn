@@ -81,4 +81,11 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/modules/message/event/event-edition.html'
     };
+  })
+  .directive('calendarNavbarLink', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/partials/calendar-navbar-link.html'
+    };
   });

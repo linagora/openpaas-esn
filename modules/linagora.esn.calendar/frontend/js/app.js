@@ -18,4 +18,8 @@ angular.module('esn.calendar', [
       community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
     }
   });
+
+  $routeProvider.when('/calendars', {
+    templateUrl: '/calendar/views/partials/calendars'
+  });
 });
