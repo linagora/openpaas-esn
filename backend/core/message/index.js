@@ -13,7 +13,6 @@ var MESSAGES_COLLECTION = 'messages';
 var objectTypeToSchemaName = {
   email: 'EmailMessage',
   whatsup: 'Whatsup',
-  event: 'EventMessage',
   poll: 'PollMessage'
 };
 
@@ -35,6 +34,13 @@ function getInstance(objectType, message) {
   var Model;
   Model = getModel(objectType);
   return new Model(message);
+}
+
+function registerMessageType(objectType, schemaName, messageModule) {
+  objectTypeToSchemaName[objectType] = schemaName;
+  if (messageModule) {
+    type.event = messageModule;
+  }
 }
 
 function collectAuthors(messages, authorsMap) {
@@ -293,6 +299,7 @@ module.exports = {
   copy: copy,
   getModel: getModel,
   getInstance: getInstance,
+  registerMessageType: registerMessageType,
   addNewComment: addNewComment,
   findByIds: findByIds,
   setAttachmentsReferences: setAttachmentsReferences,

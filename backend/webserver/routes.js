@@ -86,9 +86,6 @@ exports = module.exports = function(application) {
 
   application.get('/api/monitoring', require('./controllers/monitoring'));
 
-  var caldav = require('./controllers/caldavserver');
-  application.get('/api/caldavserver', authorize.requiresAPILogin, caldav.getCaldavUrl);
-
   var documentstore = require('./controllers/document-store');
   application.put('/api/document-store/connection', documentstore.store);
   application.put('/api/document-store/connection/:hostname/:port/:dbname', documentstore.test);
@@ -225,10 +222,4 @@ exports = module.exports = function(application) {
   var feedbackMiddleware = require('./middleware/feedback');
   application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);
 
-  var calendars = require('./controllers/calendars');
-  application.post('/api/calendars/:objectType/:id/events',
-    authorize.requiresAPILogin,
-    collaborationMW.load,
-    collaborationMW.requiresCollaborationMember,
-    calendars.dispatchEvent);
 };

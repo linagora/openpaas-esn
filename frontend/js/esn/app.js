@@ -31,8 +31,6 @@ angular.module('esnApp', [
   'esn.activitystreams-tracker',
   'esn.api-notification',
   'esn.user-notification',
-  'esn.calendar',
-  'esn.ical',
   'esn.object-type',
   'esn.file',
   'esn.background',
@@ -147,14 +145,6 @@ angular.module('esnApp', [
         memberOf: function() {
           return [];
         }
-      }
-    });
-
-    $routeProvider.when('/communities/:community_id/calendar', {
-      templateUrl: '/views/modules/community/community-calendar',
-      controller: 'communityCalendarController',
-      resolve: {
-        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
       }
     });
 

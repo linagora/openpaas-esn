@@ -1,8 +1,7 @@
-.col-xs-12.nopadding.esn-community
-  a.btn.btn-info(ng-href='/#/communities/{{community._id}}/calendar')
-    | #{__('Calendar')} &nbsp;
-    i.fa.fa-calendar
-  &nbsp;
+.col-xs-12.nopadding.esn-community.esn-community-toolbar
+  // TODO Remove this when the injection module has
+  // the method to inject inside all domains.
+  calendar-button-toolbar
   a.btn.btn-info(ng-href='/#/appstore/communities/{{community._id}}/apps')
     | #{__('Module Manager')} &nbsp;
     i.fa.fa-cubes

@@ -47,6 +47,8 @@ angular.module('esn.activitystream')
     return {
       restrict: 'E',
       scope: {
+        // TODO Remove this when the injection module has
+        // the method to inject inside all domains.
         calendarId: '=',
         streams: '=',
         activitystream: '='

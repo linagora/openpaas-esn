@@ -91,6 +91,16 @@ module.exports = function(grunt) {
     child.on('close', function(code) { done(code ? false : true); });
   });
 
+  grunt.registerTask('test-modules-frontend', 'run the FrontEnd tests', function() {
+    var done = this.async();
+
+    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS', './test/config/karma.modules.conf.js']);
+
+    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
+    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
+    child.on('close', function(code) { done(code ? false : true); });
+  });
+
   grunt.registerTask('test-frontend-all', 'run the FrontEnd tests on all possible browsers', function() {
     var done = this.async();
 
@@ -100,6 +110,17 @@ module.exports = function(grunt) {
     child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
     child.on('close', function(code) { done(code ? false : true); });
   });
+
+  grunt.registerTask('test-modules-frontend-all', 'run the FrontEnd tests on all possible browsers', function() {
+    var done = this.async();
+
+    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS,Firefox,Chrome', './test/config/karma.modules.conf.js']);
+
+    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
+    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
+    child.on('close', function(code) { done(code ? false : true); });
+  });
+
   grunt.registerTask('test', ['test-backend', 'test-frontend']);
   grunt.registerTask('default', ['test']);
 };

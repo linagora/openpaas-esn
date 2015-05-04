@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
-'esn.background', 'esn.notification', 'esn.object-type', 'restangular', 'mgcrea.ngStrap',
+angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'restangular', 'mgcrea.ngStrap',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
   .controller('messageEditionController', ['$scope', function($scope) {
@@ -483,56 +482,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.calendar',
       templateUrl: '/views/modules/message/templates/emailMessage.html'
     };
   })
-  .directive('eventMessage', ['$rootScope', 'calendarService', 'session', 'moment', function($rootScope, calendarService, session, moment) {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/message/templates/eventMessage.html',
-      link: function($scope, element, attrs) {
-        $scope.changeParticipation = function(partstat) {
-          var vcalendar = $scope.event.vcalendar;
-          var path = $scope.event.path;
-          var etag = $scope.event.etag;
-          var emails = session.user.emails;
-
-          calendarService.changeParticipation(path, vcalendar, emails, partstat, etag).then(function(shell) {
-            $scope.partstat = partstat;
-            if (shell) {
-              $scope.event = shell;
-            }
-          });
-        };
-
-        function updateEvent() {
-          calendarService.getEvent($scope.message.eventId).then(function(event) {
-            // Set up dom nodes
-            $scope.event = event;
-            element.find('>div>div.loading').addClass('hidden');
-            element.find('>div>div.message').removeClass('hidden');
-
-            // Load participation status
-            var vcalendar = event.vcalendar;
-            var emails = session.user.emails;
-            var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
-            var organizer = attendees.filter(function(att) {
-              return att.name === 'organizer' && att.getParameter('partstat');
-            });
-
-            var attendee = organizer[0] || attendees[0];
-            if (attendee) {
-              $scope.partstat = attendee.getParameter('partstat');
-            }
-          }, function(response) {
-            var error = 'Could not retrieve event: ' + response.statusText;
-            element.find('>div>.loading').addClass('hidden');
-            element.find('>div>.error').text(error).removeClass('hidden');
-          });
-        }
-
-        updateEvent();
-      }
-    };
-  }])
   .directive('whatsupEdition', function() {
     return {
       restrict: 'E',

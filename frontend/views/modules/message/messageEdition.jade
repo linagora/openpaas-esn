@@ -7,10 +7,10 @@ div.esn-panel.message-panel.whatsup-form.form-container(ng-controller='messageEd
     li
       button.btn.btn-link(type='button', ng-click='show("poll")')
         i.fa.fa-bar-chart
-    li(ng-show='::calendarId')
-      button.btn.btn-link(type='button', ng-click='show("event")')
-        i.fa.fa-calendar
+    message-edition-event-button
+    injections-widget(injection-anchor-id="messageEditionMessageTypeButton", injection-subject="community")
   div(data-ng-switch='type')
     whatsup-edition(data-ng-switch-when='whatsup', type="type")
     poll-edition(data-ng-switch-when='poll', type="type")
     event-edition(data-ng-switch-when='event')
+    injections-widget(injection-anchor-id="messageEditionMessageTypeSwitch", injection-subject="community")

@@ -123,6 +123,7 @@ function mockPubSub(path, localStub, globalStub) {
   };
 
   mockery.registerMock(path, mockedPubSub);
+  return mockedPubSub;
 }
 
 module.exports = function(mixin, testEnv) {
