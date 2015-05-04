@@ -2,6 +2,7 @@
 
 var async = require('async'),
     expect = require('chai').expect,
+    rewire = require('rewire'),
     MongoClient = require('mongodb').MongoClient,
     mockery = require('mockery');
 
@@ -284,6 +285,11 @@ module.exports = function(mixin, testEnv) {
   mixin.requireBackend = function(path) {
     return require(testEnv.basePath + '/backend/' + path);
   };
+
+  mixin.rewireBackend = function(path) {
+    return rewire(testEnv.basePath + '/backend/' + path);
+  };
+
   mixin.requireFixture = function(path) {
     return require(testEnv.fixtures + '/' + path);
   };
