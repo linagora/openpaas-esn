@@ -51,24 +51,15 @@ angular.module('esn.calendar')
       }
     };
   }])
-  .directive('communityButtonEventCreate', function() {
+  .directive('buttonEventCreate', function() {
     return {
       restrict: 'E',
       replace: true,
       scope: {
-        community: '='
-      },
-      templateUrl: '/calendar/views/community/community-button-event-create.html'
-    };
-  })
-  .directive('userButtonEventCreate', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
+        community: '=',
         user: '='
       },
-      templateUrl: '/calendar/views/user/user-button-event-create.html'
+      templateUrl: '/calendar/views/partials/button-event-creation.html'
     };
   })
   .directive('calendarButtonToolbar', function() {
@@ -85,11 +76,40 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
+  .directive('eventCreate', ['widget.wizard', '$timeout', '$location', '$alert', '$rootScope',
+    function(Wizard, $timeout, $location, $alert, $rootScope) {
+      function link($scope, element) {
+        $scope.wizard = new Wizard([
+          '/calendar/views/message/event/event-creation-wizard'
+        ]);
+        $rootScope.$on('modal.show', function() {
+          element.find('#title').focus();
+        });
+      }
+      return {
+        restrict: 'E',
+        templateUrl: '/calendar/views/message/event/event-create',
+        scope: {
+          user: '=',
+          domain: '=',
+          createModal: '='
+        },
+        link: link
+      };
+    }
+  ])
   .directive('eventEdition', function() {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/message/event/event-edition.html'
+    };
+  })
+  .directive('eventForm', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/partials/event-form.html'
     };
   })
   .directive('calendarNavbarLink', function() {
