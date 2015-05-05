@@ -11,15 +11,19 @@ angular.module('esn.calendar', [
   'ui.calendar'
 ])
   .config(function($routeProvider, routeResolver) {
-  $routeProvider.when('/calendar/communities/:community_id', {
-    templateUrl: '/calendar/views/modules/community/community-calendar',
-    controller: 'communityCalendarController',
-    resolve: {
-      community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
-    }
+    $routeProvider.when('/calendar/communities/:community_id', {
+      templateUrl: '/calendar/views/modules/community/community-calendar',
+      controller: 'communityCalendarController',
+      resolve: {
+        community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
+      }
+    });
+    $routeProvider.when('/calendars', {
+      templateUrl: '/calendar/views/partials/calendars',
+      controller: 'userCalendarController',
+      resolve: {
+        user: routeResolver.session('user')
+      }
+    });
   });
 
-  $routeProvider.when('/calendars', {
-    templateUrl: '/calendar/views/partials/calendars'
-  });
-});

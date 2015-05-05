@@ -1,7 +1,13 @@
-.col-xs-12.esn-panel
-  .row
-    h2.esn-communities-header
-      ul.list-inline
-        li
-          i.fa.fa-calendar
-          | #{__('Calendars')}
+div
+   .row
+      .col-xs-12
+         user-button-event-create(user='user', ng-click='createEvent()')
+   .vertiz-space
+   .row
+      .col-xs-12
+         span {{alertMessage}}
+   .vertiz-space
+   .row
+      .col-xs-12
+         div(ui-calendar="" class="calendar" ng-model="eventSources")
+

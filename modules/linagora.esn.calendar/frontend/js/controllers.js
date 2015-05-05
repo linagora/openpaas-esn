@@ -31,4 +31,21 @@ angular.module('esn.calendar')
     }
 
     $scope.eventSources = [communityEventSource];
+  }])
+  .controller('userCalendarController', ['$scope', 'user', 'calendarService', function($scope, user, calendarService) {
+
+    $scope.changeView = function(view, calendar) {
+      calendar.fullCalendar('changeView', view);
+    };
+
+    $scope.renderCalender = function(calendar) {
+      calendar.fullCalendar('render');
+    };
+
+    function userEventSource(start, end, timezone, callback) {
+      var path = '/calendars/' + user._id + '/calendar/';
+      return calendarService.list(path, start, end, timezone).then(callback);
+    }
+
+    $scope.eventSources = [userEventSource];
   }]);

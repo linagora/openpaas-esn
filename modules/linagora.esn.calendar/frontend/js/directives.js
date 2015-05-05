@@ -61,6 +61,16 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/modules/community/community-button-event-create.html'
     };
   })
+  .directive('userButtonEventCreate', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        user: '='
+      },
+      templateUrl: '/calendar/views/modules/user/user-button-event-create.html'
+    };
+  })
   .directive('calendarButtonToolbar', function() {
     return {
       restrict: 'E',
