@@ -7,6 +7,15 @@ angular.module('esn.calendar')
       RestangularConfigurer.setFullResponse(true);
     });
   })
+  .factory('calendarEventSource', ['$log', 'calendarService', function($log, calendarService) {
+    return function(calendarId) {
+      return function(start, end, timezone, callback) {
+        $log.debug('Getting events for %s', calendarId);
+        var path = '/calendars/' + calendarId + '/events/';
+        return calendarService.list(path, start, end, timezone).then(callback);
+      };
+    };
+  }])
   .factory('calendarService', ['CalendarRestangular', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, moment, tokenAPI, uuid4, ICAL, $q, $http) {
 
     /**
