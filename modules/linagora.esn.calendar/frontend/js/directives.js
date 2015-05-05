@@ -5,7 +5,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/modules/message/templates/eventMessage.html',
+      templateUrl: '/calendar/views/message/templates/eventMessage.html',
       link: function($scope, element, attrs) {
         $scope.changeParticipation = function(partstat) {
           var vcalendar = $scope.event.vcalendar;
@@ -58,7 +58,7 @@ angular.module('esn.calendar')
       scope: {
         community: '='
       },
-      templateUrl: '/calendar/views/modules/community/community-button-event-create.html'
+      templateUrl: '/calendar/views/community/community-button-event-create.html'
     };
   })
   .directive('userButtonEventCreate', function() {
@@ -68,34 +68,34 @@ angular.module('esn.calendar')
       scope: {
         user: '='
       },
-      templateUrl: '/calendar/views/modules/user/user-button-event-create.html'
+      templateUrl: '/calendar/views/user/user-button-event-create.html'
     };
   })
   .directive('calendarButtonToolbar', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/modules/community/calendar-button-toolbar.html'
+      templateUrl: '/calendar/views/community/community-calendar-button-toolbar.html'
     };
   })
   .directive('messageEditionEventButton', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/modules/message/event/message-edition-event-button.html'
+      templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
   .directive('eventEdition', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/modules/message/event/event-edition.html'
+      templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
   .directive('calendarNavbarLink', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/partials/calendar-navbar-link.html'
+      templateUrl: '/calendar/views/user/user-calendar-navbar-link.html'
     };
   });
