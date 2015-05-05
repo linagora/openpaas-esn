@@ -2,7 +2,8 @@
 
 var request = require('supertest'),
   expect = require('chai').expect,
-  async = require('async');
+  async = require('async'),
+  uuid = require('node-uuid');
 
 describe('The messages API', function() {
   var app;
@@ -16,10 +17,11 @@ describe('The messages API', function() {
   var community;
   var restrictedCommunity;
   var privateCommunity;
+  var openCommunity;
   var password = 'secret';
   var email;
   var restrictedEmail;
-  var message1, message2, message3, message4, message5, message6, comment;
+  var message1, message2, message3, message4, message5, message6, comment, messageOnOpenCommunity;
 
   beforeEach(function(done) {
     var self = this;
@@ -51,6 +53,7 @@ describe('The messages API', function() {
         community = models.communities[0];
         privateCommunity = models.communities[1];
         restrictedCommunity = models.communities[2];
+        openCommunity = models.communities[3];
         email = testuser.emails[0];
         restrictedEmail = restrictedUser.emails[0];
 
@@ -107,6 +110,14 @@ describe('The messages API', function() {
           }]
         });
 
+        messageOnOpenCommunity = new Whatsup({
+          content: 'message on open community',
+          shares: [{
+            objectType: 'activitystream',
+            id: openCommunity.activity_stream.uuid
+          }]
+        });
+
         async.series([
             function(callback) {
               message1.author = testuser._id;
@@ -131,6 +142,10 @@ describe('The messages API', function() {
             function(callback) {
               message6.author = testuser._id;
               saveMessage(message6, callback);
+            },
+            function(callback) {
+              messageOnOpenCommunity.author = testuser._id;
+              saveMessage(messageOnOpenCommunity, callback);
             },
             function(callback) {
               restrictedCommunity.members.splice(0, 1);
@@ -728,7 +743,7 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' }
+          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid }
         });
         req.expect(400);
         req.end(done);
@@ -752,20 +767,142 @@ describe('The messages API', function() {
       });
     });
 
+    it('should return 404 if resource does not exists', function(done) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
+        req.send({
+          'resource': { 'objectType': 'activitystream', 'id': uuid.v4() },
+          'target': [
+            {'objectType': 'activitystream', 'id': uuid.v4() }
+          ]
+        });
+        req.expect(404);
+        req.end(function(err, response) {
+          if (err) {
+            return done(err);
+          }
+          expect(response.body.error.details).to.match(/Collaboration not found/);
+          done();
+        });
+      });
+    });
+
+    it('should return 403 if user can not read resource', function(done) {
+      this.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
+        req.send({
+          'resource': { 'objectType': 'activitystream', 'id': privateCommunity.activity_stream.uuid },
+          'target': [
+            {'objectType': 'activitystream', 'id': uuid.v4() }
+          ]
+        });
+        req.expect(403);
+        req.end(function(err, response) {
+          if (err) {
+            return done(err);
+          }
+          expect(response.body.error.details).to.match(/Not enough rights to read messages from collaboration/);
+          done();
+        });
+      });
+    });
+
     it('should return 404 the message does not exists', function(done) {
       this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).post('/api/messages' + message2._id + '/shares'));
+        var ObjectId = require('bson').ObjectId;
+        var id = new ObjectId();
+        var req = loggedInAsUser(request(app).post('/api/messages/' + id + '/shares'));
         req.send({
-          'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
+          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
           'target': [
-            {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
+            {'objectType': 'activitystream', 'id': community.activity_stream.uuid }
           ]
         });
         req.expect(404);
+        req.end(function(err, response) {
+          if (err) {
+            return done(err);
+          }
+          expect(response.body.error.details).to.match(/Message has not been found/);
+          done();
+        });
+      });
+    });
+
+    it('should return 400 resource is not a valid tuple', function(done) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + messageOnOpenCommunity._id + '/shares'));
+        req.send({
+          'resource': { 'id': openCommunity.activity_stream.uuid },
+          'target': [
+            {'objectType': 'activitystream', 'id': restrictedCommunity.activity_stream.uuid }
+          ]
+        });
+        req.expect(400);
+        req.end(function(err, response) {
+          if (err) {
+            return done(err);
+          }
+          expect(response.body.error.details).to.match(/Invalid tuple/);
+          done();
+        });
+      });
+    });
+
+    it('should return 403 when trying to share a message on a not open collaboration when user is not member of it', function(done) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + messageOnOpenCommunity._id + '/shares'));
+        req.send({
+          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
+          'target': [
+            {'objectType': 'activitystream', 'id': restrictedCommunity.activity_stream.uuid }
+          ]
+        });
+        req.expect(400);
+        req.end(function(err, response) {
+          if (err) {
+            return done(err);
+          }
+          expect(response.body.error.details).to.match(/Can not find any writable target in request/);
+          done();
+        });
+      });
+    });
+
+    it('should be able to share a message on a not open community the user is member of', function(done) {
+      this.helpers.api.loginAsUser(app, restrictedEmail, password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var req = loggedInAsUser(request(app).post('/api/messages/' + message2._id + '/shares'));
+        req.send({
+          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
+          'target': [
+            {'objectType': 'activitystream', 'id': restrictedCommunity.activity_stream.uuid }
+          ]
+        });
+        req.expect(201);
         req.end(done);
       });
     });
@@ -779,9 +916,9 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
-          'resource': { 'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
+          'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
           'target': [
-            {'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }
+            {'objectType': 'activitystream', 'id': community.activity_stream.uuid }
           ]
         });
         req.expect(201);
@@ -809,8 +946,8 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + commentId + '/shares'));
         req.send({
-            'resource': { 'objectType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27' },
-            'target': [{'objectType': 'activitystream', 'id': '976f55e7-b72f-4ac0-afb2-400a85c50951' }]
+            'resource': { 'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid },
+            'target': [{'objectType': 'activitystream', 'id': community.activity_stream.uuid }]
         });
         req.expect(201);
         req.end(function(err, res) {
@@ -829,7 +966,7 @@ describe('The messages API', function() {
                 expect(original.responses[0]).to.exist;
                 expect(original.responses[0].copyOf).to.exist;
                 expect(original.responses[0].copyOf.target).to.have.length(1);
-                expect(original.responses[0].copyOf.target[0].id).to.equal('976f55e7-b72f-4ac0-afb2-400a85c50951');
+                expect(original.responses[0].copyOf.target[0].id).to.equal(community.activity_stream.uuid);
                 expect(original.responses[0].copyOf.target[0].objectType).to.equal('activitystream');
                 done();
               });
@@ -853,7 +990,7 @@ describe('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message3._id + '/shares'));
         req.send({
-          'resource': {'objecType': 'activitystream', 'id': '7fd3e254-394f-46eb-994d-a2ec23e7cf27'},
+          'resource': {'objectType': 'activitystream', 'id': openCommunity.activity_stream.uuid},
           'target': [target]
         });
         req.expect(201);

@@ -119,6 +119,14 @@ function validateAndSanitize(type, value) {
   }
 }
 
+function isTuple(tuple) {
+  return !!tuple && !!tuple.objectType && !!tuple.id;
+}
+
+function isTupleOfType(type, tuple) {
+  return isTuple(tuple) && tuple.objectType === type;
+}
+
 module.exports = {
   user: user,
   community: community,
@@ -127,5 +135,7 @@ module.exports = {
   icon: icon,
   url: url,
   get: get,
-  validateAndSanitize: validateAndSanitize
+  validateAndSanitize: validateAndSanitize,
+  isTuple: isTuple,
+  isTupleOfType: isTupleOfType
 };

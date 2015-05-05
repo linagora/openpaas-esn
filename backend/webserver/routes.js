@@ -61,7 +61,7 @@ exports = module.exports = function(application) {
   application.post('/api/messages', authorize.requiresAPILogin, messageMiddleware.canReplyTo, asMiddleware.filterWritableTargets,
     messageMiddleware.checkTargets, messageMiddleware.checkMessageModel, messages.createOrReplyToMessage);
   application.get('/api/messages/:id', authorize.requiresAPILogin, messages.getMessage);
-  application.post('/api/messages/:id/shares', authorize.requiresAPILogin, messages.copy);
+  application.post('/api/messages/:id/shares', authorize.requiresAPILogin, messageMiddleware.canShareFrom, messageMiddleware.canShareTo, messages.copy);
   application.post('/api/messages/email', authorize.requiresAPILogin, asMiddleware.isValidStream, messages.createMessageFromEmail);
   application.put('/api/messages/:id/vote/:vote', authorize.requiresAPILogin, requestMW.castParamToObjectId('id'), pollMessages.vote);
 

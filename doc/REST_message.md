@@ -158,8 +158,8 @@ The id of the new message in the '_id' property.
 
 - 201 Created. With the _id of the new message.
 - 400 Bad request. The current request is missing mandatory parameters
-- 403 Unauthorized. The current user is not authorized to copy message to the specified target(s)
-- 404 Not found. The message related to the request parameter id does not exist
+- 403 Unauthorized. The current user is not authorized to copy message from the resource or to the specified target(s)
+- 404 Not found. The message related to the request parameter id does not exist, or the resource does not exists
 - 500 Internal server error: there was a problem.
 
 **Request:**

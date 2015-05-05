@@ -77,4 +77,50 @@ describe('The tuple core module', function() {
     });
   });
 
+  describe('isTuple function', function() {
+    var mod;
+    beforeEach(function() {
+      mod = require(this.modPath);
+    });
+
+    it('should send back false when undefined', function() {
+      expect(mod.isTuple()).to.be.false;
+    });
+
+    it('should send back false when objectType and id are undefined', function() {
+      expect(mod.isTuple({})).to.be.false;
+    });
+
+    it('should send back false when id is undefined', function() {
+      expect(mod.isTuple({objectType: 'abc'})).to.be.false;
+    });
+
+    it('should send back false when objectType is undefined', function() {
+      expect(mod.isTuple({id: 'abc'})).to.be.false;
+    });
+
+    it('should send back true when correctly defined', function() {
+      expect(mod.isTuple({objectType: '123', id: '456'})).to.be.true;
+    });
+  });
+
+  describe('isTupleOfType function', function() {
+    var mod;
+    beforeEach(function() {
+      mod = require(this.modPath);
+    });
+
+    it('should send back false when undefined', function() {
+      expect(mod.isTupleOfType()).to.be.false;
+    });
+
+    it('should send back false when objectType does not match', function() {
+      expect(mod.isTupleOfType('user', {objectType: 'group', id: '123'})).to.be.false;
+    });
+
+    it('should send back true when objectType does match', function() {
+      expect(mod.isTupleOfType('user', {objectType: 'user', id: '123'})).to.be.user;
+    });
+  });
+
 });

@@ -194,14 +194,6 @@ function getOne(req, res) {
 }
 
 function copy(req, res) {
-  if (!req.body.resource) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'resource is required'}});
-  }
-
-  if (!req.body.target || req.body.target && !req.body.target.length) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'target body is required'}});
-  }
-
   var id = req.param('id');
   var resource = req.body.resource;
   var target = req.body.target;
