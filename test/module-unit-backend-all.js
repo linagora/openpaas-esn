@@ -7,6 +7,7 @@ var mockery = require('mockery'),
 before(function() {
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
+  chai.use(require('chai-as-promised'));
   this.testEnv = {};
   this.helpers = {};
   helpers(this.helpers, this.testEnv);

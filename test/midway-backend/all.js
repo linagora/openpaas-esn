@@ -12,6 +12,7 @@ var testConfig = require('../config/servers-conf.js');
 before(function() {
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
+  chai.use(require('chai-as-promised'));
   var basePath = path.resolve(__dirname + '/../..');
   var tmpPath = path.resolve(basePath, testConfig.tmp);
   this.testEnv = {
