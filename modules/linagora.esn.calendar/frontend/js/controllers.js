@@ -28,7 +28,7 @@ angular.module('esn.calendar')
       }
     }
   })
-  .controller('communityCalendarController', ['$scope', 'community', 'calendarService', 'calendarEventSource', 'COMMUNITY_UI_CONFIG', function($scope, community, calendarService, calendarEventSource, COMMUNITY_UI_CONFIG) {
+  .controller('communityCalendarController', ['$scope', 'community', 'calendarEventSource', 'COMMUNITY_UI_CONFIG', function($scope, community, calendarEventSource, COMMUNITY_UI_CONFIG) {
 
     $scope.changeView = function(view, calendar) {
       calendar.fullCalendar('changeView', view);
@@ -41,7 +41,7 @@ angular.module('esn.calendar')
     $scope.uiConfig = COMMUNITY_UI_CONFIG;
     $scope.eventSources = [calendarEventSource(community._id)];
   }])
-  .controller('userCalendarController', ['$scope', 'user', 'calendarService', 'calendarEventSource', 'USER_UI_CONFIG', function($scope, user, calendarService, calendarEventSource, USER_UI_CONFIG) {
+  .controller('userCalendarController', ['$scope', 'user', 'calendarEventSource', 'USER_UI_CONFIG', function($scope, user, calendarEventSource, USER_UI_CONFIG) {
 
     $scope.changeView = function(view, calendar) {
       calendar.fullCalendar('changeView', view);
