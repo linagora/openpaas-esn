@@ -16,6 +16,7 @@ angular.module('esn.calendar')
   })
   .constant('USER_UI_CONFIG', {
     calendar: {
+      defaultView: 'agendaWeek',
       height: 450,
       editable: false,
       weekNumbers: true,
