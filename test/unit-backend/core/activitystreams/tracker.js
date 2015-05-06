@@ -384,63 +384,155 @@ describe('The activity streams tracker core module', function() {
       expect(handlerClose).to.be.a('function');
       handlerClose();
     });
-  });
 
-  describe('The exists function', function() {
-    it('should send back error when mongoose request send back an error', function(done) {
+    it('should not return timelines entries when the actual user is the timeline entry actor', function(done) {
+      var handlerClose = null;
+      var id = '123';
+      var message = 234;
+      var userId = 1;
+      var asId = 123456789;
+      var timelines = {timelines: {}};
+      timelines.timelines[asId] = message;
+
       mockery.registerMock('mongoose', {
         model: function() {
           return {
             findById: function(id, callback) {
-              return callback(new Error('Error test'));
+              return callback(null, timelines);
             }
           };
         }
       });
-      mockery.registerMock('./', {});
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event, handler) {
 
-      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.exists({}, this.helpers.callbacks.error(done));
-    });
+              if (event === 'close') {
+                handlerClose = handler;
+              }
 
-    it('should send true when document is found', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(null, {});
+              if (event === 'data') {
+                return handler({
+                  _id: id,
+                  actor: {_id: userId},
+                  object: {objectType: 'whatsup', _id: message}
+                });
+              }
             }
-          };
+          });
         }
       });
-      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.exists({}, function(err, exists) {
-        expect(err).to.not.exists;
-        expect(exists).to.be.true;
+      tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
+        expect(threads).to.exist;
+        expect(threads).to.deep.equal({});
         done();
       });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
     });
 
-    it('should send false when document is not found', function(done) {
+    it('should set correctly read flags', function(done) {
+      var handlerClose = null;
+      var handlerData = null;
+      var asId = 123456789;
+      var timelines = {timelines: {}};
+      timelines.timelines[asId] = '1';
+
+      var timelinesEntries = [{
+        _id: 'timelineEntry1',
+        object: {objectType: 'whatsup', _id: 'message1Unread'}
+      }, {
+        _id: 'timelineEntry2',
+        object: {objectType: 'whatsup', _id: 'message2UnreadInReplyTo3'},
+        inReplyTo: [{_id: 'message3Read'}]
+      }, {
+        _id: 'timelineEntry3',
+        object: {objectType: 'whatsup', _id: 'message4UnreadInReplyTo5'},
+        inReplyTo: [{_id: 'message5Unread'}]
+      }, {
+        _id: 'timelineEntry4',
+        object: {objectType: 'whatsup', _id: 'message5Unread'}
+      }];
+
       mockery.registerMock('mongoose', {
         model: function() {
           return {
             findById: function(id, callback) {
-              return callback();
+              return callback(null, timelines);
             }
           };
         }
       });
-      mockery.registerMock('./', {});
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event, handler) {
+
+              if (event === 'close') {
+                handlerClose = handler;
+              }
+
+              if (event === 'data') {
+                handlerData = handler;
+              }
+            }
+          });
+        }
+      });
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.exists({}, function(err, exists) {
-        expect(err).to.not.exists;
-        expect(exists).to.be.false;
+      tracker.buildThreadViewSinceLastTimelineEntry('1', asId, function(err, threads) {
+        expect(err).to.not.exist;
+        expect(threads).to.exist;
+        var expectedObject = {};
+        expectedObject[timelinesEntries[0].object._id] = {
+          message: timelinesEntries[0].object,
+          timelineentry: {
+            _id: timelinesEntries[0]._id
+          },
+          responses: [],
+          read: false
+        };
+        expectedObject[timelinesEntries[1].inReplyTo[0]._id] = {
+          message: timelinesEntries[1].inReplyTo[0],
+          timelineentry: {
+            _id: timelinesEntries[1]._id
+          },
+          responses: [{
+            message: timelinesEntries[1].object,
+            timelineentry: {
+              _id: timelinesEntries[1]._id
+            },
+            read: false
+          }],
+          read: true
+        };
+        expectedObject[timelinesEntries[2].inReplyTo[0]._id] = {
+          message: timelinesEntries[2].inReplyTo[0],
+          timelineentry: {
+            _id: timelinesEntries[2]._id
+          },
+          responses: [{
+            message: timelinesEntries[2].object,
+            timelineentry: {
+              _id: timelinesEntries[2]._id
+            },
+            read: false
+          }],
+          read: false
+        };
+        expect(threads).to.shallowDeepEqual(expectedObject);
         done();
       });
+      expect(handlerData).to.be.a('function');
+      timelinesEntries.forEach(function(timelineEntry) {
+        handlerData(timelineEntry);
+      });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
     });
   });
 });

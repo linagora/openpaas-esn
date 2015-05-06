@@ -25,12 +25,6 @@ module.exports.getTracker = function(type) {
     throw new Error(type + ' is not a valid tracker type');
   }
 
-  function exists(user, callback) {
-    Tracker.findById(user._id, function(err, doc) {
-      return callback(err, !!doc);
-    });
-  }
-
   /**
    * Create a TimelineEntriesTracker
    *
@@ -284,12 +278,18 @@ module.exports.getTracker = function(type) {
         var hash = {};
 
         stream.on('data', function(doc) {
+          // Skip the timeline entry if the actor id is the actual user id
+          if (doc.actor && doc.actor._id.toString() === userId.toString()) {
+            return;
+          }
           var isReply = doc.inReplyTo && doc.inReplyTo.length > 0;
           var tuple = isReply ? doc.inReplyTo[0] : doc.object;
-          hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published} , responses: []};
+          hash[tuple._id] = hash[tuple._id] || {message: tuple, timelineentry: {_id: doc._id, published: doc.published} , responses: [], read: true};
 
           if (isReply) {
-            hash[tuple._id].responses.push({message: doc.object, timelineentry: {_id: doc._id, published: doc.published}});
+            hash[tuple._id].responses.push({message: doc.object, timelineentry: {_id: doc._id, published: doc.published}, read: false});
+          } else {
+            hash[tuple._id].read = false;
           }
         });
 
@@ -303,7 +303,6 @@ module.exports.getTracker = function(type) {
   }
 
   return {
-    exists: exists,
     updateLastTimelineEntry: updateLastTimelineEntry,
     getLastTimelineEntry: getLastTimelineEntry,
     countSinceLastTimelineEntry: countSinceLastTimelineEntry,
