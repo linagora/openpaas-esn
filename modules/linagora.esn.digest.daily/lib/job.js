@@ -99,7 +99,7 @@ function _buildContent(user, data) {
       .filter(_filterByUnread)
       .map(_calculUnreadMessagesAndPrune.bind(null, header, collaboration))
       .sort(_compareWeight)
-      .slice(0, 2);
+      .slice(0, 3);
     content.push(collaboration);
   });
 
