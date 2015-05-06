@@ -150,3 +150,5 @@ module.exports.getTimelineEntryFromStreamMessage = getTimelineEntryFromStreamMes
 module.exports.permission = require('./permission');
 
 module.exports.tracker = require('./tracker');
+
+module.exports.helpers = helpers;
