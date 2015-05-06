@@ -8,6 +8,12 @@ angular.module('linagora.esn.contact')
       return contactAdapterService(model);
     });
   }])
+  .factory('ContactsRestangular', function(Restangular) {
+    return Restangular.withConfig(function(config) {
+      config.setBaseUrl('/contacts/api');
+      config.setFullResponse(true);
+    });
+  })
   .factory('contactAdapterService', function() {
     return function(contact) {
       contact.objectType = 'contact';
