@@ -1,0 +1,12 @@
+.multi-input-content
+  .form-group(ng-repeat='item in content track by $index')
+    .col-xs-3
+      select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
+    .col-xs-9
+      input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='item.value', ng-model-options='{updateOn:"blur"}', ng-change='verifyRemove($index)')
+.multi-input-next
+  .form-group
+    .col-xs-3
+      select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
+    .col-xs-9
+      input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')

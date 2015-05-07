@@ -212,7 +212,7 @@ angular.module('esn.calendar')
       }
 
       var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
-      var headers = { 'Content-Type': 'application/json+calendar' };
+      var headers = { 'Content-Type': 'application/calendar+json' };
       var body = vcalendar.toJSON();
 
       return request('put', eventPath, headers, body).then(function(response) {

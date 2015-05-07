@@ -16,7 +16,7 @@
 
         .row
           .col-xs-12.form-group.has-feedback(ng-class='{"has-error": form.company._blur && form.company.$invalid}')
-            label.control-label(for='company') #{__('Company Name')}
+            label.control-label(for='company') #{__('Organization')}
             input.form-control( type='company'
             ng-model='settings.company'
             name='company'
@@ -30,7 +30,7 @@
             )
             span.glyphicon.glyphicon-asterisk.form-control-feedback.rotate(ng-show='form.company.$error.ajax')
             .help-block(ng-show='form.company.$dirty && form.company.$error.unique && !form.company.$error.ajax') #{__('This company is already registered. Please choose another one.')}
-            .help-block(ng-show='form.company._blur && !form.company.$viewValue') #{__('Company name is required')}
+            .help-block(ng-show='form.company._blur && !form.company.$viewValue') #{__('Organization is required')}
         .row
           .col-xs-12.form-group(ng-class='{"has-error": form.domain._blur && form.domain.$invalid}')
             label.control-label(for='domain') #{__('Domain Name')}
