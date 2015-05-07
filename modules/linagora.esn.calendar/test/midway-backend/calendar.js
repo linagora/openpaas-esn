@@ -4,21 +4,18 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
 
-describe.skip('The calendars API', function() {
-  var app;
+describe('The calendars API', function() {
   var user, user2, user3, domain, community;
   var password = 'secret';
+  var moduleName = 'linagora.esn.calendar';
 
   beforeEach(function(done) {
     var self = this;
 
-    this.testEnv.initCore(function() {
-      app = self.helpers.requireBackend('webserver/application');
-      self.mongoose = require('mongoose');
-      self.helpers.requireBackend('core/db/mongo/models/user');
-      self.helpers.requireBackend('core/db/mongo/models/domain');
-      self.helpers.requireBackend('core/db/mongo/models/community');
-      self.helpers.requireBackend('core/db/mongo/models/eventmessage');
+    this.helpers.modules.initMidway(moduleName, function(err) {
+      if (err) {
+        return done(err);
+      }
 
       self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
@@ -29,135 +26,88 @@ describe.skip('The calendars API', function() {
         user3 = models.users[2];
         domain = models.domain;
         community = models.communities[1];
+        self.models = models;
         done();
       });
     });
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.helpers.api.cleanDomainDeployment(this.models, done);
   });
 
-  it('POST /api/calendars/:objectType/:id/events should return 401 if not logged in', function(done) {
-    request(app)
-      .post('/api/calendars/community/' + community._id + '/events')
-      .expect(401).end(function(err, res) {
-        expect(err).to.not.exist;
-        done();
-      });
-  });
+  describe('POST /api/calendars/:objectType/:id/events', function() {
 
-  it('POST /api/calendars/:objectType/:id/events should return 404 if calendar id is not a community id', function(done) {
-    var ObjectId = require('bson').ObjectId;
-    var id = new ObjectId();
-
-    this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
-      if (err) {
-        return done(err);
-      }
-      var req = requestAsMember(request(app).post('/api/calendars/community/' + id + '/events'));
-      req.expect(404).end(function(err, res) {
-        expect(err).to.not.exist;
-        done();
-      });
+    beforeEach(function() {
+      var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
+      expressApp.use('/', this.helpers.modules.current.lib.api.calendar);
+      this.app = this.helpers.modules.getWebServer(expressApp);
     });
-  });
 
-  it('POST /api/calendars/:objectType/:id/events should return 403 if the user have not write permission in the community', function(done) {
-    this.helpers.api.loginAsUser(app, user3.emails[0], password, function(err, requestAsMember) {
-      if (err) {
-        return done(err);
-      }
-      var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
-      req.send({
-        event_id: '/path/to/uid.ics',
-        type: 'created',
-        event: 'BEGIN:VCALENDAR'
-      });
-      req.expect(403).end(function(err, res) {
-        expect(err).to.not.exist;
-        done();
-      });
+    it('should return 401 if not logged in', function(done) {
+      this.helpers.api.requireLogin(this.app, 'post', '/api/calendars/community/' + community._id + '/events', done);
     });
-  });
 
-  it('POST /api/calendars/:objectType/:id/events should return 400 if type is not equal to "created"', function(done) {
-    this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
-      if (err) {
-        return done(err);
-      }
-      var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
-      req.send({
-        event_id: '123',
-        type: 'updated',
-        event: 'ICS'
-      });
-      req.expect(400).end(function(err, res) {
-        expect(err).to.not.exist;
-        done();
-      });
-    });
-  });
+    it('should return 404 if calendar id is not a community id', function(done) {
+      var ObjectId = require('bson').ObjectId;
+      var id = new ObjectId();
+      var self = this;
 
-  it('POST /api/calendars/:objectType/:id/events should return 201 for creates', function(done) {
-    this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
-      if (err) {
-        return done(err);
-      }
-      var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
-      req.send({
-        event_id: '123',
-        type: 'created',
-        event: 'ICS'
-      });
-      req.expect(201).end(function(err, res) {
-        expect(err).to.not.exist;
-        expect(res).to.exist;
-        expect(res.body).to.exist;
-        expect(res.body._id).to.exist;
-        expect(res.body.objectType).to.equal('event');
-        done();
-      });
-    });
-  });
-
-  it('POST /api/calendars/:objectType/:id/events should return 200 for modifications', function(done) {
-    var pubsub = this.helpers.requireBackend('core').pubsub.local;
-    var topic = pubsub.topic('message:activity');
-    async.series([function(callback) {
-      this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
+      this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
         if (err) {
           return done(err);
         }
+        var req = requestAsMember(request(self.app).post('/api/calendars/community/' + id + '/events'));
+        req.expect(404, done);
+      });
+    });
 
-        var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
+    it('should return 403 if the user have not write permission in the community', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, user3.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+        var req = requestAsMember(request(self.app).post('/api/calendars/community/' + community._id + '/events'));
         req.send({
-          event_id: '123',
+          event_id: '/path/to/uid.ics',
           type: 'created',
-          event: 'ICS'
-        }).end(callback);
+          event: 'BEGIN:VCALENDAR'
+        });
+        req.expect(403, done);
       });
-    }.bind(this), function(callback) {
-      this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, requestAsMember) {
+    });
+
+    it('should return 400 if type is not equal to "created"', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
         if (err) {
           return done(err);
         }
-        var called = false;
-        topic.subscribe(function(message) {
-          expect(message.verb).to.equal('update');
-          called = true;
-        });
-
-        var req = requestAsMember(request(app).post('/api/calendars/community/' + community._id + '/events'));
+        var req = requestAsMember(request(self.app).post('/api/calendars/community/' + community._id + '/events'));
         req.send({
           event_id: '123',
           type: 'updated',
           event: 'ICS'
         });
-        req.expect(200).end(function(err, res) {
+        req.expect(400, done);
+      });
+    });
+
+    it('should return 201 for creates', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
+        if (err) {
+          return done(err);
+        }
+        var req = requestAsMember(request(self.app).post('/api/calendars/community/' + community._id + '/events'));
+        req.send({
+          event_id: '123',
+          type: 'created',
+          event: 'ICS'
+        });
+        req.expect(201).end(function(err, res) {
           expect(err).to.not.exist;
-          expect(called).to.equal(true);
           expect(res).to.exist;
           expect(res.body).to.exist;
           expect(res.body._id).to.exist;
@@ -165,6 +115,53 @@ describe.skip('The calendars API', function() {
           done();
         });
       });
-    }.bind(this)]);
+    });
+
+    it('should return 200 for modifications', function(done) {
+      var self = this;
+      var pubsub = this.helpers.requireBackend('core').pubsub.local;
+      var topic = pubsub.topic('message:activity');
+      async.series([function(callback) {
+        this.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          if (err) {
+            return done(err);
+          }
+
+          var req = requestAsMember(request(self.app).post('/api/calendars/community/' + community._id + '/events'));
+          req.send({
+            event_id: '123',
+            type: 'created',
+            event: 'ICS'
+          }).end(callback);
+        });
+      }.bind(this), function(callback) {
+        this.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          if (err) {
+            return done(err);
+          }
+          var called = false;
+          topic.subscribe(function(message) {
+            expect(message.verb).to.equal('update');
+            called = true;
+          });
+
+          var req = requestAsMember(request(self.app).post('/api/calendars/community/' + community._id + '/events'));
+          req.send({
+            event_id: '123',
+            type: 'updated',
+            event: 'ICS'
+          });
+          req.expect(200).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(called).to.equal(true);
+            expect(res).to.exist;
+            expect(res.body).to.exist;
+            expect(res.body._id).to.exist;
+            expect(res.body.objectType).to.equal('event');
+            done();
+          });
+        });
+      }.bind(this)]);
+    });
   });
 });
