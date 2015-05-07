@@ -20,52 +20,53 @@ module.exports = function(dependencies) {
 
   return {
 
-    setReadFlags: function(message) {
+    setReadAndInvolvedFlags: function(message, thread, user) {
+      // If thread.read is undefined then the message is read
+      message.read = !('read' in thread) || thread.read;
+      message.involved = message.author && message.author._id + '' === user._id + '' ? true : false;
 
-      function isInThread(originalResponse) {
-        return message.thread.responses.some(function(response) {
-          return originalResponse._id + '' === response.message._id + '';
+      if (!arrayHelper.isNullOrEmpty(message.responses)) {
+        message.responses.forEach(function(messageResponse) {
+
+          if (!arrayHelper.isNullOrEmpty(thread.responses)) {
+            // Find the response with the same id in the thread responses array and init the read field
+            thread.responses.some(function(threadResponse) {
+              if (threadResponse.message && messageResponse._id + '' === threadResponse.message._id + '') {
+                messageResponse.read = threadResponse.read;
+                return true;
+              } else {
+                messageResponse.read = true;
+                return false;
+              }
+            });
+          } else {
+            messageResponse.read = true;
+          }
+
+          // Check involvement
+          if (messageResponse.author && messageResponse.author._id + '' === user._id + '') {
+            message.involved = true;
+          }
         });
       }
 
-      function flagReadResponse(originalResponse) {
-        originalResponse.read = arrayHelper.isNullOrEmpty(message.thread.responses) || !isInThread(originalResponse);
-      }
-
-      if (!arrayHelper.isNullOrEmpty(message.original.responses)) {
-        message.original.responses.forEach(flagReadResponse);
-      }
-
-      message.original.read = message.thread.responses ? message.thread.responses.length !== 0 : false;
       return q(message);
     },
 
-    buildMessageContext: function(thread) {
-      if (!thread) {
-        return q.reject(new Error('Thread is required'));
+    buildMessageContext: function(thread, user) {
+      if (!thread || !user) {
+        return q.reject(new Error('Thread and user is required'));
       }
 
       var self = this;
 
-      function process(message) {
-        return self.setReadFlags(message).then(function(result) {
-          return result.original;
-        });
-      }
-
       return q.nfcall(messageModule.get, thread.message._id).then(
         function(message) {
-          return process({
-            original: message,
-            thread: thread
-          });
+          return self.setReadAndInvolvedFlags(message, thread, user);
         },
         function(err) {
-          return process({
-            original: {},
-            thread: thread,
-            status: err.message
-          });
+          logger.error('Daily digest error when retrieving message from database, skip message', err);
+          return q({});
         }
       );
     },
@@ -142,12 +143,15 @@ module.exports = function(dependencies) {
 
           var messagesContext = [];
           Object.keys(threads).forEach(function(messageId) {
-            messagesContext.push(self.buildMessageContext(threads[messageId]));
+            messagesContext.push(self.buildMessageContext(threads[messageId], user));
           });
 
-          return q.all(messagesContext).then(function(context) {
+          return q.all(messagesContext).then(function(messages) {
             return {
-              messages: context,
+              messages: messages.filter(function(message) {
+                // Do not put !message.involved because if message.involved is undefined it must return false
+                return message && message.involved === false;
+              }),
               collaboration: collaboration
             };
           });

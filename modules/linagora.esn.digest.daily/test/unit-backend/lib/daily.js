@@ -37,50 +37,44 @@ describe('The daily digest core module', function() {
     };
   }
 
-  describe('The digest fn', function() {
+  beforeEach(function() {
+    initDependencies();
+  });
 
-    beforeEach(function() {
-      initDependencies();
-    });
+  describe('The digest fn', function() {
 
     describe('The userModule call', function() {
 
-      it('should reject if user list fails', function(done) {
+      it('should reject if user list fails', function() {
         deps.user.list = function(callback) {
           return callback(new Error());
         };
 
         var module = require('../../../lib/daily')(dependencies);
-        module.digest().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+        return expect(module.digest()).to.be.rejected;
       });
 
-      it('should send back empty array if user list returns empty array', function(done) {
+      it('should send back empty array if user list returns empty array', function() {
         var users = [];
         deps.user.list = function(callback) {
           return callback(null, users);
         };
         var module = require('../../../lib/daily')(dependencies);
-        module.digest().then(function(result) {
-          expect(result).to.deep.equal(users);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        return expect(module.digest()).to.become(users);
       });
 
-      it('should send back empty array if user list returns undefined', function(done) {
+      it('should send back empty array if user list returns undefined', function() {
         deps.user.list = function(callback) {
           return callback();
         };
         var module = require('../../../lib/daily')(dependencies);
-        module.digest().then(function(result) {
-          expect(result).to.be.an.empty.array;
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        return expect(module.digest()).to.become([]);
       });
     });
 
     describe('when users are available', function() {
 
-      it('should call userDailyDigest as many time as there are users', function(done) {
+      it('should call userDailyDigest as many time as there are users', function() {
 
         var users = [1, 2, 3];
         deps.user.list = function(callback) {
@@ -94,25 +88,24 @@ describe('The daily digest core module', function() {
           return q(user);
         };
 
-        module.digest().then(function() {
+        return module.digest().then(function() {
           expect(called).to.equal(users.length);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        });
       });
     });
   });
 
   describe('The userDailyDigest function', function() {
 
-    it('should reject when user is undefined', function(done) {
+    it('should reject when user is undefined', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.userDailyDigest().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+      return expect(module.userDailyDigest()).to.be.rejected;
     });
 
     describe('when collaborationModule.getCollaborationsForTuple sends back', function() {
       var user = {_id: Number('1'), emails: ['anEmail'] };
 
-      it('error', function(done) {
+      it('error', function() {
         deps.collaboration = {
           getCollaborationsForTuple: function(tuple, callback) {
             return callback(new Error());
@@ -120,10 +113,10 @@ describe('The daily digest core module', function() {
         };
 
         var module = require('../../../lib/daily')(dependencies);
-        module.userDailyDigest(user).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+        return expect(module.userDailyDigest(user)).to.be.rejected;
       });
 
-      it('undefined collaborations', function(done) {
+      it('undefined collaborations', function() {
         deps.collaboration = {
           getCollaborationsForTuple: function(tuple, callback) {
             return callback();
@@ -131,14 +124,13 @@ describe('The daily digest core module', function() {
         };
 
         var module = require('../../../lib/daily')(dependencies);
-        module.userDailyDigest(user).then(function(result) {
-          expect(result.data.length).to.equal(0);
+        return module.userDailyDigest(user).then(function(result) {
+          expect(result.data).to.have.length(0);
           expect(result.status).to.match(/No collaborations found/);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        });
       });
 
-      it('empty collaborations', function(done) {
+      it('empty collaborations', function() {
         deps.collaboration = {
           getCollaborationsForTuple: function(tuple, callback) {
             return callback(null, []);
@@ -147,14 +139,13 @@ describe('The daily digest core module', function() {
 
         var module = require('../../../lib/daily')(dependencies);
         module.userDailyDigest(user).then(function(result) {
-          expect(result.data.length).to.equal(0);
+          expect(result.data).to.have.length(0);
           expect(result.status).to.match(/No collaborations found/);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        });
       });
 
       describe('collaboration list', function() {
-        it('should call loadUserDataForCollaboration as many times as there are collaborations', function(done) {
+        it('should call loadUserDataForCollaboration as many times as there are collaborations', function() {
           var collaborations = [1, 2, 3, 4];
           var called = 0;
 
@@ -199,11 +190,10 @@ describe('The daily digest core module', function() {
           };
           module.loadUserDataForCollaboration = loadUserDataForCollaboration;
 
-          module.userDailyDigest(user).then(function(result) {
+          return module.userDailyDigest(user).then(function(result) {
             expect(result.status).to.not.exist;
             expect(called).to.equal(collaborations.length);
-            done();
-          }, this.helpers.callbacks.notCalled(done));
+          });
         });
       });
     });
@@ -212,18 +202,18 @@ describe('The daily digest core module', function() {
 
   describe('The loadUserDataForCollaboration function', function() {
 
-    it('should reject when user is undefined', function(done) {
+    it('should reject when user is undefined', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.loadUserDataForCollaboration(null, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+      return expect(module.loadUserDataForCollaboration(null, {})).to.be.rejected;
     });
 
-    it('should reject when collaboration is undefined', function(done) {
+    it('should reject when collaboration is undefined', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.loadUserDataForCollaboration({}, null).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+      return expect(module.loadUserDataForCollaboration({}, null)).to.be.rejected;
     });
 
     describe('When getting tracker', function() {
-      it('should reject when getTracker sends back error', function(done) {
+      it('should reject when getTracker sends back error', function() {
 
         var module = require('../../../lib/daily')(dependencies);
         var getTracker = function() {
@@ -231,7 +221,7 @@ describe('The daily digest core module', function() {
         };
         module.getTracker = getTracker;
 
-        module.loadUserDataForCollaboration({}, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+        return expect(module.loadUserDataForCollaboration({}, {})).to.be.rejected;
       });
     });
 
@@ -244,7 +234,7 @@ describe('The daily digest core module', function() {
         }
       };
 
-      it('should reject when buildThreadViewSinceLastTimelineEntry sends back error', function(done) {
+      it('should reject when buildThreadViewSinceLastTimelineEntry sends back error', function() {
         var tracker = {
           buildThreadViewSinceLastTimelineEntry: function(userId, uuid, callback) {
             return callback(new Error());
@@ -257,10 +247,10 @@ describe('The daily digest core module', function() {
         };
         module.getTracker = getTracker;
 
-        module.loadUserDataForCollaboration(user, collaboration).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+        return expect(module.loadUserDataForCollaboration(user, collaboration)).to.be.rejected;
       });
 
-      it('should resolve when buildThreadViewSinceLastTimelineEntry sends back empty thread', function(done) {
+      it('should resolve when buildThreadViewSinceLastTimelineEntry sends back empty thread', function() {
         var tracker = {
           buildThreadViewSinceLastTimelineEntry: function(userId, uuid, callback) {
             return callback();
@@ -273,16 +263,13 @@ describe('The daily digest core module', function() {
         };
         module.getTracker = getTracker;
 
-        module.loadUserDataForCollaboration(user, collaboration).then(function(result) {
-          expect(result).to.deep.equal({
-            messages: [],
-            collaboration: collaboration
-          });
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        return expect(module.loadUserDataForCollaboration(user, collaboration)).to.become({
+          messages: [],
+          collaboration: collaboration
+        });
       });
 
-      it('should call buildMessageContext as many times as there are threads', function(done) {
+      it('should call buildMessageContext as many times as there are threads', function() {
         var threads = {'1': {}, '2': {}, '3': {}};
         var call = 0;
 
@@ -299,11 +286,86 @@ describe('The daily digest core module', function() {
         module.getTracker = getTracker;
         var buildMessageContext = function() {
           call++;
-          return q({original: {}, thread: {}});
+          return q({});
         };
         module.buildMessageContext = buildMessageContext;
 
-        module.loadUserDataForCollaboration(user, collaboration, tracker).then(this.helpers.callbacks.called(done), this.helpers.callbacks.notCalled(done));
+        return module.loadUserDataForCollaboration(user, collaboration, tracker)
+          .then(function() {
+            expect(call).to.equal(3);
+          });
+      });
+
+      it('should return only message which have the involved field set to false', function() {
+        var threads = {'1': {}, '2': {}, '3': {}};
+        var call = 0;
+
+        var tracker = {
+          buildThreadViewSinceLastTimelineEntry: function(userId, uuid, callback) {
+            return callback(null, threads);
+          }
+        };
+
+        var module = require('../../../lib/daily')(dependencies);
+        var getTracker = function() {
+          return q(tracker);
+        };
+        module.getTracker = getTracker;
+        var buildMessageContext = function() {
+          call++;
+          if (call === 2) {
+            return q({involved: true});
+          }
+          return q({involved: false});
+        };
+        module.buildMessageContext = buildMessageContext;
+
+        return module.loadUserDataForCollaboration(user, collaboration, tracker)
+          .then(function(data) {
+            expect(call).to.equal(Object.keys(threads).length);
+            expect(data.messages).to.have.length(2);
+            data.messages.forEach(function(message) {
+              expect(message.involved).to.be.false;
+            });
+          });
+      });
+
+      it('should not return undefined, empty message or message with involved field set to undefined', function() {
+        var threads = {'1': {}, '2': {}, '3': {}, '4': {}};
+        var call = 0;
+
+        var tracker = {
+          buildThreadViewSinceLastTimelineEntry: function(userId, uuid, callback) {
+            return callback(null, threads);
+          }
+        };
+
+        var module = require('../../../lib/daily')(dependencies);
+        var getTracker = function() {
+          return q(tracker);
+        };
+        module.getTracker = getTracker;
+        var buildMessageContext = function() {
+          call++;
+          if (call === 1) {
+            return q({involved: false});
+          } else if (call === 2) {
+            return q({});
+          } else if (call === 3) {
+            return q();
+          }
+          return q({involved: undefined});
+        };
+        module.buildMessageContext = buildMessageContext;
+
+        return module.loadUserDataForCollaboration(user, collaboration, tracker)
+          .then(function(data) {
+            expect(call).to.equal(Object.keys(threads).length);
+            expect(data.messages).to.have.length(1);
+            data.messages.forEach(function(message) {
+              expect(message.involved).to.be.false;
+            });
+          });
       });
     });
   });
@@ -317,12 +379,17 @@ describe('The daily digest core module', function() {
       }
     };
 
-    it('should reject when thread is undefined', function(done) {
+    it('should reject when thread is undefined', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.buildMessageContext().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+      return expect(module.buildMessageContext()).to.be.rejected;
     });
 
-    it('should resolve with message and thread when message#get is ok', function(done) {
+    it('should reject when user is undefined', function() {
+      var module = require('../../../lib/daily')(dependencies);
+      return expect(module.buildMessageContext({})).to.be.rejected;
+    });
+
+    it('should resolve with message and thread when message#get is ok', function() {
       var message = {_id: 1, content: 'YOLO'};
 
       deps.message = {
@@ -332,18 +399,15 @@ describe('The daily digest core module', function() {
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      var setReadFlags = function(message) {
+      var setReadAndInvolvedFlags = function(message) {
         return q(message);
       };
-      module.setReadFlags = setReadFlags;
+      module.setReadAndInvolvedFlags = setReadAndInvolvedFlags;
 
-      module.buildMessageContext(thread).then(function(result) {
-        expect(result).to.deep.equal(message);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.buildMessageContext(thread, {})).to.become(message);
     });
 
-    it('should resolve with empty message and thread when message#get is ko', function(done) {
+    it('should resolve with empty message and thread when message#get is ko', function() {
       deps.message = {
         get: function(id, callback) {
           return callback(new Error('KO'));
@@ -351,30 +415,27 @@ describe('The daily digest core module', function() {
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      var setReadFlags = function(message) {
+      var setReadAndInvolvedFlags = function(message) {
         return q(message);
       };
-      module.setReadFlags = setReadFlags;
+      module.setReadAndInvolvedFlags = setReadAndInvolvedFlags;
 
-      module.buildMessageContext(thread).then(function(result) {
-        expect(result).to.deep.equal({});
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.buildMessageContext(thread, {})).to.become({});
     });
   });
 
   describe('getTracker function', function() {
-    it('should reject when user is undefined', function(done) {
+    it('should reject when user is undefined', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.getTracker(null, {}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+      return expect(module.getTracker(null, {})).to.be.rejected;
     });
 
-    it('should reject when collaboration is undefined', function(done) {
+    it('should reject when collaboration is undefined', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.getTracker({}).then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.called(done));
+      return expect(module.getTracker({})).to.be.rejected;
     });
 
-    it('should call getLastTimelineEntry on each tracker', function(done) {
+    it('should call getLastTimelineEntry on each tracker', function() {
 
       var read = 0;
       var push = 0;
@@ -411,11 +472,10 @@ describe('The daily digest core module', function() {
       var module = require('../../../lib/daily')(dependencies);
       module.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-      module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
+      return module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
         expect(read).to.equal(1);
         expect(push).to.equal(1);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      });
     });
 
     describe('When calling getMostRecentTimelineEntry', function() {
@@ -442,7 +502,7 @@ describe('The daily digest core module', function() {
         };
       });
 
-      it('should resolve with read tracker when no result is returned from getMostRecentTimelineEntry', function(done) {
+      it('should resolve with read tracker when no result is returned from getMostRecentTimelineEntry', function() {
         var getMostRecentTimelineEntry = function(id1, id2) {
           return q();
         };
@@ -450,13 +510,10 @@ describe('The daily digest core module', function() {
         var module = require('../../../lib/daily')(dependencies);
         module.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-        module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
-          expect(result).to.deep.equal(trackers.read);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        return expect(module.getTracker({_id: 1}, {activity_stream: {uuid: 2}})).to.become(trackers.read);
       });
 
-      it('should resolve with read tracker when read is most recent than push', function(done) {
+      it('should resolve with read tracker when read is most recent than push', function() {
         var getMostRecentTimelineEntry = function(id1, id2) {
           return q(id1);
         };
@@ -464,13 +521,10 @@ describe('The daily digest core module', function() {
         var module = require('../../../lib/daily')(dependencies);
         module.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-        module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
-          expect(result).to.deep.equal(trackers.read);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        return expect(module.getTracker({_id: 1}, {activity_stream: {uuid: 2}})).to.become(trackers.read);
       });
 
-      it('should resolve with push tracker when push is most recent than read', function(done) {
+      it('should resolve with push tracker when push is most recent than read', function() {
         var getMostRecentTimelineEntry = function(id1, id2) {
           return q(id2);
         };
@@ -478,56 +532,41 @@ describe('The daily digest core module', function() {
         var module = require('../../../lib/daily')(dependencies);
         module.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-        module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
-          expect(result).to.deep.equal(trackers.push);
-          done();
-        }, this.helpers.callbacks.notCalled(done));
+        return expect(module.getTracker({_id: 1}, {activity_stream: {uuid: 2}})).to.become(trackers.push);
       });
     });
   });
 
   describe('getMostRecentTimelineEntry function', function() {
 
-    it('should resolve empty when timelineentries are null', function(done) {
+    it('should resolve empty when timelineentries are null', function() {
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry().then(function(result) {
-        expect(result).to.not.be.defined;
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry()).to.become(undefined);
     });
 
-    it('should resolve with timelineEntryId1 when timelineEntryId2 is not defined', function(done) {
+    it('should resolve with timelineEntryId1 when timelineEntryId2 is not defined', function() {
       var id = 1;
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(id).then(function(result) {
-        expect(result).to.be.equal(id);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(id)).to.become(id);
     });
 
-    it('should resolve with timelineEntryId2 when timelineEntryId1 is not defined', function(done) {
+    it('should resolve with timelineEntryId2 when timelineEntryId1 is not defined', function() {
       var id = 1;
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(null, id).then(function(result) {
-        expect(result).to.be.equal(id);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(null, id)).to.become(id);
     });
 
-    it('should resolve with empty when timelinesEntries are not found', function(done) {
+    it('should resolve with empty when timelinesEntries are not found', function() {
       var id1 = 1, id2 = 2;
       deps.activitystreams.getTimelineEntry = function(id, callback) {
         return callback();
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
-        expect(result).to.be.undefined;
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(id1, id2)).to.become(undefined);
     });
 
-    it('should resolve with timelineEntryId1 when getTimelineEntry does not return timelineEntryId2', function(done) {
+    it('should resolve with timelineEntryId1 when getTimelineEntry does not return timelineEntryId2', function() {
       var id1 = 1, id2 = 2;
       deps.activitystreams.getTimelineEntry = function(id, callback) {
         if (id === id1) {
@@ -537,13 +576,10 @@ describe('The daily digest core module', function() {
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
-        expect(result).to.equal(id1);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(id1, id2)).to.become(id1);
     });
 
-    it('should resolve with timelineEntryId2 when getTimelineEntry does not return timelineEntryId1', function(done) {
+    it('should resolve with timelineEntryId2 when getTimelineEntry does not return timelineEntryId1', function() {
       var id1 = 1, id2 = 2;
       deps.activitystreams.getTimelineEntry = function(id, callback) {
         if (id === id2) {
@@ -553,13 +589,10 @@ describe('The daily digest core module', function() {
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
-        expect(result).to.equal(id2);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(id1, id2)).to.become(id2);
     });
 
-    it('should resolve with timelineEntryId2 if published date is bigger than timelineEntryId1 one', function(done) {
+    it('should resolve with timelineEntryId2 if published date is bigger than timelineEntryId1 one', function() {
       var id1 = 1, id2 = 2;
       var date = new Date();
       var date2 = new Date();
@@ -583,13 +616,10 @@ describe('The daily digest core module', function() {
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
-        expect(result).to.equal(id2);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(id1, id2)).to.become(id2);
     });
 
-    it('should resolve with timelineEntryId1 if published date is bigger than timelineEntryId2 one', function(done) {
+    it('should resolve with timelineEntryId1 if published date is bigger than timelineEntryId2 one', function() {
       var id1 = 1, id2 = 2;
       var date = new Date();
       var date2 = new Date();
@@ -612,130 +642,144 @@ describe('The daily digest core module', function() {
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      module.getMostRecentTimelineEntry(id1, id2).then(function(result) {
-        expect(result).to.equal(id1);
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.getMostRecentTimelineEntry(id1, id2)).to.become(id1);
     });
   });
 
-  describe('setReadFlags function', function() {
+  describe('setReadAndInvolvedFlags function', function() {
 
-    it('should set original message read flag to true on original when it does have responses', function(done) {
+    it('should set message read flag to the thread read flag', function() {
+
+      var message = {};
+      var thread = {read: true};
+
+      var module = require('../../../lib/daily')(dependencies);
+      return expect(module.setReadAndInvolvedFlags(message, thread)).to.become({
+        read: thread.read,
+        involved: false
+      });
+    });
+
+    it('should set message involved flag to true if the user id is equal to the author id', function() {
+
+      var userId = '1';
+      var message = {
+        author: {_id: userId}
+      };
+      var thread = {};
+      var user = {_id: userId};
+
+      var module = require('../../../lib/daily')(dependencies);
+      return expect(module.setReadAndInvolvedFlags(message, thread, user)).to.eventually.shallowDeepEqual({
+        involved: true
+      });
+    });
+
+    it('should set message and responses read flag to true if the message it not in the thread object', function() {
 
       var message = {
-        original: {
-        },
-        thread: {
-          responses: [1, 2, 3]
-        }
+        _id: '1',
+        responses: [{
+          _id: '2'
+        }, {
+          _id: '3'
+        }]
+      };
+      var thread = {};
+
+      var module = require('../../../lib/daily')(dependencies);
+      return expect(module.setReadAndInvolvedFlags(message, thread)).to.eventually.shallowDeepEqual({
+        read: true,
+        responses: [{
+          read: true
+        }, {
+          read: true
+        }]
+      });
+    });
+
+    it('should set message and responses read flag to the thread read flag message and responses', function() {
+
+      var message = {
+        _id: '1',
+        responses: [{
+          _id: '2'
+        }, {
+          _id: '3'
+        }]
+      };
+      var thread = {
+        read: false,
+        responses: [{
+          message: {
+            _id: message.responses[0]._id
+          },
+          read: false
+        }, {
+          message: {
+            _id: message.responses[1]._id
+          },
+          read: true
+        }]
       };
 
       var module = require('../../../lib/daily')(dependencies);
-      module.setReadFlags(message).then(function(result) {
-        expect(result.original.read).to.be.true;
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.setReadAndInvolvedFlags(message, thread)).to.eventually.shallowDeepEqual({
+        read: false,
+        responses: [{
+          read: false
+        }, {
+          read: true
+        }]
+      });
     });
 
-    it('should set original message read flag to false on original when it does have undefined responses', function(done) {
+    it('should set message involved flag to true if a response have the same author id than the user', function() {
 
+      var userId = 'userId';
+      var userId2 = 'userId2';
       var message = {
-        original: {
-        },
-        thread: {
-        }
+        _id: '1',
+        author: {_id: userId},
+        responses: [{
+          _id: '2',
+          author: {_id: userId2}
+        }, {
+          _id: '3',
+          author: {_id: userId}
+        }]
       };
+      var thread = {};
+      var user = {_id: userId2};
 
       var module = require('../../../lib/daily')(dependencies);
-      module.setReadFlags(message).then(function(result) {
-        expect(result.original.read).to.be.false;
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.setReadAndInvolvedFlags(message, thread, user)).to.eventually.shallowDeepEqual({
+        involved: true
+      });
     });
 
-    it('should set original message read flag to false on original when it does have empty responses', function(done) {
+    it('should set message involved flag to false if no response have the same author id than the user', function() {
 
+      var userId = 'userId';
+      var userId2 = 'userId2';
       var message = {
-        original: {
-        },
-        thread: {
-          responses: []
-        }
+        _id: '1',
+        author: {_id: userId},
+        responses: [{
+          _id: '2',
+          author: {_id: userId}
+        }, {
+          _id: '3',
+          author: {_id: userId}
+        }]
       };
+      var thread = {};
+      var user = {_id: userId2};
 
       var module = require('../../../lib/daily')(dependencies);
-      module.setReadFlags(message).then(function(result) {
-        expect(result.original.read).to.be.false;
-        done();
-      }, this.helpers.callbacks.notCalled(done));
+      return expect(module.setReadAndInvolvedFlags(message, thread, user)).to.eventually.shallowDeepEqual({
+        involved: false
+      });
     });
-
-    describe('when processing responses', function() {
-
-      it('should set flag to true when thread does not have responses', function(done) {
-        var message = {
-          original: {
-            responses: [
-              {_id: 1}
-            ]
-          },
-          thread: {
-            responses: []
-          }
-        };
-
-        var module = require('../../../lib/daily')(dependencies);
-        module.setReadFlags(message).then(function(result) {
-          expect(result.original.responses[0].read).to.be.true;
-          done();
-        }, this.helpers.callbacks.notCalled(done));
-      });
-
-      it('should set read flag to false when thread contains response', function(done) {
-        var id = 1;
-        var message = {
-          original: {
-            responses: [
-              {_id: id}
-            ]
-          },
-          thread: {
-            responses: [
-              {message: {_id: id}}
-            ]
-          }
-        };
-
-        var module = require('../../../lib/daily')(dependencies);
-        module.setReadFlags(message).then(function(result) {
-          expect(result.original.responses[0].read).to.be.false;
-          done();
-        }, this.helpers.callbacks.notCalled(done));
-      });
-
-      it('should set read flag to true when thread does not contains response', function(done) {
-        var message = {
-          original: {
-            responses: [
-              {_id: 1}
-            ]
-          },
-          thread: {
-            responses: [
-              {message: {_id: 2}}
-            ]
-          }
-        };
-
-        var module = require('../../../lib/daily')(dependencies);
-        module.setReadFlags(message).then(function(result) {
-          expect(result.original.responses[0].read).to.be.true;
-          done();
-        }, this.helpers.callbacks.notCalled(done));
-      });
-
-    });
-
   });
 });
