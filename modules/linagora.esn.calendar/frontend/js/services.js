@@ -16,7 +16,26 @@ angular.module('esn.calendar')
       };
     };
   }])
-  .factory('calendarService', ['CalendarRestangular', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, moment, tokenAPI, uuid4, ICAL, $q, $http) {
+  .factory('dateService', ['moment', function(moment) {
+
+    function getNewDate() {
+      return moment().endOf('hour').add(1, 'minutes').toDate();
+    }
+
+    function getNewEndDate() {
+      return moment(getNewDate()).add(1, 'hours').toDate();
+    }
+
+    function isSameDay(startDate, endDate) {
+      return moment(startDate).isSame(moment(endDate));
+    }
+    return {
+      getNewDate: getNewDate,
+      getNewEndDate: getNewEndDate,
+      isSameDay: isSameDay
+    };
+  }])
+  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, $rootScope, moment, tokenAPI, uuid4, ICAL, $q, $http) {
 
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -219,6 +238,7 @@ angular.module('esn.calendar')
         if (response.status !== 201) {
           return $q.reject(response);
         }
+        $rootScope.$emit('addedEvent', new CalendarShell(vcalendar));
         return response;
       });
     }
@@ -279,151 +299,7 @@ angular.module('esn.calendar')
       modify: modify,
       changeParticipation: changeParticipation,
       getEvent: getEvent,
-
       shellToICAL: shellToICAL,
       getInvitedAttendees: getInvitedAttendees
     };
-  }])
-  .controller('createEventController', ['$scope', '$rootScope', '$alert', 'calendarService', 'moment', function($scope, $rootScope, $alert, calendarService, moment) {
-    $scope.rows = 1;
-
-    function getNewDate() {
-      var date = new Date();
-      date.setHours(date.getHours() + Math.round(date.getMinutes() / 60));
-      date.setMinutes(0);
-      date.setSeconds(0);
-      return date;
-    }
-
-    function getNewEndDate() {
-      var date = getNewDate();
-      date.setHours(date.getHours() + Math.round(date.getMinutes() / 60) + 1);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      return date;
-    }
-
-    function isSameDay() {
-      var startDay = new Date($scope.event.startDate.getFullYear(), $scope.event.startDate.getMonth(), $scope.event.startDate.getDate());
-      var endDay = new Date($scope.event.endDate.getFullYear(), $scope.event.endDate.getMonth(), $scope.event.endDate.getDate());
-      return moment(startDay).isSame(moment(endDay));
-    }
-
-    $scope.event = {
-      startDate: getNewDate(),
-      endDate: getNewEndDate(),
-      allday: false
-    };
-
-    $scope.expand = function() {
-      $scope.rows = 5;
-    };
-
-    $scope.shrink = function() {
-      if (!$scope.event.description) {
-        $scope.rows = 1;
-      }
-    };
-
-    $scope.displayError = function(err) {
-      $alert({
-        content: err,
-        type: 'danger',
-        show: true,
-        position: 'bottom',
-        container: '.message-panel > .error',
-        duration: '3',
-        animation: 'am-fade'
-      });
-    };
-
-    $scope.createEvent = function() {
-      if (!$scope.event.title || $scope.event.title.trim().length === 0) {
-        $scope.displayError('You must define an event title');
-        return;
-      }
-
-      if (!$scope.activitystream || !$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
-        $scope.displayError('You can not post to an unknown stream');
-        return;
-      }
-      var event = $scope.event;
-      var path = '/calendars/' + $scope.calendarId + '/events';
-      var vcalendar = calendarService.shellToICAL(event);
-      calendarService.create(path, vcalendar).then(function(response) {
-        $rootScope.$emit('message:posted', {
-          activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-          id: response.headers('ESN-Message-Id')
-        });
-        $scope.resetEvent();
-        $scope.show('whatsup');
-      }, function(err) {
-        $scope.displayError('Error while creating the event: ' + err.statusText);
-        console.error(err.data);
-      });
-    };
-
-    $scope.resetEvent = function() {
-      $scope.rows = 1;
-      $scope.event = {
-        startDate: getNewDate(),
-        endDate: getNewEndDate(),
-        diff: 1,
-        allday: false
-      };
-    };
-
-    $scope.getMinDate = function() {
-      if ($scope.event.startDate) {
-        var date = new Date($scope.event.startDate.getTime());
-        date.setDate($scope.event.startDate.getDate() - 1);
-        return date;
-      }
-      return null;
-    };
-
-    $scope.onStartDateChange = function() {
-      var startDate = moment($scope.event.startDate);
-      var endDate = moment($scope.event.endDate);
-
-      if (startDate.isAfter(endDate)) {
-        startDate.add(1, 'hours');
-        $scope.event.endDate = startDate.toDate();
-      }
-    };
-
-    $scope.onStartTimeChange = function() {
-
-      if (isSameDay()) {
-        var startDate = moment($scope.event.startDate);
-        var endDate = moment($scope.event.endDate);
-
-        if (startDate.isAfter(endDate) || startDate.isSame(endDate)) {
-          startDate.add($scope.event.diff || 1, 'hours');
-          $scope.event.endDate = startDate.toDate();
-        } else {
-          endDate = moment(startDate);
-          endDate.add($scope.event.diff || 1, 'hours');
-          $scope.event.endDate = endDate.toDate();
-        }
-      }
-    };
-
-    $scope.onEndTimeChange = function() {
-
-      if (isSameDay()) {
-        var startDate = moment($scope.event.startDate);
-        var endDate = moment($scope.event.endDate);
-
-        if (endDate.isAfter(startDate)) {
-          $scope.event.diff = $scope.event.endDate.getHours() - $scope.event.startDate.getHours();
-        } else {
-          $scope.event.diff = 1;
-          endDate = moment(startDate);
-          endDate.add($scope.event.diff, 'hours');
-          $scope.event.endDate = endDate.toDate();
-        }
-      }
-    };
-
   }]);
