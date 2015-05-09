@@ -1,16 +1,16 @@
 'use strict';
 
 var express = require('express');
-var path = require('path');
-var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
+var FRONTEND_PATH = require('./constants').FRONTEND_PATH;
 
-function contactApplication(contactLib, dependencies) {
-  var app = express();
+module.exports = function(dependencies) {
+  var application = express();
 
-  app.use(express.static(FRONTEND_PATH));
-  app.set('views', FRONTEND_PATH + '/views');
-  require('./routes')(app, contactLib, dependencies);
-  return app;
-}
+  // This needs to be initialized before the body parser
+  require('./config/i18n')(dependencies, application);
+  require('./config/less')(dependencies, application);
+  application.use(express.static(FRONTEND_PATH));
+  require('./config/views')(dependencies, application);
 
-module.exports = contactApplication;
+  return application;
+};
