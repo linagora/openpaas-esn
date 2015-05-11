@@ -6,6 +6,7 @@ var User = mongoose.model('User');
 var logger = require('../logger');
 var permission = require('./permission');
 var collaborationModule = require('../collaboration');
+var tuple = require('../tuple');
 
 var communityObjectType = 'community';
 
@@ -189,7 +190,7 @@ function getUserCommunities(user, options, callback) {
     }
 
     if (q.writable) {
-      return permission.filterWritable(result, {objectType: 'user', id: id + ''}, callback);
+      return permission.filterWritable(result, tuple.user(id), callback);
     }
 
     return callback(null, result);
