@@ -164,7 +164,7 @@ describe('The daily digest core module', function() {
               };
           });
 
-          mockery.registerMock('./job',
+          mockery.registerMock('./mail',
             function() {
               return {
                 process: function() {

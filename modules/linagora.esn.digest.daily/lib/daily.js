@@ -15,7 +15,7 @@ module.exports = function(dependencies) {
   var readTracker = tracker.getTracker('read');
   var pushTracker = tracker.getTracker('push');
   var weight = require('./weight')(dependencies);
-  var job = require('./job')(dependencies);
+  var mail = require('./mail')(dependencies);
   var trackerUpdater = require('./tracker')(dependencies);
 
   return {
@@ -183,7 +183,7 @@ module.exports = function(dependencies) {
 
         function sendDigest(data) {
           logger.info('Sending digest to user %s %s', user._id.toString(), user.emails[0]);
-          return job.process(user, data).then(function() {
+          return mail.process(user, data).then(function() {
             return data;
           });
         }

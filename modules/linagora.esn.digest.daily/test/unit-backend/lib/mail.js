@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var q = require('q');
 
-describe('The daily digest Job', function() {
+describe('The daily digest mail builder', function() {
 
   var module, resultedJson;
 
@@ -40,7 +40,7 @@ describe('The daily digest Job', function() {
     it('should transform digest json into a proper content send by om-email', function(done) {
       var digest = require('../fixtures/digest.json');
       var user = require('../fixtures/user.json');
-      module = require('../../../lib/job')(dependencies);
+      module = require('../../../lib/mail')(dependencies);
       module.process(user, digest).then(function() {
         try {
           expect(
