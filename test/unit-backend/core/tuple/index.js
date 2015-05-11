@@ -119,7 +119,7 @@ describe('The tuple core module', function() {
     });
 
     it('should send back true when objectType does match', function() {
-      expect(mod.isTupleOfType('user', {objectType: 'user', id: '123'})).to.be.user;
+      expect(mod.isTupleOfType('user', {objectType: 'user', id: '123'})).to.be.true;
     });
   });
 
