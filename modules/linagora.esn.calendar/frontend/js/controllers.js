@@ -50,6 +50,25 @@ angular.module('esn.calendar')
       calendar.fullCalendar('render');
     };
 
+    $scope.eventRender = function(event, element, view) {
+
+      element.find('.fc-content').addClass('ellipsis');
+
+      if (event.location) {
+        var contentElement = element.find('.fc-title');
+        contentElement.addClass('ellipsis');
+        var contentHtml = contentElement.html() + ' (' + event.location + ')';
+        contentElement.html(contentHtml);
+      }
+
+      if (event.description) {
+        element.attr('title', event.description);
+      }
+
+      element.addClass('eventBorder');
+    };
+
     $scope.uiConfig = USER_UI_CONFIG;
+    $scope.uiConfig.calendar.eventRender = $scope.eventRender;
     $scope.eventSources = [calendarEventSource(user._id)];
   }]);
