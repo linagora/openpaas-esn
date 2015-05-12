@@ -211,7 +211,7 @@ module.exports = function(dependencies) {
           .then(function(data) {
             return {user: user, data: data};
           }, function(err) {
-            logger.error('Error occured while processing daily digest for user %s', user._id, err);
+            logger.error('Error occured while processing daily digest for user %s', user._id.toString(), err);
             return {user: user, err: err};
           });
       });

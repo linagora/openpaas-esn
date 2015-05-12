@@ -52,18 +52,18 @@ module.exports = function(dependencies) {
     var updates = data.map(function(element) {
       var stream = element.collaboration.activity_stream;
 
-      logger.debug('Updating tracker on stream %s for user %s', stream.uuid, user._id);
+      logger.debug('Updating tracker on stream %s for user %s', stream.uuid, user._id.toString());
       return getLastTimelineEntry(element.messages, stream).then(
         function(lastEntry) {
           if (!lastEntry) {
-            logger.debug('Can not find the last timelineentry on stream %s for user %s', stream.uuid, user._id);
+            logger.debug('Can not find the last timelineentry on stream %s for user %s', stream.uuid, user._id.toString());
             return resolved();
           }
 
           return updateLastTimelineEntry(user._id, stream.uuid, lastEntry).then(resolved, resolved);
         },
         function(err) {
-          logger.debug('Error while getting last timeline entry on stream %s for user %s', stream.uuid, user._id, err);
+          logger.debug('Error while getting last timeline entry on stream %s for user %s', stream.uuid, user._id.toString(), err);
           return resolved();
         }
       );
