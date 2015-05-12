@@ -195,6 +195,110 @@ describe('The daily digest core module', function() {
             expect(called).to.equal(collaborations.length);
           });
         });
+
+        it('should send email if there is at least one message returns by loadUserDataForCollaboration', function() {
+          var collaborations = [1, 2, 3, 4];
+          var called = 0;
+
+          deps.collaboration = {
+            getCollaborationsForTuple: function(tuple, callback) {
+              return callback(null, collaborations);
+            }
+          };
+
+          mockery.registerMock('./weight',
+            function() {
+              return {
+                compute: function(user, data) {
+                  return q(data);
+                }
+              };
+            });
+
+          mockery.registerMock('./mail',
+            function() {
+              return {
+                process: function() {
+                  called++;
+                  return q({});
+                }
+              };
+            });
+
+          mockery.registerMock('./tracker',
+            function() {
+              return {
+                updateTracker: function() {
+                  return q({});
+                }
+              };
+            });
+
+          var module = require('../../../lib/daily')(dependencies);
+          var loadUserDataForCollaboration = function(user, collaboration) {
+            if (collaboration === collaborations[0]) {
+              return q({messages: [{}], collaboration: collaboration});
+            } else {
+              return q({messages: [], collaboration: collaboration});
+            }
+          };
+          module.loadUserDataForCollaboration = loadUserDataForCollaboration;
+
+          return module.userDailyDigest(user).then(function(result) {
+            expect(result.status).to.not.exist;
+            expect(called).to.equal(1);
+          });
+        });
+
+        it('should NOT send email if there is no message returns by loadUserDataForCollaboration', function() {
+          var collaborations = [1, 2, 3, 4];
+          var called = 0;
+
+          deps.collaboration = {
+            getCollaborationsForTuple: function(tuple, callback) {
+              return callback(null, collaborations);
+            }
+          };
+
+          mockery.registerMock('./weight',
+            function() {
+              return {
+                compute: function(user, data) {
+                  return q(data);
+                }
+              };
+            });
+
+          mockery.registerMock('./mail',
+            function() {
+              return {
+                process: function() {
+                  called++;
+                  return q({});
+                }
+              };
+            });
+
+          mockery.registerMock('./tracker',
+            function() {
+              return {
+                updateTracker: function() {
+                  return q({});
+                }
+              };
+            });
+
+          var module = require('../../../lib/daily')(dependencies);
+          var loadUserDataForCollaboration = function(user, collaboration) {
+            return q({messages: [], collaboration: collaboration});
+          };
+          module.loadUserDataForCollaboration = loadUserDataForCollaboration;
+
+          return module.userDailyDigest(user).then(function(result) {
+            expect(result.status).to.not.exist;
+            expect(called).to.equal(0);
+          });
+        });
       });
     });
 

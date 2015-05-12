@@ -134,7 +134,7 @@ module.exports = function(dependencies) {
 
       return this.getTracker(user, collaboration).then(function(tracker) {
         return q.nfcall(tracker.buildThreadViewSinceLastTimelineEntry, user._id, collaboration.activity_stream.uuid).then(function(threads) {
-          if (!threads) {
+          if (!threads || Object.keys(threads).length === 0) {
             return q({
               messages: [],
               collaboration: collaboration
@@ -182,6 +182,13 @@ module.exports = function(dependencies) {
         });
 
         function sendDigest(data) {
+          var hasUnreadMessages = data.some(function(object) {
+            return object.messages.length !== 0;
+          });
+          if (!hasUnreadMessages) {
+            logger.debug('No unread message for user %s %s', user._id.toString(), user.emails[0]);
+            return data;
+          }
           logger.info('Sending digest to user %s %s', user._id.toString(), user.emails[0]);
           return mail.process(user, data).then(function() {
             return data;
@@ -190,7 +197,7 @@ module.exports = function(dependencies) {
 
         function processUserData(data) {
           logger.info('Processing data for user %s %s', user._id.toString(), user.emails[0]);
-          return q.all(data.map(function(d) {
+          return q.all(data.filter(Boolean).map(function(d) {
             return weight.compute(user, d);
           }));
         }
