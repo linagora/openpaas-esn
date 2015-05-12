@@ -1,6 +1,7 @@
 'use strict';
 
 var collaborationModule = require('./index');
+var async = require('async');
 
 module.exports.canRead = function(collaboration, tuple, callback) {
   if (!collaboration || !collaboration.type) {
@@ -18,7 +19,7 @@ module.exports.canRead = function(collaboration, tuple, callback) {
   return collaborationModule.isIndirectMember(collaboration, tuple, callback);
 };
 
-module.exports.canWrite = function(collaboration, tuple, callback) {
+function canWrite(collaboration, tuple, callback) {
   if (!collaboration || !collaboration.type) {
     return callback(new Error('collaboration object is required'));
   }
@@ -32,6 +33,25 @@ module.exports.canWrite = function(collaboration, tuple, callback) {
     return callback(null, true);
   }
   return collaborationModule.isIndirectMember(collaboration, tuple, callback);
+}
+module.exports.canWrite = canWrite;
+
+module.exports.filterWritable = function(collaborations, tuple, callback) {
+  if (!collaborations) {
+    return callback(new Error('collaborations is required'));
+  }
+
+  if (!tuple) {
+    return callback(new Error('tuple is required'));
+  }
+
+  async.filter(collaborations, function(collaboration, callback) {
+    canWrite(collaboration, tuple, function(err, writable) {
+      return callback(!err && writable);
+    });
+  }, function(results) {
+    return callback(null, results);
+  });
 };
 
 module.exports.supportsMemberShipRequests = function(collaboration) {

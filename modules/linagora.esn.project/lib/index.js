@@ -77,6 +77,21 @@ function projectLib(dependencies) {
       return callback(new Error('User is required'));
     }
 
+    var done = function(err, result) {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!result || result.length === 0) {
+        return callback(null, []);
+      }
+
+      if (options.writable) {
+        return collaboration.permission.filterWritable(result, {objectType: 'user', id: userId + ''}, callback);
+      }
+      return callback(null, result);
+    };
+
     var params = {};
     if (options.member) {
       params.members = {'$elemMatch': { 'member.objectType': 'user', 'member.id': userId}};
@@ -112,7 +127,7 @@ function projectLib(dependencies) {
         params.title = options.name;
       }
 
-      return query(params, callback);
+      return query(params, done);
     });
   }
 

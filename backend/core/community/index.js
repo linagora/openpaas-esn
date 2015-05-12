@@ -5,8 +5,8 @@ var Community = mongoose.model('Community');
 var User = mongoose.model('User');
 var logger = require('../logger');
 var permission = require('./permission');
-var async = require('async');
 var collaborationModule = require('../collaboration');
+var tuple = require('../tuple');
 
 var communityObjectType = 'community';
 
@@ -190,22 +190,10 @@ function getUserCommunities(user, options, callback) {
     }
 
     if (q.writable) {
-      async.filter(result, function(community, callback) {
-        permission.canWrite(community, {objectType: 'user', id: id + ''}, function(err, writable) {
-          if (err) {
-            return callback(false);
-          }
-          if (writable) {
-            return callback(true);
-          }
-          return callback(false);
-        });
-      }, function(results) {
-        return callback(null, results);
-      });
-    } else {
-      return callback(null, result);
+      return permission.filterWritable(result, tuple.user(id), callback);
     }
+
+    return callback(null, result);
   };
 
   var params = {};
