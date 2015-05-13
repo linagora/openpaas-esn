@@ -26,58 +26,12 @@ module.exports.getTracker = function(type) {
   }
 
   /**
-   * Create a TimelineEntriesTracker
-   *
-   * @param {User, ObjectId} userId
-   * @param {function} callback fn like callback(err, saved) (saved is the document saved)
-   */
-  function createTimelineEntriesTracker(userId, callback) {
-    userId = userId._id || userId;
-
-    var timelineEntriesTracker = {
-      _id: userId,
-      timelines: {}
-    };
-
-    var timelineEntriesTrackerAsModel = new Tracker(timelineEntriesTracker);
-    timelineEntriesTrackerAsModel.save(function(err, saved) {
-      if (err) {
-        logger.error('Error while saving TimelineEntriesTracker in database:' + err.message);
-        return callback(err);
-      }
-      logger.debug('New TimelineEntriesTracker saved in database:', saved._id);
-      return callback(null, saved);
-    });
-  }
-
-  /**
-   * Change the last TimelineEntry pointer for the specified document
-   *
-   * @param {string} activityStreamUuid
-   * @param {ObjectId} lastTimelineEntryUsedId
-   * @param {TimelineEntriesTracker} doc
-   * @param {function} callback fn like callback(err, saved) (saved is the document saved)
-   */
-  function changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryUsedId, doc, callback) {
-    doc.timelines[activityStreamUuid] = lastTimelineEntryUsedId;
-    doc.markModified('timelines');
-    doc.save(function(err, saved) {
-      if (err) {
-        logger.error('Error while saving TimelineEntriesTracker in database:' + err.message);
-        return callback(err);
-      }
-      logger.debug('TimelineEntriesTracker update and saved in database:', saved._id);
-      return callback(null, saved);
-    });
-  }
-
-  /**
    * Update the last TimelineEntry pointer by a user in the specified ActivityStream
    *
    * @param {User, ObjectId} userId
    * @param {string} activityStreamUuid
    * @param {TimelineEntry, ObjectId} lastTimelineEntryReadId
-   * @param {function} callback fn like callback(err, saved) (saved is the document saved)
+   * @param {function} callback fn like callback(err)
    */
   function updateLastTimelineEntry(userId, activityStreamUuid, lastTimelineEntryReadId, callback) {
     if (!userId) {
@@ -93,23 +47,14 @@ module.exports.getTracker = function(type) {
     userId = userId._id || userId;
     lastTimelineEntryReadId = lastTimelineEntryReadId._id || lastTimelineEntryReadId;
 
-    Tracker.findById(userId, function(err, doc) {
+    var updateQuery = {$set: {}};
+    updateQuery.$set['timelines.' + activityStreamUuid] = lastTimelineEntryReadId;
+    Tracker.update({_id: userId}, updateQuery, {upsert: true}, function(err) {
       if (err) {
-        logger.warn('Error while finding by ID a TimelineEntriesTracker : ', +err.message);
+        logger.error('Error while updating by ID a TimelineEntriesTracker : ', + err.message);
         return callback(err);
       }
-
-      if (doc) {
-        return changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryReadId, doc, callback);
-      }
-
-      createTimelineEntriesTracker(userId, function(err, saved) {
-        if (err) {
-          return callback(err);
-        }
-        changeLastTimelineEntry(activityStreamUuid, lastTimelineEntryReadId, saved, callback);
-      });
-
+      return callback();
     });
   }
 

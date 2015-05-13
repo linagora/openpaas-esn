@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 
 describe('The activity streams tracker core module', function() {
 
@@ -46,77 +47,46 @@ describe('The activity streams tracker core module', function() {
 
     it('should send back error when mongoose request send back an error', function(done) {
       this.helpers.mock.models({
-        TimelineEntry: {
-          findById: function(id, callback) {
+        ReadTimeLineEntriesTracker: {
+          update: function(query, update, options, callback) {
             return callback(new Error('Error test'));
           }
-        },
-        ReadTimeLineEntriesTracker: {}
+        }
       });
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.updateLastTimelineEntry('', '', '', function(err, saved) {
+      tracker.updateLastTimelineEntry('1', '1', '1', function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
         done();
       });
     });
 
-    it('should create the timeline entries tracker and save it', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          var object = function() {
-            done();
-          };
-          object.findById = function(id, callback) {
-            return callback(null, null);
-          };
-          object.prototype.markModified = function() {};
-          object.prototype.save = function(callback) {
-            this._id = '12345';
-            this.timelines = {};
-            callback(null, this);
-          };
-          return object;
+    it('should update the timeline entries tracker', function(done) {
+      var userId = '1';
+      var activityStreamUuid = '2';
+      var lastTimelineEntryReadId = '3';
+      var trackerUpdate = sinon.spy();
+
+      this.helpers.mock.models({
+        ReadTimeLineEntriesTracker: {
+          update: function(query, update, options, callback) {
+            expect(query).to.deep.equal({_id: userId});
+            var expectedUpdate = {$set: {}};
+            expectedUpdate.$set['timelines.' + activityStreamUuid] = lastTimelineEntryReadId;
+            expect(update).to.deep.equal(expectedUpdate);
+            expect(options).to.deep.equal({upsert: true});
+            trackerUpdate();
+            return callback();
+          }
         }
       });
-      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.updateLastTimelineEntry('12345', '98765', '34567', function(err, saved) {
+      tracker.updateLastTimelineEntry(userId, activityStreamUuid, lastTimelineEntryReadId, function(err) {
         expect(err).to.not.exist;
-        expect(saved).to.exist;
-      });
-    });
-
-    it('should get the existing timeline entries tracker and update it', function(done) {
-      var saved = {
-        _id: '12345',
-        timelines: {},
-        markModified: function() {},
-        save: function(callback) {
-          callback(null, saved);
-          done();
-        }
-      };
-
-      mockery.registerMock('mongoose', {
-        model: function() {
-          var object = function() {
-            done(new Error('Should not pass here'));
-          };
-          object.findById = function(id, callback) {
-            return callback(null, saved);
-          };
-          return object;
-        }
-      });
-      mockery.registerMock('./', {});
-
-      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.updateLastTimelineEntry('12345', '98765', '34567', function(err, saved) {
-        expect(err).to.not.exist;
-        expect(saved).to.exist;
+        expect(trackerUpdate).to.have.been.calledOnce;
+        done();
       });
     });
   });

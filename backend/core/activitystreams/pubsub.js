@@ -70,11 +70,11 @@ function updateTimelineEntriesTracker(data, callback) {
         return callback(null, null);
       }
 
-      tracker.updateLastTimelineEntry(data.target, community.activity_stream.uuid, results[0]._id, function(err, saved) {
+      tracker.updateLastTimelineEntry(data.target, community.activity_stream.uuid, results[0]._id, function(err) {
         if (err) {
           return callback(err);
         }
-        return callback(null, saved);
+        return callback();
       });
     });
   });
