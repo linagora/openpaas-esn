@@ -247,12 +247,13 @@ module.exports.isConnected = function() {
 };
 
 // load models
-module.exports.models = {};
+var models = {};
 fs.readdirSync(__dirname + '/models').forEach(function(filename) {
   var stat = fs.statSync(__dirname + '/models/' + filename);
   if (!stat.isFile()) { return; }
-  require('./models/' + filename);
+  models[filename.replace('.js', '')] = require('./models/' + filename);
 });
+module.exports.models = models;
 
 // load schemas
 var schemas = {};
