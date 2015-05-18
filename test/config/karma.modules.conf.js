@@ -37,7 +37,6 @@ module.exports = function(config) {
       'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'frontend/components/localforage/dist/localforage.min.js',
       'frontend/components/angular-localforage/dist/angular-localForage.js',
-      'node_modules/easyrtc/api/easyrtc.js',
       'node_modules/async/lib/async.js',
       'node_modules/chai-jquery/chai-jquery.js',
       'frontend/components/angular-bootstrap-switch/dist/angular-bootstrap-switch.js',
@@ -61,7 +60,7 @@ module.exports = function(config) {
       'frontend/views/modules/domain/**/*.jade',
 
       // fixtures
-      'test/unit-frontend/fixtures/**'
+      'modules/**/unit-frontend/fixtures/**'
     ],
 
     frameworks: ['mocha'],
@@ -73,7 +72,7 @@ module.exports = function(config) {
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
       '**/*.jade': ['ng-jade2module'],
-      'test/unit-frontend/fixtures/**': ['raw2js']
+      'modules/**/unit-frontend/fixtures/**': ['raw2js']
     },
 
     plugins: [
