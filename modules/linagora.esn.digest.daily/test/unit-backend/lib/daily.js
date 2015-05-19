@@ -76,7 +76,22 @@ describe('The daily digest core module', function() {
 
       it('should call userDailyDigest as many time as there are users', function() {
 
-        var users = [1, 2, 3];
+        var users = [{
+          _id: '1',
+          populate: function(path, callback) {
+            return callback(null, {_id: '1'});
+          }
+        }, {
+          _id: '2',
+          populate: function(path, callback) {
+            return callback(null, {_id: '2'});
+          }
+        }, {
+          _id: '3',
+          populate: function(path, callback) {
+            return callback(null, {_id: '3'});
+          }
+        }];
         deps.user.list = function(callback) {
           return callback(null, users);
         };
@@ -90,6 +105,49 @@ describe('The daily digest core module', function() {
 
         return module.digest().then(function() {
           expect(called).to.equal(users.length);
+        });
+      });
+
+      it('should call userDailyDigest with user object with domain populated', function() {
+        var called1 = 0;
+        var called2 = 0;
+        var called3 = 0;
+
+        var users = [{
+          _id: '1',
+          populate: function(path, callback) {
+            expect(path).to.deep.equal('domains.domain_id');
+            called1++;
+            return callback(null, {_id: '1'});
+          }
+        }, {
+          _id: '2',
+          populate: function(path, callback) {
+            expect(path).to.deep.equal('domains.domain_id');
+            called2++;
+            return callback(null, {_id: '2'});
+          }
+        }, {
+          _id: '3',
+          populate: function(path, callback) {
+            expect(path).to.deep.equal('domains.domain_id');
+            called3++;
+            return callback(null, {_id: '3'});
+          }
+        }];
+        deps.user.list = function(callback) {
+          return callback(null, users);
+        };
+
+        var module = require('../../../lib/daily')(dependencies);
+        module.userDailyDigest = function(user) {
+          return q(user);
+        };
+
+        return module.digest().then(function() {
+          expect(called1).to.equal(1);
+          expect(called2).to.equal(1);
+          expect(called3).to.equal(1);
         });
       });
     });

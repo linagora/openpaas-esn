@@ -227,7 +227,18 @@ module.exports = function(dependencies) {
     digest: function() {
       logger.info('Running the digest');
       var self = this;
-      return q.nfcall(userModule.list).then(function(users) {
+
+      function getAllUsers() {
+        return q.nfcall(userModule.list);
+      }
+
+      function populateDomain(user) {
+        return q.ninvoke(user, 'populate', 'domains.domain_id');
+      }
+
+      return getAllUsers().then(function(users) {
+        return q.all((users || []).map(populateDomain));
+      }).then(function(users) {
         return q.all((users || []).map(self.userDailyDigest.bind(self)));
       });
     }
