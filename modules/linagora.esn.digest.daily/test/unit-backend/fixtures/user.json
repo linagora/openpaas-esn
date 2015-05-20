@@ -12,8 +12,10 @@
   },
   "domains": [
     {
-      "name": "domainA",
-      "_id": "537f0c2f7334bece4564c684",
+      "domain_id": {
+        "name": "domainA",
+        "_id": "537f0c2f7334bece4564c684"
+      },
       "joined_at": "2014-05-23T08:51:59.140Z"
     }
   ],

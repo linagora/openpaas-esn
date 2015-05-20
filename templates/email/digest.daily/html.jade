@@ -15,7 +15,7 @@ html.mail
             tr
               td
                 div.logo
-                  a(href="#{content.header.domain.link}")
+                  a(href="#{content.header.baseUrl}")
                     img(src="cid:logo", alt="open-paas logo")
               td
                 h2
@@ -43,7 +43,7 @@ html.mail
                     td
                       img(src="cid:logo-tiny", alt="fake img", style="background:white;")
                     td
-                      a(href="#{collaboration.title}", alt="#{collaboration.title}")
+                      a(href="#{collaboration.link}", alt="#{collaboration.title}")
                         h2 #{collaboration.title}
                           span.badge #{collaboration.unreadMessages}
                 div.arrow-up
@@ -57,18 +57,16 @@ html.mail
                           td
                             img(src="cid:logo-tiny", alt="fake img", style="background:white;")
                           td
-                            a(href="")
-                              h3
-                                span.message-author #{message.author.displayName}
-                                span  post a new message!
-                                span.message-published  (#{message.published})
+                            h3
+                              span.message-author #{message.author.displayName}
+                              span  post a new message!
+                              span.message-published  (#{message.published})
                       p !{message.content}
                   else
                     header.read
-                      a(href="")
-                        h3 New responses to
-                          span.message-author  #{message.author.displayName}
-                          span.message-published  (#{message.published})
+                      h3 New responses to
+                        span.message-author  #{message.author.displayName}
+                        span.message-published  (#{message.published})
                       p !{message.content}
 
                   if message.responses
@@ -85,7 +83,7 @@ html.mail
                                 span.response-publised  (#{response.published})
                                 p.response-content !{response.content}
               div.collaboration-footer
-                a(href="#{collaboration.title}") See more in
+                a(href="#{collaboration.link}") See more in
                   span.collaboration-title  #{collaboration.title}
 
 

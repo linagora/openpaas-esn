@@ -10,6 +10,7 @@
   "content": {
     "subject": "There are 5 new messages in your communities in domainA",
     "header": {
+      "baseUrl": "http://test:12345",
       "domain": {
         "name": "domainA",
         "id": "537f0c2f7334bece4564c684"
@@ -27,12 +28,15 @@
       {
         "id": "54b7ab5d814a5e00001ae823",
         "title": "Collaboration with no messages",
+        "objectType": "community",
         "messages": [],
-        "unreadMessages": 0
+        "unreadMessages": 0,
+        "link": "http://test:12345/#/communities/54b7ab5d814a5e00001ae823"
       },
       {
         "id": "54b7a921814a5e00001ae81c",
         "title": "Collaboration with mixed messages",
+        "objectType": "community",
         "messages": [
           {
             "content": "Message 2",
@@ -135,13 +139,16 @@
             }
           }
         ],
-        "unreadMessages": 5
+        "unreadMessages": 5,
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c"
       },
       {
         "id": "54b7a921814a5e00001ae81c",
         "title": "Collaboration with all messages read",
+        "objectType": "community",
         "messages": [],
-        "unreadMessages": 0
+        "unreadMessages": 0,
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c"
       }
     ],
     "footer": {}
