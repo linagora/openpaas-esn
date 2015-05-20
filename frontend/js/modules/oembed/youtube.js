@@ -27,7 +27,7 @@
         maxheight: '='
       },
       link: function($scope, $element) {
-        oembedResolver[provider.resolver](provider.endpoint, $scope.url, $scope.maxwidth, $scope.maxheight).then(
+        oembedResolver[provider.resolver](provider, $scope.url, $scope.maxwidth, $scope.maxheight).then(
           function(oembed) {
             angular.element(oembedService.fixHttpLinks(oembed.html)).appendTo($element[0]);
           },
