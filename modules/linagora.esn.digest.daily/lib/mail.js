@@ -31,7 +31,7 @@ function _prune(header, collaboration, message) {
       firstname: message.author.firstname,
       lastname: message.author.lastname,
       displayName: util.format('%s %s', message.author.firstname, message.author.lastname),
-      avatar: message.author.currentAvatar,
+      avatar: url.resolve(header.baseUrl, 'api/avatars?objectType=user&email=' + message.author.emails[0]),
       emails: message.author.emails
     };
   }
@@ -92,7 +92,6 @@ function _buildContent(user, data, baseUrl) {
     var collaboration = {
       id: element.collaboration._id + '',
       title: element.collaboration.title,
-      avatar: element.collaboration.avatar,
       objectType: element.collaboration.objectType,
       messages: [],
       unreadMessages: 0
@@ -104,6 +103,8 @@ function _buildContent(user, data, baseUrl) {
     } else if (collaboration.objectType === 'project') {
       collaboration.link = url.resolve(header.baseUrl, '#/projects/' + collaboration.id);
     }
+
+    collaboration.avatar = url.resolve(header.baseUrl, 'api/avatars?objectType=' + collaboration.objectType + '&id=' + collaboration.id);
 
     collaboration.messages = element.messages
       .filter(_filterByUnread)

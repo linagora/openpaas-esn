@@ -41,7 +41,7 @@ html.mail
                 table
                   tr
                     td
-                      img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                      img(src="#{collaboration.avatar}", alt="collaboration avatar", style="background:white;", width="45px", height="42px")
                     td
                       a(href="#{collaboration.link}", alt="#{collaboration.title}")
                         h2 #{collaboration.title}
@@ -55,7 +55,7 @@ html.mail
                       table
                         tr
                           td
-                            img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                            img(src="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
                           td
                             h3
                               span.message-author #{message.author.displayName}
@@ -76,7 +76,7 @@ html.mail
                           table
                             tr
                               td
-                                img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                                img(src="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
                               td
                                 span.response-author  #{response.author.displayName}
                                 span  -

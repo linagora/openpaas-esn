@@ -216,7 +216,7 @@ exports = module.exports = function(application) {
     collaborations.getWritable);
 
   var avatars = require('./controllers/avatars');
-  application.get('/api/avatars', authorize.requiresAPILogin, avatars.get);
+  application.get('/api/avatars', avatars.get);
 
   var feedback = require('./controllers/feedback');
   var feedbackMiddleware = require('./middleware/feedback');

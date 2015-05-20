@@ -31,7 +31,8 @@
         "objectType": "community",
         "messages": [],
         "unreadMessages": 0,
-        "link": "http://test:12345/#/communities/54b7ab5d814a5e00001ae823"
+        "link": "http://test:12345/#/communities/54b7ab5d814a5e00001ae823",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7ab5d814a5e00001ae823"
       },
       {
         "id": "54b7a921814a5e00001ae81c",
@@ -56,6 +57,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -72,6 +74,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -83,6 +86,7 @@
               "firstname": "Christophe",
               "lastname": "Hamerling",
               "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
               "emails": [
                 "chamerling@open-paas.dev"
               ]
@@ -106,6 +110,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -122,6 +127,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -133,6 +139,7 @@
               "firstname": "Christophe",
               "lastname": "Hamerling",
               "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
               "emails": [
                 "chamerling@open-paas.dev"
               ]
@@ -140,7 +147,8 @@
           }
         ],
         "unreadMessages": 5,
-        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c"
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7a921814a5e00001ae81c"
       },
       {
         "id": "54b7a921814a5e00001ae81c",
@@ -148,7 +156,8 @@
         "objectType": "community",
         "messages": [],
         "unreadMessages": 0,
-        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c"
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7a921814a5e00001ae81c"
       }
     ],
     "footer": {}
