@@ -7,10 +7,10 @@ html.mail
       include ../css/media.less
 
   body
-    div.wrapper
+    .wrapper
       br
-      div.mail-content
-        header.mail-header
+      .mail-content
+        .header.mail-header
           table
             tr
               td
@@ -36,8 +36,8 @@ html.mail
 
         each collaboration in content.content
           if collaboration.unreadMessages > 0
-            section
-              header.collaboration-title
+            .section
+              .header.collaboration-title
                 table
                   tr
                     td
@@ -46,12 +46,12 @@ html.mail
                       a(href="#{collaboration.link}", alt="#{collaboration.title}")
                         h2 #{collaboration.title}
                           span.badge #{collaboration.unreadMessages}
-                div.arrow-up
+                .arrow-up
 
               each message in collaboration.messages
-                article
+                .article
                   if !message.read
-                    header.unread
+                    .header.unread
                       table
                         tr
                           td
@@ -63,16 +63,16 @@ html.mail
                               span.message-published  (#{message.published})
                       p !{message.content}
                   else
-                    header.read
+                    .header.read
                       h3 New responses to
                         span.message-author  #{message.author.displayName}
                         span.message-published  (#{message.published})
                       p !{message.content}
 
                   if message.responses
-                    aside
+                    .aside
                       each response in message.responses
-                        div.response
+                        .response
                           table
                             tr
                               td
@@ -82,7 +82,7 @@ html.mail
                                 span  -
                                 span.response-publised  (#{response.published})
                                 p.response-content !{response.content}
-              div.collaboration-footer
+              .collaboration-footer
                 a(href="#{collaboration.link}") See more in
                   span.collaboration-title  #{collaboration.title}
 
