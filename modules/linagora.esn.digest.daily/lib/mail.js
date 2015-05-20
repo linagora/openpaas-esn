@@ -62,7 +62,7 @@ function _calculUnreadMessagesAndPrune(header, collaboration, message) {
 }
 
 function _compareWeight(messageA, messageB) {
-  return messageB.weight || 0 - messageA.weight || 0;
+  return (messageB.weight || 0) - (messageA.weight || 0);
 }
 
 function _buildSubject(unreadMessages, domainName) {
