@@ -445,4 +445,99 @@ describe('The Calendar Angular module', function() {
       });
     });
   });
+
+  describe('The userCalendarController controller', function() {
+
+    beforeEach(function() {
+      var self = this;
+
+      this.user = {
+        _id: '1'
+      };
+
+      angular.mock.module('esn.calendar');
+      angular.module('ui.calendar');
+      angular.mock.module(function($provide) {
+        $provide.value('user', self.user);
+        $provide.factory('calendarEventSource', function() {
+          return function() {
+            return [{
+              title: 'RealTest',
+              location: 'Paris',
+              description: 'description!',
+              allDay: false,
+              start: new Date()
+            }];
+          };
+        });
+      });
+    });
+
+    beforeEach(angular.mock.inject(function($timeout, calendarService, USER_UI_CONFIG, user, $httpBackend, $rootScope, _$compile_, _$controller_) {
+      this.$httpBackend = $httpBackend;
+      this.$rootScope = $rootScope;
+      this.$compile = _$compile_;
+      this.calendarService = calendarService;
+      this.USER_UI_CONFIG = USER_UI_CONFIG;
+      this.user = user;
+      this.$timeout = $timeout;
+      this.$controller = _$controller_;
+    }));
+
+    it('The userCalendarController should be created and its scope initialized', function() {
+      this.userCalendarScope = this.$rootScope.$new();
+      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
+
+      expect(this.userCalendarScope.uiConfig).to.deep.equal(this.USER_UI_CONFIG);
+      expect(this.userCalendarScope.uiConfig.calendar.eventRender).to.equal(this.userCalendarScope.eventRender);
+    });
+
+    it('The eventRender function should render the event', function() {
+
+      this.userCalendarScope = this.$rootScope.$new();
+      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
+
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.userCalendarScope);
+
+      uiCalendarDiv.appendTo(document.body);
+      this.userCalendarScope.$apply();
+      this.$timeout.flush();
+
+      var weekButton = uiCalendarDiv.find('.fc-agendaWeek-button');
+      expect(weekButton.length).to.equal(1);
+      var dayButton = uiCalendarDiv.find('.fc-agendaDay-button');
+      expect(dayButton.length).to.equal(1);
+
+      var checkRender = function() {
+        var title = uiCalendarDiv.find('.fc-title');
+        expect(title.length).to.equal(1);
+        expect(title.hasClass('ellipsis')).to.be.true;
+        expect(title.text()).to.equal('RealTest (Paris)');
+
+        var eventLink = uiCalendarDiv.find('a');
+        expect(eventLink.length).to.equal(1);
+        expect(eventLink.hasClass('eventBorder')).to.be.true;
+        expect(eventLink.attr('title')).to.equal('description!');
+      };
+
+      checkRender();
+      weekButton.click();
+      this.userCalendarScope.$apply();
+      try {
+        this.$timeout.flush();
+      } catch (exception) {
+        // Depending on the context, the 'no defered tasks' exception can occur
+      }
+      checkRender();
+      dayButton.click();
+      this.userCalendarScope.$apply();
+      try {
+        this.$timeout.flush();
+      } catch (exception) {
+        // Depending on the context, the 'no defered tasks' exception can occur
+      }
+      checkRender();
+
+    });
+  });
 });
