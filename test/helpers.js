@@ -1,10 +1,11 @@
 'use strict';
 
 var async = require('async'),
-    expect = require('chai').expect,
-    rewire = require('rewire'),
-    MongoClient = require('mongodb').MongoClient,
-    mockery = require('mockery');
+  expect = require('chai').expect,
+  rewire = require('rewire'),
+  MongoClient = require('mongodb').MongoClient,
+  mockery = require('mockery'),
+  pathLib = require('path');
 
 /*
  * Mocks esnConf(<key>) object.
@@ -293,6 +294,10 @@ module.exports = function(mixin, testEnv) {
 
   mixin.requireFixture = function(path) {
     return require(testEnv.fixtures + '/' + path);
+  };
+
+  mixin.getFixturePath = function(path) {
+    return pathLib.resolve(testEnv.fixtures, path);
   };
 
   mixin.callbacks = {

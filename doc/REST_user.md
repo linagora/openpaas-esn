@@ -124,7 +124,7 @@ This endpoint expects the request body to be the raw image data
 
 - 200 Ok. With the recorded image ID
 - 400 Bad request. The current request is missing mandatory parameters
-- 412 Precondition failed. The number of bytes recoreded by the file storage service differs from the number of bytes given by the user agent
+- 412 Precondition failed. The number of bytes recorded by the file storage service differs from the number of bytes given by the user agent
 - 500 Internal server error: there was a problem, either storing the file, manipulating the image, or updating the user properties.
 
 **Request:**
@@ -163,7 +163,6 @@ Get the avatar for the currently logged in user.
 
 - 200 Ok. With the stream of the avatar
 - 304 Not modified. The avatar has not been changed since the last GET
-- 401 Unauthorized. The current request does not contains any valid data to be used for authentication
 - 404 Not found.
 - 500 Internal server error: there was a problem with recovering the file.
 

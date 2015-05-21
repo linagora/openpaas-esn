@@ -186,10 +186,12 @@ describe('The core image module', function() {
     it('should call filestore.store twice if the image is correct', function(done) {
       var ObjectId = require('mongoose').Types.ObjectId;
       var avatarId = new ObjectId();
-      var filestorestore2 = function(id, contentType, opts, readableStream, callback) {
+      var fileStore2Calls = 0;
+      var filestorestore2 = function(id, contentType, opts, readableStream, options, callback) {
         expect(opts.avatar).to.be.an('object');
         expect(opts.avatar.originalId + '').to.equal(avatarId + '');
-        done();
+        fileStore2Calls++;
+        return callback(null, { length: 666 });
       };
       var filestoreMock = {
         store: function(id, contentType, opts, readableStream, options, callback) {
@@ -210,6 +212,14 @@ describe('The core image module', function() {
 
       var is = createReadStream(this.testEnv.fixtures + '/images/square.jpg');
       image.recordAvatar(avatarId, 'image/jpeg', {}, is, function(err, size) {
+        if (err) {
+          done(err);
+        }
+        else {
+          expect(size).to.equal(42);
+          expect(fileStore2Calls).to.equal(1);
+          done();
+        }
       });
     });
 
