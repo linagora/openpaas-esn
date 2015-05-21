@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar', [
+  'esn.core',
   'esn.authentication',
   'esn.ical',
   'esn.community',

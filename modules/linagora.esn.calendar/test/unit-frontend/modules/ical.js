@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe.skip('The ICAL Angular module', function() {
+describe('The ICAL Angular module', function() {
   beforeEach(angular.mock.module('esn.ical'));
 
   describe('icalParserService service', function() {
@@ -18,7 +18,7 @@ describe.skip('The ICAL Angular module', function() {
 
       it('should parse the given ICS data', function() {
         var ICAL = this.ICAL;
-        var result = ICAL.parse(__FIXTURES__['test/unit-frontend/fixtures/calendar/event.ics']);
+        var result = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/event.ics']);
         expect(result).to.exist;
 
         var comp = new ICAL.Component(result[1]);

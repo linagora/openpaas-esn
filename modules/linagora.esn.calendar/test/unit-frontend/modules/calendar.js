@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.skip('The Calendar Angular module', function() {
+describe('The Calendar Angular module', function() {
 
   describe('The calendarService service', function() {
     var ICAL;
@@ -49,7 +49,7 @@ describe.skip('The Calendar Angular module', function() {
     describe('The list fn', function() {
       it('should list events', function(done) {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.expectGET('/calendar/api/caldavserver').respond({ url: ''});
 
         // The caldav server will be hit
         var data = {
@@ -92,7 +92,7 @@ describe.skip('The Calendar Angular module', function() {
     describe('The getEvent fn', function() {
       it('should return an event', function(done) {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.expectGET('/calendar/api/caldavserver').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectGET('/path/to/event.ics').respond(
@@ -185,7 +185,7 @@ describe.skip('The Calendar Angular module', function() {
 
       it('should fail on 500 response status', function(done) {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.expectGET('/calendar/api/caldavserver').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(500, '');
@@ -213,7 +213,7 @@ describe.skip('The Calendar Angular module', function() {
         vcalendar.addSubcomponent(vevent);
 
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.expectGET('/calendar/api/caldavserver').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, '');
@@ -236,7 +236,7 @@ describe.skip('The Calendar Angular module', function() {
         vcalendar.addSubcomponent(vevent);
 
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.expectGET('/calendar/api/caldavserver').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
@@ -269,7 +269,7 @@ describe.skip('The Calendar Angular module', function() {
         vcalendar.addSubcomponent(vevent);
         this.vcalendar = vcalendar;
 
-        this.$httpBackend.whenGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.whenGET('/calendar/api/caldavserver').respond({ url: ''});
       });
 
       it('should fail if status is 201', function(done) {
@@ -356,7 +356,7 @@ describe.skip('The Calendar Angular module', function() {
         vcalendar.addSubcomponent(vevent);
         this.vcalendar = vcalendar;
 
-        this.$httpBackend.whenGET('/caldavserver').respond({data: { url: ''}});
+        this.$httpBackend.whenGET('/calendar/api/caldavserver').respond({ url: ''});
       });
 
       it('should change the participation status', function(done) {
