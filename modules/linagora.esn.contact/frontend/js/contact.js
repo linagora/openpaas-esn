@@ -11,4 +11,12 @@ angular.module('linagora.esn.contact', [
       user: routeResolver.session('user')
     }
   });
+  $routeProvider.when('/contacts/new/:bookId', {
+    templateUrl: '/contacts/views/contact-new',
+    controller: 'newContactController',
+    resolve: {
+      domain: routeResolver.session('domain'),
+      user: routeResolver.session('user')
+    }
+  });
 }]);
