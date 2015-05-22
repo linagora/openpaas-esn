@@ -43,6 +43,7 @@ angular.module('esnApp', [
   'esn.oembed.deezer',
   'esn.oembed.vimeo',
   'esn.oembed.slideshare',
+  'esn.oembed.codepen',
   'esn.injection',
   'esn.collaboration',
   'esn.company',

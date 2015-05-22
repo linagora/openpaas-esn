@@ -106,12 +106,15 @@ angular.module('esn.oembed', [])
     return {
 
       yql: function(oembed, url, width, height) {
-        var q = 'select * from json where url ="' + oembed + '?url=' + url;
+        var q = 'select * from json where url ="' + oembed.endpoint + '?url=' + url;
         if (width) {
           q = q + '&maxwidth=' + width;
         }
         if (height) {
           q = q + '&maxheight=' + height;
+        }
+        if (oembed.format) {
+          q = q + '&format=' + oembed.format;
         }
         q = q + '"';
 
@@ -130,7 +133,7 @@ angular.module('esn.oembed', [])
       },
 
       http: function(oembed, url, width, height) {
-        return $http.get(oembed, {
+        return $http.get(oembed.endpoint, {
           params: {
             format: 'json',
             maxwidth: width,

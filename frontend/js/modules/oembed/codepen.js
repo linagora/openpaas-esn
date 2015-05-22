@@ -2,25 +2,26 @@
 
 (function() {
 
-  var youtube = angular.module('esn.oembed.youtube', ['esn.oembed']);
+  var codepen = angular.module('esn.oembed.codepen', ['esn.oembed']);
 
   var provider = {
-    name: 'youtube',
-    regexps: [new RegExp('youtube\\.com/watch.+v=[\\w-]+&?', 'i'), new RegExp('youtu\\.be/[\\w-]+', 'i')],
-    endpoint: 'http://www.youtube.com/oembed',
+    name: 'codepen',
+    regexps: [new RegExp('codepen\\.io/[\\w-]+', 'i')],
+    endpoint: 'http://codepen.io/api/oembed',
     type: 'rich',
-    resolver: 'yql'
+    resolver: 'yql',
+    format: 'json'
   };
 
-  youtube.run(['oembedRegistry', function(oembedRegistry) {
+  codepen.run(['oembedRegistry', function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
   }]);
 
-  youtube.directive('youtubeOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  codepen.directive('codepenOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
-      template: '<div class="oembed youtube-oembed"></div>',
+      template: '<div class="oembed codepen-oembed"></div>',
       scope: {
         url: '@',
         maxwidth: '=',
@@ -37,4 +38,5 @@
       }
     };
   }]);
+
 })();
