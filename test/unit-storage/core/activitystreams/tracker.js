@@ -32,12 +32,16 @@ describe('the TimelineEntriesTracker module', function() {
   });
 
   it('should create a new TimelineEntriesTracker with the init values', function(done) {
-    tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId, function(err, saved) {
+    tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId, function(err) {
       expect(err).to.not.exist;
-      expect(saved).to.exist;
-      expect(userId.equals(saved._id)).to.be.true;
-      expect(timelineEntryId.equals(saved.timelines[activityStreamUuid])).to.be.true;
-      done();
+
+      ReadTimelineEntriesTracker.findOne(userId, function(err, doc) {
+        expect(err).to.not.exist;
+        var expectedDoc = {_id: userId + '', timelines: {}};
+        expectedDoc.timelines[activityStreamUuid] = timelineEntryId;
+        expect(doc).to.shallowDeepEqual(expectedDoc);
+        done();
+      });
     });
   });
 
@@ -52,12 +56,16 @@ describe('the TimelineEntriesTracker module', function() {
       if (err) { done(err); }
 
       var timelineEntryId_2 = new ObjectId('538d87b37779021a1acf1b13');
-      tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId_2, function(err, saved) {
+      tracker.updateLastTimelineEntry(userId, activityStreamUuid, timelineEntryId_2, function(err) {
         expect(err).to.not.exist;
-        expect(saved).to.exist;
-        expect(userId.equals(saved._id)).to.be.true;
-        expect(timelineEntryId_2.equals(saved.timelines[activityStreamUuid])).to.be.true;
-        done();
+
+        ReadTimelineEntriesTracker.findOne(userId, function(err, doc) {
+          expect(err).to.not.exist;
+          var expectedDoc = {_id: userId + '', timelines: {}};
+          expectedDoc.timelines[activityStreamUuid] = timelineEntryId_2;
+          expect(doc).to.shallowDeepEqual(expectedDoc);
+          done();
+        });
       });
     });
   });

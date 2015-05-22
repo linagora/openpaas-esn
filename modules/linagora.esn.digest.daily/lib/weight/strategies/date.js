@@ -11,11 +11,11 @@ module.exports = function(dependencies) {
 
   var arrayHelper = dependencies('helpers').array;
 
-  function findFirstUnread(responses) {
-    var unreads = responses.filter(function(response) {
-      return !response.read;
-    });
-    return unreads.length > 0 ? unreads[0] : undefined;
+  function getLastResponse(message) {
+    if (arrayHelper.isNullOrEmpty(message.responses)) {
+      return message;
+    }
+    return message.responses[message.responses.length - 1];
   }
 
   function computeMessagesWeight(messages) {
@@ -25,54 +25,25 @@ module.exports = function(dependencies) {
     }
 
     function compareCompute(a, b) {
-      var computeA = a.compute;
-      var computeB = b.compute;
 
-      if (computeA.top && computeB.top) {
-        // when both are root messages, compare on their date
-        return compareWeightDate(computeA.weightDate, computeB.weightDate);
-      }
-
-      if (computeA.root && !computeB.root) {
-        // when A is root message and not B, A has more weight
-        return 1;
-      }
-
-      if (!computeA.root && computeB.root) {
-        // when B is root message and not A, B has more weight
+      if (a.read && !b.read) {
+        // when A is read and B is NOT read, B has more weight
         return -1;
       }
 
-      if (!computeA.root && !computeB.root) {
-        // when A and B are not root messages, compare the date of the responses
-        return compareWeightDate(computeA.weightDate, computeB.weightDate);
+      if (!a.read && b.read) {
+        // when A is NOT read and B is read, A has more weight
+        return 1;
       }
 
-      return 0;
+      // when both are read OR both are not read, compare on their last response date
+      return compareWeightDate(getLastResponse(a).published, getLastResponse(b).published);
     }
-
-    messages.forEach(function(message) {
-      message.compute = {};
-
-      if (!message.read && arrayHelper.isNullOrEmpty(message.responses)) {
-        message.compute.root = true;
-        message.compute.weightDate = message.published;
-      }
-
-      if (message.read && !arrayHelper.isNullOrEmpty(message.responses)) {
-        var first = findFirstUnread(message.responses);
-        if (first) {
-          message.compute.root = false;
-          message.compute.weightDate = first.published;
-        }
-      }
-    });
 
     messages.sort(compareCompute);
 
     messages.forEach(function(message, i) {
       message.weight = i;
-      delete message.compute;
     });
 
     return messages;

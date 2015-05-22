@@ -8,8 +8,9 @@
     "id": "johndoe@anonymous.net"
   },
   "content": {
-    "subject": "There are 5 new messages in your communities in domainA",
+    "subject": "There are 10 new messages in your communities in domainA",
     "header": {
+      "baseUrl": "http://test:12345",
       "domain": {
         "name": "domainA",
         "id": "537f0c2f7334bece4564c684"
@@ -19,7 +20,7 @@
         "id": "537f0c2f7334bece4564c683"
       },
       "total": {
-        "unreadMessages": 5,
+        "unreadMessages": 10,
         "unreadNotifications": 0
       }
     },
@@ -27,12 +28,16 @@
       {
         "id": "54b7ab5d814a5e00001ae823",
         "title": "Collaboration with no messages",
+        "objectType": "community",
         "messages": [],
-        "unreadMessages": 0
+        "unreadMessages": 0,
+        "link": "http://test:12345/#/communities/54b7ab5d814a5e00001ae823",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7ab5d814a5e00001ae823"
       },
       {
         "id": "54b7a921814a5e00001ae81c",
         "title": "Collaboration with mixed messages",
+        "objectType": "community",
         "messages": [
           {
             "content": "Message 2",
@@ -52,6 +57,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -68,6 +74,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -79,6 +86,7 @@
               "firstname": "Christophe",
               "lastname": "Hamerling",
               "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
               "emails": [
                 "chamerling@open-paas.dev"
               ]
@@ -102,6 +110,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -118,6 +127,7 @@
                   "firstname": "Christophe",
                   "lastname": "Hamerling",
                   "displayName": "Christophe Hamerling",
+                  "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
                   "emails": [
                     "chamerling@open-paas.dev"
                   ]
@@ -129,25 +139,96 @@
               "firstname": "Christophe",
               "lastname": "Hamerling",
               "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
               "emails": [
                 "chamerling@open-paas.dev"
               ]
             }
           }
         ],
-        "unreadMessages": 5
+        "unreadMessages": 5,
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7a921814a5e00001ae81c"
       },
       {
         "id": "54b7a921814a5e00001ae81c",
         "title": "Collaboration with all messages read",
+        "objectType": "community",
         "messages": [],
-        "unreadMessages": 0
+        "unreadMessages": 0,
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81c",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7a921814a5e00001ae81c"
+      },
+      {
+        "id": "54b7a921814a5e00001ae81f",
+        "title": "Collaboration with multiple messages",
+        "objectType": "community",
+        "messages": [
+          {
+            "content": "Message 5",
+            "published": "2015-01-15T14:11:48.601Z",
+            "objectType": "whatsup",
+            "weight": 4,
+            "read": false,
+            "responses": [],
+            "author": {
+              "id": "54b68988ce89cbdd998e2746",
+              "firstname": "Christophe",
+              "lastname": "Hamerling",
+              "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
+              "emails": [
+                "chamerling@open-paas.dev"
+              ]
+            }
+          },
+          {
+            "content": "Message 4",
+            "published": "2015-01-15T14:11:47.601Z",
+            "objectType": "whatsup",
+            "weight": 3,
+            "read": false,
+            "responses": [],
+            "author": {
+              "id": "54b68988ce89cbdd998e2746",
+              "firstname": "Christophe",
+              "lastname": "Hamerling",
+              "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
+              "emails": [
+                "chamerling@open-paas.dev"
+              ]
+            }
+          },
+          {
+            "content": "Message 3",
+            "published": "2015-01-15T14:11:46.601Z",
+            "objectType": "whatsup",
+            "weight": 2,
+            "read": false,
+            "responses": [],
+            "author": {
+              "id": "54b68988ce89cbdd998e2746",
+              "firstname": "Christophe",
+              "lastname": "Hamerling",
+              "displayName": "Christophe Hamerling",
+              "avatar": "http://test:12345/api/avatars?objectType=user&email=chamerling@open-paas.dev",
+              "emails": [
+                "chamerling@open-paas.dev"
+              ]
+            }
+          }
+        ],
+        "unreadMessages": 5,
+        "link": "http://test:12345/#/communities/54b7a921814a5e00001ae81f",
+        "avatar": "http://test:12345/api/avatars?objectType=community&id=54b7a921814a5e00001ae81f"
       }
+
     ],
     "footer": {}
   },
   "options": {
-    "subject": "There are 5 new messages in your communities in domainA",
+    "subject": "There are 10 new messages in your communities in domainA",
     "template": "digest.daily",
     "noreply": "noreply@open-paas.org"
   }

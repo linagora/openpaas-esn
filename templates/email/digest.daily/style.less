@@ -26,7 +26,7 @@ body {
     background-color: @esn-fa;
     text-align: justify;
 
-    header.mail-header {
+    div.header.mail-header {
       color: @esn-primary-middle;
       border-bottom: 1px solid @esn-primary-lesslight;
       margin-bottom: 20px;
@@ -36,10 +36,10 @@ body {
       }
     }
 
-    section {
+    div.section {
       margin: 10px;
 
-      header.collaboration-title {
+      div.header.collaboration-title {
         padding: 10px 10px 0 10px;
         text-align: left;
         background-color: @esn-secondary-dark;
@@ -69,11 +69,11 @@ body {
         border-bottom: 15px solid @esn-fa;
       }
 
-      article{
+      div.article{
         padding: 10px;
         border-bottom: 1px solid @esn-primary-lesslight;
 
-        header.read {
+        div.header.read {
           color: @esn-primary-middle;
           p {
             background-color: lighten(@esn-primary-lesslight, 10%);
@@ -81,12 +81,8 @@ body {
             padding: 5px;
             margin-bottom: 5px;
           }
-          a {
-            text-decoration: none;
-
-            h3 {
-              color: lighten(@esn-primary-middle, 10%);
-            }
+          h3 {
+            color: lighten(@esn-primary-middle, 10%);
           }
 
           span.message-author {
@@ -98,15 +94,10 @@ body {
           }
         }
 
-        header.unread {
+        div.header.unread {
           padding-left: 5px;
           font-style: normal;
           color: @esn-highlight-dark;
-
-          a {
-            text-decoration: none;
-            color: @esn-highlight-dark;
-          }
 
           span.message-author {
             color: @esn-secondary-dark;
@@ -117,7 +108,7 @@ body {
           }
         }
 
-        aside {
+        div.aside {
           margin-top: 5px;
           margin-left: 5px;
 

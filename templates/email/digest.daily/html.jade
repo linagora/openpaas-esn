@@ -7,15 +7,15 @@ html.mail
       include ../css/media.less
 
   body
-    div.wrapper
+    .wrapper
       br
-      div.mail-content
-        header.mail-header
+      .mail-content
+        .header.mail-header
           table
             tr
               td
                 div.logo
-                  a(href="#{content.header.domain.link}")
+                  a(href="#{content.header.baseUrl}")
                     img(src="cid:logo", alt="open-paas logo")
               td
                 h2
@@ -36,56 +36,54 @@ html.mail
 
         each collaboration in content.content
           if collaboration.unreadMessages > 0
-            section
-              header.collaboration-title
+            .section
+              .header.collaboration-title
                 table
                   tr
                     td
-                      img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                      img(src="#{collaboration.avatar}", alt="collaboration avatar", style="background:white;", width="45px", height="42px")
                     td
-                      a(href="#{collaboration.title}", alt="#{collaboration.title}")
+                      a(href="#{collaboration.link}", alt="#{collaboration.title}")
                         h2 #{collaboration.title}
                           span.badge #{collaboration.unreadMessages}
-                div.arrow-up
+                .arrow-up
 
               each message in collaboration.messages
-                article
+                .article
                   if !message.read
-                    header.unread
+                    .header.unread
                       table
                         tr
                           td
-                            img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                            img(src="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
                           td
-                            a(href="")
-                              h3
-                                span.message-author #{message.author.displayName}
-                                span  post a new message!
-                                span.message-published  (#{message.published})
+                            h3
+                              span.message-author #{message.author.displayName}
+                              span  post a new message!
+                              span.message-published  (#{message.published})
                       p !{message.content}
                   else
-                    header.read
-                      a(href="")
-                        h3 New responses to
-                          span.message-author  #{message.author.displayName}
-                          span.message-published  (#{message.published})
+                    .header.read
+                      h3 New responses to
+                        span.message-author  #{message.author.displayName}
+                        span.message-published  (#{message.published})
                       p !{message.content}
 
                   if message.responses
-                    aside
+                    .aside
                       each response in message.responses
-                        div.response
+                        .response
                           table
                             tr
                               td
-                                img(src="cid:logo-tiny", alt="fake img", style="background:white;")
+                                img(src="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
                               td
                                 span.response-author  #{response.author.displayName}
                                 span  -
                                 span.response-publised  (#{response.published})
                                 p.response-content !{response.content}
-              div.collaboration-footer
-                a(href="#{collaboration.title}") See more in
+              .collaboration-footer
+                a(href="#{collaboration.link}") See more in
                   span.collaboration-title  #{collaboration.title}
 
 

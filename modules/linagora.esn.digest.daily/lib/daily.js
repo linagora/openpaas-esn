@@ -15,57 +15,58 @@ module.exports = function(dependencies) {
   var readTracker = tracker.getTracker('read');
   var pushTracker = tracker.getTracker('push');
   var weight = require('./weight')(dependencies);
-  var job = require('./job')(dependencies);
+  var mail = require('./mail')(dependencies);
   var trackerUpdater = require('./tracker')(dependencies);
 
   return {
 
-    setReadFlags: function(message) {
+    setReadAndInvolvedFlags: function(message, thread, user) {
+      // If thread.read is undefined then the message is read
+      message.read = !('read' in thread) || thread.read;
+      message.involved = message.author && message.author._id + '' === user._id + '' ? true : false;
 
-      function isInThread(originalResponse) {
-        return message.thread.responses.some(function(response) {
-          return originalResponse._id + '' === response.message._id + '';
+      if (!arrayHelper.isNullOrEmpty(message.responses)) {
+        message.responses.forEach(function(messageResponse) {
+
+          if (!arrayHelper.isNullOrEmpty(thread.responses)) {
+            // Find the response with the same id in the thread responses array and init the read field
+            thread.responses.some(function(threadResponse) {
+              if (threadResponse.message && messageResponse._id + '' === threadResponse.message._id + '') {
+                messageResponse.read = threadResponse.read;
+                return true;
+              } else {
+                messageResponse.read = true;
+                return false;
+              }
+            });
+          } else {
+            messageResponse.read = true;
+          }
+
+          // Check involvement
+          if (messageResponse.author && messageResponse.author._id + '' === user._id + '') {
+            message.involved = true;
+          }
         });
       }
 
-      function flagReadResponse(originalResponse) {
-        originalResponse.read = arrayHelper.isNullOrEmpty(message.thread.responses) || !isInThread(originalResponse);
-      }
-
-      if (!arrayHelper.isNullOrEmpty(message.original.responses)) {
-        message.original.responses.forEach(flagReadResponse);
-      }
-
-      message.original.read = message.thread.responses ? message.thread.responses.length !== 0 : false;
       return q(message);
     },
 
-    buildMessageContext: function(thread) {
-      if (!thread) {
-        return q.reject(new Error('Thread is required'));
+    buildMessageContext: function(thread, user) {
+      if (!thread || !user) {
+        return q.reject(new Error('Thread and user is required'));
       }
 
       var self = this;
 
-      function process(message) {
-        return self.setReadFlags(message).then(function(result) {
-          return result.original;
-        });
-      }
-
       return q.nfcall(messageModule.get, thread.message._id).then(
         function(message) {
-          return process({
-            original: message,
-            thread: thread
-          });
+          return self.setReadAndInvolvedFlags(message, thread, user);
         },
         function(err) {
-          return process({
-            original: {},
-            thread: thread,
-            status: err.message
-          });
+          logger.error('Daily digest error when retrieving message from database, skip message', err);
+          return q({});
         }
       );
     },
@@ -133,7 +134,7 @@ module.exports = function(dependencies) {
 
       return this.getTracker(user, collaboration).then(function(tracker) {
         return q.nfcall(tracker.buildThreadViewSinceLastTimelineEntry, user._id, collaboration.activity_stream.uuid).then(function(threads) {
-          if (!threads) {
+          if (!threads || Object.keys(threads).length === 0) {
             return q({
               messages: [],
               collaboration: collaboration
@@ -142,12 +143,15 @@ module.exports = function(dependencies) {
 
           var messagesContext = [];
           Object.keys(threads).forEach(function(messageId) {
-            messagesContext.push(self.buildMessageContext(threads[messageId]));
+            messagesContext.push(self.buildMessageContext(threads[messageId], user));
           });
 
-          return q.all(messagesContext).then(function(context) {
+          return q.all(messagesContext).then(function(messages) {
             return {
-              messages: context,
+              messages: messages.filter(function(message) {
+                // Do not put !message.involved because if message.involved is undefined it must return false
+                return message && message.involved === false;
+              }),
               collaboration: collaboration
             };
           });
@@ -178,15 +182,22 @@ module.exports = function(dependencies) {
         });
 
         function sendDigest(data) {
+          var hasUnreadMessages = data.some(function(object) {
+            return object.messages.length !== 0;
+          });
+          if (!hasUnreadMessages) {
+            logger.debug('No unread message for user %s %s', user._id.toString(), user.emails[0]);
+            return data;
+          }
           logger.info('Sending digest to user %s %s', user._id.toString(), user.emails[0]);
-          return job.process(user, data).then(function() {
+          return mail.process(user, data).then(function() {
             return data;
           });
         }
 
         function processUserData(data) {
           logger.info('Processing data for user %s %s', user._id.toString(), user.emails[0]);
-          return q.all(data.map(function(d) {
+          return q.all(data.filter(Boolean).map(function(d) {
             return weight.compute(user, d);
           }));
         }
@@ -207,7 +218,7 @@ module.exports = function(dependencies) {
           .then(function(data) {
             return {user: user, data: data};
           }, function(err) {
-            logger.error('Error occured while processing daily digest for user %s', user._id, err);
+            logger.error('Error occured while processing daily digest for user %s', user._id.toString(), err);
             return {user: user, err: err};
           });
       });
@@ -216,7 +227,18 @@ module.exports = function(dependencies) {
     digest: function() {
       logger.info('Running the digest');
       var self = this;
-      return q.nfcall(userModule.list).then(function(users) {
+
+      function getAllUsers() {
+        return q.nfcall(userModule.list);
+      }
+
+      function populateDomain(user) {
+        return q.ninvoke(user, 'populate', 'domains.domain_id');
+      }
+
+      return getAllUsers().then(function(users) {
+        return q.all((users || []).map(populateDomain));
+      }).then(function(users) {
         return q.all((users || []).map(self.userDailyDigest.bind(self)));
       });
     }

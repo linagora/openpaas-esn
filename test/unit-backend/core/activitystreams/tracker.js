@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 
 describe('The activity streams tracker core module', function() {
 
@@ -46,77 +47,46 @@ describe('The activity streams tracker core module', function() {
 
     it('should send back error when mongoose request send back an error', function(done) {
       this.helpers.mock.models({
-        TimelineEntry: {
-          findById: function(id, callback) {
+        ReadTimeLineEntriesTracker: {
+          update: function(query, update, options, callback) {
             return callback(new Error('Error test'));
           }
-        },
-        ReadTimeLineEntriesTracker: {}
+        }
       });
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.updateLastTimelineEntry('', '', '', function(err, saved) {
+      tracker.updateLastTimelineEntry('1', '1', '1', function(err, saved) {
         expect(err).to.exist;
         expect(saved).to.not.exist;
         done();
       });
     });
 
-    it('should create the timeline entries tracker and save it', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          var object = function() {
-            done();
-          };
-          object.findById = function(id, callback) {
-            return callback(null, null);
-          };
-          object.prototype.markModified = function() {};
-          object.prototype.save = function(callback) {
-            this._id = '12345';
-            this.timelines = {};
-            callback(null, this);
-          };
-          return object;
+    it('should update the timeline entries tracker', function(done) {
+      var userId = '1';
+      var activityStreamUuid = '2';
+      var lastTimelineEntryReadId = '3';
+      var trackerUpdate = sinon.spy();
+
+      this.helpers.mock.models({
+        ReadTimeLineEntriesTracker: {
+          update: function(query, update, options, callback) {
+            expect(query).to.deep.equal({_id: userId});
+            var expectedUpdate = {$set: {}};
+            expectedUpdate.$set['timelines.' + activityStreamUuid] = lastTimelineEntryReadId;
+            expect(update).to.deep.equal(expectedUpdate);
+            expect(options).to.deep.equal({upsert: true});
+            trackerUpdate();
+            return callback();
+          }
         }
       });
-      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.updateLastTimelineEntry('12345', '98765', '34567', function(err, saved) {
+      tracker.updateLastTimelineEntry(userId, activityStreamUuid, lastTimelineEntryReadId, function(err) {
         expect(err).to.not.exist;
-        expect(saved).to.exist;
-      });
-    });
-
-    it('should get the existing timeline entries tracker and update it', function(done) {
-      var saved = {
-        _id: '12345',
-        timelines: {},
-        markModified: function() {},
-        save: function(callback) {
-          callback(null, saved);
-          done();
-        }
-      };
-
-      mockery.registerMock('mongoose', {
-        model: function() {
-          var object = function() {
-            done(new Error('Should not pass here'));
-          };
-          object.findById = function(id, callback) {
-            return callback(null, saved);
-          };
-          return object;
-        }
-      });
-      mockery.registerMock('./', {});
-
-      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.updateLastTimelineEntry('12345', '98765', '34567', function(err, saved) {
-        expect(err).to.not.exist;
-        expect(saved).to.exist;
+        expect(trackerUpdate).to.have.been.calledOnce;
+        done();
       });
     });
   });
@@ -384,63 +354,155 @@ describe('The activity streams tracker core module', function() {
       expect(handlerClose).to.be.a('function');
       handlerClose();
     });
-  });
 
-  describe('The exists function', function() {
-    it('should send back error when mongoose request send back an error', function(done) {
+    it('should not return timelines entries when the actual user is the timeline entry actor', function(done) {
+      var handlerClose = null;
+      var id = '123';
+      var message = 234;
+      var userId = 1;
+      var asId = 123456789;
+      var timelines = {timelines: {}};
+      timelines.timelines[asId] = message;
+
       mockery.registerMock('mongoose', {
         model: function() {
           return {
             findById: function(id, callback) {
-              return callback(new Error('Error test'));
+              return callback(null, timelines);
             }
           };
         }
       });
-      mockery.registerMock('./', {});
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event, handler) {
 
-      var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.exists({}, this.helpers.callbacks.error(done));
-    });
+              if (event === 'close') {
+                handlerClose = handler;
+              }
 
-    it('should send true when document is found', function(done) {
-      mockery.registerMock('mongoose', {
-        model: function() {
-          return {
-            findById: function(id, callback) {
-              return callback(null, {});
+              if (event === 'data') {
+                return handler({
+                  _id: id,
+                  actor: {_id: userId},
+                  object: {objectType: 'whatsup', _id: message}
+                });
+              }
             }
-          };
+          });
         }
       });
-      mockery.registerMock('./', {});
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.exists({}, function(err, exists) {
-        expect(err).to.not.exists;
-        expect(exists).to.be.true;
+      tracker.buildThreadViewSinceLastTimelineEntry(userId, asId, function(err, threads) {
+        expect(threads).to.exist;
+        expect(threads).to.deep.equal({});
         done();
       });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
     });
 
-    it('should send false when document is not found', function(done) {
+    it('should set correctly read flags', function(done) {
+      var handlerClose = null;
+      var handlerData = null;
+      var asId = 123456789;
+      var timelines = {timelines: {}};
+      timelines.timelines[asId] = '1';
+
+      var timelinesEntries = [{
+        _id: 'timelineEntry1',
+        object: {objectType: 'whatsup', _id: 'message1Unread'}
+      }, {
+        _id: 'timelineEntry2',
+        object: {objectType: 'whatsup', _id: 'message2UnreadInReplyTo3'},
+        inReplyTo: [{_id: 'message3Read'}]
+      }, {
+        _id: 'timelineEntry3',
+        object: {objectType: 'whatsup', _id: 'message4UnreadInReplyTo5'},
+        inReplyTo: [{_id: 'message5Unread'}]
+      }, {
+        _id: 'timelineEntry4',
+        object: {objectType: 'whatsup', _id: 'message5Unread'}
+      }];
+
       mockery.registerMock('mongoose', {
         model: function() {
           return {
             findById: function(id, callback) {
-              return callback();
+              return callback(null, timelines);
             }
           };
         }
       });
-      mockery.registerMock('./', {});
+      mockery.registerMock('./', {
+        query: function(options, callback) {
+          callback(null, {
+            on: function(event, handler) {
+
+              if (event === 'close') {
+                handlerClose = handler;
+              }
+
+              if (event === 'data') {
+                handlerData = handler;
+              }
+            }
+          });
+        }
+      });
 
       var tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');
-      tracker.exists({}, function(err, exists) {
-        expect(err).to.not.exists;
-        expect(exists).to.be.false;
+      tracker.buildThreadViewSinceLastTimelineEntry('1', asId, function(err, threads) {
+        expect(err).to.not.exist;
+        expect(threads).to.exist;
+        var expectedObject = {};
+        expectedObject[timelinesEntries[0].object._id] = {
+          message: timelinesEntries[0].object,
+          timelineentry: {
+            _id: timelinesEntries[0]._id
+          },
+          responses: [],
+          read: false
+        };
+        expectedObject[timelinesEntries[1].inReplyTo[0]._id] = {
+          message: timelinesEntries[1].inReplyTo[0],
+          timelineentry: {
+            _id: timelinesEntries[1]._id
+          },
+          responses: [{
+            message: timelinesEntries[1].object,
+            timelineentry: {
+              _id: timelinesEntries[1]._id
+            },
+            read: false
+          }],
+          read: true
+        };
+        expectedObject[timelinesEntries[2].inReplyTo[0]._id] = {
+          message: timelinesEntries[2].inReplyTo[0],
+          timelineentry: {
+            _id: timelinesEntries[2]._id
+          },
+          responses: [{
+            message: timelinesEntries[2].object,
+            timelineentry: {
+              _id: timelinesEntries[2]._id
+            },
+            read: false
+          }],
+          read: false
+        };
+        expect(threads).to.shallowDeepEqual(expectedObject);
         done();
       });
+      expect(handlerData).to.be.a('function');
+      timelinesEntries.forEach(function(timelineEntry) {
+        handlerData(timelineEntry);
+      });
+      expect(handlerClose).to.be.a('function');
+      handlerClose();
     });
   });
 });
