@@ -55,7 +55,7 @@
     "leaflet": "~0.7.3",
     "fullcalendar": "~2.1.1",
     "angular-ui-calendar": "~0.8.1",
-    "ical.js": "https://github.com/mozilla-comm/ical.js.git#~0.0.2",
+    "ical.js": "mozilla-comm/ical.js#~1.0.0",
     "angular-recursion": "~1.0.3",
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
     "angular-markdown-directive": "~0.3.0",
