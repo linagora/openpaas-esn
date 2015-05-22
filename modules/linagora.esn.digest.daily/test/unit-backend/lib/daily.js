@@ -756,9 +756,8 @@ describe('The daily digest core module', function() {
 
     it('should resolve with timelineEntryId2 if published date is bigger than timelineEntryId1 one', function() {
       var id1 = 1, id2 = 2;
-      var date = new Date();
-      var date2 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
 
       var tl1 = {
         id: id1,

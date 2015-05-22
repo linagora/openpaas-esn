@@ -10,11 +10,9 @@ describe('The daily digest helpers module', function() {
     });
 
     it('should return the most recent message when no responses are set', function() {
-      var date = new Date();
-      var date2 = new Date();
-      var date3 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
-      date3.setSeconds(date.getSeconds() + 20);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
+      var date3 = new Date(3000);
 
       var messageA = {published: date};
       var messageB = {published: date2};
@@ -26,16 +24,14 @@ describe('The daily digest helpers module', function() {
     });
 
     it('should return the most recent response', function() {
-      var date = new Date();
-      var date2 = new Date();
-      var date3 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
-      date3.setSeconds(date.getSeconds() + 20);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
+      var date3 = new Date(3000);
 
       var response = {_id: 1, published: date3};
 
       var messageA = {_id: 2, published: date};
-      var messageB = {_id: 3, published: date2, responses: [response, {published: new Date()}]};
+      var messageB = {_id: 3, published: date2, responses: [response, {published: new Date(1)}]};
       var messageC = {_id: 4, published: date2};
       var messageD = {_id: 5};
 
@@ -44,11 +40,9 @@ describe('The daily digest helpers module', function() {
     });
 
     it('should return the most recent message', function() {
-      var date = new Date();
-      var date2 = new Date();
-      var date3 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
-      date3.setSeconds(date.getSeconds() + 20);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
+      var date3 = new Date(3000);
 
       var messageA = {_id: 2, published: date3};
       var messageB = {_id: 3, published: date2, responses: [{published: date}, {published: date}]};
@@ -60,7 +54,7 @@ describe('The daily digest helpers module', function() {
     });
 
     it('should return input message if messages is undefined', function() {
-      var messageA = {_id: 1, published: new Date()};
+      var messageA = {_id: 1, published: new Date(1)};
       var result = require('../../../lib/helpers').getMostRecentMessage(null, messageA);
       expect(result).to.deep.equal(messageA);
     });
