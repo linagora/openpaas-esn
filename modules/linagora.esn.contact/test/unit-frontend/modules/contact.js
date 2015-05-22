@@ -348,7 +348,7 @@ describe('The Contacts Angular module', function() {
           role: 'ROLE:role',
           socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
           categories: 'CATEGORIES:a,b,starred',
-          bday: 'BDAY:20150101',
+          bday: 'BDAY;VALUE=DATE:20150101',
           nickname: 'NICKNAME:nick',
           note: 'NOTE:notes'
         };
