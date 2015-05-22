@@ -21,7 +21,7 @@ describe('The ICAL Angular module', function() {
         var result = ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/event.ics']);
         expect(result).to.exist;
 
-        var comp = new ICAL.Component(result[1]);
+        var comp = new ICAL.Component(result);
         var vevent = comp.getFirstSubcomponent('vevent');
         var summary = vevent.getFirstPropertyValue('summary');
         expect(summary).to.match(/Really long event name thing/);
