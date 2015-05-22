@@ -30,13 +30,9 @@ describe('Date digest weight strategy', function() {
 
   describe('The computeMessagesWeight fn', function() {
     it('should assign higher weight to most recent message', function() {
-      var date = new Date();
-
-      var date2 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
-
-      var date3 = new Date();
-      date3.setSeconds(date2.getSeconds() + 10);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
+      var date3 = new Date(3000);
 
       var messages = [
         {
@@ -69,19 +65,11 @@ describe('Date digest weight strategy', function() {
     });
 
     it('should assign higher weight to a message which is not read', function() {
-      var date = new Date();
-
-      var date2 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
-
-      var date3 = new Date();
-      date3.setSeconds(date2.getSeconds() + 10);
-
-      var date4 = new Date();
-      date4.setSeconds(date3.getSeconds() + 10);
-
-      var date5 = new Date();
-      date5.setSeconds(date4.getSeconds() + 10);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
+      var date3 = new Date(3000);
+      var date4 = new Date(4000);
+      var date5 = new Date(5000);
 
       var messages = [
         {
@@ -128,16 +116,10 @@ describe('Date digest weight strategy', function() {
     });
 
     it('should assign more weight to messages with more recent response', function() {
-      var date = new Date();
-
-      var date2 = new Date();
-      date2.setSeconds(date.getSeconds() + 10);
-
-      var date3 = new Date();
-      date3.setSeconds(date2.getSeconds() + 10);
-
-      var date4 = new Date();
-      date4.setSeconds(date3.getSeconds() + 10);
+      var date = new Date(1000);
+      var date2 = new Date(2000);
+      var date3 = new Date(3000);
+      var date4 = new Date(4000);
 
       var messages = [
         {
