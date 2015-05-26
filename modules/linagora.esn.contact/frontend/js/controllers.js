@@ -17,7 +17,7 @@ angular.module('linagora.esn.contact')
       contactsService.create(path, vcard).then(function() {
         $scope.close();
         notificationFactory.weakInfo('Contact creation success', 'Successfully created the new contact');
-      }).catch(function(err) {
+      }).catch (function(err) {
         notificationFactory.weakError('Contact creation failure', err.message);
       });
     };
@@ -35,7 +35,7 @@ angular.module('linagora.esn.contact')
       contactsService.modify($scope.contact.path, vcard, $scope.contact.etag).then(function() {
         $scope.close();
         notificationFactory.weakInfo('Contact modification success', 'Successfully modified the new contact');
-      }).catch(function(err) {
+      }).catch (function(err) {
         notificationFactory.weakError('Contact modification failure', err.message);
       });
     };

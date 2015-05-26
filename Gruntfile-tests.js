@@ -24,7 +24,7 @@ module.exports = function(grunt) {
       },
       modulesBackend: {
         options: {
-          common: ['test/module-unit-backend-all.js', 'modules/**/all.js'],
+          common: ['test/module-unit-backend-all.js'],
           target: 'mochacli:modulesBackend'
         },
         files: {

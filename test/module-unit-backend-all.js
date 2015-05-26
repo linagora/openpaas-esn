@@ -11,10 +11,26 @@ before(function() {
   this.testEnv = {};
   this.helpers = {};
   helpers(this.helpers, this.testEnv);
+
 });
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
+  var depsStore = {
+    logger: require('./fixtures/logger-noop'),
+    errors: require('./fixtures/errors')
+  };
+  var dependencies = function(name) {
+    return depsStore[name];
+  };
+  var addDep = function(name, dep) {
+    depsStore[name] = dep;
+  };
+  this.moduleHelpers = {
+    modulesPath: __dirname + '/../modules/',
+    addDep: addDep,
+    dependencies: dependencies
+  };
 });
 
 afterEach(function() {

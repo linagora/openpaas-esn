@@ -9,6 +9,7 @@ describe('The event message module', function() {
   beforeEach(function() {
     localstub = {};
     globalstub = {};
+    this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
     this.moduleHelpers.addDep('pubsub', this.helpers.mock.pubsub('', localstub, globalstub));
     mockery.registerMock('./eventmessage.model', function() {});
   });

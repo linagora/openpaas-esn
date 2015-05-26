@@ -47,6 +47,7 @@ describe('The calendar core module', function() {
 
   beforeEach(function() {
     mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
+    this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
     this.moduleHelpers.addDep('user', userMock);
     this.moduleHelpers.addDep('collaboration', collaborationMock);
     this.moduleHelpers.addDep('activitystreams', activityStreamHelperMock);
