@@ -1,0 +1,42 @@
+form.whatsup-form.form-container(name='eventform', role='form')
+  span.event-create-error-message
+  .form-group
+    input.event-input.form-control(type="text", ng-model='event.title', placeholder="#{__('Event Title')}")
+  .form-group
+    .input-group
+      span.input-group-addon
+        i.fa.fa-compass.fa-fw
+      input.event-input.form-control(type="text", ng-model='event.location', placeholder="#{__('Event Location')}")
+  .form-group.form-inline
+    .row
+      .col-xs-5.nopadding
+        .input-group
+          span.input-group-addon
+            i.fa.fa-calendar.fa-fw
+          input(type="text", size="10", class="form-control", ng-model="event.startDate", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", bs-datepicker)
+        .input-group.margin-bottom-sm(ng-hide='event.allday')
+          span.input-group-addon
+            i.fa.fa-clock-o.fa-fw
+          input(type="text", size="10", class="form-control", ng-model="event.startDate", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartTimeChange()", bs-timepicker)
+        span.help-block #{__('Start of Event')}
+      .col-xs-5.nopadding
+        .input-group
+          span.input-group-addon
+            i.fa.fa-calendar.fa-fw
+          input(type="text", size="10", class="form-control", ng-model="event.endDate", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", bs-datepicker)
+        .input-group.margin-bottom-sm(ng-hide='event.allday')
+          span.input-group-addon
+            i.fa.fa-clock-o.fa-fw
+          input(type="text", size="10", class="form-control", ng-model="event.endDate", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onEndTimeChange()", bs-timepicker)
+        span.help-block #{__('End of Event')}
+      .col-xs-2.nopadding
+        .checkbox
+          label
+            input(type="checkbox", ng-model='event.allday' , style='margin-left:10px; margin-right:10px')
+            | #{__('All day')}
+  .form-group
+    textarea.event-input.form-control(ng-model='event.description', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Give an event description')}", rows="{{rows}}")
+  .form-group
+    .text-left
+      button.btn.btn-primary(type='submit', ng-click='addNewEvent()', style='margin-right:10px;') #{__('Create')}
+      button.btn.btn-default(type='reset', ng-click="createModal.hide()", ng-hide="sending") #{__('Cancel')}

@@ -85,10 +85,6 @@ function _getClient(url) {
       return callback(null, {});
     },
 
-    createEvent: function(event, callback) {
-      return callback(null, {});
-    },
-
     deleteEvent: function(event, callback) {
       return callback(null, {});
     },

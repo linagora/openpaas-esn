@@ -1,13 +1,13 @@
 div
-   .row
-      .col-xs-12
-         user-button-event-create(user='user', ng-click='createEvent()')
-   .vertiz-space
-   .row
-      .col-xs-12
-         span {{alertMessage}}
-   .vertiz-space
-   .row
-      .col-xs-12
-         div(ui-calendar="uiConfig.calendar" class="calendar" ng-model="eventSources")
+  .row
+    .col-xs-12
+      event-button-create(user='user')
+  .vertiz-space
+  .row
+    .col-xs-12
+      span {{alertMessage}}
+  .vertiz-space
+  .row
+    .col-xs-12
+      div(ui-calendar="uiConfig.calendar" class="calendar" ng-model="eventSources")
 
