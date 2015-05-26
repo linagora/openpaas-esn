@@ -22,12 +22,10 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
   states: {
     lib: function(dependencies, callback) {
       var calendar = require('./webserver/api/calendar')(dependencies);
-      var caldavserver = require('./webserver/api/caldavserver')(dependencies);
 
       var lib = {
         api: {
-          calendar: calendar,
-          caldavserver: caldavserver
+          calendar: calendar
         }
       };
 
@@ -41,7 +39,6 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
       // Register the webapp
       var app = require('./webserver/application')(dependencies);
-      app.use('/', this.api.caldavserver);
       app.use('/', this.api.calendar);
 
       var webserverWrapper = dependencies('webserver-wrapper');
