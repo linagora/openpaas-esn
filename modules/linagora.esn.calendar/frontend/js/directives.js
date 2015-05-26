@@ -94,8 +94,7 @@ angular.module('esn.calendar')
           user: '=',
           domain: '=',
           createModal: '=',
-          event: '=',
-          deleteEvent: '='
+          event: '='
         },
         link: link
       };
@@ -108,22 +107,19 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'dateService', 'calendarEventSource', 'moment',
-    function(Wizard, $rootScope, $alert, calendarService, dateService, calendarEventSource, moment) {
+  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'notificationFactory', 'dateService', 'calendarEventSource', 'moment',
+    function(Wizard, $rootScope, $alert, calendarService, notificationFactory, dateService, calendarEventSource, moment) {
       function link($scope, element) {
         $scope.rows = 1;
-        console.log('clicked event: ', $scope.event);
         if (!$scope.event) {
           $scope.event = {
             startDate: dateService.getNewDate(),
             endDate: dateService.getNewEndDate(),
-            allday: false
+            allDay: false
           };
-          $scope.deleteEventAction = true;
+          $scope.modifyEventAction = false;
         } else {
-          $scope.event.startDate = $scope.event.start;
-          $scope.event.endDate = $scope.event.end;
-          $scope.deleteEventAction = false;
+          $scope.modifyEventAction = true;
         }
         $scope.expand = function() {
           $scope.rows = 5;
@@ -166,6 +162,7 @@ angular.module('esn.calendar')
               });
             }
 
+            notificationFactory.weakInfo('Event created', $scope.event.title + ' is created');
             if ($scope.createModal) {
               $scope.createModal.hide();
             }
@@ -187,10 +184,31 @@ angular.module('esn.calendar')
               });
             }
 
+            notificationFactory.weakInfo('Event deleted', $scope.event.title + ' is deleted');
             if ($scope.createModal) {
               $scope.createModal.hide();
             }
-          }, function(err) {
+          });
+        };
+
+        $scope.modifyEvent = function() {
+          if (!$scope.calendarId) {
+            $scope.calendarId = calendarService.calendarId;
+          }
+          var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.event.id + '.ics';
+
+          calendarService.modify(path, $scope.event).then(function(response) {
+            if ($scope.activitystream) {
+              $rootScope.$emit('message:posted', {
+                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+                id: response.headers('ESN-Message-Id')
+              });
+            }
+
+            notificationFactory.weakInfo('Event modified', $scope.event.title + ' is modified');
+            if ($scope.createModal) {
+              $scope.createModal.hide();
+            }
           });
         };
 
@@ -200,17 +218,27 @@ angular.module('esn.calendar')
             startDate: dateService.getNewDate(),
             endDate: dateService.getNewEndDate(),
             diff: 1,
-            allday: false
+            allDay: false
           };
         };
 
         $scope.getMinDate = function() {
-          if ($scope.event.startDate && $scope.deleteEventAction) {
+          if ($scope.event.startDate) {
             var date = new Date($scope.event.startDate.getTime());
             date.setDate($scope.event.startDate.getDate() - 1);
             return date;
           }
           return null;
+        };
+
+        $scope.onAllDayChecked = function() {
+          if ($scope.event.allDay) {
+            if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
+              $scope.event.endDate = moment($scope.event.startDate).add(1, 'days').toDate();
+            }
+          } else {
+            $scope.event.endDate = $scope.event.startDate;
+          }
         };
 
         $scope.onStartDateChange = function() {

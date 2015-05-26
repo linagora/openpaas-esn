@@ -27,7 +27,7 @@ angular.module('esn.calendar')
     }
 
     function isSameDay(startDate, endDate) {
-      return moment(startDate).isSame(moment(endDate));
+      return moment(startDate).isSame(moment(endDate), 'day');
     }
     return {
       getNewDate: getNewDate,
@@ -36,8 +36,8 @@ angular.module('esn.calendar')
     };
   }])
 
-  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, $rootScope, moment, jstz,  tokenAPI, uuid4, ICAL, $q, $http) {
-
+  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http',
+    function(CalendarRestangular, $rootScope, moment, jstz, tokenAPI, uuid4, ICAL, $q, $http) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -142,26 +142,26 @@ angular.module('esn.calendar')
       });
     }
 
+      var timezoneLocal = this.timezoneLocal || jstz.determine().name();
+
     function shellToICAL(shell) {
-      var uid = uuid4.generate();
+      var uid = shell.id || uuid4.generate();
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', uid);
       vevent.addPropertyWithValue('summary', shell.title);
-      var dtstart = ICAL.Time.fromJSDate(shell.startDate);
-      var dtend = ICAL.Time.fromJSDate(shell.endDate);
 
-      dtstart.isDate = shell.allday;
-      dtend.isDate = shell.allday;
-      var timezoneLocal = jstz.determine().name();
+      var startDate = shell.startDate || shell.start.toDate();
+      var endDate = shell.endDate || shell.end.toDate();
+      var dtstart = ICAL.Time.fromJSDate(startDate);
+      var dtend = ICAL.Time.fromJSDate(endDate);
 
-      if (shell.allday) {
-        dtend.day++;
-      }
+      dtstart.isDate = shell.allDay;
+      dtend.isDate = shell.allDay;
 
       vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
       vevent.addPropertyWithValue('dtend', dtend).setParameter('tzid', timezoneLocal);
-      vevent.addPropertyWithValue('transp', shell.allday ? 'TRANSPARENT' : 'OPAQUE');
+      vevent.addPropertyWithValue('transp', shell.allDay ? 'TRANSPARENT' : 'OPAQUE');
       if (shell.location) {
         vevent.addPropertyWithValue('location', shell.location);
       }
@@ -240,32 +240,34 @@ angular.module('esn.calendar')
         if (response.status !== 201) {
           return $q.reject(response);
         }
-        $rootScope.$emit('addedEvent', new CalendarShell(vcalendar));
+        $rootScope.$emit('addedCalendarItem', new CalendarShell(vcalendar));
         return response;
       });
     }
 
-    function remove(calendarPath, event) {
+    function remove(calendarPath, event, etag) {
 
-      var headers = { 'Content-Type': 'application/json+calendar' };
-      var body = null;
+      var headers = {};
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
       var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.id + '.ics';
-
-      return request('delete', eventPath, headers, body).then(function(response) {
+      return request('delete', eventPath, headers).then(function(response) {
         if (response.status !== 204) {
           return $q.reject(response);
         }
-        $rootScope.$emit('deletedEvent', event);
+        $rootScope.$emit('removedCalendarItem', event.id);
+
         return response;
       });
     }
 
-    function modify(eventPath, vcalendar, etag) {
+    function modify(eventPath, event, etag) {
       var headers = {
-        'Content-Type': 'application/json+calendar',
+        'Content-Type': 'application/calendar+json',
         'Prefer': 'return-representation'
       };
-      var body = vcalendar.toJSON();
+      var body = shellToICAL(event).toJSON();
 
       if (etag) {
         headers['If-Match'] = etag;
@@ -276,6 +278,7 @@ angular.module('esn.calendar')
           var vcalendar = new ICAL.Component(response.data);
           return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
         } else if (response.status === 204) {
+          $rootScope.$emit('modifiedCalendarItem', event);
           return getEvent(eventPath);
         } else {
           return $q.reject(response);
@@ -283,7 +286,8 @@ angular.module('esn.calendar')
       });
     }
 
-    function changeParticipation(eventPath, vcalendar, emails, status, etag) {
+    function changeParticipation(eventPath, event, emails, status, etag) {
+      var vcalendar = shellToICAL(event);
       var atts = getInvitedAttendees(vcalendar, emails);
       var needsModify = false;
       atts.forEach(function(att) {
@@ -296,12 +300,12 @@ angular.module('esn.calendar')
         return $q.when(null);
       }
 
-      return modify(eventPath, vcalendar, etag)['catch'](function(response) {
+      return modify(eventPath, event, etag)['catch'](function(response) {
         if (response.status === 412) {
           return getEvent(eventPath).then(function(shell) {
             // A conflict occurred. We've requested the event data in the
             // response, so we can retry the request with this data.
-            return changeParticipation(eventPath, shell.vcalendar, emails, status, shell.etag);
+            return changeParticipation(eventPath, shell, emails, status, shell.etag);
           });
         } else {
           return $q.reject(response);
@@ -318,6 +322,7 @@ angular.module('esn.calendar')
       changeParticipation: changeParticipation,
       getEvent: getEvent,
       shellToICAL: shellToICAL,
+      timezoneLocal: timezoneLocal,
       getInvitedAttendees: getInvitedAttendees
     };
   }]);

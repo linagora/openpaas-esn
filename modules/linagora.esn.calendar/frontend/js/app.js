@@ -9,6 +9,7 @@ angular.module('esn.calendar', [
   'mgcrea.ngStrap.datepicker',
   'angularMoment',
   'AngularJstz',
+  'esn.notification',
   'esn.widget.helper',
   'uuid4',
   'ui.calendar'
