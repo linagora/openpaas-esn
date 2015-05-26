@@ -93,7 +93,9 @@ angular.module('esn.calendar')
         scope: {
           user: '=',
           domain: '=',
-          createModal: '='
+          createModal: '=',
+          event: '=',
+          deleteEvent: '='
         },
         link: link
       };
@@ -110,12 +112,19 @@ angular.module('esn.calendar')
     function(Wizard, $rootScope, $alert, calendarService, dateService, calendarEventSource, moment) {
       function link($scope, element) {
         $scope.rows = 1;
-        $scope.event = {
-          startDate: dateService.getNewDate(),
-          endDate: dateService.getNewEndDate(),
-          allday: false
-        };
-
+        console.log('clicked event: ', $scope.event);
+        if (!$scope.event) {
+          $scope.event = {
+            startDate: dateService.getNewDate(),
+            endDate: dateService.getNewEndDate(),
+            allday: false
+          };
+          $scope.deleteEventAction = true;
+        } else {
+          $scope.event.startDate = $scope.event.start;
+          $scope.event.endDate = $scope.event.end;
+          $scope.deleteEventAction = false;
+        }
         $scope.expand = function() {
           $scope.rows = 5;
         };
@@ -144,7 +153,7 @@ angular.module('esn.calendar')
             return;
           }
           if (!$scope.calendarId) {
-             $scope.calendarId = calendarService.calendarId;
+            $scope.calendarId = calendarService.calendarId;
           }
           var event = $scope.event;
           var path = '/calendars/' + $scope.calendarId + '/events';
@@ -164,6 +173,27 @@ angular.module('esn.calendar')
             $scope.displayError(err);
           });
         };
+
+        $scope.deleteEvent = function() {
+          if (!$scope.calendarId) {
+            $scope.calendarId = calendarService.calendarId;
+          }
+          var path = '/calendars/' + $scope.calendarId + '/events';
+          calendarService.remove(path, $scope.event).then(function(response) {
+            if ($scope.activitystream) {
+              $rootScope.$emit('message:posted', {
+                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+                id: response.headers('ESN-Message-Id')
+              });
+            }
+
+            if ($scope.createModal) {
+              $scope.createModal.hide();
+            }
+          }, function(err) {
+          });
+        };
+
         $scope.resetEvent = function() {
           $scope.rows = 1;
           $scope.event = {
@@ -175,7 +205,7 @@ angular.module('esn.calendar')
         };
 
         $scope.getMinDate = function() {
-          if ($scope.event.startDate) {
+          if ($scope.event.startDate && $scope.deleteEventAction) {
             var date = new Date($scope.event.startDate.getTime());
             date.setDate($scope.event.startDate.getDate() - 1);
             return date;

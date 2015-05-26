@@ -245,6 +245,21 @@ angular.module('esn.calendar')
       });
     }
 
+    function remove(calendarPath, event) {
+
+      var headers = { 'Content-Type': 'application/json+calendar' };
+      var body = null;
+      var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.id + '.ics';
+
+      return request('delete', eventPath, headers, body).then(function(response) {
+        if (response.status !== 204) {
+          return $q.reject(response);
+        }
+        $rootScope.$emit('deletedEvent', event);
+        return response;
+      });
+    }
+
     function modify(eventPath, vcalendar, etag) {
       var headers = {
         'Content-Type': 'application/json+calendar',
@@ -298,6 +313,7 @@ angular.module('esn.calendar')
     return {
       list: list,
       create: create,
+      remove: remove,
       modify: modify,
       changeParticipation: changeParticipation,
       getEvent: getEvent,

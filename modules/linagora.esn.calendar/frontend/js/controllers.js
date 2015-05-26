@@ -58,6 +58,10 @@ angular.module('esn.calendar')
       var calendar = uiCalendarConfig.calendars.userCalendar;
       calendar.fullCalendar('option', 'height', windowJQuery.height() - calendar.offset().top - 10);
     };
+    $scope.eventClick = function(event){
+      $scope.event = event;
+      $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-modal', backdrop: 'static'});
+    };
     windowJQuery.resize($scope.resizeCalendarHeight);
 
     $scope.eventRender = function(event, element, view) {
@@ -91,7 +95,15 @@ angular.module('esn.calendar')
     $scope.uiConfig.calendar.viewRender = function() {
       $timeout($scope.resizeCalendarHeight, 1000);
     };
+    $scope.uiConfig.calendar.eventClick = $scope.eventClick;
     $scope.eventSources = [calendarEventSource(user._id)];
+    console.log('eventsources',$scope.eventSources.toString());
 
-    $rootScope.$on('addedEvent', function(event, data) { $scope.eventSources.push([data]); });
+    $rootScope.$on('addedEvent', function(event, data) {
+      $scope.eventSources.push([data]);
+    });
+
+    $rootScope.$on('deletedEvent', function(event, data) {
+      $scope.removeEvents(data.id)
+    });
   }]);

@@ -39,4 +39,5 @@ form.whatsup-form.form-container(name='eventform', role='form')
   .form-group
     .text-left
       button.btn.btn-primary(type='submit', ng-click='addNewEvent()', style='margin-right:10px;') #{__('Create')}
-      button.btn.btn-default(type='reset', ng-click="createModal.hide()", ng-hide="sending") #{__('Cancel')}
+      button.btn.btn-default(type='reset', ng-click="createModal.hide()", style='margin-right:10px;') #{__('Cancel')}
+      button.btn.btn-default(type='submit', ng-click="deleteEvent()", ng-hide="deleteEventAction") #{__('Delete')}
