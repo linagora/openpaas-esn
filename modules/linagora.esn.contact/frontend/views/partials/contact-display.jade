@@ -1,12 +1,4 @@
-form.new-contact-form.form-horizontal(ng-submit='addContact()')
-  .row
-    .col-sm-7
-      span.contact-heading
-        | #{__('Create New Contact')}
-    .col-sm-5.action-bar
-      button.btn.icon-btn.accept-btn.fa.fa-check-circle-o(type='submit')
-      button.btn.icon-btn.starred-btn.fa.fa-star(type='button', ng-click='contact.starred = !contact.starred', ng-class='{ checked: contact.starred }')
-      button.btn.icon-btn.cancel-btn.fa.fa-times(type='button', ng-click='close()')
+.form-horizontal
   .row
     .col-md-7
       .row

@@ -86,19 +86,49 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.expectGET('/path/to/card.vcf').respond(
           ['vcard', [
             ['version', {}, 'text', '4.0'],
-            ['uid', {}, 'text', 'myuid']
+            ['uid', {}, 'text', 'myuid'],
+            ['fn', {}, 'text', 'first last'],
+            ['n', {}, 'text', ['last', 'first']],
+            ['email', { type: 'Work' }, 'text', 'mailto:foo@example.com'],
+            ['tel', { type: 'Work' }, 'uri', 'tel:123123'],
+            ['adr', { type: 'Home' }, 'text', ['', '', 's', 'c', '', 'z', 'co']],
+            ['org', {}, 'text', 'org'],
+            ['url', { type: 'Work' }, 'uri', 'http://linagora.com'],
+            ['role', {}, 'text', 'role'],
+            ['socialprofile', { type: 'Twitter' }, 'text', '@AwesomePaaS'],
+            ['categories', {}, 'text', 'starred', 'asdf'],
+            ['bday', {}, 'date', '2015-01-01'],
+            ['nickname', {}, 'text', 'nick'],
+            ['note', {}, 'text', 'notes']
           ], []],
           // headers:
           { 'ETag': 'testing-tag' }
         );
 
         this.contactsService.getCard('/path/to/card.vcf').then(function(event) {
-            expect(event).to.be.an('object');
-            expect(event.id).to.equal('myuid');
+          expect(event).to.be.an('object');
+          expect(event.id).to.equal('myuid');
 
-            expect(event.vcard).to.be.an('object');
-            expect(event.path).to.equal('/path/to/card.vcf');
-            expect(event.etag).to.equal('testing-tag');
+          expect(event.vcard).to.be.an('object');
+          expect(event.path).to.equal('/path/to/card.vcf');
+          expect(event.etag).to.equal('testing-tag');
+
+          expect(event.firstName).to.equal('first');
+          expect(event.lastName).to.equal('last');
+          expect(event.displayName).to.equal('first last');
+          expect(event.emails).to.deep.equal([{type: 'Work', value: 'foo@example.com'}]);
+          expect(event.addresses).to.deep.equal([{
+            type: 'Home', street: 's', city: 'c', zip: 'z', country: 'co'
+          }]);
+          expect(event.org).to.equal('org');
+          expect(event.orgUri).to.equal('http://linagora.com');
+          expect(event.orgRole).to.equal('role');
+          expect(event.social).to.deep.equal([{ type: 'Twitter', value: '@AwesomePaaS' }]);
+          expect(event.tags).to.deep.equal([{ text: 'asdf' }]);
+          expect(event.starred).to.be.true;
+          expect(event.birthday.getTime()).to.equal(new Date(2015, 0, 1).getTime());
+          expect(event.nickname).to.equal('nick');
+          expect(event.notes).to.equal('notes');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
@@ -269,7 +299,7 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    describe('The shellToICAL fn', function() {
+    describe('The shellToVCARD fn', function() {
       function compareShell(contactsService, shell, ical) {
         var vcard = contactsService.shellToVCARD(shell);
         var properties = vcard.getAllProperties();

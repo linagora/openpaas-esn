@@ -16,7 +16,7 @@ angular.module('linagora.esn.contact')
         var props = vcard.getAllProperties(propName);
         return props.map(function(prop) {
           var propVal = prop.getFirstValue();
-          return { type: propVal.getParameter('type'), value: propVal.getFirstValue() };
+          return { type: prop.getParameter('type'), value: propVal };
         });
       }
       function getMultiAddress(propName) {
@@ -35,11 +35,22 @@ angular.module('linagora.esn.contact')
 
       this.id = vcard.getFirstPropertyValue('uid');
       this.displayName = vcard.getFirstPropertyValue('fn');
+
+      var name = vcard.getFirstPropertyValue('n');
+      this.firstName = name ? name[1] : '';
+      this.lastName = name ? name[0] : '';
+
       this.org = vcard.getFirstPropertyValue('org');
       this.orgRole = vcard.getFirstPropertyValue('role');
-      this.orgUri = vcard.getAllProperties('url').filter(function(prop) {
+
+
+      var orgUriProp = vcard.getAllProperties('url').filter(function(prop) {
         return prop.getParameter('type') === 'Work';
       })[0];
+
+      if (orgUriProp) {
+        this.orgUri = orgUriProp.getFirstValue();
+      }
 
       this.emails = getMultiValue('email').map(function(mail) {
         mail.value = mail.value.replace(/^mailto:/i, '');
@@ -61,7 +72,7 @@ angular.module('linagora.esn.contact')
       if (this.starred) {
         cats.splice(starredIndex, 1);
       }
-      this.tags = cats;
+      this.tags = cats ? cats.map(function(cat) { return { text: cat }; }) : [];
 
       var bday = vcard.getFirstPropertyValue('bday');
       this.birthday = bday ? bday.toJSDate() : null;

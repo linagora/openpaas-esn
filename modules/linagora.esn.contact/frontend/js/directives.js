@@ -8,34 +8,27 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contacts/views/partials/contact-navbar-link.html'
     };
   })
-  .controller('MultiInputGroupController', function($scope) {
+  .controller('MultiInputGroupController', ['$scope', '$timeout', function($scope, $timeout) {
+    function updateTypes() {
+      $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
+    }
+
     $scope.acceptNew = function() {
-      $scope.content.push($.extend({}, $scope.newItem));
-      if (Object.keys($scope.typesMap).length === 1) {
-        $scope.types.forEach(function(t) { $scope.typesMap[t] = true; });
-      }
-      delete $scope.typesMap[$scope.newItem.type];
+      $scope.content.push($scope.newItem);
       $scope.newItem = {};
-      $scope.newItem.type = Object.keys($scope.typesMap)[0];
+      updateTypes();
     };
 
     $scope.acceptRemove = function($index) {
-      var val = $scope.content[$index];
-      $scope.typesMap[val.type] = true;
       $scope.content.splice($index, 1);
+      updateTypes();
     };
 
-    $scope.init = function() {
-      $scope.types.forEach(function(t) { $scope.typesMap[t] = true; });
-      $scope.newItem.type = Object.keys($scope.typesMap)[0];
-    };
+    $scope.$watch('content', updateTypes);
 
     $scope.content = [];
-
-    $scope.typesMap = {};
-
     $scope.newItem = {};
-  })
+  }])
   .directive('multiInputGroup', function() {
     return {
       restrict: 'E',
@@ -61,8 +54,6 @@ angular.module('linagora.esn.contact')
             $scope.acceptRemove($index);
           }
         };
-
-        $scope.init();
       }
     };
   })
@@ -90,27 +81,15 @@ angular.module('linagora.esn.contact')
             $scope.acceptRemove($index);
           }
         };
-
-        $scope.init();
       }
     };
   })
-  .directive('newContactForm', ['contactsService', function(contactsService) {
+  .directive('contactDisplay', function() {
     return {
       restrict: 'E',
       scope: {
-        'bookId': '=',
-        'close': '&onClose'
+        'contact': '='
       },
-      templateUrl: '/contacts/views/partials/new-contact-form.html',
-      link: function($scope, element, attrs) {
-        $scope.contact = {};
-
-        $scope.addContact = function() {
-          var vcard = contactsService.shellToVCARD($scope.contact);
-          var path = '/addressbooks/' + $scope.bookId + '/contacts';
-          contactsService.create(path, vcard);
-        };
-      }
+      templateUrl: '/contacts/views/partials/contact-display.html'
     };
-  }]);
+  });
