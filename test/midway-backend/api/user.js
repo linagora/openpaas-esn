@@ -41,10 +41,7 @@ describe('User API', function() {
   describe('GET /api/user/activitystreams', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/user/activitystreams').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/user/activitystreams', done);
     });
 
     it('should return 200 with an empty array if there are no streams', function(done) {
@@ -277,10 +274,7 @@ describe('User API', function() {
   describe('GET /api/user/communities', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/user/communities').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/user/communities', done);
     });
 
     it('should return 200 with an empty array is there are no communities', function(done) {

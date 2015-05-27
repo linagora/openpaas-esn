@@ -123,9 +123,9 @@ function recordAvatar(id, contentType, opts, readable, callback) {
             err.code = 1;
             return callback(err);
           }
+          return callback(null, responses.datastore.size);
         });
       });
-      return callback(null, responses.datastore.size);
     }
   );
 
