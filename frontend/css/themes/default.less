@@ -1,25 +1,7 @@
 @import "../styles.less";
+@import "../variables.less";
 
-// Site Colors
-// -----------
-
-@grey: #eff0f4;
-@middle-light-grey: #eeeff3;
-@light-grey: #f8f8f8;
-@very-light-grey: #f5f5f5;
-@middle-grey: #c0c0c0;
-@middle-dark-grey: #bfbfbf;
-@dark-grey: #5C5C5C;
-@blue: #4982eb;
-@secondary-blue: #428BCA;
-@yellow: #eecb25;
-@secondary-yellow: #E9C200;
-@green: #abc85c;
-@red: #bc015c;
-@secondary-red: #e40c24;
-@black: #232323;
-
-@defaultRadius: 4px;
+@defaultRadius: 0px;
 @defaultShadow: 1px 1px 0 #ddd;
 @defaultFontColor: #343434;
 @defaultBorderColor: #dce4e7;
@@ -51,11 +33,6 @@ body {
   background: @site-background;
 }
 
-.btn {
-  padding: @defaultPaddingButton;
-  font-size: @defaultFontSize;
-}
-
 a:focus {
   outline-style:none;
 }
@@ -67,7 +44,6 @@ a:focus {
 
 .esn-panel {
   background-color: @widget-background;
-  border: @defaultBorder;
   .ResizeImage(@defaultImageSizeMedium, auto);
   .RoundedShape();
   .ShadowedShape();
