@@ -2,7 +2,6 @@
 @import "./material";
 
 @icon-font-path: '/components/bootstrap/dist/fonts/';
-@bottom-height: 60px;
 
 @esn-primary-dark: rgb(35,35,35);
 @esn-secondary-dark: rgb(75,129,237);
@@ -17,11 +16,6 @@
 
 html, body {
   height: 100%;
-}
-
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: @bottom-height;
 }
 
 html.no-websockets body.esn-welcome-app #wrap {
@@ -68,16 +62,6 @@ html.no-websockets body.esn-welcome-app #unsupported img {
 .just-posted {
   animation: swing 1s;
   -webkit-animation: swing 1s;
-}
-
-#footer {
-  bottom: 0px;
-  height: @bottom-height;
-  width: 100%;
-  padding-top: @bottom-height / 3;
-  color: @navbar-inverse-color;
-  background-color: @navbar-default-bg;
-  border-top: 1px solid @navbar-default-border;
 }
 
 .login-bg {
