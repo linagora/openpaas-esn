@@ -233,6 +233,8 @@ describe('The Calendar Angular module', function() {
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
+        vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
         vcalendar.addSubcomponent(vevent);
 
         // The server url needs to be retrieved
