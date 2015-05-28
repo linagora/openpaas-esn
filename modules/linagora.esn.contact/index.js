@@ -19,9 +19,9 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
       var app = require('./backend/webserver/application')(this, dependencies);
 
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('contacts', ['contact.js', 'controllers.js', 'directives.js', 'services.js'], 'linagora.esn.contact', ['esn']);
-      webserverWrapper.injectCSS('contacts', ['styles.css'], 'esn');
-      webserverWrapper.addApp('contacts', app);
+      webserverWrapper.injectAngularModules('contact', ['contact.js', 'controllers.js', 'directives.js', 'services.js'], 'linagora.esn.contact', ['esn']);
+      webserverWrapper.injectCSS('contact', ['styles.css'], 'esn');
+      webserverWrapper.addApp('contact', app);
 
       return callback();
     },

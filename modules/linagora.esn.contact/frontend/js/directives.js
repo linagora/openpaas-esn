@@ -5,26 +5,48 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/contacts/views/partials/contact-navbar-link.html'
+      templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
   .controller('MultiInputGroupController', ['$scope', '$timeout', function($scope, $timeout) {
-    function updateTypes() {
+    function _updateTypes() {
       $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
     }
 
-    $scope.acceptNew = function() {
+    function _acceptNew() {
       $scope.content.push($scope.newItem);
       $scope.newItem = {};
-      updateTypes();
-    };
+      _updateTypes();
+    }
 
-    $scope.acceptRemove = function($index) {
+    function _acceptRemove($index) {
       $scope.content.splice($index, 1);
-      updateTypes();
+      _updateTypes();
+    }
+
+    this.verifyNew = function(/* valuesToCheck... */) {
+      var args = Array.apply(null, arguments);
+      function _verify(item) {
+        return args.every(function(argument) { return !!item[argument]; });
+      }
+      return function() {
+        var item = $scope.newItem;
+        if (_verify(item)) {
+          _acceptNew();
+        }
+      };
     };
 
-    $scope.$watch('content', updateTypes);
+    this.verifyRemove = function(valueToCheck) {
+      return function($index) {
+        var item = $scope.content[$index];
+        if (!item[valueToCheck]) {
+          _acceptRemove($index);
+        }
+      };
+    };
+
+    $scope.$watch('content', _updateTypes);
 
     $scope.content = [];
     $scope.newItem = {};
@@ -38,22 +60,11 @@ angular.module('linagora.esn.contact')
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder'
       },
-      templateUrl: '/contacts/views/partials/multi-input-group',
+      templateUrl: '/contact/views/partials/multi-input-group.html',
       controller: 'MultiInputGroupController',
-      link: function($scope) {
-        $scope.verifyNew = function() {
-          var item = $scope.newItem;
-          if (item.value) {
-            $scope.acceptNew();
-          }
-        };
-
-        $scope.verifyRemove = function($index) {
-          var item = $scope.content[$index];
-          if (!item.value) {
-            $scope.acceptRemove($index);
-          }
-        };
+      link: function(scope, element, attrs, controller) {
+        scope.verifyNew = controller.verifyNew('value');
+        scope.verifyRemove = controller.verifyRemove('value');
       }
     };
   })
@@ -66,21 +77,45 @@ angular.module('linagora.esn.contact')
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder'
       },
-      templateUrl: '/contacts/views/partials/multi-input-group-address',
+      templateUrl: '/contact/views/partials/multi-input-group-address.html',
       controller: 'MultiInputGroupController',
-      link: function($scope, element, attrs, parent) {
-        $scope.verifyNew = function() {
-          var item = $scope.newItem;
-          if (item.street && item.zip && item.city && item.country) {
-            $scope.acceptNew();
-          }
-        };
-        $scope.verifyRemove = function($index) {
-          var item = $scope.content[$index];
-          if (!item.street) {
-            $scope.acceptRemove($index);
-          }
-        };
+      link: function(scope, element, attrs, controller) {
+        scope.verifyNew = controller.verifyNew('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.verifyRemove('street');
+      }
+    };
+  })
+  .directive('multiInlineEditableInputGroup', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        content: '=multiInputModel',
+        types: '=multiInputTypes',
+        inputType: '@multiInputTexttype',
+        placeholder: '@multiInputPlaceholder'
+      },
+      templateUrl: '/contact/views/partials/multi-inline-editable-input-group.html',
+      controller: 'MultiInputGroupController',
+      link: function(scope, element, attrs, controller) {
+        scope.verifyNew = controller.verifyNew('value');
+        scope.verifyRemove = controller.verifyRemove('value');
+      }
+    };
+  })
+  .directive('multiInlineEditableInputGroupAddress', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        content: '=multiInputModel',
+        types: '=multiInputTypes',
+        inputType: '@multiInputTexttype',
+        placeholder: '@multiInputPlaceholder'
+      },
+      templateUrl: '/contact/views/partials/multi-inline-editable-input-group-address',
+      controller: 'MultiInputGroupController',
+      link: function(scope, element, attrs, controller) {
+        scope.verifyNew = controller.verifyNew('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.verifyRemove('street');
       }
     };
   })
@@ -90,7 +125,77 @@ angular.module('linagora.esn.contact')
       scope: {
         'contact': '='
       },
-      templateUrl: '/contacts/views/partials/contact-display.html'
+      templateUrl: '/contact/views/partials/contact-display.html'
+    };
+  })
+  .directive('contactDisplayEditable', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        'contact': '='
+      },
+      templateUrl: '/contact/views/partials/contact-display-editable.html'
+    };
+  })
+  .directive('inlineEditableInput', function($timeout) {
+    function link(scope, element, attrs, controller) {
+      var input = element.find('input');
+      scope.showGroupButtons = false;
+      var oldValue = '';
+
+      function _toggleGroupButtons() {
+        scope.showGroupButtons = !scope.showGroupButtons;
+      }
+
+      input.bind('focus', function() {
+        oldValue = controller.$viewValue;
+        $timeout(_toggleGroupButtons, 0);
+      });
+
+      input.bind('blur', function() {
+        if (oldValue !== controller.$viewValue) {
+          scope.saveInput();
+        }
+
+        $timeout(function() {
+          _toggleGroupButtons();
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+
+      input.bind('keydown', function(event) {
+        var escape = event.which === 27;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.resetInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+      });
+
+      scope.saveInput = scope.onSave || function() {};
+
+      scope.resetInput = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        type: '@',
+        placeholder: '@',
+        onSave: '=',
+        inputClass: '@',
+        onBlur: '='
+      },
+      require: 'ngModel',
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/inline-editable-input.html',
+      link: link
     };
   })
 
