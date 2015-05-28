@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
-  'restangular'
+  'restangular', 'esn.data', 'duScroll',
 ]).config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
   $routeProvider.when('/contacts', {
     templateUrl: '/contacts/views/contacts',

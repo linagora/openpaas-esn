@@ -68,7 +68,8 @@
     "Chart.js": "nnnick/Chart.js#~1.0.1",
     "bootstrap-material-design": "~0.3.0",
     "arrive": "~2.2.0",
-    "angular-jstz": "czarpino/angular-jstz"
+    "angular-jstz": "czarpino/angular-jstz",
+    "angular-scroll": "~0.7.0"
   },
   "resolutions": {
     "jquery": "2.1.1",

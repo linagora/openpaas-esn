@@ -5,7 +5,7 @@ div.contact-list-item
 
   .col-xs-7
 
-      h4.media-heading {{contact.displayName}}
+      h4.media-heading {{contact.firstName}} {{contact.lastName}}
 
       .row
         .col-xs-7.nopadding.ellipsis
@@ -35,6 +35,4 @@ div.contact-list-item
             i.fa.fa-2x.fa-ellipsis-v
           ul.dropdown-menu.dropdown-menu-right(role="menu")
             li
-              a(ng-href="") Call
-            li
-              a(ng-href="") ...
+              a(ng-href="") Delete
