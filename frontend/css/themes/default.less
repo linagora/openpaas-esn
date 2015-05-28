@@ -1,31 +1,6 @@
 @import "../styles.less";
 @import "../variables.less";
 
-@defaultRadius: 0px;
-@defaultShadow: 1px 1px 0 #ddd;
-@defaultFontColor: #343434;
-@defaultBorderColor: #dce4e7;
-@defaultBorder: solid @defaultBorderColor 1px;
-@defaultFontSize: 13px;
-
-@defaultImageSizeBig: 150px;
-@defaultImageSizeLarge: 96px;
-@defaultImageSizeIntermediate: 72px;
-@defaultImageSizeMedium: 48px;
-@defaultImageSizeSmall: 32px;
-@defaultImageSizeTiny: 20px;
-
-@defaultPaddingButton: 2px 12px;
-
-@site-background: @grey;
-@header-background: @black;
-@inner-widget-background: #eeeeee;
-@button-standard-background: @yellow;
-@button-standard-border-color: #e1c023;
-
-@widget-background: @light-grey;
-@widget-my-communities-color: #ebb251;
-
 // Site Rules
 // ----------
 
@@ -331,25 +306,6 @@ a:focus {
   margin: 0 !important;
 }
 
-.RoundedShape(@radius:@defaultRadius){
-  -webkit-border-radius: @radius;
-  -moz-border-radius: @radius;
-  border-radius: @radius;
-}
-
-.ShadowedShape(@shadow:@defaultShadow){
-  box-shadow: @shadow;
-  -moz-box-shadow: @shadow;
-  -webkit-box-shadow: @shadow;
-}
-
-.ResizeImage(@width, @height) {
-  img {
-    width: @width;
-    height: @height;
-  }
-}
-
 .rotate(@degrees) {
   transform:rotate(@degrees);
   -ms-transform:rotate(@degrees); /* IE 9 */
@@ -358,6 +314,7 @@ a:focus {
 
 .vertical-centered {
   vertical-align: middle;
+  display: inline-block;
 }
 
 .contact-page {

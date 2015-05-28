@@ -5,7 +5,7 @@ angular.module('linagora.esn.contact', [
 ]).config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
   $routeProvider.when('/contacts', {
     templateUrl: '/contacts/views/contacts',
-    controller: 'contactController',
+    controller: 'contactsListController',
     resolve: {
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')

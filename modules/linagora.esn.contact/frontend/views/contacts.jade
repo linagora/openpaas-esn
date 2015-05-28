@@ -4,6 +4,11 @@
     span.contact-heading
       i.fa.fa-user
       | #{__('Contacts')}
-      a.btn.icon-btn.fa.fa-plus.addcontact-btn(type='button', ng-href='#/contacts/new/{{user._id}}')
+      a.btn.icon-btn.fa.fa-plus.addcontact-btn(type='button', ng-href='#/contacts/new/{{bookId}}')
 
+    .vertiz-space
+
+  .row(ng-repeat="contact in contacts")
+      hr
+      contact-list-item
     .vertiz-space

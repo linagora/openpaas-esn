@@ -1,9 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .controller('contactController', ['$scope', 'user', function($scope, user) {
-    $scope.user = user;
-  }])
   .controller('newContactController', ['$scope', '$route', '$location', 'contactsService', 'notificationFactory', function($scope, $route, $location, contactsService, notificationFactory) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
@@ -30,6 +27,7 @@ angular.module('linagora.esn.contact')
     $scope.close = function() {
       $location.path('/contacts');
     };
+
     $scope.accept = function() {
       var vcard = contactsService.shellToVCARD($scope.contact);
       contactsService.modify($scope.contact.path, vcard, $scope.contact.etag).then(function() {
@@ -48,4 +46,18 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.init();
+  }])
+  .controller('contactsListController', ['$scope', 'contactsService', 'user', function($scope, contactsService, user) {
+    $scope.user = user;
+    $scope.bookId = $scope.user._id;
+    $scope.contacts = [];
+
+    $scope.loadContacts = function(bookId) {
+      var path = '/addressbooks/' + bookId + '/contacts';
+      contactsService.list(path).then(function(cards) {
+        $scope.contacts = cards;
+      });
+    };
+
+    $scope.loadContacts($scope.bookId);
   }]);

@@ -9,6 +9,8 @@
 
 // TODO we should provide an externally defined variable with the base path
 @import "../../../../frontend/components/bootstrap/less/variables";
+@import "../../../../frontend/css/variables";
+@import "../../../../frontend/css/commons";
 
 .contact-heading {
   display: inline-block;
@@ -20,6 +22,12 @@
 }
 
 .contact-panel {
+
+  hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
   .contact-heading {
     width: 100%;
 
@@ -93,3 +101,29 @@ contact-display {
     border-color: @red;
   }
 }
+
+.contact-list-item {
+  overflow: visible;
+  .ResizeImage(@defaultImageSizeMedium, auto);
+  .actions {
+    .dropdown {
+      position: absolute;
+    }
+    button.btn {
+      float: right;
+    }
+    a {
+      cursor: pointer;
+    }
+    a.write {
+      color: @red
+    }
+    a.call {
+      color: @dark-green
+    }
+    a.moreactions {
+      color: @black
+    }
+  }
+}
+

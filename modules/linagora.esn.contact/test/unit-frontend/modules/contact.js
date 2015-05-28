@@ -6,6 +6,44 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
+  describe('The contact controller', function() {
+
+    beforeEach(function() {
+      angular.mock.module('ngRoute');
+      angular.mock.module('esn.core');
+      angular.mock.module('linagora.esn.contact');
+    });
+
+    beforeEach(angular.mock.inject(function($controller, $rootScope) {
+      this.controller = $controller;
+      this.$rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+    }));
+
+    describe('The contactsListController function', function() {
+
+      describe('The loadContacts function', function() {
+
+        it('should call the contactsService.list fn', function(done) {
+          var user = {_id: 123};
+          var contactsService = {
+            list: function(path) {
+              expect(path).to.equal('/addressbooks/' + user._id + '/contacts');
+              done();
+            }
+          };
+
+          this.controller('contactsListController', {
+            $scope: this.scope,
+            contactsService: contactsService,
+            user: user
+          });
+          this.scope.loadContacts();
+        });
+      });
+    });
+  });
+
   describe('The contactsService service', function() {
     var ICAL;
 

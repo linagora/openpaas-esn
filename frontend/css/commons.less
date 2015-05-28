@@ -1,0 +1,18 @@
+.RoundedShape(@radius:@defaultRadius){
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.ShadowedShape(@shadow:@defaultShadow){
+  box-shadow: @shadow;
+  -moz-box-shadow: @shadow;
+  -webkit-box-shadow: @shadow;
+}
+
+.ResizeImage(@width, @height) {
+  img {
+    width: @width;
+    height: @height;
+  }
+}
