@@ -9,4 +9,4 @@
     .col-xs-3
       select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
     .col-xs-9
-      input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-model-options='{updateOn: "change blur"}', ng-change='verifyNew()')
+      input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='newItem.value', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')

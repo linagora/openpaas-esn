@@ -17,9 +17,9 @@
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
           input.form-control(type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
-      multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Office", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
-      multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Office", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
-      multi-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Office", "Other"]')
+      multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
+      multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
+      multi-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]')
     .col-md-5
       .form-group.tags-group
         label.control-label.sr-only #{__("Tags")}
