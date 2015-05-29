@@ -8,6 +8,7 @@ angular.module('esn.calendar', [
   'restangular',
   'mgcrea.ngStrap.datepicker',
   'angularMoment',
+  'AngularJstz',
   'uuid4',
   'ui.calendar'
 ])

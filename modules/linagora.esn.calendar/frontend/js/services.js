@@ -19,7 +19,7 @@ angular.module('esn.calendar')
   .factory('dateService', ['moment', function(moment) {
 
     function getNewDate() {
-      return moment().endOf('hour').add(1, 'minutes').toDate();
+      return moment().endOf('hour').add(1, 'seconds').toDate();
     }
 
     function getNewEndDate() {
@@ -35,7 +35,8 @@ angular.module('esn.calendar')
       isSameDay: isSameDay
     };
   }])
-  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, $rootScope, moment, tokenAPI, uuid4, ICAL, $q, $http) {
+
+  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(CalendarRestangular, $rootScope, moment, jstz,  tokenAPI, uuid4, ICAL, $q, $http) {
 
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
@@ -147,18 +148,19 @@ angular.module('esn.calendar')
       var vevent = new ICAL.Component('vevent');
       vevent.addPropertyWithValue('uid', uid);
       vevent.addPropertyWithValue('summary', shell.title);
-
       var dtstart = ICAL.Time.fromJSDate(shell.startDate);
       var dtend = ICAL.Time.fromJSDate(shell.endDate);
+
       dtstart.isDate = shell.allday;
       dtend.isDate = shell.allday;
+      var timezoneLocal = jstz.determine().name();
 
       if (shell.allday) {
         dtend.day++;
       }
 
-      vevent.addPropertyWithValue('dtstart', dtstart);
-      vevent.addPropertyWithValue('dtend', dtend);
+      vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
+      vevent.addPropertyWithValue('dtend', dtend).setParameter('tzid', timezoneLocal);
       vevent.addPropertyWithValue('transp', shell.allday ? 'TRANSPARENT' : 'OPAQUE');
       if (shell.location) {
         vevent.addPropertyWithValue('location', shell.location);

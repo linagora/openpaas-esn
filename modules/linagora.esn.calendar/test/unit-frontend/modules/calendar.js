@@ -30,10 +30,20 @@ describe('The Calendar Angular module', function() {
         }
       };
 
+      this.jstz = {
+        determine: function() {
+          return {
+          name: function() {
+            return 'Europe/Paris';
+          }};
+        }
+      };
+
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
         $provide.value('tokenAPI', self.tokenAPI);
+        $provide.value('jstz', self.jstz);
         $provide.value('uuid4', self.uuid4);
       });
     });
@@ -385,6 +395,7 @@ describe('The Calendar Angular module', function() {
     describe('The shellToICAL fn', function() {
       function compareShell(calendarService, shell, ical) {
         var vcalendar = calendarService.shellToICAL(shell);
+
         var vevents = vcalendar.getAllSubcomponents();
         expect(vevents.length).to.equal(1);
         var vevent = vevents[0];
@@ -404,6 +415,8 @@ describe('The Calendar Angular module', function() {
           var value = vevent.getFirstPropertyValue(propName).toString();
           expect(value).to.equal(ical[propName]);
         }
+
+        return vevent;
       }
 
       it('should correctly create an allday event', function() {
@@ -444,6 +457,8 @@ describe('The Calendar Angular module', function() {
         };
 
         compareShell(this.calendarService, shell, ical);
+        var vevent = compareShell(this.calendarService, shell, ical);
+        expect(vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal('Europe/Paris');
       });
     });
   });
