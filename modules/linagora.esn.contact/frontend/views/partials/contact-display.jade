@@ -4,9 +4,9 @@
       .row
         .col-xs-8
           .form-group
-            input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', required)
+            input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-required='!contact.lastName')
           .form-group
-            input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', required)
+            input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-required='!contact.firstName')
           .form-group
             input.bigger.form-control(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
         .col-xs-4
@@ -17,9 +17,9 @@
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
           input.form-control(type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
-      multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
-      multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Work"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
-      multi-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work"]')
+      multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
+      multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
+      multi-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]')
     .col-md-5
       .form-group.tags-group
         label.control-label.sr-only #{__("Tags")}

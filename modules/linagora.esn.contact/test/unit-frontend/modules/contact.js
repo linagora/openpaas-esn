@@ -50,7 +50,7 @@ describe('The Contacts Angular module', function() {
     describe('The list fn', function() {
       it('should list cards', function(done) {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/contacts/api/davserver').respond({ url: ''});
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The carddav server will be hit
         var data = {
@@ -80,7 +80,7 @@ describe('The Contacts Angular module', function() {
     describe('The getCard fn', function() {
       it('should return an event', function(done) {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/contacts/api/davserver').respond({ url: ''});
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectGET('/path/to/card.vcf').respond(
@@ -155,7 +155,7 @@ describe('The Contacts Angular module', function() {
 
       it('should fail on 500 response status', function(done) {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/contacts/api/davserver').respond({ url: ''});
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectPUT('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(500, '');
@@ -179,7 +179,7 @@ describe('The Contacts Angular module', function() {
         vcard.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
 
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/contacts/api/davserver').respond({ url: ''});
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The caldav server will be hit
         this.$httpBackend.expectPUT('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(200, '');
@@ -200,7 +200,7 @@ describe('The Contacts Angular module', function() {
         vcard.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
 
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/contacts/api/davserver').respond({ url: ''});
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The carddav server will be hit
         this.$httpBackend.expectPUT('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(201, vcard.toJSON());
@@ -230,7 +230,7 @@ describe('The Contacts Angular module', function() {
         vcard.addPropertyWithValue('fn', 'test card');
         this.vcard = vcard;
 
-        this.$httpBackend.expectGET('/contacts/api/davserver').respond({ url: ''});
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
       });
 
       it('should fail if status is 201', function(done) {

@@ -3,7 +3,7 @@
 angular.module('esn.calendar')
   .factory('CalendarRestangular', function(Restangular) {
     return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl('/calendar/api');
+      RestangularConfigurer.setBaseUrl('/davserver/api');
       RestangularConfigurer.setFullResponse(true);
     });
   })
@@ -102,7 +102,7 @@ angular.module('esn.calendar')
       }
 
       serverUrlCache = $q.defer();
-      CalendarRestangular.one('caldavserver').get().then(
+      CalendarRestangular.one('info').get().then(
         function(response) {
           serverUrlCache.resolve(response.data.url);
         },

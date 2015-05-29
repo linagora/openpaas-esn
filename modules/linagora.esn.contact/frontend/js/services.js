@@ -6,7 +6,7 @@ angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .factory('ContactsRestangular', function(Restangular) {
     return Restangular.withConfig(function(config) {
-      config.setBaseUrl('/contacts/api');
+      config.setBaseUrl('/davserver/api');
       config.setFullResponse(true);
     });
   })
@@ -91,7 +91,7 @@ angular.module('linagora.esn.contact')
       }
 
       serverUrlCache = $q.defer();
-      ContactsRestangular.one('davserver').get().then(
+      ContactsRestangular.one('info').get().then(
         function(response) {
           serverUrlCache.resolve(response.data.url);
         },

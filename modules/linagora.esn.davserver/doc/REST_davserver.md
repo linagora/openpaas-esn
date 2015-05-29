@@ -1,8 +1,8 @@
-# /api/davserver
+# /api/caldavserver
 
-## GET /api/davserver
+## GET /api/info
 
-Get the DAV server information.
+Get the CalDAV server informations.
 
 **Request Headers:**
 
@@ -25,7 +25,7 @@ Get the DAV server information.
 
 **Request:**
 
-    GET /api/davserver
+    GET /api/info
     Accept: application/json
     Host: localhost:8080
 

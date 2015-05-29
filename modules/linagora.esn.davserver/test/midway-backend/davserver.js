@@ -3,11 +3,11 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 
-describe('The caldavserver API', function() {
+describe('The davserver API', function() {
   var domain;
   var user;
   var password = 'secret';
-  var moduleName = 'linagora.esn.calendar';
+  var moduleName = 'linagora.esn.davserver';
 
   beforeEach(function(done) {
     var self = this;
@@ -32,26 +32,26 @@ describe('The caldavserver API', function() {
     this.helpers.api.cleanDomainDeployment(this.models, done);
   });
 
-  describe('GET /api/caldavserver', function() {
+  describe('GET /api/info', function() {
 
     beforeEach(function() {
       var expressApp = require('../../backend/webserver/application')(this.helpers.modules.current.deps);
-      expressApp.use('/', this.helpers.modules.current.lib.api.caldavserver);
+      expressApp.use('/', this.helpers.modules.current.lib.api.davserver);
       this.app = this.helpers.modules.getWebServer(expressApp);
     });
 
     it('should return 401 if user is not authenticated', function(done) {
-      this.helpers.api.requireLogin(this.app, 'get', '/api/caldavserver', done);
+      this.helpers.api.requireLogin(this.app, 'get', '/api/info', done);
     });
 
-    it('should return 200 with the default CalDAV server url', function(done) {
+    it('should return 200 with the default DAV server url', function(done) {
       var self = this;
       this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(self.app).get('/api/caldavserver'));
+        var req = loggedInAsUser(request(self.app).get('/api/info'));
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.exist;
@@ -63,7 +63,7 @@ describe('The caldavserver API', function() {
       });
     });
 
-    it('should return 200 with the CalDAV server url define in the database', function(done) {
+    it('should return 200 with the DAV server url define in the database', function(done) {
       var self = this;
 
       var caldavConfiguration = {
@@ -72,7 +72,7 @@ describe('The caldavserver API', function() {
           url: 'backendUrl'
         },
         frontend: {
-          url: 'frontendUrl'
+          url: 'http://localhost:80'
         }
       };
 
@@ -86,7 +86,7 @@ describe('The caldavserver API', function() {
             return done(err);
           }
 
-          var req = loggedInAsUser(request(self.app).get('/api/caldavserver'));
+          var req = loggedInAsUser(request(self.app).get('/api/info'));
           req.expect(200).end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body).to.exist;

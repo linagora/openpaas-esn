@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var mockery = require('mockery');
 
-describe('The caldav core module', function() {
+describe('The dav core module', function() {
   var module, get;
 
   beforeEach(function() {
@@ -12,19 +12,20 @@ describe('The caldav core module', function() {
         get: get
       };
     };
+    this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.davserver/backend';
     this.moduleHelpers.addDep('esn-config', esnConfigMock);
     var clientMock = function() {};
     mockery.registerMock('../../../lib/caldav', clientMock);
   });
 
-  describe('The getCaldavServerUrlForServer fn', function() {
+  describe('The getDavServerUrlForServer fn', function() {
 
     it('should return an error if esnconfig fail', function(done) {
       get = function(callback) {
         callback(new Error('Error'), null);
       };
-      module = require(this.moduleHelpers.backendPath + '/webserver/api/caldavserver/caldavserver.core')(this.moduleHelpers.dependencies);
-      module.getCaldavServerUrlForServer(function(err) {
+      module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/core')(this.moduleHelpers.dependencies);
+      module.getDavServerUrlForServer(function(err) {
         expect(err).to.exist;
         done();
       });
@@ -34,8 +35,8 @@ describe('The caldav core module', function() {
       get = function(callback) {
         callback(null, null);
       };
-      module = require(this.moduleHelpers.backendPath + '/webserver/api/caldavserver/caldavserver.core')(this.moduleHelpers.dependencies);
-      module.getCaldavServerUrlForServer(function(err, url) {
+      module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/core')(this.moduleHelpers.dependencies);
+      module.getDavServerUrlForServer(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://localhost:80');
         done();
@@ -50,8 +51,8 @@ describe('The caldav core module', function() {
           }
         });
       };
-      module = require(this.moduleHelpers.backendPath + '/webserver/api/caldavserver/caldavserver.core')(this.moduleHelpers.dependencies);
-      module.getCaldavServerUrlForServer(function(err, url) {
+      module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/core')(this.moduleHelpers.dependencies);
+      module.getDavServerUrlForServer(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://open-paas.org');
         done();
@@ -59,14 +60,14 @@ describe('The caldav core module', function() {
     });
   });
 
-  describe('The getCaldavServerUrlForClient fn', function() {
+  describe('The getDavServerUrlForClient fn', function() {
 
     it('should return an error if esnconfig fail', function(done) {
       get = function(callback) {
         callback(new Error('Error'), null);
       };
-      module = require(this.moduleHelpers.backendPath + '/webserver/api/caldavserver/caldavserver.core')(this.moduleHelpers.dependencies);
-      module.getCaldavServerUrlForClient(function(err) {
+      module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/core')(this.moduleHelpers.dependencies);
+      module.getDavServerUrlForClient(function(err) {
         expect(err).to.exist;
         done();
       });
@@ -76,8 +77,8 @@ describe('The caldav core module', function() {
       get = function(callback) {
         callback(null, {});
       };
-      module = require(this.moduleHelpers.backendPath + '/webserver/api/caldavserver/caldavserver.core')(this.moduleHelpers.dependencies);
-      module.getCaldavServerUrlForClient(function(err, url) {
+      module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/core')(this.moduleHelpers.dependencies);
+      module.getDavServerUrlForClient(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://localhost:80');
         done();
@@ -92,8 +93,8 @@ describe('The caldav core module', function() {
           }
         });
       };
-      module = require(this.moduleHelpers.backendPath + '/webserver/api/caldavserver/caldavserver.core')(this.moduleHelpers.dependencies);
-      module.getCaldavServerUrlForClient(function(err, url) {
+      module = require(this.moduleHelpers.backendPath + '/webserver/api/davserver/core')(this.moduleHelpers.dependencies);
+      module.getDavServerUrlForClient(function(err, url) {
         expect(err).to.not.exist;
         expect(url).to.equal('http://open-paas.org');
         done();

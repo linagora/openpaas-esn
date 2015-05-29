@@ -49,6 +49,7 @@
     "strategies": ["local", "mongo", "bearer"]
   },
   "modules": [
+    "linagora.esn.davserver",
     "linagora.esn.calendar",
     "linagora.esn.awesomeappstore",
     "linagora.esn.core.webserver",
