@@ -127,15 +127,35 @@ contact-display {
   }
 }
 
-ul.alphascroll {
-  position: fixed;
-  list-style: none;
-  li {
-    padding-top: 0px;
-    padding-bottom: 0px;
-    a {
-      cursor: pointer;
+.alphascroll {
+
+  ul {
+
+    :hover {
+      transform: scale(1.2);
+    }
+
+    list-style: none;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    li {
+      padding-top: 0px;
+      padding-bottom: 0px;
+
+      a {
+        color: @black;
+        cursor: pointer;
+        text-decoration: none;
+        opacity: 0.6;
+      }
+
+      a.active {
+        color: @black;
+        font-weight: bold;
+        font-size: 1.2em;
+        opacity: 1;
+      }
     }
   }
 }
-

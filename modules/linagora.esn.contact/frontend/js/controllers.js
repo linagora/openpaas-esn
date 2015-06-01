@@ -52,7 +52,7 @@ angular.module('linagora.esn.contact')
     $scope.bookId = $scope.user._id;
     $scope.contacts = [];
 
-    $scope.keys = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $scope.keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $scope.categories = (function(str) {
       var result = [];
       for (var i = 0; i < str.length; i++) {
@@ -226,10 +226,11 @@ angular.module('linagora.esn.contact')
 
     };
 
-    $scope.scrollToCategory = function(id) {
-      var someElement = angular.element(document.getElementById('contactletter_' + id));
-      $document.scrollToElementAnimated(someElement);
-    };
+    $scope.goToSection = function(id) {
+      var e = angular.element(document.getElementById('section_' + id));
+      console.log(e);
+      $document.scrollToElementAnimated(e);
+    }
 
     $scope.loadContacts($scope.bookId);
   }]);

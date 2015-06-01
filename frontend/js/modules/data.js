@@ -67,7 +67,6 @@ angular.module('esn.data', [])
     function sortCategoriesBy(hash, field) {
 
       Object.keys(hash).forEach(function(name) {
-        console.log(name);
         hash[name] = sortArrayBy(hash[name], field);
       });
       return hash;
