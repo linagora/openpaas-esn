@@ -457,8 +457,24 @@ describe('The Calendar Angular module', function() {
         _id: '1'
       };
 
+      this.uiCalendarConfig = {
+        calendars: {
+          userCalendar: {
+            fullCalendar: function() {
+            },
+            offset: function() {
+              return {
+                top: 1
+              };
+            }
+          }
+        }
+      };
+
       angular.mock.module('esn.calendar');
-      angular.module('ui.calendar');
+      angular.mock.module('ui.calendar', function($provide) {
+        $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
+      });
       angular.mock.module(function($provide) {
         $provide.value('user', self.user);
         $provide.factory('calendarEventSource', function() {
@@ -475,7 +491,7 @@ describe('The Calendar Angular module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($timeout, calendarService, USER_UI_CONFIG, user, $httpBackend, $rootScope, _$compile_, _$controller_) {
+    beforeEach(angular.mock.inject(function($timeout, $window, calendarService, USER_UI_CONFIG, user, $httpBackend, $rootScope, _$compile_, _$controller_) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.$compile = _$compile_;
@@ -483,6 +499,7 @@ describe('The Calendar Angular module', function() {
       this.USER_UI_CONFIG = USER_UI_CONFIG;
       this.user = user;
       this.$timeout = $timeout;
+      this.$window = $window;
       this.$controller = _$controller_;
     }));
 
@@ -492,6 +509,7 @@ describe('The Calendar Angular module', function() {
 
       expect(this.userCalendarScope.uiConfig).to.deep.equal(this.USER_UI_CONFIG);
       expect(this.userCalendarScope.uiConfig.calendar.eventRender).to.equal(this.userCalendarScope.eventRender);
+      expect(this.userCalendarScope.uiConfig.calendar.eventAfterAllRender).to.equal(this.userCalendarScope.resizeCalendarHeight);
     });
 
     it('The eventRender function should render the event', function() {
@@ -540,6 +558,51 @@ describe('The Calendar Angular module', function() {
       }
       checkRender();
 
+    });
+
+    it('should resize the calendar height twice when the controller is created', function() {
+      var called = 0;
+
+      this.userCalendarScope = this.$rootScope.$new();
+      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
+
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.userCalendarScope);
+      this.uiCalendarConfig.calendars.userCalendar.fullCalendar = function() {
+        called++;
+      };
+
+      uiCalendarDiv.appendTo(document.body);
+      this.$timeout.flush();
+      try {
+        this.$timeout.flush();
+      } catch (exception) {
+        // Depending on the context, the 'no defered tasks' exception can occur
+      }
+      expect(called).to.equal(2);
+    });
+
+    it('should resize the calendar height once when the window is resized', function() {
+      var called = 0;
+
+      this.userCalendarScope = this.$rootScope.$new();
+      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
+
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.userCalendarScope);
+
+      uiCalendarDiv.appendTo(document.body);
+      this.$timeout.flush();
+      try {
+        this.$timeout.flush();
+      } catch (exception) {
+        // Depending on the context, the 'no defered tasks' exception can occur
+      }
+
+      this.uiCalendarConfig.calendars.userCalendar.fullCalendar = function() {
+        called++;
+      };
+
+      angular.element(this.$window).resize();
+      expect(called).to.equal(1);
     });
   });
 });
