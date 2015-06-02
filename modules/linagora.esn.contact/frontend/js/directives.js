@@ -97,9 +97,6 @@ angular.module('linagora.esn.contact')
   .directive('contactListItem', [function() {
     return {
       restrict: 'E',
-      /*scope: {
-        'contact': '='
-      },*/
       templateUrl: '/contacts/views/partials/contact-list-item.html'
     };
   }]);

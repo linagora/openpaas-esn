@@ -12,6 +12,7 @@ describe('The Contacts Angular module', function() {
       angular.mock.module('ngRoute');
       angular.mock.module('esn.core');
       angular.mock.module('linagora.esn.contact');
+      angular.mock.module('esn.alphalist');
     });
 
     beforeEach(angular.mock.inject(function($controller, $rootScope) {
@@ -20,7 +21,7 @@ describe('The Contacts Angular module', function() {
       this.scope = $rootScope.$new();
     }));
 
-    describe('The contactsListController function', function() {
+    describe('The contactsListController controller', function() {
 
       describe('The loadContacts function', function() {
 

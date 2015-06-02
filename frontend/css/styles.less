@@ -577,6 +577,19 @@ header.topbar {
     .text-overflow();
 }
 
+@media (min-width: @screen-sm-min) {
+  .ellipsis-show-xs {
+    .text-overflow();
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  .ellipsis-show-xs {
+    overflow: visible;
+    white-space: nowrap;
+  }
+}
+
 @media (min-width: @screen-md-min) {
   .contact-page {
     .list {

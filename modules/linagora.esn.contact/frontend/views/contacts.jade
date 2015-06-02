@@ -7,7 +7,7 @@
 
   .row
     .col-xs-11.nopadding
-      .row(id="section_{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts")
+      .row(id="{{prefix}}{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts")
         .row(ng-if='contacts && contacts.length')
           h2.letter_divider {{letter}}
           .row(ng-repeat="contact in contacts")
@@ -15,7 +15,4 @@
             contact-list-item
         .vertiz-space
     .col-xs-1
-      div.alphascroll(bs-affix data-offset-top="-80")
-        ul.text-center
-          li(ng-repeat="letter in categories")
-            a(ng-click="goToSection(letter)" bs-scrollspy data-target="#section_{{letter}}" data-offset="44") {{letter}}
+      alpha-menu(keys="keys", prefix="prefix")

@@ -47,37 +47,27 @@ angular.module('linagora.esn.contact')
 
     $scope.init();
   }])
-  .controller('contactsListController', ['$scope', '$document', 'contactsService', 'dataTableFactory', 'user', function($scope, $document, contactsService, dataTableFactory, user) {
+  .controller('contactsListController', ['$log', '$scope', '$document', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($log, $scope, $document, contactsService, CategoryService, ALPHA_ITEMS, user) {
     $scope.user = user;
     $scope.bookId = $scope.user._id;
-    $scope.contacts = [];
+    $scope.keys = ALPHA_ITEMS;
+    $scope.sortBy = 'firstName';
+    $scope.prefix = 'contacts_';
 
-    $scope.keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $scope.categories = (function(str) {
-      var result = [];
-      for (var i = 0; i < str.length; i++) {
-        var nextChar = str.charAt(i);
-        result.push(nextChar);
-      }
-      return result;
-    })($scope.keys);
+    $scope.categories = new CategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '-'});
 
-    $scope.categorize = function(contacts) {
-      var categories = dataTableFactory.categorize(contacts, dataTableFactory.initCategories($scope.keys), 'firstName');
-      categories = dataTableFactory.sortCategoriesBy(categories, 'firstName');
-      return categories;
-    };
-
-    $scope.loadContacts2 = function(bookId) {
-      var path = '/addressbooks/' + bookId + '/contacts';
-      contactsService.list(path).then(function(cards) {
-        $scope.buildCategories(cards || []);
+    $scope.loadContacts = function() {
+      var path = '/addressbooks/' + $scope.user._id + '/contacts';
+      contactsService.list(path).then(function(data) {
+        $scope.categories.addItems(data);
+        $scope.sorted_contacts = $scope.categories.get();
+      }, function(err) {
+        $log.error('Can not get contacts', err);
       });
     };
 
-    $scope.loadContacts = function() {
-
-      var contacts = 
+    $scope.loadContacts2 = function() {
+      var contacts =
       [
         {
           '_id': '53fceb7ef214c5316e93e7c8',
@@ -221,16 +211,9 @@ angular.module('linagora.esn.contact')
         contact.phone = '+33467646464';
         return contact;
       });
-
-      $scope.sorted_contacts = $scope.categorize(contacts);
-
+      $scope.categories.addItems(contacts);
+      $scope.sorted_contacts = $scope.categories.get();
     };
 
-    $scope.goToSection = function(id) {
-      var e = angular.element(document.getElementById('section_' + id));
-      console.log(e);
-      $document.scrollToElementAnimated(e);
-    }
-
-    $scope.loadContacts($scope.bookId);
+    $scope.loadContacts2();
   }]);

@@ -8,7 +8,7 @@ div.contact-list-item
       h4.media-heading {{contact.firstName}} {{contact.lastName}}
 
       .row
-        .col-xs-7.nopadding.ellipsis
+        .col-xs-7.nopadding.ellipsis-show-xs
           span
             i.fa.fa-envelope-o
             a(href='mailto:{{contact.emails[0]}}') {{contact.emails[0]}}
@@ -18,21 +18,26 @@ div.contact-list-item
             i.fa.fa-phone
             | {{contact.phone}}
 
-  .col-xs-3
+  .col-xs-3.contact-actions
 
-    .row.vertical-centered
-      .col-xs-4.actions.vertical-centered
+    .row.vertical-centered.pull-right
+
+      .col-xs-4.action-item.hidden-xs
         a.write(ng-href='#/contacts/{{bookId}}/{{contact.uid}}')
           i.fa.fa-2x.fa-pencil
 
-      .col-xs-4.actions.vertical-centered
+      .col-xs-4.action-item.hidden-xs
         a.call(ng-href="")
           i.fa.fa-2x.fa-phone-square
 
-      .col-xs-4.actions.vertical-centered
-        .dropdown
+      .col-xs-4.action-item
+        .dropdown.pull-right
           a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
             i.fa.fa-2x.fa-ellipsis-v
           ul.dropdown-menu.dropdown-menu-right(role="menu")
+            li.visible-xs
+              a(ng-href="") Send Message
+            li.visible-xs
+              a(ng-href="") Call
             li
               a(ng-href="") Delete
