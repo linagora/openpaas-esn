@@ -1,8 +1,8 @@
 .input-group
-  input.bigger.form-control(class='{{inputClass}}' type='{{type}}', placeholder='{{placeholder}}', ng-model='ngModel', ng-model-options='{updateOn: "blur"}')
-  span.inline-input-edition-group-btn.input-group-btn(ng-show='showGroupButtons')
-    button.btn.btn-default(type='button', ng-click='saveInput()')
-      i.fa.fa-check
+  input(class='{{inputClass}}' type='{{type}}', placeholder='{{placeholder}}', ng-model='ngModel', ng-model-options='{updateOn: "blur"}')
   span.inline-input-edition-group-btn.input-group-btn(ng-show='showGroupButtons')
     button.btn.btn-default(type='button', ng-click='resetInput()')
       i.fa.fa-remove
+  span.inline-input-edition-group-btn.input-group-btn(ng-show='showGroupButtons')
+    button.btn.btn-default(type='button', ng-click='saveInput()')
+      i.fa.fa-check

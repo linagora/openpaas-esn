@@ -81,6 +81,10 @@ contact-display, contact-display-editable {
     min-height: 5.9em;
   }
 
+  .input-group {
+    display: block;
+  }
+
   input.form-control {
     border-width: 0 0 2px 0;
     border-radius: 0;
@@ -160,17 +164,24 @@ contact-display, contact-display-editable {
 }
 
 .inline-input-edition-group-btn {
+  display: inline;
+
   .btn {
     border: none;
+    background: #f8f8f8
   }
 
   [class^="fa-"], [class*="fa-"] {
     margin-right: 0px;
   }
 
-  .fa-remove {
+  >button:first-child {
+    position: relative;
+    top: 50%;
+    transform: translateY(-130%);
+    float: right;
+    right: 0;
   }
 
-  .fa-check {
-  }
+  z-index: 3;
 }
