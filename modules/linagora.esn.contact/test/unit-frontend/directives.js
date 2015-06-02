@@ -35,15 +35,15 @@ describe('The contact Angular module directives', function() {
       this.$rootScope.$digest();
       expect(element.html()).to.deep.equal(
         '<div class="input-group">' +
-        '<input type="aType" placeholder="aPlaceholder" ng-model="ngModel" ng-model-options="{updateOn: &quot;blur&quot;}" class="bigger form-control aClass">' +
-        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn input-group-btn ng-hide">' +
-        '<button type="button" ng-click="saveInput()" class="btn btn-default">' +
-        '<i class="fa fa-check"></i>' +
-        '</button>' +
-        '</span>' +
+        '<input type="aType" placeholder="aPlaceholder" ng-model="ngModel" ng-model-options="{updateOn: &quot;blur&quot;}" class="aClass">' +
         '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn input-group-btn ng-hide">' +
         '<button type="button" ng-click="resetInput()" class="btn btn-default">' +
         '<i class="fa fa-remove"></i>' +
+        '</button>' +
+        '</span>' +
+        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn input-group-btn ng-hide">' +
+        '<button type="button" class="btn btn-default">' +
+        '<i class="fa fa-check"></i>' +
         '</button>' +
         '</span>' +
         '</div>');
@@ -66,6 +66,7 @@ describe('The contact Angular module directives', function() {
       var input = element.find('input');
       input.appendTo(document.body);
       input.blur();
+      this.$timeout.flush();
     });
 
     it('should bind on blur and do not call saveInput if old value === new value', function(done) {
@@ -109,20 +110,6 @@ describe('The contact Angular module directives', function() {
       this.$timeout.flush();
     });
 
-    it.skip('should set the controller value to oldValue if resetInput is called', function() {
-      this.$scope.aModel = 'value';
-      var element = this.initDirective(this.$scope);
-      var input = element.find('input');
-      input.appendTo(document.body);
-      input.focus();
-      var scope = element.isolateScope();
-      input.val('newValue');
-      scope.$digest();
-      expect(input.val()).to.deep.equal('newValue');
-      scope.resetInput();
-      scope.$digest();
-      expect(input.val()).to.deep.equal('value');
-    });
   });
 
 });

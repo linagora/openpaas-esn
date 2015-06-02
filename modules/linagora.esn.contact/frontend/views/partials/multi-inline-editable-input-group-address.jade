@@ -5,15 +5,15 @@
     .col-xs-9
       .row
         .col-xs-12.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='item.street', placeholder='#{__("Street")}', on-blur='verifyRemove($index)')
+          inline-editable-input(input-class='form-control', type='text', ng-model='item.street', placeholder='#{__("Street")}', on-blur='verifyRemove($index)', on-save='onSave')
       .row
         .col-xs-3.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='item.zip', placeholder='#{__("Zip")}', on-blur='verifyRemove($index)')
+          inline-editable-input(input-class='form-control', type='text', ng-model='item.zip', placeholder='#{__("Zip")}', on-blur='verifyRemove($index)', on-save='onSave')
         .col-xs-9.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='item.city', placeholder='#{__("City")}', on-blur='verifyRemove($index)')
+          inline-editable-input(input-class='form-control', type='text', ng-model='item.city', placeholder='#{__("City")}', on-blur='verifyRemove($index)', on-save='onSave')
       .row
         .col-xs-12.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='item.country', placeholder='#{__("Country")}', on-blur='verifyRemove($index)')
+          inline-editable-input(input-class='form-control', type='text', ng-model='item.country', placeholder='#{__("Country")}', on-blur='verifyRemove($index)', on-save='onSave')
 .multi-input-next
   .form-group
     .col-xs-3
@@ -21,12 +21,12 @@
     .col-xs-9
       .row
         .col-xs-12.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.street', placeholder='#{__("Street")}', on-blur='verifyNew()')
+          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.street', placeholder='#{__("Street")}', on-blur='verifyNew()', on-save='onSave')
       .row
         .col-xs-3.noindent-left
-          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.zip', placeholder='#{__("Zip")}', on-blur='verifyNew()')
+          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.zip', placeholder='#{__("Zip")}', on-blur='verifyNew()', on-save='onSave')
         .col-xs-9.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.city', placeholder='#{__("City")}', on-blur='verifyNew()')
+          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.city', placeholder='#{__("City")}', on-blur='verifyNew()', on-save='onSave')
       .row
         .col-xs-12.noindent
-          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.country', placeholder='#{__("Country")}', on-blur='verifyNew()')
+          inline-editable-input(input-class='form-control', type='text', ng-model='newItem.country', placeholder='#{__("Country")}', on-blur='verifyNew()', on-save='onSave')

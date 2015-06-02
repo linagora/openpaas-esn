@@ -92,7 +92,8 @@ angular.module('linagora.esn.contact')
         content: '=multiInputModel',
         types: '=multiInputTypes',
         inputType: '@multiInputTexttype',
-        placeholder: '@multiInputPlaceholder'
+        placeholder: '@multiInputPlaceholder',
+        onSave: '=multiInputOnSave'
       },
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group.html',
       controller: 'MultiInputGroupController',
@@ -109,7 +110,8 @@ angular.module('linagora.esn.contact')
         content: '=multiInputModel',
         types: '=multiInputTypes',
         inputType: '@multiInputTexttype',
-        placeholder: '@multiInputPlaceholder'
+        placeholder: '@multiInputPlaceholder',
+        onSave: '=multiInputOnSave'
       },
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group-address',
       controller: 'MultiInputGroupController',
@@ -128,13 +130,23 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-display.html'
     };
   })
-  .directive('contactDisplayEditable', function() {
+  .directive('contactDisplayEditable', function(contactsService, notificationFactory) {
     return {
       restrict: 'E',
       scope: {
         'contact': '='
       },
-      templateUrl: '/contact/views/partials/contact-display-editable.html'
+      templateUrl: '/contact/views/partials/contact-display-editable.html',
+      link: function(scope) {
+        scope.modify = function() {
+          var vcard = contactsService.shellToVCARD(scope.contact);
+          contactsService.modify(scope.contact.path, vcard, scope.contact.etag).then(function() {
+            notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact');
+          }).catch (function(err) {
+            notificationFactory.weakError('Contact modification failure', err.message);
+          });
+        };
+      }
     };
   })
   .directive('inlineEditableInput', function($timeout) {
@@ -153,11 +165,10 @@ angular.module('linagora.esn.contact')
       });
 
       input.bind('blur', function() {
-        if (oldValue !== controller.$viewValue) {
-          scope.saveInput();
-        }
-
         $timeout(function() {
+          if (oldValue !== controller.$viewValue) {
+            scope.saveInput();
+          }
           _toggleGroupButtons();
           if (scope.onBlur) {
             scope.onBlur();
