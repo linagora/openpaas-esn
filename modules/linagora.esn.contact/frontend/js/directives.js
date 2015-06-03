@@ -152,15 +152,28 @@ angular.module('linagora.esn.contact')
   .directive('inlineEditableInput', function($timeout) {
     function link(scope, element, attrs, controller) {
       var input = element.find('input');
+      var inputGroup = element.find('.input-group');
       scope.showGroupButtons = false;
       var oldValue = '';
+      var oldInputGroupWidth = inputGroup.width();
 
       function _toggleGroupButtons() {
         scope.showGroupButtons = !scope.showGroupButtons;
       }
 
+      function _resizeInputGroup() {
+        if (inputGroup.width() <= 100) {
+          inputGroup.width('150px');
+        }
+      }
+
+      function _resetInputGroup() {
+        inputGroup.width(oldInputGroupWidth + 'px');
+      }
+
       input.bind('focus', function() {
         oldValue = controller.$viewValue;
+        _resizeInputGroup();
         $timeout(_toggleGroupButtons, 0);
       });
 
@@ -169,6 +182,7 @@ angular.module('linagora.esn.contact')
           if (oldValue !== controller.$viewValue) {
             scope.saveInput();
           }
+          _resetInputGroup();
           _toggleGroupButtons();
           if (scope.onBlur) {
             scope.onBlur();

@@ -24,7 +24,7 @@ describe('The contact Angular module directives', function() {
       var element = this.$compile(html)(scope);
       scope.$digest();
       return element;
-    }
+    };
   }]));
 
   describe('inlineEditableInput', function() {
