@@ -140,8 +140,9 @@ angular.module('linagora.esn.contact')
       link: function(scope) {
         scope.modify = function() {
           var vcard = contactsService.shellToVCARD(scope.contact);
-          contactsService.modify(scope.contact.path, vcard, scope.contact.etag).then(function() {
-            notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact');
+          contactsService.modify(scope.contact.path, vcard, scope.contact.etag).then(function(contact) {
+            scope.contact.etag = contact.etag;
+            notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + scope.contact.displayName);
           }).catch (function(err) {
             notificationFactory.weakError('Contact modification failure', err.message);
           });
