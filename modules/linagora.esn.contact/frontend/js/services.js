@@ -234,17 +234,15 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    function list(contactsPath) {
-      var req = {
-        scope: {
-          addressbooks: [contactsPath]
+    function list(path) {
+      return request('get', path).then(function(response) {
+        if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
+          return response.data._embedded['dav:item'].map(function(vcarddata) {
+            var vcard = new ICAL.Component(vcarddata.data);
+            return new ContactsShell(vcard);
+          });
         }
-      };
-      return request('post', '/json/queries/contacts', null, req).then(function(response) {
-        return response.data.map(function(vcarddata) {
-          var vcard = new ICAL.Component(vcarddata);
-          return new ContactsShell(vcard);
-        });
+        return [];
       });
     }
 

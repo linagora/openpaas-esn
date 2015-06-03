@@ -29,7 +29,7 @@ describe('The Contacts Angular module', function() {
           var user = {_id: 123};
           var contactsService = {
             list: function(path) {
-              expect(path).to.equal('/addressbooks/' + user._id + '/contacts');
+              expect(path).to.equal('/addressbooks/' + user._id + '/contacts.json');
               done();
             }
           };
@@ -88,21 +88,42 @@ describe('The Contacts Angular module', function() {
 
     describe('The list fn', function() {
       it('should list cards', function(done) {
+
+        var contactsURL = '/addressbooks/5375de4bd684db7f6fbd4f97/contacts.json';
+        var result = {
+          _links: {
+            self: {
+              href: '/addressbooks/5375de4bd684db7f6fbd4f97/contacts.json'
+            }
+          },
+          'dav:syncToken': 6,
+          '_embedded': {
+            'dav:item': [
+              {
+                '_links': {
+                  'self': '/addressbooks/5375de4bd684db7f6fbd4f97/contacts/myuid.vcf'
+                },
+                'etag': '\'6464fc058586fff85e3522de255c3e9f\'',
+                'data': [
+                  'vcard',
+                  [
+                    ['version', {}, 'text', '4.0'],
+                    ['uid', {}, 'text', 'myuid'],
+                    ['n', {}, 'text', ['Burce', 'Willis', '', '', '']]
+                  ]
+                ]
+              }
+            ]
+          }
+        };
+
         // The server url needs to be retrieved
         this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The carddav server will be hit
-        var data = {
-          scope: { addressbooks: ['/path/to/addressbook'] }
-        };
-        this.$httpBackend.expectPOST('/json/queries/contacts', data).respond([
-          ['vcard', [
-            ['version', {}, 'text', '4.0'],
-            ['uid', {}, 'text', 'myuid']
-          ], []]
-        ]);
+        this.$httpBackend.expectGET(contactsURL).respond(result);
 
-        this.contactsService.list('/path/to/addressbook').then(function(cards) {
+        this.contactsService.list(contactsURL).then(function(cards) {
             expect(cards).to.be.an.array;
             expect(cards.length).to.equal(1);
             expect(cards[0].id).to.equal('myuid');
@@ -425,6 +446,49 @@ describe('The Contacts Angular module', function() {
         };
 
         compareShell(this.contactsService, shell, ical);
+      });
+    });
+  });
+
+  describe.skip('The contactListItem directive', function() {
+
+    beforeEach(function() {
+      angular.mock.module('ngRoute');
+      angular.mock.module('esn.core');
+      angular.mock.module('linagora.esn.contact');
+      angular.mock.module('esn.alphalist');
+      module('jadeTemplates');
+    });
+
+    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+      this.$rootScope = $rootScope;
+      this.$compile = $compile;
+      this.$q = $q;
+      this.scope = $rootScope.$new();
+      this.scope.contact = {
+        uid: 'myuid'
+      };
+      this.scope.bookId = '123';
+      this.html = '<contact-list-item contact="contact" book-id="bookId"></contact-list-item>';
+    }));
+
+    describe('Setting scope values', function() {
+
+      it('should set the first contact email and tel in scope', function(done) {
+        var tel1 = '+33499998899';
+        var tel2 = '+33499998800';
+        var email1 = 'yo@open-paas.org';
+        var email2 = 'lo@open-paas.org';
+
+        this.scope.contact.tel = [{type: 'Home', value: tel1}, {type: 'Work', value: tel2}];
+        this.scope.contact.emails = [{type: 'Home', value: email1}, {type: 'Work', value: email2}];
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        expect(iscope.tel).to.equal(tel1);
+        expect(iscope.email).to.equal(email1);
+        done();
       });
     });
   });

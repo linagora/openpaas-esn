@@ -228,6 +228,22 @@ angular.module('linagora.esn.contact')
   .directive('contactListItem', [function() {
     return {
       restrict: 'E',
-      templateUrl: '/contacts/views/partials/contact-list-item.html'
+      templateUrl: '/contact/views/partials/contact-list-item.html',
+      scope: {
+        contact: '=',
+        bookId: '='
+      },
+      link: function($scope) {
+
+        function getFirstValue(property) {
+          if (!$scope.contact[property] || !$scope.contact[property][0]) {
+            return;
+          }
+          return $scope.contact[property][0].value;
+        }
+
+        $scope.email = getFirstValue('emails');
+        $scope.tel = getFirstValue('tel');
+      }
     };
   }]);

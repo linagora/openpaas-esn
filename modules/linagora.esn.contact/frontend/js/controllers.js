@@ -58,7 +58,7 @@ angular.module('linagora.esn.contact')
     $scope.categories = new CategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '-'});
 
     $scope.loadContacts = function() {
-      var path = '/addressbooks/' + $scope.user._id + '/contacts';
+      var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
       contactsService.list(path).then(function(data) {
         $scope.categories.addItems(data);
         $scope.sorted_contacts = $scope.categories.get();
