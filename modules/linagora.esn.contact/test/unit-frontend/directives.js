@@ -36,12 +36,12 @@ describe('The contact Angular module directives', function() {
       expect(element.html()).to.deep.equal(
         '<div class="input-group">' +
         '<input type="aType" placeholder="aPlaceholder" ng-model="ngModel" ng-model-options="{updateOn: &quot;blur&quot;}" class="aClass">' +
-        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn input-group-btn ng-hide">' +
+        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-remove-button input-group-btn ng-hide">' +
         '<button type="button" ng-click="resetInput()" class="btn btn-default">' +
         '<i class="fa fa-remove"></i>' +
         '</button>' +
         '</span>' +
-        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn input-group-btn ng-hide">' +
+        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-check-button input-group-btn ng-hide">' +
         '<button type="button" class="btn btn-default">' +
         '<i class="fa fa-check"></i>' +
         '</button>' +
@@ -70,7 +70,7 @@ describe('The contact Angular module directives', function() {
     });
 
     it('should bind on blur and do not call saveInput if old value === new value', function(done) {
-      this.$scope.aModel = '';
+      this.$scope.aModel = undefined;
       this.$scope.aSaveFunction = function() {
         done(new Error('should not be called'));
       };

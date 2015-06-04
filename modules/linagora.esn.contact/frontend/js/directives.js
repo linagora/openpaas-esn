@@ -24,20 +24,16 @@ angular.module('linagora.esn.contact')
       _updateTypes();
     }
 
-    this.verifyNew = function(/* valuesToCheck... */) {
-      var args = Array.apply(null, arguments);
-      function _verify(item) {
-        return args.every(function(argument) { return !!item[argument]; });
-      }
+    this.createVerifyNewFunction = function(/* valuesToCheck... */) {
+      var args = arguments;
       return function() {
-        var item = $scope.newItem;
-        if (_verify(item)) {
+        if (Array.prototype.every.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
           _acceptNew();
         }
       };
     };
 
-    this.verifyRemove = function(valueToCheck) {
+    this.createVerifyRemoveFunction = function(valueToCheck) {
       return function($index) {
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
@@ -63,8 +59,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-input-group.html',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.verifyNew('value');
-        scope.verifyRemove = controller.verifyRemove('value');
+        scope.verifyNew = controller.createVerifyNewFunction('value');
+        scope.verifyRemove = controller.createVerifyRemoveFunction('value');
       }
     };
   })
@@ -80,8 +76,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-input-group-address.html',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.verifyNew('street', 'zip', 'city', 'country');
-        scope.verifyRemove = controller.verifyRemove('street');
+        scope.verifyNew = controller.createVerifyNewFunction('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.createVerifyRemoveFunction('street');
       }
     };
   })
@@ -98,8 +94,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group.html',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.verifyNew('value');
-        scope.verifyRemove = controller.verifyRemove('value');
+        scope.verifyNew = controller.createVerifyNewFunction('value');
+        scope.verifyRemove = controller.createVerifyRemoveFunction('value');
       }
     };
   })
@@ -116,8 +112,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group-address',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.verifyNew('street', 'zip', 'city', 'country');
-        scope.verifyRemove = controller.verifyRemove('street');
+        scope.verifyNew = controller.createVerifyNewFunction('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.createVerifyRemoveFunction('street');
       }
     };
   })
