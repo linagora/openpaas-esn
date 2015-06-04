@@ -402,7 +402,8 @@ describe('The Contacts Angular module', function() {
           orgUri: 'orgUri',
           birthday: new Date(2015, 0, 1),
           nickname: 'nick',
-          notes: 'notes'
+          notes: 'notes',
+          photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
         };
         var ical = {
           version: 'VERSION:4.0',
@@ -419,7 +420,8 @@ describe('The Contacts Angular module', function() {
           categories: 'CATEGORIES:a,b,starred',
           bday: 'BDAY;VALUE=DATE:20150101',
           nickname: 'NICKNAME:nick',
-          note: 'NOTE:notes'
+          note: 'NOTE:notes',
+          photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
         };
 
         compareShell(this.contactsService, shell, ical);

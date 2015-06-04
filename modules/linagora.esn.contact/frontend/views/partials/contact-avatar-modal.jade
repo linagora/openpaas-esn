@@ -1,0 +1,11 @@
+.modal(tabindex="-1", role="dialog", ng-controller="contactAvatarModalController")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button", ng-click="$toggle()") &times;
+        h4.modal-title #{__('Choose an avatar for the contact')}
+      .modal-body
+        avatar-picker(avatar-placeholder="{{contact.photo || '/images/user.png'}}")
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="saveContactAvatar()", ng-disabled="loading || !imageSelected()") #{__('Save')}
+        button.btn.btn-default(type="button", ng-click="$toggle()", ng-disabled="loading") #{__('Cancel')}

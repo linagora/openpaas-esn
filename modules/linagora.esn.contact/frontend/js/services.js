@@ -219,6 +219,10 @@ angular.module('linagora.esn.contact')
         prop = vcard.addPropertyWithValue('note', shell.notes);
       }
 
+      if (shell.photo) {
+        vcard.addPropertyWithValue('photo', shell.photo);
+      }
+
       return vcard;
     }
 
