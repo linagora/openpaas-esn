@@ -47,6 +47,31 @@ html.no-websockets body.esn-welcome-app #unsupported img {
   white-space: pre-wrap;
 }
 
+@media (max-width: @screen-xs-max) {
+  .modal-dialog {
+    margin: 0px;
+
+    .modal-content {
+      .modal-header {
+        padding: 5px;
+        .close {
+          font-size: 35px;
+        }
+      }
+      .modal-body {
+        padding: 5px;
+      }
+      .modal-footer {
+        padding: 5px;
+      }
+    }
+  }
+}
+
+.label-disabled {
+  background-color: @grey;
+}
+
 .updates-notifier {
   border: solid #dce4e7 1px;
   border-radius: 4px;
@@ -1032,5 +1057,35 @@ a.cancel:hover {
   a {
     margin-right: 0.2em;
     margin-left: 0.2em;
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  .esn-collaboration-modal-creation {
+    .label {
+      font-size: 14px;
+    }
+    .description {
+      font-size: 12px;
+      margin-bottom: 0px;
+    }
+  }
+}
+
+.esn-collaboration-modal-creation {
+  .radio {
+    .circle,.check {
+      display: none;
+    }
+    label {
+      padding-left: 0px;
+    }
+  }
+  .description {
+    display: inline;
+    padding-left: 10px;
+  }
+  .date-wrapper {
+    padding: 0px;
   }
 }
