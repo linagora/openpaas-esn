@@ -9,7 +9,7 @@
     .col-xs-11.nopadding
       .row(id="{{prefix}}{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts")
         .row(ng-if='contacts && contacts.length')
-          h2.letter_divider {{letter}}
+          h2.letter-divider {{letter}}
           .row(ng-repeat="contact in contacts")
             hr
             contact-list-item
