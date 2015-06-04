@@ -44,6 +44,7 @@ angular.module('esnApp', [
   'esn.oembed.vimeo',
   'esn.oembed.slideshare',
   'esn.oembed.codepen',
+  'esn.oembed.gist',
   'esn.injection',
   'esn.collaboration',
   'esn.company',
