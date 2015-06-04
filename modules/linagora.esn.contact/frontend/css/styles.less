@@ -95,9 +95,37 @@ contact-display, contact-display-editable {
   input.ng-invalid-required, input.ng-invalid-email {
     border-color: @red;
   }
+
+  .input-group {
+    .inline-input-edition-group-btn {
+      display: inline;
+
+      .btn {
+        border: none;
+        background: #f8f8f8
+      }
+
+      [class^="fa-"], [class*="fa-"] {
+        margin-right: 0;
+      }
+
+      z-index: 3;
+    }
+
+    .inline-check-button {
+      position: absolute;
+      right: 70px;
+      top: 5px;
+    }
+
+    .inline-remove-button {
+      position: absolute;
+      right: 35px;
+      top: 5px;
+    }
+  }
 }
 
-<<<<<<< HEAD
 .contact-list-item {
   overflow: visible;
   .ResizeImage(@defaultImageSizeMedium, auto);
@@ -161,27 +189,4 @@ contact-display, contact-display-editable {
       }
     }
   }
-}
-
-.inline-input-edition-group-btn {
-  display: inline;
-
-  .btn {
-    border: none;
-    background: #f8f8f8
-  }
-
-  [class^="fa-"], [class*="fa-"] {
-    margin-right: 0px;
-  }
-
-  >button:first-child {
-    position: relative;
-    top: 50%;
-    transform: translateY(-130%);
-    float: right;
-    right: 0;
-  }
-
-  z-index: 3;
 }

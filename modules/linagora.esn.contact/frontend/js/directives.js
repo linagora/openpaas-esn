@@ -155,8 +155,7 @@ angular.module('linagora.esn.contact')
       var input = element.find('input');
       var inputGroup = element.find('.input-group');
       scope.showGroupButtons = false;
-      var oldValue = '';
-      var oldInputGroupWidth = inputGroup.width();
+      var oldValue, hasBeenResized, oldInputGroupWidth;
 
       function _toggleGroupButtons() {
         scope.showGroupButtons = !scope.showGroupButtons;
@@ -165,15 +164,20 @@ angular.module('linagora.esn.contact')
       function _resizeInputGroup() {
         if (inputGroup.width() <= 100) {
           inputGroup.width('150px');
+          hasBeenResized = true;
         }
       }
 
       function _resetInputGroup() {
-        inputGroup.width(oldInputGroupWidth + 'px');
+        if (hasBeenResized) {
+          inputGroup.width(oldInputGroupWidth + 'px');
+          hasBeenResized = false;
+        }
       }
 
       input.bind('focus', function() {
         oldValue = controller.$viewValue;
+        oldInputGroupWidth = inputGroup.width();
         _resizeInputGroup();
         $timeout(_toggleGroupButtons, 0);
       });
