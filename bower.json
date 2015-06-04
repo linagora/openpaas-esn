@@ -70,7 +70,8 @@
     "arrive": "~2.2.0",
     "angular-jstz": "czarpino/angular-jstz",
     "angular-scroll": "~0.7.0",
-    "angular-gist": "~0.1.3"
+    "angular-gist": "~0.1.3",
+    "twitter-platform-widget": "http://platform.twitter.com/widgets.js"
   },
   "resolutions": {
     "jquery": "2.1.1",
