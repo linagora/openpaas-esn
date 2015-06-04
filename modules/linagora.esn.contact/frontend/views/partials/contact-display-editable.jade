@@ -1,45 +1,45 @@
 .form-horizontal
-   .row
-      .col-md-7
-         .row
-            .col-xs-8
-               .form-group
-                  input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-disabled='true')
-               .form-group
-                  input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-disabled='true')
-               .form-group
-                  inline-editable-input(input-class='bigger form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
-            .col-xs-4
-               .row
-                  .col-xs-12.photo
-                     img(src='/images/user.png')
-         .form-group(ng-show='contact.org')
-            label.control-label.sr-only #{__("Job Title")}
-            .col-sm-12
-               inline-editable-input(input-class='form-control', type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole', on-save='modify')
-         multi-inline-editable-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}', multi-input-on-save='modify')
-         multi-inline-editable-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}', multi-input-on-save='modify')
-         multi-inline-editable-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]', multi-input-on-save='modify')
-      .col-md-5
-         .form-group.tags-group
-            label.control-label.sr-only #{__("Tags")}
-            .col-sm-12
-               tags-input(ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
-         multi-inline-editable-input-group(multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}', multi-input-on-save='modify')
-         .form-group
-            label.control-label.col-xs-2 #{__("Birthday")}
-            .col-xs-10
-               input.form-control(type='date', placeholder='mm/dd/yyyy', ng-model='contact.birthday')
-         .form-group
-            label.control-label.sr-only #{__("Nickname")}
-            .col-sm-12
-               inline-editable-input(input-class='form-control', type='text', placeholder='#{__("Nickname")}', ng-model='contact.nickname', on-save='modify')
-         .form-group(ng-show='contact.org')
-            label.control-label.sr-only #{__("Company Website")}
-            .col-sm-12
-               inline-editable-input(input-class='form-control', type='text', placeholder='#{__("Company Website")}', ng-model='contact.orgUri', on-save='modify')
-   .row
-      .col-md-7
-         .form-group
-            .col-xs-12
-               textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
+  .row
+    .col-md-7
+      .row
+        .col-xs-8
+          .form-group
+            input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-disabled='true')
+          .form-group
+            input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-disabled='true')
+          .form-group
+            inline-editable-input(input-class='bigger form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
+        .col-xs-4
+          .row
+            .col-xs-12.photo
+              img(src='/images/user.png')
+      .form-group(ng-show='contact.org')
+        label.control-label.sr-only #{__("Job Title")}
+        .col-sm-12
+          inline-editable-input(input-class='form-control', type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole', on-save='modify')
+      multi-inline-editable-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}', multi-input-on-save='modify')
+      multi-inline-editable-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}', multi-input-on-save='modify')
+      multi-inline-editable-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]', multi-input-on-save='modify')
+    .col-md-5
+      .form-group.tags-group
+        label.control-label.sr-only #{__("Tags")}
+        .col-sm-12
+          tags-input(ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
+      multi-inline-editable-input-group(multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}', multi-input-on-save='modify')
+      .form-group
+        label.control-label.col-xs-2 #{__("Birthday")}
+        .col-xs-10
+          input.form-control(type='date', placeholder='mm/dd/yyyy', ng-model='contact.birthday')
+      .form-group
+        label.control-label.sr-only #{__("Nickname")}
+        .col-sm-12
+          inline-editable-input(input-class='form-control', type='text', placeholder='#{__("Nickname")}', ng-model='contact.nickname', on-save='modify')
+      .form-group(ng-show='contact.org')
+        label.control-label.sr-only #{__("Company Website")}
+        .col-sm-12
+          inline-editable-input(input-class='form-control', type='text', placeholder='#{__("Company Website")}', ng-model='contact.orgUri', on-save='modify')
+  .row
+    .col-md-7
+      .form-group
+        .col-xs-12
+          textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
