@@ -21,6 +21,7 @@ angular.module('esn.calendar')
       defaultView: 'agendaWeek',
       height: 450,
       editable: true,
+      selectable: true,
       timezone: 'local',
       forceEventDuration: true,
       weekNumbers: true,
@@ -40,6 +41,163 @@ angular.module('esn.calendar')
       handleWindowResize: false
     }
   })
+
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'dateService', 'calendarService', 'moment', 'notificationFactory',
+    function($rootScope, $scope, $alert, dateService, calendarService, moment, notificationFactory) {
+
+      this.displayError = function(err) {
+        $alert({
+          content: err,
+          type: 'danger',
+          show: true,
+          position: 'bottom',
+          container: '.event-create-error-message',
+          duration: '2',
+          animation: 'am-flip-x'
+        });
+      };
+
+      this.addNewEvent = function() {
+        if (!$scope.event.title || $scope.event.title.trim().length === 0) {
+          this.displayError('You must define an event title');
+          return;
+        }
+        if (!$scope.calendarId) {
+          $scope.calendarId = calendarService.calendarId;
+        }
+        var event = $scope.event;
+        var path = '/calendars/' + $scope.calendarId + '/events';
+        var vcalendar = calendarService.shellToICAL(event);
+        calendarService.create(path, vcalendar).then(function(response) {
+          if ($scope.activitystream) {
+            $rootScope.$emit('message:posted', {
+              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+              id: response.headers('ESN-Message-Id')
+            });
+          }
+
+          notificationFactory.weakInfo('Event created', $scope.event.title + ' is created');
+          if ($scope.createModal) {
+            $scope.createModal.hide();
+          }
+        }, function(err) {
+          this.displayError(err);
+        });
+      };
+
+      this.deleteEvent = function() {
+        if (!$scope.calendarId) {
+          $scope.calendarId = calendarService.calendarId;
+        }
+        var path = '/calendars/' + $scope.calendarId + '/events';
+        calendarService.remove(path, $scope.event).then(function(response) {
+          if ($scope.activitystream) {
+            $rootScope.$emit('message:posted', {
+              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+              id: response.headers('ESN-Message-Id')
+            });
+          }
+
+          notificationFactory.weakInfo('Event deleted', $scope.event.title + ' is deleted');
+          if ($scope.createModal) {
+            $scope.createModal.hide();
+          }
+        });
+      };
+
+      this.modifyEvent = function() {
+        if (!$scope.calendarId) {
+          $scope.calendarId = calendarService.calendarId;
+        }
+        var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.event.id + '.ics';
+
+        calendarService.modify(path, $scope.event).then(function(response) {
+          if ($scope.activitystream) {
+            $rootScope.$emit('message:posted', {
+              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+              id: response.headers('ESN-Message-Id')
+            });
+          }
+
+          notificationFactory.weakInfo('Event modified', $scope.event.title + ' is modified');
+          if ($scope.createModal) {
+            $scope.createModal.hide();
+          }
+        });
+      };
+
+      this.resetEvent = function() {
+        $scope.rows = 1;
+        $scope.event = {
+          startDate: dateService.getNewDate(),
+          endDate: dateService.getNewEndDate(),
+          diff: 1,
+          allDay: false
+        };
+      };
+
+      this.getMinDate = function() {
+        if ($scope.event.startDate) {
+          var date = new Date($scope.event.startDate.getTime());
+          date.setDate($scope.event.startDate.getDate() - 1);
+          return date;
+        }
+        return null;
+      };
+
+      this.onAllDayChecked = function() {
+        if ($scope.event.allDay) {
+          if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
+            $scope.event.endDate = moment($scope.event.startDate).add(1, 'days').toDate();
+          }
+        } else {
+          $scope.event.endDate = $scope.event.startDate;
+        }
+      };
+
+      this.onStartDateChange = function() {
+        var startDate = moment($scope.event.startDate);
+        var endDate = moment($scope.event.endDate);
+        if (startDate.isAfter(endDate)) {
+          startDate.add(1, 'hours');
+          $scope.event.endDate = startDate.toDate();
+        }
+      };
+
+      this.onStartTimeChange = function() {
+        if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
+          var startDate = moment($scope.event.startDate);
+          var endDate = moment($scope.event.endDate);
+          $scope.event.diff = endDate.diff(endDate, 'hours');
+
+          if (startDate.isAfter(endDate) || startDate.isSame(endDate)) {
+            startDate.add($scope.event.diff || 1, 'hours');
+            $scope.event.endDate = startDate.toDate();
+          } else {
+            endDate = moment(startDate);
+            endDate.add($scope.event.diff || 1, 'hours');
+            $scope.event.endDate = endDate.toDate();
+          }
+        }
+      };
+
+      this.onEndTimeChange = function() {
+
+        if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
+          var startDate = moment($scope.event.startDate);
+          var endDate = moment($scope.event.endDate);
+
+          if (endDate.isAfter(startDate)) {
+            $scope.event.diff = $scope.event.endDate.getHours() - $scope.event.startDate.getHours();
+          } else {
+            $scope.event.diff = 1;
+            endDate = moment(startDate);
+            endDate.add($scope.event.diff, 'hours');
+            $scope.event.endDate = endDate.toDate();
+          }
+        }
+      };
+    }])
 
   .controller('communityCalendarController', ['$rootScope', '$scope', 'community', 'calendarService', 'calendarEventSource', 'COMMUNITY_UI_CONFIG', function($rootScope, $scope, community, calendarService, calendarEventSource, COMMUNITY_UI_CONFIG) {
 
@@ -116,6 +274,14 @@ angular.module('esn.calendar')
       $scope.uiConfig.calendar.eventClick = $scope.eventClick;
       $scope.uiConfig.calendar.eventResize = $scope.eventDropAndResize;
       $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize;
+      $scope.uiConfig.calendar.select = function(start, end) {
+        $scope.event = {
+          startDate: start.toDate(),
+          endDate: end.toDate(),
+          allDay: !start.hasTime(end)
+        };
+        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
+      };
       $scope.eventSources = [calendarEventSource(user._id)];
 
       $rootScope.$on('modifiedCalendarItem', function(event, data) {

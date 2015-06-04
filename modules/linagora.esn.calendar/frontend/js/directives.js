@@ -83,7 +83,31 @@ angular.module('esn.calendar')
           '/calendar/views/partials/event-creation-wizard'
         ]);
         $rootScope.$on('modal.show', function() {
-          element.find('input[ng-model="event.title"]')[0].focus();
+          element.find('input[ng-model="event.title"]').focus();
+        });
+        $scope.rows = 1;
+      }
+      return {
+        restrict: 'E',
+        templateUrl: '/calendar/views/partials/event-create',
+        scope: {
+          user: '=',
+          domain: '=',
+          createModal: '=',
+          event: '='
+        },
+        link: link
+      };
+    }
+  ])
+  .directive('eventQuickFormWizard', ['widget.wizard', '$rootScope',
+    function(Wizard, $rootScope) {
+      function link($scope, element) {
+        $scope.wizard = new Wizard([
+          '/calendar/views/partials/event-quick-form-wizard'
+        ]);
+        $rootScope.$on('modal.show', function() {
+          element.find('input[ng-model="event.title"]').focus();
         });
         $scope.rows = 1;
       }
@@ -107,9 +131,9 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'notificationFactory', 'dateService', 'calendarEventSource', 'moment',
-    function(Wizard, $rootScope, $alert, calendarService, notificationFactory, dateService, calendarEventSource, moment) {
-      function link($scope, element) {
+  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'notificationFactory', 'dateService',
+    function(Wizard, $rootScope, $alert, calendarService, notificationFactory, dateService) {
+      function link($scope, element, attrs, controller) {
         $scope.rows = 1;
         if (!$scope.event) {
           $scope.event = {
@@ -131,169 +155,49 @@ angular.module('esn.calendar')
           }
         };
 
-        $scope.displayError = function(err) {
-          $alert({
-            content: err,
-            type: 'danger',
-            show: true,
-            position: 'bottom',
-            container: element.find('.event-create-error-message'),
-            duration: '2',
-            animation: 'am-flip-x'
-          });
-        };
-
-        $scope.addNewEvent = function() {
-          if (!$scope.event.title || $scope.event.title.trim().length === 0) {
-            $scope.displayError('You must define an event title');
-            return;
-          }
-          if (!$scope.calendarId) {
-            $scope.calendarId = calendarService.calendarId;
-          }
-          var event = $scope.event;
-          var path = '/calendars/' + $scope.calendarId + '/events';
-          var vcalendar = calendarService.shellToICAL(event);
-          calendarService.create(path, vcalendar).then(function(response) {
-            if ($scope.activitystream) {
-              $rootScope.$emit('message:posted', {
-                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-                id: response.headers('ESN-Message-Id')
-              });
-            }
-
-            notificationFactory.weakInfo('Event created', $scope.event.title + ' is created');
-            if ($scope.createModal) {
-              $scope.createModal.hide();
-            }
-          }, function(err) {
-            $scope.displayError(err);
-          });
-        };
-
-        $scope.deleteEvent = function() {
-          if (!$scope.calendarId) {
-            $scope.calendarId = calendarService.calendarId;
-          }
-          var path = '/calendars/' + $scope.calendarId + '/events';
-          calendarService.remove(path, $scope.event).then(function(response) {
-            if ($scope.activitystream) {
-              $rootScope.$emit('message:posted', {
-                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-                id: response.headers('ESN-Message-Id')
-              });
-            }
-
-            notificationFactory.weakInfo('Event deleted', $scope.event.title + ' is deleted');
-            if ($scope.createModal) {
-              $scope.createModal.hide();
-            }
-          });
-        };
-
-        $scope.modifyEvent = function() {
-          if (!$scope.calendarId) {
-            $scope.calendarId = calendarService.calendarId;
-          }
-          var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.event.id + '.ics';
-
-          calendarService.modify(path, $scope.event).then(function(response) {
-            if ($scope.activitystream) {
-              $rootScope.$emit('message:posted', {
-                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-                id: response.headers('ESN-Message-Id')
-              });
-            }
-
-            notificationFactory.weakInfo('Event modified', $scope.event.title + ' is modified');
-            if ($scope.createModal) {
-              $scope.createModal.hide();
-            }
-          });
-        };
-
-        $scope.resetEvent = function() {
-          $scope.rows = 1;
-          $scope.event = {
-            startDate: dateService.getNewDate(),
-            endDate: dateService.getNewEndDate(),
-            diff: 1,
-            allDay: false
-          };
-        };
-
-        $scope.getMinDate = function() {
-          if ($scope.event.startDate) {
-            var date = new Date($scope.event.startDate.getTime());
-            date.setDate($scope.event.startDate.getDate() - 1);
-            return date;
-          }
-          return null;
-        };
-
-        $scope.onAllDayChecked = function() {
-          if ($scope.event.allDay) {
-            if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
-              $scope.event.endDate = moment($scope.event.startDate).add(1, 'days').toDate();
-            }
-          } else {
-            $scope.event.endDate = $scope.event.startDate;
-          }
-        };
-
-        $scope.onStartDateChange = function() {
-          var startDate = moment($scope.event.startDate);
-          var endDate = moment($scope.event.endDate);
-
-          if (startDate.isAfter(endDate)) {
-            startDate.add(1, 'hours');
-            $scope.event.endDate = startDate.toDate();
-          }
-        };
-
-        $scope.onStartTimeChange = function() {
-
-          if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
-            var startDate = moment($scope.event.startDate);
-            var endDate = moment($scope.event.endDate);
-
-            if (startDate.isAfter(endDate) || startDate.isSame(endDate)) {
-              startDate.add($scope.event.diff || 1, 'hours');
-              $scope.event.endDate = startDate.toDate();
-            } else {
-              endDate = moment(startDate);
-              endDate.add($scope.event.diff || 1, 'hours');
-              $scope.event.endDate = endDate.toDate();
-            }
-          }
-        };
-
-        $scope.onEndTimeChange = function() {
-
-          if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
-            var startDate = moment($scope.event.startDate);
-            var endDate = moment($scope.event.endDate);
-
-            if (endDate.isAfter(startDate)) {
-              $scope.event.diff = $scope.event.endDate.getHours() - $scope.event.startDate.getHours();
-            } else {
-              $scope.event.diff = 1;
-              endDate = moment(startDate);
-              endDate.add($scope.event.diff, 'hours');
-              $scope.event.endDate = endDate.toDate();
-            }
-          }
-        };
+        $scope.addNewEvent = controller.addNewEvent;
+        $scope.deleteEvent = controller.deleteEvent;
+        $scope.modifyEvent = controller.modifyEvent;
+        $scope.resetEvent = controller.resetEvent;
+        $scope.getMinDate = controller.getMinDate;
+        $scope.onAllDayChecked = controller.onAllDayChecked;
+        $scope.onStartDateChange = controller.onStartDateChange;
+        $scope.onStartTimeChange = controller.onStartTimeChange;
+        $scope.onEndTimeChange = controller.onEndTimeChange;
       }
 
       return {
         restrict: 'E',
         replace: true,
+        controller: 'eventFormController',
         templateUrl: '/calendar/views/partials/event-form.html',
         link: link
       };
     }
   ])
+  .directive('eventQuickForm', function() {
+      function link($scope, element, attrs, controller) {
+
+        $scope.addNewEvent = controller.addNewEvent;
+        $scope.deleteEvent = controller.deleteEvent;
+        $scope.modifyEvent = controller.modifyEvent;
+        $scope.resetEvent = controller.resetEvent;
+        $scope.getMinDate = controller.getMinDate;
+        $scope.onAllDayChecked = controller.onAllDayChecked;
+        $scope.onStartDateChange = controller.onStartDateChange;
+        $scope.onStartTimeChange = controller.onStartTimeChange;
+        $scope.onEndTimeChange = controller.onEndTimeChange;
+      }
+
+      return {
+        restrict: 'E',
+        replace: true,
+        controller: 'eventFormController',
+        templateUrl: '/calendar/views/partials/event-quick-form.html',
+        link: link
+      };
+    }
+  )
   .directive('calendarNavbarLink', function() {
     return {
       restrict: 'E',
