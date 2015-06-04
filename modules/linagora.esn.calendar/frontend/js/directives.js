@@ -93,7 +93,8 @@ angular.module('esn.calendar')
         scope: {
           user: '=',
           domain: '=',
-          createModal: '='
+          createModal: '=',
+          event: '='
         },
         link: link
       };
@@ -106,16 +107,20 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'dateService', 'calendarEventSource', 'moment',
-    function(Wizard, $rootScope, $alert, calendarService, dateService, calendarEventSource, moment) {
+  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'notificationFactory', 'dateService', 'calendarEventSource', 'moment',
+    function(Wizard, $rootScope, $alert, calendarService, notificationFactory, dateService, calendarEventSource, moment) {
       function link($scope, element) {
         $scope.rows = 1;
-        $scope.event = {
-          startDate: dateService.getNewDate(),
-          endDate: dateService.getNewEndDate(),
-          allday: false
-        };
-
+        if (!$scope.event) {
+          $scope.event = {
+            startDate: dateService.getNewDate(),
+            endDate: dateService.getNewEndDate(),
+            allDay: false
+          };
+          $scope.modifyEventAction = false;
+        } else {
+          $scope.modifyEventAction = true;
+        }
         $scope.expand = function() {
           $scope.rows = 5;
         };
@@ -144,7 +149,7 @@ angular.module('esn.calendar')
             return;
           }
           if (!$scope.calendarId) {
-             $scope.calendarId = calendarService.calendarId;
+            $scope.calendarId = calendarService.calendarId;
           }
           var event = $scope.event;
           var path = '/calendars/' + $scope.calendarId + '/events';
@@ -157,6 +162,7 @@ angular.module('esn.calendar')
               });
             }
 
+            notificationFactory.weakInfo('Event created', $scope.event.title + ' is created');
             if ($scope.createModal) {
               $scope.createModal.hide();
             }
@@ -164,13 +170,55 @@ angular.module('esn.calendar')
             $scope.displayError(err);
           });
         };
+
+        $scope.deleteEvent = function() {
+          if (!$scope.calendarId) {
+            $scope.calendarId = calendarService.calendarId;
+          }
+          var path = '/calendars/' + $scope.calendarId + '/events';
+          calendarService.remove(path, $scope.event).then(function(response) {
+            if ($scope.activitystream) {
+              $rootScope.$emit('message:posted', {
+                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+                id: response.headers('ESN-Message-Id')
+              });
+            }
+
+            notificationFactory.weakInfo('Event deleted', $scope.event.title + ' is deleted');
+            if ($scope.createModal) {
+              $scope.createModal.hide();
+            }
+          });
+        };
+
+        $scope.modifyEvent = function() {
+          if (!$scope.calendarId) {
+            $scope.calendarId = calendarService.calendarId;
+          }
+          var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.event.id + '.ics';
+
+          calendarService.modify(path, $scope.event).then(function(response) {
+            if ($scope.activitystream) {
+              $rootScope.$emit('message:posted', {
+                activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+                id: response.headers('ESN-Message-Id')
+              });
+            }
+
+            notificationFactory.weakInfo('Event modified', $scope.event.title + ' is modified');
+            if ($scope.createModal) {
+              $scope.createModal.hide();
+            }
+          });
+        };
+
         $scope.resetEvent = function() {
           $scope.rows = 1;
           $scope.event = {
             startDate: dateService.getNewDate(),
             endDate: dateService.getNewEndDate(),
             diff: 1,
-            allday: false
+            allDay: false
           };
         };
 
@@ -181,6 +229,16 @@ angular.module('esn.calendar')
             return date;
           }
           return null;
+        };
+
+        $scope.onAllDayChecked = function() {
+          if ($scope.event.allDay) {
+            if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
+              $scope.event.endDate = moment($scope.event.startDate).add(1, 'days').toDate();
+            }
+          } else {
+            $scope.event.endDate = $scope.event.startDate;
+          }
         };
 
         $scope.onStartDateChange = function() {

@@ -14,7 +14,7 @@ form.whatsup-form.form-container(name='eventform', role='form')
           span.input-group-addon
             i.fa.fa-calendar.fa-fw
           input(type="text", size="10", class="form-control", ng-model="event.startDate", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", bs-datepicker)
-        .input-group.margin-bottom-sm(ng-hide='event.allday')
+        .input-group.margin-bottom-sm(ng-hide='event.allDay')
           span.input-group-addon
             i.fa.fa-clock-o.fa-fw
           input(type="text", size="10", class="form-control", ng-model="event.startDate", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartTimeChange()", bs-timepicker)
@@ -24,7 +24,7 @@ form.whatsup-form.form-container(name='eventform', role='form')
           span.input-group-addon
             i.fa.fa-calendar.fa-fw
           input(type="text", size="10", class="form-control", ng-model="event.endDate", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", bs-datepicker)
-        .input-group.margin-bottom-sm(ng-hide='event.allday')
+        .input-group.margin-bottom-sm(ng-hide='event.allDay')
           span.input-group-addon
             i.fa.fa-clock-o.fa-fw
           input(type="text", size="10", class="form-control", ng-model="event.endDate", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onEndTimeChange()", bs-timepicker)
@@ -32,11 +32,13 @@ form.whatsup-form.form-container(name='eventform', role='form')
       .col-xs-2.nopadding
         .checkbox
           label
-            input(type="checkbox", ng-model='event.allday' , style='margin-left:10px; margin-right:10px')
+            input(type="checkbox", ng-model='event.allDay' , style='margin-left:10px; margin-right:10px', ng-change="onAllDayChecked()")
             | #{__('All day')}
   .form-group
     textarea.event-input.form-control(ng-model='event.description', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Give an event description')}", rows="{{rows}}")
   .form-group
     .text-left
-      button.btn.btn-primary(type='submit', ng-click='addNewEvent()', style='margin-right:10px;') #{__('Create')}
-      button.btn.btn-default(type='reset', ng-click="createModal.hide()", ng-hide="sending") #{__('Cancel')}
+      button.btn.btn-primary.submit-button(type='button', ng-click='addNewEvent()', ng-hide="modifyEventAction") #{__('Create')}
+      button.btn.btn-default.submit-button(type='button', ng-click="modifyEvent()", ng-hide="!modifyEventAction") #{__('Modify')}
+      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-hide="!modifyEventAction") #{__('Delete')}
+      button.btn.btn-default.submit-button(type='button', ng-click="createModal.hide()") #{__('Cancel')}
