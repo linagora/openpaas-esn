@@ -71,14 +71,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
       },
       link: function($scope) {
 
-        $scope.items = (function(str) {
-          var result = [];
-          for (var i = 0; i < str.length; i++) {
-            var nextChar = str.charAt(i);
-            result.push(nextChar);
-          }
-          return result;
-        })($scope.keys);
+        $scope.items = Array.prototype.slice.call($scope.keys);
 
         $scope.goToSection = function(id) {
           var prefix = $scope.prefix || 'scrollto_';

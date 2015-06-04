@@ -16,30 +16,9 @@ angular.module('esn.array-helper', [])
       angular.copy(array, result);
 
       result.sort(function(a, b) {
-
-        if (!a[field] && !b[field]) {
-          return 0;
-        }
-
-        if (a[field] && !b[field]) {
-          return 1;
-        }
-
-        if (!a[field] && b[field]) {
-          return -1;
-        }
-
-        var nameA = a[field].toUpperCase();
-        var nameB = b[field].toUpperCase();
-        if (nameA < nameB) {
-          return -1;
-        }
-
-        if (nameA > nameB) {
-          return 1;
-        }
-
-        return 0;
+        var nameA = a[field] ? a[field].toUpperCase() : '';
+        var nameB = b[field] ? b[field].toUpperCase() : '';
+        return (nameA > nameB) - (nameB > nameA);
       });
       return result;
     }
