@@ -1,9 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .controller('contactController', ['$scope', 'user', function($scope, user) {
-    $scope.user = user;
-  }])
   .controller('newContactController', ['$scope', '$route', '$location', 'contactsService', 'notificationFactory', function($scope, $route, $location, contactsService, notificationFactory) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
@@ -30,6 +27,7 @@ angular.module('linagora.esn.contact')
     $scope.close = function() {
       $location.path('/contacts');
     };
+
     $scope.accept = function() {
       var vcard = contactsService.shellToVCARD($scope.contact);
       contactsService.modify($scope.contact.path, vcard, $scope.contact.etag).then(function() {
@@ -48,4 +46,25 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.init();
+  }])
+  .controller('contactsListController', ['$log', '$scope', '$document', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($log, $scope, $document, contactsService, CategoryService, ALPHA_ITEMS, user) {
+    $scope.user = user;
+    $scope.bookId = $scope.user._id;
+    $scope.keys = ALPHA_ITEMS;
+    $scope.sortBy = 'firstName';
+    $scope.prefix = 'contacts_';
+
+    $scope.categories = new CategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '-'});
+
+    $scope.loadContacts = function() {
+      var path = '/addressbooks/' + $scope.user._id + '/contacts';
+      contactsService.list(path).then(function(data) {
+        $scope.categories.addItems(data);
+        $scope.sorted_contacts = $scope.categories.get();
+      }, function(err) {
+        $log.error('Can not get contacts', err);
+      });
+    };
+
+    $scope.loadContacts();
   }]);

@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
-  'restangular'
+  'restangular', 'esn.alphalist'
 ]).config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
   $routeProvider.when('/contacts', {
     templateUrl: '/contacts/views/contacts',
-    controller: 'contactController',
+    controller: 'contactsListController',
     resolve: {
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')

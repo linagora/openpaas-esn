@@ -92,4 +92,11 @@ angular.module('linagora.esn.contact')
       },
       templateUrl: '/contacts/views/partials/contact-display.html'
     };
-  });
+  })
+
+  .directive('contactListItem', [function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contacts/views/partials/contact-list-item.html'
+    };
+  }]);

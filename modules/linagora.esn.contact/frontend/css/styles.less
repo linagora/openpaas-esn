@@ -1,14 +1,7 @@
-
-// TODO core styles need to put variables in a separate file
-@blue: #4982eb;
-@grey: #eff0f4;
-@yellow: #eecb25;
-@red: #a94442;
-@black: #232323;
-@orange: #8a6d3b;
-
 // TODO we should provide an externally defined variable with the base path
 @import "../../../../frontend/components/bootstrap/less/variables";
+@import "../../../../frontend/css/variables";
+@import "../../../../frontend/css/commons";
 
 .contact-heading {
   display: inline-block;
@@ -20,6 +13,12 @@
 }
 
 .contact-panel {
+
+  hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
   .contact-heading {
     width: 100%;
 
@@ -91,5 +90,70 @@ contact-display {
 
   input.ng-invalid-required, input.ng-invalid-email {
     border-color: @red;
+  }
+}
+
+.contact-list-item {
+  overflow: visible;
+  .ResizeImage(@defaultImageSizeMedium, auto);
+
+  .contact-actions {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .action-item {
+    padding-left: 5px;
+    .dropdown {
+      position: absolute;
+    }
+    button.btn {
+      float: right;
+    }
+    a {
+      cursor: pointer;
+    }
+    a.write {
+      color: @red
+    }
+    a.call {
+      color: @dark-green
+    }
+    a.moreactions {
+      color: @black
+    }
+  }
+}
+
+.alphascroll {
+
+  ul {
+
+    :hover {
+      transform: scale(1.2);
+    }
+
+    list-style: none;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    li {
+      padding-top: 0px;
+      padding-bottom: 0px;
+
+      a {
+        color: @black;
+        cursor: pointer;
+        text-decoration: none;
+        opacity: 0.6;
+      }
+
+      a.active {
+        color: @black;
+        font-weight: bold;
+        font-size: 1.2em;
+        opacity: 1;
+      }
+    }
   }
 }

@@ -79,6 +79,7 @@ html
     script(src='/components/arrive/minified/arrive.min.js')
     script(src='/components/bootstrap-material-design/dist/js/material.min.js')
     script(src='/components/bootstrap-material-design/dist/js/ripples.min.js')
+    script(src='/components/angular-scroll/angular-scroll.min.js')
     +injectAngularFromModules('esn', injections)
     +injectJSFromModules('esn', injections)
     script(src='js/esn/app.js')
@@ -131,6 +132,8 @@ html
     script(src='js/modules/localstorage.js')
     script(src='js/modules/poll.js')
     script(src='js/material.js')
+    script(src='js/modules/array-helper.js')
+    script(src='js/modules/alphalist.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
       button(type='button' class='btn btn-lg btn-primary feedback button-popup' data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body') #{__('Feedback')}

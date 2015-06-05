@@ -46,6 +46,7 @@ module.exports = function(config) {
       'frontend/components/angular-markdown-directive/markdown.js',
       'frontend/components/Chart.js/Chart.min.js',
       'frontend/components/angular-chart.js/dist/angular-chart.js',
+      'frontend/components/angular-scroll/angular-scroll.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/member/**/*.jade',
