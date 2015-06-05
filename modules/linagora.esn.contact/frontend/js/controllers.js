@@ -8,6 +8,7 @@ angular.module('linagora.esn.contact')
     $scope.close = function() {
       $location.path('/contacts');
     };
+
     $scope.accept = function() {
       var vcard = contactsService.shellToVCARD($scope.contact);
       var path = '/addressbooks/' + $scope.bookId + '/contacts';
@@ -67,4 +68,26 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.loadContacts();
+  }])
+  .controller('contactAvatarModalController', ['$scope', 'selectionService', function($scope, selectionService) {
+    $scope.imageSelected = function() {
+      return !!selectionService.getImage();
+    };
+
+    $scope.saveContactAvatar = function() {
+      if (selectionService.getImage()) {
+        $scope.loading = true;
+        selectionService.getBlob('image/png', function(blob) {
+          var reader = new FileReader();
+          reader.onloadend = function() {
+            $scope.contact.photo = reader.result;
+            selectionService.clear();
+            $scope.loading = false;
+            $scope.modal.hide();
+            $scope.$apply();
+          };
+          reader.readAsDataURL(blob);
+        });
+      }
+    };
   }]);

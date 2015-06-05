@@ -11,8 +11,8 @@
             input.bigger.form-control(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
         .col-xs-4
           .row
-            .col-xs-12.photo
-              img(src='/images/user.png')
+            .col-xs-12.photo(modal-launcher, template="contacts/views/partials/contact-avatar-modal", ng-click="showModal()")
+              img(ng-src='{{contact.photo || "/images/user.png"}}')
       .form-group(ng-show='contact.org')
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
