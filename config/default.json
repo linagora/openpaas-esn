@@ -51,7 +51,7 @@
   "modules": [
     "linagora.esn.davserver",
     "linagora.esn.calendar",
-    "linagora.esn.awesomeappstore",
+    "linagora.esn.appstore",
     "linagora.esn.core.webserver",
     "linagora.esn.core.wsserver",
     "linagora.esn.project",
