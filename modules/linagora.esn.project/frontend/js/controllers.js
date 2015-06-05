@@ -75,8 +75,8 @@ angular.module('esn.project')
 
         result.forEach(function(element) {
           element.objectType = 'project';
-          element.href = '/#/projects/' + element.target._id;
-          element.img = '/api/projects/' + element.target._id + '/avatar';
+          element.href = '/#/project/' + element.target._id;
+          element.img = '/project/api/projects/' + element.target._id + '/avatar';
 
           var registered = ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
           if (registered) {

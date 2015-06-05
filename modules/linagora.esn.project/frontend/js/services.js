@@ -4,16 +4,22 @@ angular.module('esn.project')
 .run(['objectTypeResolver', 'objectTypeAdapter', 'projectAPI', 'projectAdapterService', 'Restangular', function(objectTypeResolver, objectTypeAdapter, projectAPI, projectAdapterService, Restangular) {
   objectTypeResolver.register('project', projectAPI.get);
   objectTypeAdapter.register('project', projectAdapterService);
-  Restangular.extendModel('projects', function(model) {
+  Restangular.extendModel('project', function(model) {
     return projectAdapterService(model);
   });
 }])
+.factory('ProjectRestangular', function(Restangular) {
+  return Restangular.withConfig(function(RestangularConfigurer) {
+    RestangularConfigurer.setBaseUrl('/project/api');
+    RestangularConfigurer.setFullResponse(true);
+  });
+})
 .factory('projectAdapterService', function() {
   return function(project) {
     project.objectType = 'project';
-    project.htmlUrl = '/#/projects/' + project._id;
-    project.url = '/#/projects/' + project._id;
-    project.avatarUrl = '/api/projects/' + project._id + '/avatar';
+    project.htmlUrl = '/#/project/' + project._id;
+    project.url = '/#/project/' + project._id;
+    project.avatarUrl = '/project/api/projects/' + project._id + '/avatar';
     project.displayName = project.title;
     return project;
   };
@@ -99,34 +105,34 @@ function($q, $log, $timeout, projectAPI) {
   }
   return createProject;
 }])
-  .factory('projectAPI', ['Restangular', '$upload', function(Restangular, $upload) {
+  .factory('projectAPI', ['ProjectRestangular', '$upload', function(ProjectRestangular, $upload) {
     function list(domain, options) {
       var query = options || {};
       query.domain_id = domain;
-      return Restangular.all('projects').getList(query);
+      return ProjectRestangular.all('projects').getList(query);
     }
 
     function get(id) {
-      return Restangular.one('projects', id).get();
+      return ProjectRestangular.one('projects', id).get();
     }
 
     function addMember(id, member) {
-      return Restangular.one('projects', id).all('members').post(member);
+      return ProjectRestangular.one('projects', id).all('members').post(member);
     }
 
     function getInvitableMembers(id, query) {
       query = query || {};
-      return Restangular.one('projects', id).all('invitable').getList(query);
+      return ProjectRestangular.one('projects', id).all('invitable').getList(query);
     }
 
     function create(body) {
-      return Restangular.all('projects').post(body);
+      return ProjectRestangular.all('projects').post(body);
     }
 
     function uploadAvatar(id, blob, mime) {
       return $upload.http({
         method: 'POST',
-        url: '/api/projects/' + id + '/avatar',
+        url: '/project/api/projects/' + id + '/avatar',
         headers: {'Content-Type': mime},
         data: blob,
         params: {mimetype: mime, size: blob.size},

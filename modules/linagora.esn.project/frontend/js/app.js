@@ -15,16 +15,16 @@ angular.module('esn.project', [
 ])
   .config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
 
-    $routeProvider.when('/projects/:project_id', {
-      templateUrl: '/projects/views/partials/project',
+    $routeProvider.when('/project/:project_id', {
+      templateUrl: '/project/views/partials/project',
       controller: 'projectController',
       resolve: {
-        project: routeResolver.api('projectAPI', 'get', 'project_id', '/projects')
+        project: routeResolver.api('projectAPI', 'get', 'project_id', '/project')
       }
     });
 
-    $routeProvider.when('/projects', {
-      templateUrl: '/projects/views/projects',
+    $routeProvider.when('/project', {
+      templateUrl: '/project/views/projects',
       controller: 'projectsController',
       resolve: {
         domain: routeResolver.session('domain'),
@@ -33,10 +33,10 @@ angular.module('esn.project', [
     });
 
     $routeProvider.when('/collaborations/project/:project_id/members', {
-      templateUrl: '/projects/views/project-members',
+      templateUrl: '/project/views/project-members',
       controller: 'projectController',
       resolve: {
-        project: routeResolver.api('projectAPI', 'get', 'project_id', '/projects')
+        project: routeResolver.api('projectAPI', 'get', 'project_id', '/project')
       }
     });
   }])

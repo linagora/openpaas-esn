@@ -7,9 +7,9 @@ angular.module('esn.project')
 function(Wizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
   function link($scope, element, attrs) {
     $scope.wizard = new Wizard([
-      '/projects/views/project-creation-wizard-1',
-      '/projects/views/project-creation-wizard-2',
-      '/projects/views/project-creation-wizard-3'
+      '/project/views/project-creation-wizard-1',
+      '/project/views/project-creation-wizard-2',
+      '/project/views/project-creation-wizard-3'
       ]);
       selectionService.clear();
 
@@ -55,7 +55,7 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
           if ($scope.createModal) {
             $scope.createModal.hide();
           }
-          $location.path('/projects/' + id);
+          $location.path('/project/' + id);
         }, 1000);
       }
 
@@ -74,7 +74,7 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
 
     return {
       restrict: 'E',
-      templateUrl: '/projects/views/project-create.html',
+      templateUrl: '/project/views/project-create.html',
       scope: {
         user: '=',
         domain: '=',
@@ -111,7 +111,7 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
         scope: {
           project: '='
         },
-        templateUrl: '/projects/views/project-add-community-widget.html',
+        templateUrl: '/project/views/project-add-community-widget.html',
         link: function($scope) {
           $scope.placeholder = 'Enter community name';
           $scope.displayProperty = 'displayName';
@@ -175,26 +175,26 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       scope: {
         project: '='
       },
-      templateUrl: '/projects/views/project-description.html'
+      templateUrl: '/project/views/project-description.html'
     };
   })
   .directive('projectDisplay', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/projects/views/project-display.html'
+      templateUrl: '/project/views/project-display.html'
     };
   })
   .directive('listProjectActivityStreams', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/projects/views/list-project-activity-streams.html'
+      templateUrl: '/project/views/list-project-activity-streams.html'
     };
   })
   .directive('projectCreateButton', function() {
     return {
       restrict: 'E',
-      templateUrl: '/projects/views/project-create-button.html'
+      templateUrl: '/project/views/project-create-button.html'
     };
   });

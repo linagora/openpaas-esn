@@ -30,11 +30,11 @@ function projectApplication(projectLib, dependencies) {
 
   app.use(i18n.init);
 
-  app.use('/projects/css', lessMiddleware(
+  app.use('/css', lessMiddleware(
     CSS_PATH,
     process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production.options : lessMiddlewareConfig.dev.options));
 
-  app.use('/projects', express.static(FRONTEND_PATH));
+  app.use(express.static(FRONTEND_PATH));
   app.set('views', FRONTEND_PATH + '/views');
   require('./routes')(app, projectLib, dependencies);
   return app;
