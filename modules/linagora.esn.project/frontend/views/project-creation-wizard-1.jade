@@ -4,54 +4,54 @@
 .modal-body
   form(name='projectForm', ng-hide="sending")
     .form-group.has-feedback(ng-class='{"has-error": projectForm.title.$error.unique}')
-      label #{__('The project title')}&nbsp;*
-      input.form-control(type='text', ng-model='project.title', ng-model-options="{debounce: 1000}", id="title", name='title', autofocus=true, required, ensure-unique-project-title, domain-id='{{domain._id}}')
+      input.form-control.floating-label(type='text', ng-model='project.title', ng-model-options="{debounce: 1000}", id="title", name='title', placeholder="#{__('The project title')}", autofocus=true, required, ensure-unique-project-title, domain-id='{{domain._id}}')
       span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='projectForm.title.$pending.unique')
       span.help-block(ng-show='projectForm.title.$error.unique') #{__('A project with that title already exists. Please choose another one.')}
       
-    .form-group.has-feedback(ng-class='{"has-error": projectForm.title.$error.unique}')
+    .form-group(ng-class='{"has-error": projectForm.title.$error.unique}')
       label #{__('The project dates')}&nbsp;*
-      .container-fluid
-        .row
-          .col-sm-6
-            .form-group
-              .input-group 
-                .input-group-addon
-                  i.fa.fa-calendar
-                input.form-control(type="text", ng-model='project.startDate', name='startDate', data-max-date="{{project.endDate}}", placeholder='project start date', data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker, required)
-          .col-sm-6
-            .form-group
-              .input-group  
-                .input-group-addon
-                  i.fa.fa-calendar
-                input.form-control(type="text", ng-model='project.endDate', name='endDate', data-min-date="{{project.startDate}}", placeholder='project end date', data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker, required)
-        .row
-          .col-sm-10.col-sm-offset-1
-            span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.startDate.$dirty && projectForm.startDate.$invalid') #{__('The start date is required, should be a date, and should append before the end date.')}
-            span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.endDate.$dirty && projectForm.endDate.$invalid') #{__('The end date is required, should be a date, and should append after the start date.')}
+      .row
+        .col-xs-5.col-xs-offset-1.date-wrapper
+          .input-group
+            .input-group-addon
+              i.fa.fa-calendar
+            input.form-control(type="text", ng-model='project.startDate', name='startDate', data-max-date="{{project.endDate}}", placeholder='project start date', data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker, required)
+        .col-xs-5.date-wrapper
+          .input-group
+            .input-group-addon
+              i.fa.fa-calendar
+            input.form-control(type="text", ng-model='project.endDate', name='endDate', data-min-date="{{project.startDate}}", placeholder='project end date', data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker, required)
+      .row
+        .col-sm-10.col-sm-offset-1
+          span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.startDate.$dirty && projectForm.startDate.$invalid') #{__('The start date is required, should be a date, and should append before the end date.')}
+          span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.endDate.$dirty && projectForm.endDate.$invalid') #{__('The end date is required, should be a date, and should append after the start date.')}
     .form-group()
       fieldset
         label #{__('Visiblity')}&nbsp;
-        .radio
-          label
-            input(type="radio", ng-model="project.type", value="open", ng-checked="true")
-            span.label.label-default(ng-class='{"community-highlight-label" : project.type==="open"}')  #{__('Open')}
-            span.help-block(ng-class='{"community-highlight-help" : project.type==="open"}') #{__('Publish content from and for everyone. Each user can freely read, join and participate to the project')}.
-        .radio
-          label
-            input(type="radio", ng-model="project.type", value="restricted")
-            span.label.label-default(ng-class='{"community-highlight-label" : project.type==="restricted"}') #{__('Restricted')}
-            span.help-block(ng-class='{"community-highlight-help" : project.type==="restricted"}') #{__('Content is freely accessible to all users, but only members can participate')}.
-        .radio
-          label
-            input(type="radio", ng-model="project.type", value="private")
-            span.label.label-default(ng-class='{"community-highlight-label" : project.type==="private"}') #{__('Private')}
-            span.help-block(ng-class='{"community-highlight-help" : project.type==="private"}') #{__('Only members can read and publish contents in this project. Each user can request membership')}.
-        .radio.disabled
-          label
-            input(type="radio", ng-model="project.type", value="confidential" disabled)
-            span.label.label-default(ng-class='{"community-highlight-label" : project.type==="confidential"}') #{__('Confidential')}
-            span.help-block(ng-class='{"community-highlight-help" : project.type==="confidential"}') #{__('Only members of this project can read and publish content. All informations about this project are hidden to other users. Membership is only available by invitation')}.
+        .row
+          .radio.radio-primary.col-xs-10.col-xs-offset-1.text-justify
+            label
+              input(type="radio", ng-model="project.type", value="open", ng-checked="true")
+              .label(ng-class='{"label-primary" : project.type==="open", "label-default": project.type!=="open"}')  #{__('Open')}
+              p.description(ng-class='{"text-muted" : project.type!=="open"}') #{__('Publish content from and for everyone. Each user can freely read, join and participate to the project')}.
+        .row
+          .radio.radio-primary.col-xs-10.col-xs-offset-1.text-justify
+            label
+              input(type="radio", ng-model="project.type", value="restricted")
+              .label(ng-class='{"label-primary" : project.type==="restricted", "label-default": project.type!=="restricted"}') #{__('Restricted')}
+              p.description(ng-class='{"text-muted" : project.type!=="restricted"}') #{__('Content is freely accessible to all users, but only members can participate')}.
+        .row
+          .radio.radio-primary.col-xs-10.col-xs-offset-1.text-justify
+            label
+              input(type="radio", ng-model="project.type", value="private")
+              .label(ng-class='{"label-primary" : project.type==="private", "label-default": project.type!=="private"}') #{__('Private')}
+              p.description(ng-class='{"text-muted" : project.type!=="private"}') #{__('Only members can read and publish contents in this project. Each user can request membership')}.
+        .row
+          .radio.radio-primary.disabled.col-xs-offset-1.col-xs-10.text-justify
+            label
+              input(type="radio", ng-model="project.type", value="confidential" disabled)
+              .label #{__('Confidential')}
+              p.description(ng-class='{"text-muted" : project.type!=="confidential"}') #{__('Only members of this project can read and publish content. All informations about this project are hidden to other users. Membership is only available by invitation')}.
 .modal-footer(ng-hide="sending")
   button.btn.btn-secondary-dark(type="button", ng-disabled="projectForm.$invalid || projectForm.$pending", ng-click="wizard.nextStep()")
     | #{__('Next')} &nbsp;
