@@ -37,6 +37,7 @@ angular.module('esnApp', [
   'esn.markdown-parser',
   'esn.widget.helper',
   'esn.twitter',
+  'esn.ui',
   'esn.oembed',
   'esn.oembed.youtube',
   'esn.oembed.instagram',

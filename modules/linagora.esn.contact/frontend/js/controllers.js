@@ -48,7 +48,7 @@ angular.module('linagora.esn.contact')
 
     $scope.init();
   }])
-  .controller('contactsListController', ['$log', '$scope', '$document', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($log, $scope, $document, contactsService, CategoryService, ALPHA_ITEMS, user) {
+  .controller('contactsListController', ['$log', '$scope', '$location', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($log, $scope, $location, contactsService, CategoryService, ALPHA_ITEMS, user) {
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
@@ -65,6 +65,10 @@ angular.module('linagora.esn.contact')
       }, function(err) {
         $log.error('Can not get contacts', err);
       });
+
+      $scope.openContactCreation = function() {
+        $location.path('/contact/new/' + $scope.bookId);
+      };
     };
 
     $scope.loadContacts();
