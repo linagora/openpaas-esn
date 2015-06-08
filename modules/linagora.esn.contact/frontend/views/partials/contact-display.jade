@@ -4,11 +4,11 @@
       .row
         .col-xs-8
           .form-group
-            input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-required='!contact.lastName')
+            input.bigger.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-required='!contact.lastName')
           .form-group
-            input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-required='!contact.firstName')
+            input.bigger.form-control.floating-label(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-required='!contact.firstName')
           .form-group
-            input.bigger.form-control(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
+            input.bigger.form-control.floating-label(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
         .col-xs-4
           .row
             .col-xs-12.photo(modal-launcher, template="contacts/views/partials/contact-avatar-modal", ng-click="showModal()")

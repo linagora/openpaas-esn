@@ -5,7 +5,10 @@ form.col-xs-12.esn-panel.contact-display-panel(ng-submit='accept()')
       span.contact-heading
         | #{__('Create New Contact')}
     .col-sm-5.action-bar
-      button.btn.icon-btn.accept-btn.fa.fa-check-circle-o(type='submit')
-      button.btn.icon-btn.starred-btn.fa.fa-star(type='button', ng-click='contact.starred = !contact.starred', ng-class='{ checked: contact.starred }')
-      button.btn.icon-btn.cancel-btn.fa.fa-times(type='button', ng-click='close()')
+      button.btn.btn-primary.btn-flat.accept-btn
+        i.mdi-action-done
+      button.btn.btn-primary.btn-flat.starred-btn(type='button', ng-click='contact.starred = !contact.starred')
+        i.mdi-action-grade(ng-class='{ checked: contact.starred }')
+      button.btn.btn-primary.btn-flat.cancel-btn(type='button', ng-click='close()')
+        i.mdi-content-clear
   contact-display(contact='contact')
