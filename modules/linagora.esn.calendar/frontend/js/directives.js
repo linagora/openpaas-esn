@@ -131,8 +131,8 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['widget.wizard', '$rootScope', '$alert', 'calendarService', 'notificationFactory', 'dateService',
-    function(Wizard, $rootScope, $alert, calendarService, notificationFactory, dateService) {
+  .directive('eventForm', ['$q', '$rootScope', '$alert', 'widget.wizard', 'calendarService', 'notificationFactory', 'dateService', 'domainAPI', 'session',
+    function($q, $rootScope, $alert, Wizard, calendarService, notificationFactory, dateService, domainAPI, session) {
       function link($scope, element, attrs, controller) {
         $scope.rows = 1;
         if (!$scope.event) {
@@ -164,6 +164,26 @@ angular.module('esn.calendar')
         $scope.onStartDateChange = controller.onStartDateChange;
         $scope.onStartTimeChange = controller.onStartTimeChange;
         $scope.onEndTimeChange = controller.onEndTimeChange;
+
+        $scope.getInvitableAttendees = function(query) {
+          $scope.query = query;
+          var deferred = $q.defer();
+          domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
+            function(response) {
+              response.data.forEach(function(user) {
+                if (user.firstname && user.lastname) {
+                  user.displayName = user.firstname + ' ' + user.lastname;
+                }
+                else {
+                  user.displayName = user.emails[0];
+                }
+                $scope.query = '';
+              });
+              deferred.resolve(response);
+            }, deferred.reject
+          );
+          return deferred.promise;
+        };
       }
 
       return {
