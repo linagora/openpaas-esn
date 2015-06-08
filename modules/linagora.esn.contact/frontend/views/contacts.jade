@@ -3,7 +3,7 @@
     span.contact-heading
       i.fa.fa-user
       | #{__('Contacts')}
-      a.btn.icon-btn.fa.fa-plus.addcontact-btn(type='button', ng-href='#/contact/new/{{bookId}}')
+      a.btn.icon-btn.fa.fa-plus.addcontact-btn(type='button', ng-href='#/contacts/new/{{::bookId}}')
 
   .row
     .col-xs-11.nopadding
@@ -12,7 +12,7 @@
           h2.letter-divider {{letter}}
           .row(ng-repeat="contact in contacts")
             hr
-            contact-list-item
+            contact-list-item(contact='contact', book-id="bookId")
         .vertiz-space
     .col-xs-1
       alpha-menu(keys="keys", prefix="prefix")

@@ -1,29 +1,29 @@
 div.contact-list-item
   .col-xs-2
-    a(ng-href='#/contacts/{{bookId}}/{{contact.uid}}')
+    a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
       img.media-object(src='/images/user.png')
 
   .col-xs-7
 
-      h4.media-heading {{contact.firstName}} {{contact.lastName}}
+      h4.media-heading {{::contact.displayName}}
 
       .row
         .col-xs-7.nopadding.ellipsis-show-xs
-          span
+          span(ng-if='email')
             i.fa.fa-envelope-o
-            a(href='mailto:{{contact.emails[0]}}') {{contact.emails[0]}}
+            a(ng-href="mailto:{{::email}}") {{::email}}
 
         .col-xs-5.nopadding.ellipsis
-          span.hidden-xs
+          span.hidden-xs(ng-if='tel')
             i.fa.fa-phone
-            | {{contact.phone}}
+            | {{::tel}}
 
   .col-xs-3.contact-actions
 
     .row.vertical-centered.pull-right
 
       .col-xs-4.action-item.hidden-xs
-        a.write(ng-href='#/contacts/{{bookId}}/{{contact.uid}}')
+        a.write(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
           i.fa.fa-2x.fa-pencil
 
       .col-xs-4.action-item.hidden-xs
