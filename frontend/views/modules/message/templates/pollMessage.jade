@@ -19,9 +19,10 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
           text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
         div.container-fluid(ng-show='pollContext.hasVoted === false')
           form.horizontal-form
-            .form-group.radio(ng-repeat='choice in message.pollChoices')
-              input(type='radio' name='{{::message._id}}' ng-model='pollContext.vote' value='{{$index}}')
-              | {{choice.label}}
+            .form-group.radio.radio-primary(ng-repeat='choice in message.pollChoices')
+              label
+                input(type='radio' name='{{::message._id}}' ng-model='pollContext.vote' value='{{$index}}')
+                | {{choice.label}}
             button(type='submit', class='btn btn-primary vote-button' ng-click='recordVote()' ng-disabled='pollContext.vote === null') #{__('Vote')}
         table.table.table-condensed.table-responsive(ng-show='pollContext.hasVoted === true')
           thead
