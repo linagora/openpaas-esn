@@ -1,10 +1,12 @@
-@import "../components/bootstrap-material-design/less/material-fullpalette";
+@import "../components/bootstrap-material-design/less/material";
 
 // Override colors from frontend/components/bootstrap-material-design/less/_variables.less
 @primary: @blue;
 @info: @secondary-blue;
 //@warning: @deep-orange;
 //@danger: @red;
+
+@material-font-path: '/components/bootstrap-material-design/fonts/';
 
 .radio.radio-primary {
   padding-left: 0px;
@@ -20,4 +22,16 @@
  */
 .form-control-wrapper {
   margin-top: 10px;
+}
+
+.fab {
+  color: @white;
+  font-size: 28px;
+}
+
+.fab-fixed-bottom {
+  position: fixed;
+  bottom: 40px;
+  z-index: 1;
+  right: 30px;
 }
