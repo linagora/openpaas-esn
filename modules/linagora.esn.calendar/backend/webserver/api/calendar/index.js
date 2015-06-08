@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./calendar.router');
+module.exports = require('./router');

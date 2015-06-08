@@ -57,7 +57,7 @@ describe('The calendar core module', function() {
 
   describe('The dispatch fn', function() {
     it('should return an error if data is undefined', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(null, function(err, result) {
         expect(err).to.exist;
         done();
@@ -65,7 +65,7 @@ describe('The calendar core module', function() {
     });
 
     it('should return an error if data is not an object', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch('test', function(err, result) {
         expect(err).to.exist;
         done();
@@ -81,7 +81,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -97,7 +97,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -111,7 +111,7 @@ describe('The calendar core module', function() {
         event: 'test'
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -127,7 +127,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -143,7 +143,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -160,7 +160,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
@@ -190,7 +190,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -238,7 +238,7 @@ describe('The calendar core module', function() {
       };
       mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/calendar.core')(this.moduleHelpers.dependencies);
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
