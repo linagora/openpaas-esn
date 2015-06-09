@@ -27,9 +27,9 @@
           tags-input(ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
       multi-input-group(multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}')
       .form-group
-        label.control-label.col-xs-2 #{__("Birthday")}
-        .col-xs-10
-          input.form-control(type='date', placeholder='mm/dd/yyyy', ng-model='contact.birthday')
+        label.control-label.col-xs-3 #{__("Birthday")}
+        .col-xs-9
+          input.form-control(type='text', placeholder='yyyy/MM/dd', ng-model='contact.birthday' name="date" bs-datepicker data-start-week="1" data-date-format="yyyy/MM/dd" data-autoclose="true")
       .form-group
         label.control-label.sr-only #{__("Nickname")}
         .col-sm-12
@@ -39,7 +39,7 @@
         .col-sm-12
           input.form-control(type='text', placeholder='#{__("Company Website")}', ng-model='contact.orgUri')
   .row
-    .col-md-7
+    .col-md-12
       .form-group
         .col-xs-12
           textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')

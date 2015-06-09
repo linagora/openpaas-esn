@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
-  'restangular', 'esn.alphalist'
+  'restangular', 'esn.alphalist', 'mgcrea.ngStrap.datepicker'
 ]).config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
   $routeProvider.when('/contact', {
     templateUrl: '/contact/views/contacts',
