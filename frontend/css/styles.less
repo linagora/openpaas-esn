@@ -1105,3 +1105,44 @@ a.cancel:hover {
     padding: 0px;
   }
 }
+
+.create-panel {
+
+  .create-header {
+    background-color: @createHeaderBackground;
+    color: @createHeaderTitle;
+    font-size: 18px;
+
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+
+      .btn-cancel {
+        background-color: @white;
+      }
+    }
+
+    @media (max-width: @screen-xs-max) {
+      .action-bar {
+        justify-content: center;
+      }
+    }
+
+    .create-title {
+      display: flex;
+      justify-content: flex-start;
+      padding-top: 13px;
+    }
+
+    @media (max-width: @screen-xs-max) {
+      .create-title {
+        justify-content: center;
+      }
+    }
+  }
+
+  .create-content {
+    background-color: @white;
+    padding-top: 10px;
+  }
+}

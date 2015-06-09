@@ -2,17 +2,16 @@
   .row
     .col-md-7
       .row
-        .col-xs-8
+        .col-xs-6.col-sm-8
           .form-group
             input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-disabled='true')
           .form-group
             input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-disabled='true')
           .form-group
             inline-editable-input(input-class='bigger form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
-        .col-xs-4
-          .row
-            .col-xs-12.photo
-              img(src='/images/user.png')
+        .col-xs-6.col-sm-4
+          .photo
+            img(src='/images/user.png')
       .form-group(ng-show='contact.org')
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
