@@ -307,6 +307,47 @@ describe('The esn.message Angular module', function() {
     });
   });
 
+  describe('pollEdition directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.core'));
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+    }]));
+
+    it('should display error with duplicated choices', function() {
+      var html = '<poll-edition poll="newpoll"></poll-edition>';
+      this.$compile(html)(this.$rootScope);
+      this.$rootScope.$digest();
+      this.$rootScope.messageContent = 'New poll';
+      this.$rootScope.additionalData = {
+        pollChoices: [
+          {label: 'yes'},
+          {label: 'yes'}
+        ]
+      };
+      this.$rootScope.validators[0]();
+      expect(this.$rootScope.validationError.title).to.have.string('Your poll has duplicated choices.');
+    });
+
+    it('should not display error with different choices', function() {
+      var html = '<poll-edition poll="newpoll"></poll-edition>';
+      this.$compile(html)(this.$rootScope);
+      this.$rootScope.$digest();
+      this.$rootScope.messageContent = 'New poll';
+      this.$rootScope.additionalData = {
+        pollChoices: [
+          {label: 'yes'},
+          {label: 'no'}
+        ]
+      };
+      this.$rootScope.validators[0]();
+      expect(this.$rootScope.validationError.title).to.not.exist;
+    });
+  });
+
   describe('messageController', function() {
 
     beforeEach(inject(function($rootScope, $controller, $q) {
