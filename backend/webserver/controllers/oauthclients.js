@@ -43,7 +43,7 @@ function get(req, res) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: error.details}});
     }
     if (!oauthclient) {
-      return res.json(404);
+      return res.json(404, {error: {code: 404, message: 'Not Found', details: 'Oauth Client does not exist'}});
     }
     return res.json(200, oauthclient);
   });
@@ -55,7 +55,7 @@ function remove(req, res) {
       return res.json(500, {error: {code: 500, message: 'Server Error', details: error.details}});
     }
     if (!oauthclient) {
-      return res.json(404);
+      return res.json(404, {error: {code: 404, message: 'Not Found', details: 'Oauth Client does not exist'}});
     }
     return res.json(200, oauthclient);
   });
