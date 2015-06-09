@@ -503,28 +503,49 @@ a:focus {
 }
 
 tags-input .tags {
-  background-color: #fff;
-  .RoundedShape();
-  box-shadow: @defaultShadow;
+  background-color: @transparent;
+  box-shadow: @defaultBottomShadow;
+  border-bottom: 1px;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+}
+
+tags-input .tags.focused {
+  box-shadow: @defaultBottomShadow;
+}
+
+tags-input .tags .input {
+  background-color: @transparent;
+  font: @defaultFont;
 }
 
 tags-input.ng-invalid .tags {
-  background-color: #fff;
-  .RoundedShape();
-  box-shadow: @defaultShadow;
+  background-color: @red;
+  box-shadow: @defaultBottomShadow;
 }
 
 tags-input .tags .tag-item {
   background: @secondary-blue;
   border: @defaultBorder;
-  .RoundedShape();
-  color: @esn-primary-dark;
+  color: @white;
   white-space: nowrap;
+  font: @defaultFont;
+  padding-top: 3px;
+  border-radius: @defaultRadius;
+}
+
+tags-input .tags .tag-item.selected {
+  background: @red;
 }
 
 tags-input .autocomplete .suggestion-item.selected {
-  color: @esn-primary-dark;
+  color: @white;
   background-color: @secondary-blue;
+}
+
+tags-input .tags .tag-item .remove-button {
+  color: @white;
 }
 
 .event-details {
