@@ -36,8 +36,8 @@ angular.module('esn.calendar')
     };
   }])
 
-  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http',
-    function(CalendarRestangular, $rootScope, moment, jstz, tokenAPI, uuid4, ICAL, $q, $http) {
+  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', 'ICAL_PROPERTIES',
+    function(CalendarRestangular, $rootScope, moment, jstz, tokenAPI, uuid4, ICAL, $q, $http, ICAL_PROPERTIES) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -167,6 +167,16 @@ angular.module('esn.calendar')
       }
       if (shell.description) {
         vevent.addPropertyWithValue('description', shell.description);
+      }
+      if (shell.attendees && shell.attendees.length) {
+        shell.attendees.forEach(function(attendee) {
+          var mail = angular.isArray(attendee.emails) ? attendee.emails[0] : attendee.displayName;
+          var mailto = 'mailto:' + mail;
+          var property = vevent.addPropertyWithValue('attendee', mailto);
+          property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
+          property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
+          property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
+        });
       }
       vcalendar.addSubcomponent(vevent);
       return vcalendar;

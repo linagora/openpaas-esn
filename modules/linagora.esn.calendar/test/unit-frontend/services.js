@@ -485,31 +485,6 @@ describe('The Calendar Angular module', function() {
     });
 
     describe('The shellToICAL fn', function() {
-      function compareShell(calendarService, shell, ical) {
-        var vcalendar = calendarService.shellToICAL(shell);
-
-        var vevents = vcalendar.getAllSubcomponents();
-        expect(vevents.length).to.equal(1);
-        var vevent = vevents[0];
-
-        var properties = vevent.getAllProperties();
-        var propkeys = properties.map(function(p) {
-          return p.name;
-        }).sort();
-        var icalkeys = Object.keys(ical).sort();
-
-        var message = 'Key count mismatch in ical object.\n' +
-                      'expected: ' + icalkeys + '\n' +
-                      '   found: ' + propkeys;
-        expect(properties.length).to.equal(icalkeys.length, message);
-
-        for (var propName in ical) {
-          var value = vevent.getFirstPropertyValue(propName).toString();
-          expect(value).to.equal(ical[propName]);
-        }
-
-        return vevent;
-      }
 
       it('should correctly create an allday event', function() {
         var shell = {
@@ -518,19 +493,99 @@ describe('The Calendar Angular module', function() {
           allDay: true,
           title: 'allday event',
           location: 'location',
-          description: 'description'
-        };
-        var ical = {
-          uid: '00000000-0000-4000-a000-000000000000',
-          dtstart: '2014-12-29',
-          dtend: '2014-12-30',
-          summary: 'allday event',
-          location: 'location',
           description: 'description',
-          transp: 'TRANSPARENT'
+          attendees: [{
+            emails: [
+              'user1@open-paas.org'
+            ],
+            displayName: 'user1@open-paas.org'
+          }, {
+            emails: [
+              'user2@open-paas.org'
+            ],
+            displayName: 'user2@open-paas.org'
+          }]
         };
-
-        compareShell(this.calendarService, shell, ical);
+        var ical = [
+          "vcalendar",
+          [],
+          [
+            [
+              "vevent",
+              [
+                [
+                  "uid",
+                  {},
+                  "text",
+                  "00000000-0000-4000-a000-000000000000"
+                ],
+                [
+                  "summary",
+                  {},
+                  "text",
+                  "allday event"
+                ],
+                [
+                  "dtstart",
+                  {
+                    "tzid": "Europe\/Paris"
+                  },
+                  "date",
+                  "2014-12-29"
+                ],
+                [
+                  "dtend",
+                  {
+                    "tzid": "Europe\/Paris"
+                  },
+                  "date",
+                  "2014-12-30"
+                ],
+                [
+                  "transp",
+                  {},
+                  "text",
+                  "TRANSPARENT"
+                ],
+                [
+                  "location",
+                  {},
+                  "text",
+                  "location"
+                ],
+                [
+                  "description",
+                  {},
+                  "text",
+                  "description"
+                ],
+                [
+                  "attendee",
+                  {
+                    "partstat": "NEEDS-ACTION",
+                    "rsvp": "TRUE",
+                    "role": "REQ-PARTICIPANT"
+                  },
+                  "cal-address",
+                  "mailto:user1@open-paas.org"
+                ],
+                [
+                  "attendee",
+                  {
+                    "partstat": "NEEDS-ACTION",
+                    "rsvp": "TRUE",
+                    "role": "REQ-PARTICIPANT"
+                  },
+                  "cal-address",
+                  "mailto:user2@open-paas.org"
+                ]
+              ],
+              []
+            ]
+          ]
+        ];
+        var vcalendar = this.calendarService.shellToICAL(shell);
+        expect(vcalendar.toJSON()).to.deep.equal(ical);
       });
 
       it('should correctly create a non-allday event', function() {
@@ -540,17 +595,55 @@ describe('The Calendar Angular module', function() {
           allDay: false,
           title: 'non-allday event'
         };
-        var ical = {
-          uid: '00000000-0000-4000-a000-000000000000',
-          dtstart: '2014-12-29T18:00:00',
-          dtend: '2014-12-29T19:00:00',
-          summary: 'non-allday event',
-          transp: 'OPAQUE'
-        };
+        var ical = [
+          "vcalendar",
+          [],
+          [
+            [
+              "vevent",
+              [
+                [
+                  "uid",
+                  {},
+                  "text",
+                  "00000000-0000-4000-a000-000000000000"
+                ],
+                [
+                  "summary",
+                  {},
+                  "text",
+                  "non-allday event"
+                ],
+                [
+                  "dtstart",
+                  {
+                    "tzid": "Europe\/Paris"
+                  },
+                  "date-time",
+                  "2014-12-29T18:00:00"
+                ],
+                [
+                  "dtend",
+                  {
+                    "tzid": "Europe\/Paris"
+                  },
+                  "date-time",
+                  "2014-12-29T19:00:00"
+                ],
+                [
+                  "transp",
+                  {},
+                  "text",
+                  "OPAQUE"
+                ]
+              ],
+              []
+            ]
+          ]
+        ];
 
-        compareShell(this.calendarService, shell, ical);
-        var vevent = compareShell(this.calendarService, shell, ical);
-        expect(vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal('Europe/Paris');
+        var vcalendar = this.calendarService.shellToICAL(shell);
+        expect(vcalendar.toJSON()).to.deep.equal(ical);
       });
     });
   });
