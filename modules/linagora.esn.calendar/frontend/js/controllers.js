@@ -102,7 +102,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.event.title + ' is created');
+          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
         }).finally (function() {
@@ -124,7 +124,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' is deleted');
+          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
         }).finally (function() {
@@ -155,7 +155,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.event.title + ' is modified');
+          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
         }).finally (function() {
@@ -266,7 +266,7 @@ angular.module('esn.calendar')
       $scope.eventDropAndResize = function(event) {
         var path = '/calendars/' + $scope.calendarId + '/events/' + event.id + '.ics';
         calendarService.modify(path, event).then(function() {
-          notificationFactory.weakInfo('Event modified', event.title + ' is modified');
+          notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
         });
       };
 
@@ -278,10 +278,10 @@ angular.module('esn.calendar')
       $scope.uiConfig.calendar.eventRender = $scope.eventRender;
 
       /*
-       * "eventAfterAllRender" is called when all events are fetched but it
-       * is not called when the davserver is unreachable so the "viewRender"
-       * event is used to set the correct height but the event is called too
-       * early and the calendar offset is wrong so wait with a timeout.
+       * "eventAfterAllRender" has been called when all events are fetched but it
+       * has been not called when the davserver has been unreachable so the "viewRender"
+       * event has been used to set the correct height but the event has been called too
+       * early and the calendar offset has been wrong so wait with a timeout.
        */
       $scope.uiConfig.calendar.eventAfterAllRender = $scope.resizeCalendarHeight;
       $scope.uiConfig.calendar.viewRender = function() {
