@@ -555,7 +555,7 @@ describe('The Calendar Angular module', function() {
     });
   });
 
-  describe('The userCalendarController controller', function() {
+  describe('The calendarController controller', function() {
 
     beforeEach(function() {
       var self = this;
@@ -566,7 +566,7 @@ describe('The Calendar Angular module', function() {
 
       this.uiCalendarConfig = {
         calendars: {
-          userCalendar: {
+          calendarId: {
             fullCalendar: function() {
             },
             offset: function() {
@@ -610,24 +610,23 @@ describe('The Calendar Angular module', function() {
       this.$controller = _$controller_;
     }));
 
-    it('The userCalendarController should be created and its scope initialized', function() {
-      this.userCalendarScope = this.$rootScope.$new();
-      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
+    beforeEach(function() {
+      this.calendarScope = this.$rootScope.$new();
+      this.calendarScope.uiConfig = this.USER_UI_CONFIG;
+      this.calendarScope.calendarId = 'calendarId';
+      this.$controller('calendarController', {$scope: this.calendarScope});
+    });
 
-      expect(this.userCalendarScope.uiConfig).to.deep.equal(this.USER_UI_CONFIG);
-      expect(this.userCalendarScope.uiConfig.calendar.eventRender).to.equal(this.userCalendarScope.eventRender);
-      expect(this.userCalendarScope.uiConfig.calendar.eventAfterAllRender).to.equal(this.userCalendarScope.resizeCalendarHeight);
+    it('The calendarController should be created and its scope initialized', function() {
+      expect(this.calendarScope.uiConfig.calendar.eventRender).to.equal(this.calendarScope.eventRender);
+      expect(this.calendarScope.uiConfig.calendar.eventAfterAllRender).to.equal(this.calendarScope.resizeCalendarHeight);
     });
 
     it('The eventRender function should render the event', function() {
-
-      this.userCalendarScope = this.$rootScope.$new();
-      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
-
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.userCalendarScope);
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.calendarScope);
 
       uiCalendarDiv.appendTo(document.body);
-      this.userCalendarScope.$apply();
+      this.calendarScope.$apply();
       this.$timeout.flush();
 
       var weekButton = uiCalendarDiv.find('.fc-agendaWeek-button');
@@ -649,7 +648,7 @@ describe('The Calendar Angular module', function() {
 
       checkRender();
       weekButton.click();
-      this.userCalendarScope.$apply();
+      this.calendarScope.$apply();
       try {
         this.$timeout.flush();
       } catch (exception) {
@@ -657,24 +656,20 @@ describe('The Calendar Angular module', function() {
       }
       checkRender();
       dayButton.click();
-      this.userCalendarScope.$apply();
+      this.calendarScope.$apply();
       try {
         this.$timeout.flush();
       } catch (exception) {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
       checkRender();
-
     });
 
     it('should resize the calendar height twice when the controller is created', function() {
       var called = 0;
 
-      this.userCalendarScope = this.$rootScope.$new();
-      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
-
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.userCalendarScope);
-      this.uiCalendarConfig.calendars.userCalendar.fullCalendar = function() {
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.calendarScope);
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
         called++;
       };
 
@@ -691,11 +686,7 @@ describe('The Calendar Angular module', function() {
     it('should resize the calendar height once when the window is resized', function() {
       var called = 0;
 
-      this.userCalendarScope = this.$rootScope.$new();
-      this.userCalendarController = this.$controller('userCalendarController', {$scope: this.userCalendarScope});
-
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.userCalendarScope);
-
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.calendarScope);
       uiCalendarDiv.appendTo(document.body);
       this.$timeout.flush();
       try {
@@ -704,7 +695,7 @@ describe('The Calendar Angular module', function() {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
 
-      this.uiCalendarConfig.calendars.userCalendar.fullCalendar = function() {
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
         called++;
       };
 

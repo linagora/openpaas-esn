@@ -199,28 +199,24 @@ angular.module('esn.calendar')
       };
     }])
 
-  .controller('communityCalendarController', ['$rootScope', '$scope', 'community', 'calendarService', 'calendarEventSource', 'COMMUNITY_UI_CONFIG', function($rootScope, $scope, community, calendarService, calendarEventSource, COMMUNITY_UI_CONFIG) {
-
-    $scope.changeView = function(view, calendar) {
-      calendar.fullCalendar('changeView', view);
-    };
-
-    $scope.renderCalender = function(calendar) {
-      calendar.fullCalendar('render');
-    };
-    calendarService.calendarId = community._id;
+  .controller('communityCalendarController', ['$scope', 'community', 'COMMUNITY_UI_CONFIG', function($scope, community, COMMUNITY_UI_CONFIG) {
+    $scope.calendarId = community._id;
     $scope.uiConfig = COMMUNITY_UI_CONFIG;
-    $scope.eventSources = [calendarEventSource(community._id)];
-    $rootScope.$on('addedEvent', function(event, data) { $scope.eventSources.push([data]); });
   }])
 
-  .controller('userCalendarController', ['$rootScope', '$window', '$modal', '$scope', '$timeout', 'uiCalendarConfig', 'user', 'calendarService', 'notificationFactory', 'calendarEventSource', 'USER_UI_CONFIG',
-    function($rootScope, $window, $modal, $scope, $timeout, uiCalendarConfig, user, calendarService, notificationFactory, calendarEventSource, USER_UI_CONFIG) {
+  .controller('userCalendarController', ['$scope', 'user', 'USER_UI_CONFIG', function($scope, user, USER_UI_CONFIG) {
+    $scope.calendarId = user._id;
+    $scope.uiConfig = USER_UI_CONFIG;
+  }])
+
+  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'notificationFactory', 'calendarEventSource',
+    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, notificationFactory, calendarEventSource) {
+      $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       var windowJQuery = angular.element($window);
 
       $scope.resizeCalendarHeight = function() {
-        var calendar = uiCalendarConfig.calendars.userCalendar;
+        var calendar = uiCalendarConfig.calendars[$scope.calendarId];
         calendar.fullCalendar('option', 'height', windowJQuery.height() - calendar.offset().top - 10);
       };
 
@@ -232,7 +228,7 @@ angular.module('esn.calendar')
       };
 
       $scope.eventDropAndResize = function(event) {
-        var path = '/calendars/' + user._id + '/events/' + event.id + '.ics';
+        var path = '/calendars/' + $scope.calendarId + '/events/' + event.id + '.ics';
         calendarService.modify(path, event).then(function() {
           notificationFactory.weakInfo('Event modified', event.title + ' is modified');
         });
@@ -240,7 +236,7 @@ angular.module('esn.calendar')
 
       windowJQuery.resize($scope.resizeCalendarHeight);
 
-      $scope.eventRender = function(event, element, view) {
+      $scope.eventRender = function(event, element) {
         element.find('.fc-content').addClass('ellipsis');
 
         if (event.location) {
@@ -257,8 +253,7 @@ angular.module('esn.calendar')
         element.addClass('eventBorder');
       };
 
-      calendarService.calendarId = user._id;
-      $scope.uiConfig = USER_UI_CONFIG;
+      calendarService.calendarId = $scope.calendarId;
       $scope.uiConfig.calendar.eventRender = $scope.eventRender;
 
       /*
@@ -282,15 +277,15 @@ angular.module('esn.calendar')
         };
         $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
       };
-      $scope.eventSources = [calendarEventSource(user._id)];
+      $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       $rootScope.$on('modifiedCalendarItem', function(event, data) {
-        uiCalendarConfig.calendars.userCalendar.fullCalendar('updateEvent', data);
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
       });
       $rootScope.$on('removedCalendarItem', function(event, data) {
-        uiCalendarConfig.calendars.userCalendar.fullCalendar('removeEvents', data);
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', data);
       });
       $rootScope.$on('addedCalendarItem', function(event, data) {
-        uiCalendarConfig.calendars.userCalendar.fullCalendar('renderEvent', data);
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', data);
       });
     }]);
