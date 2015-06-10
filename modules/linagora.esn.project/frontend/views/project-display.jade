@@ -2,12 +2,12 @@ div.nopadding.esn-community
 
   .col-lg-2.col-sm-3.col-xs-4
 
-    a(href='#/projects/{{project._id}}')
-      img.thumbnail.nopadding(fallback-src='/projects/images/project.png', src='/projects/images/project.png', ng-src='/api/projects/{{project._id}}/avatar')
+    a(href='#/project/{{project._id}}')
+      img.thumbnail.nopadding(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{project._id}}/avatar')
 
   .col-lg-10.col-sm-9.col-xs-8
     h4.media-heading
-      a(href='#/projects/{{project._id}}')
+      a(href='#/project/{{project._id}}')
         strong {{project.title}}
       small &nbsp; {{project.type}}
     ul.list-inline

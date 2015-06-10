@@ -37,7 +37,6 @@ module.exports = function(config) {
       'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'frontend/components/localforage/dist/localforage.min.js',
       'frontend/components/angular-localforage/dist/angular-localForage.js',
-      'node_modules/easyrtc/api/easyrtc.js',
       'node_modules/async/lib/async.js',
       'node_modules/chai-jquery/chai-jquery.js',
       'frontend/components/angular-bootstrap-switch/dist/angular-bootstrap-switch.js',
@@ -63,9 +62,12 @@ module.exports = function(config) {
       'frontend/views/modules/domain/**/*.jade',
       'frontend/views/modules/ui/**/*.jade',
 
-      // fixtures
-      'test/unit-frontend/fixtures/**'
+      {pattern: "frontend/images/*.png", watched: false, included: false, served: true}
     ],
+
+    proxies: {
+       "/images/": "http://localhost:9876/images/"
+    },
 
     frameworks: ['mocha'],
     colors: true,
