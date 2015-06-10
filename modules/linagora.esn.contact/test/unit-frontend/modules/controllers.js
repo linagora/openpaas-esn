@@ -73,7 +73,10 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should change page on contactsService.create success', function(done) {
-        this.location.path = done();
+        this.location.path = function(path) {
+          expect(path).to.equal('/contact');
+          done();
+        };
 
         var defer = this.$q.defer();
         defer.resolve();
