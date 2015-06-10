@@ -62,11 +62,11 @@ module.exports = function(config) {
       'frontend/views/modules/domain/**/*.jade',
       'frontend/views/modules/ui/**/*.jade',
 
-      {pattern: "frontend/images/*.png", watched: false, included: false, served: true}
+      {pattern: 'frontend/images/*.png', watched: false, included: false, served: true}
     ],
 
     proxies: {
-       "/images/": "http://localhost:9876/images/"
+       '/images/': 'http://localhost:9876/images/'
     },
 
     frameworks: ['mocha'],
