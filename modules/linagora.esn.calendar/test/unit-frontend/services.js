@@ -7,6 +7,99 @@ var expect = chai.expect;
 
 describe('The Calendar Angular module', function() {
 
+  describe('The eventService service', function() {
+    var element, fcTitle, fcContent, event;
+
+    function Element() {
+      this.innerElements = {};
+      this.class = [];
+      this.attributes = {};
+      this.htmlContent = 'aContent';
+    }
+
+    Element.prototype.addClass = function(aClass) {
+      this.class.push(aClass);
+    };
+
+    Element.prototype.attr = function(name, content) {
+      this.attributes[name] = content;
+    };
+
+    Element.prototype.html = function(content) {
+      if (content) {
+        this.htmlContent = content;
+      }
+      return this.htmlContent;
+    };
+
+    Element.prototype.find = function(aClass) {
+      return this.innerElements[aClass];
+    };
+
+    beforeEach(function() {
+      var asSession = {
+        user: {
+          _id: '123456',
+          emails: [ 'aAttendee@open-paas.org' ]
+        },
+        domain: {
+          company_name: 'test'
+        }
+      };
+
+      angular.mock.module('esn.calendar');
+      angular.mock.module('esn.ical');
+      angular.mock.module(function($provide) {
+        $provide.value('session', asSession);
+      });
+
+      event = {};
+      event.attendees = {
+        'NEEDS-ACTION': []
+      };
+      element = new Element();
+      fcContent = new Element();
+      fcTitle = new Element();
+      element.innerElements['.fc-content'] = fcContent;
+      element.innerElements['.fc-title'] = fcTitle;
+    });
+
+    beforeEach(angular.mock.inject(function(eventService) {
+      this.eventService = eventService;
+    }));
+
+    it('should add ellipsis class to .fc-content', function() {
+      this.eventService.render(event, element);
+      expect(fcContent.class).to.deep.equal([ 'ellipsis' ]);
+    });
+
+    it('should add ellipsis to .fc-title if location is defined and redefined the content html', function() {
+      event.location = 'aLocation';
+      this.eventService.render(event, element);
+      expect(fcTitle.class).to.deep.equal([ 'ellipsis' ]);
+      expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
+    });
+
+    it('should add a title attribute if description is defined', function() {
+      event.description = 'aDescription';
+      this.eventService.render(event, element);
+      expect(element.attributes.title).to.equal('aDescription');
+    });
+
+    it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
+      event.attendees['NEEDS-ACTION'].push({
+        mail: 'aAttendee@open-paas.org'
+      });
+      this.eventService.render(event, element);
+      expect(element.class).to.deep.equal([ 'event-needs-action', 'event-common' ]);
+    });
+
+    it('should add event-common class otherwise', function() {
+      this.eventService.render(event, element);
+      expect(element.class).to.deep.equal([ 'event-accepted', 'event-common' ]);
+    });
+  });
+
   describe('The calendarService service', function() {
     var ICAL;
     var emitMessage;
@@ -684,7 +777,10 @@ describe('The Calendar Angular module', function() {
               location: 'Paris',
               description: 'description!',
               allDay: false,
-              start: new Date()
+              start: new Date(),
+              attendees: {
+                'NEEDS-ACTION': []
+              }
             }];
           };
         });
@@ -734,8 +830,8 @@ describe('The Calendar Angular module', function() {
         expect(title.text()).to.equal('RealTest (Paris)');
 
         var eventLink = uiCalendarDiv.find('a');
-        expect(eventLink.length).to.equal(1);
-        expect(eventLink.hasClass('eventBorder')).to.be.true;
+        expect(eventLink.length).to.equal(1);;
+        expect(eventLink.hasClass('event-common')).to.be.true;
         expect(eventLink.attr('title')).to.equal('description!');
       };
 

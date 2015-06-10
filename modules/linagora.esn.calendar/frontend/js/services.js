@@ -82,7 +82,7 @@ angular.module('esn.calendar')
         };
 
         // We will only handle these three cases
-        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED') {
+        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED' && partstat !== 'NEEDS-ACTION') {
           partstat = 'OTHER';
         }
 
@@ -335,4 +335,37 @@ angular.module('esn.calendar')
       timezoneLocal: timezoneLocal,
       getInvitedAttendees: getInvitedAttendees
     };
+  }])
+  .service('eventService', ['session', 'ICAL_PROPERTIES', function(session, ICAL_PROPERTIES) {
+    function render(event, element) {
+      element.find('.fc-content').addClass('ellipsis');
+
+      if (event.location) {
+        var contentElement = element.find('.fc-title');
+        contentElement.addClass('ellipsis');
+        var contentHtml = contentElement.html() + ' (' + event.location + ')';
+        contentElement.html(contentHtml);
+      }
+
+      if (event.description) {
+        element.attr('title', event.description);
+      }
+
+      var sessionUserAsAttendee = event.attendees[ICAL_PROPERTIES.partstat.needsaction].filter(function(attendee) {
+        return attendee.mail === session.user.emails[0];
+      });
+
+      if (sessionUserAsAttendee[0]) {
+        element.addClass('event-needs-action');
+      } else {
+        element.addClass('event-accepted');
+      }
+
+      element.addClass('event-common');
+    }
+
+    return {
+      render: render
+    };
+
   }]);
