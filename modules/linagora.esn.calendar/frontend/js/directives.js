@@ -204,4 +204,15 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/user/user-calendar-navbar-link.html'
     };
+  })
+  .directive('calendarDisplay', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'calendar/views/partials/calendar.html',
+      scope: {
+        calendarId: '=',
+        uiConfig: '='
+      },
+      controller: 'calendarController'
+    };
   });
