@@ -10,6 +10,10 @@ angular.module('linagora.esn.contact')
       $location.path('/contact');
     };
 
+    function getContactDisplay() {
+      return [$scope.contact.firstName || '', $scope.contact.lastName || ''].join(' ').trim();
+    }
+
     $scope.accept = function() {
       if ($scope.calling) {
         return;
@@ -19,9 +23,9 @@ angular.module('linagora.esn.contact')
       var path = '/addressbooks/' + $scope.bookId + '/contacts';
       contactsService.create(path, vcard).then(function() {
         $scope.close();
-        notificationFactory.weakInfo('Contact creation success', 'Successfully created the new contact');
+        notificationFactory.weakInfo('Contact creation', 'Successfully created ' + getContactDisplay());
       }, function(err) {
-        notificationFactory.weakError('Contact creation failure', err.message);
+        notificationFactory.weakError('Contact creation', err.message || 'Something went wrong');
       }).finally (function() {
         $scope.calling = false;
       });
