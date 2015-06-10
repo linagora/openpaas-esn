@@ -1,11 +1,11 @@
-form.col-xs-12.esn-panel.contact-display-panel(ng-submit='accept()')
-  .vertiz-space
-  .row
-    .col-sm-7
+form.esn-panel.create-panel(ng-submit='accept()')
+  .row.create-header
+    .col-sm-7.col-xs-12.create-title
       span.contact-heading
-        | #{__('Create New Contact')}
-    .col-sm-5.action-bar
-      button.btn.icon-btn.accept-btn.fa.fa-check-circle-o(type='submit')
-      button.btn.icon-btn.starred-btn.fa.fa-star(type='button', ng-click='contact.starred = !contact.starred', ng-class='{ checked: contact.starred }')
-      button.btn.icon-btn.cancel-btn.fa.fa-times(type='button', ng-click='close()')
-  contact-display(contact='contact')
+        | #{__('Create a new contact')}
+    .col-sm-5.col-xs-12.action-bar
+      button.btn.btn-default.btn-raised.btn-cancel(type='button', ng-click='close()') #{__('Cancel')}
+      button.btn.btn-primary.btn-raised #{__('Create')}
+  .row.create-content
+    .vertiz-space
+      contact-display(contact='contact')

@@ -3,53 +3,20 @@
 @import "../../../../frontend/css/variables";
 @import "../../../../frontend/css/commons";
 
-.contact-heading {
-  display: inline-block;
-  font-weight: bold;
-  font-size: 25px;
-  @media (min-width: @screen-sm-min) {
-    font-size: 30px;
-  }
-}
-
 .contact-panel {
 
   hr {
     margin-top: 5px;
     margin-bottom: 5px;
   }
-
-  .contact-heading {
-    width: 100%;
-  }
-}
-
-.contact-display-panel {
-  .action-bar {
-    display: flex;
-    justify-content: space-between;
-
-    .accept-btn:hover {
-      color: @blue;
-    }
-
-    .starred-btn:hover, .starred-btn.checked {
-      color: @yellow;
-    }
-
-    .cancel-btn:hover {
-      color: @red;
-    }
-  }
 }
 
 contact-display, contact-display-editable {
   .photo {
-    border: 1px solid @grey;
-
     img {
       width: auto;
       height: 18.2ex;
+      cursor: pointer;
     }
   }
 
@@ -73,13 +40,6 @@ contact-display, contact-display-editable {
 
   .input-group {
     display: block;
-  }
-
-  input.form-control {
-    border-width: 0 0 2px 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
   }
 
   input.ng-invalid-required, input.ng-invalid-email {

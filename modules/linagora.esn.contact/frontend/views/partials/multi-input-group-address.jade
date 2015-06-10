@@ -1,8 +1,8 @@
 .multi-input-content
   .form-group(ng-repeat='item in content track by $index')
-    .col-xs-3
+    .col-xs-4.col-sm-3
       select.form-control.multi-input-type(ng-model='item.type', ng-options='type as type for type in types')
-    .col-xs-9
+    .col-xs-8.col-sm-9
       .row
         .col-xs-12.noindent
           input.form-control(type='text', ng-model='item.street', placeholder='#{__("Street")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
@@ -16,9 +16,9 @@
           input.form-control(type='text', ng-model='item.country', placeholder='#{__("Country")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyRemove($index)')
 .multi-input-next
   .form-group
-    .col-xs-3
+    .col-xs-4.col-sm-3
       select.form-control.multi-input-type(ng-model='newItem.type', ng-options='type as type for type in types')
-    .col-xs-9
+    .col-xs-8.col-sm-9
       .row
         .col-xs-12.noindent
           input.form-control(type='text', ng-model='newItem.street', placeholder='#{__("Street")}', ng-model-options='{updateOn: "blur"}', ng-change='verifyNew()')
