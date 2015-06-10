@@ -4,19 +4,26 @@ angular.module('linagora.esn.contact')
   .controller('newContactController', ['$scope', '$route', '$location', 'contactsService', 'notificationFactory', function($scope, $route, $location, contactsService, notificationFactory) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
+    $scope.calling = false;
 
     $scope.close = function() {
       $location.path('/contacts');
     };
 
     $scope.accept = function() {
+      if ($scope.calling) {
+        return;
+      }
+      $scope.calling = true;
       var vcard = contactsService.shellToVCARD($scope.contact);
       var path = '/addressbooks/' + $scope.bookId + '/contacts';
       contactsService.create(path, vcard).then(function() {
         $scope.close();
         notificationFactory.weakInfo('Contact creation success', 'Successfully created the new contact');
-      }).catch (function(err) {
+      }, function(err) {
         notificationFactory.weakError('Contact creation failure', err.message);
+      }).finally (function() {
+        $scope.calling = false;
       });
     };
   }])
