@@ -112,7 +112,10 @@ angular.module('esn.calendar')
         if (!$scope.calendarId) {
           $scope.calendarId = calendarService.calendarId;
         }
-        var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.event.id + '.ics';
+        var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
+
+        $scope.editedEvent.start = moment($scope.editedEvent.startDate);
+        $scope.editedEvent.end = moment($scope.editedEvent.endDate);
 
         calendarService.modify(path, $scope.event).then(function(response) {
           if ($scope.activitystream) {
