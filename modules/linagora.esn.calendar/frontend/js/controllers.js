@@ -45,7 +45,7 @@ angular.module('esn.calendar')
   .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'dateService', 'calendarService', 'moment', 'notificationFactory',
     function($rootScope, $scope, $alert, dateService, calendarService, moment, notificationFactory) {
       $scope.editedEvent = {};
-      var self = this;
+      $scope.restActive = false;
 
       this.initiFormData = function() {
         if (!$scope.event) {
@@ -91,6 +91,7 @@ angular.module('esn.calendar')
         var event = $scope.editedEvent;
         var path = '/calendars/' + $scope.calendarId + '/events';
         var vcalendar = calendarService.shellToICAL(event);
+        $scope.restActive = true;
         calendarService.create(path, vcalendar).then(function(response) {
           if ($scope.activitystream) {
             $rootScope.$emit('message:posted', {
@@ -102,8 +103,8 @@ angular.module('esn.calendar')
           _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.event.title + ' is created');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
-        }, function(err) {
-          _displayError(err);
+        }).finally (function() {
+          $scope.restActive = false;
         });
       };
 
@@ -112,6 +113,7 @@ angular.module('esn.calendar')
           $scope.calendarId = calendarService.calendarId;
         }
         var path = '/calendars/' + $scope.calendarId + '/events';
+        $scope.restActive = true;
         calendarService.remove(path, $scope.event).then(function(response) {
           if ($scope.activitystream) {
             $rootScope.$emit('message:posted', {
@@ -123,12 +125,14 @@ angular.module('esn.calendar')
           _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' is deleted');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
+        }).finally (function() {
+          $scope.restActive = false;
         });
       };
 
       this.modifyEvent = function() {
         if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-          self.displayError('You must define an event title');
+          _displayError('You must define an event title');
           return;
         }
 
@@ -140,6 +144,7 @@ angular.module('esn.calendar')
         $scope.editedEvent.start = moment($scope.editedEvent.startDate);
         $scope.editedEvent.end = moment($scope.editedEvent.endDate);
 
+        $scope.restActive = true;
         calendarService.modify(path, $scope.editedEvent).then(function(response) {
           if ($scope.activitystream) {
             $rootScope.$emit('message:posted', {
@@ -151,8 +156,8 @@ angular.module('esn.calendar')
           _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.event.title + ' is modified');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
-        }, function(error) {
-          _displayError(error);
+        }).finally (function() {
+          $scope.restActive = false;
         });
       };
 
