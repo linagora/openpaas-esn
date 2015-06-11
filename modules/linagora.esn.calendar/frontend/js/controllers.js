@@ -109,6 +109,11 @@ angular.module('esn.calendar')
       };
 
       this.modifyEvent = function() {
+        if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
+          self.displayError('You must define an event title');
+          return;
+        }
+
         if (!$scope.calendarId) {
           $scope.calendarId = calendarService.calendarId;
         }
