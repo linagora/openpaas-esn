@@ -32,7 +32,7 @@ describe('The Calendar Angular module', function() {
             };
             onSuccess(response);
           }
-        }
+        };
       }
     };
 

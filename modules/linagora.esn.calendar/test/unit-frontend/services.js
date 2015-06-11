@@ -40,7 +40,7 @@ describe('The Calendar Angular module', function() {
       var asSession = {
         user: {
           _id: '123456',
-          emails: [ 'aAttendee@open-paas.org' ]
+          emails: ['aAttendee@open-paas.org']
         },
         domain: {
           company_name: 'test'
@@ -70,13 +70,13 @@ describe('The Calendar Angular module', function() {
 
     it('should add ellipsis class to .fc-content', function() {
       this.eventService.render(event, element);
-      expect(fcContent.class).to.deep.equal([ 'ellipsis' ]);
+      expect(fcContent.class).to.deep.equal(['ellipsis']);
     });
 
     it('should add ellipsis to .fc-title if location is defined and redefined the content html', function() {
       event.location = 'aLocation';
       this.eventService.render(event, element);
-      expect(fcTitle.class).to.deep.equal([ 'ellipsis' ]);
+      expect(fcTitle.class).to.deep.equal(['ellipsis']);
       expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
     });
 
@@ -91,12 +91,12 @@ describe('The Calendar Angular module', function() {
         mail: 'aAttendee@open-paas.org'
       });
       this.eventService.render(event, element);
-      expect(element.class).to.deep.equal([ 'event-needs-action', 'event-common' ]);
+      expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
     });
 
     it('should add event-common class otherwise', function() {
       this.eventService.render(event, element);
-      expect(element.class).to.deep.equal([ 'event-accepted', 'event-common' ]);
+      expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
     });
   });
 
@@ -172,9 +172,9 @@ describe('The Calendar Angular module', function() {
               ['location', {}, 'text', 'location'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
-            ], []]
-          ]]
-        ]);
+           ], []]
+         ]]
+       ]);
 
         var start = new Date(2014, 0, 1);
         var end = new Date(2014, 0, 2);
@@ -214,8 +214,8 @@ describe('The Calendar Angular module', function() {
               ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
               ['attendee', { 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
               ['attendee', { 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com']
-            ], []]
-          ]],
+           ], []]
+         ]],
           // headers:
           { 'ETag': 'testing-tag' }
         );
@@ -613,93 +613,93 @@ describe('The Calendar Angular module', function() {
           attendees: [{
             emails: [
               'user1@open-paas.org'
-            ],
+           ],
             displayName: 'user1@open-paas.org'
           }, {
             emails: [
               'user2@open-paas.org'
-            ],
+           ],
             displayName: 'user2@open-paas.org'
           }]
         };
         var ical = [
-          "vcalendar",
+          'vcalendar',
           [],
           [
             [
-              "vevent",
+              'vevent',
               [
                 [
-                  "uid",
+                  'uid',
                   {},
-                  "text",
-                  "00000000-0000-4000-a000-000000000000"
-                ],
+                  'text',
+                  '00000000-0000-4000-a000-000000000000'
+               ],
                 [
-                  "summary",
+                  'summary',
                   {},
-                  "text",
-                  "allday event"
-                ],
+                  'text',
+                  'allday event'
+               ],
                 [
-                  "dtstart",
+                  'dtstart',
                   {
-                    "tzid": "Europe\/Paris"
+                    'tzid': 'Europe\/Paris'
                   },
-                  "date",
-                  "2014-12-29"
-                ],
+                  'date',
+                  '2014-12-29'
+               ],
                 [
-                  "dtend",
+                  'dtend',
                   {
-                    "tzid": "Europe\/Paris"
+                    'tzid': 'Europe\/Paris'
                   },
-                  "date",
-                  "2014-12-30"
-                ],
+                  'date',
+                  '2014-12-30'
+               ],
                 [
-                  "transp",
+                  'transp',
                   {},
-                  "text",
-                  "TRANSPARENT"
-                ],
+                  'text',
+                  'TRANSPARENT'
+               ],
                 [
-                  "location",
+                  'location',
                   {},
-                  "text",
-                  "location"
-                ],
+                  'text',
+                  'location'
+               ],
                 [
-                  "description",
+                  'description',
                   {},
-                  "text",
-                  "description"
-                ],
+                  'text',
+                  'description'
+               ],
                 [
-                  "attendee",
+                  'attendee',
                   {
-                    "partstat": "NEEDS-ACTION",
-                    "rsvp": "TRUE",
-                    "role": "REQ-PARTICIPANT"
+                    'partstat': 'NEEDS-ACTION',
+                    'rsvp': 'TRUE',
+                    'role': 'REQ-PARTICIPANT'
                   },
-                  "cal-address",
-                  "mailto:user1@open-paas.org"
-                ],
+                  'cal-address',
+                  'mailto:user1@open-paas.org'
+               ],
                 [
-                  "attendee",
+                  'attendee',
                   {
-                    "partstat": "NEEDS-ACTION",
-                    "rsvp": "TRUE",
-                    "role": "REQ-PARTICIPANT"
+                    'partstat': 'NEEDS-ACTION',
+                    'rsvp': 'TRUE',
+                    'role': 'REQ-PARTICIPANT'
                   },
-                  "cal-address",
-                  "mailto:user2@open-paas.org"
-                ]
-              ],
+                  'cal-address',
+                  'mailto:user2@open-paas.org'
+               ]
+             ],
               []
-            ]
-          ]
-        ];
+           ]
+         ]
+       ];
         var vcalendar = this.calendarService.shellToICAL(shell);
         expect(vcalendar.toJSON()).to.deep.equal(ical);
       });
@@ -712,51 +712,51 @@ describe('The Calendar Angular module', function() {
           title: 'non-allday event'
         };
         var ical = [
-          "vcalendar",
+          'vcalendar',
           [],
           [
             [
-              "vevent",
+              'vevent',
               [
                 [
-                  "uid",
+                  'uid',
                   {},
-                  "text",
-                  "00000000-0000-4000-a000-000000000000"
-                ],
+                  'text',
+                  '00000000-0000-4000-a000-000000000000'
+               ],
                 [
-                  "summary",
+                  'summary',
                   {},
-                  "text",
-                  "non-allday event"
-                ],
+                  'text',
+                  'non-allday event'
+               ],
                 [
-                  "dtstart",
+                  'dtstart',
                   {
-                    "tzid": "Europe\/Paris"
+                    'tzid': 'Europe\/Paris'
                   },
-                  "date-time",
-                  "2014-12-29T18:00:00"
-                ],
+                  'date-time',
+                  '2014-12-29T18:00:00'
+               ],
                 [
-                  "dtend",
+                  'dtend',
                   {
-                    "tzid": "Europe\/Paris"
+                    'tzid': 'Europe\/Paris'
                   },
-                  "date-time",
-                  "2014-12-29T19:00:00"
-                ],
+                  'date-time',
+                  '2014-12-29T19:00:00'
+               ],
                 [
-                  "transp",
+                  'transp',
                   {},
-                  "text",
-                  "OPAQUE"
-                ]
-              ],
+                  'text',
+                  'OPAQUE'
+               ]
+             ],
               []
-            ]
-          ]
-        ];
+           ]
+         ]
+       ];
 
         var vcalendar = this.calendarService.shellToICAL(shell);
         expect(vcalendar.toJSON()).to.deep.equal(ical);
@@ -853,7 +853,7 @@ describe('The Calendar Angular module', function() {
         expect(title.text()).to.equal('RealTest (Paris)');
 
         var eventLink = uiCalendarDiv.find('a');
-        expect(eventLink.length).to.equal(1);;
+        expect(eventLink.length).to.equal(1);
         expect(eventLink.hasClass('event-common')).to.be.true;
         expect(eventLink.attr('title')).to.equal('description!');
       };
