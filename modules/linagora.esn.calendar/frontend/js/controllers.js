@@ -45,7 +45,7 @@ angular.module('esn.calendar')
   .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'dateService', 'calendarService', 'moment', 'notificationFactory',
     function($rootScope, $scope, $alert, dateService, calendarService, moment, notificationFactory) {
 
-      this.displayError = function(err) {
+      function _displayError(err) {
         $alert({
           content: err,
           type: 'danger',
@@ -55,11 +55,18 @@ angular.module('esn.calendar')
           duration: '2',
           animation: 'am-flip-x'
         });
-      };
+      }
+
+      function _displayNotification(notificationFactoryFunction, title, content) {
+        notificationFactoryFunction(title, content);
+        if ($scope.createModal) {
+          $scope.createModal.hide();
+        }
+      }
 
       this.addNewEvent = function() {
         if (!$scope.event.title || $scope.event.title.trim().length === 0) {
-          this.displayError('You must define an event title');
+          _displayError('You must define an event title');
           return;
         }
         if (!$scope.calendarId) {
@@ -76,12 +83,9 @@ angular.module('esn.calendar')
             });
           }
 
-          notificationFactory.weakInfo('Event created', $scope.event.title + ' is created');
-          if ($scope.createModal) {
-            $scope.createModal.hide();
-          }
+          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.event.title + ' is created');
         }, function(err) {
-          this.displayError(err);
+          _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
         });
       };
 
@@ -98,10 +102,9 @@ angular.module('esn.calendar')
             });
           }
 
-          notificationFactory.weakInfo('Event deleted', $scope.event.title + ' is deleted');
-          if ($scope.createModal) {
-            $scope.createModal.hide();
-          }
+          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' is deleted');
+        }, function(err) {
+          _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
         });
       };
 
@@ -119,10 +122,9 @@ angular.module('esn.calendar')
             });
           }
 
-          notificationFactory.weakInfo('Event modified', $scope.event.title + ' is modified');
-          if ($scope.createModal) {
-            $scope.createModal.hide();
-          }
+          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.event.title + ' is modified');
+        }, function(err) {
+          _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
         });
       };
 
