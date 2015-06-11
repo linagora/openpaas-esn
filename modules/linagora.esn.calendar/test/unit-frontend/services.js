@@ -7,6 +7,99 @@ var expect = chai.expect;
 
 describe('The Calendar Angular module', function() {
 
+  describe('The eventService service', function() {
+    var element, fcTitle, fcContent, event;
+
+    function Element() {
+      this.innerElements = {};
+      this.class = [];
+      this.attributes = {};
+      this.htmlContent = 'aContent';
+    }
+
+    Element.prototype.addClass = function(aClass) {
+      this.class.push(aClass);
+    };
+
+    Element.prototype.attr = function(name, content) {
+      this.attributes[name] = content;
+    };
+
+    Element.prototype.html = function(content) {
+      if (content) {
+        this.htmlContent = content;
+      }
+      return this.htmlContent;
+    };
+
+    Element.prototype.find = function(aClass) {
+      return this.innerElements[aClass];
+    };
+
+    beforeEach(function() {
+      var asSession = {
+        user: {
+          _id: '123456',
+          emails: ['aAttendee@open-paas.org']
+        },
+        domain: {
+          company_name: 'test'
+        }
+      };
+
+      angular.mock.module('esn.calendar');
+      angular.mock.module('esn.ical');
+      angular.mock.module(function($provide) {
+        $provide.value('session', asSession);
+      });
+
+      event = {};
+      event.attendeesPerPartstat = {
+        'NEEDS-ACTION': []
+      };
+      element = new Element();
+      fcContent = new Element();
+      fcTitle = new Element();
+      element.innerElements['.fc-content'] = fcContent;
+      element.innerElements['.fc-title'] = fcTitle;
+    });
+
+    beforeEach(angular.mock.inject(function(eventService) {
+      this.eventService = eventService;
+    }));
+
+    it('should add ellipsis class to .fc-content', function() {
+      this.eventService.render(event, element);
+      expect(fcContent.class).to.deep.equal(['ellipsis']);
+    });
+
+    it('should add ellipsis to .fc-title if location is defined and redefined the content html', function() {
+      event.location = 'aLocation';
+      this.eventService.render(event, element);
+      expect(fcTitle.class).to.deep.equal(['ellipsis']);
+      expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
+    });
+
+    it('should add a title attribute if description is defined', function() {
+      event.description = 'aDescription';
+      this.eventService.render(event, element);
+      expect(element.attributes.title).to.equal('aDescription');
+    });
+
+    it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
+      event.attendeesPerPartstat['NEEDS-ACTION'].push({
+        mail: 'aAttendee@open-paas.org'
+      });
+      this.eventService.render(event, element);
+      expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
+    });
+
+    it('should add event-common class otherwise', function() {
+      this.eventService.render(event, element);
+      expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
+    });
+  });
+
   describe('The calendarService service', function() {
     var ICAL;
     var emitMessage;
@@ -79,9 +172,9 @@ describe('The Calendar Angular module', function() {
               ['location', {}, 'text', 'location'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
-            ], []]
-          ]]
-        ]);
+           ], []]
+         ]]
+       ]);
 
         var start = new Date(2014, 0, 1);
         var end = new Date(2014, 0, 2);
@@ -121,46 +214,69 @@ describe('The Calendar Angular module', function() {
               ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
               ['attendee', { 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
               ['attendee', { 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com']
-            ], []]
-          ]],
+           ], []]
+         ]],
           // headers:
           { 'ETag': 'testing-tag' }
         );
 
         this.calendarService.getEvent('/path/to/event.ics').then(function(event) {
-            expect(event).to.be.an('object');
-            expect(event.id).to.equal('myuid');
-            expect(event.title).to.equal('title');
-            expect(event.location).to.equal('location');
-            expect(event.allDay).to.be.false;
-            expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
-            expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+          expect(event).to.be.an('object');
+          expect(event.id).to.equal('myuid');
+          expect(event.title).to.equal('title');
+          expect(event.location).to.equal('location');
+          expect(event.allDay).to.be.false;
+          expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
+          expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
 
-            expect(event.formattedDate).to.equal('January 1, 2014');
-            expect(event.formattedStartTime).to.equal('2');
-            expect(event.formattedStartA).to.equal('am');
-            expect(event.formattedEndTime).to.equal('3');
-            expect(event.formattedEndA).to.equal('am');
+          expect(event.formattedDate).to.equal('January 1, 2014');
+          expect(event.formattedStartTime).to.equal('2');
+          expect(event.formattedStartA).to.equal('am');
+          expect(event.formattedEndTime).to.equal('3');
+          expect(event.formattedEndA).to.equal('am');
 
-            expect(event.attendees.ACCEPTED.length).to.equal(1);
-            expect(event.attendees.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
-            expect(event.attendees.ACCEPTED[0].mail).to.equal('test@example.com');
-            expect(event.attendees.ACCEPTED[0].name).to.equal('name');
-            expect(event.attendees.ACCEPTED[0].partstat).to.equal('ACCEPTED');
+          expect(event.attendeesPerPartstat.ACCEPTED.length).to.equal(1);
+          expect(event.attendeesPerPartstat.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].mail).to.equal('test@example.com');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].name).to.equal('name');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].partstat).to.equal('ACCEPTED');
 
-            expect(event.attendees.DECLINED.length).to.equal(1);
-            expect(event.attendees.DECLINED[0].fullmail).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].mail).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].name).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].partstat).to.equal('DECLINED');
+          expect(event.attendeesPerPartstat.DECLINED.length).to.equal(1);
+          expect(event.attendeesPerPartstat.DECLINED[0].fullmail).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].mail).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].name).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].partstat).to.equal('DECLINED');
 
-            expect(event.attendees.OTHER.length).to.equal(1);
-            expect(event.attendees.OTHER[0].fullmail).to.equal('tentative@example.com');
-            expect(event.attendees.OTHER[0].partstat).to.equal('TENTATIVE');
+          expect(event.attendeesPerPartstat.OTHER.length).to.equal(1);
+          expect(event.attendeesPerPartstat.OTHER[0].fullmail).to.equal('tentative@example.com');
+          expect(event.attendeesPerPartstat.OTHER[0].partstat).to.equal('TENTATIVE');
 
-            expect(event.vcalendar).to.be.an('object');
-            expect(event.path).to.equal('/path/to/event.ics');
-            expect(event.etag).to.equal('testing-tag');
+          expect(event.attendees).to.deep.equal([
+            {
+              fullmail: 'name <test@example.com>',
+              mail: 'test@example.com',
+              name: 'name',
+              partstat: 'ACCEPTED',
+              displayName: 'name'
+            },
+            {
+              fullmail: 'noname@example.com',
+              mail: 'noname@example.com',
+              name: 'noname@example.com',
+              partstat: 'DECLINED',
+              displayName: 'noname@example.com'
+            },
+            {
+              fullmail: 'tentative@example.com',
+              mail: 'tentative@example.com',
+              name: 'tentative@example.com',
+              partstat: 'TENTATIVE',
+              displayName: 'tentative@example.com'
+            }]);
+
+          expect(event.vcalendar).to.be.an('object');
+          expect(event.path).to.equal('/path/to/event.ics');
+          expect(event.etag).to.equal('testing-tag');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
@@ -485,31 +601,6 @@ describe('The Calendar Angular module', function() {
     });
 
     describe('The shellToICAL fn', function() {
-      function compareShell(calendarService, shell, ical) {
-        var vcalendar = calendarService.shellToICAL(shell);
-
-        var vevents = vcalendar.getAllSubcomponents();
-        expect(vevents.length).to.equal(1);
-        var vevent = vevents[0];
-
-        var properties = vevent.getAllProperties();
-        var propkeys = properties.map(function(p) {
-          return p.name;
-        }).sort();
-        var icalkeys = Object.keys(ical).sort();
-
-        var message = 'Key count mismatch in ical object.\n' +
-                      'expected: ' + icalkeys + '\n' +
-                      '   found: ' + propkeys;
-        expect(properties.length).to.equal(icalkeys.length, message);
-
-        for (var propName in ical) {
-          var value = vevent.getFirstPropertyValue(propName).toString();
-          expect(value).to.equal(ical[propName]);
-        }
-
-        return vevent;
-      }
 
       it('should correctly create an allday event', function() {
         var shell = {
@@ -518,19 +609,99 @@ describe('The Calendar Angular module', function() {
           allDay: true,
           title: 'allday event',
           location: 'location',
-          description: 'description'
-        };
-        var ical = {
-          uid: '00000000-0000-4000-a000-000000000000',
-          dtstart: '2014-12-29',
-          dtend: '2014-12-30',
-          summary: 'allday event',
-          location: 'location',
           description: 'description',
-          transp: 'TRANSPARENT'
+          attendees: [{
+            emails: [
+              'user1@open-paas.org'
+           ],
+            displayName: 'user1@open-paas.org'
+          }, {
+            emails: [
+              'user2@open-paas.org'
+           ],
+            displayName: 'user2@open-paas.org'
+          }]
         };
-
-        compareShell(this.calendarService, shell, ical);
+        var ical = [
+          'vcalendar',
+          [],
+          [
+            [
+              'vevent',
+              [
+                [
+                  'uid',
+                  {},
+                  'text',
+                  '00000000-0000-4000-a000-000000000000'
+               ],
+                [
+                  'summary',
+                  {},
+                  'text',
+                  'allday event'
+               ],
+                [
+                  'dtstart',
+                  {
+                    'tzid': 'Europe\/Paris'
+                  },
+                  'date',
+                  '2014-12-29'
+               ],
+                [
+                  'dtend',
+                  {
+                    'tzid': 'Europe\/Paris'
+                  },
+                  'date',
+                  '2014-12-30'
+               ],
+                [
+                  'transp',
+                  {},
+                  'text',
+                  'TRANSPARENT'
+               ],
+                [
+                  'location',
+                  {},
+                  'text',
+                  'location'
+               ],
+                [
+                  'description',
+                  {},
+                  'text',
+                  'description'
+               ],
+                [
+                  'attendee',
+                  {
+                    'partstat': 'NEEDS-ACTION',
+                    'rsvp': 'TRUE',
+                    'role': 'REQ-PARTICIPANT'
+                  },
+                  'cal-address',
+                  'mailto:user1@open-paas.org'
+               ],
+                [
+                  'attendee',
+                  {
+                    'partstat': 'NEEDS-ACTION',
+                    'rsvp': 'TRUE',
+                    'role': 'REQ-PARTICIPANT'
+                  },
+                  'cal-address',
+                  'mailto:user2@open-paas.org'
+               ]
+             ],
+              []
+           ]
+         ]
+       ];
+        var vcalendar = this.calendarService.shellToICAL(shell);
+        expect(vcalendar.toJSON()).to.deep.equal(ical);
       });
 
       it('should correctly create a non-allday event', function() {
@@ -540,17 +711,55 @@ describe('The Calendar Angular module', function() {
           allDay: false,
           title: 'non-allday event'
         };
-        var ical = {
-          uid: '00000000-0000-4000-a000-000000000000',
-          dtstart: '2014-12-29T18:00:00',
-          dtend: '2014-12-29T19:00:00',
-          summary: 'non-allday event',
-          transp: 'OPAQUE'
-        };
+        var ical = [
+          'vcalendar',
+          [],
+          [
+            [
+              'vevent',
+              [
+                [
+                  'uid',
+                  {},
+                  'text',
+                  '00000000-0000-4000-a000-000000000000'
+               ],
+                [
+                  'summary',
+                  {},
+                  'text',
+                  'non-allday event'
+               ],
+                [
+                  'dtstart',
+                  {
+                    'tzid': 'Europe\/Paris'
+                  },
+                  'date-time',
+                  '2014-12-29T18:00:00'
+               ],
+                [
+                  'dtend',
+                  {
+                    'tzid': 'Europe\/Paris'
+                  },
+                  'date-time',
+                  '2014-12-29T19:00:00'
+               ],
+                [
+                  'transp',
+                  {},
+                  'text',
+                  'OPAQUE'
+               ]
+             ],
+              []
+           ]
+         ]
+       ];
 
-        compareShell(this.calendarService, shell, ical);
-        var vevent = compareShell(this.calendarService, shell, ical);
-        expect(vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal('Europe/Paris');
+        var vcalendar = this.calendarService.shellToICAL(shell);
+        expect(vcalendar.toJSON()).to.deep.equal(ical);
       });
     });
   });
@@ -591,7 +800,10 @@ describe('The Calendar Angular module', function() {
               location: 'Paris',
               description: 'description!',
               allDay: false,
-              start: new Date()
+              start: new Date(),
+              attendeesPerPartstat: {
+                'NEEDS-ACTION': []
+              }
             }];
           };
         });
@@ -642,7 +854,7 @@ describe('The Calendar Angular module', function() {
 
         var eventLink = uiCalendarDiv.find('a');
         expect(eventLink.length).to.equal(1);
-        expect(eventLink.hasClass('eventBorder')).to.be.true;
+        expect(eventLink.hasClass('event-common')).to.be.true;
         expect(eventLink.attr('title')).to.equal('description!');
       };
 

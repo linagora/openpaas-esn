@@ -32,7 +32,7 @@ function dispatchEvent(req, res) {
 }
 
 module.exports = function(dependencies) {
-  calendar = require('./calendar.core')(dependencies);
+  calendar = require('./core')(dependencies);
   return {
     dispatchEvent: dispatchEvent
   };

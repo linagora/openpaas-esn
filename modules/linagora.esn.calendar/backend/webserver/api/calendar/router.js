@@ -4,7 +4,7 @@ var express = require('express');
 
 module.exports = function(dependencies) {
 
-  var controller = require('./calendar.controller')(dependencies);
+  var controller = require('./controller')(dependencies);
   var authorizationMW = dependencies('authorizationMW');
   var collaborationMW = dependencies('collaborationMW');
 

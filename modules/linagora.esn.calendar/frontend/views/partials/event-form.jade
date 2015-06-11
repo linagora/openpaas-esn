@@ -35,6 +35,9 @@ form.whatsup-form.form-container(role='form')
             input(type="checkbox", ng-model='event.allDay' , style='margin-left:10px; margin-right:10px', ng-change="onAllDayChecked()")
             | #{__('All day')}
   .form-group
+    tags-input(ng-model='event.attendees', display-property='displayName', placeholder='#{__("Attendees")}', on-tag-added='resetView()', replace-spaces-with-dashes='false')
+      auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200')
+  .form-group
     textarea.event-input.form-control(ng-model='event.description', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Give an event description')}", rows="{{rows}}")
   .form-group
     .text-left

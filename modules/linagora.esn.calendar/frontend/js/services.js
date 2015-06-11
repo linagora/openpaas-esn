@@ -36,8 +36,8 @@ angular.module('esn.calendar')
     };
   }])
 
-  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http',
-    function(CalendarRestangular, $rootScope, moment, jstz, tokenAPI, uuid4, ICAL, $q, $http) {
+  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', 'ICAL_PROPERTIES',
+    function(CalendarRestangular, $rootScope, moment, jstz, tokenAPI, uuid4, ICAL, $q, $http, ICAL_PROPERTIES) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -64,7 +64,8 @@ angular.module('esn.calendar')
       this.formattedEndTime = end.format('h');
       this.formattedEndA = end.format('a');
 
-      var attendees = this.attendees = {};
+      var attendeesPerPartstat = this.attendeesPerPartstat = {};
+      var attendees = this.attendees = [];
 
       vevent.getAllProperties('attendee').forEach(function(att) {
         var id = att.getFirstValue();
@@ -78,16 +79,18 @@ angular.module('esn.calendar')
           fullmail: (cn ? cn + ' <' + mail + '>' : mail),
           mail: mail,
           name: cn || mail,
-          partstat: partstat
+          partstat: partstat,
+          displayName: cn || mail
         };
 
         // We will only handle these three cases
-        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED') {
+        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED' && partstat !== 'NEEDS-ACTION') {
           partstat = 'OTHER';
         }
 
-        attendees[partstat] = attendees[partstat] || [];
-        attendees[partstat].push(data);
+        attendeesPerPartstat[partstat] = attendeesPerPartstat[partstat] || [];
+        attendeesPerPartstat[partstat].push(data);
+        attendees.push(data);
       });
 
       // NOTE: changing any of the above properties won't update the vevent, or
@@ -167,6 +170,16 @@ angular.module('esn.calendar')
       }
       if (shell.description) {
         vevent.addPropertyWithValue('description', shell.description);
+      }
+      if (shell.attendees && shell.attendees.length) {
+        shell.attendees.forEach(function(attendee) {
+          var mail = angular.isArray(attendee.emails) ? attendee.emails[0] : attendee.displayName;
+          var mailto = 'mailto:' + mail;
+          var property = vevent.addPropertyWithValue('attendee', mailto);
+          property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
+          property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
+          property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
+        });
       }
       vcalendar.addSubcomponent(vevent);
       return vcalendar;
@@ -325,4 +338,40 @@ angular.module('esn.calendar')
       timezoneLocal: timezoneLocal,
       getInvitedAttendees: getInvitedAttendees
     };
+  }])
+  .service('eventService', ['session', 'ICAL_PROPERTIES', function(session, ICAL_PROPERTIES) {
+    function render(event, element) {
+      element.find('.fc-content').addClass('ellipsis');
+
+      if (event.location) {
+        var contentElement = element.find('.fc-title');
+        contentElement.addClass('ellipsis');
+        var contentHtml = contentElement.html() + ' (' + event.location + ')';
+        contentElement.html(contentHtml);
+      }
+
+      if (event.description) {
+        element.attr('title', event.description);
+      }
+
+      var sessionUserAsAttendee = [];
+      if (event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction]) {
+        sessionUserAsAttendee = event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction].filter(function(attendee) {
+          return attendee.mail === session.user.emails[0];
+        });
+      }
+
+      if (sessionUserAsAttendee[0]) {
+        element.addClass('event-needs-action');
+      } else {
+        element.addClass('event-accepted');
+      }
+
+      element.addClass('event-common');
+    }
+
+    return {
+      render: render
+    };
+
   }]);

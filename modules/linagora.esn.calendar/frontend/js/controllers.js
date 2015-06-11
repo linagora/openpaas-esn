@@ -211,8 +211,8 @@ angular.module('esn.calendar')
     $scope.uiConfig = USER_UI_CONFIG;
   }])
 
-  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'notificationFactory', 'calendarEventSource',
-    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, notificationFactory, calendarEventSource) {
+  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'eventService', 'notificationFactory', 'calendarEventSource',
+    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, eventService, notificationFactory, calendarEventSource) {
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       var windowJQuery = angular.element($window);
@@ -238,24 +238,9 @@ angular.module('esn.calendar')
 
       windowJQuery.resize($scope.resizeCalendarHeight);
 
-      $scope.eventRender = function(event, element) {
-        element.find('.fc-content').addClass('ellipsis');
-
-        if (event.location) {
-          var contentElement = element.find('.fc-title');
-          contentElement.addClass('ellipsis');
-          var contentHtml = contentElement.html() + ' (' + event.location + ')';
-          contentElement.html(contentHtml);
-        }
-
-        if (event.description) {
-          element.attr('title', event.description);
-        }
-
-        element.addClass('eventBorder');
-      };
-
       calendarService.calendarId = $scope.calendarId;
+
+      $scope.eventRender = eventService.render;
       $scope.uiConfig.calendar.eventRender = $scope.eventRender;
 
       /*
