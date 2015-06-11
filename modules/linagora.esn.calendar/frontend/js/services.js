@@ -64,7 +64,8 @@ angular.module('esn.calendar')
       this.formattedEndTime = end.format('h');
       this.formattedEndA = end.format('a');
 
-      var attendees = this.attendees = {};
+      var attendeesPerPartstat = this.attendeesPerPartstat = {};
+      var attendees = this.attendees = [];
 
       vevent.getAllProperties('attendee').forEach(function(att) {
         var id = att.getFirstValue();
@@ -78,7 +79,8 @@ angular.module('esn.calendar')
           fullmail: (cn ? cn + ' <' + mail + '>' : mail),
           mail: mail,
           name: cn || mail,
-          partstat: partstat
+          partstat: partstat,
+          displayName: cn || mail
         };
 
         // We will only handle these three cases
@@ -86,8 +88,9 @@ angular.module('esn.calendar')
           partstat = 'OTHER';
         }
 
-        attendees[partstat] = attendees[partstat] || [];
-        attendees[partstat].push(data);
+        attendeesPerPartstat[partstat] = attendeesPerPartstat[partstat] || [];
+        attendeesPerPartstat[partstat].push(data);
+        attendees.push(data);
       });
 
       // NOTE: changing any of the above properties won't update the vevent, or
@@ -351,9 +354,12 @@ angular.module('esn.calendar')
         element.attr('title', event.description);
       }
 
-      var sessionUserAsAttendee = event.attendees[ICAL_PROPERTIES.partstat.needsaction].filter(function(attendee) {
-        return attendee.mail === session.user.emails[0];
-      });
+      var sessionUserAsAttendee = [];
+      if (event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction]) {
+        sessionUserAsAttendee = event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction].filter(function(attendee) {
+          return attendee.mail === session.user.emails[0];
+        });
+      }
 
       if (sessionUserAsAttendee[0]) {
         element.addClass('event-needs-action');

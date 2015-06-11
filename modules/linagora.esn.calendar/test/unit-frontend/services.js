@@ -54,7 +54,7 @@ describe('The Calendar Angular module', function() {
       });
 
       event = {};
-      event.attendees = {
+      event.attendeesPerPartstat = {
         'NEEDS-ACTION': []
       };
       element = new Element();
@@ -87,7 +87,7 @@ describe('The Calendar Angular module', function() {
     });
 
     it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
-      event.attendees['NEEDS-ACTION'].push({
+      event.attendeesPerPartstat['NEEDS-ACTION'].push({
         mail: 'aAttendee@open-paas.org'
       });
       this.eventService.render(event, element);
@@ -221,39 +221,62 @@ describe('The Calendar Angular module', function() {
         );
 
         this.calendarService.getEvent('/path/to/event.ics').then(function(event) {
-            expect(event).to.be.an('object');
-            expect(event.id).to.equal('myuid');
-            expect(event.title).to.equal('title');
-            expect(event.location).to.equal('location');
-            expect(event.allDay).to.be.false;
-            expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
-            expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+          expect(event).to.be.an('object');
+          expect(event.id).to.equal('myuid');
+          expect(event.title).to.equal('title');
+          expect(event.location).to.equal('location');
+          expect(event.allDay).to.be.false;
+          expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
+          expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
 
-            expect(event.formattedDate).to.equal('January 1, 2014');
-            expect(event.formattedStartTime).to.equal('2');
-            expect(event.formattedStartA).to.equal('am');
-            expect(event.formattedEndTime).to.equal('3');
-            expect(event.formattedEndA).to.equal('am');
+          expect(event.formattedDate).to.equal('January 1, 2014');
+          expect(event.formattedStartTime).to.equal('2');
+          expect(event.formattedStartA).to.equal('am');
+          expect(event.formattedEndTime).to.equal('3');
+          expect(event.formattedEndA).to.equal('am');
 
-            expect(event.attendees.ACCEPTED.length).to.equal(1);
-            expect(event.attendees.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
-            expect(event.attendees.ACCEPTED[0].mail).to.equal('test@example.com');
-            expect(event.attendees.ACCEPTED[0].name).to.equal('name');
-            expect(event.attendees.ACCEPTED[0].partstat).to.equal('ACCEPTED');
+          expect(event.attendeesPerPartstat.ACCEPTED.length).to.equal(1);
+          expect(event.attendeesPerPartstat.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].mail).to.equal('test@example.com');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].name).to.equal('name');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].partstat).to.equal('ACCEPTED');
 
-            expect(event.attendees.DECLINED.length).to.equal(1);
-            expect(event.attendees.DECLINED[0].fullmail).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].mail).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].name).to.equal('noname@example.com');
-            expect(event.attendees.DECLINED[0].partstat).to.equal('DECLINED');
+          expect(event.attendeesPerPartstat.DECLINED.length).to.equal(1);
+          expect(event.attendeesPerPartstat.DECLINED[0].fullmail).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].mail).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].name).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].partstat).to.equal('DECLINED');
 
-            expect(event.attendees.OTHER.length).to.equal(1);
-            expect(event.attendees.OTHER[0].fullmail).to.equal('tentative@example.com');
-            expect(event.attendees.OTHER[0].partstat).to.equal('TENTATIVE');
+          expect(event.attendeesPerPartstat.OTHER.length).to.equal(1);
+          expect(event.attendeesPerPartstat.OTHER[0].fullmail).to.equal('tentative@example.com');
+          expect(event.attendeesPerPartstat.OTHER[0].partstat).to.equal('TENTATIVE');
 
-            expect(event.vcalendar).to.be.an('object');
-            expect(event.path).to.equal('/path/to/event.ics');
-            expect(event.etag).to.equal('testing-tag');
+          expect(event.attendees).to.deep.equal([
+            {
+              fullmail: 'name <test@example.com>',
+              mail: 'test@example.com',
+              name: 'name',
+              partstat: 'ACCEPTED',
+              displayName: 'name'
+            },
+            {
+              fullmail: 'noname@example.com',
+              mail: 'noname@example.com',
+              name: 'noname@example.com',
+              partstat: 'DECLINED',
+              displayName: 'noname@example.com'
+            },
+            {
+              fullmail: 'tentative@example.com',
+              mail: 'tentative@example.com',
+              name: 'tentative@example.com',
+              partstat: 'TENTATIVE',
+              displayName: 'tentative@example.com'
+            }]);
+
+          expect(event.vcalendar).to.be.an('object');
+          expect(event.path).to.equal('/path/to/event.ics');
+          expect(event.etag).to.equal('testing-tag');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
@@ -778,7 +801,7 @@ describe('The Calendar Angular module', function() {
               description: 'description!',
               allDay: false,
               start: new Date(),
-              attendees: {
+              attendeesPerPartstat: {
                 'NEEDS-ACTION': []
               }
             }];
