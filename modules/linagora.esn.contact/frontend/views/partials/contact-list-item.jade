@@ -1,5 +1,5 @@
 div.contact-list-item
-  .col-xs-2
+  .col-xs-2.nopadding
     a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
       img.media-object(src='/images/user.png')
 
@@ -8,12 +8,12 @@ div.contact-list-item
       h4.media-heading.ellipsis {{::contact.displayName}}
 
       .row
-        .col-xs-7.nopadding.ellipsis-show-xs
+        .col-xs-12.col-md-7.nopadding.ellipsis
           span(ng-if='email')
-            i.fa.fa-envelope-o
+            i.fa.fa-envelope-o.hidden-xs
             a(ng-href="mailto:{{::email}}") {{::email}}
 
-        .col-xs-5.nopadding.ellipsis
+        .col-md-5.hidden-xs.nopadding.ellipsis
           span.hidden-xs(ng-if='tel')
             i.fa.fa-phone
             | {{::tel}}
