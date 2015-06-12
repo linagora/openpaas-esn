@@ -1,18 +1,17 @@
-.col-xs-12.esn-panel.contact-panel
-  .row
-    span.contact-heading
-      i.fa.fa-user
-      | #{__('Contacts')}
+.esn-panel.main-panel
+  .row.panel-header-no-button
+    .col-xs-12.panel-title
+      span.contact-heading #{__('Contacts')}
       fab.fab-fixed-bottom(type='create', on-click='openContactCreation()')
 
-  .row
-    .col-xs-11.nopadding
-      .row(id="{{prefix}}{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts")
+  .row.panel-content
+    .col-xs-11
+      .row(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         .row(ng-if='contacts && contacts.length')
           h2.letter-divider {{letter}}
           .row(ng-repeat="contact in contacts")
             hr
             contact-list-item(contact='contact', book-id="bookId")
-        .vertiz-space
-    .col-xs-1
-      alpha-menu(keys="keys", prefix="prefix")
+          .vertiz-space
+    .col-xs-1.nopadding
+      alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")

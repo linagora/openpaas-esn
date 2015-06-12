@@ -1,19 +1,19 @@
 div.contact-list-item
-  .col-xs-2
+  .col-xs-2.nopadding
     a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
       contact-photo.media-object
 
   .col-xs-7
 
-      h4.media-heading {{::contact.displayName}}
+      h4.media-heading.ellipsis {{::contact.displayName}}
 
       .row
-        .col-xs-7.nopadding.ellipsis-show-xs
+        .col-xs-12.col-md-7.nopadding.ellipsis
           span(ng-if='email')
-            i.fa.fa-envelope-o
+            i.fa.fa-envelope-o.hidden-xs
             a(ng-href="mailto:{{::email}}") {{::email}}
 
-        .col-xs-5.nopadding.ellipsis
+        .col-md-5.hidden-xs.nopadding.ellipsis
           span.hidden-xs(ng-if='tel')
             i.fa.fa-phone
             | {{::tel}}
@@ -24,16 +24,16 @@ div.contact-list-item
 
       .col-xs-4.action-item.hidden-xs
         a.write(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
-          i.fa.fa-2x.fa-pencil
+          i.mdi-content-create
 
       .col-xs-4.action-item.hidden-xs
         a.call(ng-href="")
-          i.fa.fa-2x.fa-phone-square
+          i.mdi-communication-call
 
       .col-xs-4.action-item
         .dropdown.pull-right
           a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.fa.fa-2x.fa-ellipsis-v
+            i.mdi-navigation-more-vert
           ul.dropdown-menu.dropdown-menu-right(role="menu")
             li.visible-xs
               a(ng-href="") Send Message

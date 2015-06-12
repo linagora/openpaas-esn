@@ -112,6 +112,20 @@ angular.module('esn.core', [])
       link: link
     };
   }])
+
+  .directive('onFinishRender', ['$timeout', function($timeout) {
+    return {
+      restrict: 'A',
+      link: function($scope) {
+        if ($scope.$last === true) {
+          $timeout(function() {
+            $scope.$emit('ngRepeatFinished');
+          });
+        }
+      }
+    };
+  }])
+
   .constant('routeResolver', {
     session: function(type) {
       return ['session', '$q', function(session, $q) {

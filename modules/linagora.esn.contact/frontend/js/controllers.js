@@ -59,14 +59,15 @@ angular.module('linagora.esn.contact')
 
     $scope.init();
   }])
-  .controller('contactsListController', ['$log', '$scope', '$location', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($log, $scope, $location, contactsService, CategoryService, ALPHA_ITEMS, user) {
+  .controller('contactsListController', ['$timeout', '$log', '$scope', '$location', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($timeout, $log, $scope, $location, contactsService, CategoryService, ALPHA_ITEMS, user) {
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = 'firstName';
-    $scope.prefix = 'contacts_';
+    $scope.prefix = 'contact-index';
+    $scope.showMenu = false;
 
-    $scope.categories = new CategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '-'});
+    $scope.categories = new CategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
     $scope.loadContacts = function() {
       var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
@@ -83,6 +84,10 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.loadContacts();
+
+    $scope.$on('ngRepeatFinished', function() {
+      $scope.showMenu = true;
+    });
   }])
   .controller('contactAvatarModalController', ['$scope', 'selectionService', function($scope, selectionService) {
     $scope.imageSelected = function() {

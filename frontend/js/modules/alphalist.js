@@ -2,7 +2,7 @@
 
 angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
 
-  .constant('ALPHA_ITEMS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+  .constant('ALPHA_ITEMS', '#ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
   .factory('alphaCategoryService', ['arrayHelper', 'ALPHA_ITEMS', function(arrayHelper, ALPHA_ITEMS) {
 
@@ -75,7 +75,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
 
         $scope.goToSection = function(id) {
           var prefix = $scope.prefix || 'scrollto_';
-          var e = angular.element(document.getElementById(prefix + id));
+          var e = angular.element($('[data-' + prefix + '="' + id + '"]'));
           if (e) {
             $document.scrollToElementAnimated(e);
           }
