@@ -34,6 +34,33 @@ describe('The Alpha List module', function() {
       });
     });
 
+    describe('the removeItem function', function() {
+      it('should remove the item from the list', function() {
+        var item = {firstName: 'CBC', lastName: 'DEF'};
+
+        var keys = 'ABC';
+        var others = '#';
+        var items = [
+          {firstName: 'DBC', lastName: 'DEF'},
+          item,
+          {firstName: 'CAC', lastName: 'DEF'},
+          {firstName: 'aBC', lastName: 'DEF'},
+          {firstName: 'EBC', lastName: 'DEF'},
+          {firstName: 'zBC', lastName: 'DEF'}
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+        category.removeItem(item);
+        var categories = category.get();
+
+        expect(categories.A).to.deep.equals([items[3]]);
+        expect(categories.B).to.deep.equals([]);
+        expect(categories.C).to.deep.equals([items[2]]);
+        expect(categories[others]).to.deep.equals([items[0], items[4], items[5]]);
+      });
+    });
+
     describe('the addItems function', function() {
       it('should add the items to the right categories', function() {
 

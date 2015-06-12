@@ -225,7 +225,7 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', [function() {
+  .directive('contactListItem', ['contactsService', 'notificationFactory', function(contactsService, notificationFactory) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -244,6 +244,16 @@ angular.module('linagora.esn.contact')
 
         $scope.email = getFirstValue('emails');
         $scope.tel = getFirstValue('tel');
+
+        $scope.deleteContact = function() {
+          var path = '/addressbooks/' + $scope.bookId + '/contacts';
+          contactsService.remove(path, $scope.contact).then(function() {
+            $scope.$emit('contact:deleted', $scope.contact);
+            notificationFactory.weakInfo('Contact Delete', 'Successfully deleted contact');
+          }, function() {
+            notificationFactory.weakError('Contact Delete', 'Can not delete contact');
+          });
+        };
       }
     };
   }])

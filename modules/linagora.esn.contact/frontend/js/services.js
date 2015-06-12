@@ -287,8 +287,27 @@ angular.module('linagora.esn.contact')
       });
     }
 
+    function remove(contactsPath, contact, etag) {
+      if (!contact.id) {
+        return $q.reject(new Error('Missing UID in VCARD'));
+      }
+      var headers = {};
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
+      var cardPath = contactsPath.replace(/\/$/, '') + '/' + contact.id + '.vcf';
+
+      return request('delete', cardPath, headers).then(function(response) {
+        if (response.status !== 204) {
+          return $q.reject(response);
+        }
+        return response;
+      });
+    }
+
     var serverUrlCache = null;
     return {
+      remove: remove,
       list: list,
       create: create,
       modify: modify,

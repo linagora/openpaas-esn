@@ -80,6 +80,10 @@ angular.module('linagora.esn.contact')
       $scope.openContactCreation = function() {
         $location.path('/contact/new/' + $scope.bookId);
       };
+
+      $scope.$on('contact:deleted', function(event, contact) {
+        $scope.categories.removeItem(contact);
+      });
     };
 
     $scope.loadContacts();

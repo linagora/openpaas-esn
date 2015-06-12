@@ -501,16 +501,83 @@ describe('The Contacts Angular module', function() {
         compareShell(this.contactsService, shell, ical);
       });
     });
+
+    describe('The remove fn', function() {
+
+      beforeEach(function() {
+        this.contact = {id: '00000000-0000-4000-a000-000000000000'};
+        this.$httpBackend.expectGET('/davserver/api/info').respond({url: ''});
+      });
+
+      function unexpected(done) {
+        done(new Error('Unexpected'));
+      }
+
+      it('should fail on a status that is not 204', function(done) {
+
+        this.$httpBackend.expectDELETE('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(201);
+
+        this.contactsService.remove('/path/to/book', this.contact).then(
+          unexpected.bind(null, done), function(response) {
+            expect(response.status).to.equal(201);
+            done();
+          }
+        );
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed when everything is correct', function(done) {
+
+        this.$httpBackend.expectDELETE('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(204);
+
+        this.contactsService.remove('/path/to/book', this.contact).then(
+          function(response) {
+            expect(response.status).to.equal(204);
+            done();
+          }
+        );
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should send etag as If-Match header', function(done) {
+        var requestHeaders = {
+          'If-Match': 'etag',
+          'ESNToken': '123',
+          'Accept': 'application/json, text/plain, */*'
+        };
+
+        this.$httpBackend.expectDELETE('/path/to/book/00000000-0000-4000-a000-000000000000.vcf', requestHeaders).respond(204);
+
+        this.contactsService.remove('/path/to/book', this.contact, 'etag').then(
+          function() { done(); }, unexpected.bind(null, done)
+        );
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+    });
+
   });
 
-  describe.skip('The contactListItem directive', function() {
+  describe('The contactListItem directive', function() {
 
     beforeEach(function() {
+
+      this.notificationFactory = {};
+      this.contactsService = {};
+      var self = this;
+
       angular.mock.module('ngRoute');
       angular.mock.module('esn.core');
       angular.mock.module('linagora.esn.contact');
       angular.mock.module('esn.alphalist');
       module('jadeTemplates');
+
+      angular.mock.module(function($provide) {
+        $provide.value('notificationFactory', self.notificationFactory);
+        $provide.value('contactsService', self.contactsService);
+      });
     });
 
     beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
@@ -542,6 +609,82 @@ describe('The Contacts Angular module', function() {
         expect(iscope.tel).to.equal(tel1);
         expect(iscope.email).to.equal(email1);
         done();
+      });
+    });
+
+    describe('the deleteContact function', function() {
+
+      it('should call contactsService.remove()', function(done) {
+
+        this.contactsService.remove = done();
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        iscope.deleteContact();
+        done(new Error());
+      });
+
+      it('should call $scope.$emit when remove is ok', function(done) {
+        var self = this;
+        this.notificationFactory.weakInfo = function() {};
+
+        var defer = this.$q.defer();
+        defer.resolve();
+        this.contactsService.remove = function() {
+          return defer.promise;
+        };
+
+        this.scope.$on('contact:deleted', function(event, data) {
+          expect(data).to.deep.equal(self.scope.contact);
+          done();
+        });
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        iscope.deleteContact();
+        this.scope.$digest();
+
+        done(new Error());
+      });
+
+      it('should display notification when on remove success', function(done) {
+        this.notificationFactory.weakInfo = function() {
+          done();
+        };
+
+        var defer = this.$q.defer();
+        defer.resolve();
+        this.contactsService.remove = function() {
+          return defer.promise;
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        iscope.deleteContact();
+        this.scope.$digest();
+        done(new Error());
+      });
+
+      it('should display error when on remove failure', function(done) {
+        this.notificationFactory.weakError = function() {
+          done();
+        };
+
+        var defer = this.$q.defer();
+        defer.reject();
+        this.contactsService.remove = function() {
+          return defer.promise;
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+        var iscope = element.isolateScope();
+        iscope.deleteContact();
+        this.scope.$digest();
+        done(new Error());
       });
     });
   });
