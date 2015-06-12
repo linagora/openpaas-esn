@@ -1,0 +1,117 @@
+header {
+  background-color: @primary;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3);
+  height: 65px;
+  position: fixed;
+  z-index: 10;
+  width: 100%;
+  left: 0;
+  padding-right: 10px;
+  top: 0;
+  -webkit-transition: all;
+  -o-transition: all;
+  transition: all;
+  -webkit-transition-duration: 200ms;
+  transition-duration: 200ms;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  > ul {
+    .no-list-style();
+    padding: 15px 0;
+    margin-top: 0;
+    margin-bottom: 9px;
+
+    > li {
+      display: inline-block;
+    }
+
+    > li.menu-trigger {
+      width: 65px;
+      height: 35px;
+      cursor: pointer;
+    }
+
+    > li:before {
+      content: "";
+      position: absolute;
+      top: 9px;
+      left: 7px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      -webkit-transition: all;
+      -o-transition: all;
+      transition: all;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-transform: scale(0);
+      -ms-transform: scale(0);
+      -o-transform: scale(0);
+      transform: scale(0);
+      z-index: 0;
+    }
+
+    > li.open:before {
+      -webkit-transform: scale(1);
+      -ms-transform: scale(1);
+      -o-transform: scale(1);
+      transform: scale(1);
+    }
+
+    > li .line-wrap {
+      width: 18px;
+      height: 12px;
+      -webkit-transition: all;
+      -o-transition: all;
+      transition: all;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      margin: 10px 20px;
+    }
+
+    > li.open .line-wrap {
+      -webkit-transform: rotate(180deg);
+      -ms-transform: rotate(180deg);
+      -o-transform: rotate(180deg);
+      transform: rotate(180deg);
+    }
+
+    > li .line-wrap .line {
+      background-color: #fff;
+      width: 18px;
+      height: 2px;
+      -webkit-transition: all;
+      -o-transition: all;
+      transition: all;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+    }
+
+    > li.open .line-wrap .line.top {
+      width: 12px;
+      transform: translateX(8px) translateY(1px) rotate(45deg);
+      -webkit-transform: translateX(8px) translateY(1px) rotate(45deg);
+    }
+
+    > li .line-wrap .line.center {
+      margin: 3px 0;
+    }
+
+    > li.open .line-wrap .line.bottom {
+      width: 12px;
+      transform: translateX(8px) translateY(-1px) rotate(-45deg);
+      -webkit-transform: translateX(8px) translateY(-1px) rotate(-45deg);
+    }
+
+  }
+
+}
