@@ -1,14 +1,20 @@
 'use strict';
 
 var async = require('async');
+var q = require('q');
 var eventMessage,
+    i18n,
     userModule,
     collaborationModule,
     messageHelpers,
+    arrayHelpers,
     activityStreamHelper,
     localpubsub,
     globalpubsub,
-    collaborationPermission;
+    collaborationPermission,
+    contentSender;
+
+var MAIL_TEMPLATE = 'event.invite';
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -146,17 +152,95 @@ function dispatch(data, callback) {
 }
 module.exports.dispatch = dispatch;
 
+function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callback) {
+  if (!notify) {
+    return q({}).nodeify(callback);
+  }
+
+  if (!organizer) {
+    return q.reject(new Error('Organizer must be an User object')).nodeify(callback);
+  }
+
+  if (arrayHelpers.isNullOrEmpty(attendeeEmails)) {
+    return q.reject(new Error('AttendeeEmails must an array with at least one email')).nodeify(callback);
+  }
+
+  if (!method) {
+    return q.reject(new Error('The method is required')).nodeify(callback);
+  }
+
+  if (!ics) {
+    return q.reject(new Error('The ics is required')).nodeify(callback);
+  }
+
+  function userDisplayName(user) {
+    return user.firstname + ' ' + user.lastname;
+  }
+
+  var getAllUsersAttendees = attendeeEmails.map(function(attendeeEmail) {
+    return q.nfcall(userModule.findByEmail, attendeeEmail);
+  });
+
+  return q.all(getAllUsersAttendees).then(function(users) {
+
+    var sendMailToAllAttendees = users.filter(Boolean).map(function(user) {
+
+      var from = { objectType: 'email', id: organizer.emails[0] };
+      var to = { objectType: 'email', id: user.emails[0] };
+
+      var subject = 'Unknown method';
+      switch (method) {
+        case 'REQUEST':
+          subject = i18n.__('New event from %s', userDisplayName(organizer));
+          break;
+        case 'REPLY':
+          subject = i18n.__('An event has been updated from %s', userDisplayName(organizer));
+          break;
+        case 'CANCEL':
+          subject = i18n.__('An event has been canceled from %s', userDisplayName(organizer));
+          break;
+      }
+
+      var message = {
+        subject: subject,
+        alternatives: [{
+          contents: ics,
+          contentType: 'text/calendar; charset=UTF-8; method=' + method,
+          contentEncoding: 'base64'
+        }],
+        attachments: [{
+          filename: 'invite.ics',
+          contents: ics,
+          contentType: 'application/ics'
+        }]
+      };
+      var options = {
+        template: MAIL_TEMPLATE,
+        message: message
+      };
+      return contentSender.send(from, to, {}, options, 'email');
+    });
+
+    return q.all(sendMailToAllAttendees);
+
+  }).nodeify(callback);
+}
+
 module.exports = function(dependencies) {
   eventMessage = require('./../../../lib/message/eventmessage.core')(dependencies);
+  i18n = require('../../../lib/i18n')(dependencies);
   userModule = dependencies('user');
   collaborationModule = dependencies('collaboration');
   messageHelpers = dependencies('helpers').message;
+  arrayHelpers = dependencies('helpers').array;
   activityStreamHelper = dependencies('activitystreams').helpers;
   localpubsub = dependencies('pubsub').local;
   globalpubsub = dependencies('pubsub').global;
   collaborationPermission = dependencies('collaboration').permission;
+  contentSender = dependencies('content-sender');
 
   return {
-    dispatch: dispatch
+    dispatch: dispatch,
+    inviteAttendees: inviteAttendees
   };
 };
