@@ -171,7 +171,8 @@ describe('The Contacts Angular module', function() {
     });
 
     describe('The getCard fn', function() {
-      it('should return an event', function(done) {
+
+      it('should return a contact', function(done) {
         // The server url needs to be retrieved
         this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
@@ -192,41 +193,60 @@ describe('The Contacts Angular module', function() {
             ['categories', {}, 'text', 'starred', 'asdf'],
             ['bday', {}, 'date', '2015-01-01'],
             ['nickname', {}, 'text', 'nick'],
-            ['note', {}, 'text', 'notes']
+            ['note', {}, 'text', 'notes'],
+            ['photo', {}, 'text', 'data:image/png;base64,iVBOR=']
           ], []],
           // headers:
           { 'ETag': 'testing-tag' }
         );
 
-        this.contactsService.getCard('/path/to/card.vcf').then(function(event) {
-          expect(event).to.be.an('object');
-          expect(event.id).to.equal('myuid');
+        this.contactsService.getCard('/path/to/card.vcf').then(function(contact) {
+          expect(contact).to.be.an('object');
+          expect(contact.id).to.equal('myuid');
 
-          expect(event.vcard).to.be.an('object');
-          expect(event.path).to.equal('/path/to/card.vcf');
-          expect(event.etag).to.equal('testing-tag');
+          expect(contact.vcard).to.be.an('object');
+          expect(contact.path).to.equal('/path/to/card.vcf');
+          expect(contact.etag).to.equal('testing-tag');
 
-          expect(event.firstName).to.equal('first');
-          expect(event.lastName).to.equal('last');
-          expect(event.displayName).to.equal('first last');
-          expect(event.emails).to.deep.equal([{type: 'Work', value: 'foo@example.com'}]);
-          expect(event.addresses).to.deep.equal([{
+          expect(contact.firstName).to.equal('first');
+          expect(contact.lastName).to.equal('last');
+          expect(contact.displayName).to.equal('first last');
+          expect(contact.emails).to.deep.equal([{type: 'Work', value: 'foo@example.com'}]);
+          expect(contact.addresses).to.deep.equal([{
             type: 'Home', street: 's', city: 'c', zip: 'z', country: 'co'
           }]);
-          expect(event.org).to.equal('org');
-          expect(event.orgUri).to.equal('http://linagora.com');
-          expect(event.orgRole).to.equal('role');
-          expect(event.social).to.deep.equal([{ type: 'Twitter', value: '@AwesomePaaS' }]);
-          expect(event.tags).to.deep.equal([{ text: 'asdf' }]);
-          expect(event.starred).to.be.true;
-          expect(event.birthday.getTime()).to.equal(new Date(2015, 0, 1).getTime());
-          expect(event.nickname).to.equal('nick');
-          expect(event.notes).to.equal('notes');
+          expect(contact.org).to.equal('org');
+          expect(contact.orgUri).to.equal('http://linagora.com');
+          expect(contact.orgRole).to.equal('role');
+          expect(contact.social).to.deep.equal([{ type: 'Twitter', value: '@AwesomePaaS' }]);
+          expect(contact.tags).to.deep.equal([{ text: 'asdf' }]);
+          expect(contact.starred).to.be.true;
+          expect(contact.birthday.getTime()).to.equal(new Date(2015, 0, 1).getTime());
+          expect(contact.nickname).to.equal('nick');
+          expect(contact.notes).to.equal('notes');
+          expect(contact.photo).to.equal('data:image/png;base64,iVBOR=');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
+
+      it('should return a contact with no photo if not defined in vCard', function(done) {
+        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
+        this.$httpBackend.expectGET('/path/to/card.vcf').respond(
+          ['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid']
+          ], []]
+        );
+
+        this.contactsService.getCard('/path/to/card.vcf').then(function(contact) {
+          expect(contact.photo).to.not.exist;
+        }.bind(this)).finally (done);
+
+        this.$httpBackend.flush();
+      });
+
     });
 
     describe('The create fn', function() {
