@@ -7,7 +7,7 @@
 
   .row
     .col-xs-11.nopadding
-      .row(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts")
+      .row(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         .row(ng-if='contacts && contacts.length')
           h2.letter-divider {{letter}}
           .row(ng-repeat="contact in contacts")
@@ -15,4 +15,4 @@
             contact-list-item(contact='contact', book-id="bookId")
           .vertiz-space
     .col-xs-1.nopadding
-      alpha-menu(keys="keys", prefix="prefix")
+      alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")
