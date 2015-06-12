@@ -151,9 +151,10 @@ function process(dependencies, user, digest) {
       var content = _buildContent(user, digest, baseUrl);
 
       var options = {
-        subject: content.subject,
-        template: TEMPLATE,
-        noreply: noreply
+        message: {
+          subject: content.subject
+        },
+        template: TEMPLATE
       };
       return contentSender.send(from, to, content, options, 'email');
     });

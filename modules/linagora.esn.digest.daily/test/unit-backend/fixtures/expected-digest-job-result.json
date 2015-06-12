@@ -228,8 +228,9 @@
     "footer": {}
   },
   "options": {
-    "subject": "There are 10 new messages in your communities in domainA",
-    "template": "digest.daily",
-    "noreply": "noreply@open-paas.org"
+    "message": {
+      "subject": "There are 10 new messages in your communities in domainA"
+    },
+    "template": "digest.daily"
   }
 }
