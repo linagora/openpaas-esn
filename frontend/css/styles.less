@@ -1106,9 +1106,9 @@ a.cancel:hover {
   }
 }
 
-.create-panel {
+.main-panel {
 
-  .create-header {
+  .panel-header {
     background-color: @createHeaderBackground;
     color: @createHeaderTitle;
     font-size: 18px;
@@ -1128,22 +1128,27 @@ a.cancel:hover {
       }
     }
 
-    .create-title {
+    .panel-title {
       display: flex;
       justify-content: flex-start;
       padding-top: 13px;
     }
 
     @media (max-width: @screen-xs-max) {
-      .create-title {
+      .panel-title {
         justify-content: center;
       }
     }
   }
 
-  .create-content {
+  .panel-content {
     background-color: @white;
     padding-top: 10px;
+  }
+
+  .panel-header-no-button {
+    .panel-header();
+    padding-bottom: 12px;
   }
 }
 
