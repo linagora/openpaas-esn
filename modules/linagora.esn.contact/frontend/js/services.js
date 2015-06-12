@@ -83,6 +83,7 @@ angular.module('linagora.esn.contact')
       this.vcard = vcard;
       this.path = path;
       this.etag = etag;
+      this.photo = vcard.getFirstPropertyValue('photo');
     }
 
     function getCarddavServerURL() {

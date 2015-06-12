@@ -13,11 +13,12 @@ describe('The contact Angular module directives', function() {
     angular.mock.module('linagora.esn.contact');
   });
 
-  beforeEach(inject(['$compile', '$rootScope', '$timeout', function($c, $r, $t) {
+  beforeEach(inject(['$compile', '$rootScope', '$timeout', 'DEFAULT_AVATAR', function($c, $r, $t, DEFAULT_AVATAR) {
     this.$compile = $c;
     this.$rootScope = $r;
     this.$scope = this.$rootScope.$new();
     this.$timeout = $t;
+    this.DEFAULT_AVATAR = DEFAULT_AVATAR;
 
     this.initDirective = function(scope) {
       var html = '<inline-editable-input input-class="aClass" type="aType" placeholder="aPlaceholder" ng-model="aModel" on-blur="aBlurFunction" on-save ="aSaveFunction"/>';
@@ -108,6 +109,31 @@ describe('The contact Angular module directives', function() {
       escape.which = 27;
       input.trigger(escape);
       this.$timeout.flush();
+    });
+
+  });
+
+  describe('The contactPhoto directive', function() {
+
+    var element;
+
+    beforeEach(function() {
+      element = this.$compile('<contact-photo></contact-photo>')(this.$scope);
+    });
+
+    it('should use the default avatar if contact.photo is not defined', function() {
+      this.$scope.$digest();
+
+      expect(element.find('img').attr('src')).to.equal(this.DEFAULT_AVATAR);
+    });
+
+    it('should use the contact photo if defined', function() {
+      this.$scope.contact = {
+        photo: 'data:image/png,base64;abcd='
+      };
+      this.$scope.$digest();
+
+      expect(element.find('img').attr('src')).to.equal('data:image/png,base64;abcd=');
     });
 
   });

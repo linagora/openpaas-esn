@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
+  .constant('DEFAULT_AVATAR', '/images/user.png')
   .directive('contactNavbarLink', function() {
     return {
       restrict: 'E',
@@ -224,7 +225,6 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-
   .directive('contactListItem', [function() {
     return {
       restrict: 'E',
@@ -246,4 +246,13 @@ angular.module('linagora.esn.contact')
         $scope.tel = getFirstValue('tel');
       }
     };
+  }])
+  .directive('contactPhoto', ['DEFAULT_AVATAR', function(DEFAULT_AVATAR) {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-photo.html',
+      link: function($scope) {
+        $scope.defaultAvatar = DEFAULT_AVATAR;
+      }
+    }
   }]);
