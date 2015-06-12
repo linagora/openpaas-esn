@@ -254,5 +254,5 @@ angular.module('linagora.esn.contact')
       link: function($scope) {
         $scope.defaultAvatar = DEFAULT_AVATAR;
       }
-    }
+    };
   }]);
