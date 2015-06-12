@@ -57,3 +57,55 @@ Note: A new event message is created in the activity stream of the collaboration
         "_id": "543e99a9c2e9f055718e7d92",
         "objectType": "event"
     }
+
+## POST /api/calendars/inviteattendees
+
+Create notification for specified attendees (called by the CalDAV server).
+
+Note: It send user notification and email to attendees if notify is set to true.
+
+**Request Headers:**
+
+- Content-Type: application/json
+
+**Request JSON Object:**
+
+- emails: an array of emails of the invited attendees
+- notify: whether to notify the attendee or not
+- method: the method of the ICS (REQUEST, CANCEL, REPLY, etc.)
+- event: String which contains a calendar event in ICS format
+
+**Response Headers:**
+
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK.
+- 400 Bad Request. Invalid request body or parameters.
+- 401 Unauthorized. The current request does not contains any valid data to be used for authentication.
+- 500 Internal server error.
+
+
+**Request:**
+
+    POST /api/calendars/inviteattendees
+    Content-Type: application/json
+    Host: localhost:8080
+    {
+      "recipients": [{
+        "objectType": "email",
+        "id": "user1@open-paas.org"
+      }, {
+        "objectType": "email",
+        "id": "user2@open-paas.org"
+      }],
+      "notify": "true",
+      "method": "REQUEST",
+      "event": "BEGIN:VCALENDAR..."
+    }
+
+**Response:**
+
+    HTTP/1.1 200 OK
