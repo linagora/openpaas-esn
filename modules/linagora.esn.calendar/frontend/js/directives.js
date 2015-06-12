@@ -136,7 +136,7 @@ angular.module('esn.calendar')
       function link($scope, element, attrs, controller) {
         $scope.rows = 1;
 
-        controller.initiFormData();
+        controller.initFormData();
 
         $scope.expand = function() {
           $scope.rows = 5;

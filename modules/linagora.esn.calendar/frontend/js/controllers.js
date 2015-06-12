@@ -47,7 +47,7 @@ angular.module('esn.calendar')
       $scope.editedEvent = {};
       $scope.restActive = false;
 
-      this.initiFormData = function() {
+      this.initFormData = function() {
         if (!$scope.event) {
           $scope.event = {
             startDate: dateService.getNewDate(),
@@ -81,7 +81,7 @@ angular.module('esn.calendar')
       }
 
       this.addNewEvent = function() {
-        if (!$scope.event.title || $scope.event.title.trim().length === 0) {
+        if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
           _displayError('You must define an event title');
           return;
         }
