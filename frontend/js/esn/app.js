@@ -51,7 +51,8 @@ angular.module('esnApp', [
   'esn.injection',
   'esn.collaboration',
   'esn.company',
-  'esn.localstorage'
+  'esn.localstorage',
+  'esn.sidebar',
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {
