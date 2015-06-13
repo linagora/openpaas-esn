@@ -1,8 +1,23 @@
 aside#sidebar(collaborations-event-listener, sidebar, click-outside="clickOutside()")
-  div(ng-controller='ASTrackerController')
-    .esn-panel.widget
-      list-community-activity-streams
-    .vertiz-space
-    .esn-panel.widget
-      list-project-activity-streams
-    .vertiz-space
+  .sidebar-inner
+    .si-inner
+      .panel-group(role='tablist' bs-collapse)
+        .panel
+          .profile-menu(role='tab')
+            a(bs-collapse-toggle)
+              .profile-pic
+                img(ng-controller='avatarController' ng-src='{{avatarURL}}')
+              .profile-info
+                user-name-display
+        
+            ul#profileMenuContent(role="tabpanel"  bs-collapse-target)
+              li
+                a Yeah
+      
+      div(ng-controller='ASTrackerController')
+        .esn-panel.widget
+          list-community-activity-streams
+        .vertiz-space
+        .esn-panel.widget
+          list-project-activity-streams
+        .vertiz-space

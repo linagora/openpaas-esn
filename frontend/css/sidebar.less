@@ -1,3 +1,7 @@
+@sidebar-width: 250px;
+@profile-height: 129px;
+@profile-avatar-size: 47px;
+
 #sidebar {
   position: fixed;
   background: #fff;
@@ -7,7 +11,7 @@
   -webkit-transform: translate3d(-250px, 0, 0);
   transform: translate3d(-250px, 0, 0);
   z-index: 5;
-  width: 250px;
+  width: @sidebar-width;
   overflow: hidden;
   opacity: 0;
   filter: alpha(opacity=0);
@@ -23,4 +27,51 @@
     opacity: 1;
     filter: alpha(opacity=100);
   }
+
+  > .sidebar-inner {
+    height: 100%;
+    overflow-y: auto;
+    width: @sidebar-width + 50px;
+
+    > .si-inner {
+      width: @sidebar-width;
+
+
+      .profile-menu::before .profile-menu::after{
+        content: " ";
+        display: table;
+      }
+
+      .profile-menu > a {
+        display: block;
+        height: @profile-height;
+        margin-bottom: 5px;
+        width: 100%;
+//        background: url(../img/profile-menu.png) no-repeat left top;
+//        background-size: 100%;
+      }
+
+      .profile-pic {
+        padding: 12px;
+
+        img{
+          width: @profile-avatar-size;
+          height: @profile-avatar-size;
+          border-radius: 50%;
+          border: 3px solid rgba(0, 0, 0, 0.14);
+          box-sizing: content-box;
+        }
+      }
+
+      .profile-info {
+        background: rgba(0, 0, 0, 0.37);
+        padding: 7px 14px;
+        color: #fff;
+        margin-top: 20px;
+        position: relative;
+      }
+    }
+
+  }
+
 }
