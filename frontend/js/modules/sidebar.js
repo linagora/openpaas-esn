@@ -40,6 +40,7 @@ angular.module('esn.sidebar', [])
         opened = true;
         open();
       } else if (data.display === false && opened === true) {
+        opened = false;
         close();
       }
     });
