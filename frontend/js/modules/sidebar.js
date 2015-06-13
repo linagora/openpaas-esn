@@ -55,4 +55,19 @@ angular.module('esn.sidebar', [])
     restrict: 'A',
     link: link
   };
+}])
+.directive('sideBarToggler', ['$rootScope', function($rootScope) {
+  function link(scope, element) {
+    element.on('click', function() {
+      var askForDisplay = !element.hasClass('open');
+      element.toggleClass('open');
+      var data = {display: askForDisplay};
+      $rootScope.$broadcast('sidebar:display', data);
+    });
+  }
+  return {
+    restrict: 'A',
+    scope: {},
+    link: link
+  };
 }]);
