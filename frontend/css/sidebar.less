@@ -1,0 +1,26 @@
+#sidebar {
+  position: fixed;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(51, 51, 51, 0.38);
+  top: 65px;
+  height: calc(100% - 65px);
+  -webkit-transform: translate3d(-250px, 0, 0);
+  transform: translate3d(-250px, 0, 0);
+  z-index: 5;
+  width: 250px;
+  overflow: hidden;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  -webkit-transition: all;
+  -o-transition: all;
+  transition: all;
+  -webkit-transition-duration: 300ms;
+  transition-duration: 300ms;
+
+  &.toggled {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    filter: alpha(opacity=100);
+  }
+}
