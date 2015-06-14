@@ -1,13 +1,13 @@
-div.list-community(ng-controller="communityAStrackerController")
-    div.title
-        i.fa.fa-users
-        | #{__('My communities')}
-    hr
+li.sub-menu(ng-controller="communityAStrackerController", data-toggle='collapse', href='#communityMenuContent')
+  a(href='')
+    i.fa.fa-users
+    | #{__('My communities')}
     div(ng-show='error') {{error}}
-    ul.nav.nav-pills.nav-stacked(ng-hide='error')
-        li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'community'}")
-            a(href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
-                .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
-                .ellipsis
-                    img(src='/images/community.png' ng-src='{{::activityStream.img}}')
-                    | {{::activityStream.display_name}}
+    ul#communityMenuContent.collapse(ng-hide='error', close-sidebar-on-click)
+      li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'community'}")
+        a(href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
+          img(src='/images/community.png' ng-src='{{::activityStream.img}}')
+          .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
+          .ellipsis
+
+            | {{::activityStream.display_name}}

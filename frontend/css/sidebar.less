@@ -42,13 +42,18 @@
         display: table;
       }
 
+      .profile-menu .main-menu {
+          border-bottom: 1px solid #E6E6E6;
+      }
+
       .profile-menu > a {
         display: block;
         height: @profile-height;
         margin-bottom: 5px;
         width: 100%;
+        background: url(/images/sidebar.png) no-repeat left top;
 //        background: url(../img/profile-menu.png) no-repeat left top;
-//        background-size: 100%;
+        background-size: 100%;
       }
 
       .profile-pic {
@@ -74,4 +79,116 @@
 
   }
 
+  .main-menu {
+    list-style: none;
+    padding: 0;
+
+    li > a {
+      padding: 14px 20px 14px 52px;
+      display: block;
+      color: #4C4C4C;
+      font-weight: 500;
+      position: relative;
+
+      > i {
+        position: absolute;
+        left: 16px;
+        font-size: 1.4em;
+      }
+
+    }
+
+     li > a:hover {
+      color: #262626;
+      background-color: #f7f7f7;
+    }
+
+    > li.sub-menu > ul {
+      list-style: none;
+      padding: 0;
+
+      > li {
+        position: relative;
+       > a {
+         color: #7f7f7f;
+         padding: 8px 20px 8px 50px;
+         font-weight: 500;
+         display: block;
+
+
+         img {
+           position: absolute;
+           width: 20px;
+           height: 20px;
+           top: 10px;
+           left: 16px;
+         }
+        }
+      }
+      > li:first-child > a {
+        padding-top: 14px;
+      }
+      > li:last-child > a {
+        padding-bottom: 16px;
+      }
+    }
+
+
+
+    > li.sub-menu > a:before,  > li.sub-menu > a:after {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+      color: #575757;
+      font-family: 'FontAwesome';
+      font-size: 17px;
+      -webkit-transition: all;
+      -o-transition: all;
+      transition: all;
+      -webkit-transition-duration: 250ms;
+      transition-duration: 250ms;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+
+    > li.sub-menu > a:before {
+      content: "\f067";
+      -webkit-transform: scale(1);
+      -ms-transform: scale(1);
+      -o-transform: scale(1);
+      transform: scale(1);
+    }
+
+    > li.sub-menu > a:after {
+      content: "\f068";
+      -webkit-transform: scale(0);
+      -ms-transform: scale(0);
+      -o-transform: scale(0);
+      transform: scale(0);
+    }
+    > li.sub-menu[aria-expanded=true] > a:before {
+      -webkit-transform: scale(0) rotate(-90deg);
+      -ms-transform: scale(0) rotate(-90deg);
+      -o-transform: scale(0) rotate(-90deg);
+      transform: scale(0) rotate(-90deg);
+    }
+
+    > li.sub-menu[aria-expanded=true] > a:after {
+      -webkit-transform: scale(1);
+      -ms-transform: scale(1);
+      -o-transform: scale(1);
+      transform: scale(1);
+    }
+
+  }
+
+
+  .main-menu.app-menu {
+    margin: 20px 0 0 0;
+  }
+}
+
+#communityMenuContent > li > a:first-child, #projectMenuContent > li > a:first-child {
+  display: none !important;
 }

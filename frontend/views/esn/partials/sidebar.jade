@@ -1,23 +1,37 @@
 aside#sidebar(collaborations-event-listener, sidebar)
   .sidebar-inner
     .si-inner
-      .panel-group(role='tablist' bs-collapse)
-        .panel
-          .profile-menu(role='tab')
-            a(bs-collapse-toggle)
-              .profile-pic
-                img(ng-controller='avatarController' ng-src='{{avatarURL}}')
-              .profile-info
-                user-name-display
-        
-            ul#profileMenuContent(role="tabpanel"  bs-collapse-target)
-              li
-                a Yeah
-      
-      div(ng-controller='ASTrackerController')
-        .esn-panel.widget
-          list-community-activity-streams
-        .vertiz-space
-        .esn-panel.widget
-          list-project-activity-streams
-        .vertiz-space
+      .profile-menu
+        a(data-toggle='collapse', href='#profileMenuContent', ng-click='$event.preventDefault();')
+          .profile-pic
+            img(ng-controller='avatarController' ng-src='{{avatarURL}}')
+          .profile-info
+            user-name-display
+    
+        ul#profileMenuContent.collapse.main-menu(close-sidebar-on-click)
+          li: a(href='/#/profile')
+            i.fa.fa-user
+            | #{__('My Account')}
+          li: a(href='{{"/#/domains/" + domain._id + "/members"}}')
+            i.fa.fa-users
+            | #{__('Members')}
+          li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}')
+            i.fa.fa-envelope-square
+            | #{__('Invitation')}
+          li: a(href='/#/applications')
+            i.fa.fa-rocket
+            | #{__('Applications')}
+          li: a(href='/#/appstore')
+            i.fa.fa-cubes
+            | #{__('Module Manager')}
+          injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
+          li: a(href='/logout')
+            i.fa.fa-sign-out
+            | #{__('Logout')}
+
+      ul.main-menu.app-menu(ng-controller='ASTrackerController')
+        li: a(href='/#/')
+          i.fa.fa-home
+          | #{__('Home')}
+        list-community-activity-streams
+        list-project-activity-streams

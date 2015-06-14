@@ -7,14 +7,17 @@ angular.module('esn.sidebar', [])
     var opened = false;
 
     function clickOutsideHandler(e) {
-      var elt;
+      var elt, sidebar = element.get(0);
 
       if (!e.target) {
         return;
       }
 
       for (elt = e.target; elt; elt = elt.parentNode) {
-        if (elt === element.get(0)) {
+        if (elt === sidebar) {
+          if (!e.isDefaultPrevented()) {
+            close();
+          }
           return ;
         }
       }
@@ -27,22 +30,22 @@ angular.module('esn.sidebar', [])
       $timeout(function() {
         $document.on('click', clickOutsideHandler);
       },0);
+      opened = true;
     }
 
     function close() {
       $document.off('click', clickOutsideHandler);
       element.removeClass('toggled');
       $rootScope.$broadcast('sidebar:closed');
+      opened = false;
     }
 
     scope.onClickOutside = close;
 
     $rootScope.$on('sidebar:display', function(evt, data) {
       if (data.display === true && opened === false) {
-        opened = true;
         open();
       } else if (data.display === false && opened === true) {
-        opened = false;
         close();
       }
     });
@@ -68,7 +71,7 @@ angular.module('esn.sidebar', [])
     });
 
     scope.$on('sidebar:closed', function() {
-      if ( element.hasClass('open')) {
+      if (element.hasClass('open')) {
         element.removeClass('open');
       }
     });
@@ -76,6 +79,18 @@ angular.module('esn.sidebar', [])
   return {
     restrict: 'A',
     scope: {},
+    link: link
+  };
+}])
+.directive('closeSidebarOnClick', ['$rootScope', function($rootScope) {
+  function link(scope, element, attr) {
+    element.click(function() {
+      $rootScope.$broadcast('sidebar:display', {display: false});
+    });
+  }
+
+  return {
+    restrict: 'A',
     link: link
   };
 }]);

@@ -1,13 +1,11 @@
-div.list-community(ng-controller="projectsAStrackerController")
-  div.title
+li.sub-menu(ng-controller="projectsAStrackerController", data-toggle='collapse', href='#projectMenuContent')
+  a(href='')
     i.fa.fa-suitcase
     | #{__('My projects')}
-  hr
-  div(ng-show='error') {{error}}
-  ul.nav.nav-pills.nav-stacked(ng-hide='error || !show')
-    li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'project'}")
-      a(href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
-        .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
-        .ellipsis
-          img(fallback-src='/project/images/project.png' src='/project/images/project.png' ng-src='{{::activityStream.img}}')
-          | {{::activityStream.display_name}}
+    div(ng-show='error') {{error}}
+    ul#projectMenuContent.collapse(ng-hide='error', close-sidebar-on-click)
+      li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'project'}")
+        a(href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
+          img(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='{{::activityStream.img}}')
+          .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
+          .ellipsis {{::activityStream.display_name}}
