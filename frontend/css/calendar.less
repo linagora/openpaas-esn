@@ -1,24 +1,13 @@
-@import "../../../../frontend/css/variables";
 
-@event-color: #4caf50 !important;
-@header-color: #f32c1e;
-@toolbar-color: #f44336;
-
-.submit-button {
-  margin-right: 10px;
+#calendar-widget {
+  margin-bottom: 30px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
-.event-common {
-
-}
-
-.event-accepted {
-  border: solid 1px rgba(255,255,255,0.5);
-}
-
-.event-needs-action {
-  background-color:rgba(58, 135, 173, 0.5);
-  border: dashed 1px rgba(255,255,255,0.5);
+#fc-actions {
+  position: absolute;
+  top: 24px;
+  right: 12px;
 }
 
 .fc {
@@ -33,7 +22,7 @@
 }
 
 .fc th {
-  background: @header-color;
+  background: #f32c1e;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 400;
   padding: 6px 0;
@@ -48,7 +37,7 @@
 }
 
 .fc-toolbar {
-  background-color: @toolbar-color;
+  background-color: #f44336;
   margin-bottom: 0;
   padding: 20px 7px 19px;
   position: relative;
@@ -76,8 +65,9 @@
 .fc-toolbar .ui-button > span {
   position: relative;
   font-family: 'Material-Design-Icons';
+  //font-family: 'Material Design Iconic Font';
   font-size: 20px;
-  color: @white;
+  color: #FFF;
   line-height: 100%;
   width: 30px;
   padding-top: 5px;
@@ -92,10 +82,12 @@
 
 .fc-toolbar .ui-button > span.ui-icon-circle-triangle-w:before {
   content: "\e8a1";
+  //content: "\f297";
 }
 
 .fc-toolbar .ui-button > span.ui-icon-circle-triangle-e:before {
   content: "\e8a5";
+  //content: "\f298";
 }
 
 .fc-toolbar .ui-button > span:after {
@@ -130,7 +122,6 @@
   font-size: 11px;
   border-radius: 0;
   border: 0;
-  background-color: @event-color;
 }
 
 .fc-event .fc-title {
@@ -149,6 +140,11 @@
 .fc-view > table {
   border: 0;
   overflow: hidden;
+  /*
+    @media @min-992 {
+	    width: ~"calc(100% + 1px)";
+    }
+    */
 }
 
 .fc-view > table > tbody > tr > .ui-widget-content {

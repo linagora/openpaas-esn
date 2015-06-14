@@ -10,10 +10,11 @@ angular.module('esn.calendar')
       weekNumbers: true,
       firstDay: 1,
       header: {
-        left: 'prev,next today',
-        center: 'title',
+        left: '',
+        center: 'prev, title, next',
         right: 'month,agendaWeek,agendaDay'
-      }
+      },
+      theme: true
     }
   })
   .constant('USER_UI_CONFIG', {
@@ -27,10 +28,11 @@ angular.module('esn.calendar')
       weekNumbers: true,
       firstDay: 1,
       header: {
-        left: 'prev,next today',
-        center: 'title',
+        left: '',
+        center: 'prev, title, next',
         right: 'month,agendaWeek,agendaDay'
       },
+      theme: true,
       // TODO: i18n
       buttonText: {
         today: 'Today',
