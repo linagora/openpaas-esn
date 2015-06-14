@@ -257,6 +257,28 @@ angular.module('linagora.esn.contact')
       }
     };
   }])
+  .directive('contactListCard', [function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-card.html',
+      scope: {
+        contact: '=',
+        bookId: '='
+      },
+      link: function($scope) {
+
+        function getFirstValue(property) {
+          if (!$scope.contact[property] || !$scope.contact[property][0]) {
+            return;
+          }
+          return $scope.contact[property][0].value;
+        }
+
+        $scope.email = getFirstValue('emails');
+        $scope.tel = getFirstValue('tel');
+      }
+    };
+  }])
   .directive('contactPhoto', ['DEFAULT_AVATAR', function(DEFAULT_AVATAR) {
     return {
       restrict: 'E',

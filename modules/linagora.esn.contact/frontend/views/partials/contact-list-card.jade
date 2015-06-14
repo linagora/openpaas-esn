@@ -1,0 +1,25 @@
+.col-md-3.col-sm-3.col-xs-4.card-padding
+  .card-item
+    a.card-avatar(ng-href="#/contact/{{::bookId}}/{{::contact.id}}")
+      contact-photo
+    .card-info
+      strong {{::contact.displayName || '&nbsp;'}}
+      small {{::email || '&nbsp;'}}
+    .card-footer
+      .item
+        a.write(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
+          i.mdi-content-create
+      .item
+        a.call(ng-href="")
+          i.mdi-communication-message
+      .item
+        .actions.dropdown.pull-right
+          a(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true" class="moreactions dropdown-toggle")
+            i.mdi-navigation-more-vert
+          ul.dropdown-menu.dropdown-menu-right(role="menu")
+            li
+              a(ng-href="") Send Message
+            li
+              a(ng-href="") Call
+            li
+              a(ng-href="") Delete

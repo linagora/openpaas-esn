@@ -3,9 +3,17 @@
 angular.module('linagora.esn.contact', [
   'restangular', 'esn.alphalist', 'mgcrea.ngStrap.datepicker'
 ]).config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
-  $routeProvider.when('/contact', {
+  $routeProvider.when('/contact/list', {
     templateUrl: '/contact/views/contacts',
     controller: 'contactsListController',
+    resolve: {
+      domain: routeResolver.session('domain'),
+      user: routeResolver.session('user')
+    }
+  });
+  $routeProvider.when('/contact', {
+    templateUrl: '/contact/views/contacts-card',
+    controller: 'contactsCardsController',
     resolve: {
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')

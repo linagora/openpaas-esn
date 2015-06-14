@@ -93,6 +93,25 @@ angular.module('linagora.esn.contact')
       $scope.showMenu = true;
     });
   }])
+  .controller('contactsCardsController', ['$log', '$scope', '$location', 'contactsService', 'user', function($log, $scope, $location, contactsService, user) {
+    $scope.user = user;
+    $scope.bookId = $scope.user._id;
+
+    $scope.loadContacts = function() {
+      var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
+      contactsService.list(path).then(function(data) {
+        $scope.contacts = data;
+      }, function(err) {
+        $log.error('Can not get contacts', err);
+      });
+
+      $scope.openContactCreation = function() {
+        $location.path('/contact/new/' + $scope.bookId);
+      };
+    };
+
+    $scope.loadContacts();
+  }])
   .controller('contactAvatarModalController', ['$scope', 'selectionService', function($scope, selectionService) {
     $scope.imageSelected = function() {
       return !!selectionService.getImage();

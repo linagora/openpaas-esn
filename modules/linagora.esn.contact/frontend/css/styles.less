@@ -3,6 +3,11 @@
 @import "../../../../frontend/css/variables";
 @import "../../../../frontend/css/commons";
 
+@action-color: #333;
+@card-border-color: #e2e2e2;
+@card-info-strong-color: #000;
+@card-info-small-color: #999;
+
 .contact-panel {
 
   hr {
@@ -97,7 +102,7 @@ contact-display, contact-display-editable {
     padding-bottom: 15px;
   }
 
-  .action-item {
+  .contact-action-item {
     padding-left: 5px;
     .dropdown {
       position: absolute;
@@ -151,4 +156,92 @@ contact-display, contact-display-editable {
       }
     }
   }
+}
+
+.contacts .card-item {
+  border: 1px solid @card-border-color;
+  border-radius: 2px;
+  margin-bottom: 24px;
+  background-color: @white;
+}
+
+.contacts .card-item .card-avatar {
+  display: block;
+}
+
+.contacts .card-item .card-avatar img {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+}
+
+.contacts .card-avatar {
+  margin: -1px -1px 0;
+}
+
+.contacts .card-info {
+  text-align: center;
+  margin-top: 15px;
+  padding: 0 5px;
+}
+
+.contacts .card-info strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  color: @card-info-strong-color;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.contacts .card-info small {
+  color: @card-info-small-color;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.contacts .card-footer {
+  border-top: 1px solid @card-border-color;
+  margin-top: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  a {
+    color: @action-color;
+  }
+
+  .item {
+    align-self: flex-start;
+  }
+
+  .actions {
+    .dropdown {
+      position: absolute;
+    }
+    button.btn {
+      float: right;
+    }
+    a {
+      cursor: pointer;
+    }
+    a.write {
+      color: @red
+    }
+    a.call {
+      color: @dark-green
+    }
+    a.moreactions {
+      color: @black
+    }
+  }
+}
+
+.contacts .card-padding {
+  padding-left: 5px;
+  padding-right: 5px;
 }
