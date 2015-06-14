@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.sidebar', [])
-.directive('sidebar', ['$rootScope', '$document', function($rootScope, $document) {
+.directive('sidebar', ['$rootScope', '$document', '$timeout', function($rootScope, $document, $timeout) {
   function link(scope, element, attr) {
 
     var opened = false;
@@ -19,18 +19,20 @@ angular.module('esn.sidebar', [])
         }
       }
 
-       scope.$eval(scope.clickOutside);
-
+      scope.onClickOutside();
     }
 
     function open() {
-      $document.on('click', clickOutsideHandler);
       element.addClass('toggled');
+      $timeout(function() {
+        $document.on('click', clickOutsideHandler);
+      },0);
     }
 
     function close() {
-      $document.on('click', clickOutsideHandler);
+      $document.off('click', clickOutsideHandler);
       element.removeClass('toggled');
+      $rootScope.$broadcast('sidebar:closed');
     }
 
     scope.onClickOutside = close;
@@ -63,6 +65,12 @@ angular.module('esn.sidebar', [])
       element.toggleClass('open');
       var data = {display: askForDisplay};
       $rootScope.$broadcast('sidebar:display', data);
+    });
+
+    scope.$on('sidebar:closed', function() {
+      if ( element.hasClass('open')) {
+        element.removeClass('open');
+      }
     });
   }
   return {
