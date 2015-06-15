@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports.isNullOrEmpty = function(array) {
-  return (!array || array.length === 0);
+  return (!Array.isArray(array) || array.length === 0);
 };

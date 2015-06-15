@@ -23,5 +23,8 @@
   "Going": "Going",
   "Not Going": "Not Going",
   "Calendars": "Calendars",
-  "Attendees": "Attendees"
+  "Attendees": "Attendees",
+  "New event from %s": "New event from %s",
+  "An event has been updated from %s": "An event has been updated from %s",
+  "An event has been canceled from %s": "An event has been canceled from %s"
 }

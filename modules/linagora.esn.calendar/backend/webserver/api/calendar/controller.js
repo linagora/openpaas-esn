@@ -1,6 +1,7 @@
 'use strict';
 
-var calendar;
+var calendar,
+    arrayHelpers;
 
 function dispatchEvent(req, res) {
   if (!req.user) {
@@ -31,9 +32,41 @@ function dispatchEvent(req, res) {
   });
 }
 
+function inviteAttendees(req, res) {
+  if (!req.user) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+  }
+
+  var emails = req.body.emails;
+  if (!emails || arrayHelpers.isNullOrEmpty(emails)) {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'The "emails" array is required and must contain at least one element'}});
+  }
+
+  var notify = req.body.notify || false;
+
+  var method = req.body.method;
+  if (!method || typeof method !== 'string') {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Method is required and must be a string (REQUEST, REPLY, CANCEL, etc.)'}});
+  }
+
+  var event = req.body.event;
+  if (!event || typeof event !== 'string') {
+    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Event is required and must be a string (ICS format)'}});
+  }
+
+  calendar.inviteAttendees(req.user, emails, notify, method, event, function(err, result) {
+    if (err) {
+      return res.json(500, {error: {code: 500, message: 'Error when trying to send invite to attendees', details: err.message}});
+    }
+    return res.status(200).end();
+  });
+}
+
 module.exports = function(dependencies) {
   calendar = require('./core')(dependencies);
+  arrayHelpers = dependencies('helpers').array;
   return {
-    dispatchEvent: dispatchEvent
+    dispatchEvent: dispatchEvent,
+    inviteAttendees: inviteAttendees
   };
 };

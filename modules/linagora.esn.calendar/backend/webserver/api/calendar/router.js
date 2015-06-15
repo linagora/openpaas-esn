@@ -16,5 +16,9 @@ module.exports = function(dependencies) {
     collaborationMW.requiresCollaborationMember,
     controller.dispatchEvent);
 
+  router.post('/api/calendars/inviteattendees',
+    authorizationMW.requiresAPILogin,
+    controller.inviteAttendees);
+
   return router;
 };
