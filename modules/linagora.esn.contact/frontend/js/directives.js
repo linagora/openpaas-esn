@@ -261,6 +261,10 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-photo.html',
+      scope: {
+        contact: '=',
+        editable: '@'
+      },
       link: function($scope) {
         $scope.defaultAvatar = DEFAULT_AVATAR;
       }

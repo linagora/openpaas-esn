@@ -1,17 +1,17 @@
 .form-horizontal
   .row
-    .col-md-7
+    .col-lg-7
       .row
-        .col-xs-6.col-sm-8
+        .col-xs-12.col-sm-4.col-sm-push-8.all-centered
+          div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
+            contact-photo(contact='contact', editable='true')
+        .col-xs-12.col-sm-8.col-sm-pull-4
           .form-group
             input.bigger.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-disabled='true')
           .form-group
             input.bigger.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-disabled='true')
           .form-group
             inline-editable-input(input-class='bigger form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
-        .col-xs-6.col-sm-4
-          .photo
-            contact-photo
       .form-group(ng-show='contact.org')
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
@@ -19,7 +19,7 @@
       multi-inline-editable-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}', multi-input-on-save='modify')
       multi-inline-editable-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}', multi-input-on-save='modify')
       multi-inline-editable-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]', multi-input-on-save='modify')
-    .col-md-5
+    .col-lg-5
       .form-group.tags-group
         label.control-label.sr-only #{__("Tags")}
         .col-sm-12
