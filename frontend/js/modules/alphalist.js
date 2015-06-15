@@ -42,6 +42,14 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
       }
     };
 
+    Categorize.prototype._removeItemFromCategories = function _removeItemsFromCategories(item) {
+      if (!item) {
+        return;
+      }
+      var letter = item[this.sortBy].toUpperCase().charAt(0);
+      this.categories[letter].splice(this.categories[letter].indexOf(item), 1);
+    };
+
     Categorize.prototype._sort = function _sort() {
       var self = this;
       Object.keys(this.categories).forEach(function(name) {
@@ -56,6 +64,10 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
 
     Categorize.prototype.get = function get() {
       return this.categories;
+    };
+
+    Categorize.prototype.removeItem = function removeItem(item) {
+      this._removeItemFromCategories(item);
     };
 
     return Categorize;
