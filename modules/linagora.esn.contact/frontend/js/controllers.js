@@ -37,7 +37,7 @@ angular.module('linagora.esn.contact')
     $scope.contact = {};
 
     $scope.close = function() {
-      $location.path('/contacts');
+      $location.path('/contact');
     };
 
     $scope.accept = function() {
