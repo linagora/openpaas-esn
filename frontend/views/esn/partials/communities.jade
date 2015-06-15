@@ -1,39 +1,33 @@
-.col-xs-12.esn-panel
-  .row
-    h2.esn-communities-header
-      ul.list-inline
-        li
-          i.fa.fa-users
-          | #{__('Communities')}
-        li.pull-right
+.container
+  .row.container-title
+    h2 #{__('Communities')}
+
+  .row.container-main-content
+    .col-xs-12
+      .row.actions-top
+        community-create-button
+      .row
+        ul.nav.nav-pills.nav-justified
+          li(ng-class="{active: selected === 'all', disabled: loading}")
+            a(ng-click="getAll()", href="") #{__('All')}
+          li(ng-class="{active: selected === 'membership', disabled: loading}")
+            a(ng-click="getMembership()", href="") #{__('Member of')}
+          li(ng-class="{active: selected === 'moderator', disabled: loading}")
+            a(ng-click="getModerator()", href="") #{__('Owned')}
+        hr(ng-show="!communities.length")
+
+      .row(ng-hide="loading", ng-repeat="community in communities | orderBy:'title'")
+        hr
+        community-display(community="community", actions='true')
+      .text-center(ng-show="loading" openpaas-logo-spinner spinner-start-active='1' spinner-size='1')
+      .row.alert.alert-danger(ng-show="error && !loading", role="alert")
+        p #{__('Error while loading communities !')}
+      .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'all'", role="alert")
+        p #{__('There is no communities yet. Create a new one with the following link:')}
           community-create-button
-  .vertiz-space
-
-  .row
-    ul.nav.nav-pills.nav-justified
-      li(ng-class="{active: selected === 'all', disabled: loading}")
-        a(ng-click="getAll()", href="") #{__('All')}
-      li(ng-class="{active: selected === 'membership', disabled: loading}")
-        a(ng-click="getMembership()", href="") #{__('Member of')}
-      li(ng-class="{active: selected === 'moderator', disabled: loading}")
-        a(ng-click="getModerator()", href="") #{__('Owned')}
-  hr(ng-show="!communities.length")
-  .row(ng-hide="loading", ng-repeat="community in communities | orderBy:'title'")
-    hr
-    community-display(community="community", actions='true')
-
-  .row.alert.alert-info(ng-show="loading", role="alert")
-    p
-      i.fa.fa-cog.fa-spin
-      | #{__('Loading communities...')}
-  .row.alert.alert-danger(ng-show="error && !loading", role="alert")
-    p #{__('Error while loading communities !')}
-  .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'all'", role="alert")
-    p #{__('There is no communities yet. Create a new one with the following link:')}
-      community-create-button
-  .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'membership'", role="alert")
-    p #{__('You are not member of any community. Please join one first.')}
-  .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'moderator'", role="alert")
-    p #{__('You are not moderator of any community yet. Create a new one with the following link:')}
-      community-create-button
-  .vertiz-space
+      .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'membership'", role="alert")
+        p #{__('You are not member of any community. Please join one first.')}
+      .row.alert.alert-info(ng-show="!loading && !error && communities.length === 0 && selected === 'moderator'", role="alert")
+        p #{__('You are not moderator of any community yet. Create a new one with the following link:')}
+          community-create-button
+      .vertiz-space

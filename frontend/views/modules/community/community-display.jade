@@ -3,7 +3,7 @@ div.nopadding.esn-community
   .col-lg-2.col-sm-3.col-xs-4
 
     a(href='#/communities/{{community._id}}')
-      img.thumbnail.nopadding(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
+      img.community-avatar(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
 
   .col-lg-10.col-sm-9.col-xs-8
     h4.media-heading
@@ -12,7 +12,6 @@ div.nopadding.esn-community
       small &nbsp; {{community.type}}
     ul.list-inline
       li.pull-left
-        i.fa.fa-users
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
       li.pull-right(ng-if='::actions')
