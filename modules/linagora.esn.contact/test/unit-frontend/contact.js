@@ -11,6 +11,7 @@ describe('The Contacts Angular module', function() {
     beforeEach(function() {
       angular.mock.module('ngRoute');
       angular.mock.module('esn.core');
+      angular.mock.module('ui.identicon');
       angular.mock.module('linagora.esn.contact');
       angular.mock.module('esn.alphalist');
     });

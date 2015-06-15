@@ -1,3 +1,2 @@
-.photo
-  img(ng-src='{{contact.photo || defaultAvatar}}')
-  i.fa.fa-edit.hint.text-center(ng-show='editable') #{__('Click to edit')}
+img(ng-if='contact.photo' ng-src='{{contact.photo}}')
+identicon(ng-if='!contact.photo' username='contact.id' size='200')

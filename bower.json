@@ -71,7 +71,8 @@
     "angular-jstz": "czarpino/angular-jstz",
     "angular-scroll": "~0.7.0",
     "angular-gist": "~0.1.3",
-    "twitter-platform-widget": "http://platform.twitter.com/widgets.js"
+    "twitter-platform-widget": "http://platform.twitter.com/widgets.js",
+    "angular-identicon": "linagora/angular-identicon#08991627de8b29d226370c69d0e160d5aa676a30"
   },
   "resolutions": {
     "jquery": "2.1.1",
