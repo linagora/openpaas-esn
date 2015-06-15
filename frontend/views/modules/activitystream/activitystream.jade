@@ -1,8 +1,8 @@
 div(activity-stream-notification)
-  div
+  div.message-input
     message-edition(ng-show="activitystream.writable")
   activity-stream-updates-notifier
-  div
+  div.timeline
       div#activitystreamerror
       div.text-center.bg-info(ng-show="threads.length===0 && !restActive") #{__('There are no messages on this activity stream yet. Be the first to post !')}
       .row
