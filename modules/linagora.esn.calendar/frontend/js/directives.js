@@ -80,7 +80,7 @@ angular.module('esn.calendar')
     function(Wizard, $rootScope) {
       function link($scope, element) {
         $scope.wizard = new Wizard([
-          '/calendar/views/partials/event-creation-wizard'
+          '/calendar/views/partials/event-create-wizard'
         ]);
         $rootScope.$on('modal.show', function() {
           element.find('input[ng-model="event.title"]').focus();
@@ -135,16 +135,9 @@ angular.module('esn.calendar')
     function($q, $rootScope, $alert, Wizard, calendarService, notificationFactory, dateService, domainAPI, session) {
       function link($scope, element, attrs, controller) {
         $scope.rows = 1;
-        if (!$scope.event) {
-          $scope.event = {
-            startDate: dateService.getNewDate(),
-            endDate: dateService.getNewEndDate(),
-            allDay: false
-          };
-          $scope.modifyEventAction = false;
-        } else {
-          $scope.modifyEventAction = true;
-        }
+
+        controller.initFormData();
+
         $scope.expand = function() {
           $scope.rows = 5;
         };
@@ -153,6 +146,10 @@ angular.module('esn.calendar')
           if (!$scope.event.description) {
             $scope.rows = 1;
           }
+        };
+
+        $scope.closeModal = function() {
+          $scope.createModal.hide();
         };
 
         $scope.addNewEvent = controller.addNewEvent;
@@ -197,7 +194,6 @@ angular.module('esn.calendar')
   ])
   .directive('eventQuickForm', function() {
       function link($scope, element, attrs, controller) {
-
         $scope.addNewEvent = controller.addNewEvent;
         $scope.deleteEvent = controller.deleteEvent;
         $scope.modifyEvent = controller.modifyEvent;

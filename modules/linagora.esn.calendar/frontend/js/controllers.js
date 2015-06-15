@@ -44,6 +44,22 @@ angular.module('esn.calendar')
 
   .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'dateService', 'calendarService', 'moment', 'notificationFactory',
     function($rootScope, $scope, $alert, dateService, calendarService, moment, notificationFactory) {
+      $scope.editedEvent = {};
+      $scope.restActive = false;
+
+      this.initFormData = function() {
+        if (!$scope.event) {
+          $scope.event = {
+            startDate: dateService.getNewDate(),
+            endDate: dateService.getNewEndDate(),
+            allDay: false
+          };
+          $scope.modifyEventAction = false;
+        } else {
+          $scope.modifyEventAction = true;
+        }
+        angular.extend($scope.editedEvent, $scope.event);
+      };
 
       function _displayError(err) {
         $alert({
@@ -65,16 +81,17 @@ angular.module('esn.calendar')
       }
 
       this.addNewEvent = function() {
-        if (!$scope.event.title || $scope.event.title.trim().length === 0) {
+        if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
           _displayError('You must define an event title');
           return;
         }
         if (!$scope.calendarId) {
           $scope.calendarId = calendarService.calendarId;
         }
-        var event = $scope.event;
+        var event = $scope.editedEvent;
         var path = '/calendars/' + $scope.calendarId + '/events';
         var vcalendar = calendarService.shellToICAL(event);
+        $scope.restActive = true;
         calendarService.create(path, vcalendar).then(function(response) {
           if ($scope.activitystream) {
             $rootScope.$emit('message:posted', {
@@ -86,6 +103,8 @@ angular.module('esn.calendar')
           _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.event.title + ' is created');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
+        }).finally (function() {
+          $scope.restActive = false;
         });
       };
 
@@ -94,6 +113,7 @@ angular.module('esn.calendar')
           $scope.calendarId = calendarService.calendarId;
         }
         var path = '/calendars/' + $scope.calendarId + '/events';
+        $scope.restActive = true;
         calendarService.remove(path, $scope.event).then(function(response) {
           if ($scope.activitystream) {
             $rootScope.$emit('message:posted', {
@@ -105,16 +125,27 @@ angular.module('esn.calendar')
           _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' is deleted');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
+        }).finally (function() {
+          $scope.restActive = false;
         });
       };
 
       this.modifyEvent = function() {
+        if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
+          _displayError('You must define an event title');
+          return;
+        }
+
         if (!$scope.calendarId) {
           $scope.calendarId = calendarService.calendarId;
         }
-        var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.event.id + '.ics';
+        var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
 
-        calendarService.modify(path, $scope.event).then(function(response) {
+        $scope.editedEvent.start = moment($scope.editedEvent.startDate);
+        $scope.editedEvent.end = moment($scope.editedEvent.endDate);
+
+        $scope.restActive = true;
+        calendarService.modify(path, $scope.editedEvent).then(function(response) {
           if ($scope.activitystream) {
             $rootScope.$emit('message:posted', {
               activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -125,12 +156,14 @@ angular.module('esn.calendar')
           _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.event.title + ' is modified');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+        }).finally (function() {
+          $scope.restActive = false;
         });
       };
 
       this.resetEvent = function() {
         $scope.rows = 1;
-        $scope.event = {
+        $scope.editedEvent = {
           startDate: dateService.getNewDate(),
           endDate: dateService.getNewEndDate(),
           diff: 1,
@@ -139,63 +172,62 @@ angular.module('esn.calendar')
       };
 
       this.getMinDate = function() {
-        if ($scope.event.startDate) {
-          var date = new Date($scope.event.startDate.getTime());
-          date.setDate($scope.event.startDate.getDate() - 1);
+        if ($scope.editedEvent.startDate) {
+          var date = new Date($scope.editedEvent.startDate.getTime());
+          date.setDate($scope.editedEvent.startDate.getDate() - 1);
           return date;
         }
         return null;
       };
 
       this.onAllDayChecked = function() {
-        if ($scope.event.allDay) {
-          if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
-            $scope.event.endDate = moment($scope.event.startDate).add(1, 'days').toDate();
+        if ($scope.editedEvent.allDay) {
+          if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+            $scope.editedEvent.endDate = moment($scope.editedEvent.startDate).add(1, 'days').toDate();
           }
         } else {
-          $scope.event.endDate = $scope.event.startDate;
+          $scope.editedEvent.endDate = $scope.editedEvent.startDate;
         }
       };
 
       this.onStartDateChange = function() {
-        var startDate = moment($scope.event.startDate);
-        var endDate = moment($scope.event.endDate);
+        var startDate = moment($scope.editedEvent.startDate);
+        var endDate = moment($scope.editedEvent.endDate);
         if (startDate.isAfter(endDate)) {
           startDate.add(1, 'hours');
-          $scope.event.endDate = startDate.toDate();
+          $scope.editedEvent.endDate = startDate.toDate();
         }
       };
 
       this.onStartTimeChange = function() {
-        if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
-          var startDate = moment($scope.event.startDate);
-          var endDate = moment($scope.event.endDate);
-          $scope.event.diff = endDate.diff(endDate, 'hours');
+        if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+          var startDate = moment($scope.editedEvent.startDate);
+          var endDate = moment($scope.editedEvent.endDate);
+          $scope.editedEvent.diff = endDate.diff(endDate, 'hours');
 
           if (startDate.isAfter(endDate) || startDate.isSame(endDate)) {
-            startDate.add($scope.event.diff || 1, 'hours');
-            $scope.event.endDate = startDate.toDate();
+            startDate.add($scope.editedEvent.diff || 1, 'hours');
+            $scope.editedEvent.endDate = startDate.toDate();
           } else {
             endDate = moment(startDate);
-            endDate.add($scope.event.diff || 1, 'hours');
-            $scope.event.endDate = endDate.toDate();
+            endDate.add($scope.editedEvent.diff || 1, 'hours');
+            $scope.editedEvent.endDate = endDate.toDate();
           }
         }
       };
 
       this.onEndTimeChange = function() {
-
-        if (dateService.isSameDay($scope.event.startDate, $scope.event.endDate)) {
-          var startDate = moment($scope.event.startDate);
-          var endDate = moment($scope.event.endDate);
+        if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+          var startDate = moment($scope.editedEvent.startDate);
+          var endDate = moment($scope.editedEvent.endDate);
 
           if (endDate.isAfter(startDate)) {
-            $scope.event.diff = $scope.event.endDate.getHours() - $scope.event.startDate.getHours();
+            $scope.editedEvent.diff = $scope.editedEvent.endDate.getHours() - $scope.editedEvent.startDate.getHours();
           } else {
-            $scope.event.diff = 1;
+            $scope.editedEvent.diff = 1;
             endDate = moment(startDate);
-            endDate.add($scope.event.diff, 'hours');
-            $scope.event.endDate = endDate.toDate();
+            endDate.add($scope.editedEvent.diff, 'hours');
+            $scope.editedEvent.endDate = endDate.toDate();
           }
         }
       };
