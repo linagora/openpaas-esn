@@ -1,0 +1,74 @@
+mixin attendeeDisplay(mail, partstat)
+  div
+    p
+      if (partstat === 'NEEDS-ACTION')
+        img(src="cid:needsaction", alt="needs-action logo")
+      else if (partstat === 'ACCEPTED')
+        img(src="cid:accepted", alt="accepted logo")
+      else if (partstat === 'DECLINED')
+        img(src="cid:declined", alt="declined logo")
+      span #{mail}
+
+doctype html
+html.mail
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    style
+      include ../css/media.less
+
+  body
+    .wrapper
+      br
+      .mail-content
+        .header.mail-header
+          table
+            tr
+              td
+                div.logo
+                  a(href="")
+                    img(src="cid:logo", alt="open-paas logo")
+              td
+                h2
+                  br
+                  | Hello #{content.user.displayName}
+
+        table
+          tr
+            th New appointment !
+          tr
+            td(colspan="2") You are invited to attend this appointment:
+          tr
+            td Summary
+            td #{content.event.summary}
+          tr
+            td From
+            td #{content.event.start}
+          tr
+          tr
+            td To
+            td #{content.event.end}
+          tr
+          tr
+            td Location
+            td #{content.event.location}
+          tr
+          tr
+            td Organizer
+            td #{content.event.organizer}
+          tr
+          tr
+            td Attendees
+            td
+          tr
+          each partstat, mail in content.event.attendees
+            tr
+              td
+              td
+                +attendeeDisplay(mail, partstat)
+            tr
+
+      footer
+        .producer
+          | OpenPaas is coded with love by&nbsp;
+          a.linagora(href="http://linagora.com") Linagora

@@ -1,7 +1,9 @@
 'use strict';
 
+var util = require('util');
 var async = require('async');
 var q = require('q');
+var jcal2content = require('../../../lib/jcal/jcal2content');
 var eventMessage,
     i18n,
     userModule,
@@ -14,7 +16,7 @@ var eventMessage,
     collaborationPermission,
     contentSender;
 
-var MAIL_TEMPLATE = 'event.invite';
+var MAIL_TEMPLATE = 'event.invitation';
 
 /**
  * Check if the user has the right to create an eventmessage in that
@@ -218,7 +220,18 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
         template: MAIL_TEMPLATE,
         message: message
       };
-      return contentSender.send(from, to, {}, options, 'email');
+
+
+      var event = jcal2content(ics);
+      var content = {
+        user: {
+          displayName: util.format('%s %s', user.firstname, user.lastname),
+          id: user._id
+        },
+        event: event
+      };
+
+      return contentSender.send(from, to, content, options, 'email');
     });
 
     return q.all(sendMailToAllAttendees);

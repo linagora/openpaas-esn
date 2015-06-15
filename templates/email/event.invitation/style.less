@@ -1,0 +1,53 @@
+@esn-primary-dark: rgb(35,35,35);
+@esn-secondary-dark: #4B81ED;
+@esn-primary-light: #fff;
+@esn-primary-lesslight: rgb(214,215,217);
+@esn-primary-middle: rgb(65,65,65);
+@esn-highlight: #ffc107;
+@esn-highlight-dark: rgb(21,21,21);
+@esn-fa: #FAFAFA;
+@esn-linagora: #BE1F3A;
+
+@published-date: darken(@esn-primary-lesslight, 20%);
+
+body {
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  div.wrapper {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: @esn-fa;
+    border: 3px solid;
+  }
+
+  div.mail-content {
+    padding: 0 10px 10px 10px;
+    border-radius: 5px;
+    text-align: justify;
+
+    div.header.mail-header {
+      color: @esn-primary-middle;
+      border-bottom: 1px solid @esn-primary-lesslight;
+      margin-bottom: 20px;
+
+      h1 {
+        margin-left: 15px;
+      }
+    }
+  }
+
+  footer {
+    margin-right: 3px;
+    margin-top:10px;
+    text-align: right;
+    color: @esn-primary-middle;
+
+    a {
+      color: @esn-linagora;
+    }
+  }
+}
