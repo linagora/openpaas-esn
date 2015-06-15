@@ -1,3 +1,9 @@
+'use strict';
+
+/* global chai: false */
+
+var expect = chai.expect;
+
 describe('The Calendar Angular module', function() {
 
   var newDate = 'newDate';
