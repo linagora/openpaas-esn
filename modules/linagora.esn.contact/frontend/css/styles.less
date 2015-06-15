@@ -8,6 +8,8 @@
 @card-info-strong-color: #000;
 @card-info-small-color: #999;
 
+@search-background: @red;
+
 .contact-panel {
 
   hr {
@@ -156,6 +158,30 @@ contact-display, contact-display-editable {
       }
     }
   }
+}
+
+.contacts .search {
+
+  background-color: @search-background;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+
+  input[type="text"] {
+    border: 0;
+    height: 40px;
+    padding: 0 10px 0 40px;
+    font-size: 18px;
+    margin: 12px;
+    width: 500px;
+    border-radius: 2px;
+    color: rgba(255, 255, 255, 0.80);
+    background-color: rgba(255, 255, 255, 0.26);
+    background-image: url("../img/search.png");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+  }
+
 }
 
 .contacts .card-item {

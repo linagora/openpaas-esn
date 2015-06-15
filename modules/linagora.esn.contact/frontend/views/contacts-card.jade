@@ -1,3 +1,11 @@
-.col-xs-12.contacts
-  .row
-    contact-list-card(ng-repeat="contact in contacts" contact='contact', book-id="bookId")
+.container
+  .row.container-title
+    h2 #{__('Contacts')}
+    fab.fab-fixed-bottom(type='create', on-click='openContactCreation()')
+
+  .row.container-main-content
+    .col-xs-12.contacts
+      .row.search
+        input(type="text")
+      .row
+        contact-list-card(ng-repeat="contact in contacts" contact='contact', book-id="bookId")
