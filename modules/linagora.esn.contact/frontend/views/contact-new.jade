@@ -1,11 +1,10 @@
-form.esn-panel.main-panel(ng-submit='accept()')
-  .row.panel-header
-    .col-sm-7.col-xs-12.panel-title
-      span.contact-heading
-        | #{__('Create a new contact')}
-    .col-sm-5.col-xs-12.action-bar
-      button.btn.btn-default.btn-raised.btn-cancel(type='button', ng-click='close()') #{__('Cancel')}
-      button.btn.btn-primary.btn-raised #{__('Create')}
-  .row.create-content
-    .vertiz-space
-      contact-display(contact='contact')
+form(ng-submit='accept()')
+  .container
+    .row.container-title
+      h2 #{__('Create a new contact')}
+    .row.container-main-content
+      .row.actions-top
+        button.btn.btn-default.btn-raised.btn-cancel(type='button', ng-click='close()') #{__('Cancel')}
+        button.btn.btn-primary.btn-raised #{__('Create')}
+      .row
+        contact-display(contact='contact')
