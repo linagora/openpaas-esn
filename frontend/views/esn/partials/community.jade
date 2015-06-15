@@ -1,22 +1,32 @@
-.col-xs-12.esn-panel.community-summary
-    community-description(community="community")
-.row(ng-if='canRead()')
+.container
+  .row.container-title
+    h2 #{__('{{community.title}}')}
+
   .row
-    .col-xs-12.esn-panel.community-summary
-      community-actions-toolbar(community="community")
-  .row
-    .col-lg-9.col-md-9.col-sm-9.col-xs-12.esn-component-container
-      // TODO Remove this when the injection module has
-      // the method to inject inside all domains.
-      activity-stream(activitystream='community', writable='community.writable', streams='streams', calendar-id='community._id')
-    .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane
-      collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
-      .vertiz-space
-      collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
-      .vertiz-space
-      collaboration-invite-users(object-type="community", collaboration="community")
-      .vertiz-space
-      injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
-      .vertiz-space
-.col-xs-12.esn-panel(ng-if='!canRead()')
-  p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}
+    .col-xs-12.contacts
+
+      .row.col-xs-12.community-summary(ng-hide='true')
+          community-description(community="community")
+
+      .row(ng-if='canRead()')
+        .row(ng-hide='true')
+          .col-xs-12.community-summary
+            community-actions-toolbar(community="community")
+
+      .row
+        .col-xs-12
+          // TODO Remove this when the injection module has
+          // the method to inject inside all domains.
+          activity-stream(activitystream='community', writable='community.writable', streams='streams', calendar-id='community._id')
+        .col-lg-3.col-md-3.col-sm-3.hidden-xs.rightPane(ng-hide='true')
+          collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
+          .vertiz-space
+          collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
+          .vertiz-space
+          collaboration-invite-users(object-type="community", collaboration="community")
+          .vertiz-space
+          injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
+          .vertiz-space
+
+    .col-xs-12.esn-panel(ng-if='!canRead()')
+      p.text-center.community-not-allowed #{__('You are no allowed to see the content of this community.')}
