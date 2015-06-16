@@ -71,6 +71,7 @@ describe('The calendar core module', function() {
 
   beforeEach(function() {
     initMock();
+    mockery.registerMock('../../../lib/jcal/jcal2content', function() {});
     mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
     this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
     this.moduleHelpers.addDep('user', userMock);
@@ -427,7 +428,7 @@ describe('The calendar core module', function() {
           expect(to).to.deep.equal({objectType: 'email', id: attendee2.emails[0]});
         }
         var expectedOptions = {
-          template: 'event.invite',
+          template: 'event.invitation',
           message: {
             subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname,
             alternatives: [{
