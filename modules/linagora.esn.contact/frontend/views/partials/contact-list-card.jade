@@ -1,7 +1,7 @@
 .col-md-3.col-sm-3.col-xs-4.card-padding
   .card-item
     a.card-avatar(ng-href="#/contact/{{::bookId}}/{{::contact.id}}")
-      contact-photo
+      contact-photo(contact='contact')
     .card-info
       strong {{::contact.displayName || '&nbsp;'}}
       small {{::email || '&nbsp;'}}
