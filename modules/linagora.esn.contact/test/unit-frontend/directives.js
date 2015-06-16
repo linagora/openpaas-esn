@@ -118,7 +118,7 @@ describe('The contact Angular module directives', function() {
     var element;
 
     beforeEach(function() {
-      element = this.$compile('<contact-photo></contact-photo>')(this.$scope);
+      element = this.$compile('<contact-photo contact="contact"></contact-photo>')(this.$scope);
     });
 
     it('should use the default avatar if contact.photo is not defined', function() {
@@ -134,6 +134,22 @@ describe('The contact Angular module directives', function() {
       this.$scope.$digest();
 
       expect(element.find('img').attr('src')).to.equal('data:image/png,base64;abcd=');
+    });
+
+  });
+
+  describe('The editable contactPhoto directive', function() {
+
+    var element;
+
+    beforeEach(function() {
+      element = this.$compile('<contact-photo editable="true" contact="contact"></contact-photo>')(this.$scope);
+    });
+
+    it('should display the hint', function() {
+      this.$scope.$digest();
+
+      expect(element.find('i').css('display')).to.not.equal('none');
     });
 
   });

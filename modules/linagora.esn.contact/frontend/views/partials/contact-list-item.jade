@@ -1,7 +1,7 @@
 div.contact-list-item
   .col-xs-2.nopadding
     a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
-      contact-photo.media-object
+      contact-photo.media-object(contact='contact')
 
   .col-xs-7
 
