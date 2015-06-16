@@ -114,4 +114,110 @@ header {
 
   }
 
+  .top-menu {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .top-menu > ul {
+    border-radius: 0px;
+  }
+
+  li > a.tm-notification {
+    background-image: url("/images/icons/notification.png");
+  }
+
+  .top-menu > li > a {
+    height: 35px;
+    min-width: 50px;
+    display: inline-block;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    z-index: 1;
+  }
+
+  .top-menu > li.dropdown.open > ul > li > a > i {
+    font-style: normal;
+  }
+
+  .top-menu > li.dropdown.open > ul {
+    border-radius: 0;
+  }
+
+
+  .top-menu > li.dropdown.open > ul > li > a > i {
+    font-style: normal;
+  }
+
+  .top-menu > li > a.tm-settings {
+    background-image: url("/images/icons/ellipsis.png");
+  }
+
+  .top-menu > li > a > .tmn-counts {
+    position: absolute;
+    color: #FFF;
+    font-style: normal;
+    background: #f44336;
+    padding: 1px 5px;
+    border-radius: 2px;
+    right: 7px;
+    top: -3px;
+    font-size: 10px;
+    -webkit-animation-name: wobble;
+    animation-name: wobble;
+    -webkit-animation-duration: 500ms;
+    animation-duration: 500ms;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+  }
+
+  .top-menu > li:not(#toggle-width):before {
+    left: 0;
+    top: 0;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-transform: scale3d(0, 0, 0);
+    -moz-transform: scale3d(0, 0, 0);
+    -ms-transform: scale3d(0, 0, 0);
+    -o-transform: scale3d(0, 0, 0);
+    transform: scale3d(0, 0, 0);
+    -webkit-transition: all;
+    -o-transition: all;
+    transition: all;
+    -webkit-transition-duration: 250ms;
+    transition-duration: 250ms;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    backface-visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.12);
+    z-index: 0;
+    border-radius: 2px;
+    opacity: 0;
+    filter: alpha(opacity=0);
+  }
+
+  .top-menu > li:not(#toggle-width):hover:before {
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    -o-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+    opacity: 1;
+    filter: alpha(opacity=100);
+  }
+
+  .top-menu > li:not(#toggle-width).open:before {
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+    filter: alpha(opacity=100);
+  }
+
 }

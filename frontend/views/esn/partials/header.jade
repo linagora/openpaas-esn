@@ -5,3 +5,31 @@ header(role="navigation")
         .line.top
         .line.center
         .line.bottom
+    li.pull-right
+      ul.top-menu
+        li.dropdown
+          a.tm-notification(data-toggle='dropdown', href='')
+            i.tmn-counts 3
+          ul.dropdown-menu.pull-right
+            li
+              a(href='') Michael joined NodeJS community
+            li
+              a(href='') Stephen published the 'HackMe' event
+            li
+              a(href='') Stephane shared a Tweet
+
+        li.dropdown
+          a.tm-settings(data-toggle='dropdown', href='')
+          ul.dropdown-menu.dm-icon.pull-right
+            li
+              a(data-action='fullscreen', href='')
+                i Toggle Fullscreen
+            li
+              a(data-action='clear-localstorage', href='')
+                i Clear Local Storage
+            li
+              a(href='')
+                i Privacy Settings
+            li
+              a(href='')
+                i Other Settings
