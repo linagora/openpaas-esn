@@ -194,6 +194,8 @@ angular.module('esn.calendar')
   ])
   .directive('eventQuickForm', function() {
       function link($scope, element, attrs, controller) {
+        controller.initFormData();
+
         $scope.addNewEvent = controller.addNewEvent;
         $scope.deleteEvent = controller.deleteEvent;
         $scope.modifyEvent = controller.modifyEvent;
