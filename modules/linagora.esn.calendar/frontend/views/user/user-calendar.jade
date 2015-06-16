@@ -1,11 +1,10 @@
-div
-  .row
+.container
+  .row.container-title
+    h2 #{__('My Calendar')}
     .fab.fab-fixed-bottom
       event-button-create(user='user')
-  .row
-    .col-xs-12
-      span {{alertMessage}}
-  .vertiz-space
-  .row
-    .col-xs-12
-      calendar-display(calendar-id='calendarId', ui-config='uiConfig')
+
+  .row.container-main-content
+    .col-xs-12.contacts
+      .row
+        calendar-display(calendar-id='calendarId', ui-config='uiConfig')
