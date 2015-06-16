@@ -55,7 +55,7 @@ angular.module('esn.calendar')
           $scope.event = {
             startDate: $scope.event.startDate || dateService.getNewDate(),
             endDate: $scope.event.endDate || dateService.getNewEndDate(),
-            allDay: false
+            allDay: $scope.event.allDay || false
           };
           $scope.modifyEventAction = false;
         } else {
