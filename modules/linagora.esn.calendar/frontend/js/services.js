@@ -93,6 +93,18 @@ angular.module('esn.calendar')
         attendees.push(data);
       });
 
+      var organizer = vevent.getFirstProperty('organizer');
+      if (organizer) {
+        var organizerMail = organizer.getFirstValue();
+        var organizerCN = organizer.getParameter('cn');
+        this.organizer = {
+          fullmail: (organizerCN ? organizerCN + ' <' + organizerMail + '>' : organizerMail),
+          mail: organizerMail,
+          name: organizerCN || organizerMail,
+          displayName: organizerCN || organizerMail
+        };
+      }
+
       // NOTE: changing any of the above properties won't update the vevent, or
       // vice versa.
       this.vcalendar = vcalendar;
@@ -162,6 +174,11 @@ angular.module('esn.calendar')
       dtstart.isDate = shell.allDay;
       dtend.isDate = shell.allDay;
 
+      if (shell.organizer) {
+        var organizer = vevent.addPropertyWithValue('organizer', 'mailto:' + shell.organizer.mail);
+        organizer.setParameter('cn', organizer.displayName);
+      }
+
       vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
       vevent.addPropertyWithValue('dtend', dtend).setParameter('tzid', timezoneLocal);
       vevent.addPropertyWithValue('transp', shell.allDay ? 'TRANSPARENT' : 'OPAQUE');
@@ -179,6 +196,7 @@ angular.module('esn.calendar')
           property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
           property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
           property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
+          property.setParameter('cn', attendee.displayName);
         });
       }
       vcalendar.addSubcomponent(vevent);

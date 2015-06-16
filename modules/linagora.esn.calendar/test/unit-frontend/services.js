@@ -680,7 +680,8 @@ describe('The Calendar Angular module', function() {
                   {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
-                    'role': 'REQ-PARTICIPANT'
+                    'role': 'REQ-PARTICIPANT',
+                    'cn': 'user1@open-paas.org'
                   },
                   'cal-address',
                   'mailto:user1@open-paas.org'
@@ -690,7 +691,8 @@ describe('The Calendar Angular module', function() {
                   {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
-                    'role': 'REQ-PARTICIPANT'
+                    'role': 'REQ-PARTICIPANT',
+                    'cn': 'user2@open-paas.org'
                   },
                   'cal-address',
                   'mailto:user2@open-paas.org'
