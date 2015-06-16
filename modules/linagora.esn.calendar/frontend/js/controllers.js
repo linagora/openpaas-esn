@@ -50,10 +50,11 @@ angular.module('esn.calendar')
       $scope.restActive = false;
 
       this.initFormData = function() {
-        if (!$scope.event) {
+        $scope.event = $scope.event || {};
+        if (!$scope.event._id) {
           $scope.event = {
-            startDate: dateService.getNewDate(),
-            endDate: dateService.getNewEndDate(),
+            startDate: $scope.event.startDate || dateService.getNewDate(),
+            endDate: $scope.event.endDate || dateService.getNewEndDate(),
             allDay: false
           };
           $scope.modifyEventAction = false;
@@ -301,7 +302,7 @@ angular.module('esn.calendar')
           endDate: end.toDate(),
           allDay: !start.hasTime(end)
         };
-        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
+        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-modal', backdrop: 'static'});
       };
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
