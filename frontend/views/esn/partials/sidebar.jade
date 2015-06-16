@@ -10,28 +10,28 @@ aside#sidebar(collaborations-event-listener, sidebar)
     
         ul#profileMenuContent.collapse.main-menu(close-sidebar-on-click)
           li: a(href='/#/profile')
-            i.fa.fa-user
+            i.mdi-social-person
             | #{__('My Account')}
           li: a(href='{{"/#/domains/" + domain._id + "/members"}}')
-            i.fa.fa-users
+            i.mdi-social-group
             | #{__('Members')}
           li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}')
-            i.fa.fa-envelope-square
+            i.mdi-content-send
             | #{__('Invitation')}
           li: a(href='/#/applications')
-            i.fa.fa-rocket
+            i.mdi-navigation-apps
             | #{__('Applications')}
           li: a(href='/#/appstore')
-            i.fa.fa-cubes
+            i.mdi-action-store
             | #{__('Module Manager')}
           injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
           li: a(href='/logout')
-            i.fa.fa-sign-out
+            i.mdi-action-exit-to-app
             | #{__('Logout')}
 
       ul.main-menu.app-menu(ng-controller='ASTrackerController')
         li: a(href='/#/')
-          i.fa.fa-home
+          i.mdi-action-home
           | #{__('Home')}
         list-community-activity-streams
         list-project-activity-streams
