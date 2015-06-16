@@ -97,6 +97,12 @@ angular.module('linagora.esn.contact')
     $scope.user = user;
     $scope.bookId = $scope.user._id;
 
+    $scope.contactPath = 'https://sabre-dev.open-paas.org/addressbooks/' + $scope.bookId + '/contacts';
+    $scope.showContactPath = false;
+    $scope.toggleContactPath = function() {
+      $scope.showContactPath = !$scope.showContactPath;
+    }
+
     $scope.loadContacts = function() {
       var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
       contactsService.list(path).then(function(data) {

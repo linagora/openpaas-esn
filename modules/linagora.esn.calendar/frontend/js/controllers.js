@@ -243,6 +243,11 @@ angular.module('esn.calendar')
   .controller('userCalendarController', ['$scope', 'user', 'USER_UI_CONFIG', function($scope, user, USER_UI_CONFIG) {
     $scope.calendarId = user._id;
     $scope.uiConfig = USER_UI_CONFIG;
+    $scope.calendarPath = 'https://sabre-dev.open-paas.org/calendars/' + $scope.calendarId + '/events/';
+    $scope.showCalendarPath = false;
+    $scope.toggleCalendarPath = function() {
+      $scope.showCalendarPath = !$scope.showCalendarPath;
+    }
   }])
 
   .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'eventService', 'notificationFactory', 'calendarEventSource',

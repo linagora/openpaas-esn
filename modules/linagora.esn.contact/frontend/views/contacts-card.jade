@@ -1,6 +1,8 @@
 .container
   .row.container-title
-    h2 #{__('Contacts')}
+    h2
+      span(ng-click='toggleContactPath()') #{__('My Contacts')}
+      span.small(ng-show='showContactPath') &nbsp;&nbsp;&nbsp;{{contactPath}}
     fab.fab-fixed-bottom(type='create', on-click='openContactCreation()')
 
   .row.container-main-content

@@ -1,6 +1,8 @@
 .container
   .row.container-title
-    h2 #{__('My Calendar')}
+    h2
+      span(ng-click='toggleCalendarPath()') #{__('My Calendar')}
+      span.small(ng-show='showCalendarPath') &nbsp;&nbsp;&nbsp;{{calendarPath}}
     .fab.fab-fixed-bottom
       event-button-create(user='user')
 
