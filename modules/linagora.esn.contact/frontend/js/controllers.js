@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .controller('newContactController', ['$scope', '$route', '$location', 'contactsService', 'notificationFactory', function($scope, $route, $location, contactsService, notificationFactory) {
+  .controller('newContactController', ['$scope', '$route', '$location', '$alert', 'contactsService', 'ContactsHelper', 'notificationFactory', function($scope, $route, $location, $alert, contactsService, ContactsHelper, notificationFactory) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
     $scope.calling = false;
@@ -10,20 +10,37 @@ angular.module('linagora.esn.contact')
       $location.path('/contact');
     };
 
-    function getContactDisplay() {
-      return [$scope.contact.firstName || '', $scope.contact.lastName || ''].join(' ').trim();
+    function _displayError(err) {
+      $alert({
+        content: err,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '.create-contact-error-container',
+        duration: '3',
+        animation: 'am-flip-x'
+      });
     }
 
     $scope.accept = function() {
+
       if ($scope.calling) {
         return;
       }
+
+      var formattedName = ContactsHelper.getFormattedName($scope.contact);
+      if (!formattedName) {
+        return _displayError('Please fill at least a field');
+      }
+
+      $scope.displayName = formattedName;
+
       $scope.calling = true;
       var vcard = contactsService.shellToVCARD($scope.contact);
       var path = '/addressbooks/' + $scope.bookId + '/contacts';
       contactsService.create(path, vcard).then(function() {
         $scope.close();
-        notificationFactory.weakInfo('Contact creation', 'Successfully created ' + getContactDisplay());
+        notificationFactory.weakInfo('Contact creation', 'Successfully created ' + formattedName);
       }, function(err) {
         notificationFactory.weakError('Contact creation', err.message || 'Something went wrong');
       }).finally (function() {

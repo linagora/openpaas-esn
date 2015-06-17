@@ -7,9 +7,9 @@
             contact-photo(contact='contact', editable='true')
         .col-xs-12.col-sm-8.col-sm-pull-4
           .form-group
-            input.bigger.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-required='!contact.lastName')
+            input.bigger.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
           .form-group
-            input.bigger.form-control.floating-label(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-required='!contact.firstName')
+            input.bigger.form-control.floating-label(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
           .form-group
             input.bigger.form-control.floating-label(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
       .form-group(ng-show='contact.org')
