@@ -10,7 +10,114 @@ angular.module('linagora.esn.contact')
       config.setFullResponse(true);
     });
   })
-  .factory('contactsService', ['ContactsRestangular', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(ContactsRestangular, tokenAPI, uuid4, ICAL, $q, $http) {
+  .factory('ContactsHelper', function() {
+    function getFormattedName(contact) {
+
+      function notNullNorEmpty(value) {
+        return value && value.length > 0;
+      }
+
+      function getValueFromArray(array, priorities) {
+
+        function getElementFromType(type) {
+          var result = array.filter(function(element) {
+            return notNullNorEmpty(element.type) && element.type.toLowerCase() === type.toLowerCase();
+          });
+
+          if (notNullNorEmpty(result)) {
+            return result[0];
+          }
+        }
+
+        function getValue(element) {
+          return (element && element.value) ? element.value : null;
+        }
+
+        if (!notNullNorEmpty(priorities)) {
+          return getValue(array[0]);
+        }
+
+        var result = [];
+        priorities.forEach(function(priority) {
+          var v = getValue(getElementFromType(priority));
+          if (v) {
+            result.push(v);
+          }
+        });
+
+        if (notNullNorEmpty(result)) {
+          return result[0];
+        }
+
+        // return first non null value;
+        var filter = array.filter(function(element) {
+          return getValue(element) !== null;
+        });
+        if (notNullNorEmpty(filter)) {
+          return getValue(filter[0]);
+        }
+
+      }
+
+      if (notNullNorEmpty(contact.firstName) && notNullNorEmpty(contact.lastName)) {
+        return contact.firstName + ' ' + contact.lastName;
+      }
+
+      if (notNullNorEmpty(contact.firstName) && !notNullNorEmpty(contact.lastName)) {
+        return contact.firstName;
+      }
+
+      if (!notNullNorEmpty(contact.firstName) && notNullNorEmpty(contact.lastName)) {
+        return contact.lastName;
+      }
+
+      if (notNullNorEmpty(contact.org)) {
+        return contact.org;
+      }
+
+      if (notNullNorEmpty(contact.nickname)) {
+        return contact.nickname;
+      }
+
+      if (notNullNorEmpty(contact.emails)) {
+        var email = getValueFromArray(contact.emails, ['work', 'home']);
+        if (email) {
+          return email;
+        }
+      }
+
+      if (notNullNorEmpty(contact.social)) {
+        var social = getValueFromArray(contact.social, ['twitter', 'skype', 'google', 'linkedin', 'facebook']);
+        if (social) {
+          return social;
+        }
+      }
+
+      if (notNullNorEmpty(contact.tel)) {
+        var tel = getValueFromArray(contact.tel, ['work', 'mobile', 'home']);
+        if (tel) {
+          return tel;
+        }
+      }
+
+      if (notNullNorEmpty(contact.notes)) {
+        return contact.notes;
+      }
+
+      if (notNullNorEmpty(contact.tags) && contact.tags[0] && notNullNorEmpty(contact.tags[0].text)) {
+        return contact.tags[0].text;
+      }
+
+      if (contact.birthday) {
+        return contact.birthday;
+      }
+    }
+
+    return {
+      getFormattedName: getFormattedName
+    };
+  })
+  .factory('contactsService', ['ContactsRestangular', 'ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(ContactsRestangular, ContactsHelper, tokenAPI, uuid4, ICAL, $q, $http) {
     function ContactsShell(vcard, path, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
@@ -137,8 +244,8 @@ angular.module('linagora.esn.contact')
 
       if (shell.displayName) {
         vcard.addPropertyWithValue('fn', shell.displayName);
-      } else if (shell.lastName && shell.firstName) {
-        vcard.addPropertyWithValue('fn', shell.firstName + ' ' + shell.lastName);
+      } else {
+        vcard.addPropertyWithValue('fn', ContactsHelper.getFormattedName(shell));
       }
 
       if (shell.lastName || shell.firstName) {

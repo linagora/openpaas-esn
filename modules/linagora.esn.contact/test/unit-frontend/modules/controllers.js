@@ -55,14 +55,23 @@ describe('The Contacts Angular module', function() {
         done();
       });
 
+      it('should not call contactsService.create when contact is not valid', function(done) {
+        this.scope.calling = true;
+        this.scope.contact = {_id: 1};
+        this.contactsService.create = function() {
+          return done(new Error());
+        };
+        this.scope.accept();
+        done();
+      });
+
       it('should call contactsService.create with right path and card', function(done) {
         var self = this;
-        var vcard = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
+        this.scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
         this.contactsService.shellToVCARD = function() {
-          return vcard;
+          return self.scope.contact;
         };
         this.contactsService.create = function(path, card) {
-          expect(card).to.deep.equal(vcard);
           expect(path).to.deep.equal('/addressbooks/' + self.bookId + '/contacts');
           done();
 
@@ -73,6 +82,8 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should change page on contactsService.create success', function(done) {
+        this.scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
+
         this.location.path = function(path) {
           expect(path).to.equal('/contact');
           done();
@@ -92,6 +103,8 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should notice user on contactsService.create failure', function(done) {
+        this.scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
+
         this.location.path = function() {
           done(new Error());
         };
