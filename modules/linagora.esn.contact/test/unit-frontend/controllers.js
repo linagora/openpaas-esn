@@ -220,4 +220,77 @@ describe('The Contacts Angular module', function() {
 
   });
 
+  describe('The contact controller', function() {
+
+    beforeEach(function() {
+      angular.mock.module('ngRoute');
+      angular.mock.module('esn.core');
+      angular.mock.module('linagora.esn.contact');
+      angular.mock.module('esn.alphalist');
+    });
+
+    beforeEach(angular.mock.inject(function($controller, $rootScope, $q) {
+      this.controller = $controller;
+      this.$rootScope = $rootScope;
+      this.scope = $rootScope.$new();
+      this.$q = $q;
+    }));
+
+    describe('The contactsListController controller', function() {
+
+      describe('The loadContacts function', function() {
+
+        it('should call the contactsService.list fn', function(done) {
+          var user = {_id: 123};
+          var contactsService = {
+            list: function(path) {
+              expect(path).to.equal('/addressbooks/' + user._id + '/contacts.json');
+              done();
+            }
+          };
+
+          this.controller('contactsListController', {
+            $scope: this.scope,
+            contactsService: contactsService,
+            user: user
+          });
+          this.scope.loadContacts();
+        });
+      });
+
+      describe('The openContactCreation function', function() {
+        it('should open the contact creation window', function(done) {
+
+          var user = {
+            _id: 123
+          };
+
+          var location = {
+            path: function(url) {
+              expect(url).to.equal('/contact/new/' + user._id);
+              done();
+            }
+          };
+
+          var self = this;
+          this.controller('contactsListController', {
+            $scope: this.scope,
+            $location: location,
+            contactsService: {
+              list: function() {
+                var defer = self.$q.defer();
+                defer.resolve({});
+                return defer.promise;
+              }
+            },
+            user: user
+          });
+
+          this.scope.openContactCreation();
+        });
+      });
+    });
+  });
+
+
 });
