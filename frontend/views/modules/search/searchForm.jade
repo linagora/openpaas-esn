@@ -3,7 +3,7 @@ div
     .input-group.esn-search-form-input
       input.search-query.form-control(type='text', ng-model='searchInput', ng-change='search.status="none"', placeholder='#{__("Search")}')
       .input-group-btn
-        button.btn.btn-default(type='button', ng-click='doSearch()')
+        button.btn.btn-default(type='submit', ng-click='doSearch()')
           i.fa.fa-search
     .vertiz-space
     div(ng-show="search.status=='error'")
