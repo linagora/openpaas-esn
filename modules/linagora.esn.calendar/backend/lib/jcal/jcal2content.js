@@ -5,7 +5,7 @@ var moment = require('moment');
 
 function _getDisplayName(attendee) {
   var cn = attendee.getParameter('cn');
-  var mail = attendee.getFirstValue().replace(/^MAILTO:/, '');
+  var mail = attendee.getFirstValue().replace(/^MAILTO:/i, '');
   return cn ? cn + ' <' + mail + '>' : mail;
 }
 
