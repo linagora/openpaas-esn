@@ -2,8 +2,8 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'moment', 'notificationFactory',
-    function($rootScope, $scope, $alert, calendarUtils, calendarService, moment, notificationFactory) {
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'moment', 'notificationFactory', 'session',
+    function($rootScope, $scope, $alert, calendarUtils, calendarService, moment, notificationFactory, session) {
       $scope.editedEvent = {};
       $scope.restActive = false;
 
@@ -49,6 +49,7 @@ angular.module('esn.calendar')
           $scope.calendarId = calendarService.calendarId;
         }
         var event = $scope.editedEvent;
+        event.organizer = session.user;
         var path = '/calendars/' + $scope.calendarId + '/events';
         var vcalendar = calendarService.shellToICAL(event);
         $scope.restActive = true;

@@ -76,7 +76,7 @@ angular.module('esn.calendar')
 
       var organizer = vevent.getFirstProperty('organizer');
       if (organizer) {
-        var mail = organizer.getFirstValue();
+        var mail = calendarUtils.removeMailto(organizer.getFirstValue());
         var cn = organizer.getParameter('cn');
         this.organizer = {
           fullmail: calendarUtils.fullmailOf(cn, mail),
@@ -156,8 +156,8 @@ angular.module('esn.calendar')
       dtend.isDate = shell.allDay;
 
       if (shell.organizer) {
-        var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.mail));
-        organizer.setParameter('cn', organizer.displayName);
+        var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.mail || shell.organizer.emails[0]));
+        organizer.setParameter('cn', shell.organizer.displayName || calendarUtils.diplayNameOf(shell.organizer.firstname, shell.organizer.lastname));
       }
 
       vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
@@ -174,7 +174,7 @@ angular.module('esn.calendar')
 
       if (shell.attendees && shell.attendees.length) {
         shell.attendees.forEach(function(attendee) {
-          var mail = angular.isArray(attendee.emails) ? attendee.emails[0] : attendee.displayName;
+          var mail = angular.isArray(attendee.emails) ? attendee.emails[0] : attendee.mail;
           var mailto = calendarUtils.prependMailto(mail);
           var property = vevent.addPropertyWithValue('attendee', mailto);
           property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
