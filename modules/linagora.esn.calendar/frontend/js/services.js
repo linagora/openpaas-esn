@@ -16,28 +16,9 @@ angular.module('esn.calendar')
       };
     };
   }])
-  .factory('dateService', ['moment', function(moment) {
 
-    function getNewDate() {
-      return moment().endOf('hour').add(1, 'seconds').toDate();
-    }
-
-    function getNewEndDate() {
-      return moment(getNewDate()).add(1, 'hours').toDate();
-    }
-
-    function isSameDay(startDate, endDate) {
-      return moment(startDate).isSame(moment(endDate), 'day');
-    }
-    return {
-      getNewDate: getNewDate,
-      getNewEndDate: getNewEndDate,
-      isSameDay: isSameDay
-    };
-  }])
-
-  .factory('calendarService', ['CalendarRestangular', '$rootScope', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', 'ICAL_PROPERTIES',
-    function(CalendarRestangular, $rootScope, moment, jstz, tokenAPI, uuid4, ICAL, $q, $http, ICAL_PROPERTIES) {
+  .factory('calendarService', ['$rootScope', '$q', '$http', 'CalendarRestangular', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'calendarUtils', 'ICAL', 'ICAL_PROPERTIES',
+    function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -73,10 +54,10 @@ angular.module('esn.calendar')
           return;
         }
         var cn = att.getParameter('cn');
-        var mail = id.replace(/^mailto:/, '');
+        var mail = calendarUtils.removeMailto(id);
         var partstat = att.getParameter('partstat');
         var data = {
-          fullmail: (cn ? cn + ' <' + mail + '>' : mail),
+          fullmail: calendarUtils.fullmailOf(cn, mail),
           mail: mail,
           name: cn || mail,
           partstat: partstat,
@@ -95,13 +76,13 @@ angular.module('esn.calendar')
 
       var organizer = vevent.getFirstProperty('organizer');
       if (organizer) {
-        var organizerMail = organizer.getFirstValue();
-        var organizerCN = organizer.getParameter('cn');
+        var mail = organizer.getFirstValue();
+        var cn = organizer.getParameter('cn');
         this.organizer = {
-          fullmail: (organizerCN ? organizerCN + ' <' + organizerMail + '>' : organizerMail),
-          mail: organizerMail,
-          name: organizerCN || organizerMail,
-          displayName: organizerCN || organizerMail
+          fullmail: calendarUtils.fullmailOf(cn, mail),
+          mail: mail,
+          name: cn || mail,
+          displayName: cn || mail
         };
       }
 
@@ -175,23 +156,26 @@ angular.module('esn.calendar')
       dtend.isDate = shell.allDay;
 
       if (shell.organizer) {
-        var organizer = vevent.addPropertyWithValue('organizer', 'mailto:' + shell.organizer.mail);
+        var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.mail));
         organizer.setParameter('cn', organizer.displayName);
       }
 
       vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
       vevent.addPropertyWithValue('dtend', dtend).setParameter('tzid', timezoneLocal);
       vevent.addPropertyWithValue('transp', shell.allDay ? 'TRANSPARENT' : 'OPAQUE');
+
       if (shell.location) {
         vevent.addPropertyWithValue('location', shell.location);
       }
+
       if (shell.description) {
         vevent.addPropertyWithValue('description', shell.description);
       }
+
       if (shell.attendees && shell.attendees.length) {
         shell.attendees.forEach(function(attendee) {
           var mail = angular.isArray(attendee.emails) ? attendee.emails[0] : attendee.displayName;
-          var mailto = 'mailto:' + mail;
+          var mailto = calendarUtils.prependMailto(mail);
           var property = vevent.addPropertyWithValue('attendee', mailto);
           property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
           property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
@@ -199,6 +183,7 @@ angular.module('esn.calendar')
           property.setParameter('cn', attendee.displayName);
         });
       }
+
       vcalendar.addSubcomponent(vevent);
       return vcalendar;
     }
@@ -210,7 +195,7 @@ angular.module('esn.calendar')
       var organizerId = organizer && organizer.getFirstValue().toLowerCase();
 
       var emailMap = Object.create(null);
-      emails.forEach(function(email) { emailMap['mailto:' + email.toLowerCase()] = true; });
+      emails.forEach(function(email) { emailMap[calendarUtils.prependMailto(email.toLowerCase())] = true; });
 
       var invitedAttendees = [];
       for (var i = 0; i < attendees.length; i++) {
@@ -357,6 +342,7 @@ angular.module('esn.calendar')
       getInvitedAttendees: getInvitedAttendees
     };
   }])
+
   .service('eventService', ['session', 'ICAL_PROPERTIES', function(session, ICAL_PROPERTIES) {
     function render(event, element) {
       element.find('.fc-content').addClass('ellipsis');
@@ -392,4 +378,73 @@ angular.module('esn.calendar')
       render: render
     };
 
-  }]);
+  }])
+
+  .service('calendarUtils', function(moment) {
+    /**
+     * Prepend a mail with 'mailto:'
+     * @param mail {String}
+     */
+    function prependMailto(mail) {
+      return 'mailto:' + mail;
+    }
+
+    /**
+     * Remove (case insensitive) mailto: prefix
+     * @param mail {String}
+     */
+    function removeMailto(mail) {
+      return mail.replace(/^mailto:/i, '');
+    }
+
+    /**
+     * Build and return a fullname like: John Doe <john.doe@open-paas.org>
+     * @param {String} cn
+     * @param {String} mail
+     */
+    function fullmailOf(cn, mail) {
+      return cn ? cn + ' <' + mail + '>' : mail;
+    }
+
+    /**
+     * Build and return a displayName: 'firstname lastname'
+     * @param {String} firstname
+     * @param {String} lastname
+     */
+    function displayNameOf(firstname, lastname) {
+      return firstname + ' ' + lastname;
+    }
+
+    /**
+     * Return a Date representing (the next hour) starting from Date.now()
+     */
+    function getNewDate() {
+      return moment().endOf('hour').add(1, 'seconds').toDate();
+    }
+
+    /**
+     * Return a Date representing (the next hour + 1 hour) starting from Date.now()
+     */
+    function getNewEndDate() {
+      return moment(getNewDate()).add(1, 'hours').toDate();
+    }
+
+    /**
+     * Return true if startDate is the same day than endDate
+     * @param {Date} startDate
+     * @param {Date} endDate
+     */
+    function isSameDay(startDate, endDate) {
+      return moment(startDate).isSame(moment(endDate), 'day');
+    }
+
+    return  {
+      prependMailto: prependMailto,
+      removeMailto: removeMailto,
+      fullmailOf: fullmailOf,
+      diplayNameOf: displayNameOf,
+      getNewDate: getNewDate,
+      getNewEndDate: getNewEndDate,
+      isSameDay: isSameDay
+    };
+  });

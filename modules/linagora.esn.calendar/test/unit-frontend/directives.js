@@ -44,12 +44,12 @@ describe('The Calendar Angular module', function() {
     });
   });
 
-  beforeEach(inject(['$compile', '$rootScope', 'moment', 'dateService', function($c, $r, moment, dateService) {
+  beforeEach(inject(['$compile', '$rootScope', 'moment', 'calendarUtils', function($c, $r, moment, calendarUtils) {
     this.$compile = $c;
     this.$rootScope = $r;
     this.$scope = this.$rootScope.$new();
     this.moment = moment;
-    this.dateService = dateService;
+    this.calendarUtils = calendarUtils;
 
     this.initDirective = function(scope) {
       var html = '<event-form/>';
@@ -72,8 +72,8 @@ describe('The Calendar Angular module', function() {
 
     it('should initiate $scope.editedEvent with default values if $scope.Event does not exists', function() {
       this.initDirective(this.$scope);
-      expect(this.moment(this.$scope.editedEvent.startDate).isSame(this.dateService.getNewDate())).to.be.true;
-      expect(this.moment(this.$scope.editedEvent.endDate).isSame(this.dateService.getNewEndDate())).to.be.true;
+      expect(this.moment(this.$scope.editedEvent.startDate).isSame(this.calendarUtils.getNewDate())).to.be.true;
+      expect(this.moment(this.$scope.editedEvent.endDate).isSame(this.calendarUtils.getNewEndDate())).to.be.true;
       expect(this.$scope.editedEvent.allDay).to.be.false;
     });
 

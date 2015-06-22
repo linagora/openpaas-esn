@@ -2,16 +2,16 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'dateService', 'calendarService', 'moment', 'notificationFactory',
-    function($rootScope, $scope, $alert, dateService, calendarService, moment, notificationFactory) {
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'moment', 'notificationFactory',
+    function($rootScope, $scope, $alert, calendarUtils, calendarService, moment, notificationFactory) {
       $scope.editedEvent = {};
       $scope.restActive = false;
 
       this.initFormData = function() {
         if (!$scope.event) {
           $scope.event = {
-            startDate: dateService.getNewDate(),
-            endDate: dateService.getNewEndDate(),
+            startDate: calendarUtils.getNewDate(),
+            endDate: calendarUtils.getNewEndDate(),
             allDay: false
           };
           $scope.modifyEventAction = false;
@@ -124,8 +124,8 @@ angular.module('esn.calendar')
       this.resetEvent = function() {
         $scope.rows = 1;
         $scope.editedEvent = {
-          startDate: dateService.getNewDate(),
-          endDate: dateService.getNewEndDate(),
+          startDate: calendarUtils.getNewDate(),
+          endDate: calendarUtils.getNewEndDate(),
           diff: 1,
           allDay: false
         };
@@ -142,7 +142,7 @@ angular.module('esn.calendar')
 
       this.onAllDayChecked = function() {
         if ($scope.editedEvent.allDay) {
-          if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+          if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
             $scope.editedEvent.endDate = moment($scope.editedEvent.startDate).add(1, 'days').toDate();
           }
         } else {
@@ -160,7 +160,7 @@ angular.module('esn.calendar')
       };
 
       this.onStartTimeChange = function() {
-        if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+        if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
           var startDate = moment($scope.editedEvent.startDate);
           var endDate = moment($scope.editedEvent.endDate);
           $scope.editedEvent.diff = endDate.diff(endDate, 'hours');
@@ -177,7 +177,7 @@ angular.module('esn.calendar')
       };
 
       this.onEndTimeChange = function() {
-        if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+        if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
           var startDate = moment($scope.editedEvent.startDate);
           var endDate = moment($scope.editedEvent.endDate);
 
