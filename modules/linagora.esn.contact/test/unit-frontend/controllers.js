@@ -256,6 +256,31 @@ describe('The Contacts Angular module', function() {
           });
           this.scope.loadContacts();
         });
+
+        it('should display error when contactsService.list fails', function(done) {
+          var user = {_id: 123};
+          var defer = this.$q.defer();
+          defer.reject();
+          var contactsService = {
+            list: function() {
+              return defer.promise;
+            }
+          };
+          var alert = function(options) {
+            expect(options.content).to.match(/Can not get contacts/);
+            done();
+          };
+
+          this.controller('contactsListController', {
+            $scope: this.scope,
+            $alert: alert,
+            contactsService: contactsService,
+            user: user
+          });
+
+          this.scope.loadContacts();
+          this.scope.$digest();
+        });
       });
 
       describe('The openContactCreation function', function() {

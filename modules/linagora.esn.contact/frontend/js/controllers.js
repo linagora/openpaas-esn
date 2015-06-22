@@ -76,7 +76,7 @@ angular.module('linagora.esn.contact')
 
     $scope.init();
   }])
-  .controller('contactsListController', ['$timeout', '$log', '$scope', '$location', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($timeout, $log, $scope, $location, contactsService, CategoryService, ALPHA_ITEMS, user) {
+  .controller('contactsListController', ['$timeout', '$log', '$scope', '$location', '$alert', 'contactsService', 'alphaCategoryService', 'ALPHA_ITEMS', 'user', function($timeout, $log, $scope, $location, $alert, contactsService, CategoryService, ALPHA_ITEMS, user) {
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
@@ -86,6 +86,18 @@ angular.module('linagora.esn.contact')
 
     $scope.categories = new CategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
+    function displayError(message) {
+      $alert({
+        content: message,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '.list-contact-error-container',
+        duration: '3',
+        animation: 'am-flip-x'
+      });
+    }
+
     $scope.loadContacts = function() {
       var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
       contactsService.list(path).then(function(data) {
@@ -93,6 +105,7 @@ angular.module('linagora.esn.contact')
         $scope.sorted_contacts = $scope.categories.get();
       }, function(err) {
         $log.error('Can not get contacts', err);
+        displayError('Can not get contacts');
       });
 
       $scope.openContactCreation = function() {
