@@ -201,7 +201,7 @@ describe('The oauth client API', function() {
           OAuthClient.findById(oauthclient._id, function(error, oauthclient) {
             expect(oauthclient).to.be.null;
             done();
-          })
+          });
         });
       });
     });
