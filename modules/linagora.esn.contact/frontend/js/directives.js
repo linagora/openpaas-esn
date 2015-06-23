@@ -118,24 +118,15 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactDisplay', function() {
+  .directive('contactDisplay', function(contactsService, notificationFactory) {
     return {
       restrict: 'E',
       scope: {
-        'contact': '='
-      },
-      templateUrl: '/contact/views/partials/contact-display.html'
-    };
-  })
-  .directive('contactDisplayEditable', function(contactsService, notificationFactory) {
-    return {
-      restrict: 'E',
-      scope: {
-        'contact': '='
+        'contact': '=',
+        'update': '='
       },
       templateUrl: '/contact/views/partials/contact-display.html',
       link: function(scope) {
-        scope.update=true;
         scope.modify = function() {
           var vcard = contactsService.shellToVCARD(scope.contact);
           contactsService.modify(scope.contact.path, vcard, scope.contact.etag).then(function(contact) {
