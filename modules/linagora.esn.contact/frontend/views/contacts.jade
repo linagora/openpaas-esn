@@ -5,6 +5,7 @@
       fab.fab-fixed-bottom(type='create', on-click='openContactCreation()')
 
   .row.panel-content
+    .list-contact-error-container
     .col-xs-11
       .row(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         .row(ng-if='contacts && contacts.length')
