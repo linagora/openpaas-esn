@@ -133,8 +133,9 @@ angular.module('linagora.esn.contact')
       scope: {
         'contact': '='
       },
-      templateUrl: '/contact/views/partials/contact-display-editable.html',
+      templateUrl: '/contact/views/partials/contact-display.html',
       link: function(scope) {
+        scope.update=true;
         scope.modify = function() {
           var vcard = contactsService.shellToVCARD(scope.contact);
           contactsService.modify(scope.contact.path, vcard, scope.contact.etag).then(function(contact) {
