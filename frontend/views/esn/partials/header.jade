@@ -12,6 +12,7 @@ div
             span.caret
           ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
               li: a(href='/#/profile') #{__('My Account')}
+              li.visible-xs(data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body'): a(href='') #{__('Feedback')}
               li: a(href='{{"/#/domains/" + domain._id + "/members"}}') #{__('Members')}
               li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}') #{__('Invitation')}
               li: a(href='/#/applications') #{__('Applications')}
