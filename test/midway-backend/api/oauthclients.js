@@ -164,11 +164,7 @@ describe('The oauth client API', function() {
           return done(err);
         }
         var req = loggedInAsUser(request(app). delete('/api/oauth/clients/' + 'wrongId'));
-        req.expect(500);
-        req.end(function(err, res) {
-          expect(err).to.be.exist;
-          done();
-        });
+        req.expect(500, done);
       });
     });
 
