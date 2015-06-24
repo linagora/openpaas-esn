@@ -383,7 +383,7 @@ angular.module('esn.calendar')
   .service('calendarUtils', function(moment) {
     /**
      * Prepend a mail with 'mailto:'
-     * @param mail {String}
+     * @param {String} mail
      */
     function prependMailto(mail) {
       return 'mailto:' + mail;
@@ -391,7 +391,7 @@ angular.module('esn.calendar')
 
     /**
      * Remove (case insensitive) mailto: prefix
-     * @param mail {String}
+     * @param {String} mail
      */
     function removeMailto(mail) {
       return mail.replace(/^mailto:/i, '');
@@ -438,7 +438,7 @@ angular.module('esn.calendar')
       return moment(startDate).isSame(moment(endDate), 'day');
     }
 
-    return  {
+    return {
       prependMailto: prependMailto,
       removeMailto: removeMailto,
       fullmailOf: fullmailOf,
