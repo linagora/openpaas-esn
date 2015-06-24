@@ -654,7 +654,8 @@ describe('The Calendar Angular module', function() {
                   {},
                   'text',
                   'allday event'
-               ],[
+               ],
+                [
                 'organizer',
                 {
                   'cn': 'organizer@open-paas.org'
