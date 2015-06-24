@@ -105,6 +105,13 @@ angular.module('esn.calendar')
         $scope.editedEvent.start = moment($scope.editedEvent.startDate);
         $scope.editedEvent.end = moment($scope.editedEvent.endDate);
 
+        if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
+          if ($scope.createModal) {
+            $scope.createModal.hide();
+          }
+          return;
+        }
+
         $scope.restActive = true;
         calendarService.modify(path, $scope.editedEvent).then(function(response) {
           if ($scope.activitystream) {
