@@ -343,7 +343,7 @@ angular.module('esn.calendar')
     };
   }])
 
-  .service('eventService', ['session', 'ICAL_PROPERTIES', function(session, ICAL_PROPERTIES) {
+  .service('eventService', ['session', 'ICAL_PROPERTIES', 'ICAL', function(session, ICAL_PROPERTIES, ICAL) {
     function render(event, element) {
       element.find('.fc-content').addClass('ellipsis');
 
@@ -374,8 +374,30 @@ angular.module('esn.calendar')
       element.addClass('event-common');
     }
 
+    function copyNonStandardProperties(src, dest) {
+
+      dest.location = src.location;
+      dest.description = src.description;
+      angular.copy(src.attendees, dest.attendees);
+    }
+
+    function copyEventObject(src, dest) {
+
+      var vcal;
+      if (src.vcalendar) {
+        vcal = ICAL.helpers.clone(src.vcalendar);
+        src.vcalendar = null;
+      }
+      angular.copy(src, dest);
+      if (vcal) {
+        src.vcalendar = vcal;
+      }
+    }
+
     return {
-      render: render
+      render: render,
+      copyNonStandardProperties: copyNonStandardProperties,
+      copyEventObject: copyEventObject
     };
 
   }])
