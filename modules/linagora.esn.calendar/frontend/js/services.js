@@ -17,8 +17,8 @@ angular.module('esn.calendar')
     };
   }])
 
-  .factory('calendarService', ['$rootScope', '$q', '$http', 'CalendarRestangular', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'calendarUtils', 'ICAL', 'ICAL_PROPERTIES',
-    function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES) {
+  .factory('calendarService', ['$rootScope', '$q', '$http', 'CalendarRestangular', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'calendarUtils', 'ICAL', 'ICAL_PROPERTIES', 'socket',
+    function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES, socket) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -188,6 +188,10 @@ angular.module('esn.calendar')
       return vcalendar;
     }
 
+    function icalToShell(ical) {
+      return new CalendarShell(new ICAL.Component(ical));
+    }
+
     function getInvitedAttendees(vcalendar, emails) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       var attendees = vevent.getAllProperties('attendee');
@@ -295,6 +299,7 @@ angular.module('esn.calendar')
           return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
         } else if (response.status === 204) {
           $rootScope.$emit('modifiedCalendarItem', event);
+          socket('/calendars').emit('event:updated', shellToICAL(event));
           return getEvent(eventPath);
         } else {
           return $q.reject(response);
@@ -338,6 +343,7 @@ angular.module('esn.calendar')
       changeParticipation: changeParticipation,
       getEvent: getEvent,
       shellToICAL: shellToICAL,
+      icalToShell: icalToShell,
       timezoneLocal: timezoneLocal,
       getInvitedAttendees: getInvitedAttendees
     };
@@ -485,5 +491,33 @@ angular.module('esn.calendar')
       getNewEndDate: getNewEndDate,
       isSameDay: isSameDay,
       getDateOnCalendarSelect: getDateOnCalendarSelect
+    };
+  })
+
+  .service('localEventSource', function() {
+    var events = [];
+
+    function getEvents(start, end, timezone, callback) {
+      return callback(events);
+    }
+
+    function addEvent(newEvent) {
+      var oldVersion = null;
+      events = events.map(function(event) {
+        if (event.id === newEvent.id) {
+          oldVersion = event;
+          return newEvent;
+        }
+        return event;
+      });
+      if (!oldVersion) {
+        events.push(newEvent);
+      }
+      return oldVersion;
+    }
+
+    return {
+      getEvents: getEvents,
+      addEvent: addEvent
     };
   });
