@@ -56,6 +56,7 @@ describe('The Calendar Angular module', function() {
 
       it('should initialize the scope with $scope.event if it exists', function() {
         this.scope.event = {
+          _id: '123456',
           startDate: new Date(),
           endDate: new Date(),
           allDay: false,

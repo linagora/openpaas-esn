@@ -9,11 +9,12 @@ angular.module('esn.calendar')
       $scope.restActive = false;
 
       this.initFormData = function() {
-        if (!$scope.event) {
+        $scope.event = $scope.event || {};
+        if (!$scope.event._id) {
           $scope.event = {
-            startDate: calendarUtils.getNewDate(),
-            endDate: calendarUtils.getNewEndDate(),
-            allDay: false
+            startDate: $scope.event.startDate || calendarUtils.getNewDate(),
+            endDate: $scope.event.endDate || calendarUtils.getNewEndDate(),
+            allDay: $scope.event.allDay || false
           };
           $scope.modifyEventAction = false;
         } else {
@@ -227,7 +228,7 @@ angular.module('esn.calendar')
         $scope.event = event;
         $scope.event.startDate = event.start.toDate();
         $scope.event.endDate = event.end.toDate();
-        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-modal', backdrop: 'static'});
+        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
 
       $scope.eventDropAndResize = function(event) {
@@ -263,7 +264,7 @@ angular.module('esn.calendar')
           endDate: end.toDate(),
           allDay: !start.hasTime(end)
         };
-        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
+        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 

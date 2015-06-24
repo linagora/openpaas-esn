@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The Calendar Angular module', function() {
+describe.only('The Calendar Angular module', function() {
 
   beforeEach(function() {
     var asSession = {
@@ -61,8 +61,9 @@ describe('The Calendar Angular module', function() {
 
   describe('The eventForm directive', function() {
 
-    it('should initiate $scope.editedEvent from $scope.Event if it exists', function() {
+    it('should initiate $scope.editedEvent from $scope.event if it exists', function() {
       this.$scope.event = {
+        _id: '123456',
         allDay: true,
         attendees: [{'displayName': 'user1@openpaas.org'}]
       };
@@ -70,7 +71,7 @@ describe('The Calendar Angular module', function() {
       expect(this.$scope.editedEvent).to.deep.equal(this.$scope.event);
     });
 
-    it('should initiate $scope.editedEvent with default values if $scope.Event does not exists', function() {
+    it('should initiate $scope.editedEvent with default values if $scope.event does not exists', function() {
       this.initDirective(this.$scope);
       expect(this.moment(this.$scope.editedEvent.startDate).isSame(this.calendarUtils.getNewDate())).to.be.true;
       expect(this.moment(this.$scope.editedEvent.endDate).isSame(this.calendarUtils.getNewEndDate())).to.be.true;

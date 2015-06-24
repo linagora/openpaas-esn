@@ -76,11 +76,11 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
-  .directive('eventCreateWizard', ['widget.wizard', '$rootScope',
+  .directive('eventCreateQuickFormWizard', ['widget.wizard', '$rootScope',
     function(Wizard, $rootScope) {
       function link($scope, element) {
         $scope.wizard = new Wizard([
-          '/calendar/views/partials/event-create-wizard'
+          '/calendar/views/partials/event-create-quick-form-wizard'
         ]);
         $rootScope.$on('modal.show', function() {
           element.find('input[ng-model="event.title"]').focus();
@@ -89,31 +89,7 @@ angular.module('esn.calendar')
       }
       return {
         restrict: 'E',
-        templateUrl: '/calendar/views/partials/event-create',
-        scope: {
-          user: '=',
-          domain: '=',
-          createModal: '=',
-          event: '='
-        },
-        link: link
-      };
-    }
-  ])
-  .directive('eventQuickFormWizard', ['widget.wizard', '$rootScope',
-    function(Wizard, $rootScope) {
-      function link($scope, element) {
-        $scope.wizard = new Wizard([
-          '/calendar/views/partials/event-quick-form-wizard'
-        ]);
-        $rootScope.$on('modal.show', function() {
-          element.find('input[ng-model="event.title"]').focus();
-        });
-        $scope.rows = 1;
-      }
-      return {
-        restrict: 'E',
-        templateUrl: '/calendar/views/partials/event-create',
+        templateUrl: '/calendar/views/partials/event-create-quick-form',
         scope: {
           user: '=',
           domain: '=',
@@ -194,30 +170,6 @@ angular.module('esn.calendar')
       };
     }
   ])
-  .directive('eventQuickForm', function() {
-      function link($scope, element, attrs, controller) {
-        controller.initFormData();
-
-        $scope.addNewEvent = controller.addNewEvent;
-        $scope.deleteEvent = controller.deleteEvent;
-        $scope.modifyEvent = controller.modifyEvent;
-        $scope.resetEvent = controller.resetEvent;
-        $scope.getMinDate = controller.getMinDate;
-        $scope.onAllDayChecked = controller.onAllDayChecked;
-        $scope.onStartDateChange = controller.onStartDateChange;
-        $scope.onStartTimeChange = controller.onStartTimeChange;
-        $scope.onEndTimeChange = controller.onEndTimeChange;
-      }
-
-      return {
-        restrict: 'E',
-        replace: true,
-        controller: 'eventFormController',
-        templateUrl: '/calendar/views/partials/event-quick-form.html',
-        link: link
-      };
-    }
-  )
   .directive('calendarNavbarLink', function() {
     return {
       restrict: 'E',
