@@ -128,6 +128,7 @@ angular.module('esn.calendar')
           $scope.createModal.hide();
         };
 
+        $scope.isNew = controller.isNew;
         $scope.addNewEvent = controller.addNewEvent;
         $scope.deleteEvent = controller.deleteEvent;
         $scope.modifyEvent = controller.modifyEvent;

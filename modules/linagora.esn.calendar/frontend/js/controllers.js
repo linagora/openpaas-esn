@@ -8,17 +8,18 @@ angular.module('esn.calendar')
       $scope.editedEvent = {};
       $scope.restActive = false;
 
+      this.isNew = function(event) {
+        return angular.isUndefined(event._id);
+      };
+
       this.initFormData = function() {
         $scope.event = $scope.event || {};
-        if (!$scope.event._id) {
+        if (this.isNew($scope.event)) {
           $scope.event = {
             startDate: $scope.event.startDate || calendarUtils.getNewDate(),
             endDate: $scope.event.endDate || calendarUtils.getNewEndDate(),
             allDay: $scope.event.allDay || false
           };
-          $scope.modifyEventAction = false;
-        } else {
-          $scope.modifyEventAction = true;
         }
         eventService.copyEventObject($scope.event, $scope.editedEvent);
       };

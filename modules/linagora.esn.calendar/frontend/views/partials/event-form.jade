@@ -41,7 +41,7 @@ form.whatsup-form.form-container(role='form')
     textarea.event-input.form-control(ng-model='editedEvent.description', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Give an event description')}", rows="{{rows}}")
   .form-group
     .text-left
-      button.btn.btn-primary.submit-button(type='button', ng-click='addNewEvent()', ng-hide="modifyEventAction", ng-disabled="restActive") #{__('Create')}
-      button.btn.btn-default.submit-button(type='button', ng-click="modifyEvent()", ng-hide="!modifyEventAction", ng-disabled="restActive") #{__('Modify')}
-      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-hide="!modifyEventAction", ng-disabled="restActive") #{__('Delete')}
+      button.btn.btn-primary.submit-button(type='button', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive") #{__('Create')}
+      button.btn.btn-default.submit-button(type='button', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive") #{__('Modify')}
+      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive") #{__('Delete')}
       button.btn.btn-default.submit-button(type='button', ng-click="closeModal()") #{__('Cancel')}

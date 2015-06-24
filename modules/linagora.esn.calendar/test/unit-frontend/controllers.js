@@ -51,7 +51,6 @@ describe('The Calendar Angular module', function() {
         };
         expect(this.scope.editedEvent).to.deep.equal(expected);
         expect(this.scope.event).to.deep.equal(expected);
-        expect(this.scope.modifyEventAction).to.be.false;
       });
 
       it('should initialize the scope with $scope.event if it exists', function() {
@@ -64,7 +63,6 @@ describe('The Calendar Angular module', function() {
         };
         this.eventFormController.initFormData();
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
-        expect(this.scope.modifyEventAction).to.be.true;
       });
     });
 
