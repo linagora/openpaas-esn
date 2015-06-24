@@ -110,19 +110,7 @@ angular.module('esn.calendar')
   .directive('eventForm', ['$q', 'domainAPI', 'session',
     function($q, domainAPI, session) {
       function link($scope, element, attrs, controller) {
-        $scope.rows = 1;
-
         controller.initFormData();
-
-        $scope.expand = function() {
-          $scope.rows = 5;
-        };
-
-        $scope.shrink = function() {
-          if (!$scope.event.description) {
-            $scope.rows = 1;
-          }
-        };
 
         $scope.closeModal = function() {
           $scope.createModal.hide();

@@ -1,6 +1,2 @@
-.modal-header
-  button.close(type="button", ng-click="createModal.hide()", ng-hide="sending") &times;
-  h4.modal-title(ng-if="isNew(editedEvent)") #{__('Create event')}
-  h4.modal-title(ng-if="!isNew(editedEvent)") #{__('Modify event')}
 .modal-body
   event-form
