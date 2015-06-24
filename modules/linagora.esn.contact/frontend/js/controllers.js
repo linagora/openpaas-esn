@@ -40,7 +40,6 @@ angular.module('linagora.esn.contact')
   .controller('newContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
-
     $scope.close = closeForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
