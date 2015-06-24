@@ -176,9 +176,14 @@ angular.module('linagora.esn.contact')
 
       input.bind('keydown', function(event) {
         var escape = event.which === 27;
+        var enter = event.which === 13;
         var target = event.target;
         if (escape) {
           $timeout(scope.resetInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+        if (enter) {
           target.blur();
           event.preventDefault();
         }
