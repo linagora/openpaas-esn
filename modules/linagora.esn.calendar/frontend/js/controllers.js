@@ -2,9 +2,8 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'eventService', 'moment', 'notificationFactory', 'session',
-    function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session) {
-
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'eventService', 'moment', 'notificationFactory', 'session', 'EVENT_FORM',
+    function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session, EVENT_FORM) {
       $scope.editedEvent = {};
       $scope.restActive = false;
 
@@ -45,12 +44,13 @@ angular.module('esn.calendar')
 
       this.addNewEvent = function() {
         if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-          _displayError('You must define an event title');
-          return;
+          $scope.editedEvent.title = EVENT_FORM.title.default;
         }
+
         if (!$scope.calendarId) {
           $scope.calendarId = calendarService.calendarId;
         }
+
         var event = $scope.editedEvent;
         event.organizer = session.user;
         var path = '/calendars/' + $scope.calendarId + '/events';

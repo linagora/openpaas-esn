@@ -42,4 +42,11 @@ angular.module('esn.calendar')
       },
       handleWindowResize: false
     }
+  })
+
+  .constant('EVENT_FORM', {
+    title: {
+      // TODO: i18n
+      default: 'No title'
+    }
   });
