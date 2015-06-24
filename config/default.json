@@ -59,7 +59,8 @@
     "linagora.esn.messaging.email",
     "linagora.esn.cron",
     "linagora.esn.digest.daily",
-    "linagora.esn.graceperiod"
+    "linagora.esn.graceperiod",
+    "linagora.esn.davproxy"
   ],
   "email": {
     "templatesDir": "./templates/email"
