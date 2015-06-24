@@ -213,7 +213,8 @@ describe('The Calendar Angular module', function() {
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
               ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
               ['attendee', { 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
-              ['attendee', { 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com']
+              ['attendee', { 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com'],
+              ['organizer', { 'cn': 'organizer' }, 'cal-address', 'mailto:organizer@example.com']
            ], []]
          ]],
           // headers:
@@ -273,6 +274,13 @@ describe('The Calendar Angular module', function() {
               partstat: 'TENTATIVE',
               displayName: 'tentative@example.com'
             }]);
+
+          expect(event.organizer).to.deep.equal({
+            fullmail: 'organizer <organizer@example.com>',
+            mail: 'organizer@example.com',
+            name: 'organizer',
+            displayName: 'organizer'
+          });
 
           expect(event.vcalendar).to.be.an('object');
           expect(event.path).to.equal('/path/to/event.ics');
@@ -620,7 +628,13 @@ describe('The Calendar Angular module', function() {
               'user2@open-paas.org'
            ],
             displayName: 'user2@open-paas.org'
-          }]
+          }],
+          organizer: {
+            emails: [
+              'organizer@open-paas.org'
+            ],
+            displayName: 'organizer@open-paas.org'
+          }
         };
         var ical = [
           'vcalendar',
@@ -640,6 +654,13 @@ describe('The Calendar Angular module', function() {
                   {},
                   'text',
                   'allday event'
+               ],[
+                'organizer',
+                {
+                  'cn': 'organizer@open-paas.org'
+                },
+                'cal-address',
+                'mailto:organizer@open-paas.org'
                ],
                 [
                   'dtstart',
@@ -680,7 +701,8 @@ describe('The Calendar Angular module', function() {
                   {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
-                    'role': 'REQ-PARTICIPANT'
+                    'role': 'REQ-PARTICIPANT',
+                    'cn': 'user1@open-paas.org'
                   },
                   'cal-address',
                   'mailto:user1@open-paas.org'
@@ -690,13 +712,14 @@ describe('The Calendar Angular module', function() {
                   {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
-                    'role': 'REQ-PARTICIPANT'
+                    'role': 'REQ-PARTICIPANT',
+                    'cn': 'user2@open-paas.org'
                   },
                   'cal-address',
                   'mailto:user2@open-paas.org'
                ]
              ],
-              []
+            []
            ]
          ]
        ];

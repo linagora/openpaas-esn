@@ -11,7 +11,7 @@ describe('The Calendar Angular module', function() {
 
   beforeEach(function() {
 
-    var dateServiceMock = {
+    var calendarUtilsMock = {
       getNewDate: function() {
         return newDate;
       },
@@ -22,7 +22,7 @@ describe('The Calendar Angular module', function() {
 
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
-      $provide.value('dateService', dateServiceMock);
+      $provide.value('calendarUtils', calendarUtilsMock);
     });
   });
 

@@ -1,57 +1,17 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .constant('COMMUNITY_UI_CONFIG', {
-    calendar: {
-      height: 450,
-      editable: true,
-      timezone: 'local',
-      forceEventDuration: true,
-      weekNumbers: true,
-      firstDay: 1,
-      header: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'month,agendaWeek,agendaDay'
-      }
-    }
-  })
-  .constant('USER_UI_CONFIG', {
-    calendar: {
-      defaultView: 'agendaWeek',
-      height: 450,
-      editable: true,
-      selectable: true,
-      timezone: 'local',
-      forceEventDuration: true,
-      weekNumbers: true,
-      firstDay: 1,
-      header: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'month,agendaWeek,agendaDay'
-      },
-      // TODO: i18n
-      buttonText: {
-        today: 'Today',
-        month: 'Month',
-        week: 'Week',
-        day: 'Day'
-      },
-      handleWindowResize: false
-    }
-  })
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'dateService', 'calendarService', 'moment', 'notificationFactory',
-    function($rootScope, $scope, $alert, dateService, calendarService, moment, notificationFactory) {
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'moment', 'notificationFactory', 'session',
+    function($rootScope, $scope, $alert, calendarUtils, calendarService, moment, notificationFactory, session) {
       $scope.editedEvent = {};
       $scope.restActive = false;
 
       this.initFormData = function() {
         if (!$scope.event) {
           $scope.event = {
-            startDate: dateService.getNewDate(),
-            endDate: dateService.getNewEndDate(),
+            startDate: calendarUtils.getNewDate(),
+            endDate: calendarUtils.getNewEndDate(),
             allDay: false
           };
           $scope.modifyEventAction = false;
@@ -89,6 +49,7 @@ angular.module('esn.calendar')
           $scope.calendarId = calendarService.calendarId;
         }
         var event = $scope.editedEvent;
+        event.organizer = session.user;
         var path = '/calendars/' + $scope.calendarId + '/events';
         var vcalendar = calendarService.shellToICAL(event);
         $scope.restActive = true;
@@ -164,8 +125,8 @@ angular.module('esn.calendar')
       this.resetEvent = function() {
         $scope.rows = 1;
         $scope.editedEvent = {
-          startDate: dateService.getNewDate(),
-          endDate: dateService.getNewEndDate(),
+          startDate: calendarUtils.getNewDate(),
+          endDate: calendarUtils.getNewEndDate(),
           diff: 1,
           allDay: false
         };
@@ -182,7 +143,7 @@ angular.module('esn.calendar')
 
       this.onAllDayChecked = function() {
         if ($scope.editedEvent.allDay) {
-          if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+          if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
             $scope.editedEvent.endDate = moment($scope.editedEvent.startDate).add(1, 'days').toDate();
           }
         } else {
@@ -200,7 +161,7 @@ angular.module('esn.calendar')
       };
 
       this.onStartTimeChange = function() {
-        if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+        if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
           var startDate = moment($scope.editedEvent.startDate);
           var endDate = moment($scope.editedEvent.endDate);
           $scope.editedEvent.diff = endDate.diff(endDate, 'hours');
@@ -217,7 +178,7 @@ angular.module('esn.calendar')
       };
 
       this.onEndTimeChange = function() {
-        if (dateService.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
+        if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
           var startDate = moment($scope.editedEvent.startDate);
           var endDate = moment($scope.editedEvent.endDate);
 

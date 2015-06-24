@@ -131,8 +131,8 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['$q', '$rootScope', '$alert', 'widget.wizard', 'calendarService', 'notificationFactory', 'dateService', 'domainAPI', 'session',
-    function($q, $rootScope, $alert, Wizard, calendarService, notificationFactory, dateService, domainAPI, session) {
+  .directive('eventForm', ['$q', 'domainAPI', 'session',
+    function($q, domainAPI, session) {
       function link($scope, element, attrs, controller) {
         $scope.rows = 1;
 
