@@ -8,9 +8,9 @@
         .col-xs-12.col-sm-8.col-sm-pull-4
           .form-group
             input.bigger.form-control.floating-label(ng-if='!update', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
-            input.bigger.form-control(ng-if='update', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', ng-disabled='true')
+            inline-editable-input(ng-if='update', input-class='bigger form-control', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', on-save='modify')
           .form-group
-            input.bigger.form-control(ng-if='update', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', ng-disabled='true')
+            inline-editable-input(ng-if='update', input-class='bigger form-control', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', on-save='modify')
             input.bigger.form-control.floating-label(ng-if='!update', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
           .form-group
             inline-editable-input(ng-if='update', input-class='bigger form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
@@ -51,4 +51,5 @@
     .col-md-12
       .form-group
         .col-xs-12
-          textarea.form-control.floating-label(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
+          textarea.form-control(ng-if='!update', rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
+          editable-textarea(ng-if='update', textarea-class='form-control', rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes', on-save='modify')
