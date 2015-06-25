@@ -11,7 +11,7 @@
           tags-input(ng-disabled='running', ng-model='members', display-property='{{::displayProperty}}',
           placeholder='{{::placeholder}}', min-tags='1', add-from-autocomplete-only='true',
           on-tag-added='resetView()', replace-spaces-with-dashes='false')
-            auto-complete(source='getInvitableCommunities($query)', min-length='1', debounce-delay='200')
+            auto-complete(source='getInvitableCommunities($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/community-auto-complete")
       .form-group
         .row
           button.btn.btn-primary.pull-right(type='button', ng-click='addMembers()', ng-disabled='running')
