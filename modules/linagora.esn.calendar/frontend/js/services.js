@@ -460,6 +460,16 @@ angular.module('esn.calendar')
       return moment(startDate).isSame(moment(endDate), 'day');
     }
 
+    function getDateOnCalendarSelect(start, end) {
+      if (end.diff(start, 'minutes') === 30) {
+        var newStart = start.startOf('hour');
+        var newEnd = moment(newStart).add(1, 'hours');
+        return { start: newStart, end: newEnd };
+      } else {
+        return { start: start, end: end };
+      }
+    }
+
     return {
       prependMailto: prependMailto,
       removeMailto: removeMailto,
@@ -467,6 +477,7 @@ angular.module('esn.calendar')
       diplayNameOf: displayNameOf,
       getNewDate: getNewDate,
       getNewEndDate: getNewEndDate,
-      isSameDay: isSameDay
+      isSameDay: isSameDay,
+      getDateOnCalendarSelect: getDateOnCalendarSelect
     };
   });

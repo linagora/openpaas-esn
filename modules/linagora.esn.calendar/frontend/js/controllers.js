@@ -214,8 +214,8 @@ angular.module('esn.calendar')
     $scope.uiConfig = USER_UI_CONFIG;
   }])
 
-  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'eventService', 'notificationFactory', 'calendarEventSource',
-    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, eventService, notificationFactory, calendarEventSource) {
+  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource',
+    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource) {
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       var windowJQuery = angular.element($window);
@@ -260,9 +260,10 @@ angular.module('esn.calendar')
       $scope.uiConfig.calendar.eventResize = $scope.eventDropAndResize;
       $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize;
       $scope.uiConfig.calendar.select = function(start, end) {
+        var date = calendarUtils.getDateOnCalendarSelect(start, end);
         $scope.event = {
-          startDate: start.toDate(),
-          endDate: end.toDate(),
+          startDate: date.start.toDate(),
+          endDate: date.end.toDate(),
           allDay: !start.hasTime(end)
         };
         $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
