@@ -1,13 +1,6 @@
 mixin attendeeDisplay(mail, partstat)
   div
-    p
-      if (partstat === 'NEEDS-ACTION')
-        img(src="cid:needsaction", alt="needs-action logo")
-      else if (partstat === 'ACCEPTED')
-        img(src="cid:accepted", alt="accepted logo")
-      else if (partstat === 'DECLINED')
-        img(src="cid:declined", alt="declined logo")
-      span #{mail}
+    span #{mail},
 
 doctype html
 html.mail
@@ -21,54 +14,66 @@ html.mail
     .wrapper
       br
       .mail-content
-        .header.mail-header
-          table
-            tr
-              td
-                div.logo
-                  a(href="")
-                    img(src="cid:logo", alt="open-paas logo")
-              td
-                h2
-                  br
-                  | Hello #{content.user.displayName}
 
         table
-          tr
-            th New appointment !
-          tr
-            td(colspan="2") You are invited to attend this appointment:
-          tr
-            td Summary
-            td #{content.event.summary}
-          tr
-            td From
-            td #{content.event.start}
-          tr
-          tr
-            td To
-            td #{content.event.end}
-          tr
-          tr
-            td Location
-            td #{content.event.location}
-          tr
-          tr
-            td Organizer
-            td #{content.event.organizer}
-          tr
-          tr
-            td Attendees
+          tr.table-header
+            td(colspan="3")
+              div.logo
+                a(href="http//localhost:8080/")
+                  img(src="cid:logo", alt="open-paas logo")
+            td(colspan="2")
+              h4
+                p #{content.event.organizer}
+                p invited you to a meetings!
             td
+              img(src="#{content.user.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
           tr
-          each partstat, mail in content.event.attendees
-            tr
-              td
-              td
-                +attendeeDisplay(mail, partstat)
-            tr
+            th(colspan="6").title #{content.event.summary}
+          tr
+            td
+              img(src="cid:clock-o", alt="clock-o logo")
+            td
+              p #{content.event.start.date}
+              p #{content.event.start.time}
+            td
+              img(src="cid:arrow-right", alt="to logo")
+            td
+              p #{content.event.end.date}
+              p #{content.event.end.time}
+            td.small no recurrence
+            td
+              a(href='http//localhost:8080/') See in calendar
+          tr
+            td
+              img(src="cid:location-arrow", alt="location-arrow logo")
+            td(colspan="4") #{content.event.location}
+            td
+              a(href='http//localhost:8080/') open streetmap link
+          tr
+          tr
+            td
+              img(src="cid:users", alt="users logo")
+            td(colspan="5")
+              each partstat, mail in content.event.attendees
+                span
+                  +attendeeDisplay(mail, partstat)
+          tr
+            td
+              img(src="cid:bars", alt="bars logo")
+            td(colspan="5") #{content.event.description}
+          tr
+            td
+              img(src="cid:folder-o", alt="folder-o logo")
+            td(colspan="5")
+              span file.odt
+          tr.table-footer
+            td(colspan="2")
+              a.green(href="http//localhost:8080/") Yes
+            td(colspan="3")
+              a.blue(href="http//localhost:8080/") Maybe
+            td(colspan="1")
+              a.red(href="http//localhost:8080/") No
 
       footer
         .producer
-          | OpenPaas is coded with love by&nbsp;
-          a.linagora(href="http://linagora.com") Linagora
+          a.linagora(href="http//localhost:8080/") See more details about this meeting
