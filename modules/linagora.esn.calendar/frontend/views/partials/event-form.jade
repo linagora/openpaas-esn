@@ -42,8 +42,18 @@ form.event-quick-form.form-container(role='form')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
   .form-group.nopadding
     .text-center
-      button.btn.btn-default.submit-button.pull-left(type='button', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive") #{__('Create')}
-      button.btn.btn-default.submit-button.pull-left(type='button', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive") #{__('Modify')}
-      button.btn.btn-default.submit-button(type='button', ng-if="isNew(editedEvent)", ng-disabled="true") #{__('More options')}
-      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive") #{__('Delete')}
-      button.btn.btn-default.submit-button.pull-right(type='button', ng-click="closeModal()") #{__('Cancel')}
+      button.btn.btn-default.submit-button.pull-left(type='button', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
+        span.hidden-xs #{__('Create')}
+        i.fa.fa-check.fa-2x.visible-xs
+      button.btn.btn-default.submit-button.pull-left(type='button', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
+        span.hidden-xs #{__('Modify')}
+        i.fa.fa-check.fa-2x.visible-xs
+      button.btn.btn-default.submit-button(type='button', ng-if="isNew(editedEvent)", ng-disabled="true")
+        span.hidden-xs #{__('More options')}
+        i.fa.fa-bars.fa-2x.visible-xs
+      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
+        span.hidden-xs #{__('Delete')}
+        i.fa.fa-trash-o.fa-2x.visible-xs
+      button.btn.btn-default.submit-button.pull-right(type='button', ng-click="closeModal()")
+        span.hidden-xs #{__('Cancel')}
+        i.fa.fa-close.fa-2x.visible-xs
