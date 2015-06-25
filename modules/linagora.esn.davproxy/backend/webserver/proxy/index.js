@@ -24,8 +24,10 @@ module.exports = function(dependencies) {
 
       if (data && data.backend && data.backend.url) {
         serverUrlCache = data && data.backend && data.backend.url;
+        return callback(serverUrlCache);
       }
-      return callback(serverUrlCache);
+
+      return callback(DEFAULT_DAV_SERVER);
     });
   }
 
