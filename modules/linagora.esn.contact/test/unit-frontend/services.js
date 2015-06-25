@@ -11,17 +11,7 @@ describe('The Contacts Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.tokenAPI = {
-        _token: '123',
-        getNewToken: function() {
-          var token = this._token;
-          return {
-            then: function(callback) {
-              callback({ data: { token: token } });
-            }
-          };
-        }
-      };
+      this.tokenAPI = {};
       this.uuid4 = {
         // This is a valid uuid4. Change this if you need other uuids generated.
         _uuid: '00000000-0000-4000-a000-000000000000',
@@ -39,12 +29,26 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, $httpBackend, $rootScope, _ICAL_) {
+    beforeEach(angular.mock.inject(function(contactsService, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
+      this.$q = $q;
+      this.DAV_PATH = DAV_PATH;
+
+      this.getExpectedPath = function(path) {
+        return this.DAV_PATH + path;
+      };
 
       ICAL = _ICAL_;
+
+      var self = this;
+      self.tokenAPI.getNewToken = function() {
+        var token = self._token;
+        var defer = self.$q.defer();
+        defer.resolve({data: {token: token}});
+        return defer.promise;
+      };
     }));
 
     describe('The list fn', function() {
@@ -78,11 +82,8 @@ describe('The Contacts Angular module', function() {
           }
         };
 
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
-
         // The carddav server will be hit
-        this.$httpBackend.expectGET(contactsURL).respond(result);
+        this.$httpBackend.expectGET(this.getExpectedPath(contactsURL)).respond(result);
 
         this.contactsService.list(contactsURL).then(function(cards) {
             expect(cards).to.be.an.array;
@@ -101,11 +102,9 @@ describe('The Contacts Angular module', function() {
     describe('The getCard fn', function() {
 
       it('should return a contact', function(done) {
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The caldav server will be hit
-        this.$httpBackend.expectGET('/path/to/card.vcf').respond(
+        this.$httpBackend.expectGET(this.getExpectedPath('/path/to/card.vcf')).respond(
           ['vcard', [
             ['version', {}, 'text', '4.0'],
             ['uid', {}, 'text', 'myuid'],
@@ -160,8 +159,7 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should return a contact with no photo if not defined in vCard', function(done) {
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
-        this.$httpBackend.expectGET('/path/to/card.vcf').respond(
+        this.$httpBackend.expectGET(this.getExpectedPath('/path/to/card.vcf')).respond(
           ['vcard', [
             ['version', {}, 'text', '4.0'],
             ['uid', {}, 'text', 'myuid']
@@ -195,11 +193,9 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should fail on 500 response status', function(done) {
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(500, '');
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/book/00000000-0000-4000-a000-000000000000.vcf')).respond(500, '');
 
         var vcard = new ICAL.Component('vcard');
         vcard.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -219,11 +215,8 @@ describe('The Contacts Angular module', function() {
         var vcard = new ICAL.Component('vcard');
         vcard.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
 
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
-
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(200, '');
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/book/00000000-0000-4000-a000-000000000000.vcf')).respond(200, '');
 
         this.contactsService.create('/path/to/book', vcard).then(
           unexpected.bind(null, done), function(response) {
@@ -240,11 +233,8 @@ describe('The Contacts Angular module', function() {
         var vcard = new ICAL.Component('vcard');
         vcard.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
 
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
-
         // The carddav server will be hit
-        this.$httpBackend.expectPUT('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(201, vcard.toJSON());
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/book/00000000-0000-4000-a000-000000000000.vcf')).respond(201, vcard.toJSON());
 
         this.contactsService.create('/path/to/book', vcard).then(
           function(response) {
@@ -270,12 +260,10 @@ describe('The Contacts Angular module', function() {
         vcard.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
         vcard.addPropertyWithValue('fn', 'test card');
         this.vcard = vcard;
-
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
       });
 
       it('should fail if status is 201', function(done) {
-        this.$httpBackend.expectPUT('/path/to/uid.vcf').respond(201, this.vcard.toJSON());
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/uid.vcf')).respond(201, this.vcard.toJSON());
 
         this.contactsService.modify('/path/to/uid.vcf', this.vcard).then(
           unexpected.bind(null, done), function(response) {
@@ -289,7 +277,7 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should succeed on 200', function(done) {
-        this.$httpBackend.expectPUT('/path/to/uid.vcf').respond(200, this.vcard.toJSON(), { 'ETag': 'changed-etag' });
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/uid.vcf')).respond(200, this.vcard.toJSON(), { 'ETag': 'changed-etag' });
 
         this.contactsService.modify('/path/to/uid.vcf', this.vcard).then(
           function(shell) {
@@ -306,8 +294,8 @@ describe('The Contacts Angular module', function() {
 
       it('should succeed on 204', function(done) {
         var headers = { 'ETag': 'changed-etag' };
-        this.$httpBackend.expectPUT('/path/to/uid.vcf').respond(204, '');
-        this.$httpBackend.expectGET('/path/to/uid.vcf').respond(200, this.vcard.toJSON(), headers);
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/uid.vcf')).respond(204, '');
+        this.$httpBackend.expectGET(this.getExpectedPath('/path/to/uid.vcf')).respond(200, this.vcard.toJSON(), headers);
 
         this.contactsService.modify('/path/to/uid.vcf', this.vcard).then(
           function(shell) {
@@ -329,7 +317,9 @@ describe('The Contacts Angular module', function() {
           'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
-        this.$httpBackend.expectPUT('/path/to/uid.vcf', this.vcard.toJSON(), requestHeaders).respond(200, this.vcard.toJSON(), { 'ETag': 'changed-etag' });
+        this._token = requestHeaders.ESNToken;
+
+        this.$httpBackend.expectPUT(this.getExpectedPath('/path/to/uid.vcf'), this.vcard.toJSON(), requestHeaders).respond(200, this.vcard.toJSON(), { 'ETag': 'changed-etag' });
 
         this.contactsService.modify('/path/to/uid.vcf', this.vcard, 'etag').then(
           function(shell) { done(); }, unexpected.bind(null, done)
@@ -434,7 +424,6 @@ describe('The Contacts Angular module', function() {
 
       beforeEach(function() {
         this.contact = {id: '00000000-0000-4000-a000-000000000000'};
-        this.$httpBackend.expectGET('/davserver/api/info').respond({url: ''});
       });
 
       function unexpected(done) {
@@ -443,7 +432,7 @@ describe('The Contacts Angular module', function() {
 
       it('should fail on a status that is not 204', function(done) {
 
-        this.$httpBackend.expectDELETE('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(201);
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/path/to/book/00000000-0000-4000-a000-000000000000.vcf')).respond(201);
 
         this.contactsService.remove('/path/to/book', this.contact).then(
           unexpected.bind(null, done), function(response) {
@@ -457,7 +446,7 @@ describe('The Contacts Angular module', function() {
 
       it('should succeed when everything is correct', function(done) {
 
-        this.$httpBackend.expectDELETE('/path/to/book/00000000-0000-4000-a000-000000000000.vcf').respond(204);
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/path/to/book/00000000-0000-4000-a000-000000000000.vcf')).respond(204);
 
         this.contactsService.remove('/path/to/book', this.contact).then(
           function(response) {
@@ -475,8 +464,9 @@ describe('The Contacts Angular module', function() {
           'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
+        this._token = requestHeaders.ESNToken;
 
-        this.$httpBackend.expectDELETE('/path/to/book/00000000-0000-4000-a000-000000000000.vcf', requestHeaders).respond(204);
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/path/to/book/00000000-0000-4000-a000-000000000000.vcf'), requestHeaders).respond(204);
 
         this.contactsService.remove('/path/to/book', this.contact, 'etag').then(
           function() { done(); }, unexpected.bind(null, done)
