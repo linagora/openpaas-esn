@@ -11,8 +11,14 @@ describe('jscal2content', function() {
     ics = fs.readFileSync(__dirname + '/../../fixtures/meeting.ics').toString('utf8');
     expect(jcal2content(ics)).to.deep.equal({
       summary: 'Démo OPENPAAS',
-      start: 'Fri, Jun 12, 2015 3:00 PM',
-      end: 'Fri, Jun 12, 2015 3:30 PM',
+      start: {
+        date: '06/12/2015',
+        time: '3:00 PM'
+      },
+      end: {
+        date: '06/12/2015',
+        time: '3:30 PM'
+      },
       location: 'https://hubl.in/openpaas',
       description: 'Présentation de OPENPAAS',
       organizer: 'John Doe <johndoe@open-paas.org>',
@@ -27,7 +33,10 @@ describe('jscal2content', function() {
     ics = fs.readFileSync(__dirname + '/../../fixtures/cancel-event.ics').toString('utf8');
     expect(jcal2content(ics)).to.deep.equal({
       summary: 'Démo OPENPAAS',
-      start: 'Fri, Jun 12, 2015 3:00 PM',
+      start: {
+        date: '06/12/2015',
+        time: '3:00 PM'
+      },
       end: null,
       location: 'https://hubl.in/openpaas',
       description: 'Présentation de OPENPAAS',
