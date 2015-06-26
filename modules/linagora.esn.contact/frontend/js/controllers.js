@@ -57,14 +57,19 @@ angular.module('linagora.esn.contact')
       $location.path('/contacts');
     };
 
-    $scope.accept = function() {
-      var vcard = contactsService.shellToVCARD($scope.contact);
-      contactsService.modify($scope.contact.path, vcard, $scope.contact.etag).then(function() {
-        $scope.close();
-        notificationFactory.weakInfo('Contact modification success', 'Successfully modified the new contact');
-      }).catch (function(err) {
+    $scope.modify = function() {
+      return contactsService.modify($scope.contact.path, contactsService.shellToVCARD($scope.contact), $scope.contact.etag).then(function(contact) {
+        notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + contact.displayName);
+        $scope.contact.etag = contact.etag;
+
+        return contact;
+      }, function(err) {
         notificationFactory.weakError('Contact modification failure', err.message);
       });
+    };
+
+    $scope.accept = function() {
+      $scope.modify().finally($scope.close);
     };
 
     $scope.init = function() {
