@@ -6,7 +6,11 @@ var mockery = require('mockery');
 
 describe('The proxy module', function() {
 
-  var dependencies = {};
+  var dependencies = {
+    logger: {
+      error: function() {}
+    }
+  };
   var deps = function(name) {
     return dependencies[name];
   };

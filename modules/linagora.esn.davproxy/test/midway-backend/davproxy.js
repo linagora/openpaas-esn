@@ -52,7 +52,9 @@ describe('The davproxy server', function() {
 
   afterEach(function(done) {
     var self = this;
-    self.shutdownDav(done);
+    self.shutdownDav(function() {
+      self.helpers.mongo.dropDatabase(done);
+    });
   });
 
   describe('addressbooks proxy', function() {
