@@ -22,7 +22,7 @@ html.mail
 
         table
           tr.table-header
-            td(colspan="3")
+            td.logo(colspan="3")
               div
                 a(href="http://localhost:8080/")
                   img(src="cid:logo", alt="open-paas logo")
@@ -30,9 +30,11 @@ html.mail
               h5
                 p
                   | #{content.event.organizer.cn} (
-                  span.small #{content.event.organizer.mail}
+                  span.small
+                    a(href='mailto:#{content.event.organizer.mail}')
+                      img(src="cid:email", alt="Organizer mail")
                   | )
-                p.big has invited you to a meetings!
+                p.big has invited you to a meeting!
             td.avatar
               img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
           tr
@@ -76,7 +78,7 @@ html.mail
               span file.odt
           tr.table-footer
             td.attend-question(colspan="3")
-              | Will you attend to this event ?
+              | Will you attend ?
             td(colspan="1")
               a.green(href="http://localhost:8080/") Yes
             td(colspan="1")
