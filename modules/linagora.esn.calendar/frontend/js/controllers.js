@@ -2,8 +2,9 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'moment', 'notificationFactory', 'session',
-    function($rootScope, $scope, $alert, calendarUtils, calendarService, moment, notificationFactory, session) {
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'eventService', 'moment', 'notificationFactory', 'session',
+    function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session) {
+
       $scope.editedEvent = {};
       $scope.restActive = false;
 
@@ -18,7 +19,7 @@ angular.module('esn.calendar')
         } else {
           $scope.modifyEventAction = true;
         }
-        angular.extend($scope.editedEvent, $scope.event);
+        eventService.copyEventObject($scope.event, $scope.editedEvent);
       };
 
       function _displayError(err) {
@@ -104,6 +105,13 @@ angular.module('esn.calendar')
 
         $scope.editedEvent.start = moment($scope.editedEvent.startDate);
         $scope.editedEvent.end = moment($scope.editedEvent.endDate);
+
+        if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
+          if ($scope.createModal) {
+            $scope.createModal.hide();
+          }
+          return;
+        }
 
         $scope.restActive = true;
         calendarService.modify(path, $scope.editedEvent).then(function(response) {
@@ -261,6 +269,8 @@ angular.module('esn.calendar')
 
       $rootScope.$on('modifiedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
+        var events = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', data.id);
+        eventService.copyNonStandardProperties(data, events[0]);
       });
       $rootScope.$on('removedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', data);

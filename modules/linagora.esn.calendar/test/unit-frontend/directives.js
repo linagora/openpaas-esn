@@ -64,7 +64,7 @@ describe('The Calendar Angular module', function() {
     it('should initiate $scope.editedEvent from $scope.Event if it exists', function() {
       this.$scope.event = {
         allDay: true,
-        attendees: ['user1@openpaas.org']
+        attendees: [{'displayName': 'user1@openpaas.org'}]
       };
       this.initDirective(this.$scope);
       expect(this.$scope.editedEvent).to.deep.equal(this.$scope.event);

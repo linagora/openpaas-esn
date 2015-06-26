@@ -83,6 +83,27 @@ describe('The Calendar Angular module', function() {
         this.scope.editedEvent = {};
         this.eventFormController.modifyEvent();
       });
+
+      it('should not send modify request if no change', function(done) {
+        this.scope.createModal = {
+          hide: function() {
+            done();
+          }
+        };
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+
+        this.scope.event = {
+          startDate: new Date(),
+          endDate: new Date(),
+          allDay: false,
+          title: 'title'
+        };
+        this.scope.editedEvent = this.scope.event;
+        this.eventFormController.modifyEvent();
+      });
     });
 
     describe('addNewEvent function', function() {
