@@ -15,7 +15,7 @@ html.mail
             tr
               td
                 div.logo
-                  a(href="#{content.header.baseUrl}")
+                  a(href!="#{content.header.baseUrl}")
                     img(src="cid:logo", alt="open-paas logo")
               td
                 h2
@@ -41,9 +41,9 @@ html.mail
                 table
                   tr
                     td
-                      img(src="#{collaboration.avatar}", alt="collaboration avatar", style="background:white;", width="45px", height="42px")
+                      img(src!="#{collaboration.avatar}", alt="collaboration avatar", style="background:white;", width="45px", height="42px")
                     td
-                      a(href="#{collaboration.link}", alt="#{collaboration.title}")
+                      a(href!="#{collaboration.link}", alt="#{collaboration.title}")
                         h2 #{collaboration.title}
                           span.badge #{collaboration.unreadMessages}
                 .arrow-up
@@ -55,7 +55,7 @@ html.mail
                       table
                         tr
                           td
-                            img(src="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
+                            img(src!="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
                           td
                             h3
                               span.message-author #{message.author.displayName}
@@ -76,7 +76,7 @@ html.mail
                           table
                             tr
                               td
-                                img(src="#{message.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
+                                img(src!="#{response.author.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
                               td
                                 span.response-author  #{response.author.displayName}
                                 span  -
