@@ -1,6 +1,11 @@
-mixin attendeeDisplay(mail, partstat)
+mixin attendeeDisplay(mail, details)
   div
-    span #{mail},
+    if (details.cn)
+      span #{details.cn} <
+        span.small #{mail}
+      | >,
+    else
+      span.small #{mail}
 
 doctype html
 html.mail
@@ -18,62 +23,67 @@ html.mail
         table
           tr.table-header
             td(colspan="3")
-              div.logo
+              div
                 a(href="http://localhost:8080/")
                   img(src="cid:logo", alt="open-paas logo")
-            td(colspan="2")
+            td.organizer(colspan="2")
               h5
-                p #{content.event.organizer}
-                p invited you to a meetings!
-            td
-              img(src="#{content.user.avatar}", alt="user avatar", style="background:white;", width="45px", height="42px")
+                p
+                  | #{content.event.organizer.cn} (
+                  span.small #{content.event.organizer.mail}
+                  | )
+                p.big has invited you to a meetings!
+            td.avatar
+              img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
           tr
             th(colspan="6").title #{content.event.summary}
           tr
             td
-              img(src="cid:access_time", alt="to logo")
+              img(src="cid:access_time", alt="From")
             td
               p #{content.event.start.date}
               p #{content.event.start.time}
             td
-              img(src="cid:keyboard_arrow_right", alt="to logo")
+              img(src="cid:keyboard_arrow_right", alt="To")
             td
               p #{content.event.end.date}
               p #{content.event.end.time}
             td.small no recurrence
             td
-              a(href='http://localhost:8080/') See in calendar
+              a(href='#{content.baseUrl}/#/calendar') See in calendar
           tr
             td
-              img(src="cid:place", alt="location-arrow logo")
+              img(src="cid:place", alt="Location")
             td(colspan="4") #{content.event.location}
             td
               a(href='http://localhost:8080/') Map
           tr
           tr
             td
-              img(src="cid:people", alt="users logo")
+              img(src="cid:people", alt="Attendees")
             td(colspan="5")
-              each partstat, mail in content.event.attendees
+              each details, mail in content.event.attendees
                 span
-                  +attendeeDisplay(mail, partstat)
+                  +attendeeDisplay(mail, details)
           tr
             td
-              img(src="cid:format_align_justify", alt="bars logo")
+              img(src="cid:format_align_justify", alt="Description")
             td(colspan="5") #{content.event.description}
           tr
             td
-              img(src="cid:folder_open", alt="folder-o logo")
+              img(src="cid:folder_open", alt="Files")
             td(colspan="5")
               span file.odt
           tr.table-footer
-            td(colspan="2")
+            td.attend-question(colspan="3")
+              | Will you attend to this event ?
+            td(colspan="1")
               a.green(href="http://localhost:8080/") Yes
-            td(colspan="3")
+            td(colspan="1")
               a.blue(href="http://localhost:8080/") Maybe
             td(colspan="1")
               a.red(href="http://localhost:8080/") No
 
       footer
-        .producer
-          a.linagora(href="http://localhost:8080/") More details...
+        div.footer
+          a(href='#{content.baseUrl}/#/calendar') More details...

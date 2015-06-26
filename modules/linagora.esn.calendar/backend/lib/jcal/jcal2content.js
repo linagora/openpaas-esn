@@ -2,12 +2,7 @@
 
 var icaljs = require('ical.js');
 var moment = require('moment');
-
-function _getDisplayName(attendee) {
-  var cn = attendee.getParameter('cn');
-  var mail = attendee.getFirstValue().replace(/^MAILTO:/i, '');
-  return cn ? cn + ' <' + mail + '>' : mail;
-}
+var url = require('url');
 
 /**
  * Return a formatted, easily usable data for an email template from a jcal object
@@ -15,18 +10,34 @@ function _getDisplayName(attendee) {
  * @return {Object} content
  * {
       summary: 'aSummary',
-      start: 'Fri, Jun 12, 2015 3:00 PM',
-      end: 'Fri, Jun 12, 2015 3:30 PM',
+      start: {
+        date: '06/12/2015',
+        time: '3:00 PM'
+      },
+      end: {
+        date: '06/12/2015',
+        time: '3:30 PM'
+      },
       location: 'aLocation',
       description: 'aDescription',
-      organizer: 'aOrganizer <aorganizer@linagora.com>',
+      organizer: {
+        cn: 'aOrganizer',
+        mail: 'aorganizer@linagora.com',
+        avatar: 'http://localhost:8080/api/avatars?objectType=user&email=aorganizer@linagora.com'
+      },
       attendees: {
-        'aattendee <aattendee@linagora.com>': 'ACCEPTED',
-        'aattendee2 <aattendee2@linagora.com>': 'NEEDS-ACTION'
+        'aattendee@linagora.com>: {
+          cn: 'aattendee',
+          partstat: 'ACCEPTED',
+        },
+        'aattendee2@linagora.com>: {
+          cn: 'aattendee2',
+          partstat: 'NEEDS-ACTION',
+        }
       }
    }
  */
-function jcal2content(icalendar) {
+function jcal2content(icalendar, baseUrl) {
   var vcalendar = icaljs.Component.fromString(icalendar);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
   var method = vcalendar.getFirstPropertyValue('method');
@@ -34,7 +45,12 @@ function jcal2content(icalendar) {
   var attendees = {};
   vevent.getAllProperties('attendee').forEach(function(attendee) {
     var partstat = attendee.getParameter('partstat');
-    attendees[_getDisplayName(attendee)] = partstat;
+    var cn = attendee.getParameter('cn');
+    var mail = attendee.getFirstValue().replace(/^MAILTO:/i, '');
+    attendees[mail] = {
+      partstat: partstat,
+      cn: cn
+    };
   });
 
   var end;
@@ -55,7 +71,13 @@ function jcal2content(icalendar) {
   }
 
   var organizer = vevent.getFirstProperty('organizer');
-  organizer = _getDisplayName(organizer);
+  var cn = organizer.getParameter('cn');
+  var mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
+  organizer = {
+    cn: cn,
+    mail: mail,
+    avatar: url.resolve(baseUrl, 'api/avatars?objectType=user&email=' + mail)
+  };
 
   var startDate = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
 

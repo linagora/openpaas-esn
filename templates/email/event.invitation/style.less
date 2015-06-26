@@ -7,39 +7,43 @@
 @esn-highlight-dark: rgb(21,21,21);
 @esn-fa: #FAFAFA;
 @esn-linagora: #BE1F3A;
-
 @published-date: darken(@esn-primary-lesslight, 20%);
+@font-color: #333;
 
 body {
-  table {
-    border-collapse: collapse;
-  }
+  background-color: @esn-fa;
 
   p {
     margin: 0;
     padding: 0;
   }
 
-  div.wrapper {
+  .wrapper {
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    background-color: @esn-fa;
+    background-color: white;
   }
 
-  div.mail-content {
+  .mail-content {
     padding: 0 10px 10px 10px;
     border-radius: 5px;
     text-align: justify;
+    color: @font-color;
   }
 
   .title {
     font-size: 1.5em;
-    padding-bottom: 1em;
+    padding-bottom: 10px;
+    padding-top: 20px;
   }
 
   .small {
     color: grey;
+  }
+
+  .big {
+    font-size: 1.3em;
   }
 
   .green {
@@ -61,16 +65,42 @@ body {
     td {
       padding-top: 20px;
     }
+
     a {
       text-decoration: none;
+
+    }
+
+    .attend-question {
+      font-size: 0.6em;
+      color: grey;
     }
   }
 
   .table-header {
+    text-align: right;
     border-bottom: 1px solid @esn-primary-lesslight;
+    h5 {
+      padding: 0;
+      margin: 0;
+    }
+
+    td {
+      padding-top: 5px;
+    }
+
+    td.organizer {
+      text-align: right;
+    }
+
+    td.avatar {
+      text-align: left;
+    }
   }
 
   table {
+    border-collapse: collapse;
+
     img {
       padding: 0 30px 0 0;
     }
@@ -84,9 +114,9 @@ body {
   footer {
     margin-right: 3px;
     margin-top:10px;
-    text-align: right;
-    color: @esn-primary-middle;
-
+    .footer {
+      text-align: right;
+    }
     a {
       color: @esn-linagora;
     }
