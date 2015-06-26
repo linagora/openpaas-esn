@@ -29,7 +29,7 @@ angular.module('linagora.esn.contact')
       var args = arguments;
       return function() {
         if (Array.prototype.every.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          console.log('new_field');
+          //console.log('new_field');
           _acceptNew();
         }
       };
@@ -39,8 +39,7 @@ angular.module('linagora.esn.contact')
       return function($index) {
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
-          console.log('remove_field');
-
+          //console.log('remove_field');
           _acceptRemove($index);
         }
       };
@@ -51,7 +50,7 @@ angular.module('linagora.esn.contact')
 
       return function() {
         if (Array.prototype.some.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          console.log('new_address_field');
+          //console.log('new_address_field');
           _acceptNew();
         }
       };
@@ -59,13 +58,13 @@ angular.module('linagora.esn.contact')
 
     this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
       var args = arguments;
-      console.log($scope);
+      //console.log($scope);
       return function($index) {
        $scope.content.forEach(function(item){
-          console.log(args);
-          console.log(item);
+          //console.log(args);
+          //console.log(item);
           if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
-            console.log('remove_adress_field');
+            //console.log('remove_adress_field');
             _acceptRemove($index);
           }
         });
@@ -200,7 +199,7 @@ angular.module('linagora.esn.contact')
           }
           _resetInputGroup();
           _toggleGroupButtons();
-          console.log(scope);
+          //console.log(scope);
           if (scope.onBlur) {
             scope.onBlur();
           }
@@ -295,6 +294,64 @@ angular.module('linagora.esn.contact')
       require: 'ngModel',
       restrict: 'E',
       templateUrl: '/contact/views/partials/editable-textarea.html',
+      link: link
+    };
+  })
+  .directive('datepickerInlineEditableInput', function($timeout) {
+    function link(scope, element, attrs, controller) {
+      var input = element.find('input');
+      var oldValue;
+
+      input.bind('focus', function() {
+        oldValue = controller.$viewValue;
+      });
+
+      input.bind('blur', function() {
+        $timeout(function() {
+          if (oldValue !== controller.$viewValue) {
+            scope.saveDatepickerInput();
+          }
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+
+      input.bind('keydown', function(event) {
+        var escape = event.which === 27;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.resetDatepickerInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+      });
+
+      scope.saveDatepickerInput = scope.onSave || function() {};
+
+      scope.resetDatepickerInput = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        type: '@',
+        placeholder: '@',
+        onSave: '=',
+        inputClass: '@',
+        onBlur: '=',
+        name: '@',
+        datepicker: '@',
+        datepickerDataStart: '=',
+        datepickerDataDateFormat: '@',
+        datepickerDataAutoclose: '='
+      },
+      require: 'ngModel',
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/datepicker-inline-editable-input.html',
       link: link
     };
   })
