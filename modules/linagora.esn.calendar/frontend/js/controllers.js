@@ -64,7 +64,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.event.title + ' is created');
+          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
         }).finally (function() {
@@ -86,7 +86,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' is deleted');
+          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
         }).finally (function() {
@@ -124,7 +124,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.event.title + ' is modified');
+          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
         }).finally (function() {
@@ -235,7 +235,7 @@ angular.module('esn.calendar')
       $scope.eventDropAndResize = function(event) {
         var path = '/calendars/' + $scope.calendarId + '/events/' + event.id + '.ics';
         calendarService.modify(path, event).then(function() {
-          notificationFactory.weakInfo('Event modified', event.title + ' is modified');
+          notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
         });
       };
 
