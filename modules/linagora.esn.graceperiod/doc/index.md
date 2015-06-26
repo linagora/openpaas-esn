@@ -3,6 +3,10 @@
 This module is a grace period manager.
 It can be used to register tasks to be executed after a given delay. Tasks can be cancelled before the grace period delay.
 
+## Library
+
+The module provides a library to be used by other modules to create tasks.
+
     var delay = 1000; // in ms
     var grace = dependencies('graceperiod');
 
@@ -27,3 +31,7 @@ It can be used to register tasks to be executed after a given delay. Tasks can b
     // If the grace period is over, calling cancel have no effect
     task.cancel();
 
+## REST API
+
+All tasks created from a REST API Call MUST return the Task ID in the response HTTP header as 'x-esn-task-id'.
+By using this ID, clients can cancel task by calling the graceperiod REST API.
