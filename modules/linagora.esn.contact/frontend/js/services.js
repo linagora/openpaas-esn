@@ -176,8 +176,14 @@ angular.module('linagora.esn.contact')
       }
       this.tags = cats ? cats.map(function(cat) { return { text: cat }; }) : [];
 
-      var bday = vcard.getFirstPropertyValue('bday');
-      this.birthday = bday ? bday.toJSDate() : null;
+      var bday = vcard.getFirstProperty('bday');
+
+      if (bday) {
+        var type = bday.type,
+            value = bday.getFirstValue();
+
+        this.birthday = type !== 'text' ? value.toJSDate() : value;
+      }
 
       this.nickname = vcard.getFirstPropertyValue('nickname');
       this.notes = vcard.getFirstPropertyValue('note');
@@ -285,9 +291,14 @@ angular.module('linagora.esn.contact')
       }
 
       if (shell.birthday) {
-        var value = ICAL.Time.fromJSDate(shell.birthday);
-        value.isDate = true;
-        vcard.addPropertyWithValue('bday', value);
+        if (shell.birthday instanceof Date) {
+          var value = ICAL.Time.fromJSDate(shell.birthday);
+
+          value.isDate = true;
+          vcard.addPropertyWithValue('bday', value);
+        } else {
+          vcard.addPropertyWithValue('bday', shell.birthday).setParameter('VALUE', 'TEXT');
+        }
       }
 
       if (shell.nickname) {

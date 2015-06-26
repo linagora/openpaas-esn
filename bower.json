@@ -81,5 +81,8 @@
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
     "bootstrap-switch": "~3.3.2",
     "font-awesome": "~4.3.x"
+  },
+  "devDependencies": {
+    "chai-datetime": "~1.4.0"
   }
 }

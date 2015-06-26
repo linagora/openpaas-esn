@@ -261,4 +261,20 @@ angular.module('linagora.esn.contact')
         $scope.defaultAvatar = DEFAULT_AVATAR;
       }
     };
-  }]);
+  }])
+  .directive('relaxedDate', function(DATE_FORMAT, $dateParser, $dateFormatter) {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: function(scope, element, attrs, controller) {
+        element.attr('placeholder', DATE_FORMAT);
+
+        controller.$parsers.push(function(text) {
+          return $dateParser({ format: DATE_FORMAT }).parse(text) || text;
+        });
+        controller.$formatters.push(function(dateOrText) {
+          return $dateFormatter.formatDate(dateOrText, DATE_FORMAT);
+        });
+      }
+    };
+  });

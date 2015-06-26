@@ -148,7 +148,7 @@ describe('The Contacts Angular module', function() {
           expect(contact.social).to.deep.equal([{ type: 'Twitter', value: '@AwesomePaaS' }]);
           expect(contact.tags).to.deep.equal([{ text: 'asdf' }]);
           expect(contact.starred).to.be.true;
-          expect(contact.birthday.getTime()).to.equal(new Date(2015, 0, 1).getTime());
+          expect(contact.birthday).to.equalDate(new Date(2015, 0, 1));
           expect(contact.nickname).to.equal('nick');
           expect(contact.notes).to.equal('notes');
           expect(contact.photo).to.equal('data:image/png;base64,iVBOR=');
@@ -170,6 +170,22 @@ describe('The Contacts Angular module', function() {
           expect(contact.photo).to.not.exist;
         }.bind(this)).finally (done);
 
+        this.$httpBackend.flush();
+      });
+
+      it('should return a contact with a string birthday if birthday is not a date', function(done) {
+        this.$httpBackend.expectGET(this.getExpectedPath('/path/to/card.vcf')).respond(
+          ['vcard', [
+            ['bday', {}, 'text', 'a text birthday']
+          ], []],
+          { 'ETag': 'testing-tag' }
+        );
+
+        this.contactsService.getCard('/path/to/card.vcf').then(function(contact) {
+          expect(contact.birthday).to.equal('a text birthday');
+        }.bind(this)).finally (done);
+
+        this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
 
@@ -379,6 +395,7 @@ describe('The Contacts Angular module', function() {
 
         compareShell(this.contactsService, shell, ical);
       });
+
       it('should correctly create a card with all props', function() {
         var shell = {
           lastName: 'last',
@@ -414,6 +431,20 @@ describe('The Contacts Angular module', function() {
           nickname: 'NICKNAME:nick',
           note: 'NOTE:notes',
           photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        };
+
+        compareShell(this.contactsService, shell, ical);
+      });
+
+      it('should correctly create a card when birthday is not a Date', function() {
+        var shell = {
+          birthday: 'not sure about the birthday'
+        };
+        var ical = {
+          version: 'VERSION:4.0',
+          uid: 'UID:00000000-0000-4000-a000-000000000000',
+          fn: 'FN:not sure about the birthday',
+          bday: 'BDAY;VALUE=TEXT:not sure about the birthday'
         };
 
         compareShell(this.contactsService, shell, ical);

@@ -36,7 +36,7 @@
       .form-group
         label.control-label.col-xs-3 #{__("Birthday")}
         .col-xs-9
-          input.form-control(type='text', placeholder='yyyy/MM/dd', ng-model='contact.birthday' name="date" bs-datepicker data-start-week="1" data-date-format="yyyy/MM/dd" data-autoclose="true")
+          input.form-control(type='text', relaxed-date, ng-model='contact.birthday', name='date')
       .form-group
         label.control-label.sr-only #{__("Nickname")}
         .col-sm-12
