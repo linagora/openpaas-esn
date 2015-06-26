@@ -5,10 +5,6 @@
         i.fa.fa-upload
         | #{__('Select an image')}
         input(type="file", accept="image/*", load-button)
-    .btn-group
-      button.btn.btn-info.btn-file(data-ng-disabled='!image.selected || image.validated', data-ng-click='image.validated = true')
-        i.fa.fa-check
-        | #{__('Accept picture')}
 .vertiz-space
 .row.error
 .row
@@ -20,7 +16,7 @@
         a(data-ng-click='removeSelectedImage()', href='')
           i.fa.fa-times.fa-5.fa-border
         canvas(width="128", height="128", id="preview", img-preview)
-  .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='image.selected && !image.validated')
+  .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='image.selected')
     .hidden-md.hidden-sm.hidden-lg
       img-loaded(width="190")
     .hidden-xs

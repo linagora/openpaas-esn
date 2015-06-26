@@ -331,8 +331,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 .directive('avatarPicker', ['selectionService', '$alert', function(selectionService, $alert) {
   function link($scope, element, attrs) {
     $scope.image = {
-      selected: false,
-      validated: false
+      selected: false
     };
     $scope.avatarPlaceholder = attrs.avatarPlaceholder ? attrs.avatarPlaceholder : '/images/community.png';
 
@@ -348,13 +347,11 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
     $scope.removeSelectedImage = function() {
       selectionService.clear();
       $scope.image.selected = false;
-      $scope.image.validated = false;
     };
 
     $scope.$on('crop:loaded', function() {
       destroyAlertInstance();
       $scope.image.selected = true;
-      $scope.image.validated = false;
       $scope.$apply();
     });
 
