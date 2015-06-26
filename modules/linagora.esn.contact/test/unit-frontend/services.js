@@ -646,9 +646,14 @@ describe('The Contacts Angular module', function() {
         this.expectNotEqual('');
       });
 
-      it('should return birthday', function() {
-        this.shell.birthday = new Date();
-        this.expectEqual(this.shell.birthday);
+      it('should return formatted birthday if defined and a Date', function() {
+        this.shell.birthday = new Date(1942, 0, 1);
+        this.expectEqual('01/01/1942');
+      });
+
+      it('should return birthday as-is if defined but not a Date', function() {
+        this.shell.birthday = 'I am not a date';
+        this.expectEqual('I am not a date');
       });
 
       it('should return undefined when no values', function() {
@@ -656,6 +661,11 @@ describe('The Contacts Angular module', function() {
         this.expectUndefined();
       });
 
+      it('should return email before company', function() {
+        this.shell.emails = [this.otherEmail];
+        this.shell.org = 'MyOrg';
+        this.expectEqual(this.otherEmail.value);
+      });
     });
   });
 

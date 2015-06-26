@@ -5,7 +5,7 @@
 angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DAV_PATH', '/dav/api')
-  .factory('ContactsHelper', function() {
+  .factory('ContactsHelper', function(DATE_FORMAT, $dateFormatter) {
     function getFormattedName(contact) {
 
       function notNullNorEmpty(value) {
@@ -58,12 +58,19 @@ angular.module('linagora.esn.contact')
         return contact.firstName + ' ' + contact.lastName;
       }
 
-      if (notNullNorEmpty(contact.firstName) && !notNullNorEmpty(contact.lastName)) {
+      if (notNullNorEmpty(contact.firstName)) {
         return contact.firstName;
       }
 
-      if (!notNullNorEmpty(contact.firstName) && notNullNorEmpty(contact.lastName)) {
+      if (notNullNorEmpty(contact.lastName)) {
         return contact.lastName;
+      }
+
+      if (notNullNorEmpty(contact.emails)) {
+        var email = getValueFromArray(contact.emails, ['work', 'home']);
+        if (email) {
+          return email;
+        }
       }
 
       if (notNullNorEmpty(contact.org)) {
@@ -72,13 +79,6 @@ angular.module('linagora.esn.contact')
 
       if (notNullNorEmpty(contact.nickname)) {
         return contact.nickname;
-      }
-
-      if (notNullNorEmpty(contact.emails)) {
-        var email = getValueFromArray(contact.emails, ['work', 'home']);
-        if (email) {
-          return email;
-        }
       }
 
       if (notNullNorEmpty(contact.social)) {
@@ -99,12 +99,12 @@ angular.module('linagora.esn.contact')
         return contact.notes;
       }
 
-      if (notNullNorEmpty(contact.tags) && contact.tags[0] && notNullNorEmpty(contact.tags[0].text)) {
+      if (notNullNorEmpty(contact.tags) && contact.tags[0] && contact.tags[0].text) {
         return contact.tags[0].text;
       }
 
       if (contact.birthday) {
-        return contact.birthday;
+        return $dateFormatter.formatDate(contact.birthday, DATE_FORMAT);
       }
     }
 

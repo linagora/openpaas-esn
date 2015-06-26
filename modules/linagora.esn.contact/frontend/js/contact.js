@@ -1,8 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.contact', [
-  'restangular', 'esn.alphalist', 'mgcrea.ngStrap.datepicker', 'mgcrea.ngStrap.alert', 'uuid4'
-]).config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
+  'restangular', 'esn.alphalist', 'mgcrea.ngStrap.datepicker', 'mgcrea.ngStrap.alert', 'uuid4',
+  'mgcrea.ngStrap.helpers.dateParser', 'mgcrea.ngStrap.helpers.dateFormatter'
+])
+  .constant('DATE_FORMAT', 'MM/dd/yyyy')
+  .config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
   $routeProvider.when('/contact', {
     templateUrl: '/contact/views/contacts',
     controller: 'contactsListController',
