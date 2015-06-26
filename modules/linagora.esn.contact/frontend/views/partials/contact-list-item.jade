@@ -39,5 +39,7 @@ div.contact-list-item
               a(ng-href="") Send Message
             li.visible-xs
               a(ng-href="") Call
+            li.visible-xs
+              a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
             li
               a(ng-click="deleteContact()") Delete
