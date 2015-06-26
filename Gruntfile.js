@@ -82,6 +82,17 @@ module.exports = function(grunt) {
       all: {
         src: ['<%= jshint.all.src %>']
       },
+      css: {
+        options: {
+          rules: [
+            { pattern: /important;(\s*$|(?=\s+[^\/]))/, message: 'CSS important rules only allowed with explanatory comment' }
+          ]
+        },
+        src: [
+          'frontend/css/**/*.less',
+          'modules/*/frontend/css/**/*.less'
+        ]
+      },
       quick: {
         src: ['<%= jshint.quick.src %>']
       }
@@ -721,7 +732,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-modules-frontend', ['run_grunt:modules_frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:modules_frontend', 'run_grunt:unit_backend', 'run_grunt:modules_unit_backend', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
+  grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern']);
 
   /**
    * Usage:
