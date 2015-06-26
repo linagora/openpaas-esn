@@ -6,7 +6,7 @@ module.exports = function(lib, dependencies) {
 
   var router = express.Router();
 
-  var authorizationMW = require('authorizationMW');
+  var authorizationMW = dependencies('authorizationMW');
   var controller = require('./controller')(lib, dependencies);
   var middleware = require('./middleware')(lib, dependencies);
 

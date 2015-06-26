@@ -396,7 +396,7 @@ angular.module('linagora.esn.contact')
       var cardPath = contactsPath.replace(/\/$/, '') + '/' + contact.id + '.vcf';
 
       return request('delete', cardPath, headers).then(function(response) {
-        if (response.status !== 204) {
+        if (response.status !== 204 || response.status !== 202) {
           return $q.reject(response);
         }
         return response;

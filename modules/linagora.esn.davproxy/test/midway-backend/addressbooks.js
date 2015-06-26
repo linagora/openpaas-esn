@@ -6,7 +6,7 @@ var request = require('supertest');
 var express = require('express');
 var bodyParser = require('body-parser');
 
-describe('The davproxy server', function() {
+describe('The addressbooks dav proxy', function() {
   var moduleName = 'linagora.esn.davproxy';
   var PREFIX = '/dav/api';
 
@@ -182,6 +182,35 @@ describe('The davproxy server', function() {
           req.expect(204).end(function(err) {
             expect(err).to.not.exist;
             expect(called).to.be.true;
+            done();
+          });
+        });
+      });
+    });
+
+
+    describe('DELETE /addressbooks/:bookId/contacts/:contactId.vcf', function() {
+
+      it('should return 202', function(done) {
+        var self = this;
+        var called = false;
+
+        var path = '/addressbooks/123/contacts/456.vcf';
+
+        self.dav.delete(path, function(req, res) {
+          called = true;
+          return res.send(204);
+        });
+
+        self.createDavServer(function(err) {
+          if (err) {
+            return done(err);
+          }
+          var req = request(self.app). delete(PREFIX + path);
+          req.expect(202).end(function(err, response) {
+            expect(err).to.not.exist;
+            expect(called).to.be.false;
+            expect(response.headers['x-esn-task-id']).to.be.a.string;
             done();
           });
         });
