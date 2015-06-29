@@ -7,11 +7,11 @@ var expect = chai.expect;
 describe('The Alpha List module', function() {
   beforeEach(angular.mock.module('esn.alphalist'));
 
-  describe('alphaCategoryService service', function() {
+  describe('AlphaCategoryService service', function() {
 
     beforeEach(module('duScroll'));
-    beforeEach(angular.mock.inject(function(alphaCategoryService) {
-      this.CategoryService = alphaCategoryService;
+    beforeEach(angular.mock.inject(function(AlphaCategoryService) {
+      this.CategoryService = AlphaCategoryService;
     }));
 
     describe('when instantiating', function() {

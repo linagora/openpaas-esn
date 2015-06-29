@@ -84,14 +84,14 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, alphaCategoryService, ALPHA_ITEMS, user, displayError) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError) {
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = 'firstName';
     $scope.prefix = 'contact-index';
     $scope.showMenu = false;
-    $scope.categories = new alphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
+    $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
     $scope.loadContacts = function() {
       var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
