@@ -31,7 +31,7 @@
         label.control-label.sr-only #{__("Tags")}
         .col-sm-12
           tags-input(ng-if='!update', ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
-          tags-input(ng-if='update', ng-model='contact.tags',  placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
+          editable-tags-input(ng-if='update', ng-model='contact.tags',  placeholder='Tags', min-length='1', on-save='modify')
           multi-inline-editable-input-group(ng-if='update', multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}', multi-input-on-save='modify')
       multi-input-group(ng-if='!update', multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}')
       .form-group

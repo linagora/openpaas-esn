@@ -297,6 +297,59 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
+  .directive('editableTagsInput', function($timeout) {
+    function link(scope, element, attrs, controller) {
+      var tagsInput = element.find('tags-input');
+      var oldValue;
+
+      tagsInput.bind('focus', function() {
+        oldValue = controller.$viewValue;
+      });
+
+      tagsInput.bind('blur', function() {
+        $timeout(function() {
+          scope.saveTagsInput();
+          if (oldValue !== controller.$viewValue) {
+            scope.saveTagsInput();
+          }
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+
+      tagsInput.bind('keydown', function(event) {
+        var escape = event.which === 27;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.resetTagsInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+      });
+
+      scope.saveTagsInput = scope.onSave || function() {};
+
+      scope.resetTagsInput = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        minLength: '=',
+        placeholder: '@',
+        onSave: '=',
+        onBlur: '='
+      },
+      require: 'ngModel',
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/editable-tags-input.html',
+      link: link
+    };
+  })
   .directive('datepickerInlineEditableInput', function($timeout) {
     function link(scope, element, attrs, controller) {
       var input = element.find('input');
