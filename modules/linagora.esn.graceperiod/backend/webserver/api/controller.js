@@ -8,11 +8,11 @@ module.exports = function(lib, dependencies) {
     logger.debug('Cancelling task');
     var task = req.task;
     if (!task) {
-      return res.send(500);
+      return res.json(404, {error: {code: 404, message: 'Not found', details: 'Task not found'}});
     }
 
     task.cancel();
-    res.send(204);
+    return res.send(204);
   }
 
   return {

@@ -22,9 +22,11 @@ module.exports = function(dependencies) {
     logger.debug('Creating a task delayed by %s', delay);
 
     delay = delay || DEFAULT_DELAY;
+    var options = context || {};
+    options.ttl = delay;
 
     var _getNewToken = q.denodeify(token.getNewToken);
-    return _getNewToken({ttl: delay}).then(function(t) {
+    return _getNewToken(options).then(function(t) {
 
       var token = t.token;
 
