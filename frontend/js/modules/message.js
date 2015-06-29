@@ -509,10 +509,20 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         var choices = scope.additionalData.pollChoices.filter(function(choice) {
           return choice.label && choice.label.length;
         });
+        var choicesMap = {};
+        var hasDuplicates = false;
+        choices.forEach(function(element) {
+          if (element.label in choicesMap) {
+            hasDuplicates = true;
+          }
+          choicesMap[element.label] = true;
+        });
         if (!choices || choices.length < 2) {
           scope.validationError.title = 'Your poll should contain at least two choices.';
-        } else if (!scope.messageContent ||   !scope.messageContent.length) {
+        } else if (!scope.messageContent || !scope.messageContent.length) {
           scope.validationError.title = 'Your poll should have a description.';
+        } else if (hasDuplicates) {
+          scope.validationError.title = 'Your poll has duplicated choices.';
         } else {
           delete scope.validationError.title;
         }
