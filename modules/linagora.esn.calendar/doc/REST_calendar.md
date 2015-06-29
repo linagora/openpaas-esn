@@ -94,13 +94,7 @@ Note: It send user notification and email to attendees if notify is set to true.
     Content-Type: application/json
     Host: localhost:8080
     {
-      "recipients": [{
-        "objectType": "email",
-        "id": "user1@open-paas.org"
-      }, {
-        "objectType": "email",
-        "id": "user2@open-paas.org"
-      }],
+      "emails": [ "user1@open-paas.org", "user2@open-paas.org" ],
       "notify": "true",
       "method": "REQUEST",
       "event": "BEGIN:VCALENDAR..."
