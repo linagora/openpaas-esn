@@ -29,6 +29,7 @@ function _getDisplayName(attendee) {
 function jcal2content(icalendar) {
   var vcalendar = icaljs.Component.fromString(icalendar);
   var vevent = vcalendar.getFirstSubcomponent('vevent');
+  var method = vcalendar.getFirstPropertyValue('method');
 
   var attendees = {};
   vevent.getAllProperties('attendee').forEach(function(attendee) {
@@ -36,12 +37,18 @@ function jcal2content(icalendar) {
     attendees[_getDisplayName(attendee)] = partstat;
   });
 
-  var period = icaljs.Period.fromData({
-    start: vevent.getFirstPropertyValue('dtstart'),
-    end: vevent.getFirstPropertyValue('dtend') || null,
-    duration: vevent.getFirstPropertyValue('duration') || null
-  });
+  var endTime;
+  if (method === 'CANCEL') {
+    endTime = null;
+  } else {
+    var period = icaljs.Period.fromData({
+      start: vevent.getFirstPropertyValue('dtstart'),
+      end: vevent.getFirstPropertyValue('dtend') || null,
+      duration: vevent.getFirstPropertyValue('duration') || null
+    });
 
+    endTime = moment(period.getEnd().toJSDate()).format('llll');
+  }
   var organizer = vevent.getFirstProperty('organizer');
   organizer = _getDisplayName(organizer);
 
@@ -50,7 +57,7 @@ function jcal2content(icalendar) {
     location: vevent.getFirstPropertyValue('location'),
     description: vevent.getFirstPropertyValue('description'),
     start: moment(vevent.getFirstPropertyValue('dtstart').toJSDate()).format('llll'),
-    end: moment(period.getEnd().toJSDate()).format('llll'),
+    end: endTime,
     attendees: attendees,
     organizer: organizer
   };
