@@ -378,7 +378,12 @@ angular.module('esn.calendar')
 
       dest.location = src.location;
       dest.description = src.description;
-      angular.copy(src.attendees, dest.attendees);
+      if (src.attendees) {
+        dest.attendees = src.attendees;
+      }
+      if (src.attendeesPerPartstat) {
+        dest.attendeesPerPartstat = src.attendeesPerPartstat;
+      }
     }
 
     function copyEventObject(src, dest) {
@@ -391,6 +396,7 @@ angular.module('esn.calendar')
       angular.copy(src, dest);
       if (vcal) {
         src.vcalendar = vcal;
+        dest.vcalendar = vcal;
       }
     }
 

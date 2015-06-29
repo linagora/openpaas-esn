@@ -53,7 +53,15 @@ describe('The Calendar Angular module', function() {
         $provide.value('session', asSession);
       });
 
-      event = {};
+      var vcalendar = {};
+      vcalendar.hasOwnProperty = null; // jshint ignore:line
+      event = {
+        title: 'myTitle',
+        description: 'description',
+        location: 'location',
+        vcalendar: vcalendar
+      };
+
       event.attendeesPerPartstat = {
         'NEEDS-ACTION': []
       };
@@ -97,6 +105,22 @@ describe('The Calendar Angular module', function() {
     it('should add event-common class otherwise', function() {
       this.eventService.render(event, element);
       expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
+    });
+
+    it('should create a copy of an eventObject ', function() {
+      var copy = {};
+      this.eventService.copyEventObject(event, copy);
+      expect(copy).to.deep.equal(event);
+    });
+
+    it('should copy non standard properties of an eventObject ', function() {
+      event.attendees = ['attendee1', 'attendee2'];
+      var copy = {};
+      this.eventService.copyNonStandardProperties(event, copy);
+      expect(copy.location).to.deep.equal(event.location);
+      expect(copy.description).to.deep.equal(event.description);
+      expect(copy.attendees).to.deep.equal(event.attendees);
+      expect(copy.attendeesPerPartstat).to.deep.equal(event.attendeesPerPartstat);
     });
   });
 
