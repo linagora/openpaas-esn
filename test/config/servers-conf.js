@@ -5,6 +5,10 @@ var tmp = 'tmp';
 module.exports = {
   tmp: tmp,
 
+  express: {
+    'port' : process.env.PORT_EXPRESS || 23455
+  },
+
   mongodb: {
     'cmd' : process.env.CMD_MONGODB || 'mongod',
     'port' : process.env.PORT_MONGODB || 23456,

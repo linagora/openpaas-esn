@@ -4,12 +4,7 @@
 
 angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
-  .factory('ContactsRestangular', function(Restangular) {
-    return Restangular.withConfig(function(config) {
-      config.setBaseUrl('/davserver/api');
-      config.setFullResponse(true);
-    });
-  })
+  .constant('DAV_PATH', '/dav/api')
   .factory('ContactsHelper', function() {
     function getFormattedName(contact) {
 
@@ -117,7 +112,7 @@ angular.module('linagora.esn.contact')
       getFormattedName: getFormattedName
     };
   })
-  .factory('contactsService', ['ContactsRestangular', 'ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', '$q', '$http', function(ContactsRestangular, ContactsHelper, tokenAPI, uuid4, ICAL, $q, $http) {
+  .factory('contactsService', ['ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', 'DAV_PATH', '$q', '$http', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http) {
     function ContactsShell(vcard, path, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
@@ -193,25 +188,10 @@ angular.module('linagora.esn.contact')
       this.photo = vcard.getFirstPropertyValue('photo');
     }
 
-    function getCarddavServerURL() {
-      if (serverUrlCache) {
-        return serverUrlCache.promise;
-      }
-
-      serverUrlCache = $q.defer();
-      ContactsRestangular.one('info').get().then(
-        function(response) {
-          serverUrlCache.resolve(response.data.url);
-        },
-        serverUrlCache.reject
-      );
-
-      return serverUrlCache.promise;
-    }
-
     function configureRequest(method, path, headers, body) {
-      return $q.all([tokenAPI.getNewToken(), getCarddavServerURL()]).then(function(results) {
-        var token = results[0].data.token, url = results[1];
+      return tokenAPI.getNewToken().then(function(result) {
+        var token = result.data.token;
+        var url = DAV_PATH;
 
         headers = headers || {};
         headers.ESNToken = token;
@@ -412,7 +392,6 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    var serverUrlCache = null;
     return {
       remove: remove,
       list: list,
