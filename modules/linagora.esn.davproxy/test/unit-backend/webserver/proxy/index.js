@@ -44,11 +44,7 @@ describe('The proxy module', function() {
 
         var middleware = require('../../../../backend/webserver/proxy')(deps).handle(path);
 
-        var req = {};
-        var res = {};
-        var next = function() {
-        };
-        middleware(req, res, next);
+        middleware({}, {}, function() {});
       });
 
       it('should call the default dav server when not configured', function(done) {
@@ -75,11 +71,7 @@ describe('The proxy module', function() {
         mockery.registerMock('http-proxy', proxy);
         var middleware = require('../../../../backend/webserver/proxy')(deps).handle(path);
 
-        var req = {};
-        var res = {};
-        var next = function() {
-        };
-        middleware(req, res, next);
+        middleware({}, {}, function() {});
       });
 
       it('should call the default dav server when configuration fetch fails', function(done) {
@@ -106,11 +98,7 @@ describe('The proxy module', function() {
         mockery.registerMock('http-proxy', proxy);
         var middleware = require('../../../../backend/webserver/proxy')(deps).handle(path);
 
-        var req = {};
-        var res = {};
-        var next = function() {
-        };
-        middleware(req, res, next);
+        middleware({}, {}, function() {});
       });
 
       it('should send back 500 if proxy fails', function(done) {
@@ -136,16 +124,13 @@ describe('The proxy module', function() {
         mockery.registerMock('http-proxy', proxy);
         var middleware = require('../../../../backend/webserver/proxy')(deps).handle(path);
 
-        var req = {};
         var res = {
           json: function(code) {
             expect(code).to.equal(500);
             done();
           }
         };
-        var next = function() {
-        };
-        middleware(req, res, next);
+        middleware({}, res, function() {});
       });
     });
   });

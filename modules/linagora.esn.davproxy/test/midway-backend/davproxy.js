@@ -153,7 +153,6 @@ describe('The davproxy server', function() {
           var req = request(self.app).put(PREFIX + path);
           req.expect(201).end(function(err, res) {
             expect(err).to.not.exist;
-            expect(res.body).to.exist;
             expect(called).to.be.true;
             expect(res.body).to.deep.equal(result);
             done();
@@ -211,7 +210,6 @@ describe('The davproxy server', function() {
           var req = request(self.app).post(PREFIX + path);
           req.expect(201).end(function(err, res) {
             expect(err).to.not.exist;
-            expect(res.body).to.exist;
             expect(called).to.be.true;
             expect(res.body).to.deep.equal(result);
             done();
