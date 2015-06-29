@@ -7,7 +7,9 @@ module.exports = function(dependencies) {
   var router = express.Router();
 
   var contacts = require('./controller')(dependencies);
-  router.delete('/:bookId/contacts/:contactId.vcf', contacts.remove);
+  var authorizationMW = dependencies('authorizationMW');
+
+  router.delete('/:bookId/contacts/:contactId.vcf', authorizationMW.requiresAPILogin, contacts.remove);
 
   var proxy = require('../proxy')(dependencies);
   router.all('/*', proxy.handle('addressbooks'));

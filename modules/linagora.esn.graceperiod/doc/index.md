@@ -19,10 +19,15 @@ The module provides a library to be used by other modules to create tasks.
       // it will be called only once even if job.cancel is called N times
     };
 
-    var fn = function(context, callback) {
+    var fn = function(callback) {
       console.log('I am the task and I am executed after a given delay');
       // calling callback will call onComplete so that errors can be handled
       return callback(null, {result: 1});
+    };
+
+    // This will be saved in the token for later auth
+    var context = {
+      user: req.user._id
     };
 
     var task = grace.create(fn, delay, context, onComplete, onCancel);

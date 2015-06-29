@@ -16,6 +16,9 @@ describe('The addressbooks controller', function() {
   };
 
   var req = {
+    user: {
+      _id: 'user'
+    },
     params: {
       contactId: '123',
       bookId: '456'

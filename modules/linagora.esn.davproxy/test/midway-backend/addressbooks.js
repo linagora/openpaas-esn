@@ -9,9 +9,27 @@ var bodyParser = require('body-parser');
 describe('The addressbooks dav proxy', function() {
   var moduleName = 'linagora.esn.davproxy';
   var PREFIX = '/dav/api';
+  var domain;
+  var user;
+  var password = 'secret';
 
   beforeEach(function(done) {
-    this.helpers.modules.initMidway(moduleName, done);
+    var self = this;
+    this.helpers.modules.initMidway(moduleName, function(err) {
+      if (err) {
+        return done(err);
+      }
+
+      self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+        domain = models.domain;
+        user = models.users[0];
+        self.models = models;
+        done();
+      });
+    });
   });
 
   beforeEach(function() {
@@ -55,6 +73,10 @@ describe('The addressbooks dav proxy', function() {
     self.shutdownDav(function() {
       self.helpers.mongo.dropDatabase(done);
     });
+  });
+
+  afterEach(function(done) {
+    this.helpers.api.cleanDomainDeployment(this.models, done);
   });
 
   describe('addressbooks proxy', function() {
@@ -191,6 +213,10 @@ describe('The addressbooks dav proxy', function() {
 
     describe('DELETE /addressbooks/:bookId/contacts/:contactId.vcf', function() {
 
+      it('should return 401 if user is not authenticated', function(done) {
+        this.helpers.api.requireLogin(this.app, 'delete', PREFIX + '/addressbooks/123/contacts/456.vcf', done);
+      });
+
       it('should return 202', function(done) {
         var self = this;
         var called = false;
@@ -206,12 +232,19 @@ describe('The addressbooks dav proxy', function() {
           if (err) {
             return done(err);
           }
-          var req = request(self.app). delete(PREFIX + path);
-          req.expect(202).end(function(err, response) {
-            expect(err).to.not.exist;
-            expect(called).to.be.false;
-            expect(response.headers['x-esn-task-id']).to.be.a.string;
-            done();
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+
+            var req = loggedInAsUser(request(self.app).del(PREFIX + path));
+            req.expect(202).end(function(err, response) {
+              expect(err).to.not.exist;
+              expect(called).to.be.false;
+              expect(response.headers['x-esn-task-id']).to.be.a.string;
+              done();
+            });
           });
         });
       });

@@ -13,10 +13,12 @@ module.exports = function(dependencies) {
     var bookId = req.params.bookId;
     logger.debug('Got a contact delete on bookId %s: %s', bookId, contactId);
 
-    var context = {};
+    var context = {
+      user: req.user._id
+    };
     var delay = DELETE_DELAY;
 
-    function deleteContact(context, callback) {
+    function deleteContact(callback) {
       return contact.actions.delete({
         bookId: bookId,
         contactId: contactId,

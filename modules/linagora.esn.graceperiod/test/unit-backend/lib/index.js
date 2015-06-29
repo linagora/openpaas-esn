@@ -166,24 +166,5 @@ describe('The Grace Period Module', function() {
         done();
       }, done);
     });
-
-    it('should get the input context', function(done) {
-
-      var module = require('../../../lib/index')(dependencies);
-      var input = {
-        a: 1,
-        b: 2
-      };
-
-      var clock = sinon.useFakeTimers();
-      var job = function(context) {
-        expect(context).to.deep.equal(input);
-        done();
-      };
-
-      module.create(job, 1000, input).then(function() {
-        clock.tick(2000);
-      }, done);
-    });
   });
 });

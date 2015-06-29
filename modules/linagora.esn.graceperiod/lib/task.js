@@ -28,7 +28,7 @@ function Task(id, job, delay, context, onComplete, onCancel) {
   self.defer.promise.timeout(self.delay).then(function() {
     self.onCancel();
   }, function() {
-    self.job(self.context, function(err, result) {
+    self.job(function(err, result) {
       self.onComplete(err, result);
     });
   });
