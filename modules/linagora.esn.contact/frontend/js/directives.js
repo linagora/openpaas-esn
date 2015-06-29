@@ -29,7 +29,6 @@ angular.module('linagora.esn.contact')
       var args = arguments;
       return function() {
         if (Array.prototype.every.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          //console.log('new_field');
           _acceptNew();
         }
       };
@@ -39,7 +38,6 @@ angular.module('linagora.esn.contact')
       return function($index) {
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
-          //console.log('remove_field');
           _acceptRemove($index);
         }
       };
@@ -50,7 +48,6 @@ angular.module('linagora.esn.contact')
 
       return function() {
         if (Array.prototype.some.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          //console.log('new_address_field');
           _acceptNew();
         }
       };
@@ -58,13 +55,9 @@ angular.module('linagora.esn.contact')
 
     this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
       var args = arguments;
-      //console.log($scope);
       return function($index) {
-       $scope.content.forEach(function(item){
-          //console.log(args);
-          //console.log(item);
+       $scope.content.forEach(function(item) {
           if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
-            //console.log('remove_adress_field');
             _acceptRemove($index);
           }
         });
@@ -199,7 +192,6 @@ angular.module('linagora.esn.contact')
           }
           _resetInputGroup();
           _toggleGroupButtons();
-          //console.log(scope);
           if (scope.onBlur) {
             scope.onBlur();
           }
