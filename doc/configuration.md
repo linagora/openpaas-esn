@@ -23,16 +23,16 @@ The configuration of the ESN is stored in MongoDB under the configuration collec
 ## Mail
 
     {
-      "_id": mail,
+      "_id": "mail",
       "mail": {
         "noreply": "noreply@open-paas.org",
         "reply": {
           "domain": "open-paas.org",
           "name": "OpenPaaS Bot"
+        }
       },
       "transport": {
         "module": "nodemailer-browser",
-        "type": "MailBrowser",
         "config": {
           "dir": "/tmp",
           "browser": true
@@ -60,13 +60,72 @@ The *mail* section contains the list of useful emails of the platform.
 The *transport* section is used to configure the mail transport ie what to use to effectively send the mail to the mail provider.
 nodemailer is used to send emails, the config section follows the same format.
 
-- module: You can specifiy a npm module to be used as transport
-- type: The type of transport
-- config: The transport configuration
+- module: You can specify a npm module to be used as transport (if you do not specify module it will use the smtp transport)
+- config: The transport configuration forward to the transport module
 
-### Rules
+### Resolvers
 
-Configure the email messaging rules to be used when new messages are added in an activity stream.
+Configure the email messaging resolvers to be used when new messages are added in an activity stream.
+For example `{"whatsup": {"active": true}}` will send an email to everybody in the collaboration when a new whatsup is posted.
+
+### Config example
+
+Basic dev config to save mail in `/tmp` and open it with your default browser.
+
+    {
+      "_id": "mail",
+      "mail": {
+        "noreply": "noreply@open-paas.org"
+      },
+      "transport": {
+        "module": "nodemailer-browser",
+        "config": {
+          "dir": "/tmp",
+          "browser": true
+        }
+      }
+    }
+
+Basic smtp configuration. Replace the host config by your smtp server.
+
+    {
+      "_id": "mail",
+      "mail": {
+        "noreply": "noreply@open-paas.org"
+      },
+      "transport": {
+        "config" : {
+          "host" : "smtp.example.com",
+          "secure" : false,
+          "tls": {
+            "rejectUnauthorized": false
+          },
+          "port" : 25,
+          "auth" : {
+            "user" : "",
+            "pass" : ""
+          }
+        }
+      }
+    }
+
+Basic smtp configuration using Google smtp using a Gmail account.
+
+    {
+      "_id" : "mail",
+      "mail" : {
+        "noreply" : "noreply@open-paas.org"
+      },
+      "transport" : {
+        "config" : {
+          "service" : "gmail",
+          "auth" : {
+            "user" : "",
+            "pass" : ""
+          }
+        }
+      }
+    }
 
 ## Session
 

@@ -201,7 +201,7 @@ describe('The invitation controller', function() {
         _id: 'mail',
         mail: { noreply: 'noreply@linagora.com' },
         transport: {
-          type: 'Pickup',
+          module: 'nodemailer-pickup-transport',
           config: {directory: this.testEnv.tmp}
         }
       };

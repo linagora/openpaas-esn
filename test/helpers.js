@@ -342,7 +342,7 @@ module.exports = function(mixin, testEnv) {
           noreply: 'noreply@open-paas.org'
         },
         transport: {
-          type: 'Stub'
+          module: 'nodemailer-stub-transport'
         }
       }, callback);
     }

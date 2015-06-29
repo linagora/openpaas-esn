@@ -206,13 +206,13 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
       var message = {
         subject: subject,
         alternatives: [{
-          contents: ics,
+          content: ics,
           contentType: 'text/calendar; charset=UTF-8; method=' + method,
           contentEncoding: 'base64'
         }],
         attachments: [{
           filename: 'invite.ics',
-          contents: ics,
+          content: ics,
           contentType: 'application/ics'
         }]
       };
