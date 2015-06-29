@@ -7,6 +7,48 @@ var expect = chai.expect;
 
 describe('The Calendar Angular module', function() {
 
+  describe('The calendarUtils service', function() {
+    beforeEach(function() {
+      angular.mock.module('esn.calendar');
+      angular.mock.module('esn.ical');
+    });
+
+    beforeEach(angular.mock.inject(function(calendarUtils, moment) {
+      this.calendarUtils = calendarUtils;
+      this.moment = moment;
+    }));
+
+    it('getEndDateOnCalendarSelect should add 30 minutes to end if diff with start is not 30 minutes', function() {
+      var start = moment('2013-02-08 09:00:00');
+      var end = moment('2013-02-08 09:30:00');
+      var expectedStart = moment('2013-02-08 09:00:00').toDate();
+      var expectedEnd = moment('2013-02-08 10:00:00').toDate();
+      var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
+      expect(date.start.toDate().getTime()).to.equal(expectedStart.getTime());
+      expect(date.end.toDate().getTime()).to.equal(expectedEnd.getTime());
+    });
+
+    it('getEndDateOnCalendarSelect should remove 30 minutes to start if diff with end is not 30 minutes', function() {
+      var start = moment('2013-02-08 09:30:00');
+      var end = moment('2013-02-08 10:00:00');
+      var expectedStart = moment('2013-02-08 09:00:00').toDate();
+      var expectedEnd = moment('2013-02-08 10:00:00').toDate();
+      var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
+      expect(date.start.toDate().getTime()).to.equal(expectedStart.getTime());
+      expect(date.end.toDate().getTime()).to.equal(expectedEnd.getTime());
+    });
+
+    it('getEndDateOnCalendarSelect should not add 30 minutes to end if diff with start is not 30 minutes', function() {
+      var start = moment('2013-02-08 09:00:00');
+      var end = moment('2013-02-08 11:30:00');
+      var expectedStart = moment('2013-02-08 09:00:00').toDate();
+      var expectedEnd = moment('2013-02-08 11:30:00').toDate();
+      var date = this.calendarUtils.getDateOnCalendarSelect(start, end);
+      expect(date.start.toDate().getTime()).to.equal(expectedStart.getTime());
+      expect(date.end.toDate().getTime()).to.equal(expectedEnd.getTime());
+    });
+  });
+
   describe('The eventService service', function() {
     var element, fcTitle, fcContent, event;
 

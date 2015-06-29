@@ -2,22 +2,23 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'eventService', 'moment', 'notificationFactory', 'session',
-    function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session) {
-
+  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'eventService', 'moment', 'notificationFactory', 'session', 'EVENT_FORM',
+    function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session, EVENT_FORM) {
       $scope.editedEvent = {};
       $scope.restActive = false;
 
+      this.isNew = function(event) {
+        return angular.isUndefined(event._id);
+      };
+
       this.initFormData = function() {
-        if (!$scope.event) {
+        $scope.event = $scope.event || {};
+        if (this.isNew($scope.event)) {
           $scope.event = {
-            startDate: calendarUtils.getNewDate(),
-            endDate: calendarUtils.getNewEndDate(),
-            allDay: false
+            startDate: $scope.event.startDate || calendarUtils.getNewDate(),
+            endDate: $scope.event.endDate || calendarUtils.getNewEndDate(),
+            allDay: $scope.event.allDay || false
           };
-          $scope.modifyEventAction = false;
-        } else {
-          $scope.modifyEventAction = true;
         }
         eventService.copyEventObject($scope.event, $scope.editedEvent);
       };
@@ -43,12 +44,13 @@ angular.module('esn.calendar')
 
       this.addNewEvent = function() {
         if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-          _displayError('You must define an event title');
-          return;
+          $scope.editedEvent.title = EVENT_FORM.title.default;
         }
+
         if (!$scope.calendarId) {
           $scope.calendarId = calendarService.calendarId;
         }
+
         var event = $scope.editedEvent;
         event.organizer = session.user;
         var path = '/calendars/' + $scope.calendarId + '/events';
@@ -62,7 +64,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.event.title + ' is created');
+          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
         }).finally (function() {
@@ -84,7 +86,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' is deleted');
+          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
         }).finally (function() {
@@ -122,7 +124,7 @@ angular.module('esn.calendar')
             });
           }
 
-          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.event.title + ' is modified');
+          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
         }, function(err) {
           _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
         }).finally (function() {
@@ -212,8 +214,8 @@ angular.module('esn.calendar')
     $scope.uiConfig = USER_UI_CONFIG;
   }])
 
-  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'eventService', 'notificationFactory', 'calendarEventSource',
-    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, eventService, notificationFactory, calendarEventSource) {
+  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource',
+    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource) {
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       var windowJQuery = angular.element($window);
@@ -227,13 +229,13 @@ angular.module('esn.calendar')
         $scope.event = event;
         $scope.event.startDate = event.start.toDate();
         $scope.event.endDate = event.end.toDate();
-        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-modal', backdrop: 'static'});
+        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
 
       $scope.eventDropAndResize = function(event) {
         var path = '/calendars/' + $scope.calendarId + '/events/' + event.id + '.ics';
         calendarService.modify(path, event).then(function() {
-          notificationFactory.weakInfo('Event modified', event.title + ' is modified');
+          notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
         });
       };
 
@@ -258,12 +260,13 @@ angular.module('esn.calendar')
       $scope.uiConfig.calendar.eventResize = $scope.eventDropAndResize;
       $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize;
       $scope.uiConfig.calendar.select = function(start, end) {
+        var date = calendarUtils.getDateOnCalendarSelect(start, end);
         $scope.event = {
-          startDate: start.toDate(),
-          endDate: end.toDate(),
+          startDate: date.start.toDate(),
+          endDate: date.end.toDate(),
           allDay: !start.hasTime(end)
         };
-        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
+        $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
