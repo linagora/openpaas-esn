@@ -24,7 +24,9 @@ module.exports = function(dependencies) {
     delay = delay || DEFAULT_DELAY;
 
     var _getNewToken = q.denodeify(token.getNewToken);
-    return _getNewToken({ttl: delay}).then(function(token) {
+    return _getNewToken({ttl: delay}).then(function(t) {
+
+      var token = t.token;
 
       function onTaskComplete(err, result) {
         registry.remove(token).then(function() {
@@ -36,10 +38,14 @@ module.exports = function(dependencies) {
         registry.remove(token).then(onCancel);
       }
 
-      var task = new Task(token, fn, delay, context, onTaskComplete, onTaskCancel);
-      return registry.put(token, task).then(function() {
-        return task;
-      });
+      try {
+        var task = new Task(token, fn, delay, context, onTaskComplete, onTaskCancel);
+        return registry.put(token, task).then(function() {
+          return task;
+        });
+      } catch (err) {
+        return q.reject(err);
+      }
     });
   }
 
