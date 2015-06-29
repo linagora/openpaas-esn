@@ -1,6 +1,6 @@
 'use strict';
 
-describe.only('The GracePeriod Angular module', function() {
+describe('The GracePeriod Angular module', function() {
 
   describe('The gracePeriodService service', function() {
 
