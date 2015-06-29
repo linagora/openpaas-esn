@@ -55,7 +55,7 @@ function jcal2content(icalendar, baseUrl) {
 
   var end;
   if (method === 'CANCEL') {
-    end = null
+    end = null;
   } else {
     var period = icaljs.Period.fromData({
       start: vevent.getFirstPropertyValue('dtstart'),
@@ -67,7 +67,7 @@ function jcal2content(icalendar, baseUrl) {
     end = {
       date: endDate.format('L'),
       time: endDate.format('LT')
-    }
+    };
   }
 
   var organizer = vevent.getFirstProperty('organizer');

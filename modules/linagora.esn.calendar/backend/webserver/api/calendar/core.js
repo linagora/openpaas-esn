@@ -1,6 +1,5 @@
 'use strict';
 
-var util = require('util');
 var async = require('async');
 var q = require('q');
 var jcal2content = require('../../../lib/jcal/jcal2content');

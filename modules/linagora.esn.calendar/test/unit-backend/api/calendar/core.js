@@ -72,14 +72,14 @@ describe('The calendar core module', function() {
     configMock = function() {
       return {
         webserver: {}
-      }
+      };
     };
     esnConfigMock = function() {
       return {
         get: function(callback) {
           callback();
         }
-      }
+      };
     };
   }
 

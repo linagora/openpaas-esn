@@ -50,16 +50,16 @@ html.mail
             td
               p #{content.event.end.date}
               p #{content.event.end.time}
-            td.small no recurrence
+            td.recurrence
             td
               a(href='#{content.baseUrl}/#/calendar') See in calendar
-          tr
-            td
-              img(src="cid:place", alt="Location")
-            td(colspan="4") #{content.event.location}
-            td
-              a(href='http://localhost:8080/') Map
-          tr
+          if (content.event.location)
+            tr
+              td
+                img(src="cid:place", alt="Location")
+              td(colspan="4") #{content.event.location}
+              td
+                a(href='http://localhost:8080/') Map
           tr
             td
               img(src="cid:people", alt="Attendees")
@@ -67,15 +67,17 @@ html.mail
               each details, mail in content.event.attendees
                 span
                   +attendeeDisplay(mail, details)
-          tr
-            td
-              img(src="cid:format_align_justify", alt="Description")
-            td(colspan="5") #{content.event.description}
-          tr
-            td
-              img(src="cid:folder_open", alt="Files")
-            td(colspan="5")
-              span file.odt
+          if (content.event.description)
+            tr
+              td
+                img(src="cid:format_align_justify", alt="Description")
+              td(colspan="5") #{content.event.description}
+          if (content.event.files)
+            tr
+              td
+                img(src="cid:folder_open", alt="Files")
+              td(colspan="5")
+                span file.odt
           tr.table-footer
             td.attend-question(colspan="3")
               | Will you attend ?

@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var fs = require('fs-extra');
 var jcal2content = require('../../../../backend/lib/jcal/jcal2content');
 
-describe('jscal2content', function() {
+describe('jcal2content', function() {
 
   it('should parse jcal formatted event and return a pruned content for the email', function() {
     var ics = fs.readFileSync(__dirname + '/../../fixtures/meeting.ics').toString('utf8');
