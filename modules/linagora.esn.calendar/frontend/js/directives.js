@@ -168,12 +168,14 @@ angular.module('esn.calendar')
           domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
             function(response) {
               response.data.forEach(function(user) {
+                user.email = user.emails[0];
+
                 if (user.firstname && user.lastname) {
                   user.displayName = user.firstname + ' ' + user.lastname;
+                } else {
+                  user.displayName = user.email;
                 }
-                else {
-                  user.displayName = user.emails[0];
-                }
+
                 $scope.query = '';
               });
               deferred.resolve(response);

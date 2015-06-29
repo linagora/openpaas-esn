@@ -1,0 +1,4 @@
+.row.user-auto-complete
+  img.col-xs-2.col-sm-1.nopadding(src='/images/community.png', fallback-src='/images/community.png', ng-src='/api/communities/{{data.target._id}}/avatar')
+  .row
+    .col-xs-10.col-sm-11(ng-bind-html="$highlight(data.target.title)")
