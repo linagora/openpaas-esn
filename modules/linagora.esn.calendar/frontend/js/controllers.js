@@ -151,16 +151,6 @@ angular.module('esn.calendar')
         return null;
       };
 
-      this.onAllDayChecked = function() {
-        if ($scope.editedEvent.allDay) {
-          if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
-            $scope.editedEvent.endDate = moment($scope.editedEvent.startDate).add(1, 'days').toDate();
-          }
-        } else {
-          $scope.editedEvent.endDate = $scope.editedEvent.startDate;
-        }
-      };
-
       this.onStartDateChange = function() {
         var startDate = moment($scope.editedEvent.startDate);
         var endDate = moment($scope.editedEvent.endDate);
