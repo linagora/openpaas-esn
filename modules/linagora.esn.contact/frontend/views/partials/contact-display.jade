@@ -37,8 +37,12 @@
       .form-group
         label.control-label.col-xs-3 #{__("Birthday")}
         .col-xs-9
+<<<<<<< HEAD
+          input.form-control(type='text', relaxed-date, ng-model='contact.birthday', name='date')
+=======
           input.form-control(ng-if='!update', type='text', relaxed-date, ng-model='contact.birthday', name='date')
           input.form-control(ng-if='update', editable-field, on-save='modify', type='text', relaxed-date, ng-model='contact.birthday', name='date')  
+>>>>>>> OR-1284 - Gather editable-element directive in one unique directive
       .form-group
         label.control-label.sr-only #{__("Nickname")}
         .col-sm-12

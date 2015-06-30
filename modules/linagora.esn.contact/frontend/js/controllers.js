@@ -40,7 +40,6 @@ angular.module('linagora.esn.contact')
   .controller('newContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
-
     $scope.close = closeForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
@@ -52,11 +51,10 @@ angular.module('linagora.esn.contact')
       }).then(closeForm, displayError);
     };
   })
-  .controller('showContactController', function($scope, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
-
     $scope.close = closeForm;
 
     function _modify() {
@@ -80,7 +78,6 @@ angular.module('linagora.esn.contact')
       $timeout(function() {
         _modify();
       }, 0);
-    };
 
     $scope.accept = function() {
       return $scope.modify().then(closeForm);
