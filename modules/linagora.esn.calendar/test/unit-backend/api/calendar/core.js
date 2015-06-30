@@ -432,13 +432,13 @@ describe('The calendar core module', function() {
           message: {
             subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname,
             alternatives: [{
-              contents: ics,
+              content: ics,
               contentType: 'text/calendar; charset=UTF-8; method=' + method,
               contentEncoding: 'base64'
             }],
             attachments: [{
               filename: 'invite.ics',
-              contents: ics,
+              content: ics,
               contentType: 'application/ics'
             }]
           }

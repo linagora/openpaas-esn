@@ -40,17 +40,15 @@ describe('The email module', function() {
   });
 
   it('should send email with sendmail mock (pickup)', function(done) {
-    var tmp = this.testEnv.tmp;
     var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
     email.setTransport(transport);
 
     var message = 'Hello from node';
-    email.send(from, 'foo@bar.com', 'The subject', message, function(err, response) {
+    email.send(from, 'foo@bar.com', 'The subject', message, function(err, info) {
       expect(err).to.not.exist;
-      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-      expect(fs.existsSync(file)).to.be.true;
+      expect(fs.existsSync(info.path)).to.be.true;
 
       var MailParser = require('mailparser').MailParser;
       var mailparser = new MailParser();
@@ -58,25 +56,23 @@ describe('The email module', function() {
         expect(mail_object.text).to.have.string(message);
         done();
       });
-      fs.createReadStream(file).pipe(mailparser);
+      fs.createReadStream(info.path).pipe(mailparser);
     });
   });
 
   it('should send email with from as name <address>', function(done) {
-    var tmp = this.testEnv.tmp;
     var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
     email.setTransport(transport);
     var name = 'Foo Bar';
     var address = 'foo@baz.org';
     var source = name + '<' + address + '>';
 
     var message = 'Hello from node';
-    email.send(source, 'foo@bar.com', 'The subject', message, function(err, response) {
+    email.send(source, 'foo@bar.com', 'The subject', message, function(err, info) {
       expect(err).to.not.exist;
-      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-      expect(fs.existsSync(file)).to.be.true;
+      expect(fs.existsSync(info.path)).to.be.true;
 
       var MailParser = require('mailparser').MailParser;
       var mailparser = new MailParser();
@@ -86,25 +82,23 @@ describe('The email module', function() {
         expect(mail_object.from[0].address).to.equal(address);
         done();
       });
-      fs.createReadStream(file).pipe(mailparser);
+      fs.createReadStream(info.path).pipe(mailparser);
     });
   });
 
   it('should send email with to as name <address>', function(done) {
-    var tmp = this.testEnv.tmp;
     var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
     email.setTransport(transport);
     var name = 'Foo Bar';
     var address = 'foo@baz.org';
     var to = name + '<' + address + '>';
 
     var message = 'Hello from node';
-    email.send(from, to, 'The subject', message, function(err, response) {
+    email.send(from, to, 'The subject', message, function(err, info) {
       expect(err).to.not.exist;
-      var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-      expect(fs.existsSync(file)).to.be.true;
+      expect(fs.existsSync(info.path)).to.be.true;
 
       var MailParser = require('mailparser').MailParser;
       var mailparser = new MailParser();
@@ -114,31 +108,30 @@ describe('The email module', function() {
         expect(mail_object.to[0].address).to.equal(address);
         done();
       });
-      fs.createReadStream(file).pipe(mailparser);
+      fs.createReadStream(info.path).pipe(mailparser);
     });
   });
 
   it('should fail when template does not exist', function(done) {
     var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
     var templates = path.resolve(__dirname + '/fixtures/templates/');
 
     email.setTransport(transport);
     email.setTemplatesDir(templates);
 
     var type = 'foobar';
-    email.sendHTML(from, 'foo@bar.com', 'The subject', type, {}, function(err, message) {
+    email.sendHTML(from, 'foo@bar.com', 'The subject', type, {}, function(err, info) {
       expect(err).to.exist;
       done();
     });
   });
 
   it('should generate and send HTML email from existing template', function(done) {
-    var tmp = this.testEnv.tmp;
     var email = this.helpers.requireBackend('core/email');
     var nodemailer = require('nodemailer');
-    var transport = nodemailer.createTransport('Pickup', {directory: this.testEnv.tmp});
+    var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: this.testEnv.tmp}));
     var templates = path.resolve(__dirname + '/fixtures/templates/');
 
     email.setTransport(transport);
@@ -153,11 +146,10 @@ describe('The email module', function() {
       }
     };
 
-    email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
+    email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, info) {
       expect(err).to.not.exist;
-      var file = path.resolve(tmp + '/' + message.messageId + '.eml');
       var fs = require('fs');
-      expect(fs.existsSync(file)).to.be.true;
+      expect(fs.existsSync(info.path)).to.be.true;
       var MailParser = require('mailparser').MailParser;
       var mailparser = new MailParser();
       mailparser.on('end', function(mail_object) {
@@ -166,7 +158,7 @@ describe('The email module', function() {
         expect(mail_object.html).to.have.string(locals.name.last);
         done();
       });
-      fs.createReadStream(file).pipe(mailparser);
+      fs.createReadStream(info.path).pipe(mailparser);
     });
   });
 
@@ -174,7 +166,7 @@ describe('The email module', function() {
     beforeEach(function() {
       var mail = {
         transport: {
-          type: 'Pickup',
+          module: 'nodemailer-pickup-transport',
           config: {
             directory: this.testEnv.tmp
           }
@@ -187,7 +179,6 @@ describe('The email module', function() {
     });
 
     it('should send an email', function(done) {
-      var tmp = this.testEnv.tmp;
       var email = this.helpers.requireBackend('core/email');
       var templates = path.resolve(__dirname + '/fixtures/templates/');
       email.setTemplatesDir(templates);
@@ -203,9 +194,8 @@ describe('The email module', function() {
 
       email.sendHTML(from, 'foo@bar.com', 'The subject', type, locals, function(err, message) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + message.messageId + '.eml');
         var fs = require('fs');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(message.path)).to.be.true;
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
         mailparser.on('end', function(mail_object) {
@@ -214,7 +204,7 @@ describe('The email module', function() {
           expect(mail_object.html).to.have.string(locals.name.last);
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(message.path).pipe(mailparser);
       });
 
     });

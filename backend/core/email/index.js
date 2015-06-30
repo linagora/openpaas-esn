@@ -66,12 +66,14 @@ var getMailTransport = function(done) {
     // require the nodemailer transport module if it is an external plugin
     if (data.transport.module) {
       try {
-        require(data.transport.module);
+        var nodemailerPlugin = require(data.transport.module);
+        transport = nodemailer.createTransport(nodemailerPlugin(data.transport.config));
       } catch (err) {
         return done(err);
       }
+    } else {
+      transport = nodemailer.createTransport(data.transport.config);
     }
-    transport = nodemailer.createTransport(data.transport.type, data.transport.config);
     return done(null, transport);
   });
 };
