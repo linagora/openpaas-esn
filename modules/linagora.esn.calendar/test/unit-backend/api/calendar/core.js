@@ -13,6 +13,8 @@ describe('The calendar core module', function() {
   var helpersMock;
   var pubsubMock;
   var contentSenderMock;
+  var configMock;
+  var esnConfigMock;
 
   function initMock() {
     collaborationMock = {
@@ -67,6 +69,18 @@ describe('The calendar core module', function() {
         return q();
       }
     };
+    configMock = function() {
+      return {
+        webserver: {}
+      };
+    };
+    esnConfigMock = function() {
+      return {
+        get: function(callback) {
+          callback();
+        }
+      };
+    };
   }
 
   beforeEach(function() {
@@ -80,6 +94,8 @@ describe('The calendar core module', function() {
     this.moduleHelpers.addDep('helpers', helpersMock);
     this.moduleHelpers.addDep('pubsub', pubsubMock);
     this.moduleHelpers.addDep('content-sender', contentSenderMock);
+    this.moduleHelpers.addDep('config', configMock);
+    this.moduleHelpers.addDep('esn-config', esnConfigMock);
   });
 
   describe('The dispatch fn', function() {
@@ -384,6 +400,22 @@ describe('The calendar core module', function() {
     });
 
     it('should call content-sender.send with correct parameters', function(done) {
+      var configMock = function() {
+        return {
+          webserver: {
+            port: 8888
+          }
+        };
+      };
+      var esnConfigMock = function() {
+        return {
+          get: function(callback) {
+            callback();
+          }
+        };
+      };
+      this.moduleHelpers.addDep('config', configMock);
+      this.moduleHelpers.addDep('esn-config', esnConfigMock);
       var organizer = {
         firstname: 'organizerFirstname',
         lastname: 'organizerLastname',
@@ -444,6 +476,7 @@ describe('The calendar core module', function() {
           }
         };
         expect(options).to.deep.equal(expectedOptions);
+        expect(content.baseUrl).to.deep.equal('http://localhost:8888');
         return q();
       };
 
@@ -451,6 +484,62 @@ describe('The calendar core module', function() {
       module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
         expect(err).to.not.exist;
         expect(called).to.equal(2);
+        done();
+      });
+    });
+
+    it('should call content-sender.send with correct parameters', function(done) {
+      var configMock = function() {
+        return {
+          webserver: {
+            port: 8888
+          }
+        };
+      };
+      var esnConfigMock = function() {
+        return {
+          get: function(callback) {
+            callback({
+              base_url: 'https://dev.open-paas.org'
+            });
+          }
+        };
+      };
+      this.moduleHelpers.addDep('config', configMock);
+      this.moduleHelpers.addDep('esn-config', esnConfigMock);
+      var organizer = {
+        firstname: 'organizerFirstname',
+        lastname: 'organizerLastname',
+        emails: [
+          'organizer@open-paas.org'
+        ]
+      };
+      var attendee1 = {
+        firstname: 'attendee1Firstname',
+        lastname: 'attendee1Lastname',
+        emails: [
+          'attendee1@open-paas.org'
+        ]
+      };
+      var attendeeEmails = [attendee1.emails[0]];
+      var method = 'REQUEST';
+      var ics = 'ICS';
+
+      userMock.findByEmail = function(email, callback) {
+        return callback(null, attendee1);
+      };
+
+      var called = 0;
+      contentSenderMock.send = function(from, to, content, options, type) {
+        called++;
+        expect(content.baseUrl).to.deep.equal('https://dev.open-paas.org');
+        return q();
+      };
+
+      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
+      module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+        expect(err).to.not.exist;
+        expect(called).to.equal(1);
         done();
       });
     });

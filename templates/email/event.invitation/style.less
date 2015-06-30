@@ -7,45 +7,125 @@
 @esn-highlight-dark: rgb(21,21,21);
 @esn-fa: #FAFAFA;
 @esn-linagora: #BE1F3A;
-
 @published-date: darken(@esn-primary-lesslight, 20%);
+@font-color: #333;
 
 body {
+  background-color: @esn-fa;
+
   p {
     margin: 0;
     padding: 0;
   }
 
-  div.wrapper {
-    max-width: 1000px;
+  .wrapper {
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    background-color: @esn-fa;
-    border: 3px solid;
+    background-color: white;
   }
 
-  div.mail-content {
+  .mail-content {
     padding: 0 10px 10px 10px;
     border-radius: 5px;
     text-align: justify;
+    color: @font-color;
+  }
 
-    div.header.mail-header {
-      color: @esn-primary-middle;
-      border-bottom: 1px solid @esn-primary-lesslight;
-      margin-bottom: 20px;
+  .title {
+    font-size: 1.5em;
+    padding-bottom: 10px;
+    padding-top: 20px;
+  }
 
-      h1 {
-        margin-left: 15px;
+  .small {
+    color: grey;
+  }
+
+  .big {
+    font-size: 1.3em;
+  }
+
+  .green {
+    color: green;
+  }
+
+  .red {
+    color: red;
+  }
+
+  .blue {
+    color: blue;
+  }
+
+  .table-footer {
+    text-align: center;
+    font-size: 1.5em;
+    border-top: 1px solid @esn-primary-lesslight;
+    td {
+      padding-top: 20px;
+    }
+
+    a {
+      text-decoration: none;
+
+    }
+
+    .attend-question {
+      font-size: 0.6em;
+      color: grey;
+    }
+  }
+
+  .table-header {
+    text-align: right;
+    border-bottom: 1px solid @esn-primary-lesslight;
+    h5 {
+      padding: 0;
+      margin: 0;
+    }
+
+    td {
+      padding-top: 5px;
+    }
+
+    td.organizer {
+      text-align: right;
+      img {
+        margin: 0;
+        padding: 0;
       }
+    }
+
+    td.logo {
+      text-align: center;
+    }
+
+    td.avatar {
+      text-align: left;
+    }
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+
+    img {
+      padding: 0 30px 0 0;
+    }
+
+    td {
+      padding-top: 10px;
+      padding-bottom: 10px;
     }
   }
 
   footer {
     margin-right: 3px;
     margin-top:10px;
-    text-align: right;
-    color: @esn-primary-middle;
-
+    .footer {
+      text-align: right;
+    }
     a {
       color: @esn-linagora;
     }

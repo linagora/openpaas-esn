@@ -1,6 +1,5 @@
 'use strict';
 
-var util = require('util');
 var async = require('async');
 var q = require('q');
 var jcal2content = require('../../../lib/jcal/jcal2content');
@@ -14,7 +13,9 @@ var eventMessage,
     localpubsub,
     globalpubsub,
     collaborationPermission,
-    contentSender;
+    contentSender,
+    esnconfig,
+    staticConfig;
 
 var MAIL_TEMPLATE = 'event.invitation';
 
@@ -183,60 +184,66 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
     return q.nfcall(userModule.findByEmail, attendeeEmail);
   });
 
-  return q.all(getAllUsersAttendees).then(function(users) {
+  return esnconfig('web').get(function(web) {
+    var baseUrl = 'http://localhost:';
+    if (web && web.base_url) {
+      baseUrl = web.base_url;
+    } else {
+      var port = staticConfig.webserver.port || '8080';
+      baseUrl += port;
+    }
 
-    var sendMailToAllAttendees = users.filter(Boolean).map(function(user) {
+    return q.all(getAllUsersAttendees).then(function(users) {
 
-      var from = { objectType: 'email', id: organizer.emails[0] };
-      var to = { objectType: 'email', id: user.emails[0] };
+      var sendMailToAllAttendees = users.filter(Boolean).map(function(user) {
 
-      var subject = 'Unknown method';
-      switch (method) {
-        case 'REQUEST':
-          subject = i18n.__('New event from %s', userDisplayName(organizer));
-          break;
-        case 'REPLY':
-          subject = i18n.__('An event has been updated from %s', userDisplayName(organizer));
-          break;
-        case 'CANCEL':
-          subject = i18n.__('An event has been canceled from %s', userDisplayName(organizer));
-          break;
-      }
+        var from = { objectType: 'email', id: organizer.emails[0] };
+        var to = { objectType: 'email', id: user.emails[0] };
 
-      var message = {
-        subject: subject,
-        alternatives: [{
-          content: ics,
-          contentType: 'text/calendar; charset=UTF-8; method=' + method,
-          contentEncoding: 'base64'
-        }],
-        attachments: [{
-          filename: 'invite.ics',
-          content: ics,
-          contentType: 'application/ics'
-        }]
-      };
-      var options = {
-        template: MAIL_TEMPLATE,
-        message: message
-      };
+        var subject = 'Unknown method';
+        switch (method) {
+          case 'REQUEST':
+            subject = i18n.__('New event from %s', userDisplayName(organizer));
+            break;
+          case 'REPLY':
+            subject = i18n.__('An event has been updated from %s', userDisplayName(organizer));
+            break;
+          case 'CANCEL':
+            subject = i18n.__('An event has been canceled from %s', userDisplayName(organizer));
+            break;
+        }
 
+        var message = {
+          subject: subject,
+          alternatives: [{
+            content: ics,
+            contentType: 'text/calendar; charset=UTF-8; method=' + method,
+            contentEncoding: 'base64'
+          }],
+          attachments: [{
+            filename: 'invite.ics',
+            content: ics,
+            contentType: 'application/ics'
+          }]
+        };
+        var options = {
+          template: MAIL_TEMPLATE,
+          message: message
+        };
 
-      var event = jcal2content(ics);
-      var content = {
-        user: {
-          displayName: util.format('%s %s', user.firstname, user.lastname),
-          id: user._id
-        },
-        event: event
-      };
+        var event = jcal2content(ics, baseUrl);
+        var content = {
+          baseUrl: baseUrl,
+          event: event
+        };
 
-      return contentSender.send(from, to, content, options, 'email');
-    });
+        return contentSender.send(from, to, content, options, 'email');
+      });
 
-    return q.all(sendMailToAllAttendees);
+      return q.all(sendMailToAllAttendees);
 
-  }).nodeify(callback);
+    }).nodeify(callback);
+  });
 }
 
 module.exports = function(dependencies) {
@@ -250,7 +257,9 @@ module.exports = function(dependencies) {
   localpubsub = dependencies('pubsub').local;
   globalpubsub = dependencies('pubsub').global;
   collaborationPermission = dependencies('collaboration').permission;
-  contentSender = dependencies('content-sender');
+  contentSender = dependencies('content-sender'),
+  esnconfig = dependencies('esn-config'),
+  staticConfig = dependencies('config')('default');
 
   return {
     dispatch: dispatch,

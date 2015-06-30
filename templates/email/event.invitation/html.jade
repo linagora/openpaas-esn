@@ -1,13 +1,11 @@
-mixin attendeeDisplay(mail, partstat)
+mixin attendeeDisplay(mail, details)
   div
-    p
-      if (partstat === 'NEEDS-ACTION')
-        img(src="cid:needsaction", alt="needs-action logo")
-      else if (partstat === 'ACCEPTED')
-        img(src="cid:accepted", alt="accepted logo")
-      else if (partstat === 'DECLINED')
-        img(src="cid:declined", alt="declined logo")
-      span #{mail}
+    if (details.cn)
+      span #{details.cn} <
+        span.small #{mail}
+      | >,
+    else
+      span.small #{mail}
 
 doctype html
 html.mail
@@ -21,54 +19,75 @@ html.mail
     .wrapper
       br
       .mail-content
-        .header.mail-header
-          table
-            tr
-              td
-                div.logo
-                  a(href="")
-                    img(src="cid:logo", alt="open-paas logo")
-              td
-                h2
-                  br
-                  | Hello #{content.user.displayName}
 
         table
+          tr.table-header
+            td.logo(colspan="3")
+              div
+                a(href="http://localhost:8080/")
+                  img(src="cid:logo", alt="open-paas logo")
+            td.organizer(colspan="2")
+              h5
+                p
+                  | #{content.event.organizer.cn} (
+                  span.small
+                    a(href='mailto:#{content.event.organizer.mail}')
+                      img(src="cid:email", alt="Organizer mail")
+                  | )
+                p.big has invited you to a meeting!
+            td.avatar
+              img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
           tr
-            th New appointment !
+            th(colspan="6").title #{content.event.summary}
           tr
-            td(colspan="2") You are invited to attend this appointment:
-          tr
-            td Summary
-            td #{content.event.summary}
-          tr
-            td From
-            td #{content.event.start}
-          tr
-          tr
-            td To
-            td #{content.event.end}
-          tr
-          tr
-            td Location
-            td #{content.event.location}
-          tr
-          tr
-            td Organizer
-            td #{content.event.organizer}
-          tr
-          tr
-            td Attendees
             td
+              img(src="cid:access_time", alt="From")
+            td
+              p #{content.event.start.date}
+              p #{content.event.start.time}
+            td
+              img(src="cid:keyboard_arrow_right", alt="To")
+            td
+              p #{content.event.end.date}
+              p #{content.event.end.time}
+            td.recurrence
+            td
+              a(href='#{content.baseUrl}/#/calendar') See in calendar
+          if (content.event.location)
+            tr
+              td
+                img(src="cid:place", alt="Location")
+              td(colspan="4") #{content.event.location}
+              td
+                a(href='http://localhost:8080/') Map
           tr
-          each partstat, mail in content.event.attendees
+            td
+              img(src="cid:people", alt="Attendees")
+            td(colspan="5")
+              each details, mail in content.event.attendees
+                span
+                  +attendeeDisplay(mail, details)
+          if (content.event.description)
             tr
               td
-              td
-                +attendeeDisplay(mail, partstat)
+                img(src="cid:format_align_justify", alt="Description")
+              td(colspan="5") #{content.event.description}
+          if (content.event.files)
             tr
+              td
+                img(src="cid:folder_open", alt="Files")
+              td(colspan="5")
+                span file.odt
+          tr.table-footer
+            td.attend-question(colspan="3")
+              | Will you attend ?
+            td(colspan="1")
+              a.green(href="http://localhost:8080/") Yes
+            td(colspan="1")
+              a.blue(href="http://localhost:8080/") Maybe
+            td(colspan="1")
+              a.red(href="http://localhost:8080/") No
 
       footer
-        .producer
-          | OpenPaas is coded with love by&nbsp;
-          a.linagora(href="http://linagora.com") Linagora
+        div.footer
+          a(href='#{content.baseUrl}/#/calendar') More details...
