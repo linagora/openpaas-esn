@@ -273,6 +273,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           setSelect: [0, 0, minsize, minsize],
           minSize: [minsize, minsize],
           aspectRatio: 1,
+          touchSupport: true,
           onSelect: broadcastSelection,
           onChange: deviceDetector.isDesktop() ? broadcastSelection : function(x) {}
         });
