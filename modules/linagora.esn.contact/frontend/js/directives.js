@@ -233,7 +233,6 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  
   .directive('editableField', function($timeout) {
     function link(scope, element, attrs, controller) {
       var oldValue;
