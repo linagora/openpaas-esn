@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert'])
+angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
   .constant('AVATAR_MIN_SIZE_PX', 128)
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
@@ -223,7 +223,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       });
     }
   };
-}]).directive('imgLoaded', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
+}]).directive('imgLoaded', ['selectionService', 'AVATAR_MIN_SIZE_PX', 'deviceDetector', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
 
   return {
     restrict: 'E',
@@ -240,6 +240,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           myImg = undefined;
         }
       };
+
       scope.$on('crop:reset', clear);
       scope.$on('crop:loaded', function() {
         clear();
@@ -262,18 +263,18 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         myImg.attr('width', width);
         myImg.attr('height', height);
 
+        var broadcastSelection = function(x) {
+          selectionService.broadcastSelection({cords: x, ratio: ratio});
+        };
+
         $(myImg).Jcrop({
           bgColor: 'black',
           bgOpacity: 0.6,
           setSelect: [0, 0, minsize, minsize],
           minSize: [minsize, minsize],
           aspectRatio: 1,
-          onSelect: function(x) {
-            selectionService.broadcastSelection({cords: x, ratio: ratio});
-          },
-          onChange: function(x) {
-            selectionService.broadcastSelection({cords: x, ratio: ratio});
-          }
+          onSelect: broadcastSelection,
+          onChange: deviceDetector.isDesktop() ? broadcastSelection : function(x) {}
         });
 
       });
