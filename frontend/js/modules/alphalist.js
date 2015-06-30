@@ -4,7 +4,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
 
   .constant('ALPHA_ITEMS', '#ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
-  .factory('alphaCategoryService', ['arrayHelper', 'ALPHA_ITEMS', function(arrayHelper, ALPHA_ITEMS) {
+  .factory('AlphaCategoryService', ['arrayHelper', 'ALPHA_ITEMS', function(arrayHelper, ALPHA_ITEMS) {
 
     function Categorize(options) {
       this.options = options || {};

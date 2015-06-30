@@ -118,25 +118,15 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactDisplay', function(contactsService, notificationFactory) {
+  .directive('contactDisplay', function() {
     return {
       restrict: 'E',
       scope: {
         'contact': '=',
-        'update': '='
+        'update': '=',
+        'modify': '='
       },
-      templateUrl: '/contact/views/partials/contact-display.html',
-      link: function(scope) {
-        scope.modify = function() {
-          var vcard = contactsService.shellToVCARD(scope.contact);
-          contactsService.modify(scope.contact.path, vcard, scope.contact.etag).then(function(contact) {
-            scope.contact.etag = contact.etag;
-            notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + scope.contact.displayName);
-          }).catch (function(err) {
-            notificationFactory.weakError('Contact modification failure', err.message);
-          });
-        };
-      }
+      templateUrl: '/contact/views/partials/contact-display.html'
     };
   })
   .directive('inlineEditableInput', function($timeout) {
@@ -261,4 +251,20 @@ angular.module('linagora.esn.contact')
         $scope.defaultAvatar = DEFAULT_AVATAR;
       }
     };
-  }]);
+  }])
+  .directive('relaxedDate', function(DATE_FORMAT, $dateParser, $dateFormatter) {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: function(scope, element, attrs, controller) {
+        element.attr('placeholder', DATE_FORMAT);
+
+        controller.$parsers.push(function(text) {
+          return $dateParser({ format: DATE_FORMAT }).parse(text) || text;
+        });
+        controller.$formatters.push(function(dateOrText) {
+          return $dateFormatter.formatDate(dateOrText, DATE_FORMAT);
+        });
+      }
+    };
+  });

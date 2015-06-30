@@ -279,5 +279,53 @@ describe('The contact Angular module directives', function() {
     });
   });
 
+  describe('The relaxedDate directive', function() {
+
+    var $compile, $rootScope, element, $scope, DATE_FORMAT;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _DATE_FORMAT_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      DATE_FORMAT = _DATE_FORMAT_;
+
+      $scope = $rootScope.$new();
+    }));
+
+    beforeEach(function() {
+      element = $compile('<form name="form"><input type="text" name="date" relaxed-date ng-model="date" /></form>')($scope);
+    });
+
+    it('should define the placeholder on the element', function() {
+      expect(element.find('input').attr('placeholder')).to.equal(DATE_FORMAT);
+    });
+
+    it('should parse the value as a Date object', function() {
+      $scope.form.date.$setViewValue('01/31/1970');
+      $scope.$digest();
+
+      expect($scope.date).to.equalDate(new Date(1970, 0, 31));
+    });
+
+    it('should allow any string value', function() {
+      $scope.form.date.$setViewValue('I am not a date');
+      $scope.$digest();
+
+      expect($scope.date).to.equal('I am not a date');
+    });
+
+    it('should display a formatted date if the model contains a valid Date', function() {
+      $scope.date = new Date(2015, 0, 15);
+      $scope.$digest();
+
+      expect($scope.form.date.$viewValue).to.equal('01/15/2015');
+    });
+
+    it('should display any string value if model is not a Date', function() {
+      $scope.date = 'I am still not a date';
+      $scope.$digest();
+
+      expect($scope.form.date.$viewValue).to.equal('I am still not a date');
+    });
+  });
 
 });
