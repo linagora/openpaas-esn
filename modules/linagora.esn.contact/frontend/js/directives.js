@@ -29,7 +29,6 @@ angular.module('linagora.esn.contact')
       var args = arguments;
       return function() {
         if (Array.prototype.every.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          console.log('new_field');
           _acceptNew();
         }
       };
@@ -39,36 +38,8 @@ angular.module('linagora.esn.contact')
       return function($index) {
         var item = $scope.content[$index];
         if (!item[valueToCheck]) {
-          console.log('remove_field');
-
           _acceptRemove($index);
         }
-      };
-    };
-
-    this.createVerifyNewAddressFunction = function() {
-      var args = arguments;
-
-      return function() {
-        if (Array.prototype.some.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
-          console.log('new_address_field');
-          _acceptNew();
-        }
-      };
-    };
-
-    this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
-      var args = arguments;
-      console.log($scope);
-      return function($index) {
-       $scope.content.forEach(function(item){
-          console.log(args);
-          console.log(item);
-          if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
-            console.log('remove_adress_field');
-            _acceptRemove($index);
-          }
-        });
       };
     };
 
@@ -142,8 +113,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group-address',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.createVerifyNewAddressFunction('street', 'zip', 'city', 'country');
-        scope.verifyRemove = controller.createVerifyRemoveAddressFunction('street', 'zip', 'city', 'country');
+        scope.verifyNew = controller.createVerifyNewFunction('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.createVerifyRemoveFunction('street');
       }
     };
   })
@@ -159,8 +130,6 @@ angular.module('linagora.esn.contact')
     };
   })
   .directive('inlineEditableInput', function($timeout) {
-
-
     function link(scope, element, attrs, controller) {
       var input = element.find('input');
       var inputGroup = element.find('.input-group');
@@ -195,12 +164,10 @@ angular.module('linagora.esn.contact')
       input.bind('blur', function() {
         $timeout(function() {
           if (oldValue !== controller.$viewValue) {
-            console.log('save_input');
             scope.saveInput();
           }
           _resetInputGroup();
           _toggleGroupButtons();
-          console.log(scope);
           if (scope.onBlur) {
             scope.onBlur();
           }
