@@ -214,9 +214,9 @@ angular.module('esn.calendar')
     $scope.uiConfig = USER_UI_CONFIG;
   }])
 
-  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource',
-    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource) {
-      $scope.eventSources = [calendarEventSource($scope.calendarId)];
+  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource', 'localEventSource', 'livenotification',
+    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource, localEventSource,  livenotification) {
+      $scope.eventSources = [calendarEventSource($scope.calendarId), localEventSource.getEvents];
 
       var windowJQuery = angular.element($window);
 
@@ -268,7 +268,7 @@ angular.module('esn.calendar')
         };
         $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
-      $scope.eventSources = [calendarEventSource($scope.calendarId)];
+      $scope.eventSources = [calendarEventSource($scope.calendarId), localEventSource.getEvents];
 
       $rootScope.$on('modifiedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
@@ -280,5 +280,19 @@ angular.module('esn.calendar')
       });
       $rootScope.$on('addedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', data);
+      });
+
+      function liveNotificationHandler(msg) {
+        var event = calendarService.icalToShell(msg);
+        var oldVersion = localEventSource.addEvent(event);
+        if (oldVersion) {
+          $rootScope.$emit('removedCalendarItem', oldVersion.id);
+        }
+        $rootScope.$emit('addedCalendarItem', event);
+      }
+      var sio = livenotification('/calendars').on('event:updated', liveNotificationHandler);
+
+      $scope.$on('$destroy', function() {
+        sio.removeListener('event:updated', liveNotificationHandler);
       });
     }]);

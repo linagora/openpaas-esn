@@ -200,12 +200,24 @@ describe('The Calendar Angular module', function() {
         }
       };
 
+      this.socket = function(namespace) {
+        expect(namespace).to.equal('/calendars');
+        return {
+          emit: function(event, data) {
+            if (self.socketEmit) {
+              self.socketEmit(event, data);
+            }
+          }
+        };
+      };
+
       angular.mock.module('esn.calendar');
       angular.mock.module('esn.ical');
       angular.mock.module(function($provide) {
         $provide.value('tokenAPI', self.tokenAPI);
         $provide.value('jstz', self.jstz);
         $provide.value('uuid4', self.uuid4);
+        $provide.value('socket', self.socket);
       });
     });
 
@@ -540,6 +552,27 @@ describe('The Calendar Angular module', function() {
         this.$httpBackend.flush();
       });
 
+      it('should succeed on 204 and send an "event:updated" message into the websocket', function(done) {
+        emitMessage = null;
+        var headers = { 'ETag': 'changed-etag' };
+        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(204, '');
+        this.$httpBackend.expectGET('/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+
+        this.socketEmit = function(event, data) {
+          expect(event).to.equal('event:updated');
+          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
+        };
+
+        this.calendarService.modify('/path/to/uid.ics', this.event).then(
+          function() {
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should send etag as If-Match header', function(done) {
         var requestHeaders = {
           'Content-Type': 'application/calendar+json',
@@ -854,155 +887,38 @@ describe('The Calendar Angular module', function() {
     });
   });
 
-  describe('The calendarController controller', function() {
+  describe('The localEventSource service', function() {
 
     beforeEach(function() {
-      var self = this;
-
-      this.user = {
-        _id: '1'
-      };
-
-      this.uiCalendarConfig = {
-        calendars: {
-          calendarId: {
-            fullCalendar: function() {
-            },
-            offset: function() {
-              return {
-                top: 1
-              };
-            }
-          }
-        }
-      };
-
       angular.mock.module('esn.calendar');
-      angular.mock.module('ui.calendar', function($provide) {
-        $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
+    });
+
+    beforeEach(angular.mock.inject(function(localEventSource) {
+      this.localEventSource = localEventSource;
+    }));
+
+    describe('The addEvent fn', function() {
+
+      it('should register the event when no event has already been registered with the same id', function() {
+        var event = {id: 'anId'};
+        this.localEventSource.addEvent(event);
+        this.localEventSource.getEvents(null, null, null, function(events) {
+          expect(events).to.deep.equal([event]);
+        });
       });
-      angular.mock.module(function($provide) {
-        $provide.value('user', self.user);
-        $provide.factory('calendarEventSource', function() {
-          return function() {
-            return [{
-              title: 'RealTest',
-              location: 'Paris',
-              description: 'description!',
-              allDay: false,
-              start: new Date(),
-              attendeesPerPartstat: {
-                'NEEDS-ACTION': []
-              }
-            }];
-          };
+
+
+      it('should replace the event already registered with the same id', function() {
+        var event1 = {id: 'anId', text: 'text1'};
+        this.localEventSource.addEvent(event1);
+        var event2 = {id: 'anId', text: 'text2'};
+        this.localEventSource.addEvent(event2);
+        this.localEventSource.getEvents(null, null, null, function(events) {
+          expect(events).to.deep.equal([event2]);
         });
       });
     });
 
-    beforeEach(angular.mock.inject(function($timeout, $window, calendarService, USER_UI_CONFIG, user, $httpBackend, $rootScope, _$compile_, _$controller_) {
-      this.$httpBackend = $httpBackend;
-      this.$rootScope = $rootScope;
-      this.$compile = _$compile_;
-      this.calendarService = calendarService;
-      this.USER_UI_CONFIG = USER_UI_CONFIG;
-      this.user = user;
-      this.$timeout = $timeout;
-      this.$window = $window;
-      this.$controller = _$controller_;
-    }));
-
-    beforeEach(function() {
-      this.calendarScope = this.$rootScope.$new();
-      this.calendarScope.uiConfig = this.USER_UI_CONFIG;
-      this.calendarScope.calendarId = 'calendarId';
-      this.$controller('calendarController', {$scope: this.calendarScope});
-    });
-
-    it('The calendarController should be created and its scope initialized', function() {
-      expect(this.calendarScope.uiConfig.calendar.eventRender).to.equal(this.calendarScope.eventRender);
-      expect(this.calendarScope.uiConfig.calendar.eventAfterAllRender).to.equal(this.calendarScope.resizeCalendarHeight);
-    });
-
-    it('The eventRender function should render the event', function() {
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.calendarScope);
-
-      uiCalendarDiv.appendTo(document.body);
-      this.calendarScope.$apply();
-      this.$timeout.flush();
-
-      var weekButton = uiCalendarDiv.find('.fc-agendaWeek-button');
-      expect(weekButton.length).to.equal(1);
-      var dayButton = uiCalendarDiv.find('.fc-agendaDay-button');
-      expect(dayButton.length).to.equal(1);
-
-      var checkRender = function() {
-        var title = uiCalendarDiv.find('.fc-title');
-        expect(title.length).to.equal(1);
-        expect(title.hasClass('ellipsis')).to.be.true;
-        expect(title.text()).to.equal('RealTest (Paris)');
-
-        var eventLink = uiCalendarDiv.find('a');
-        expect(eventLink.length).to.equal(1);
-        expect(eventLink.hasClass('event-common')).to.be.true;
-        expect(eventLink.attr('title')).to.equal('description!');
-      };
-
-      checkRender();
-      weekButton.click();
-      this.calendarScope.$apply();
-      try {
-        this.$timeout.flush();
-      } catch (exception) {
-        // Depending on the context, the 'no defered tasks' exception can occur
-      }
-      checkRender();
-      dayButton.click();
-      this.calendarScope.$apply();
-      try {
-        this.$timeout.flush();
-      } catch (exception) {
-        // Depending on the context, the 'no defered tasks' exception can occur
-      }
-      checkRender();
-    });
-
-    it('should resize the calendar height twice when the controller is created', function() {
-      var called = 0;
-
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.calendarScope);
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
-        called++;
-      };
-
-      uiCalendarDiv.appendTo(document.body);
-      this.$timeout.flush();
-      try {
-        this.$timeout.flush();
-      } catch (exception) {
-        // Depending on the context, the 'no defered tasks' exception can occur
-      }
-      expect(called).to.equal(2);
-    });
-
-    it('should resize the calendar height once when the window is resized', function() {
-      var called = 0;
-
-      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.calendarScope);
-      uiCalendarDiv.appendTo(document.body);
-      this.$timeout.flush();
-      try {
-        this.$timeout.flush();
-      } catch (exception) {
-        // Depending on the context, the 'no defered tasks' exception can occur
-      }
-
-      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
-        called++;
-      };
-
-      angular.element(this.$window).resize();
-      expect(called).to.equal(1);
-    });
   });
+
 });

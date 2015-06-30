@@ -93,6 +93,7 @@ var awesomeWsServer = new AwesomeModule(ESN_MODULE_PREFIX + 'wsserver', {
   states: {
     lib: function(dependencies, callback) {
       var api = wsserver;
+      api.ioHelper = socketioHelper;
       return callback(null, api);
     },
     start: function(dependencies, callback) {

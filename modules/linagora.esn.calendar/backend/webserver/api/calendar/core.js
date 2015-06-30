@@ -2,7 +2,7 @@
 
 var async = require('async');
 var q = require('q');
-var jcal2content = require('../../../lib/jcal/jcal2content');
+var jcal2content = require('../../../lib/jcal/jcalHelper').jcal2content;
 var eventMessage,
     i18n,
     userModule,
