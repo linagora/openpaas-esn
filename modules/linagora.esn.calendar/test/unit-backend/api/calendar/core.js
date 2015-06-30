@@ -85,7 +85,9 @@ describe('The calendar core module', function() {
 
   beforeEach(function() {
     initMock();
-    mockery.registerMock('../../../lib/jcal/jcal2content', function() {});
+    mockery.registerMock('../../../lib/jcal/jcalHelper', {
+      jcal2content: function() {}
+    });
     mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
     this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
     this.moduleHelpers.addDep('user', userMock);

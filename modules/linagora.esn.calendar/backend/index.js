@@ -53,7 +53,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     },
 
     start: function(dependencies, callback) {
-      require('./ws/ws-events').init(dependencies);
+      require('./ws/calendar').init(dependencies);
       callback();
     }
   }

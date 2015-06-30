@@ -4,6 +4,10 @@ var icaljs = require('ical.js');
 var moment = require('moment');
 var url = require('url');
 
+function _getEmail(attendee) {
+  return attendee.getFirstValue().replace(/^MAILTO:/i, '');
+}
+
 /**
  * Return a formatted, easily usable data for an email template from a jcal object
  * @param {String} icalendar Representation of a icalendar object as a string.
@@ -46,7 +50,7 @@ function jcal2content(icalendar, baseUrl) {
   vevent.getAllProperties('attendee').forEach(function(attendee) {
     var partstat = attendee.getParameter('partstat');
     var cn = attendee.getParameter('cn');
-    var mail = attendee.getFirstValue().replace(/^MAILTO:/i, '');
+    var mail = _getEmail(attendee);
     attendees[mail] = {
       partstat: partstat,
       cn: cn
@@ -96,5 +100,13 @@ function jcal2content(icalendar, baseUrl) {
 
   return content;
 }
+module.exports.jcal2content = jcal2content;
 
-module.exports = jcal2content;
+function getAttendeesEmails(icalendar) {
+  var vcalendar = new icaljs.Component(icalendar);
+  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  return vevent.getAllProperties('attendee').map(function(attendee) {
+    return _getEmail(attendee);
+  });
+}
+module.exports.getAttendeesEmails = getAttendeesEmails;
