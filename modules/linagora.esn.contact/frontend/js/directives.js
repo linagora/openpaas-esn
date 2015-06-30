@@ -43,6 +43,27 @@ angular.module('linagora.esn.contact')
       };
     };
 
+    this.createVerifyNewAddressFunction = function() {
+      var args = arguments;
+
+      return function() {
+        if (Array.prototype.some.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
+          _acceptNew();
+        }
+      };
+    };
+
+    this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
+      var args = arguments;
+      return function($index) {
+       $scope.content.forEach(function(item) {
+          if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
+            _acceptRemove($index);
+          }
+        });
+      };
+    };
+
     $scope.$watch('content', _updateTypes);
 
     $scope.content = [];
@@ -113,8 +134,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group-address',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.createVerifyNewFunction('street', 'zip', 'city', 'country');
-        scope.verifyRemove = controller.createVerifyRemoveFunction('street');
+        scope.verifyNew = controller.createVerifyNewAddressFunction('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.createVerifyRemoveAddressFunction('street', 'zip', 'city', 'country');
       }
     };
   })
@@ -176,9 +197,14 @@ angular.module('linagora.esn.contact')
 
       input.bind('keydown', function(event) {
         var escape = event.which === 27;
+        var enter = event.which === 13;
         var target = event.target;
         if (escape) {
           $timeout(scope.resetInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+        if (enter) {
           target.blur();
           event.preventDefault();
         }
@@ -204,6 +230,54 @@ angular.module('linagora.esn.contact')
       require: 'ngModel',
       restrict: 'E',
       templateUrl: '/contact/views/partials/inline-editable-input.html',
+      link: link
+    };
+  })
+  .directive('editableField', function($timeout) {
+    function link(scope, element, attrs, controller) {
+      var oldValue;
+
+      element.bind('focus', function() {
+        oldValue = controller.$viewValue;
+      });
+
+      element.bind('blur', function() {
+        $timeout(function() {
+          if (oldValue !== controller.$viewValue) {
+            scope.save();
+          }
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+
+      element.bind('keydown', function(event) {
+        var escape = event.which === 27;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.reset, 0);
+          target.blur();
+          event.preventDefault();
+        }
+      });
+
+      scope.save = scope.onSave || function() {};
+
+      scope.reset = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        onSave: '=',
+        onBlur: '='
+      },
+      require: 'ngModel',
+      restrict: 'A',
       link: link
     };
   })

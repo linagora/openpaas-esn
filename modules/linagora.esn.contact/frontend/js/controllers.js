@@ -52,13 +52,14 @@ angular.module('linagora.esn.contact')
       }).then(closeForm, displayError);
     };
   })
-  .controller('showContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
 
     $scope.close = closeForm;
-    $scope.modify = function() {
+
+    function _modify() {
       return sendContactToBackend($scope, function() {
         return contactsService.modify($scope.contact.path, contactsService.shellToVCARD($scope.contact), $scope.contact.etag).then(function(contact) {
           notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + contact.displayName);
@@ -73,7 +74,14 @@ angular.module('linagora.esn.contact')
 
         return $q.reject(err);
       });
+    }
+
+    $scope.modify = function() {
+      $timeout(function() {
+        _modify();
+      }, 0);
     };
+
     $scope.accept = function() {
       return $scope.modify().then(closeForm);
     };
