@@ -30,8 +30,14 @@ describe('The Grace Registry Module', function() {
       getModule().put(123).then(function() {done(new Error());}, function() {done();});
     });
 
-    it('should save task', function(done) {
-      getModule().put(123, 456).then(function() {done();}, function() {done(new Error());});
+    it('should save and return task', function(done) {
+      var task = {foo: 'bar'};
+      getModule().put(123, task).then(function(result) {
+        expect(result).to.deep.equal(task);
+        done();
+      }, function() {
+        done(new Error());
+      });
     });
   });
 

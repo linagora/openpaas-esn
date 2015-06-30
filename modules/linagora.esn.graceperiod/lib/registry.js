@@ -16,7 +16,7 @@ module.exports = function() {
     }
 
     tasks[id] = task;
-    return q();
+    return q(task);
   }
 
   function get(id) {

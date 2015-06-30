@@ -14,7 +14,6 @@ module.exports = function(dependencies) {
   function cancel(id) {
     return registry.get(id).then(function(task) {
       task.cancel();
-      return q();
     });
   }
 
@@ -42,9 +41,7 @@ module.exports = function(dependencies) {
 
       try {
         var task = new Task(token, fn, delay, context, onTaskComplete, onTaskCancel);
-        return registry.put(token, task).then(function() {
-          return task;
-        });
+        return registry.put(token, task);
       } catch (err) {
         return q.reject(err);
       }
