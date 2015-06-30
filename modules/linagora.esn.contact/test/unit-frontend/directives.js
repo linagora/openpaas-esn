@@ -204,10 +204,16 @@ describe('The contact Angular module directives', function() {
 
     describe('the deleteContact function', function() {
 
-      it('should call contactsService.remove()', function(done) {
+      it('should call contactsService.remove() with the correct bookId and contact', function(done) {
 
-        this.contactsService.remove = done();
+        this.contactsService.remove = function(bookId, contact) {
+          expect(bookId).to.equal(self.scope.bookId);
+          expect(contact).to.deep.equal(self.scope.contact);
 
+          done();
+        };
+
+        var self = this;
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
         var iscope = element.isolateScope();

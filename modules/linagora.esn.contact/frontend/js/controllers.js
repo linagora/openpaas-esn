@@ -44,7 +44,7 @@ angular.module('linagora.esn.contact')
     $scope.close = closeForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
-        return contactsService.create('/addressbooks/' + $scope.bookId + '/contacts', contactsService.shellToVCARD($scope.contact)).then(function() {
+        return contactsService.create($scope.bookId, $scope.contact).then(function() {
           notificationFactory.weakInfo('Contact creation', 'Successfully created ' + $scope.contact.displayName);
         }, function(err) {
           notificationFactory.weakError('Contact creation', err && err.message || 'Something went wrong');
@@ -60,7 +60,7 @@ angular.module('linagora.esn.contact')
     $scope.close = closeForm;
     $scope.modify = function() {
       return sendContactToBackend($scope, function() {
-        return contactsService.modify($scope.contact.path, contactsService.shellToVCARD($scope.contact), $scope.contact.etag).then(function(contact) {
+        return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
           notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + contact.displayName);
           $scope.contact = contact;
 
@@ -78,7 +78,7 @@ angular.module('linagora.esn.contact')
       return $scope.modify().then(closeForm);
     };
 
-    contactsService.getCard('/addressbooks/' + $scope.bookId + '/contacts/' + $scope.cardId + '.vcf').then(function(card) {
+    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
     }, function() {
       displayError('Cannot get contact details');
@@ -94,8 +94,7 @@ angular.module('linagora.esn.contact')
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
     $scope.loadContacts = function() {
-      var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
-      contactsService.list(path).then(function(data) {
+      contactsService.list($scope.bookId).then(function(data) {
         $scope.categories.addItems(data);
         $scope.sorted_contacts = $scope.categories.get();
       }, function(err) {

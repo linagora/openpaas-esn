@@ -228,8 +228,7 @@ angular.module('linagora.esn.contact')
         $scope.tel = getFirstValue('tel');
 
         $scope.deleteContact = function() {
-          var path = '/addressbooks/' + $scope.bookId + '/contacts';
-          contactsService.remove(path, $scope.contact).then(function() {
+          contactsService.remove($scope.bookId, $scope.contact).then(function() {
             $scope.$emit('contact:deleted', $scope.contact);
             notificationFactory.weakInfo('Contact Delete', 'Successfully deleted contact');
           }, function() {

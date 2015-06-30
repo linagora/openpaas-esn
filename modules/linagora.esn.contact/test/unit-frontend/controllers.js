@@ -106,11 +106,11 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
       });
 
-      it('should call contactsService.create with right path and card', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
-        contactsService.create = function(path, card) {
-          expect(path).to.deep.equal('/addressbooks/' + bookId + '/contacts');
-          expect(card).to.deep.equal(scope.contact);
+      it('should call contactsService.create with right bookId and contact', function(done) {
+        scope.contact = { firstName: 'Foo', lastName: 'Bar' };
+        contactsService.create = function(id, contact) {
+          expect(id).to.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
 
           done();
         };
@@ -279,11 +279,11 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
       });
 
-      it('should call contactsService.modify with right path and card', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar', path: '/addressbooks/' + bookId + '/contacts/1'};
-        contactsService.modify = function(path, card) {
-          expect(path).to.deep.equal('/addressbooks/' + bookId + '/contacts/1');
-          expect(card).to.deep.equal(scope.contact);
+      it('should call contactsService.modify with right bookId and contact', function(done) {
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        contactsService.modify = function(id, contact) {
+          expect(id).to.deep.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
 
           done();
         };
@@ -386,8 +386,8 @@ describe('The Contacts Angular module', function() {
       it('should call the contactsService.list fn', function(done) {
         var user = {_id: 123};
         var contactsService = {
-          list: function(path) {
-            expect(path).to.equal('/addressbooks/' + user._id + '/contacts.json');
+          list: function(bookId) {
+            expect(bookId).to.equal(user._id);
             done();
           }
         };

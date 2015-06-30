@@ -113,7 +113,7 @@ angular.module('linagora.esn.contact')
     };
   })
   .factory('contactsService', ['ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', 'DAV_PATH', '$q', '$http', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http) {
-    function ContactsShell(vcard, path, etag) {
+    function ContactsShell(vcard, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
         return props.map(function(prop) {
@@ -189,7 +189,6 @@ angular.module('linagora.esn.contact')
       this.notes = vcard.getFirstPropertyValue('note');
 
       this.vcard = vcard;
-      this.path = path;
       this.etag = etag;
       this.photo = vcard.getFirstPropertyValue('photo');
     }
@@ -225,8 +224,9 @@ angular.module('linagora.esn.contact')
     function shellToVCARD(shell) {
       var prop;
       var vcard = new ICAL.Component('vcard');
+
       vcard.addPropertyWithValue('version', '4.0');
-      vcard.addPropertyWithValue('uid', shell.id || uuid4.generate());
+      vcard.addPropertyWithValue('uid', shell.id);
 
       if (shell.displayName) {
         vcard.addPropertyWithValue('fn', shell.displayName);
@@ -325,36 +325,54 @@ angular.module('linagora.esn.contact')
       return vcard;
     }
 
-    function getCard(path) {
-      var headers = { Accept: 'application/vcard+json' };
+    function bookUrl(bookId) {
+      return '/addressbooks/' + bookId + '/contacts.json';
+    }
+
+    function contactUrl(bookId, cardId) {
+      return '/addressbooks/' + bookId + '/contacts/' + cardId + '.vcf';
+    }
+
+    function addIfMatchHeader(etag, headers) {
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
+
+      return headers;
+    }
+
+    function getCard(bookId, cardId) {
+      var path = contactUrl(bookId, cardId),
+          headers = {
+            'Accept': 'application/vcard+json'
+          };
+
       return request('get', path, headers).then(function(response) {
-        var vcard = new ICAL.Component(response.data);
-        return new ContactsShell(vcard, path, response.headers('ETag'));
+        return new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
       });
     }
 
-    function list(path) {
-      return request('get', path).then(function(response) {
+    function list(bookId) {
+      return request('get', bookUrl(bookId)).then(function(response) {
         if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
           return response.data._embedded['dav:item'].map(function(vcarddata) {
-            var vcard = new ICAL.Component(vcarddata.data);
-            return new ContactsShell(vcard);
+            return new ContactsShell(new ICAL.Component(vcarddata.data));
           });
         }
+
         return [];
       });
     }
 
-    function create(contactsPath, vcard) {
-      var uid = vcard.getFirstPropertyValue('uid');
-      if (!uid) {
-        return $q.reject(new Error('Missing UID in VCARD'));
-      }
-      var cardPath = contactsPath.replace(/\/$/, '') + '/' + uid + '.vcf';
-      var headers = { 'Content-Type': 'application/vcard+json' };
-      var body = vcard.toJSON();
+    function create(bookId, contact) {
+      var cardId = uuid4.generate(),
+          headers = {
+            'Content-Type': 'application/vcard+json'
+          };
 
-      return request('put', cardPath, headers, body).then(function(response) {
+      contact.id = cardId;
+
+      return request('put', contactUrl(bookId, cardId), headers, shellToVCARD(contact).toJSON()).then(function(response) {
         if (response.status !== 201) {
           return $q.reject(response);
         }
@@ -362,43 +380,37 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    function modify(cardPath, vcard, etag) {
+    function modify(bookId, contact) {
+      if (!contact.id) {
+        return $q.reject(new Error('Missing contact.id'));
+      }
+
       var headers = {
         'Content-Type': 'application/vcard+json',
         'Prefer': 'return-representation'
       };
-      var body = vcard.toJSON();
 
-      if (etag) {
-        headers['If-Match'] = etag;
-      }
-
-      return request('put', cardPath, headers, body).then(function(response) {
+      return request('put', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, headers), shellToVCARD(contact).toJSON()).then(function(response) {
         if (response.status === 200) {
-          var vcard = new ICAL.Component(response.data);
-          return new ContactsShell(vcard, cardPath, response.headers('ETag'));
+          return new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
         } else if (response.status === 204) {
-            return getCard(cardPath);
+          return getCard(bookId, contact.id);
         } else {
           return $q.reject(response);
         }
       });
     }
 
-    function remove(contactsPath, contact, etag) {
+    function remove(bookId, contact) {
       if (!contact.id) {
-        return $q.reject(new Error('Missing UID in VCARD'));
+        return $q.reject(new Error('Missing contact.id'));
       }
-      var headers = {};
-      if (etag) {
-        headers['If-Match'] = etag;
-      }
-      var cardPath = contactsPath.replace(/\/$/, '') + '/' + contact.id + '.vcf';
 
-      return request('delete', cardPath, headers).then(function(response) {
+      return request('delete', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, {})).then(function(response) {
         if (response.status !== 204) {
           return $q.reject(response);
         }
+
         return response;
       });
     }
