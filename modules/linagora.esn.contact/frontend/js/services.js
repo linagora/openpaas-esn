@@ -193,7 +193,7 @@ angular.module('linagora.esn.contact')
       this.photo = vcard.getFirstPropertyValue('photo');
     }
 
-    function configureRequest(method, path, headers, body) {
+    function configureRequest(method, path, headers, body, params) {
       return tokenAPI.getNewToken().then(function(result) {
         var token = result.data.token;
         var url = DAV_PATH;
@@ -204,7 +204,8 @@ angular.module('linagora.esn.contact')
         var config = {
           url: url.replace(/\/$/, '') + path,
           method: method,
-          headers: headers
+          headers: headers,
+          params: params
         };
 
         if (body) {
@@ -215,8 +216,8 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    function request(method, path, headers, body) {
-      return configureRequest(method, path, headers, body).then(function(config) {
+    function request(method, path, headers, body, params) {
+      return configureRequest(method, path, headers, body, params).then(function(config) {
         return $http(config);
       });
     }
@@ -341,6 +342,14 @@ angular.module('linagora.esn.contact')
       return headers;
     }
 
+    function addGracePeriodParam(gracePeriod, params) {
+      if (gracePeriod) {
+        params.graceperiod = gracePeriod;
+      }
+
+      return params;
+    }
+
     function getCard(bookId, cardId) {
       var path = contactUrl(bookId, cardId),
           headers = {
@@ -401,19 +410,19 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    function remove(bookId, contact) {
+    function remove(bookId, contact, gracePeriod) {
       if (!contact.id) {
         return $q.reject(new Error('Missing contact.id'));
       }
 
-      return request('delete', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, {})).then(function(response) {
+      return request('delete', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, {}), null, addGracePeriodParam(gracePeriod, {})).then(function(response) {
         if (response.status !== 204 && response.status !== 202) {
           return $q.reject(response);
         }
 
         $rootScope.$broadcast('contact:deleted', contact);
 
-        return response;
+        return response.headers('X-ESN-TASK-ID');
       });
     }
 

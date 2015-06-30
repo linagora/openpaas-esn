@@ -420,6 +420,15 @@ describe('The Contacts Angular module', function() {
 
     describe('The remove fn', function() {
 
+      it('should pass the graceperiod as a query parameter if defined', function(done) {
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=1234')).respond(204);
+
+        this.contactsService.remove(1, contact, 1234).then(function() { done(); });
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should broadcast contact:deleted on success', function(done) {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(204);
 
@@ -453,8 +462,7 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(204);
 
         this.contactsService.remove(1, contact).then(
-          function(response) {
-            expect(response.status).to.equal(204);
+          function() {
             done();
           }
         );
@@ -467,8 +475,7 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(202);
 
         this.contactsService.remove(1, contact).then(
-          function(response) {
-            expect(response.status).to.equal(202);
+          function() {
             done();
           }
         );
@@ -489,6 +496,34 @@ describe('The Contacts Angular module', function() {
         contact.etag = 'etag';
         this.contactsService.remove(1, contact).then(function() { done(); });
 
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should resolve to the pending task identifier', function(done) {
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(202, null, { 'X-ESN-Task-Id': '1234' });
+
+        this.contactsService.remove(1, contact).then(
+          function(id) {
+            expect(id).to.equal('1234');
+
+            done();
+          }
+        );
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should resolve to nothing on direct deletion', function(done) {
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(204);
+
+        this.contactsService.remove(1, contact).then(
+          function(response) {
+            expect(response).to.not.exist;
+
+            done();
+          }
+        );
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
