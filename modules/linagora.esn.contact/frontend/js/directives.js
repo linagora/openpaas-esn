@@ -151,6 +151,8 @@ angular.module('linagora.esn.contact')
     };
   })
   .directive('inlineEditableInput', function($timeout) {
+
+
     function link(scope, element, attrs, controller) {
       var input = element.find('input');
       var inputGroup = element.find('.input-group');
@@ -185,6 +187,7 @@ angular.module('linagora.esn.contact')
       input.bind('blur', function() {
         $timeout(function() {
           if (oldValue !== controller.$viewValue) {
+            console.log('save_input');
             scope.saveInput();
           }
           _resetInputGroup();
