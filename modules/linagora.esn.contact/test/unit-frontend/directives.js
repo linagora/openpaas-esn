@@ -39,12 +39,12 @@ describe('The contact Angular module directives', function() {
       expect(element.html()).to.deep.equal(
         '<div class="input-group">' +
         '<input type="aType" placeholder="aPlaceholder" ng-model="ngModel" ng-model-options="{updateOn: &quot;blur&quot;}" class="aClass">' +
-        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-remove-button input-group-btn hidden-xs ng-hide">' +
+        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-remove-button input-group-btn ng-hide">' +
         '<button type="button" ng-click="resetInput()" class="btn btn-default">' +
         '<i class="fa fa-remove"></i>' +
         '</button>' +
         '</span>' +
-        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-check-button input-group-btn hidden-xs ng-hide">' +
+        '<span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-check-button input-group-btn ng-hide">' +
         '<button type="button" class="btn btn-default">' +
         '<i class="fa fa-check"></i>' +
         '</button>' +
