@@ -42,7 +42,7 @@ describe('The in memory grace period module', function() {
 
     getModule()({user: {_id: 2}}, {
       set: function(name, value) {
-        expect(name).to.equal('x-esn-task-id');
+        expect(name).to.equal('X-ESN-Task-Id');
         expect(value).to.equal(id);
       },
       json: function(code) {

@@ -38,5 +38,5 @@ The module provides a library to be used by other modules to create tasks.
 
 ## REST API
 
-All tasks created from a REST API Call MUST return the Task ID in the response HTTP header as 'x-esn-task-id'.
+All tasks created from a REST API Call MUST return the Task ID in the response HTTP header as 'X-ESN-Task-Id'.
 By using this ID, clients can cancel task by calling the graceperiod REST API.

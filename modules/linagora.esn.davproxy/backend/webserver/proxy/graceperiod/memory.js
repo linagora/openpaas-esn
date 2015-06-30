@@ -57,7 +57,7 @@ module.exports = function(dependencies) {
 
     graceperiod.create(forwardRequest, delay, context, onComplete, onCancel).then(function(task) {
       logger.info('Grace Task %s has been created for %s', task.id, target);
-      res.set('x-esn-task-id', task.id);
+      res.set('X-ESN-Task-Id', task.id);
       return res.json(202, {id: task.id});
     }, function(err) {
       logger.error('Error while creating deferred task', err);
