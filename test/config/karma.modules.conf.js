@@ -47,6 +47,7 @@ module.exports = function(config) {
       'frontend/components/showdown/compressed/extensions/table.js',
       'frontend/components/angular-markdown-directive/markdown.js',
       'frontend/components/angular-scroll/angular-scroll.js',
+      'frontend/components/blueimp-canvas-to-blob/js/canvas-to-blob.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',

@@ -172,21 +172,19 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
   sharedService.getBlob = function getBlob(mime, callback) {
     var canvas = document.createElement('canvas');
+    canvas.width = AVATAR_MIN_SIZE_PX;
+    canvas.height = AVATAR_MIN_SIZE_PX;
+
     var context = canvas.getContext('2d');
     var image = sharedService.getImage();
     var ratio = sharedService.selection.ratio || 1;
     var selection = sharedService.selection.cords;
     if (selection.w === 0 || selection.h === 0) {
-      canvas.width = AVATAR_MIN_SIZE_PX;
-      canvas.height = AVATAR_MIN_SIZE_PX;
       context.drawImage(image, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
     } else {
       var canvasSelection = sharedService.computeCanvasSelection(image, ratio, selection);
-      canvas.width = canvasSelection.w;
-      canvas.height = canvasSelection.h;
       context.drawImage(image, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
     }
-
     canvas.toBlob(callback, mime);
   };
 
