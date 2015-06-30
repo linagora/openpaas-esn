@@ -407,7 +407,7 @@ angular.module('linagora.esn.contact')
       }
 
       return request('delete', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, {})).then(function(response) {
-        if (response.status !== 204) {
+        if (response.status !== 204 && response.status !== 202) {
           return $q.reject(response);
         }
 
