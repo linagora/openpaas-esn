@@ -13,8 +13,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
   ],
   states: {
     lib: function(dependencies, callback) {
-      var lib = require('./backend/lib')(dependencies);
-      return callback(null, lib);
+      return callback(null, {});
     },
 
     deploy: function(dependencies, callback) {
