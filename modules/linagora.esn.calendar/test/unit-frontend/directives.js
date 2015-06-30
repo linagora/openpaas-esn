@@ -25,7 +25,8 @@ describe('The Calendar Angular module', function() {
             var response = {
               data: [
                 { firstname: 'first', lastname: 'last', emails: ['user1@test.com'] },
-                { emails: ['fist@last'] }
+                { emails: ['fist@last'] },
+                { firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] },
               ],
               domainId: domainId,
               query: query
@@ -78,17 +79,13 @@ describe('The Calendar Angular module', function() {
       expect(this.$scope.editedEvent.allDay).to.be.false;
     });
 
-    it('should have a getInvitableAttendees method that call domainApi to return displayName', function(done) {
+    it('should have a getInvitableAttendees method that call domainApi to return displayName and remove session.user', function(done) {
       this.initDirective(this.$scope);
       this.$scope.getInvitableAttendees('aQuery').then(function(response) {
-        expect(response).to.deep.equal({
-          data: [
-            { firstname: 'first', lastname: 'last', 'emails': ['user1@test.com'], displayName: 'first last', email: 'user1@test.com'},
-            { emails: ['fist@last'], displayName: 'fist@last', email: 'fist@last' }
-          ],
-          domainId: 'domainId',
-          query: { search: 'aQuery', limit: 5 }
-        });
+        expect(response).to.deep.equal([
+          { emails: ['fist@last'], displayName: 'fist@last', email: 'fist@last' },
+          { firstname: 'john', lastname: 'doe', 'emails': ['johndoe@test.com'], displayName: 'john doe', email: 'johndoe@test.com'}
+        ]);
         done();
       });
       this.$scope.$digest();
