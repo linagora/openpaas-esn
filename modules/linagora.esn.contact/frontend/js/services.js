@@ -260,10 +260,9 @@ angular.module('linagora.esn.contact')
       if (shell.orgRole) {
         vcard.addPropertyWithValue('role', shell.orgRole);
       }
-      console.log(shell.emails);
+
       if (shell.emails) {
         shell.emails.forEach(function(data) {
-          console.log(data.value);
           var prop = vcard.addPropertyWithValue('email', 'mailto:' + data.value);
           prop.setParameter('type', data.type);
         });
@@ -375,8 +374,6 @@ angular.module('linagora.esn.contact')
       }
 
       return request('put', cardPath, headers, body).then(function(response) {
-        console.log(response.headers('ETag'));
-
         if (response.status === 200) {
           var vcard = new ICAL.Component(response.data);
           return new ContactsShell(vcard, cardPath, response.headers('ETag'));

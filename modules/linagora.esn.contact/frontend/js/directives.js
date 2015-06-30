@@ -212,59 +212,6 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('editableTextarea', function($timeout) {
-    function link(scope, element, attrs, controller) {
-      var textarea = element.find('textarea');
-      var oldValue;
-
-      textarea.bind('focus', function() {
-        oldValue = controller.$viewValue;
-      });
-
-      textarea.bind('blur', function() {
-        $timeout(function() {
-          if (oldValue !== controller.$viewValue) {
-            scope.saveTextarea();
-          }
-          if (scope.onBlur) {
-            scope.onBlur();
-          }
-        }, 200);
-      });
-
-      textarea.bind('keydown', function(event) {
-        var escape = event.which === 27;
-        var target = event.target;
-        if (escape) {
-          $timeout(scope.resetTextarea, 0);
-          target.blur();
-          event.preventDefault();
-        }
-      });
-
-      scope.saveTextarea = scope.onSave || function() {};
-
-      scope.resetTextarea = function() {
-        controller.$setViewValue(oldValue);
-        controller.$render();
-      };
-    }
-
-    return {
-      scope: {
-        ngModel: '=',
-        rows: '=',
-        placeholder: '@',
-        onSave: '=',
-        textareaClass: '@',
-        onBlur: '='
-      },
-      require: 'ngModel',
-      restrict: 'E',
-      templateUrl: '/contact/views/partials/editable-textarea.html',
-      link: link
-    };
-  })
   .directive('contactListItem', ['contactsService', 'notificationFactory', function(contactsService, notificationFactory) {
     return {
       restrict: 'E',
