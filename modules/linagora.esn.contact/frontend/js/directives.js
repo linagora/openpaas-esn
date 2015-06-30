@@ -229,7 +229,6 @@ angular.module('linagora.esn.contact')
 
         $scope.deleteContact = function() {
           contactsService.remove($scope.bookId, $scope.contact).then(function() {
-            $scope.$emit('contact:deleted', $scope.contact);
             notificationFactory.weakInfo('Contact Delete', 'Successfully deleted contact');
           }, function() {
             notificationFactory.weakError('Contact Delete', 'Can not delete contact');

@@ -112,7 +112,7 @@ angular.module('linagora.esn.contact')
       getFormattedName: getFormattedName
     };
   })
-  .factory('contactsService', ['ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', 'DAV_PATH', '$q', '$http', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http) {
+  .factory('contactsService', ['ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', 'DAV_PATH', '$q', '$http', '$rootScope', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {
     function ContactsShell(vcard, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
@@ -410,6 +410,8 @@ angular.module('linagora.esn.contact')
         if (response.status !== 204 && response.status !== 202) {
           return $q.reject(response);
         }
+
+        $rootScope.$broadcast('contact:deleted', contact);
 
         return response;
       });

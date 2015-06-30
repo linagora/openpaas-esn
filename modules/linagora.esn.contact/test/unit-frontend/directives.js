@@ -221,30 +221,6 @@ describe('The contact Angular module directives', function() {
         done(new Error());
       });
 
-      it('should call $scope.$emit when remove is ok', function(done) {
-        var self = this;
-        this.notificationFactory.weakInfo = function() {};
-
-        var defer = this.$q.defer();
-        defer.resolve();
-        this.contactsService.remove = function() {
-          return defer.promise;
-        };
-
-        this.scope.$on('contact:deleted', function(event, data) {
-          expect(data).to.deep.equal(self.scope.contact);
-          done();
-        });
-
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        var iscope = element.isolateScope();
-        iscope.deleteContact();
-        this.scope.$digest();
-
-        done(new Error());
-      });
-
       it('should display notification when on remove success', function(done) {
         this.notificationFactory.weakInfo = function() {
           done();

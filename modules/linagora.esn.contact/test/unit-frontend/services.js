@@ -420,6 +420,21 @@ describe('The Contacts Angular module', function() {
 
     describe('The remove fn', function() {
 
+      it('should broadcast contact:deleted on success', function(done) {
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(204);
+
+        this.$rootScope.$on('contact:deleted', function(e, data) {
+          expect(data).to.deep.equal(contact);
+
+          done();
+        });
+
+        this.contactsService.remove(1, contact);
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should fail on a status that is not 204 and not 202', function(done) {
 
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(201);
