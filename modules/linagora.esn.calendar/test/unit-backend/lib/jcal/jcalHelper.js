@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var fs = require('fs-extra');
 var icaljs = require('ical.js');
 
-describe('jcalHelper', function() {
+describe.skip('jcalHelper', function() {
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
