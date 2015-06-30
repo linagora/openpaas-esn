@@ -737,8 +737,8 @@ describe('The Calendar Angular module services', function() {
           attendees: [{
             emails: [
               'user1@open-paas.org'
-           ],
-            displayName: 'user1@open-paas.org'
+            ],
+            displayName: 'User One'
           }, {
             emails: [
               'user2@open-paas.org'
@@ -819,7 +819,7 @@ describe('The Calendar Angular module services', function() {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
                     'role': 'REQ-PARTICIPANT',
-                    'cn': 'user1@open-paas.org'
+                    'cn': 'User One'
                   },
                   'cal-address',
                   'mailto:user1@open-paas.org'
@@ -829,8 +829,7 @@ describe('The Calendar Angular module services', function() {
                   {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
-                    'role': 'REQ-PARTICIPANT',
-                    'cn': 'user2@open-paas.org'
+                    'role': 'REQ-PARTICIPANT'
                   },
                   'cal-address',
                   'mailto:user2@open-paas.org'

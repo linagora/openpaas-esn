@@ -38,7 +38,7 @@ form.event-quick-form.form-container(role='form')
     .input-group
       span.input-group-addon
         i.fa.fa-users.fa-2x.fa-fw
-      tags-input(ng-model='editedEvent.attendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-added='resetView()', replace-spaces-with-dashes='false')
+      tags-input(ng-model='editedEvent.attendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
   .form-group.nopadding
     .text-center

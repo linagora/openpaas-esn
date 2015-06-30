@@ -174,7 +174,9 @@ angular.module('esn.calendar')
           property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
           property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
           property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);
-          property.setParameter('cn', attendee.displayName);
+          if (attendee.displayName && attendee.displayName !== mail) {
+            property.setParameter('cn', attendee.displayName);
+          }
         });
       }
 

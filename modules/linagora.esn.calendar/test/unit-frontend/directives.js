@@ -97,6 +97,49 @@ describe('The Calendar Angular module directives', function() {
       });
       this.$scope.$digest();
     });
+
+    describe('the onAddingAttendee fn', function() {
+      it('should support adding external attendees', function() {
+        var att, res;
+        this.initDirective(this.$scope);
+
+        att = { displayName: 'hello' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(att.email).to.equal('hello');
+        expect(att.displayName).to.equal('hello');
+        expect(res).to.be.true;
+
+        att = { email: 'hello', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(att.email).to.equal('hello');
+        expect(att.displayName).to.equal('world');
+        expect(res).to.be.true;
+
+        att = { emails: ['hello'], displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(att.emails).to.deep.equal(['hello']);
+        expect(att.displayName).to.equal('world');
+        expect(res).to.be.true;
+      });
+
+      it('should bail on already added attendees', function() {
+        var att, res;
+        this.initDirective(this.$scope);
+        this.$scope.editedEvent = {
+          attendees: [{ email: 'hello' }]
+        };
+
+        att = { displayName: 'hello' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+
+        // ...but only when adding the email prop, otherwise ng-tags-input will
+        // take care.
+        att = { email: 'hello', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.true;
+      });
+    });
   });
 
   describe('The friendlifyEndDate directive', function() {
@@ -151,6 +194,5 @@ describe('The Calendar Angular module directives', function() {
       var parser = element.controller('ngModel').$parsers[0];
       expect(parser(this.moment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.moment('2015/07/03').format('YYYY/MM/DD'));
     });
-
   });
 });

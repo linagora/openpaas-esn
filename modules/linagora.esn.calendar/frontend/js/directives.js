@@ -119,6 +119,24 @@ angular.module('esn.calendar')
       $scope.onEndDateChange = controller.onEndDateChange;
       $scope.getMinTime = controller.getMinTime;
 
+      $scope.onAddingAttendee = function(att) {
+        // Attendees are added via tags-input, which uses displayName as the
+        // property for both display and newly created tags. We need to adapt
+        // the tag for this case.
+        var hasEmails = att.email || (att.emails && att.emails.length);
+        var valid = true;
+        if (att.displayName && !hasEmails) {
+          att.email = att.displayName;
+          // Need to check again if it's a duplicate, since ng-tags-input does
+          // this a bit early for our taste.
+          valid = $scope.editedEvent.attendees.every(function(existingAtt) {
+            return existingAtt.email !== att.email;
+          });
+        }
+
+        return valid;
+      };
+
       $scope.getInvitableAttendees = function(query) {
         var deferred = $q.defer();
         $scope.query = query;
