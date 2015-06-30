@@ -55,30 +55,22 @@ angular.module('linagora.esn.contact')
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
-    $scope.close = closeForm;
 
-    function _modify() {
+    $scope.close = closeForm;
+    $scope.modify = function() {
       return sendContactToBackend($scope, function() {
         return contactsService.modify($scope.contact.path, contactsService.shellToVCARD($scope.contact), $scope.contact.etag).then(function(contact) {
           notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + contact.displayName);
           $scope.contact = contact;
-
           return contact;
         }, function(err) {
           notificationFactory.weakError('Contact modification failure', err && err.message || 'Something went wrong');
         });
       }).then(null, function(err) {
         displayError(err);
-
         return $q.reject(err);
       });
-    }
-
-    $scope.modify = function() {
-      $timeout(function() {
-        _modify();
-      }, 0);
-
+    };
     $scope.accept = function() {
       return $scope.modify().then(closeForm);
     };

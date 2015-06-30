@@ -31,18 +31,13 @@
         label.control-label.sr-only #{__("Tags")}
         .col-sm-12
           tags-input(ng-if='!update', ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
-          tags-input(ng-if='update', on-save='modify', ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
-      multi-inline-editable-input-group(ng-if='update', multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}', multi-input-on-save='modify')
+          editable-tags-input(ng-if='update', ng-model='contact.tags',  placeholder='Tags', min-length='1', on-save='modify')
+          multi-inline-editable-input-group(ng-if='update', multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}', multi-input-on-save='modify')
       multi-input-group(ng-if='!update', multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}')
       .form-group
         label.control-label.col-xs-3 #{__("Birthday")}
         .col-xs-9
-<<<<<<< HEAD
           input.form-control(type='text', relaxed-date, ng-model='contact.birthday', name='date')
-=======
-          input.form-control(ng-if='!update', type='text', relaxed-date, ng-model='contact.birthday', name='date')
-          input.form-control(ng-if='update', editable-field, on-save='modify', type='text', relaxed-date, ng-model='contact.birthday', name='date')  
->>>>>>> OR-1284 - Gather editable-element directive in one unique directive
       .form-group
         label.control-label.sr-only #{__("Nickname")}
         .col-sm-12
@@ -58,4 +53,4 @@
       .form-group
         .col-xs-12
           textarea.form-control(ng-if='!update', rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
-          textarea.form-control(ng-if='update', editable-field, rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes', on-save='modify')
+          editable-textarea(ng-if='update', textarea-class='form-control', rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes', on-save='modify')

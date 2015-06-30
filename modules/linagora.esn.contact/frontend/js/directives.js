@@ -233,19 +233,19 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  
-  .directive('editableField', function($timeout) {
+  .directive('editableTextarea', function($timeout) {
     function link(scope, element, attrs, controller) {
+      var textarea = element.find('textarea');
       var oldValue;
 
-      element.bind('focus', function() {
+      textarea.bind('focus', function() {
         oldValue = controller.$viewValue;
       });
 
-      element.bind('blur', function() {
+      textarea.bind('blur', function() {
         $timeout(function() {
           if (oldValue !== controller.$viewValue) {
-            scope.save();
+            scope.saveTextarea();
           }
           if (scope.onBlur) {
             scope.onBlur();
@@ -253,19 +253,19 @@ angular.module('linagora.esn.contact')
         }, 200);
       });
 
-      element.bind('keydown', function(event) {
+      textarea.bind('keydown', function(event) {
         var escape = event.which === 27;
         var target = event.target;
         if (escape) {
-          $timeout(scope.reset, 0);
+          $timeout(scope.resetTextarea, 0);
           target.blur();
           event.preventDefault();
         }
       });
 
-      scope.save = scope.onSave || function() {};
+      scope.saveTextarea = scope.onSave || function() {};
 
-      scope.reset = function() {
+      scope.resetTextarea = function() {
         controller.$setViewValue(oldValue);
         controller.$render();
       };
@@ -274,11 +274,126 @@ angular.module('linagora.esn.contact')
     return {
       scope: {
         ngModel: '=',
+        rows: '=',
+        placeholder: '@',
+        onSave: '=',
+        textareaClass: '@',
+        onBlur: '='
+      },
+      require: 'ngModel',
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/editable-textarea.html',
+      link: link
+    };
+  })
+  .directive('editableTagsInput', function($timeout) {
+    function link(scope, element, attrs, controller) {
+      var tagsInput = element.find('tags-input');
+      var oldValue;
+
+      tagsInput.bind('focus', function() {
+        oldValue = controller.$viewValue;
+      });
+
+      tagsInput.bind('blur', function() {
+        $timeout(function() {
+          scope.saveTagsInput();
+          if (oldValue !== controller.$viewValue) {
+            scope.saveTagsInput();
+          }
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+
+      tagsInput.bind('keydown', function(event) {
+        var escape = event.which === 27;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.resetTagsInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+      });
+
+      scope.saveTagsInput = scope.onSave || function() {};
+
+      scope.resetTagsInput = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        minLength: '=',
+        placeholder: '@',
         onSave: '=',
         onBlur: '='
       },
       require: 'ngModel',
-      restrict: 'A',
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/editable-tags-input.html',
+      link: link
+    };
+  })
+  .directive('datepickerInlineEditableInput', function($timeout) {
+    function link(scope, element, attrs, controller) {
+      var input = element.find('input');
+      var oldValue;
+
+      input.bind('focus', function() {
+        oldValue = controller.$viewValue;
+      });
+
+      input.bind('blur', function() {
+        $timeout(function() {
+          if (oldValue !== controller.$viewValue) {
+            scope.saveDatepickerInput();
+          }
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+
+      input.bind('keydown', function(event) {
+        var escape = event.which === 27;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.resetDatepickerInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+      });
+
+      scope.saveDatepickerInput = scope.onSave || function() {};
+
+      scope.resetDatepickerInput = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        type: '@',
+        placeholder: '@',
+        onSave: '=',
+        inputClass: '@',
+        onBlur: '=',
+        name: '@',
+        datepicker: '@',
+        datepickerDataStart: '=',
+        datepickerDataDateFormat: '@',
+        datepickerDataAutoclose: '='
+      },
+      require: 'ngModel',
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/datepicker-inline-editable-input.html',
       link: link
     };
   })
