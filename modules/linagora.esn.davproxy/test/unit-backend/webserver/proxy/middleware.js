@@ -9,6 +9,9 @@ describe('The proxy middleware', function() {
     auth: {
       token: {
       }
+    },
+    logger: {
+      error: function() {}
     }
   };
   var deps = function(name) {
