@@ -158,15 +158,26 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListItem directive', function() {
 
+    var self;
+
     beforeEach(function() {
 
       this.notificationFactory = {};
       this.contactsService = {};
-      var self = this;
+      this.gracePeriodService = {
+        grace: function() {
+          return {
+            then: function() {}
+          };
+        },
+        cancel: function() {}
+      };
 
+      self = this;
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('contactsService', self.contactsService);
+        $provide.value('gracePeriodService', self.gracePeriodService);
       });
     });
 
@@ -213,7 +224,6 @@ describe('The contact Angular module directives', function() {
           done();
         };
 
-        var self = this;
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
         var iscope = element.isolateScope();
@@ -257,6 +267,68 @@ describe('The contact Angular module directives', function() {
         iscope.deleteContact();
         this.scope.$digest();
         done(new Error());
+      });
+
+      it('should grace the request using the default delay on success', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+        this.gracePeriodService.grace = function(text, delay) {
+          expect(delay).to.not.exist;
+
+          done();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+      });
+
+      it('should cancel the request if the user cancels during the grace period', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.gracePeriodService.grace = function() {
+          return self.$q.reject();
+        };
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+        this.gracePeriodService.cancel = function(taskId) {
+          expect(taskId).to.equal('myTaskId');
+
+          done();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+      });
+
+      it('should broadcast contact:cancel:delete on successful cancellation of a request', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.gracePeriodService.grace = function() {
+          return self.$q.reject();
+        };
+        this.gracePeriodService.cancel = function() {
+          return self.$q.when();
+        };
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+
+        self.$rootScope.$on('contact:cancel:delete', function() {
+          done();
+        });
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
       });
     });
   });

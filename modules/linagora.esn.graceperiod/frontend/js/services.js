@@ -2,21 +2,64 @@
 
 angular.module('linagora.esn.graceperiod')
 
-  .factory('GracePeriodRestangular', function(Restangular) {
+  .factory('gracePeriodAPI', function(Restangular) {
     return Restangular.withConfig(function(RestangularConfigurer) {
       RestangularConfigurer.setBaseUrl('/graceperiod/api');
       RestangularConfigurer.setFullResponse(true);
     });
   })
 
-  .factory('gracePeriodService', ['GracePeriodRestangular', function(GracePeriodRestangular) {
-
+  .factory('gracePeriodService', function(gracePeriodAPI, notifyOfGracedRequest) {
     function cancel(id) {
-      return GracePeriodRestangular.one('tasks').one(id).remove();
+      return gracePeriodAPI.one('tasks').one(id).remove();
     }
 
     return {
+      grace: notifyOfGracedRequest,
       cancel: cancel
     };
+  })
 
-  }]);
+  .factory('notifyOfGracedRequest', function(GRACE_DELAY, notificationService, $q, $rootScope) {
+    var stack = {
+      dir1: 'up',
+      dir2: 'right',
+      spacing1: 10,
+      spacing2: 10
+    };
+
+    function appendCancelLink(text) {
+      return text + ' You can <a class="cancel-task">Cancel</a> this action.';
+    }
+
+    return function(text, delay) {
+      return $q(function(resolve, reject) {
+        var notification = notificationService.notify({
+          type: 'success',
+          text: appendCancelLink(text),
+          stack: stack,
+          addclass: 'graceperiod text-center',
+          animate_speed: 'normal',
+          width: false,
+          delay: delay || GRACE_DELAY,
+          styling: 'fontawesome',
+          buttons: {
+            sticker: false
+          },
+          after_close: function() {
+            $rootScope.$apply(function() {
+              resolve();
+            });
+          }
+        });
+
+        notification.get().find('a.cancel-task').click(function() {
+          $rootScope.$apply(function() {
+            reject();
+          });
+
+          notification.remove(false);
+        });
+      });
+    };
+  });

@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $q, scope, bookId = '123456789', contactsService,
-      notificationFactory, $location, $route, selectionService, $alert;
+      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService;
 
   beforeEach(function() {
     contactsService = {
@@ -22,7 +22,9 @@ describe('The Contacts Angular module', function() {
       weakError: function() {},
       weakInfo: function() {}
     };
-    $location = {};
+    $location = {
+      path: function() {}
+    };
     $route = {
       current: {
         params: {
@@ -36,6 +38,14 @@ describe('The Contacts Angular module', function() {
     $alert = {
       alert: function() {}
     };
+    gracePeriodService = {
+      grace: function() {
+        return {
+          then: function() {}
+        };
+      },
+      cancel: function() {}
+    };
 
     angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
@@ -47,6 +57,7 @@ describe('The Contacts Angular module', function() {
       $provide.value('selectionService', selectionService);
       $provide.value('$route', $route);
       $provide.value('$alert', function(options) { $alert.alert(options); });
+      $provide.value('gracePeriodService', gracePeriodService);
     });
   });
 
@@ -177,6 +188,43 @@ describe('The Contacts Angular module', function() {
 
           done();
         });
+        scope.$digest();
+      });
+
+      it('should grace the request using the default delay on success', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        gracePeriodService.grace = function(text, delay) {
+          expect(delay).to.not.exist;
+
+          done();
+        };
+
+        contactsService.create = function() {
+          return $q.when();
+        };
+
+        scope.accept();
+        scope.$digest();
+      });
+
+      it('should delete the contact if the user cancels during the rgace period', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        gracePeriodService.grace = function() {
+          return $q.reject();
+        };
+        contactsService.create = function() {
+          return $q.when();
+        };
+        contactsService.remove = function(id, contact) {
+          expect(id).to.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
+
+          done();
+        };
+
+        scope.accept();
         scope.$digest();
       });
 
@@ -380,6 +428,37 @@ describe('The Contacts Angular module', function() {
   });
 
   describe('The contactsListController controller', function() {
+
+    it('should add the contact to the list on delete cancellation', function(done) {
+      var contact = {
+        lastName: 'Last'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        },
+        AlphaCategoryService: function() {
+          return {
+            addItems: function(data) {
+              expect(data).to.deep.equal([contact]);
+
+              done();
+            },
+            get: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast('contact:cancel:delete', contact);
+      $rootScope.$digest();
+    });
 
     describe('The loadContacts function', function() {
 

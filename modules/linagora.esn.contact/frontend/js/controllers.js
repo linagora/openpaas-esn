@@ -37,7 +37,7 @@ angular.module('linagora.esn.contact')
       });
     };
   })
-  .controller('newContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm) {
+  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, gracePeriodService) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = {};
 
@@ -49,7 +49,11 @@ angular.module('linagora.esn.contact')
         }, function(err) {
           notificationFactory.weakError('Contact creation', err && err.message || 'Something went wrong');
         });
-      }).then(closeForm, displayError);
+      }).then(closeForm, displayError).then(function() {
+        return gracePeriodService.grace('You have just created a new contact.').then(null, function() {
+          return contactsService.remove($scope.bookId, $scope.contact);
+        });
+      });
     };
   })
   .controller('showContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
@@ -93,29 +97,33 @@ angular.module('linagora.esn.contact')
     $scope.showMenu = false;
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
+    function addItemsToCategories(data) {
+      $scope.categories.addItems(data);
+      $scope.sorted_contacts = $scope.categories.get();
+    }
+
     $scope.loadContacts = function() {
-      contactsService.list($scope.bookId).then(function(data) {
-        $scope.categories.addItems(data);
-        $scope.sorted_contacts = $scope.categories.get();
-      }, function(err) {
+      contactsService.list($scope.bookId).then(addItemsToCategories, function(err) {
         $log.error('Can not get contacts', err);
         displayError('Can not get contacts');
       });
 
-      $scope.openContactCreation = function() {
-        $location.path('/contact/new/' + $scope.bookId);
-      };
-
-      $scope.$on('contact:deleted', function(event, contact) {
-        $scope.categories.removeItem(contact);
-      });
+    };
+    $scope.openContactCreation = function() {
+      $location.path('/contact/new/' + $scope.bookId);
     };
 
-    $scope.loadContacts();
-
+    $scope.$on('contact:deleted', function(event, contact) {
+      $scope.categories.removeItem(contact);
+    });
+    $scope.$on('contact:cancel:delete', function(e, data) {
+      addItemsToCategories([data]);
+    });
     $scope.$on('ngRepeatFinished', function() {
       $scope.showMenu = true;
     });
+
+    $scope.loadContacts();
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {
