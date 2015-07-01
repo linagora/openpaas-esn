@@ -73,8 +73,8 @@ describe('The Calendar Angular module', function() {
 
     it('should initiate $scope.editedEvent with default values if $scope.event does not exists', function() {
       this.initDirective(this.$scope);
-      expect(this.moment(this.$scope.editedEvent.startDate).isSame(this.calendarUtils.getNewDate())).to.be.true;
-      expect(this.moment(this.$scope.editedEvent.endDate).isSame(this.calendarUtils.getNewEndDate())).to.be.true;
+      expect(this.moment(this.$scope.editedEvent.start).isSame(this.calendarUtils.getNewStartDate())).to.be.true;
+      expect(this.moment(this.$scope.editedEvent.end).isSame(this.calendarUtils.getNewEndDate())).to.be.true;
       expect(this.$scope.editedEvent.allDay).to.be.false;
     });
 

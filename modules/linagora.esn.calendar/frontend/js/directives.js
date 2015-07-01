@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventMessage', ['$rootScope', 'calendarService', 'session', 'moment', function($rootScope, calendarService, session, moment) {
+  .directive('eventMessage', ['calendarService', 'session', function(calendarService, session) {
     return {
       restrict: 'E',
       replace: true,
@@ -126,6 +126,7 @@ angular.module('esn.calendar')
         $scope.onStartDateChange = controller.onStartDateChange;
         $scope.onStartTimeChange = controller.onStartTimeChange;
         $scope.onEndTimeChange = controller.onEndTimeChange;
+        $scope.getMinTime = controller.getMinTime;
 
         $scope.getInvitableAttendees = function(query) {
           $scope.query = query;
@@ -159,6 +160,24 @@ angular.module('esn.calendar')
       };
     }
   ])
+  .directive('dateToMoment', function(moment) {
+    function link(scope, element, attrs, controller) {
+      function _toModel(value) {
+        return moment(value);
+      }
+
+      /**
+       * Ensure that we only are using moment type of date in hour code
+       */
+      controller.$parsers.unshift(_toModel);
+    }
+
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: link
+    };
+  })
   .directive('calendarNavbarLink', function() {
     return {
       restrict: 'E',

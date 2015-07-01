@@ -34,16 +34,13 @@ angular.module('esn.calendar')
       this.location = vevent.getFirstPropertyValue('location');
       this.description = vevent.getFirstPropertyValue('description');
       this.allDay = vevent.getFirstProperty('dtstart').type === 'date';
-      this.start = vevent.getFirstPropertyValue('dtstart').toJSDate();
-      this.end = vevent.getFirstPropertyValue('dtend').toJSDate();
-
-      var start = moment(this.start);
-      var end = moment(this.end);
-      this.formattedDate = start.format('MMMM D, YYYY');
-      this.formattedStartTime = start.format('h');
-      this.formattedStartA = start.format('a');
-      this.formattedEndTime = end.format('h');
-      this.formattedEndA = end.format('a');
+      this.start = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
+      this.end = moment(vevent.getFirstPropertyValue('dtend').toJSDate());
+      this.formattedDate = this.start.format('MMMM D, YYYY');
+      this.formattedStartTime = this.start.format('h');
+      this.formattedStartA = this.start.format('a');
+      this.formattedEndTime = this.end.format('h');
+      this.formattedEndA = this.end.format('a');
 
       var attendeesPerPartstat = this.attendeesPerPartstat = {};
       var attendees = this.attendees = [];
@@ -147,10 +144,8 @@ angular.module('esn.calendar')
       vevent.addPropertyWithValue('uid', uid);
       vevent.addPropertyWithValue('summary', shell.title);
 
-      var startDate = shell.startDate || shell.start.toDate();
-      var endDate = shell.endDate || shell.end.toDate();
-      var dtstart = ICAL.Time.fromJSDate(startDate);
-      var dtend = ICAL.Time.fromJSDate(endDate);
+      var dtstart = ICAL.Time.fromJSDate(shell.start.toDate());
+      var dtend = ICAL.Time.fromJSDate(shell.end.toDate());
 
       dtstart.isDate = shell.allDay;
       dtend.isDate = shell.allDay;
@@ -450,28 +445,33 @@ angular.module('esn.calendar')
     }
 
     /**
-     * Return a Date representing (the next hour) starting from Date.now()
+     * Return a moment representing (the next hour) starting from Date.now()
      */
-    function getNewDate() {
-      return moment().endOf('hour').add(1, 'seconds').toDate();
+    function getNewStartDate() {
+      return moment().endOf('hour').add(1, 'seconds');
     }
 
     /**
-     * Return a Date representing (the next hour + 1 hour) starting from Date.now()
+     * Return a moment representing (the next hour + 1 hour) starting from Date.now()
      */
     function getNewEndDate() {
-      return moment(getNewDate()).add(1, 'hours').toDate();
+      return getNewStartDate().add(1, 'hours');
     }
 
     /**
-     * Return true if startDate is the same day than endDate
-     * @param {Date} startDate
-     * @param {Date} endDate
+     * Return true if start is the same day than end
+     * @param {Date} start
+     * @param {Date} end
      */
-    function isSameDay(startDate, endDate) {
-      return moment(startDate).isSame(moment(endDate), 'day');
+    function isSameDay(start, end) {
+      return start.isSame(end, 'day');
     }
 
+    /**
+     * When selecting a single cell, ensure that the end date is 1 hours more than the start date at least.
+     * @param {Date} start
+     * @param {Date} end
+     */
     function getDateOnCalendarSelect(start, end) {
       if (end.diff(start, 'minutes') === 30) {
         var newStart = start.startOf('hour');
@@ -487,7 +487,7 @@ angular.module('esn.calendar')
       removeMailto: removeMailto,
       fullmailOf: fullmailOf,
       diplayNameOf: displayNameOf,
-      getNewDate: getNewDate,
+      getNewStartDate: getNewStartDate,
       getNewEndDate: getNewEndDate,
       isSameDay: isSameDay,
       getDateOnCalendarSelect: getDateOnCalendarSelect
