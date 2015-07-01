@@ -44,13 +44,11 @@ angular.module('linagora.esn.contact')
     $scope.close = closeForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
-        return contactsService.create($scope.bookId, $scope.contact).then(function() {
-          notificationFactory.weakInfo('Contact creation', 'Successfully created ' + $scope.contact.displayName);
-        }, function(err) {
+        return contactsService.create($scope.bookId, $scope.contact).then(null, function(err) {
           notificationFactory.weakError('Contact creation', err && err.message || 'Something went wrong');
         });
       }).then(closeForm, displayError).then(function() {
-        return gracePeriodService.grace('You have just created a new contact.').then(null, function() {
+        return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').').then(null, function() {
           return contactsService.remove($scope.bookId, $scope.contact);
         });
       });
