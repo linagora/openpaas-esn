@@ -28,15 +28,15 @@ angular.module('linagora.esn.graceperiod')
       spacing2: 10
     };
 
-    function appendCancelLink(text) {
-      return text + ' You can <a class="cancel-task">Cancel</a> this action.';
+    function appendCancelLink(text, linkText) {
+      return text + ' <a class="cancel-task">' + linkText + '</a>';
     }
 
-    return function(text, delay) {
+    return function(text, linkText, delay) {
       return $q(function(resolve, reject) {
         var notification = notificationService.notify({
           type: 'success',
-          text: appendCancelLink(text),
+          text: appendCancelLink(text, linkText),
           stack: stack,
           addclass: 'graceperiod text-center',
           animate_speed: 'normal',

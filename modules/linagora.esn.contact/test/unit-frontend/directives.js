@@ -255,7 +255,7 @@ describe('The contact Angular module directives', function() {
         this.contactsService.remove = function() {
           return self.$q.when('myTaskId');
         };
-        this.gracePeriodService.grace = function(text, delay) {
+        this.gracePeriodService.grace = function(text, linkText, delay) {
           expect(delay).to.not.exist;
 
           done();

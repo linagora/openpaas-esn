@@ -231,7 +231,7 @@ angular.module('linagora.esn.contact')
           contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function() {
             notificationFactory.weakError('Contact Delete', 'Can not delete contact');
           }).then(function(taskId) {
-            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').').then(null, function() {
+            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
               return gracePeriodService.cancel(taskId).then(function() {
                 $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
               });
