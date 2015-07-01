@@ -26,7 +26,7 @@ describe('The Calendar Angular module', function() {
               data: [
                 { firstname: 'first', lastname: 'last', emails: ['user1@test.com'] },
                 { emails: ['fist@last'] },
-                { firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] },
+                { firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] }
               ],
               domainId: domainId,
               query: query

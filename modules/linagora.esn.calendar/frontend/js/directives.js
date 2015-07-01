@@ -139,7 +139,7 @@ angular.module('esn.calendar')
                 return angular.extend(user, {
                   email: user.emails[0],
                   displayName: (user.firstname && user.lastname) ?
-                    calendarUtils.diplayNameOf(user.firstname, user.lastname):
+                    calendarUtils.diplayNameOf(user.firstname, user.lastname) :
                     user.emails[0]
                 });
               });
