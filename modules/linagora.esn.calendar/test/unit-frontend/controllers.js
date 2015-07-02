@@ -317,10 +317,9 @@ describe('The Calendar Angular module controllers', function() {
       });
     });
 
-    describe('the event:created ws event listener', function() {
+    describe('the ws event listener', function() {
 
-      var wsEventCreateListener;
-      var wsEventModifyListener;
+      var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener;
 
       beforeEach(function() {
         liveNotification = function(namespace) {
@@ -333,6 +332,9 @@ describe('The Calendar Angular module controllers', function() {
                   break;
                 case 'event:updated':
                   wsEventModifyListener = handler;
+                  break;
+                case 'event:deleted':
+                  wsEventDeleteListener = handler;
                   break;
               }
             }
@@ -389,6 +391,17 @@ describe('The Calendar Angular module controllers', function() {
         };
 
         wsEventModifyListener(newEvent);
+      });
+
+      it('should remove the event when receiving event:deleted', function(done) {
+        var event = {id: 'anId'};
+
+        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(wsevent, data) {
+          expect(wsevent).to.equal('removeEvents');
+          expect(data).to.equal(event.id);
+          done();
+        };
+        wsEventDeleteListener(event);
       });
     });
   });

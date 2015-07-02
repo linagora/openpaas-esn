@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The Calendar Angular module', function() {
+describe('The Calendar Angular module directives', function() {
 
   beforeEach(function() {
     var asSession = {

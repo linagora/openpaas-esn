@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The Calendar Angular module', function() {
+describe('The Calendar Angular module services', function() {
 
   describe('The calendarUtils service', function() {
     beforeEach(function() {
@@ -605,7 +605,9 @@ describe('The Calendar Angular module', function() {
         this.vcalendar = vcalendar;
         this.event = {
           id: '00000000-0000-4000-a000-000000000000',
-          title: 'test event'
+          title: 'test event',
+          start: moment(),
+          end: moment()
         };
 
         this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
@@ -628,6 +630,10 @@ describe('The Calendar Angular module', function() {
       it('should succeed on 204', function(done) {
         emitMessage = null;
         this.$httpBackend.expectDELETE('/path/to/00000000-0000-4000-a000-000000000000.ics').respond(204);
+        this.socketEmit = function(event, data) {
+          expect(event).to.equal('event:deleted');
+          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
+        };
 
         this.calendarService.remove('/path/to/', this.event).then(
           function(response) {

@@ -272,7 +272,7 @@ angular.module('esn.calendar')
           return $q.reject(response);
         }
         $rootScope.$emit('removedCalendarItem', event.id);
-
+        socket('/calendars').emit('event:deleted', shellToICAL(event));
         return response;
       });
     }
