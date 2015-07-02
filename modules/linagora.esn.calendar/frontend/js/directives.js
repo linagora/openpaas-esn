@@ -107,8 +107,8 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['$q', 'domainAPI', 'session',
-    function($q, domainAPI, session) {
+  .directive('eventForm', ['$q', 'domainAPI', 'calendarUtils', 'session',
+    function($q, domainAPI, calendarUtils, session) {
       function link($scope, element, attrs, controller) {
         controller.initFormData();
 
@@ -128,22 +128,23 @@ angular.module('esn.calendar')
         $scope.onEndTimeChange = controller.onEndTimeChange;
 
         $scope.getInvitableAttendees = function(query) {
-          $scope.query = query;
           var deferred = $q.defer();
+          $scope.query = query;
+
           domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
             function(response) {
-              response.data.forEach(function(user) {
-                user.email = user.emails[0];
-
-                if (user.firstname && user.lastname) {
-                  user.displayName = user.firstname + ' ' + user.lastname;
-                } else {
-                  user.displayName = user.email;
-                }
-
-                $scope.query = '';
+              var resolved = response.data.filter(function(user) {
+                return user.emails[0] !== session.user.emails[0];
+              }).map(function(user) {
+                return angular.extend(user, {
+                  email: user.emails[0],
+                  displayName: (user.firstname && user.lastname) ?
+                    calendarUtils.diplayNameOf(user.firstname, user.lastname) :
+                    user.emails[0]
+                });
               });
-              deferred.resolve(response);
+              $scope.query = '';
+              deferred.resolve(resolved);
             }, deferred.reject
           );
           return deferred.promise;
