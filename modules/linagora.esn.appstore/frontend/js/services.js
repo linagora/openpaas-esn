@@ -28,7 +28,7 @@ angular.module('esn.appstore')
       isDomainLevel: isDomainLevel
     };
   })
-  .factory('appstoreAPI', ['AppstoreRestangular', 'fileAPIService', function(AppstoreRestangular, fileAPIService) {
+  .factory('appstoreAPI', function(AppstoreRestangular, fileAPIService) {
 
     function get(id) {
       return AppstoreRestangular.one('apps', id).get();
@@ -85,4 +85,4 @@ angular.module('esn.appstore')
       uploadAvatar: uploadAvatar,
       uploadArtifact: uploadArtifact
     };
-  }]);
+  });

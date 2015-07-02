@@ -2,8 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', ['$rootScope', '$scope', '$alert', 'calendarUtils', 'calendarService', 'eventService', 'moment', 'notificationFactory', 'session', 'EVENT_FORM',
-    function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session, EVENT_FORM) {
+  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session, EVENT_FORM) {
       $scope.editedEvent = {};
       $scope.restActive = false;
 
@@ -167,20 +166,18 @@ angular.module('esn.calendar')
       this.onEndTimeChange = function() {
         $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
       };
-    }])
+    })
 
-  .controller('communityCalendarController', ['$scope', 'community', 'COMMUNITY_UI_CONFIG', function($scope, community, COMMUNITY_UI_CONFIG) {
+  .controller('communityCalendarController', function($scope, community, COMMUNITY_UI_CONFIG) {
     $scope.calendarId = community._id;
     $scope.uiConfig = COMMUNITY_UI_CONFIG;
-  }])
+  })
 
-  .controller('userCalendarController', ['$scope', 'user', 'USER_UI_CONFIG', function($scope, user, USER_UI_CONFIG) {
+  .controller('userCalendarController', function($scope, user, USER_UI_CONFIG) {
     $scope.calendarId = user._id;
     $scope.uiConfig = USER_UI_CONFIG;
-  }])
-
-  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource', 'livenotification',
-    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification) {
+  })
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification) {
       $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       var windowJQuery = angular.element($window);
@@ -272,4 +269,4 @@ angular.module('esn.calendar')
         sio.removeListener('event:created', liveNotificationHandlerOnCreate);
         sio.removeListener('event:updated', liveNotificationHandlerOnUpdate);
       });
-    }]);
+    });

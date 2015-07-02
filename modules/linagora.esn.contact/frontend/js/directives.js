@@ -9,7 +9,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
-  .controller('MultiInputGroupController', ['$scope', '$timeout', function($scope, $timeout) {
+  .controller('MultiInputGroupController', function($scope, $timeout) {
     function _updateTypes() {
       $scope.newItem.type = $scope.types[$scope.content.length % $scope.types.length];
     }
@@ -47,7 +47,7 @@ angular.module('linagora.esn.contact')
 
     $scope.content = [];
     $scope.newItem = {};
-  }])
+  })
   .directive('multiInputGroup', function() {
     return {
       restrict: 'E',
@@ -243,7 +243,7 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactPhoto', ['DEFAULT_AVATAR', function(DEFAULT_AVATAR) {
+  .directive('contactPhoto', function(DEFAULT_AVATAR) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-photo.html',
@@ -255,7 +255,7 @@ angular.module('linagora.esn.contact')
         $scope.defaultAvatar = DEFAULT_AVATAR;
       }
     };
-  }])
+  })
   .directive('relaxedDate', function(DATE_FORMAT, $dateParser, $dateFormatter) {
     return {
       restrict: 'A',

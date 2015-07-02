@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('esn.project')
-  .controller('projectController', ['$scope', 'projectService', 'session', 'project',
-    function($scope, projectService, session, project) {
+  .controller('projectController', function($scope, projectService, session, project) {
       $scope.project = project;
       $scope.streams = [];
 
@@ -19,9 +18,8 @@ angular.module('esn.project')
       };
 
       $scope.writable = $scope.canWrite();
-    }])
-  .controller('projectsController', ['$scope', '$log', '$location', 'projectAPI', 'domain', 'user',
-    function($scope, $log, $location, projectAPI, domain, user) {
+    })
+  .controller('projectsController', function($scope, $log, $location, projectAPI, domain, user) {
       $scope.projects = [];
       $scope.error = false;
       $scope.loading = false;
@@ -59,8 +57,8 @@ angular.module('esn.project')
       };
 
       $scope.getAll();
-  }])
-  .controller('projectsAStrackerController', ['$rootScope', '$scope', '$log', 'AStrackerHelpers', 'ASTrackerNotificationService', 'projectAPI', function($rootScope, $scope, $log, AStrackerHelpers, ASTrackerNotificationService, projectAPI) {
+  })
+  .controller('projectsAStrackerController', function($rootScope, $scope, $log, AStrackerHelpers, ASTrackerNotificationService, projectAPI) {
       $scope.activityStreams = ASTrackerNotificationService.streams;
       $scope.show = false;
       $scope.load = true;
@@ -87,9 +85,8 @@ angular.module('esn.project')
         $scope.load = false;
         $scope.show = tracked > 0;
       });
-  }])
-  .controller('projectMembersController', ['$scope', 'collaborationAPI', 'session', 'usSpinnerService',
-    function($scope, collaborationAPI, session, usSpinnerService) {
+  })
+  .controller('projectMembersController', function($scope, collaborationAPI, session, usSpinnerService) {
       var project_id = $scope.project._id;
       $scope.spinnerKey = 'membersSpinner';
 
@@ -143,4 +140,4 @@ angular.module('esn.project')
         }
       };
       $scope.init();
-    }]);
+    });

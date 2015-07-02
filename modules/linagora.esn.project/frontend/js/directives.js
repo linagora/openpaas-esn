@@ -3,7 +3,6 @@
 angular.module('esn.project')
 
 .directive('projectCreate',
-['WidgetWizard', 'selectionService', 'projectCreationService', '$timeout', '$location', '$alert', '$rootScope',
 function(WidgetWizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
   function link($scope, element, attrs) {
     $scope.wizard = new WidgetWizard([
@@ -82,8 +81,8 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
       },
       link: link
     };
-}])
-.directive('ensureUniqueProjectTitle', ['projectAPI', '$q', function(projectAPI, $q) {
+})
+.directive('ensureUniqueProjectTitle', function(projectAPI, $q) {
   return {
     require: 'ngModel',
     link: function($scope, element, attrs, ngModel) {
@@ -102,9 +101,8 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
       };
     }
   };
-}])
-  .directive('projectAddCommunitiesWidget', ['$q', 'projectAPI', 'notificationFactory',
-    function($q, projectAPI, notificationFactory) {
+})
+  .directive('projectAddCommunitiesWidget', function($q, projectAPI, notificationFactory) {
       return {
         restrict: 'E',
         replace: true,
@@ -167,7 +165,7 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
           };
         }
       };
-    }])
+    })
   .directive('projectDescription', function() {
     return {
       restrict: 'E',

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.appstore')
-  .controller('appstoreController', ['$scope', 'appstoreAPI', function($scope, appstoreAPI) {
+  .controller('appstoreController', function($scope, appstoreAPI) {
     $scope.loading = false;
     $scope.error = false;
 
@@ -17,12 +17,11 @@ angular.module('esn.appstore')
     };
 
     $scope.loadApplications();
-  }])
-  .controller('appstoreAppController', ['$scope', 'appstoreAPI', 'application', function($scope, appstoreAPI, application) {
+  })
+  .controller('appstoreAppController', function($scope, appstoreAPI, application) {
     $scope.application = application;
-  }])
-  .controller('appstoreAppSubmitController', ['$rootScope', '$scope', '$q', '$location', '$timeout', '$log', '$alert', 'session', 'appstoreAPI', '$upload', 'selectionService',
-    function($rootScope, $scope, $q, $location, $timeout, $log, $alert, session, appstoreAPI, $upload, selectionService) {
+  })
+  .controller('appstoreAppSubmitController', function($rootScope, $scope, $q, $location, $timeout, $log, $alert, session, appstoreAPI, $upload, selectionService) {
       selectionService.clear();
 
       var initScope = function() {
@@ -206,9 +205,8 @@ angular.module('esn.appstore')
           }
         );
       };
-    }
-  ])
-  .controller('communityAppstoreController', ['$scope', 'applications', 'community', function($scope, applications, community) {
+    })
+  .controller('communityAppstoreController', function($scope, applications, community) {
     $scope.applications = applications;
     $scope.community = community;
-  }]);
+  });

@@ -7,7 +7,7 @@ angular.module('esn.calendar')
       RestangularConfigurer.setFullResponse(true);
     });
   })
-  .factory('calendarEventSource', ['$log', 'calendarService', function($log, calendarService) {
+  .factory('calendarEventSource', function($log, calendarService) {
     return function(calendarId) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
@@ -15,10 +15,9 @@ angular.module('esn.calendar')
         return calendarService.list(path, start, end, timezone).then(callback);
       };
     };
-  }])
+  })
 
-  .factory('calendarService', ['$rootScope', '$q', '$http', 'CalendarRestangular', 'moment', 'jstz', 'tokenAPI', 'uuid4', 'calendarUtils', 'ICAL', 'ICAL_PROPERTIES', 'socket',
-    function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES, socket) {
+  .factory('calendarService', function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES, socket) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -343,9 +342,9 @@ angular.module('esn.calendar')
       timezoneLocal: timezoneLocal,
       getInvitedAttendees: getInvitedAttendees
     };
-  }])
+  })
 
-  .service('eventService', ['session', 'ICAL_PROPERTIES', 'ICAL', function(session, ICAL_PROPERTIES, ICAL) {
+  .service('eventService', function(session, ICAL_PROPERTIES, ICAL) {
     function render(event, element) {
       element.find('.fc-content').addClass('ellipsis');
 
@@ -408,7 +407,7 @@ angular.module('esn.calendar')
       copyEventObject: copyEventObject
     };
 
-  }])
+  })
 
   .service('calendarUtils', function(moment) {
     /**
