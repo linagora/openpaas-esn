@@ -3,10 +3,10 @@
 angular.module('esn.project')
 
 .directive('projectCreate',
-['widget.wizard', 'selectionService', 'projectCreationService', '$timeout', '$location', '$alert', '$rootScope',
-function(Wizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
+['WidgetWizard', 'selectionService', 'projectCreationService', '$timeout', '$location', '$alert', '$rootScope',
+function(WidgetWizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
   function link($scope, element, attrs) {
-    $scope.wizard = new Wizard([
+    $scope.wizard = new WidgetWizard([
       '/project/views/project-creation-wizard-1',
       '/project/views/project-creation-wizard-2',
       '/project/views/project-creation-wizard-3'

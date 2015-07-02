@@ -17,7 +17,7 @@ angular.module('esn.widget.helper', ['mgcrea.ngStrap.modal'])
     }
   };
 }])
-.factory('widget.wizard', function() {
+.factory('WidgetWizard', function() {
   function Wizard(steps) {
     var self = this;
     this.template = null;

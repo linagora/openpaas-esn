@@ -147,10 +147,10 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
   })
   .directive('communityCreate',
-  ['widget.wizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert', '$rootScope',
-  function(Wizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
+  ['WidgetWizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert', '$rootScope',
+  function(WidgetWizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
     function link($scope, element, attrs) {
-      $scope.wizard = new Wizard([
+      $scope.wizard = new WidgetWizard([
         '/views/modules/community/community-creation-wizard-1',
         '/views/modules/community/community-creation-wizard-2',
         '/views/modules/community/community-creation-wizard-3'

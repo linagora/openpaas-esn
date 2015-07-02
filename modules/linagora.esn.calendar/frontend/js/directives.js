@@ -76,10 +76,10 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
-  .directive('eventCreateQuickFormWizard', ['widget.wizard', '$rootScope',
-    function(Wizard, $rootScope) {
+  .directive('eventCreateQuickFormWizard', ['WidgetWizard', '$rootScope',
+    function(WidgetWizard, $rootScope) {
       function link($scope, element) {
-        $scope.wizard = new Wizard([
+        $scope.wizard = new WidgetWizard([
           '/calendar/views/partials/event-create-quick-form-wizard'
         ]);
         $rootScope.$on('modal.show', function() {
