@@ -263,8 +263,8 @@ describe('The Calendar Angular module', function() {
             expect(events[0].id).to.equal('myuid');
             expect(events[0].title).to.equal('title');
             expect(events[0].location).to.equal('location');
-            expect(events[0].start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
-            expect(events[0].end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+            expect(events[0].start.toDate().getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
+            expect(events[0].end.toDate().getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
             expect(events[0].vcalendar).to.be.an('object');
             expect(events[0].etag).to.be.empty;
             expect(events[0].path).to.be.empty;
@@ -305,8 +305,8 @@ describe('The Calendar Angular module', function() {
           expect(event.title).to.equal('title');
           expect(event.location).to.equal('location');
           expect(event.allDay).to.be.false;
-          expect(event.start.getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
-          expect(event.end.getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+          expect(event.start.toDate().getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
+          expect(event.end.toDate().getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
 
           expect(event.formattedDate).to.equal('January 1, 2014');
           expect(event.formattedStartTime).to.equal('2');
@@ -711,8 +711,8 @@ describe('The Calendar Angular module', function() {
 
       it('should correctly create an allday event', function() {
         var shell = {
-          startDate: new Date('2014-12-29T18:00:00'),
-          endDate: new Date('2014-12-30T19:00:00'),
+          start: moment(new Date(2014, 11, 29, 18, 0, 0)),
+          end: moment(new Date(2014, 11, 30, 19, 0, 0)),
           allDay: true,
           title: 'allday event',
           location: 'location',
@@ -829,8 +829,8 @@ describe('The Calendar Angular module', function() {
 
       it('should correctly create a non-allday event', function() {
         var shell = {
-          startDate: new Date(2014, 11, 29, 18, 0, 0),
-          endDate: new Date(2014, 11, 29, 19, 0, 0),
+          start: moment(new Date(2014, 11, 29, 18, 0, 0)),
+          end: moment(new Date(2014, 11, 29, 19, 0, 0)),
           allDay: false,
           title: 'non-allday event'
         };

@@ -15,7 +15,7 @@ describe('The Calendar Angular module controllers', function() {
     event = {};
 
     var calendarUtilsMock = {
-      getNewDate: function() {
+      getNewStartDate: function() {
         return newDate;
       },
       getNewEndDate: function() {
@@ -125,8 +125,8 @@ describe('The Calendar Angular module controllers', function() {
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.eventFormController.initFormData();
         var expected = {
-          startDate: newDate,
-          endDate: newEndDate,
+          start: newDate,
+          end: newEndDate,
           allDay: false
         };
         expect(this.scope.editedEvent).to.deep.equal(expected);

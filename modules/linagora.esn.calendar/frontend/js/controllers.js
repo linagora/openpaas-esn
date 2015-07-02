@@ -15,8 +15,8 @@ angular.module('esn.calendar')
         $scope.event = $scope.event || {};
         if (this.isNew($scope.event)) {
           $scope.event = {
-            startDate: $scope.event.startDate || calendarUtils.getNewDate(),
-            endDate: $scope.event.endDate || calendarUtils.getNewEndDate(),
+            start: $scope.event.start || calendarUtils.getNewStartDate(),
+            end: $scope.event.end || calendarUtils.getNewEndDate(),
             allDay: $scope.event.allDay || false
           };
         }
@@ -105,9 +105,6 @@ angular.module('esn.calendar')
         }
         var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
 
-        $scope.editedEvent.start = moment($scope.editedEvent.startDate);
-        $scope.editedEvent.end = moment($scope.editedEvent.endDate);
-
         if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
           if ($scope.createModal) {
             $scope.createModal.hide();
@@ -135,72 +132,40 @@ angular.module('esn.calendar')
       this.resetEvent = function() {
         $scope.rows = 1;
         $scope.editedEvent = {
-          startDate: calendarUtils.getNewDate(),
-          endDate: calendarUtils.getNewEndDate(),
+          start: calendarUtils.getNewStartDate(),
+          end: calendarUtils.getNewEndDate(),
           diff: 1,
           allDay: false
         };
       };
 
       this.getMinDate = function() {
-        if ($scope.editedEvent.startDate) {
-          var date = new Date($scope.editedEvent.startDate.getTime());
-          date.setDate($scope.editedEvent.startDate.getDate() - 1);
-          return date;
+        if ($scope.editedEvent.start) {
+          return moment($scope.editedEvent.start).subtract(1, 'days');
         }
         return null;
       };
 
-      this.onAllDayChecked = function() {
-        if ($scope.editedEvent.allDay) {
-          if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
-            $scope.editedEvent.endDate = moment($scope.editedEvent.startDate).add(1, 'days').toDate();
-          }
-        } else {
-          $scope.editedEvent.endDate = $scope.editedEvent.startDate;
-        }
+      this.getMinTime = function() {
+        return $scope.editedEvent.start || null;
       };
 
       this.onStartDateChange = function() {
-        var startDate = moment($scope.editedEvent.startDate);
-        var endDate = moment($scope.editedEvent.endDate);
-        if (startDate.isAfter(endDate)) {
-          startDate.add(1, 'hours');
-          $scope.editedEvent.endDate = startDate.toDate();
+        if ($scope.editedEvent.start.isAfter($scope.editedEvent.end)) {
+          $scope.editedEvent.end = moment($scope.editedEvent.start).add(1, 'hours');
         }
       };
 
       this.onStartTimeChange = function() {
-        if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
-          var startDate = moment($scope.editedEvent.startDate);
-          var endDate = moment($scope.editedEvent.endDate);
-          $scope.editedEvent.diff = endDate.diff(endDate, 'hours');
-
-          if (startDate.isAfter(endDate) || startDate.isSame(endDate)) {
-            startDate.add($scope.editedEvent.diff || 1, 'hours');
-            $scope.editedEvent.endDate = startDate.toDate();
-          } else {
-            endDate = moment(startDate);
-            endDate.add($scope.editedEvent.diff || 1, 'hours');
-            $scope.editedEvent.endDate = endDate.toDate();
-          }
+        var start = $scope.editedEvent.start;
+        var end = $scope.editedEvent.end;
+        if (start.isAfter(end) || start.isSame(end)) {
+          $scope.editedEvent.end = moment(start).add($scope.editedEvent.diff * 1000 || 3600, 'seconds');
         }
       };
 
       this.onEndTimeChange = function() {
-        if (calendarUtils.isSameDay($scope.editedEvent.startDate, $scope.editedEvent.endDate)) {
-          var startDate = moment($scope.editedEvent.startDate);
-          var endDate = moment($scope.editedEvent.endDate);
-
-          if (endDate.isAfter(startDate)) {
-            $scope.editedEvent.diff = $scope.editedEvent.endDate.getHours() - $scope.editedEvent.startDate.getHours();
-          } else {
-            $scope.editedEvent.diff = 1;
-            endDate = moment(startDate);
-            endDate.add($scope.editedEvent.diff, 'hours');
-            $scope.editedEvent.endDate = endDate.toDate();
-          }
-        }
+        $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
       };
     }])
 
@@ -227,8 +192,6 @@ angular.module('esn.calendar')
 
       $scope.eventClick = function(event) {
         $scope.event = event;
-        $scope.event.startDate = event.start.toDate();
-        $scope.event.endDate = event.end.toDate();
         $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
 
@@ -262,8 +225,8 @@ angular.module('esn.calendar')
       $scope.uiConfig.calendar.select = function(start, end) {
         var date = calendarUtils.getDateOnCalendarSelect(start, end);
         $scope.event = {
-          startDate: date.start.toDate(),
-          endDate: date.end.toDate(),
+          start: date.start,
+          end: date.end,
           allDay: !start.hasTime(end)
         };
         $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
