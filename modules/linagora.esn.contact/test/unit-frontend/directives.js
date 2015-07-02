@@ -158,15 +158,26 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListItem directive', function() {
 
+    var self;
+
     beforeEach(function() {
 
       this.notificationFactory = {};
       this.contactsService = {};
-      var self = this;
+      this.gracePeriodService = {
+        grace: function() {
+          return {
+            then: function() {}
+          };
+        },
+        cancel: function() {}
+      };
 
+      self = this;
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('contactsService', self.contactsService);
+        $provide.value('gracePeriodService', self.gracePeriodService);
       });
     });
 
@@ -204,57 +215,19 @@ describe('The contact Angular module directives', function() {
 
     describe('the deleteContact function', function() {
 
-      it('should call contactsService.remove()', function(done) {
+      it('should call contactsService.remove() with the correct bookId and contact', function(done) {
 
-        this.contactsService.remove = done();
+        this.contactsService.remove = function(bookId, contact) {
+          expect(bookId).to.equal(self.scope.bookId);
+          expect(contact).to.deep.equal(self.scope.contact);
 
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        var iscope = element.isolateScope();
-        iscope.deleteContact();
-        done(new Error());
-      });
-
-      it('should call $scope.$emit when remove is ok', function(done) {
-        var self = this;
-        this.notificationFactory.weakInfo = function() {};
-
-        var defer = this.$q.defer();
-        defer.resolve();
-        this.contactsService.remove = function() {
-          return defer.promise;
-        };
-
-        this.scope.$on('contact:deleted', function(event, data) {
-          expect(data).to.deep.equal(self.scope.contact);
-          done();
-        });
-
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
-        var iscope = element.isolateScope();
-        iscope.deleteContact();
-        this.scope.$digest();
-
-        done(new Error());
-      });
-
-      it('should display notification when on remove success', function(done) {
-        this.notificationFactory.weakInfo = function() {
           done();
         };
 
-        var defer = this.$q.defer();
-        defer.resolve();
-        this.contactsService.remove = function() {
-          return defer.promise;
-        };
-
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
         var iscope = element.isolateScope();
         iscope.deleteContact();
-        this.scope.$digest();
         done(new Error());
       });
 
@@ -275,6 +248,68 @@ describe('The contact Angular module directives', function() {
         iscope.deleteContact();
         this.scope.$digest();
         done(new Error());
+      });
+
+      it('should grace the request using the default delay on success', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+        this.gracePeriodService.grace = function(text, linkText, delay) {
+          expect(delay).to.not.exist;
+
+          done();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+      });
+
+      it('should cancel the request if the user cancels during the grace period', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.gracePeriodService.grace = function() {
+          return self.$q.reject();
+        };
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+        this.gracePeriodService.cancel = function(taskId) {
+          expect(taskId).to.equal('myTaskId');
+
+          done();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+      });
+
+      it('should broadcast contact:cancel:delete on successful cancellation of a request', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.gracePeriodService.grace = function() {
+          return self.$q.reject();
+        };
+        this.gracePeriodService.cancel = function() {
+          return self.$q.when();
+        };
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+
+        self.$rootScope.$on('contact:cancel:delete', function() {
+          done();
+        });
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
       });
     });
   });

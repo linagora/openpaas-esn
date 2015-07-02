@@ -19,6 +19,20 @@ angular.module('linagora.esn.contact')
       $location.path('/contact');
     };
   })
+  .factory('openContactForm', function($location, sharedDataService) {
+    return function(bookId, contact) {
+      if (contact) {
+        sharedDataService.contact = contact;
+      }
+
+      $location.path('/contact/new/' + bookId);
+    };
+  })
+  .factory('sharedDataService', function() {
+    return {
+      contact: {}
+    };
+  })
   .factory('sendContactToBackend', function($location, ContactsHelper, $q) {
     return function($scope, sendRequest) {
       if ($scope.calling) {
@@ -37,20 +51,26 @@ angular.module('linagora.esn.contact')
       });
     };
   })
-  .controller('newContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm) {
+  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, gracePeriodService, openContactForm, sharedDataService) {
     $scope.bookId = $route.current.params.bookId;
-    $scope.contact = {};
+    $scope.contact = sharedDataService.contact;
 
     $scope.close = closeForm;
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
-        return contactsService.create('/addressbooks/' + $scope.bookId + '/contacts', contactsService.shellToVCARD($scope.contact)).then(function() {
-          notificationFactory.weakInfo('Contact creation', 'Successfully created ' + $scope.contact.displayName);
-        }, function(err) {
+        return contactsService.create($scope.bookId, $scope.contact).then(null, function(err) {
           notificationFactory.weakError('Contact creation', err && err.message || 'Something went wrong');
         });
-      }).then(closeForm, displayError);
+      }).then(closeForm, displayError).then(function() {
+        return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition').then(null, function() {
+          contactsService.remove($scope.bookId, $scope.contact).then(function() {
+            openContactForm($scope.bookId, $scope.contact);
+          });
+        });
+      });
     };
+
+    sharedDataService.contact = {};
   })
   .controller('showContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
@@ -60,7 +80,7 @@ angular.module('linagora.esn.contact')
     $scope.close = closeForm;
     $scope.modify = function() {
       return sendContactToBackend($scope, function() {
-        return contactsService.modify($scope.contact.path, contactsService.shellToVCARD($scope.contact), $scope.contact.etag).then(function(contact) {
+        return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
           notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + contact.displayName);
           $scope.contact = contact;
 
@@ -78,13 +98,13 @@ angular.module('linagora.esn.contact')
       return $scope.modify().then(closeForm);
     };
 
-    contactsService.getCard('/addressbooks/' + $scope.bookId + '/contacts/' + $scope.cardId + '.vcf').then(function(card) {
+    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
     }, function() {
       displayError('Cannot get contact details');
     });
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm) {
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
@@ -93,30 +113,33 @@ angular.module('linagora.esn.contact')
     $scope.showMenu = false;
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
+    function addItemsToCategories(data) {
+      $scope.categories.addItems(data);
+      $scope.sorted_contacts = $scope.categories.get();
+    }
+
     $scope.loadContacts = function() {
-      var path = '/addressbooks/' + $scope.bookId + '/contacts.json';
-      contactsService.list(path).then(function(data) {
-        $scope.categories.addItems(data);
-        $scope.sorted_contacts = $scope.categories.get();
-      }, function(err) {
+      contactsService.list($scope.bookId).then(addItemsToCategories, function(err) {
         $log.error('Can not get contacts', err);
         displayError('Can not get contacts');
       });
 
-      $scope.openContactCreation = function() {
-        $location.path('/contact/new/' + $scope.bookId);
-      };
-
-      $scope.$on('contact:deleted', function(event, contact) {
-        $scope.categories.removeItem(contact);
-      });
+    };
+    $scope.openContactCreation = function() {
+      openContactForm($scope.bookId);
     };
 
-    $scope.loadContacts();
-
+    $scope.$on('contact:deleted', function(event, contact) {
+      $scope.categories.removeItem(contact);
+    });
+    $scope.$on('contact:cancel:delete', function(e, data) {
+      addItemsToCategories([data]);
+    });
     $scope.$on('ngRepeatFinished', function() {
       $scope.showMenu = true;
     });
+
+    $scope.loadContacts();
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {

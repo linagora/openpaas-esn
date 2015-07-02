@@ -24,6 +24,7 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('graceperiod', ['graceperiod.js', 'services.js'], 'linagora.esn.graceperiod', ['esn']);
+      webserverWrapper.injectCSS('graceperiod', ['styles.css'], 'esn');
       webserverWrapper.addApp('graceperiod', app);
 
       return callback();

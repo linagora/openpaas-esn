@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact', [
   'restangular', 'esn.alphalist', 'mgcrea.ngStrap.datepicker', 'mgcrea.ngStrap.alert', 'uuid4',
-  'mgcrea.ngStrap.helpers.dateParser', 'mgcrea.ngStrap.helpers.dateFormatter'
+  'mgcrea.ngStrap.helpers.dateParser', 'mgcrea.ngStrap.helpers.dateFormatter', 'linagora.esn.graceperiod'
 ])
   .constant('DATE_FORMAT', 'MM/dd/yyyy')
   .config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {

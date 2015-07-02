@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $q, scope, bookId = '123456789', contactsService,
-      notificationFactory, $location, $route, selectionService, $alert;
+      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService;
 
   beforeEach(function() {
     contactsService = {
@@ -22,7 +22,9 @@ describe('The Contacts Angular module', function() {
       weakError: function() {},
       weakInfo: function() {}
     };
-    $location = {};
+    $location = {
+      path: function() {}
+    };
     $route = {
       current: {
         params: {
@@ -36,6 +38,14 @@ describe('The Contacts Angular module', function() {
     $alert = {
       alert: function() {}
     };
+    gracePeriodService = {
+      grace: function() {
+        return {
+          then: function() {}
+        };
+      },
+      cancel: function() {}
+    };
 
     angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
@@ -47,13 +57,15 @@ describe('The Contacts Angular module', function() {
       $provide.value('selectionService', selectionService);
       $provide.value('$route', $route);
       $provide.value('$alert', function(options) { $alert.alert(options); });
+      $provide.value('gracePeriodService', gracePeriodService);
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _sharedDataService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $q = _$q_;
+    sharedDataService = _sharedDataService_;
 
     scope = $rootScope.$new();
     scope.contact = {};
@@ -65,6 +77,35 @@ describe('The Contacts Angular module', function() {
       $controller('newContactController', {
         $scope: scope
       });
+    });
+
+    it('should initialize $scope.contact to an already existing one when defined', function() {
+      var scope = {},
+          contact = {lastName: 'Last'};
+
+      $controller('newContactController', {
+        $scope: scope,
+        sharedDataService: {
+          contact: contact
+        }
+      });
+
+      expect(scope.contact).to.deep.equal(contact);
+    });
+
+    it('should clear sharedDataService.contact after initialization', function() {
+      var scope = {},
+          contact = {lastName: 'Last'},
+          sharedDataService = {
+            contact: contact
+          };
+
+      $controller('newContactController', {
+        $scope: scope,
+        sharedDataService: sharedDataService
+      });
+
+      expect(sharedDataService.contact).to.deep.equal({});
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
@@ -106,11 +147,11 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
       });
 
-      it('should call contactsService.create with right path and card', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
-        contactsService.create = function(path, card) {
-          expect(path).to.deep.equal('/addressbooks/' + bookId + '/contacts');
-          expect(card).to.deep.equal(scope.contact);
+      it('should call contactsService.create with right bookId and contact', function(done) {
+        scope.contact = { firstName: 'Foo', lastName: 'Bar' };
+        contactsService.create = function(id, contact) {
+          expect(id).to.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
 
           done();
         };
@@ -177,6 +218,67 @@ describe('The Contacts Angular module', function() {
 
           done();
         });
+        scope.$digest();
+      });
+
+      it('should grace the request using the default delay on success', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        gracePeriodService.grace = function(text, linkText, delay) {
+          expect(delay).to.not.exist;
+
+          done();
+        };
+
+        contactsService.create = function() {
+          return $q.when();
+        };
+
+        scope.accept();
+        scope.$digest();
+      });
+
+      it('should delete the contact if the user cancels during the grace period', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        gracePeriodService.grace = function() {
+          return $q.reject();
+        };
+        contactsService.create = function() {
+          return $q.when();
+        };
+        contactsService.remove = function(id, contact) {
+          expect(id).to.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
+
+          done();
+        };
+
+        scope.accept();
+        scope.$digest();
+      });
+
+      it('should go back to the editing form if the user cancels during the grace period, saving the contact', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar', title: 'PDG'};
+
+        gracePeriodService.grace = function() {
+          return $q.reject();
+        };
+        contactsService.create = function() {
+          return $q.when();
+        };
+        contactsService.remove = function(id, contact) {
+          $location.path = function(path) {
+            expect(path).to.equal('/contact/new/' + bookId);
+            expect(sharedDataService.contact).to.deep.equal(scope.contact);
+
+            done();
+          };
+
+          return $q.when();
+        };
+
+        scope.accept();
         scope.$digest();
       });
 
@@ -279,11 +381,11 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
       });
 
-      it('should call contactsService.modify with right path and card', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar', path: '/addressbooks/' + bookId + '/contacts/1'};
-        contactsService.modify = function(path, card) {
-          expect(path).to.deep.equal('/addressbooks/' + bookId + '/contacts/1');
-          expect(card).to.deep.equal(scope.contact);
+      it('should call contactsService.modify with right bookId and contact', function(done) {
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        contactsService.modify = function(id, contact) {
+          expect(id).to.deep.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
 
           done();
         };
@@ -381,13 +483,44 @@ describe('The Contacts Angular module', function() {
 
   describe('The contactsListController controller', function() {
 
+    it('should add the contact to the list on delete cancellation', function(done) {
+      var contact = {
+        lastName: 'Last'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        },
+        AlphaCategoryService: function() {
+          return {
+            addItems: function(data) {
+              expect(data).to.deep.equal([contact]);
+
+              done();
+            },
+            get: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast('contact:cancel:delete', contact);
+      $rootScope.$digest();
+    });
+
     describe('The loadContacts function', function() {
 
       it('should call the contactsService.list fn', function(done) {
         var user = {_id: 123};
         var contactsService = {
-          list: function(path) {
-            expect(path).to.equal('/addressbooks/' + user._id + '/contacts.json');
+          list: function(bookId) {
+            expect(bookId).to.equal(user._id);
             done();
           }
         };
@@ -433,21 +566,16 @@ describe('The Contacts Angular module', function() {
           _id: 123
         };
 
-        var location = {
-          path: function(url) {
-            expect(url).to.equal('/contact/new/' + user._id);
-            done();
-          }
+        $location.path = function(url) {
+          expect(url).to.equal('/contact/new/' + user._id);
+          done();
         };
 
         $controller('contactsListController', {
           $scope: scope,
-          $location: location,
           contactsService: {
             list: function() {
-              var defer = $q.defer();
-              defer.resolve({});
-              return defer.promise;
+              return $q.when({});
             }
           },
           user: user

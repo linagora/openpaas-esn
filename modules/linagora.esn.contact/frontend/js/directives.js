@@ -207,7 +207,7 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', ['contactsService', 'notificationFactory', function(contactsService, notificationFactory) {
+  .directive('contactListItem', function($rootScope, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -228,17 +228,19 @@ angular.module('linagora.esn.contact')
         $scope.tel = getFirstValue('tel');
 
         $scope.deleteContact = function() {
-          var path = '/addressbooks/' + $scope.bookId + '/contacts';
-          contactsService.remove(path, $scope.contact).then(function() {
-            $scope.$emit('contact:deleted', $scope.contact);
-            notificationFactory.weakInfo('Contact Delete', 'Successfully deleted contact');
-          }, function() {
+          contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function() {
             notificationFactory.weakError('Contact Delete', 'Can not delete contact');
+          }).then(function(taskId) {
+            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
+              return gracePeriodService.cancel(taskId).then(function() {
+                $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
+              });
+            });
           });
         };
       }
     };
-  }])
+  })
   .directive('contactPhoto', ['DEFAULT_AVATAR', function(DEFAULT_AVATAR) {
     return {
       restrict: 'E',
