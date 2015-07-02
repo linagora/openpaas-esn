@@ -69,7 +69,7 @@
     "toobusy-js": "~0.3.0",
     "trim": "0.0.1",
     "valid-url": "^1.0.9",
-    "winston": "~0.7.2",
+    "winston": "1.0.1",
     "xml2js": "^0.4.3"
   },
   "devDependencies": {
