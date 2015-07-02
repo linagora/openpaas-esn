@@ -13,11 +13,11 @@
     resolver: 'yql'
   };
 
-  deezer.run(['oembedRegistry', function(oembedRegistry) {
+  deezer.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  deezer.directive('deezerOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  deezer.directive('deezerOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -37,5 +37,5 @@
         );
       }
     };
-  }]);
+  });
 })();

@@ -13,11 +13,11 @@
     resolver: 'yql'
   };
 
-  slideshare.run(['oembedRegistry', function(oembedRegistry) {
+  slideshare.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  slideshare.directive('slideshareOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  slideshare.directive('slideshareOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -37,5 +37,5 @@
         );
       }
     };
-  }]);
+  });
 })();

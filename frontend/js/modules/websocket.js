@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socketio'])
-  .factory('IoAction', ['$timeout', '$log', function($timeout, $log) {
+  .factory('IoAction', function($timeout, $log) {
     function getNgCallback(callback) {
       return function() {
         var args = arguments;
@@ -119,8 +119,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     };
 
     return IoAction;
-  }])
-  .factory('ioInterface', ['IoAction', function(IoAction) {
+  })
+  .factory('ioInterface', function(IoAction) {
     function ioInterface(callback) {
 
       var ioAction = new IoAction();
@@ -170,7 +170,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     return ioInterface;
-  }])
+  })
   .factory('ioOfflineBuffer', function() {
     var buffer = [];
     var subscriptions = [];
@@ -218,7 +218,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       flushBuffer: flushBuffer
     };
   })
-  .factory('ioSocketConnection', ['$log', 'io', function($log, io) {
+  .factory('ioSocketConnection', function($log, io) {
     var firstConnection = true;
     var connected = false;
     var sio = null;
@@ -290,9 +290,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         return io()(namespace);
       }
     };
-  }])
-  .factory('ioSocketProxy', ['$log', 'ioSocketConnection', 'ioInterface', 'ioOfflineBuffer',
-  function($log, ioSocketConnection, ioInterface, ioOfflineBuffer) {
+  })
+  .factory('ioSocketProxy', function($log, ioSocketConnection, ioInterface, ioOfflineBuffer) {
 
     function _handleConnectedAction(action) {
       action.applyToSocketIO(ioSocketConnection, ioOfflineBuffer);
@@ -319,9 +318,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     return function() {
       return ioInterface(onSocketAction);
     };
-  }])
-  .factory('ioConnectionManager', ['ioSocketConnection', 'tokenAPI', '$log', 'session', '$timeout', 'ioOfflineBuffer', 'io',
-  function(ioSocketConnection, tokenAPI, $log, session, $timeout, ioOfflineBuffer, io) {
+  })
+  .factory('ioConnectionManager', function(ioSocketConnection, tokenAPI, $log, session, $timeout, ioOfflineBuffer, io) {
 
     function _disconnectOld() {
       var oldSio = ioSocketConnection.getSio();
@@ -375,9 +373,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     return {
       connect: _connect
     };
-  }])
-  .factory('socket', ['$log', 'ioSocketProxy', 'ioConnectionManager',
-  function($log, ioSocketProxy, ioConnectionManager) {
+  })
+  .factory('socket', function($log, ioSocketProxy, ioConnectionManager) {
     return function(namespace) {
       var io = ioSocketProxy();
       if (namespace) {
@@ -385,8 +382,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       }
       return io;
     };
-  }])
-  .factory('socketIORoom', ['$log', function($log) {
+  })
+  .factory('socketIORoom', function($log) {
 
     return function(namespace, room, client) {
       var subscriptions = {};
@@ -464,9 +461,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         }
       };
     };
-  }])
-  .factory('livenotification', ['$log', 'socket', 'socketIORoom', 'ioSocketConnection',
-  function($log, socket, socketIORoom, ioSocketConnection) {
+  })
+  .factory('livenotification', function($log, socket, socketIORoom, ioSocketConnection) {
     var socketCache = {};
 
     ioSocketConnection.addReconnectCallback(function() {
@@ -490,4 +486,4 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       }
       return socketCache[namespace + '/' + room];
     };
-}]);
+});

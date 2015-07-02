@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.domain', ['restangular', 'ngTagsInput'])
-  .factory('domainAPI', ['Restangular', function(Restangular) {
+  .factory('domainAPI', function(Restangular) {
 
     /**
      * Get the list of members of a domain.
@@ -49,7 +49,7 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
       isManager: isManager,
       get: get
     };
-  }])
+  })
   .directive('inviteMembersInput', function(domainAPI) {
     return {
       restrict: 'E',
@@ -110,6 +110,6 @@ angular.module('esn.domain', ['restangular', 'ngTagsInput'])
       }
     };
   })
-  .controller('inviteMembers', ['$scope', 'domain', function($scope, domain) {
+  .controller('inviteMembers', function($scope, domain) {
     $scope.domain = domain;
-  }]);
+  });

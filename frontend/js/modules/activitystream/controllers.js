@@ -2,13 +2,12 @@
 
 angular.module('esn.activitystream')
 .controller('activitystreamController',
-  ['$rootScope', '$scope', 'activitystreamAggregatorCreator', 'usSpinnerService', '$alert', 'activityStreamUpdates', 'activitystreamHelper',
-  function($rootScope, $scope, aggregatorService,  usSpinnerService, alert, activityStreamUpdates, activitystreamHelper) {
+  function($rootScope, $scope, activitystreamAggregatorCreator,  usSpinnerService, $alert, activityStreamUpdates, activitystreamHelper) {
 
     var spinnerKey = 'activityStreamSpinner', aggregator;
 
     $scope.displayError = function(err) {
-      alert({
+      $alert({
         content: err,
         type: 'danger',
         show: true,
@@ -75,7 +74,7 @@ angular.module('esn.activitystream')
         return;
       }
       if (!aggregator) {
-        aggregator = aggregatorService($scope.activitystream, $scope.streams, 25);
+        aggregator = activitystreamAggregatorCreator($scope.activitystream, $scope.streams, 25);
       }
       if (!aggregator.endOfStream) {
         updateMessageList();
@@ -94,5 +93,5 @@ angular.module('esn.activitystream')
         $scope.getStreamUpdates(data.activitystreamUuid);
       }
     });
-  }]
+  }
 );

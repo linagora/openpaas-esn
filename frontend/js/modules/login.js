@@ -70,7 +70,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
       return loginErrorService.getError() && $location.path() !== '/' && !$scope.loginTask.running && !$scope.loginIn;
     };
   })
-  .factory('loginAPI', ['Restangular', function(Restangular) {
+  .factory('loginAPI', function(Restangular) {
 
     function login(credentials) {
       return Restangular.all('login').post(credentials);
@@ -80,7 +80,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
       login: login
     };
 
-  }])
+  })
   .service('loginErrorService', function($rootScope, $location) {
     this.data = {};
 

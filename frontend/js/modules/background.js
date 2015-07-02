@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.background', [])
-  .service('backgroundProcessorService', ['$log', '$q', function($log, $q) {
+  .service('backgroundProcessorService', function($log, $q) {
 
     var tasks = [];
 
@@ -32,4 +32,4 @@ angular.module('esn.background', [])
       add: add,
       tasks: tasks
     };
-  }]);
+  });

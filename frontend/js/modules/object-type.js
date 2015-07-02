@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('esn.object-type', [])
-  .run(['objectTypeResolver', '$q', function(objectTypeResolver, $q) {
+  .run(function(objectTypeResolver, $q) {
     objectTypeResolver.register('string', function(id) {
       var defer = $q.defer();
       defer.resolve(id);
       return defer.promise;
     });
-  }])
+  })
   .factory('objectTypeAdapter', function() {
 
     var adapters = {};
@@ -48,7 +48,7 @@ angular.module('esn.object-type', [])
       adapt: adapt
     };
   })
-  .factory('objectTypeResolver', ['$q', function($q) {
+  .factory('objectTypeResolver', function($q) {
 
     var resolvers = {};
 
@@ -97,4 +97,4 @@ angular.module('esn.object-type', [])
       register: register,
       resolve: resolve
     };
-  }]);
+  });

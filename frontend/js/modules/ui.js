@@ -9,7 +9,7 @@ angular.module('esn.ui', [])
     create: 'mdi-content-add'
   })
 
-  .directive('fab', ['FAB_TYPES', 'DEFAULT_FAB_TYPE', function(FAB_TYPES, DEFAULT_FAB_TYPE) {
+  .directive('fab', function(FAB_TYPES, DEFAULT_FAB_TYPE) {
     return {
       scope: {
         onClick: '&',
@@ -25,4 +25,4 @@ angular.module('esn.ui', [])
         };
       }
     };
-  }]);
+  });

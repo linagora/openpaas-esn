@@ -43,7 +43,7 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
     };
   })
 
-  .controller('profileEditionController', ['$scope', 'profileAPI', 'editableOptions', function($scope, profileAPI, editableOptions) {
+  .controller('profileEditionController', function($scope, profileAPI, editableOptions) {
     //theming for yes/no buttons in field modification confirmation
     editableOptions.theme = 'bs3';
     var maxNameLength = 100;
@@ -131,9 +131,9 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
       return updateField(data, 'phone', 'main_phone');
     };
 
-  }])
+  })
 
-  .factory('profileAPI', ['Restangular', function(Restangular) {
+  .factory('profileAPI', function(Restangular) {
     function updateProfileField(fieldName, fieldValue) {
       var payload = {
         value: fieldValue
@@ -144,14 +144,14 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
     return {
       updateProfileField: updateProfileField
     };
-  }])
+  })
 
-  .controller('profilecontroller', ['$scope', 'userAPI', function($scope, userAPI) {
+  .controller('profilecontroller', function($scope, userAPI) {
     userAPI.currentUser().then(function(response) {
       $scope.user = response.data;
     });
-  }])
-  .controller('avatarController', ['$rootScope', '$scope', '$timeout', function($rootScope, $scope, $timeout) {
+  })
+  .controller('avatarController', function($rootScope, $scope, $timeout) {
 
     $scope.getURL = function() {
       return '/api/user/profile/avatar?cb=' + Date.now();
@@ -164,8 +164,8 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
         $scope.$apply();
       });
     });
-  }])
-  .directive('userNameDisplay', ['$rootScope', '$log', 'session', 'userAPI', function($rootScope, $log, session, userAPI) {
+  })
+  .directive('userNameDisplay', function($rootScope, $log, session, userAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -194,4 +194,4 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
         });
       }
     };
-  }]);
+  });

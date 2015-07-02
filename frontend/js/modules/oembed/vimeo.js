@@ -12,11 +12,11 @@
     resolver: 'yql'
   };
 
-  vimeo.run(['oembedRegistry', function(oembedRegistry) {
+  vimeo.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  vimeo.directive('vimeoOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  vimeo.directive('vimeoOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -36,5 +36,5 @@
         );
       }
     };
-  }]);
+  });
 })();

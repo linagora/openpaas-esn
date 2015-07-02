@@ -119,7 +119,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       uploadAvatar: uploadAvatar
     };
 
-  }).factory('selectionService', ['$rootScope', 'AVATAR_MIN_SIZE_PX', function($rootScope, AVATAR_MIN_SIZE_PX) {
+  }).factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
 
   var sharedService = {};
   sharedService.image = null;
@@ -196,7 +196,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
   return sharedService;
 
-}]).directive('imgPreview', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
+}).directive('imgPreview', function(selectionService, AVATAR_MIN_SIZE_PX) {
 
   return {
     restrict: 'A',
@@ -223,8 +223,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       });
     }
   };
-}]).directive('imgLoaded', ['selectionService', 'AVATAR_MIN_SIZE_PX', 'deviceDetector', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
-
+}).directive('imgLoaded', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
   return {
     restrict: 'E',
     replace: true,
@@ -282,7 +281,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       scope.$on('$destroy', clear);
     }
   };
-}]).directive('loadButton', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
+}).directive('loadButton', function(selectionService, AVATAR_MIN_SIZE_PX) {
 
     return {
       restrict: 'A',
@@ -327,8 +326,8 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         });
       }
     };
-}])
-.directive('avatarPicker', ['selectionService', '$alert', function(selectionService, $alert) {
+})
+.directive('avatarPicker', function(selectionService, $alert) {
   function link($scope, element, attrs) {
     $scope.image = {
       selected: false
@@ -377,4 +376,4 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
     templateUrl: '/views/modules/avatar/avatar-picker.html',
     link: link
   };
-}]);
+});

@@ -11,11 +11,11 @@
     resolver: 'yql'
   };
 
-  instagram.run(['oembedRegistry', function(oembedRegistry) {
+  instagram.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  instagram.directive('instagramOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  instagram.directive('instagramOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -35,5 +35,5 @@
         );
       }
     };
-  }]);
+  });
 })();

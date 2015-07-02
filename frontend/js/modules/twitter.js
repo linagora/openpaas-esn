@@ -2,6 +2,6 @@
 
 angular.module('esn.twitter', [])
 
-  .factory('twitterWidgetService', ['$window', function($window) {
+  .factory('twitterWidgetService', function($window) {
       return $window.twttr;
-  }]);
+  });

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.company', ['restangular'])
-.factory('companyAPI', ['Restangular', function(Restangular) {
+.factory('companyAPI', function(Restangular) {
   function search(searchQuery) {
     return Restangular.all('companies').getList(searchQuery);
   }
@@ -9,8 +9,8 @@ angular.module('esn.company', ['restangular'])
   return {
     search: search
   };
-}])
-.directive('ensureUniqueCompany', ['companyAPI', function(companyAPI) {
+})
+.directive('ensureUniqueCompany', function(companyAPI) {
   return {
     restrict: 'A',
     scope: true,
@@ -51,4 +51,4 @@ angular.module('esn.company', ['restangular'])
       });
     }
   };
-}]);
+});

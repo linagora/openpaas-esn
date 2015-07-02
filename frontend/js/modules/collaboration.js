@@ -11,7 +11,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       isManager: isManager
     };
   })
-  .factory('collaborationAPI', ['Restangular', function(Restangular) {
+  .factory('collaborationAPI', function(Restangular) {
     function getWhereMember(tuple) {
       return Restangular.all('collaborations/membersearch').getList(tuple);
     }
@@ -61,18 +61,18 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       getRequestMemberships: getRequestMemberships,
       getInvitablePeople: getInvitablePeople
     };
-  }])
-  .controller('collaborationListController', ['$scope', 'domain', 'user', function($scope, domain, user) {
+  })
+  .controller('collaborationListController', function($scope, domain, user) {
     $scope.domain = domain;
     $scope.user = user;
-  }])
+  })
   .directive('collaborationCreateButton', function() {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/collaboration/collaboration-create-button.html'
     };
   })
-  .directive('collaborationsEventListener', ['$rootScope', 'livenotification', function($rootScope, livenotification) {
+  .directive('collaborationsEventListener', function($rootScope, livenotification) {
     return {
       restrict: 'A',
       replace: true,
@@ -94,8 +94,8 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
         });
       }
     };
-  }])
-  .directive('collaborationMembersWidget', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+  })
+  .directive('collaborationMembersWidget', function($rootScope, collaborationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -152,7 +152,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
         $scope.updateMembers();
       }
     };
-  }])
+  })
   .directive('collaborationMemberAvatar', function() {
     return {
       restrict: 'E',
@@ -180,8 +180,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
       }
     };
   })
-  .directive('collaborationInviteUsers', ['$q', 'collaborationAPI', 'collaborationService', 'session', 'notificationFactory',
-    function($q, collaborationAPI, collaborationService, session, notificationFactory) {
+  .directive('collaborationInviteUsers', function($q, collaborationAPI, collaborationService, session, notificationFactory) {
       return {
         restrict: 'E',
         replace: true,
@@ -311,8 +310,8 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
           }
         }
       };
-    }])
-  .directive('collaborationMembershipRequestsWidget', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+    })
+  .directive('collaborationMembershipRequestsWidget', function($rootScope, collaborationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -353,8 +352,8 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
         $rootScope.$on('collaboration:request:accepted', removeRequestEntry);
       }
     };
-  }])
-  .directive('collaborationMembershipRequestsActions', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+  })
+  .directive('collaborationMembershipRequestsActions', function($rootScope, collaborationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -403,9 +402,8 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
         };
       }
     };
-  }])
-  .controller('collaborationMembersController', ['$scope', 'collaborationAPI', 'usSpinnerService',
-                                                 function($scope, collaborationAPI, usSpinnerService) {
+  })
+  .controller('collaborationMembersController', function($scope, collaborationAPI, usSpinnerService) {
     $scope.spinnerKey = 'membersSpinner';
 
     var opts = {
@@ -466,7 +464,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
 
 
     $scope.init();
-  }])
+  })
   .directive('collaborationMembersList', function() {
     return {
       restrict: 'E',

@@ -3,7 +3,7 @@
 angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'restangular', 'mgcrea.ngStrap',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
-  .controller('messageEditionController', ['$scope', function($scope) {
+  .controller('messageEditionController', function($scope) {
     var types = ['whatsup', 'event', 'poll'];
     $scope.type = types[0];
     $scope.show = function(type) {
@@ -13,7 +13,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         $scope.type = types[0];
       }
     };
-  }])
+  })
   .directive('messageEdition', function() {
     return {
       restrict: 'E',
@@ -21,7 +21,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/messageEdition.html'
     };
   })
-  .controller('messageController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
+  .controller('messageController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
 
     $scope.rows = 1;
     $scope.position = {};
@@ -195,8 +195,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         animation: 'am-fade'
       });
     };
-  }])
-  .controller('messageCommentController', ['$scope', '$q', 'messageAPI', '$alert', '$rootScope', 'geoAPI', 'messageAttachmentHelper', 'backgroundProcessorService', 'notificationFactory', 'fileUploadService', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
+  })
+  .controller('messageCommentController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper, backgroundProcessorService, notificationFactory, fileUploadService) {
     $scope.attachments = [];
     $scope.uploadService = null;
     $scope.commentContent = '';
@@ -358,8 +358,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       });
     };
 
-  }])
-  .controller('singleMessageDisplayController', ['$rootScope', '$scope', 'messageAPI', 'message', 'activitystream', function($rootScope, $scope, messageAPI, message, activitystream) {
+  })
+  .controller('singleMessageDisplayController', function($rootScope, $scope, messageAPI, message, activitystream) {
     $scope.message = message;
     $scope.parentMessage = true;
     $scope.streams = [];
@@ -381,7 +381,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       unregCmtPostedListener();
     });
 
-  }])
+  })
   .directive('whatsupMessage', function() {
     return {
       restrict: 'E',
@@ -389,7 +389,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/templates/whatsupMessage.html'
     };
   })
-  .directive('pollMessage', ['$log', 'session', 'pollAPI', function($log, session, pollAPI) {
+  .directive('pollMessage', function($log, session, pollAPI) {
     function link(scope, element, attrs) {
       var results, choices;
 
@@ -474,7 +474,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/templates/pollMessage.html',
       link: link
     };
-  }])
+  })
   .directive('emailMessage', function() {
     return {
       restrict: 'E',
@@ -550,7 +550,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/messagesDisplay.html'
     };
   })
-  .directive('messageTemplateDisplayer', ['RecursionHelper', function(RecursionHelper) {
+  .directive('messageTemplateDisplayer', function(RecursionHelper) {
     return {
       restrict: 'E',
       replace: true,
@@ -579,8 +579,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         return RecursionHelper.compile(element, function() {});
       }
     };
-  }])
-  .directive('messagePreviewDisplayer', ['RecursionHelper', function(RecursionHelper) {
+  })
+  .directive('messagePreviewDisplayer', function(RecursionHelper) {
     return {
       restrict: 'E',
       replace: true,
@@ -592,7 +592,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         return RecursionHelper.compile(element, function() {});
       }
     };
-  }])
+  })
   .directive('whatsupMessagePreview', function() {
     return {
       restrict: 'E',
@@ -681,7 +681,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/attachments/messageAttachments.html'
     };
   })
-  .directive('messageEditionAttachment', ['$timeout', 'fileAPIService', function($timeout, fileAPIService) {
+  .directive('messageEditionAttachment', function($timeout, fileAPIService) {
     return {
       restrict: 'E',
       replace: true,
@@ -708,14 +708,14 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         });
       }
     };
-  }])
+  })
   .directive('messageEditionAttachments', function() {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/attachments/messageEditionAttachments.html'
     };
   })
-  .directive('shareMessageButton', ['$modal', function($modal) {
+  .directive('shareMessageButton', function($modal) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/share/share-message-button.html',
@@ -730,7 +730,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         };
       }
     };
-  }])
+  })
   .directive('shareList', function() {
     return {
       restrict: 'E',
@@ -743,7 +743,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/share/share-tag.html'
     };
   })
-  .controller('messageShareController', ['$scope', '$q', '$log', '$alert', 'notificationFactory', 'messageAPI', 'userAPI', function($scope, $q, $log, $alert, notificationFactory, messageAPI, userAPI) {
+  .controller('messageShareController', function($scope, $q, $log, $alert, notificationFactory, messageAPI, userAPI) {
 
     $scope.sending = false;
 
@@ -857,8 +857,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       });
     };
 
-  }])
-  .factory('messageAttachmentHelper', ['$q', 'fileAPIService', function($q, fileAPIService) {
+  })
+  .factory('messageAttachmentHelper', function($q, fileAPIService) {
 
     function deleteAttachments(attachments) {
       var calls = [];
@@ -885,8 +885,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
     return {
       deleteAttachments: deleteAttachments
     };
-  }])
-  .factory('messageAPI', ['Restangular', function(Restangular) {
+  })
+  .factory('messageAPI', function(Restangular) {
 
     function get(options) {
       if (angular.isString(options)) {
@@ -937,8 +937,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       share: share
     };
 
-  }])
-  .directive('sharedFrom', ['activitystreamAPI', 'objectTypeAdapter', function(activitystreamAPI, objectTypeAdapter) {
+  })
+  .directive('sharedFrom', function(activitystreamAPI, objectTypeAdapter) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/share/shared-from.html',
@@ -956,8 +956,8 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         }
       }
     };
-  }])
-  .directive('sharedTo', ['activitystreamAPI', 'messageAPI', 'objectTypeAdapter', '$q', function(activitystreamAPI, messageAPI, objectTypeAdapter, $q) {
+  })
+  .directive('sharedTo', function(activitystreamAPI, messageAPI, objectTypeAdapter, $q) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/message/share/shared-to.html',
@@ -1016,4 +1016,4 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         });
       }
     };
-  }]);
+  });

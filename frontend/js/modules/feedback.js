@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.feedback', ['restangular'])
-  .factory('feedbackAPI', ['Restangular', function(Restangular) {
+  .factory('feedbackAPI', function(Restangular) {
 
     /**
      * Post the content of a feedback
@@ -15,7 +15,7 @@ angular.module('esn.feedback', ['restangular'])
     return {
       post: post
     };
-  }])
+  })
   .controller('feedback', function($scope, feedbackAPI) {
 
     $scope.error = false;

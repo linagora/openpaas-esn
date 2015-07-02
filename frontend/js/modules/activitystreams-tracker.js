@@ -6,7 +6,7 @@ angular.module('esn.activitystreams-tracker', [
   'esn.activitystream',
   'esn.user'
 ])
-  .factory('ASTrackerAPI', ['$log', 'userAPI', 'activitystreamAPI', function($log, userAPI, activitystreamAPI) {
+  .factory('ASTrackerAPI', function($log, userAPI, activitystreamAPI) {
 
     function getActivityStreams(domainid, objectType) {
       return userAPI.getActivityStreams({domainid: domainid, member: true}).then(function(response) {
@@ -26,8 +26,8 @@ angular.module('esn.activitystreams-tracker', [
       getActivityStreams: getActivityStreams,
       getUnreadCount: getUnreadCount
     };
-  }])
-  .factory('AStrackerHelpers', ['ASTrackerAPI', '$q', 'session', function(ASTrackerAPI, $q, session) {
+  })
+  .factory('AStrackerHelpers', function(ASTrackerAPI, $q, session) {
     /**
      * Helper to get multiple activity streams
      * @param {array} ids an array of ids
@@ -110,8 +110,8 @@ angular.module('esn.activitystreams-tracker', [
     return {
       getActivityStreamsWithUnreadCount: getActivityStreamsWithUnreadCount
     };
-  }])
-  .controller('ASTrackerController', ['$rootScope', '$scope', '$timeout', '$log', 'ASTrackerNotificationService', 'ASTrackerAPI', 'ASTrackerSubscriptionService', function($rootScope, $scope, $timeout, $log, ASTrackerNotificationService, ASTrackerAPI, ASTrackerSubscriptionService) {
+  })
+  .controller('ASTrackerController', function($rootScope, $scope, $timeout, $log, ASTrackerNotificationService, ASTrackerAPI, ASTrackerSubscriptionService) {
     $scope.$on('$destroy', function() {
       ASTrackerNotificationService.removeAllListeners();
     });
@@ -173,10 +173,9 @@ angular.module('esn.activitystreams-tracker', [
       leaveHandler();
     });
 
-  }])
+  })
   .factory('ASTrackerNotificationService',
-  ['$rootScope', '$log', '$timeout', 'AStrackerHelpers', 'ASTrackerAPI', 'livenotification', 'session',
-    function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session) {
+  function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session) {
 
       this.notifications = {};
       this.activityStreams = [];
@@ -259,8 +258,8 @@ angular.module('esn.activitystreams-tracker', [
         getUnreadUpdate: getUnreadUpdate,
         streams: self.activityStreams
       };
-  }])
-  .factory('ASTrackerSubscriptionService', ['$log', 'objectTypeAdapter', 'ASTrackerNotificationService', function($log, objectTypeAdapter, ASTrackerNotificationService) {
+  })
+  .factory('ASTrackerSubscriptionService', function($log, objectTypeAdapter, ASTrackerNotificationService) {
     var handlers = {};
 
     function joinLeaveWrapper(objectType, handler) {
@@ -324,4 +323,4 @@ angular.module('esn.activitystreams-tracker', [
       register: register,
       get: get
     };
-  }]);
+  });

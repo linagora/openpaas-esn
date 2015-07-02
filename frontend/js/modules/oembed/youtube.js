@@ -12,11 +12,11 @@
     resolver: 'yql'
   };
 
-  youtube.run(['oembedRegistry', function(oembedRegistry) {
+  youtube.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  youtube.directive('youtubeOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  youtube.directive('youtubeOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -36,5 +36,5 @@
         );
       }
     };
-  }]);
+  });
 })();

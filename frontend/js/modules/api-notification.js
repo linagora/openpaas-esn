@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('esn.api-notification', ['esn.notification'])
-  .directive('apiNotification', ['$log', 'session', 'notificationFactory', 'livenotification',
-    function($log, session, notificationFactory, livenotification) {
+  .directive('apiNotification', function($log, session, notificationFactory, livenotification) {
       return {
         restrict: 'E',
         link: function(scope) {
@@ -32,4 +31,4 @@ angular.module('esn.api-notification', ['esn.notification'])
           });
         }
       };
-    }]);
+    });

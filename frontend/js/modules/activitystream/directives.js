@@ -8,8 +8,7 @@ angular.module('esn.activitystream')
     templateUrl: '/views/modules/activitystream/updates-notifier.html'
   };
 })
-.directive('activityStreamNotification', ['moment', 'session', 'livenotification', 'notificationFactory',
-  function(moment, session, livenotification, notificationFactory) {
+.directive('activityStreamNotification', function(moment, session, livenotification, notificationFactory) {
   return {
     restrict: 'A',
     link: function(scope) {
@@ -42,8 +41,8 @@ angular.module('esn.activitystream')
       });
     }
   };
-}])
-.directive('activityStream', ['messageAPI', '$rootScope', '$timeout', function(messageAPI, $rootScope, $timeout) {
+})
+.directive('activityStream', function(messageAPI, $rootScope, $timeout) {
     return {
       restrict: 'E',
       scope: {
@@ -154,7 +153,7 @@ angular.module('esn.activitystream')
         });
       }
     };
-  }])
+  })
 .directive('activityStreamOrigin', function() {
   return {
     restrict: 'E',
@@ -175,7 +174,7 @@ angular.module('esn.activitystream')
     templateUrl: '/views/modules/activitystream/activitystream-card.html'
   };
 })
-.directive('activityStreamFilter', ['$log', 'localStorageService', function($log, localStorageService) {
+.directive('activityStreamFilter', function($log, localStorageService) {
   return {
     restrict: 'E',
     templateUrl: '/views/modules/activitystream/activitystream-filter.html',
@@ -223,4 +222,4 @@ angular.module('esn.activitystream')
       });
     }
   };
-}]);
+});

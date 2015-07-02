@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.poll', ['restangular'])
-.service('pollAPI', ['Restangular', function(Restangular) {
+.service('pollAPI', function(Restangular) {
 
   function vote(messageId, pollVote) {
     return Restangular.one('messages', messageId).one('vote', pollVote + '').customPUT({});
@@ -10,4 +10,4 @@ angular.module('esn.poll', ['restangular'])
   return {
     vote: vote
   };
-}]);
+});

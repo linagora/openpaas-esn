@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.authentication', ['restangular'])
-  .factory('tokenAPI', ['Restangular', function(Restangular) {
+  .factory('tokenAPI', function(Restangular) {
 
     function getNewToken() {
       return Restangular.one('authenticationtoken').get();
@@ -10,4 +10,4 @@ angular.module('esn.authentication', ['restangular'])
     return {
       getNewToken: getNewToken
     };
-  }]);
+  });

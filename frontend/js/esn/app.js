@@ -158,8 +158,8 @@ angular.module('esnApp', [
     RestangularProvider.setBaseUrl('/api');
     RestangularProvider.setFullResponse(true);
   })
-.run(['session', 'ioConnectionManager', function(session, ioConnectionManager) {
+.run(function(session, ioConnectionManager) {
   session.ready.then(function() {
     ioConnectionManager.connect();
   });
-}]);
+});

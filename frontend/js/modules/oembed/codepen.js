@@ -13,11 +13,11 @@
     format: 'json'
   };
 
-  codepen.run(['oembedRegistry', function(oembedRegistry) {
+  codepen.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  codepen.directive('codepenOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  codepen.directive('codepenOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -37,6 +37,6 @@
         );
       }
     };
-  }]);
+  });
 
 })();

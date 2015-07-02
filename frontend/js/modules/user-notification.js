@@ -12,14 +12,7 @@ angular.module('esn.user-notification',
   .constant('UNREAD_REFRESH_TIMER', 10 * 1000)
   .constant('OFFSET_START', 0)
   .constant('LIMIT_PAGER', 25)
-  .controller('userNotificationController', [
-    '$scope',
-    '$log',
-    '$timeout',
-    'userNotificationAPI',
-    'userNotificationCounter',
-    'livenotification',
-    function($scope, $log, $timeout, userNotificationAPI, userNotificationCounter, livenotification) {
+  .controller('userNotificationController', function($scope, $log, $timeout, userNotificationAPI, userNotificationCounter, livenotification) {
       $scope.unreadCount = userNotificationCounter;
       $scope.unreadCount.init();
 
@@ -67,9 +60,8 @@ angular.module('esn.user-notification',
       $scope.$on('$destroy', function() {
         livenotification('/usernotification').removeListener('usernotification:created', onUserNotificationCreated);
       });
-    }
-  ])
-  .directive('userNotificationButton', ['$popover', function($popover) {
+    })
+  .directive('userNotificationButton', function($popover) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/user-notification/user-notification-button.html',
@@ -95,14 +87,8 @@ angular.module('esn.user-notification',
         };
       }
     };
-  }])
-  .controller('userNotificationPopoverController', [
-    '$scope',
-    'userNotificationAPI',
-    'paginator',
-    'OFFSET_START',
-    'LIMIT_PAGER',
-    function($scope, userNotificationAPI, paginator, OFFSET_START, LIMIT_PAGER) {
+  })
+  .controller('userNotificationPopoverController', function($scope, userNotificationAPI, paginator, OFFSET_START, LIMIT_PAGER) {
 
       $scope.loading = false;
       $scope.error = false;
@@ -180,9 +166,8 @@ angular.module('esn.user-notification',
       $scope.previousPage = function() {
         return $scope.pager.previousPage(updateData);
       };
-    }
-  ])
-  .controller('requestMembershipActionNotificationController', ['$scope', 'objectTypeResolver', 'userNotificationAPI', function($scope, objectTypeResolver, userNotificationAPI) {
+    })
+  .controller('requestMembershipActionNotificationController', function($scope, objectTypeResolver, userNotificationAPI) {
     $scope.error = false;
     $scope.loading = true;
     objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id)
@@ -207,7 +192,7 @@ angular.module('esn.user-notification',
       }).finally (function() {
       $scope.loading = false;
     });
-  }])
+  })
   .directive('notificationTemplateDisplayer', function() {
     return {
       restrict: 'E',
@@ -218,7 +203,7 @@ angular.module('esn.user-notification',
       templateUrl: '/views/modules/user-notification/notification-template-displayer.html'
     };
   })
-  .directive('externalUserNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
+  .directive('externalUserNotification', function(objectTypeResolver, $q, userNotificationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -296,8 +281,8 @@ angular.module('esn.user-notification',
         });
       }
     };
-  }])
-  .directive('collaborationMembershipInvitationNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
+  })
+  .directive('collaborationMembershipInvitationNotification', function(objectTypeResolver, $q, session) {
     return {
       restrict: 'E',
       replace: true,
@@ -328,8 +313,8 @@ angular.module('esn.user-notification',
         });
       }
     };
-  }])
-  .directive('collaborationMembershipRequestAcceptedNotification', ['objectTypeResolver', '$q', 'session', function(objectTypeResolver, $q, session) {
+  })
+  .directive('collaborationMembershipRequestAcceptedNotification', function(objectTypeResolver, $q, session) {
     return {
       restrict: 'E',
       replace: true,
@@ -339,8 +324,8 @@ angular.module('esn.user-notification',
       templateUrl: '/views/modules/user-notification/templates/collaboration-membership-request-accepted-notification.html',
       controller: 'requestMembershipActionNotificationController'
     };
-  }])
-  .directive('collaborationMembershipRequestDeclinedNotification', ['objectTypeResolver', function(objectTypeResolver) {
+  })
+  .directive('collaborationMembershipRequestDeclinedNotification', function(objectTypeResolver) {
     return {
       restrict: 'E',
       replace: true,
@@ -350,9 +335,8 @@ angular.module('esn.user-notification',
       templateUrl: '/views/modules/user-notification/templates/collaboration-membership-request-declined-notification.html',
       controller: 'requestMembershipActionNotificationController'
     };
-  }])
-  .directive('collaborationInvitationAcceptButton', ['collaborationAPI', 'userNotificationAPI',
-    function(collaborationAPI, userNotificationAPI) {
+  })
+  .directive('collaborationInvitationAcceptButton', function(collaborationAPI, userNotificationAPI) {
     return {
       restrict: 'E',
       require: '^collaborationMembershipInvitationNotification',
@@ -383,9 +367,8 @@ angular.module('esn.user-notification',
         };
       }
     };
-  }])
-  .directive('collaborationInvitationDeclineButton', ['collaborationAPI', 'session', 'userNotificationAPI',
-    function(collaborationAPI, session, userNotificationAPI) {
+  })
+  .directive('collaborationInvitationDeclineButton', function(collaborationAPI, session, userNotificationAPI) {
     return {
       restrict: 'E',
       require: '^collaborationMembershipInvitationNotification',
@@ -416,8 +399,8 @@ angular.module('esn.user-notification',
         };
       }
     };
-  }])
-  .directive('collaborationJoinNotification', ['objectTypeResolver', '$q', 'userNotificationAPI', function(objectTypeResolver, $q, userNotificationAPI) {
+  })
+  .directive('collaborationJoinNotification', function(objectTypeResolver, $q, userNotificationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -451,13 +434,12 @@ angular.module('esn.user-notification',
         });
       }
     };
-  }])
-  .factory('userNotificationCounter', ['$log', 'CounterFactory', 'UNREAD_REFRESH_TIMER', 'userNotificationAPI', function($log, CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
+  })
+  .factory('userNotificationCounter', function($log, CounterFactory, UNREAD_REFRESH_TIMER, userNotificationAPI) {
     return new CounterFactory.newCounter(0, UNREAD_REFRESH_TIMER, userNotificationAPI.getUnreadCount);
-  }])
+  })
   .directive('userNotificationPopover',
-  ['$rootScope', '$timeout', '$window', 'SCREEN_SM_MIN', 'USER_NOTIFICATION_ITEM_HEIGHT', 'MOBILE_BROWSER_URL_BAR', 'POPOVER_ARROW_HEIGHT', 'POPOVER_TITLE_HEIGHT', 'POPOVER_PAGER_BUTTONS_HEIGHT', 'BOTTOM_PADDING',
-    function($rootScope, $timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
+  function($rootScope, $timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
       return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -537,8 +519,8 @@ angular.module('esn.user-notification',
           });
         }
       };
-    }])
-  .factory('userNotificationAPI', ['Restangular', function(Restangular) {
+    })
+  .factory('userNotificationAPI', function(Restangular) {
     function list(options) {
       return Restangular.one('user').all('notifications').getList(options);
     }
@@ -568,4 +550,4 @@ angular.module('esn.user-notification',
       setAcknowledged: setAcknowledged,
       getUnreadCount: getUnreadCount
     };
-  }]);
+  });
