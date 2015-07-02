@@ -76,7 +76,7 @@ describe('The calendar WS events module', function() {
           expect(userId).to.equal('123');
           var socket = {
             emit: function(event, ics) {
-              expect(event).to.equal('event:updated');
+              expect(event).to.equal('event:created');
               expect(ics).to.equal('ICS');
               done();
             }
@@ -88,7 +88,8 @@ describe('The calendar WS events module', function() {
           target: {
             _id: '123'
           },
-          event: 'ICS'
+          event: 'ICS',
+          websocketEvent: 'event:created'
         });
       });
     });
@@ -99,7 +100,13 @@ describe('The calendar WS events module', function() {
       expect(this.socketListeners['event:updated']).to.exist;
     });
 
-    describe('event:updated websocket listnerer', function() {
+    it('should register a listener to the websocket "event:created" event', function() {
+      var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+      mod.init(this.moduleHelpers.dependencies);
+      expect(this.socketListeners['event:created']).to.exist;
+    });
+
+    describe('event:updated websocket listener', function() {
 
       it('should publish to the global pubsub for each existing mail in the received jcal object', function(done) {
         var inputData = 'jcal';
@@ -130,8 +137,11 @@ describe('The calendar WS events module', function() {
               forward: function(global, data) {
                 expect(data).to.deep.equal({
                   target: johnDoe,
-                  event: inputData
+                  event: inputData,
+                  websocketEvent: 'event:updated'
                 });
+
+                done();
               }
             };
           }
@@ -140,7 +150,6 @@ describe('The calendar WS events module', function() {
         var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
         mod.init(this.moduleHelpers.dependencies);
         this.socketListeners['event:updated'](inputData);
-        done();
       });
 
     });

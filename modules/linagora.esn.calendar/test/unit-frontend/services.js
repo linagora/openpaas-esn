@@ -263,8 +263,8 @@ describe('The Calendar Angular module', function() {
             expect(events[0].id).to.equal('myuid');
             expect(events[0].title).to.equal('title');
             expect(events[0].location).to.equal('location');
-            expect(events[0].start.toDate().getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
-            expect(events[0].end.toDate().getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
+            expect(events[0].start.toDate()).to.equalDate(moment('2014-01-01 02:03:04').toDate());
+            expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
             expect(events[0].vcalendar).to.be.an('object');
             expect(events[0].etag).to.be.empty;
             expect(events[0].path).to.be.empty;
@@ -305,9 +305,8 @@ describe('The Calendar Angular module', function() {
           expect(event.title).to.equal('title');
           expect(event.location).to.equal('location');
           expect(event.allDay).to.be.false;
-          expect(event.start.toDate().getTime()).to.equal(new Date(2014, 0, 1, 2, 3, 4).getTime());
-          expect(event.end.toDate().getTime()).to.equal(new Date(2014, 0, 1, 3, 3, 4).getTime());
-
+          expect(event.start.toDate()).to.equalDate(new Date(2014, 0, 1, 2, 3, 4));
+          expect(event.end.toDate()).to.equalDate(new Date(2014, 0, 1, 3, 3, 4));
           expect(event.formattedDate).to.equal('January 1, 2014');
           expect(event.formattedStartTime).to.equal('2');
           expect(event.formattedStartA).to.equal('am');
@@ -886,39 +885,4 @@ describe('The Calendar Angular module', function() {
       });
     });
   });
-
-  describe('The localEventSource service', function() {
-
-    beforeEach(function() {
-      angular.mock.module('esn.calendar');
-    });
-
-    beforeEach(angular.mock.inject(function(localEventSource) {
-      this.localEventSource = localEventSource;
-    }));
-
-    describe('The addEvent fn', function() {
-
-      it('should register the event when no event has already been registered with the same id', function() {
-        var event = {id: 'anId'};
-        this.localEventSource.addEvent(event);
-        this.localEventSource.getEvents(null, null, null, function(events) {
-          expect(events).to.deep.equal([event]);
-        });
-      });
-
-
-      it('should replace the event already registered with the same id', function() {
-        var event1 = {id: 'anId', text: 'text1'};
-        this.localEventSource.addEvent(event1);
-        var event2 = {id: 'anId', text: 'text2'};
-        this.localEventSource.addEvent(event2);
-        this.localEventSource.getEvents(null, null, null, function(events) {
-          expect(events).to.deep.equal([event2]);
-        });
-      });
-    });
-
-  });
-
 });
