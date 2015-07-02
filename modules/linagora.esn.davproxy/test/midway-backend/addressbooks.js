@@ -15,19 +15,28 @@ describe('The addressbooks dav proxy', function() {
 
   beforeEach(function(done) {
     var self = this;
-    this.helpers.modules.initMidway(moduleName, function(err) {
+
+    this.mongoose = require('mongoose');
+
+    this.testEnv.initRedisConfiguration(this.mongoose, function(err) {
       if (err) {
         return done(err);
       }
 
-      self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+      self.helpers.modules.initMidway(moduleName, function(err) {
         if (err) {
           return done(err);
         }
-        domain = models.domain;
-        user = models.users[0];
-        self.models = models;
-        done();
+
+        self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+          if (err) {
+            return done(err);
+          }
+          domain = models.domain;
+          user = models.users[0];
+          self.models = models;
+          done();
+        });
       });
     });
   });
