@@ -47,7 +47,14 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
         return;
       }
       var letter = item[this.sortBy].toUpperCase().charAt(0);
-      this.categories[letter].splice(this.categories[letter].indexOf(item), 1);
+
+      if (this.categories[letter]) {
+        this.categories[letter].splice(this.categories[letter].indexOf(item), 1);
+      } else {
+        if (this.keepAll) {
+          this.categories[this.keepAllKey].splice(this.categories[this.keepAllKey].indexOf(item), 1);
+        }
+      }
     };
 
     Categorize.prototype._sort = function _sort() {
