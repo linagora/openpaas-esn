@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert'])
+angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
   .constant('AVATAR_MIN_SIZE_PX', 128)
   .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
 
@@ -172,21 +172,19 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
 
   sharedService.getBlob = function getBlob(mime, callback) {
     var canvas = document.createElement('canvas');
+    canvas.width = AVATAR_MIN_SIZE_PX;
+    canvas.height = AVATAR_MIN_SIZE_PX;
+
     var context = canvas.getContext('2d');
     var image = sharedService.getImage();
     var ratio = sharedService.selection.ratio || 1;
     var selection = sharedService.selection.cords;
     if (selection.w === 0 || selection.h === 0) {
-      canvas.width = AVATAR_MIN_SIZE_PX;
-      canvas.height = AVATAR_MIN_SIZE_PX;
       context.drawImage(image, 0, 0, AVATAR_MIN_SIZE_PX, AVATAR_MIN_SIZE_PX);
     } else {
       var canvasSelection = sharedService.computeCanvasSelection(image, ratio, selection);
-      canvas.width = canvasSelection.w;
-      canvas.height = canvasSelection.h;
       context.drawImage(image, canvasSelection.x, canvasSelection.y, canvasSelection.w, canvasSelection.h, 0, 0, canvas.width, canvas.height);
     }
-
     canvas.toBlob(callback, mime);
   };
 
@@ -225,7 +223,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
       });
     }
   };
-}]).directive('imgLoaded', ['selectionService', 'AVATAR_MIN_SIZE_PX', function(selectionService, AVATAR_MIN_SIZE_PX) {
+}]).directive('imgLoaded', ['selectionService', 'AVATAR_MIN_SIZE_PX', 'deviceDetector', function(selectionService, AVATAR_MIN_SIZE_PX, deviceDetector) {
 
   return {
     restrict: 'E',
@@ -242,6 +240,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           myImg = undefined;
         }
       };
+
       scope.$on('crop:reset', clear);
       scope.$on('crop:loaded', function() {
         clear();
@@ -264,18 +263,19 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
         myImg.attr('width', width);
         myImg.attr('height', height);
 
+        var broadcastSelection = function(x) {
+          selectionService.broadcastSelection({cords: x, ratio: ratio});
+        };
+
         $(myImg).Jcrop({
           bgColor: 'black',
           bgOpacity: 0.6,
           setSelect: [0, 0, minsize, minsize],
           minSize: [minsize, minsize],
           aspectRatio: 1,
-          onSelect: function(x) {
-            selectionService.broadcastSelection({cords: x, ratio: ratio});
-          },
-          onChange: function(x) {
-            selectionService.broadcastSelection({cords: x, ratio: ratio});
-          }
+          touchSupport: true,
+          onSelect: broadcastSelection,
+          onChange: deviceDetector.isDesktop() ? broadcastSelection : function(x) {}
         });
 
       });
