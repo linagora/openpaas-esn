@@ -4,14 +4,13 @@ var express = require('express');
 
 module.exports = function(dependencies) {
 
-  var authorizationMW = dependencies('authorizationMW');
   var router = express.Router();
 
-  var contacts = require('./controller')(dependencies);
-  router.get('/:bookId/contacts', authorizationMW.requiresAPILogin, contacts.list);
+  var authorizationMW = dependencies('authorizationMW');
+  var middleware = require('../proxy/middleware')(dependencies);
 
   var proxy = require('../proxy')(dependencies);
-  router.all('/*', proxy.handle('addressbooks'));
+  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, proxy.handle('addressbooks'));
 
   return router;
 };

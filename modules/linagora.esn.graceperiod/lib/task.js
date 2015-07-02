@@ -2,7 +2,7 @@
 
 var q = require('q');
 
-function Task(job, delay, context, onComplete, onCancel) {
+function Task(id, job, delay, context, onComplete, onCancel) {
   var self = this;
 
   if (!job) {
@@ -17,6 +17,7 @@ function Task(job, delay, context, onComplete, onCancel) {
     throw new Error('delay must be > 0');
   }
 
+  self.id = id;
   self.job = job;
   self.delay = delay;
   self.context = context || {};
@@ -27,7 +28,9 @@ function Task(job, delay, context, onComplete, onCancel) {
   self.defer.promise.timeout(self.delay).then(function() {
     self.onCancel();
   }, function() {
-    self.job(self.context, self.onComplete);
+    self.job(function(err, result) {
+      self.onComplete(err, result);
+    });
   });
   return this;
 }
