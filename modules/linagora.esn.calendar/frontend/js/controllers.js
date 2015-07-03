@@ -179,9 +179,9 @@ angular.module('esn.calendar')
     $scope.uiConfig = USER_UI_CONFIG;
   }])
 
-  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource', 'localEventSource', 'livenotification',
-    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource, localEventSource,  livenotification) {
-      $scope.eventSources = [calendarEventSource($scope.calendarId), localEventSource.getEvents];
+  .controller('calendarController', ['$scope', '$rootScope', '$window', '$modal', '$timeout', 'uiCalendarConfig', 'calendarService', 'calendarUtils', 'eventService', 'notificationFactory', 'calendarEventSource', 'livenotification',
+    function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification) {
+      $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
       var windowJQuery = angular.element($window);
 
@@ -231,12 +231,16 @@ angular.module('esn.calendar')
         };
         $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
       };
-      $scope.eventSources = [calendarEventSource($scope.calendarId), localEventSource.getEvents];
+      $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
-      $rootScope.$on('modifiedCalendarItem', function(event, data) {
+      function _modifiedCalendarItem(data) {
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
         var events = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', data.id);
         eventService.copyNonStandardProperties(data, events[0]);
+      }
+
+      $rootScope.$on('modifiedCalendarItem', function(event, data) {
+        _modifiedCalendarItem(data);
       });
       $rootScope.$on('removedCalendarItem', function(event, data) {
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', data);
@@ -245,17 +249,27 @@ angular.module('esn.calendar')
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', data);
       });
 
-      function liveNotificationHandler(msg) {
-        var event = calendarService.icalToShell(msg);
-        var oldVersion = localEventSource.addEvent(event);
-        if (oldVersion) {
-          $rootScope.$emit('removedCalendarItem', oldVersion.id);
-        }
-        $rootScope.$emit('addedCalendarItem', event);
+      function liveNotificationHandlerOnCreate(msg) {
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', calendarService.icalToShell(msg));
       }
-      var sio = livenotification('/calendars').on('event:updated', liveNotificationHandler);
+      function liveNotificationHandlerOnUpdate(msg) {
+        var newEvent = calendarService.icalToShell(msg);
+        var oldEvent = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', newEvent.id)[0];
+
+        newEvent._allDay = oldEvent._allDay;
+        newEvent._end = oldEvent._end;
+        newEvent._id = oldEvent._id;
+        newEvent._start = oldEvent._start;
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', newEvent);
+        eventService.copyNonStandardProperties(newEvent, oldEvent);
+      }
+      var sio = livenotification('/calendars');
+
+      sio.on('event:created', liveNotificationHandlerOnCreate);
+      sio.on('event:updated', liveNotificationHandlerOnUpdate);
 
       $scope.$on('$destroy', function() {
-        sio.removeListener('event:updated', liveNotificationHandler);
+        sio.removeListener('event:created', liveNotificationHandlerOnCreate);
+        sio.removeListener('event:updated', liveNotificationHandlerOnUpdate);
       });
     }]);

@@ -256,6 +256,7 @@ angular.module('esn.calendar')
           return $q.reject(response);
         }
         $rootScope.$emit('addedCalendarItem', new CalendarShell(vcalendar));
+        socket('/calendars').emit('event:created', vcalendar);
         return response;
       });
     }
@@ -491,33 +492,5 @@ angular.module('esn.calendar')
       getNewEndDate: getNewEndDate,
       isSameDay: isSameDay,
       getDateOnCalendarSelect: getDateOnCalendarSelect
-    };
-  })
-
-  .service('localEventSource', function() {
-    var events = [];
-
-    function getEvents(start, end, timezone, callback) {
-      return callback(events);
-    }
-
-    function addEvent(newEvent) {
-      var oldVersion = null;
-      events = events.map(function(event) {
-        if (event.id === newEvent.id) {
-          oldVersion = event;
-          return newEvent;
-        }
-        return event;
-      });
-      if (!oldVersion) {
-        events.push(newEvent);
-      }
-      return oldVersion;
-    }
-
-    return {
-      getEvents: getEvents,
-      addEvent: addEvent
     };
   });

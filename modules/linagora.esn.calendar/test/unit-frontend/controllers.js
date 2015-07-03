@@ -69,10 +69,6 @@ describe('The Calendar Angular module controllers', function() {
       }
     };
 
-    this.localEventSourceMock = {
-      getEvents: {}
-    };
-
     var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
@@ -84,7 +80,6 @@ describe('The Calendar Angular module controllers', function() {
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('calendarService', calendarServiceMock);
-      $provide.value('localEventSource', self.localEventSourceMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -300,12 +295,12 @@ describe('The Calendar Angular module controllers', function() {
       expect(called).to.equal(1);
     });
 
-    it('should initialize a listener on event:updated ws event', function(done) {
+    it('should initialize a listener on event:created ws event', function(done) {
       liveNotification = function(namespace) {
         expect(namespace).to.equal('/calendars');
         return {
           on: function(event, handler) {
-            expect(event).to.equal('event:updated');
+            expect(event).to.equal('event:created');
             expect(handler).to.be.a('function');
             done();
           }
@@ -322,17 +317,24 @@ describe('The Calendar Angular module controllers', function() {
       });
     });
 
-    describe('the event:updated ws event listener', function() {
+    describe('the event:created ws event listener', function() {
 
-      var wsListener;
+      var wsEventCreateListener;
+      var wsEventModifyListener;
 
       beforeEach(function() {
         liveNotification = function(namespace) {
           expect(namespace).to.equal('/calendars');
           return {
             on: function(event, handler) {
-              expect(event).to.equal('event:updated');
-              wsListener = handler;
+              switch (event) {
+                case 'event:created':
+                  wsEventCreateListener = handler;
+                  break;
+                case 'event:updated':
+                  wsEventModifyListener = handler;
+                  break;
+              }
             }
           };
         };
@@ -347,37 +349,47 @@ describe('The Calendar Angular module controllers', function() {
         });
       });
 
-      it('should add the event to localEventSource and emit addedCalendarItem on rootscope', function(done) {
+      it('should add the event when event created', function(done) {
         var event = {id: 'anId'};
-        this.localEventSourceMock.addEvent = function() {};
 
-        this.rootScope.$on('addedCalendarItem', function(e, data) {
-          expect(data).to.deep.equal(event);
+        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+          expect(event).to.equal('renderEvent');
+          expect(data.id).to.equal('anId');
           done();
-        });
-
-        wsListener(event);
+        };
+        wsEventCreateListener(event);
       });
 
-      it('should add the event to localEventSource and emit addedCalendarItem on rootscope and removedCalendarItem if a previous version of the event existed', function(done) {
-        var newEvent = {id: 'anId', desc: 'newText'};
-        var oldEvent = {id: 'anId', desc: 'oldText'};
-        this.localEventSourceMock.addEvent = function() {
-          return oldEvent;
+      it('should add the event when modified event', function(done) {
+        var newEvent = {id: 'anId'};
+        var called = 0;
+
+        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+          called++;
+          if (called === 1) {
+            expect(event).to.equal('clientEvents');
+            expect(data).to.equal('anId');
+            return [{
+              _allDay: '_allDay',
+              _end: '_end',
+              _id: '_id',
+              _start: '_start'
+            }];
+          } else {
+            expect(event).to.equal('updateEvent');
+            expect(newEvent).to.deep.equal({
+              id: 'anId',
+              _allDay: '_allDay',
+              _end: '_end',
+              _id: '_id',
+              _start: '_start'
+            });
+            done();
+          }
         };
 
-        this.rootScope.$on('addedCalendarItem', function(e, data) {
-          expect(data).to.deep.equal(newEvent);
-        });
-
-        this.rootScope.$on('removedCalendarItem', function(e, data) {
-          expect(data).to.deep.equal(oldEvent.id);
-          done();
-        });
-
-        wsListener(newEvent);
+        wsEventModifyListener(newEvent);
       });
-
     });
   });
 });

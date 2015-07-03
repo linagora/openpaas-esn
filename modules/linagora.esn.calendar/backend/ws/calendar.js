@@ -28,7 +28,7 @@ function init(dependencies) {
   }
 
   pubsub.global.topic('calendar:event:updated').subscribe(function(msg) {
-    notify(io, ioHelper, 'event:updated', msg);
+    notify(io, ioHelper, msg.websocketEvent, msg);
   });
 
   io.of(NAMESPACE)
@@ -45,7 +45,7 @@ function init(dependencies) {
         socket.leave(uuid);
       });
 
-      socket.on('event:updated', function(data) {
+      function _notifyAttendees(data, websocketEvent) {
         var attendeesEmails = jcalHelper.getAttendeesEmails(data);
         attendeesEmails.forEach(function(email) {
           userModule.findByEmail(email, function(err, user) {
@@ -55,11 +55,19 @@ function init(dependencies) {
             }
             var msg = {
               target: user,
-              event: data
+              event: data,
+              websocketEvent: websocketEvent
             };
             pubsub.local.topic('calendar:event:updated').forward(pubsub.global, msg);
           });
         });
+      }
+
+      socket.on('event:created', function(data) {
+        _notifyAttendees(data, 'event:created');
+      });
+      socket.on('event:updated', function(data) {
+        _notifyAttendees(data, 'event:updated');
       });
     });
 
