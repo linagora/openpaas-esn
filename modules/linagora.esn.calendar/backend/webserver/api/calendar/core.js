@@ -17,8 +17,6 @@ var eventMessage,
     esnconfig,
     staticConfig;
 
-var MAIL_TEMPLATE = 'event.invitation';
-
 /**
  * Check if the user has the right to create an eventmessage in that
  * collaboration and create the event message and the timeline entry. The
@@ -195,48 +193,56 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
 
     return q.all(getAllUsersAttendees).then(function(users) {
 
+      var from = { objectType: 'email', id: organizer.emails[0] };
+      var event = jcal2content(ics, baseUrl);
+
+      var subject = 'Unknown method';
+      var template = 'event.invitation';
+      switch (method) {
+        case 'REQUEST':
+          if (event.sequence === 0) {
+            subject = i18n.__('New event from %s: %s', userDisplayName(organizer), event.summary);
+            template = 'event.invitation';
+          } else {
+            subject = i18n.__('Event %s from %s updated', event.summary, userDisplayName(organizer));
+            template = 'event.update';
+          }
+          break;
+        case 'REPLY':
+          subject = i18n.__('Participation updated: %s', event.summary);
+          template = 'event.reply';
+          break;
+        case 'CANCEL':
+          subject = i18n.__('Event %s from %s canceled', event.summary, userDisplayName(organizer));
+          template = 'event.cancel';
+          break;
+      }
+
+      var message = {
+        subject: subject,
+        alternatives: [{
+          content: ics,
+          contentType: 'text/calendar; charset=UTF-8; method=' + method,
+          encoding: 'base64'
+        }],
+        attachments: [{
+          filename: 'meeting.ics',
+          content: ics,
+          contentType: 'application/ics'
+        }]
+      };
+      var options = {
+        template: template,
+        message: message
+      };
+
+      var content = {
+        baseUrl: baseUrl,
+        event: event
+      };
+
       var sendMailToAllAttendees = users.filter(Boolean).map(function(user) {
-
-        var from = { objectType: 'email', id: organizer.emails[0] };
         var to = { objectType: 'email', id: user.emails[0] };
-
-        var subject = 'Unknown method';
-        switch (method) {
-          case 'REQUEST':
-            subject = i18n.__('New event from %s', userDisplayName(organizer));
-            break;
-          case 'REPLY':
-            subject = i18n.__('An event has been updated from %s', userDisplayName(organizer));
-            break;
-          case 'CANCEL':
-            subject = i18n.__('An event has been canceled from %s', userDisplayName(organizer));
-            break;
-        }
-
-        var message = {
-          subject: subject,
-          alternatives: [{
-            content: ics,
-            contentType: 'text/calendar; charset=UTF-8; method=' + method,
-            contentEncoding: 'base64'
-          }],
-          attachments: [{
-            filename: 'invite.ics',
-            content: ics,
-            contentType: 'application/ics'
-          }]
-        };
-        var options = {
-          template: MAIL_TEMPLATE,
-          message: message
-        };
-
-        var event = jcal2content(ics, baseUrl);
-        var content = {
-          baseUrl: baseUrl,
-          event: event
-        };
-
         return contentSender.send(from, to, content, options, 'email');
       });
 
@@ -257,8 +263,8 @@ module.exports = function(dependencies) {
   localpubsub = dependencies('pubsub').local;
   globalpubsub = dependencies('pubsub').global;
   collaborationPermission = dependencies('collaboration').permission;
-  contentSender = dependencies('content-sender'),
-  esnconfig = dependencies('esn-config'),
+  contentSender = dependencies('content-sender');
+  esnconfig = dependencies('esn-config');
   staticConfig = dependencies('config')('default');
 
   return {

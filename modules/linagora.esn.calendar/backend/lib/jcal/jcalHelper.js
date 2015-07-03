@@ -13,6 +13,8 @@ function _getEmail(attendee) {
  * @param {String} icalendar Representation of a icalendar object as a string.
  * @return {Object} content
  * {
+      method: 'REQUEST',
+      sequence: 0,
       summary: 'aSummary',
       start: {
         date: '06/12/2015',
@@ -86,6 +88,8 @@ function jcal2content(icalendar, baseUrl) {
   var startDate = moment(vevent.getFirstPropertyValue('dtstart').toJSDate());
 
   var content = {
+    method: method,
+    sequence: vevent.getFirstPropertyValue('sequence'),
     summary: vevent.getFirstPropertyValue('summary'),
     location: vevent.getFirstPropertyValue('location'),
     description: vevent.getFirstPropertyValue('description'),
