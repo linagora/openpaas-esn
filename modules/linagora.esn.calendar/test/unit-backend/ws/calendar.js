@@ -106,13 +106,19 @@ describe('The calendar WS events module', function() {
       expect(this.socketListeners['event:created']).to.exist;
     });
 
-    describe('event:updated websocket listener', function() {
+    it('should register a listener to the websocket "event:updated" event', function() {
+      var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+      mod.init(this.moduleHelpers.dependencies);
+      expect(this.socketListeners['event:deleted']).to.exist;
+    });
 
-      it('should publish to the global pubsub for each existing mail in the received jcal object', function(done) {
-        var inputData = 'jcal';
-        var emails = ['johndoe@lost.com', 'janedoe@lost.com'];
-        var johnDoe = {_id: 'johndoe'};
+    describe('websocket listeners', function() {
 
+      var inputData = 'jcal';
+      var emails = ['johndoe@lost.com', 'janedoe@lost.com'];
+      var johnDoe = {_id: 'johndoe'};
+
+      beforeEach(function() {
         mockery.registerMock('../lib/jcal/jcalHelper', {
           getAttendeesEmails: function(jcal) {
             expect(jcal).to.deep.equal(inputData);
@@ -126,32 +132,62 @@ describe('The calendar WS events module', function() {
           } else if (email === emails[1]) {
             return callback(new Error('User not found'));
           } else {
-            done(new Error('Should not have searched for this user'));
+            return new Error('Should not have searched for this user');
           }
         };
-
-        this.pubsub.local = {
-          topic: function(event) {
-            expect(event).to.equal('calendar:event:updated');
-            return {
-              forward: function(global, data) {
-                expect(data).to.deep.equal({
-                  target: johnDoe,
-                  event: inputData,
-                  websocketEvent: 'event:updated'
-                });
-
-                done();
-              }
-            };
-          }
-        };
-
-        var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
-        mod.init(this.moduleHelpers.dependencies);
-        this.socketListeners['event:updated'](inputData);
       });
 
+      describe('event:updated websocket listener', function() {
+
+        it('should publish to the global pubsub for each existing mail in the received jcal object', function(done) {
+          this.pubsub.local = {
+            topic: function(event) {
+              expect(event).to.equal('calendar:event:updated');
+              return {
+                forward: function(global, data) {
+                  expect(data).to.deep.equal({
+                    target: johnDoe,
+                    event: inputData,
+                    websocketEvent: 'event:updated'
+                  });
+                  done();
+                }
+              };
+            }
+          };
+
+          var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+          mod.init(this.moduleHelpers.dependencies);
+          this.socketListeners['event:updated'](inputData);
+        });
+
+      });
+
+      describe('event:deleted websocket listener', function() {
+
+        it('should publish to the global pubsub for each existing mail in the received jcal object', function(done) {
+          this.pubsub.local = {
+            topic: function(event) {
+              expect(event).to.equal('calendar:event:updated');
+              return {
+                forward: function(global, data) {
+                  expect(data).to.deep.equal({
+                    target: johnDoe,
+                    event: inputData,
+                    websocketEvent: 'event:deleted'
+                  });
+                  done();
+                }
+              };
+            }
+          };
+
+          var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+          mod.init(this.moduleHelpers.dependencies);
+          this.socketListeners['event:deleted'](inputData);
+        });
+
+      });
     });
 
   });

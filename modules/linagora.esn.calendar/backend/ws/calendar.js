@@ -69,6 +69,9 @@ function init(dependencies) {
       socket.on('event:updated', function(data) {
         _notifyAttendees(data, 'event:updated');
       });
+      socket.on('event:deleted', function(data) {
+        _notifyAttendees(data, 'event:deleted');
+      });
     });
 
   initialized = true;

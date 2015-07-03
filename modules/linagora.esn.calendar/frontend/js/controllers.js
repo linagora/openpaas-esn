@@ -260,13 +260,18 @@ angular.module('esn.calendar')
         uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', newEvent);
         eventService.copyNonStandardProperties(newEvent, oldEvent);
       }
+      function liveNotificationHandlerOnDelete(msg) {
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', calendarService.icalToShell(msg).id);
+      }
       var sio = livenotification('/calendars');
 
       sio.on('event:created', liveNotificationHandlerOnCreate);
       sio.on('event:updated', liveNotificationHandlerOnUpdate);
+      sio.on('event:deleted', liveNotificationHandlerOnDelete);
 
       $scope.$on('$destroy', function() {
         sio.removeListener('event:created', liveNotificationHandlerOnCreate);
         sio.removeListener('event:updated', liveNotificationHandlerOnUpdate);
+        sio.removeListener('event:deleted', liveNotificationHandlerOnDelete);
       });
     });
