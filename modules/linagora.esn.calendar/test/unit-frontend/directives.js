@@ -44,22 +44,22 @@ describe('The Calendar Angular module', function() {
     });
   });
 
-  beforeEach(inject(['$compile', '$rootScope', 'moment', 'calendarUtils', function($c, $r, moment, calendarUtils) {
-    this.$compile = $c;
-    this.$rootScope = $r;
-    this.$scope = this.$rootScope.$new();
-    this.moment = moment;
-    this.calendarUtils = calendarUtils;
-
-    this.initDirective = function(scope) {
-      var html = '<event-form/>';
-      var element = this.$compile(html)(scope);
-      scope.$digest();
-      return element;
-    };
-  }]));
-
   describe('The eventForm directive', function() {
+
+    beforeEach(inject(['$compile', '$rootScope', 'moment', 'calendarUtils', function($c, $r, moment, calendarUtils) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+      this.$scope = this.$rootScope.$new();
+      this.moment = moment;
+      this.calendarUtils = calendarUtils;
+
+      this.initDirective = function(scope) {
+        var html = '<event-form/>';
+        var element = this.$compile(html)(scope);
+        scope.$digest();
+        return element;
+      };
+    }]));
 
     it('should initiate $scope.editedEvent from $scope.event if it exists', function() {
       this.$scope.event = {
@@ -92,6 +92,61 @@ describe('The Calendar Angular module', function() {
         done();
       });
       this.$scope.$digest();
+    });
+
+  });
+
+  describe('The friendlifyEndDate directive', function() {
+
+    beforeEach(inject(['$compile', '$rootScope', 'moment', function($c, $r, moment) {
+      this.$compile = $c;
+      this.$rootScope = $r;
+      this.$scope = this.$rootScope.$new();
+      this.moment = moment;
+
+      this.initDirective = function(scope) {
+        var html = '<input ng-model="editedEvent.end" friendlify-end-date/>';
+        var element = this.$compile(html)(scope);
+        scope.$digest();
+        return element;
+      };
+    }]));
+
+    it('should have a first formatters that output the date -1 day if editedEvent is a allday', function() {
+      this.$scope.editedEvent = {
+        allDay: true,
+        end: this.moment('2015-07-03')
+      };
+      var element = this.initDirective(this.$scope);
+      var controller = element.controller('ngModel');
+      expect(controller.$viewValue).to.deep.equal('2015/07/02');
+    });
+
+    it('should have a first formatters that do nothing if editedEvent is not allday', function() {
+      this.$scope.editedEvent = {
+        allDay: false
+      };
+      var element = this.initDirective(this.$scope);
+      var formatter = element.controller('ngModel').$formatters[0];
+      expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
+    });
+
+    it('should have a last parsers that add 1 day if editedEvent is allday', function() {
+      this.$scope.editedEvent = {
+        allDay: true
+      };
+      var element = this.initDirective(this.$scope);
+      var parser = element.controller('ngModel').$parsers[0];
+      expect(parser(this.moment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.moment('2015/07/04').format('YYYY/MM/DD'));
+    });
+
+    it('should have a last parsers that do nothing if editedEvent is not allday', function() {
+      this.$scope.editedEvent = {
+        allDay: false
+      };
+      var element = this.initDirective(this.$scope);
+      var parser = element.controller('ngModel').$parsers[0];
+      expect(parser(this.moment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.moment('2015/07/03').format('YYYY/MM/DD'));
     });
 
   });

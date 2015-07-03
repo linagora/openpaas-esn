@@ -160,6 +160,44 @@ angular.module('esn.calendar')
       };
     }
   ])
+  .directive('friendlifyEndDate', function(moment) {
+    function link(scope, element, attrs, ngModel) {
+      function _ToView(value) {
+        if (scope.editedEvent.allDay) {
+          var valueToDisplay = moment(new Date(value)).subtract(1, 'days').format('YYYY/MM/DD');
+          ngModel.$setViewValue(valueToDisplay);
+          ngModel.$render();
+          return valueToDisplay;
+        }
+        return value;
+      }
+
+      function _toModel(value) {
+        if (scope.editedEvent.allDay) {
+          return moment(value).add(1, 'days');
+        }
+        return value;
+      }
+
+      /**
+       * Ensure that the view has a userfriendly end date output by removing 1 day to the editedEvent.end
+       * if it is an allDay. We must does it because fullCalendar uses exclusive date/time end date.
+       */
+      ngModel.$formatters.unshift(_ToView);
+
+      /**
+       * Ensure that if editedEvent is allDay, we had 1 days to editedEvent.end because fullCalendar and
+       * caldav has exclusive date/time end date.
+       */
+      ngModel.$parsers.push(_toModel);
+    }
+
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      link: link
+    };
+  })
   .directive('dateToMoment', function(moment) {
     function link(scope, element, attrs, controller) {
       function _toModel(value) {
@@ -196,3 +234,4 @@ angular.module('esn.calendar')
       controller: 'calendarController'
     };
   });
+
