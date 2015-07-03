@@ -222,16 +222,16 @@ angular.module('esn.calendar')
         match: {
           start: moment(start).format('YYYYMMDD[T]HHmmss'),
           end: moment(end).format('YYYYMMDD[T]HHmmss')
-        },
-        scope: {
-          calendars: [calendarPath]
         }
       };
 
-      return request('post', '/json/queries/time-range', null, req).then(function(response) {
-        return response.data.map(function(vcaldata) {
-          var vcalendar = new ICAL.Component(vcaldata);
-          return new CalendarShell(vcalendar);
+      return request('post', calendarPath + '.json', null, req).then(function(response) {
+        if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
+          return [];
+        }
+        return response.data._embedded['dav:item'].map(function(icaldata) {
+          var vcalendar = new ICAL.Component(icaldata.data);
+          return new CalendarShell(vcalendar, icaldata._links.self.href, icaldata.etag);
         });
       });
     }
