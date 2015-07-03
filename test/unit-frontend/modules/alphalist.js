@@ -37,6 +37,7 @@ describe('The Alpha List module', function() {
     describe('the removeItem function', function() {
       it('should remove the item from the list', function() {
         var item = {firstName: 'CBC', lastName: 'DEF'};
+        var itemWithoutFirstname = {firstName: '', lastName: 'DDD'};
 
         var keys = 'ABC';
         var others = '#';
@@ -44,6 +45,7 @@ describe('The Alpha List module', function() {
           {firstName: 'DBC', lastName: 'DEF'},
           item,
           {firstName: 'CAC', lastName: 'DEF'},
+          itemWithoutFirstname,
           {firstName: 'aBC', lastName: 'DEF'},
           {firstName: 'EBC', lastName: 'DEF'},
           {firstName: 'zBC', lastName: 'DEF'}
@@ -54,10 +56,15 @@ describe('The Alpha List module', function() {
         category.removeItem(item);
         var categories = category.get();
 
-        expect(categories.A).to.deep.equals([items[3]]);
+        expect(categories.A).to.deep.equals([items[4]]);
         expect(categories.B).to.deep.equals([]);
         expect(categories.C).to.deep.equals([items[2]]);
-        expect(categories[others]).to.deep.equals([items[0], items[4], items[5]]);
+
+        expect(categories[others]).to.deep.equals([itemWithoutFirstname, items[0], items[5], items[6]]);
+
+        category.removeItem(itemWithoutFirstname);
+        categories = category.get();
+        expect(categories[others]).to.deep.equals([items[0], items[5], items[6]]);
       });
     });
 
