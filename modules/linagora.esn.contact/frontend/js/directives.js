@@ -207,7 +207,7 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', function($rootScope, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService) {
+  .directive('contactListItem', function($rootScope, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -228,8 +228,10 @@ angular.module('linagora.esn.contact')
         $scope.tel = getFirstValue('tel');
 
         $scope.deleteContact = function() {
-          contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function() {
+          contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {
             notificationFactory.weakError('Contact Delete', 'Can not delete contact');
+
+            return $q.reject(err);
           }).then(function(taskId) {
             return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
               return gracePeriodService.cancel(taskId).then(function() {

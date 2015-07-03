@@ -250,6 +250,25 @@ describe('The contact Angular module directives', function() {
         done(new Error());
       });
 
+      it('should not grace the request on failure', function(done) {
+        this.notificationFactory.weakError = function() {};
+        this.scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        this.gracePeriodService.grace = done;
+
+        this.contactsService.remove = function() {
+          return self.$q.reject();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+
+        done();
+      });
+
       it('should grace the request using the default delay on success', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.contactsService.remove = function() {
