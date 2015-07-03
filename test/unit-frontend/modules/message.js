@@ -348,6 +348,59 @@ describe('The esn.message Angular module', function() {
     });
   });
 
+
+  describe('messageDateLink directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should render link based on scope correctly', function() {
+      var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
+
+      var scope = this.$rootScope.$new();
+      scope.message = { _id: '1234' };
+      scope.activitystream = { activity_stream: { uuid: '5678' } };
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('a').attr('href'))
+        .to.equal('/#messages/1234/activitystreams/5678');
+    });
+
+    it('should render time based on message.published correctly', function () {
+      var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
+
+      var scope = this.$rootScope.$new();
+      scope.message = { published: new Date() };
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('a').find('small').text())
+        .to.equal('a few seconds ago');
+    });
+
+    it('should render time based on message.timestamps.creation correctly', function () {
+      var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
+
+      var scope = this.$rootScope.$new();
+      scope.message = { timestamps: { creation: new Date() } };
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('a').find('small').text())
+        .to.equal('a few seconds ago');
+    });
+  });
+
+
   describe('messageController', function() {
 
     beforeEach(inject(function($rootScope, $controller, $q) {

@@ -1016,4 +1016,14 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         });
       }
     };
+  })
+  .directive('messageDateLink', function () {
+    return {
+      restrict: 'E',
+      scope: {
+        'message': '=',
+        'activitystream': '='
+      },
+      templateUrl: '/views/modules/message/templates/includes/dateLink.html'
+    };
   });
