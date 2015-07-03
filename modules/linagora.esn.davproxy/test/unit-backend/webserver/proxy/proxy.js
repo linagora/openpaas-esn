@@ -44,7 +44,7 @@ describe('The proxy dispatcher module', function() {
             done();
           }
         },
-        {}
+        {endpoint: 'http://localhost'}
       );
     });
 
@@ -60,6 +60,32 @@ describe('The proxy dispatcher module', function() {
           return {
             web: function(req, res, options) {
               expect(options.target).to.equal(endpoint);
+              done();
+            }
+          };
+        }
+      };
+
+      mockery.registerMock('http-proxy', proxy);
+      mockery.registerMock('./graceperiod', function() {});
+
+      getHandler('http')({}, {}, options);
+    });
+
+    it('should call proxy with https parameters', function(done) {
+
+      var endpoint = 'https://localhost:9393/foobar';
+      var options = {
+        endpoint: endpoint
+      };
+
+      var proxy = {
+        createProxyServer: function() {
+          return {
+            web: function(req, res, options) {
+              expect(options.target).to.equal(endpoint);
+              expect(options.headers.host).to.equal('localhost:9393');
+              expect(options.agent).to.deep.equal(require('https').globalAgent);
               done();
             }
           };
