@@ -236,19 +236,22 @@ angular.module('esn.calendar')
       eventService.copyNonStandardProperties(data, events[0]);
     }
 
-    $rootScope.$on('modifiedCalendarItem', function(event, data) {
-      _modifiedCalendarItem(data);
-    });
-    $rootScope.$on('removedCalendarItem', function(event, data) {
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', data);
-    });
-    $rootScope.$on('addedCalendarItem', function(event, data) {
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', data);
-    });
+    var unregisterFunctions = [
+      $rootScope.$on('modifiedCalendarItem', function(event, data) {
+        _modifiedCalendarItem(data);
+      }),
+      $rootScope.$on('removedCalendarItem', function(event, data) {
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', data);
+      }),
+      $rootScope.$on('addedCalendarItem', function(event, data) {
+        uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', data);
+      })
+    ];
 
     function liveNotificationHandlerOnCreate(msg) {
       uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('renderEvent', calendarService.icalToShell(msg));
     }
+
     function liveNotificationHandlerOnUpdate(msg) {
       var newEvent = calendarService.icalToShell(msg);
       var oldEvent = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', newEvent.id)[0];
@@ -260,11 +263,12 @@ angular.module('esn.calendar')
       uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', newEvent);
       eventService.copyNonStandardProperties(newEvent, oldEvent);
     }
+
     function liveNotificationHandlerOnDelete(msg) {
       uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('removeEvents', calendarService.icalToShell(msg).id);
     }
-    var sio = livenotification('/calendars');
 
+    var sio = livenotification('/calendars');
     sio.on('event:created', liveNotificationHandlerOnCreate);
     sio.on('event:updated', liveNotificationHandlerOnUpdate);
     sio.on('event:deleted', liveNotificationHandlerOnDelete);
@@ -273,5 +277,8 @@ angular.module('esn.calendar')
       sio.removeListener('event:created', liveNotificationHandlerOnCreate);
       sio.removeListener('event:updated', liveNotificationHandlerOnUpdate);
       sio.removeListener('event:deleted', liveNotificationHandlerOnDelete);
+      unregisterFunctions.forEach(function(unregisterFunction) {
+        unregisterFunction();
+      });
     });
   });
