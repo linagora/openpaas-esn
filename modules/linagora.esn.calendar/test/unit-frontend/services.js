@@ -239,20 +239,32 @@ describe('The Calendar Angular module services', function() {
 
         // The caldav server will be hit
         var data = {
-          match: { start: '20140101T000000', end: '20140102T000000' },
-          scope: { calendars: ['/path/to/calendar'] }
+          match: { start: '20140101T000000', end: '20140102T000000' }
         };
-        this.$httpBackend.expectPOST('/json/queries/time-range', data).respond([
-          ['vcalendar', [], [
-            ['vevent', [
-              ['uid', {}, 'text', 'myuid'],
-              ['summary', {}, 'text', 'title'],
-              ['location', {}, 'text', 'location'],
-              ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
-              ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
-           ], []]
-         ]]
-       ]);
+        this.$httpBackend.expectPOST('/path/to/calendar.json', data).respond({
+          '_links': {
+            'self': { 'href': '/path/to/calendar.json' }
+          },
+          '_embedded': {
+            'dav:item': [{
+              '_links': {
+                'self': { 'href': '/path/to/calendar/myuid.ics' }
+              },
+              'etag': '"123123"',
+              'data': [
+                'vcalendar', [], [
+                  ['vevent', [
+                    ['uid', {}, 'text', 'myuid'],
+                    ['summary', {}, 'text', 'title'],
+                    ['location', {}, 'text', 'location'],
+                    ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+                    ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
+                  ], []]
+                ]
+              ]
+            }]
+          }
+        });
 
         var start = new Date(2014, 0, 1);
         var end = new Date(2014, 0, 2);
@@ -266,8 +278,8 @@ describe('The Calendar Angular module services', function() {
             expect(events[0].start.toDate()).to.equalDate(moment('2014-01-01 02:03:04').toDate());
             expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
             expect(events[0].vcalendar).to.be.an('object');
-            expect(events[0].etag).to.be.empty;
-            expect(events[0].path).to.be.empty;
+            expect(events[0].etag).to.equal('"123123"');
+            expect(events[0].path).to.equal('/path/to/calendar/myuid.ics');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
