@@ -253,6 +253,7 @@ describe('The Calendar Angular module controllers', function() {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
       checkRender();
+      uiCalendarDiv.remove();
     });
 
     it('should resize the calendar height twice when the controller is created', function() {
@@ -272,6 +273,7 @@ describe('The Calendar Angular module controllers', function() {
         // Depending on the context, the 'no defered tasks' exception can occur
       }
       expect(called).to.equal(2);
+      uiCalendarDiv.remove();
     });
 
     it('should resize the calendar height once when the window is resized', function() {
@@ -293,6 +295,7 @@ describe('The Calendar Angular module controllers', function() {
 
       angular.element(this.$window).resize();
       expect(called).to.equal(1);
+      uiCalendarDiv.remove();
     });
 
     it('should initialize a listener on event:created ws event', function(done) {
