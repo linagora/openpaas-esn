@@ -114,7 +114,7 @@ angular.module('linagora.esn.contact')
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
-    $scope.sortBy = 'firstName';
+    $scope.sortBy = 'displayName';
     $scope.prefix = 'contact-index';
     $scope.showMenu = false;
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
