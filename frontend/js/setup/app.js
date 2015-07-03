@@ -2,7 +2,7 @@
 
 var angularInjections = angularInjections || [];
 
-angular.module('setupApp', [].concat(angularInjections)).controller('wizardController', ['$scope', 'setupAPI', function($scope, setupAPI) {
+angular.module('setupApp', [].concat(angularInjections)).controller('wizardController', function($scope, setupAPI) {
   $scope.settings = {};
   $scope.settings.hostname = null;
   $scope.settings.port = null;
@@ -90,7 +90,7 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
       });
   };
 
-}]).service('setupAPI', ['$http', function($http) {
+}).service('setupAPI', function($http) {
 
     function testConnection(settings) {
       var url = '/api/document-store/connection/' +
@@ -113,5 +113,4 @@ angular.module('setupApp', [].concat(angularInjections)).controller('wizardContr
       testConnection: testConnection,
       recordSettings: recordSettings
     };
-  }
-]);
+  });

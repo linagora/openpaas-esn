@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.widget.helper', ['mgcrea.ngStrap.modal'])
-.directive('modalLauncher', ['$modal', function($modal) {
+.directive('modalLauncher', function($modal) {
   return {
     restrict: 'A',
     scope: true,
@@ -16,8 +16,8 @@ angular.module('esn.widget.helper', ['mgcrea.ngStrap.modal'])
       };
     }
   };
-}])
-.factory('widget.wizard', function() {
+})
+.factory('WidgetWizard', function() {
   function Wizard(steps) {
     var self = this;
     this.template = null;

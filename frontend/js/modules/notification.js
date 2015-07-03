@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.notification', ['ui.notify', 'angularMoment'])
-  .factory('notificationFactory', ['notificationService', function(notificationService) {
+  .factory('notificationFactory', function(notificationService) {
     var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
     var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
 
@@ -100,4 +100,4 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
       strongInfo: strongInfo,
       confirm: confirm
     };
-  }]);
+  });

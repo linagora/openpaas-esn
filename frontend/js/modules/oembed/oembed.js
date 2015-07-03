@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.oembed', [])
-  .directive('oembeds', ['$compile', '$log', 'oembedService', function($compile, $log, oembedService) {
+  .directive('oembeds', function($compile, $log, oembedService) {
     return {
       restrict: 'E',
       scope: {
@@ -31,8 +31,8 @@ angular.module('esn.oembed', [])
         });
       }
     };
-  }])
-  .factory('oembedService', ['$log', 'oembedRegistry', function($log, oembedRegistry) {
+  })
+  .factory('oembedService', function($log, oembedRegistry) {
     function getLinks(text) {
       var source = (text || '').toString();
       var urlArray = [];
@@ -83,8 +83,8 @@ angular.module('esn.oembed', [])
       getProvider: getProvider,
       fixHttpLinks: fixHttpLinks
     };
-  }])
-  .factory('oembedRegistry', ['$log', function($log) {
+  })
+  .factory('oembedRegistry', function($log) {
     var providers = {};
 
     return {
@@ -101,8 +101,8 @@ angular.module('esn.oembed', [])
         return providers;
       }
     };
-  }])
-  .factory('oembedResolver', ['$http', function($http) {
+  })
+  .factory('oembedResolver', function($http) {
     return {
 
       yql: function(oembed, url, width, height) {
@@ -145,4 +145,4 @@ angular.module('esn.oembed', [])
         });
       }
     };
-  }]);
+  });

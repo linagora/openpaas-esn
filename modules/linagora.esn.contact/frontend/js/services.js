@@ -112,7 +112,7 @@ angular.module('linagora.esn.contact')
       getFormattedName: getFormattedName
     };
   })
-  .factory('contactsService', ['ContactsHelper', 'tokenAPI', 'uuid4', 'ICAL', 'DAV_PATH', '$q', '$http', '$rootScope', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {
+  .factory('contactsService', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {
     function ContactsShell(vcard, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
@@ -435,4 +435,4 @@ angular.module('linagora.esn.contact')
 
       shellToVCARD: shellToVCARD
     };
-  }]);
+  });

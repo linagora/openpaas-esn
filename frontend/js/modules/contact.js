@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.alert', 'esn.domain', 'esn.session'])
-  .controller('contactsController', ['$scope', 'contactAPI', 'session', '$alert', 'usSpinnerService', 'user',
-  function($scope, contactAPI, session, alert, usSpinnerService, user) {
+  .controller('contactsController', function($scope, contactAPI, session, $alert, usSpinnerService, user) {
     var spinnerKey = 'addressbooksSpinner';
     var contactsSpinnerKey = 'contactsSpinner';
     $scope.addressbooks = [];
@@ -15,7 +14,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
     $scope.contactsRestActive = false;
 
     $scope.displayError = function(err) {
-      alert({
+      $alert({
         content: err,
         type: 'danger',
         show: true,
@@ -161,10 +160,10 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
     };
 
     $scope.init();
-  }])
-  .controller('googleContactImporterController', ['$scope', 'contactAPI', '$window', '$alert', function($scope, contactAPI, $window, alert) {
+  })
+  .controller('googleContactImporterController', function($scope, contactAPI, $window, $alert) {
     $scope.displayError = function(err) {
-      alert({
+      $alert({
         content: err,
         type: 'danger',
         show: true,
@@ -181,8 +180,8 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
         $scope.displayError(error);
       });
     };
-  }])
-  .factory('contactAPI', ['Restangular', function(Restangular) {
+  })
+  .factory('contactAPI', function(Restangular) {
     return {
       startGoogleImport: function() {
         return Restangular.oneUrl('googlers', '/api/contacts/google/oauthurl').get();
@@ -208,6 +207,4 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
         return Restangular.one('contacts/' + id + '/invitations').customPOST(body);
       }
     };
-  }]);
-
-
+  });

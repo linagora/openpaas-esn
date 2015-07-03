@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
-.factory('session', ['$q', function($q) {
+.factory('session', function($q) {
 
   var bootstrapDefer = $q.defer();
   var session = {
@@ -36,13 +36,13 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   session.setDomain = setDomain;
 
   return session;
-}])
+})
 
-.controller('currentDomainController', ['session', '$scope', function(session, $scope) {
+.controller('currentDomainController', function(session, $scope) {
   $scope.domain = session.domain;
-}])
+})
 
-.controller('sessionInitESNController', ['$scope', 'sessionFactory', '$route', function($scope, sessionFactory) {
+.controller('sessionInitESNController', function($scope, sessionFactory) {
 
   $scope.session = {
     template: '/views/commons/loading.html'
@@ -56,10 +56,9 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
       $scope.session.template = '/views/esn/partials/application.html';
     }
   });
-}])
+})
 
-.factory('sessionFactory', ['$log', '$q', 'userAPI', 'domainAPI', 'session',
-    function($log, $q, userAPI, domainAPI, session) {
+.factory('sessionFactory', function($log, $q, userAPI, domainAPI, session) {
 
       function onError(error, callback) {
         if (error && error.data) {
@@ -106,4 +105,4 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
       return {
         fetchUser: fetchUser
       };
-    }]);
+    });

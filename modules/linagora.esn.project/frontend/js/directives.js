@@ -3,10 +3,9 @@
 angular.module('esn.project')
 
 .directive('projectCreate',
-['widget.wizard', 'selectionService', 'projectCreationService', '$timeout', '$location', '$alert', '$rootScope',
-function(Wizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
+function(WidgetWizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
   function link($scope, element, attrs) {
-    $scope.wizard = new Wizard([
+    $scope.wizard = new WidgetWizard([
       '/project/views/project-creation-wizard-1',
       '/project/views/project-creation-wizard-2',
       '/project/views/project-creation-wizard-3'
@@ -82,8 +81,8 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       },
       link: link
     };
-}])
-.directive('ensureUniqueProjectTitle', ['projectAPI', '$q', function(projectAPI, $q) {
+})
+.directive('ensureUniqueProjectTitle', function(projectAPI, $q) {
   return {
     require: 'ngModel',
     link: function($scope, element, attrs, ngModel) {
@@ -102,9 +101,8 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
       };
     }
   };
-}])
-  .directive('projectAddCommunitiesWidget', ['$q', 'projectAPI', 'notificationFactory',
-    function($q, projectAPI, notificationFactory) {
+})
+  .directive('projectAddCommunitiesWidget', function($q, projectAPI, notificationFactory) {
       return {
         restrict: 'E',
         replace: true,
@@ -167,7 +165,7 @@ function(Wizard, selectionService, projectCreationService, $timeout, $location, 
           };
         }
       };
-    }])
+    })
   .directive('projectDescription', function() {
     return {
       restrict: 'E',

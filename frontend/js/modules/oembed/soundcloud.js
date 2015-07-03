@@ -12,11 +12,11 @@
     resolver: 'http'
   };
 
-  soundcloud.run(['oembedRegistry', function(oembedRegistry) {
+  soundcloud.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  soundcloud.directive('soundcloudOembed', ['oembedResolver', 'oembedService', function(oembedResolver, oembedService) {
+  soundcloud.directive('soundcloudOembed', function(oembedResolver, oembedService) {
     return {
       restrict: 'E',
       replace: true,
@@ -36,6 +36,6 @@
         );
       }
     };
-  }]);
+  });
 
 })();

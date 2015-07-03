@@ -5,7 +5,7 @@ angular.module('linagora.esn.contact', [
   'mgcrea.ngStrap.helpers.dateParser', 'mgcrea.ngStrap.helpers.dateFormatter', 'linagora.esn.graceperiod'
 ])
   .constant('DATE_FORMAT', 'MM/dd/yyyy')
-  .config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
+  .config(function($routeProvider, routeResolver) {
   $routeProvider.when('/contact', {
     templateUrl: '/contact/views/contacts',
     controller: 'contactsListController',
@@ -30,4 +30,4 @@ angular.module('linagora.esn.contact', [
       user: routeResolver.session('user')
     }
   });
-}]);
+});

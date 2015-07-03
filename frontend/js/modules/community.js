@@ -1,20 +1,20 @@
 'use strict';
 
 angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', 'esn.user', 'esn.avatar', 'restangular', 'mgcrea.ngStrap.alert', 'mgcrea.ngStrap.tooltip', 'angularFileUpload', 'esn.infinite-list', 'openpaas-logo', 'esn.object-type', 'ngTagsInput', 'esn.widget.helper'])
-  .config(['tagsInputConfigProvider', function(tagsInputConfigProvider) {
+  .config(function(tagsInputConfigProvider) {
     tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
       placeholder: true,
       displayProperty: true
     });
-  }])
-  .run(['objectTypeResolver', 'objectTypeAdapter', 'communityAPI', 'communityAdapterService', 'Restangular', 'ASTrackerSubscriptionService', function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
+  })
+  .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, Restangular, ASTrackerSubscriptionService) {
     objectTypeResolver.register('community', communityAPI.get);
     objectTypeAdapter.register('community', communityAdapterService);
     Restangular.extendModel('communities', function(model) {
       return communityAdapterService(model);
     });
     ASTrackerSubscriptionService.register('community', {get: communityAPI.get});
-  }])
+  })
   .factory('communityAdapterService', function() {
     return function(community) {
       community.htmlUrl = '/#/communities/' + community._id;
@@ -25,7 +25,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       return community;
     };
   })
-  .factory('communityAPI', ['Restangular', '$http', '$upload', function(Restangular, $http, $upload) {
+  .factory('communityAPI', function(Restangular, $http, $upload) {
 
     function list(domain, options) {
       var query = options || {};
@@ -68,9 +68,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       uploadAvatar: uploadAvatar,
       getMember: getMember
     };
-  }])
-  .factory('communityCreationService', ['$q', '$log', '$timeout', 'communityAPI',
-   function($q, $log, $timeout, communityAPI) {
+  })
+  .factory('communityCreationService', function($q, $log, $timeout, communityAPI) {
 
     function notifyProgress(d, step, percent) {
       d.notify({
@@ -139,7 +138,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       return d.promise;
     }
     return createCommunity;
-  }])
+  })
   .directive('communityCreateButton', function() {
     return {
       restrict: 'E',
@@ -147,10 +146,9 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
   })
   .directive('communityCreate',
-  ['widget.wizard', 'selectionService', 'communityCreationService', '$timeout', '$location', '$alert', '$rootScope',
-  function(Wizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
+  function(WidgetWizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
     function link($scope, element, attrs) {
-      $scope.wizard = new Wizard([
+      $scope.wizard = new WidgetWizard([
         '/views/modules/community/community-creation-wizard-1',
         '/views/modules/community/community-creation-wizard-2',
         '/views/modules/community/community-creation-wizard-3'
@@ -225,9 +223,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       link: link
     };
 
-  }])
-  .controller('communitiesController', ['$scope', '$log', '$location', 'communityAPI', 'userAPI', 'domain', 'user',
-  function($scope, $log, $location, communityAPI, userAPI, domain, user) {
+  })
+  .controller('communitiesController', function($scope, $log, $location, communityAPI, userAPI, domain, user) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;
@@ -299,8 +296,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
 
     $scope.getAll();
-  }])
-  .directive('communityDisplay', ['communityAPI', 'session', '$log', '$location', function(communityAPI, session, $log, $location) {
+  })
+  .directive('communityDisplay', function(communityAPI, session, $log, $location) {
     return {
       restrict: 'E',
       scope: {
@@ -360,8 +357,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         };
       }
     };
-  }])
-  .directive('communityPendingInvitationList', ['collaborationAPI', '$animate', function(collaborationAPI, $animate) {
+  })
+  .directive('communityPendingInvitationList', function(collaborationAPI, $animate) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-pending-invitation-list.html',
@@ -399,8 +396,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         $scope.updatePendingRequestsList();
       }
     };
-  }])
-  .directive('communityPendingInvitationDisplay', ['collaborationAPI', function(collaborationAPI) {
+  })
+  .directive('communityPendingInvitationDisplay', function(collaborationAPI) {
     return {
       restrict: 'E',
       scope: {
@@ -420,7 +417,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         };
       }
     };
-  }])
+  })
   .directive('communityDescription', function() {
     return {
       restrict: 'E',
@@ -428,7 +425,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       templateUrl: '/views/modules/community/community-description.html'
     };
   })
-  .directive('communityButtonJoin', ['communityService', function(communityService) {
+  .directive('communityButtonJoin', function(communityService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-join.html',
@@ -455,8 +452,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         onFail: '&'
       }
     };
-  }])
-  .directive('communityButtonLeave', ['communityService', function(communityService) {
+  })
+  .directive('communityButtonLeave', function(communityService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-leave.html',
@@ -483,8 +480,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         onFail: '&'
       }
     };
-  }])
-  .directive('communityButtonRequestMembership', ['communityService', function(communityService) {
+  })
+  .directive('communityButtonRequestMembership', function(communityService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-request-membership.html',
@@ -511,8 +508,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         onFail: '&'
       }
     };
-  }])
-  .directive('communityButtonCancelRequestMembership', ['communityService', function(communityService) {
+  })
+  .directive('communityButtonCancelRequestMembership', function(communityService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-button-cancel-request-membership.html',
@@ -539,9 +536,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         onFail: '&'
       }
     };
-  }])
-  .controller('communityController', ['$rootScope', '$scope', '$location', '$log', 'session', 'communityAPI', 'communityService', 'objectTypeAdapter', 'community', 'memberOf',
-  function($rootScope, $scope, $location, $log, session, communityAPI, communityService, objectTypeAdapter, community, memberOf) {
+  })
+  .controller('communityController', function($rootScope, $scope, $location, $log, session, communityAPI, communityService, objectTypeAdapter, community, memberOf) {
     $scope.community = community;
     $scope.user = session.user;
     $scope.error = false;
@@ -621,8 +617,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     $scope.showMembershipRequestsWidget = function() {
       return $scope.isCommunityManager() && $scope.community.type !== 'open';
     };
-  }])
-  .directive('ensureUniqueCommunityTitle', ['communityAPI', '$q', function(communityAPI, $q) {
+  })
+  .directive('ensureUniqueCommunityTitle', function(communityAPI, $q) {
     return {
       require: 'ngModel',
       link: function($scope, element, attrs, ngModel) {
@@ -641,8 +637,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         };
       }
     };
-  }])
-  .factory('communityService', ['collaborationAPI', '$q', function(collaborationAPI, $q) {
+  })
+  .factory('communityService', function(collaborationAPI, $q) {
 
     function isManager(community, user) {
       return community.creator === user._id;
@@ -735,8 +731,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       requestMembership: requestMembership,
       cancelRequestMembership: cancelRequestMembership
     };
-  }])
-  .directive('communityMembershipRequestsWidget', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+  })
+  .directive('communityMembershipRequestsWidget', function($rootScope, collaborationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -776,8 +772,8 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         $rootScope.$on('community:request:accepted', removeRequestEntry);
       }
     };
-  }])
-  .directive('communityMembershipRequestsActions', ['$rootScope', 'collaborationAPI', function($rootScope, collaborationAPI) {
+  })
+  .directive('communityMembershipRequestsActions', function($rootScope, collaborationAPI) {
     return {
       restrict: 'E',
       replace: true,
@@ -819,7 +815,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         };
       }
     };
-  }])
+  })
   .directive('communityMemberAvatar', function() {
     return {
       restrict: 'E',
@@ -847,8 +843,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       }
     };
   })
-  .directive('communityInviteUsers', ['$q', 'collaborationAPI', 'communityService', 'session',
-    function($q, collaborationAPI, communityService, session) {
+  .directive('communityInviteUsers', function($q, collaborationAPI, communityService, session) {
     return {
       restrict: 'E',
       replace: true,
@@ -980,7 +975,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
         }
       }
     };
-  }])
+  })
   .directive('communityActionsToolbar', function() {
     return {
       restrict: 'E',
@@ -992,8 +987,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
     };
   })
   .controller('communityAStrackerController',
-  ['$rootScope', '$scope', '$log', 'AStrackerHelpers', 'communityAPI', 'ASTrackerNotificationService',
-    function($rootScope, $scope, $log, AStrackerHelpers, communityAPI, ASTrackerNotificationService) {
+  function($rootScope, $scope, $log, AStrackerHelpers, communityAPI, ASTrackerNotificationService) {
 
       $scope.activityStreams = ASTrackerNotificationService.streams;
 
@@ -1014,7 +1008,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
           }
         });
       });
-  }])
+  })
   .directive('listCommunityActivityStreams', function() {
     return {
       restrict: 'E',

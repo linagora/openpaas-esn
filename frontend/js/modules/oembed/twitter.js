@@ -8,11 +8,11 @@
     regexps: [new RegExp('twitter\\.com/[\\w-]+/status/[\\w-]+', 'i')]
   };
 
-  twitter.run(['oembedRegistry', function(oembedRegistry) {
+  twitter.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  twitter.directive('twitterOembed', ['oembedResolver', 'twitterWidgetService', function(oembedResolver, twitterWidgetService) {
+  twitter.directive('twitterOembed', function(oembedResolver, twitterWidgetService) {
     return {
       restrict: 'E',
       replace: true,
@@ -35,5 +35,5 @@
         );
       }
     };
-  }]);
+  });
 })();

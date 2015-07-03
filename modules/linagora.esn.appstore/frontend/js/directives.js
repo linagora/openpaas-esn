@@ -18,7 +18,7 @@ angular.module('esn.appstore')
       uninstall: function(title, message) { return 'Failed to uninstall ' + title + ' : ' + message; }
     }
   })
-  .directive('appstoreButtonSubmit', ['$modal', function($modal) {
+  .directive('appstoreButtonSubmit', function($modal) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-submit.html',
@@ -32,8 +32,8 @@ angular.module('esn.appstore')
         };
       }
     };
-  }])
-  .directive('ensureUniqueApplicationTitle', ['$timeout', '$q', 'appstoreAPI', function($timeout, $q, appstoreAPI) {
+  })
+  .directive('ensureUniqueApplicationTitle', function($timeout, $q, appstoreAPI) {
     return {
       restrict: 'A',
       require: 'ngModel',
@@ -53,8 +53,8 @@ angular.module('esn.appstore')
         };
       }
     };
-  }])
-  .directive('appstoreLabelDomainDeploy', ['$log', 'applicationService', function($log, applicationService) {
+  })
+  .directive('appstoreLabelDomainDeploy', function($log, applicationService) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-label-domain-deploy.html',
@@ -66,8 +66,8 @@ angular.module('esn.appstore')
         $log.info(scope.domainLevelApplication);
       }
     };
-  }])
-  .directive('appstoreSwitchDeploy', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', 'notificationFactory', 'NOTIFICATION', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService, notificationFactory, NOTIFICATION) {
+  })
+  .directive('appstoreSwitchDeploy', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService, notificationFactory, NOTIFICATION) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-switch.html',
@@ -146,8 +146,8 @@ angular.module('esn.appstore')
         });
       }
     };
-  }])
-  .directive('appstoreSwitchInstall', ['$log', '$q', '$timeout', 'session', 'appstoreAPI', 'applicationService', 'disableService', 'notificationFactory', 'NOTIFICATION', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService, notificationFactory, NOTIFICATION) {
+  })
+  .directive('appstoreSwitchInstall', function($log, $q, $timeout, session, appstoreAPI, applicationService, disableService, notificationFactory, NOTIFICATION) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-switch.html',
@@ -214,8 +214,8 @@ angular.module('esn.appstore')
         });
       }
     };
-  }])
-  .directive('appstoreButtonUpdate', ['appstoreAPI', function(appstoreAPI) {
+  })
+  .directive('appstoreButtonUpdate', function(appstoreAPI) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-update.html',
@@ -232,7 +232,7 @@ angular.module('esn.appstore')
 
       }
     };
-  }])
+  })
   .directive('appstoreAppDisplay', function() {
     return {
       replace: true,
@@ -252,7 +252,7 @@ angular.module('esn.appstore')
       }
     };
   })
-  .directive('communityAppDisplay', ['appstoreAPI', '$log', function(appstoreAPI, $log) {
+  .directive('communityAppDisplay', function(appstoreAPI, $log) {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/community/community-app-display.html',
@@ -327,4 +327,4 @@ angular.module('esn.appstore')
         };
       }
     };
-  }]);
+  });

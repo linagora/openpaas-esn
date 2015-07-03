@@ -2,7 +2,7 @@
 
 angular.module('esn.file', ['angularFileUpload', 'restangular'])
   .constant('FILES_API_URL', '/api/files')
-  .factory('fileUploadService', ['$q', '$timeout', '$log', 'fileAPIService', 'FILES_API_URL', function($q, $timeout, $log, fileAPIService, FILES_API_URL) {
+  .factory('fileUploadService', function($q, $timeout, $log, fileAPIService, FILES_API_URL) {
 
     function get() {
       var date = Date.now();
@@ -121,8 +121,8 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
     return {
       get: get
     };
-  }])
-  .factory('fileAPIService', ['$upload', 'Restangular', function($upload, Restangular) {
+  })
+  .factory('fileAPIService', function($upload, Restangular) {
     function uploadBlob(url, blob, mime, size, canceler) {
       return $upload.http({
         method: 'POST',
@@ -159,7 +159,7 @@ angular.module('esn.file', ['angularFileUpload', 'restangular'])
       uploadFile: uploadFile,
       remove: remove
     };
-  }])
+  })
   .factory('contentTypeService', function() {
 
     var extensions = {

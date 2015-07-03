@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.parser', ['ngSanitize'])
-  .factory('parserResolver', ['$q', function($q) {
+  .factory('parserResolver', function($q) {
 
     var parsers = {};
 
@@ -82,8 +82,8 @@ angular.module('esn.parser', ['ngSanitize'])
       resolve: resolve,
       resolveChain: resolveChain
     };
-  }])
-  .directive('textParser', ['parserResolver', '$log', '$filter', function(parserResolver, $log, $filter) {
+  })
+  .directive('textParser', function(parserResolver, $log, $filter) {
     return {
       restrict: 'E',
       link: function($scope, element, attrs) {
@@ -100,4 +100,4 @@ angular.module('esn.parser', ['ngSanitize'])
         });
       }
     };
-  }]);
+  });

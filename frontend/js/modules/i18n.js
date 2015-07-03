@@ -28,7 +28,7 @@ angular.module('esn.i18n', ['restangular'])
       });
     };
   })
-  .factory('i18nAPI', ['Restangular', function(Restangular) {
+  .factory('i18nAPI', function(Restangular) {
 
     function getSupportedLocale() {
       return Restangular.one('locales').get();
@@ -47,5 +47,5 @@ angular.module('esn.i18n', ['restangular'])
       getCurrentLocale: getCurrentLocale,
       setLocale: setLocale
     };
-  }]);
+  });
 

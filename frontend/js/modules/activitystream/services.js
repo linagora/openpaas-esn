@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.activitystream')
-.factory('activitystreamAPI', ['Restangular', function(Restangular) {
+.factory('activitystreamAPI', function(Restangular) {
   function get(id, options) {
     return Restangular.all('activitystreams/' + id).getList(options);
   }
@@ -19,9 +19,9 @@ angular.module('esn.activitystream')
     getResource: getResource,
     getUnreadCount: getUnreadCount
   };
-}])
+})
 
-.factory('activityStreamUpdates', ['restcursor', 'activitystreamAPI', 'activitystreamOriginDecorator', '$q', function(restcursor, activitystreamAPI, activitystreamOriginDecorator, $q) {
+.factory('activityStreamUpdates', function(restcursor, activitystreamAPI, activitystreamOriginDecorator, $q) {
   function apiWrapper(id) {
     function api(options) {
       return activitystreamAPI.get(id, options);
@@ -111,7 +111,7 @@ angular.module('esn.activitystream')
   }
 
   return applyUpdates;
-}])
+})
 
 .factory('activitystreamFilter', function() {
 
@@ -149,7 +149,7 @@ angular.module('esn.activitystream')
 
 })
 
-.factory('activitystreamMessageDecorator', ['messageAPI', function(messageAPI) {
+.factory('activitystreamMessageDecorator', function(messageAPI) {
   return function activitystreamMessageDecorator(callback) {
     return function(err, items) {
       if (err) {
@@ -190,12 +190,11 @@ angular.module('esn.activitystream')
       });
     };
   };
-}])
+})
 
 .factory(
 'activitystreamAggregator',
-['activitystreamFilter', 'filteredcursor', 'restcursor', 'activitystreamOriginDecorator', 'activitystreamAPI',
-  function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginDecorator, activitystreamAPI) {
+function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginDecorator, activitystreamAPI) {
 
     function apiWrapper(id) {
       function api(options) {
@@ -242,8 +241,8 @@ angular.module('esn.activitystream')
     }
 
     return activitystreamAggregator;
-  }]
-).factory('activitystreamsAggregator', ['$q', '$log', function($q, $log) {
+  }
+).factory('activitystreamsAggregator', function($q, $log) {
 
   function activitystreamsAggregator(aggs, rpp) {
     var aggregators = aggs.map(function(agg) {
@@ -342,8 +341,8 @@ angular.module('esn.activitystream')
   }
 
   return activitystreamsAggregator;
-}])
-.factory('activitystreamAggregatorCreator', ['activitystreamAggregator', 'activitystreamsAggregator', function(activitystreamAggregator, activitystreamsAggregator) {
+})
+.factory('activitystreamAggregatorCreator', function(activitystreamAggregator, activitystreamsAggregator) {
 
   function one(activitystream, streamOrigin, streams, limit) {
     return activitystreamAggregator(activitystream, streamOrigin, streams, limit);
@@ -363,8 +362,8 @@ angular.module('esn.activitystream')
       return many(streamOrigin, streams, limit);
     }
   };
-}])
-.factory('activitystreamOriginDecorator', ['activitystreamMessageDecorator', 'activitystreamHelper', function(activitystreamMessageDecorator, activitystreamHelper) {
+})
+.factory('activitystreamOriginDecorator', function(activitystreamMessageDecorator, activitystreamHelper) {
   return function activitystreamOriginDecorator(streamOrigin, streams, callback) {
 
     function getStreamOrigins(message) {
@@ -404,7 +403,7 @@ angular.module('esn.activitystream')
         return callback(err, items);
       });
     };
-}])
+})
 .factory('activitystreamHelper', function() {
 
   function getMessageStreamOrigins(message, streams) {

@@ -107,7 +107,7 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
       );
     };
   })
-.factory('invitationAPI', ['Restangular', function(Restangular) {
+.factory('invitationAPI', function(Restangular) {
 
   function get(id) {
     return Restangular.one('invitations', id).get();
@@ -126,4 +126,4 @@ angular.module('esn.invitation', ['restangular', 'esn.form.helper'])
     create: create,
     finalize: finalize
   };
-}]);
+});

@@ -9,11 +9,11 @@
     resolver: 'local'
   };
 
-  gist.run(['oembedRegistry', function(oembedRegistry) {
+  gist.run(function(oembedRegistry) {
     oembedRegistry.addProvider(provider);
-  }]);
+  });
 
-  gist.directive('gistOembed', ['oembedResolver', 'oembedService', '$compile', '$timeout', function(oembedResolver, oembedService, $compile, $timeout) {
+  gist.directive('gistOembed', function(oembedResolver, oembedService, $compile, $timeout) {
     return {
       restrict: 'E',
       replace: true,
@@ -33,5 +33,5 @@
         }, 0);
       }
     };
-  }]);
+  });
 })();

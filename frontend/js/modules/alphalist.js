@@ -4,7 +4,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
 
   .constant('ALPHA_ITEMS', '#ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
-  .factory('AlphaCategoryService', ['arrayHelper', 'ALPHA_ITEMS', function(arrayHelper, ALPHA_ITEMS) {
+  .factory('AlphaCategoryService', function(arrayHelper, ALPHA_ITEMS) {
 
     function Categorize(options) {
       this.options = options || {};
@@ -71,9 +71,9 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
     };
 
     return Categorize;
-  }])
+  })
 
-  .directive('alphaMenu', ['$document', function($document) {
+  .directive('alphaMenu', function($document) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/alphalist/alphamenu.html',
@@ -94,4 +94,4 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
         };
       }
     };
-  }]);
+  });

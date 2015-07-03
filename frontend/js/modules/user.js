@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.user', ['restangular', 'esn.object-type'])
-  .run(['objectTypeResolver', 'userAPI', 'Restangular', function(objectTypeResolver, userAPI, Restangular) {
+  .run(function(objectTypeResolver, userAPI, Restangular) {
     objectTypeResolver.register('user', userAPI.user);
     Restangular.extendModel('users', function(model) {
       model.url = function(user) {
@@ -18,8 +18,8 @@ angular.module('esn.user', ['restangular', 'esn.object-type'])
       };
       return model;
     });
-  }])
-  .factory('userAPI', ['Restangular', function(Restangular) {
+  })
+  .factory('userAPI', function(Restangular) {
 
     function currentUser() {
       return Restangular.one('user').get();
@@ -44,4 +44,4 @@ angular.module('esn.user', ['restangular', 'esn.object-type'])
       getCommunities: getCommunities,
       getActivityStreams: getActivityStreams
     };
-  }]);
+  });

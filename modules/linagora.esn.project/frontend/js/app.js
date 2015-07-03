@@ -13,7 +13,7 @@ angular.module('esn.project', [
   'mgcrea.ngStrap.helpers.dateParser',
   'mgcrea.ngStrap.datepicker'
 ])
-  .config(['$routeProvider', 'routeResolver', function($routeProvider, routeResolver) {
+  .config(function($routeProvider, routeResolver) {
 
     $routeProvider.when('/project/:project_id', {
       templateUrl: '/project/views/partials/project',
@@ -39,8 +39,8 @@ angular.module('esn.project', [
         project: routeResolver.api('projectAPI', 'get', 'project_id', '/project')
       }
     });
-  }])
-  .run(['projectAdapterService', 'objectTypeAdapter', 'ASTrackerSubscriptionService', 'projectAPI', function(projectAdapterService, objectTypeAdapter, ASTrackerSubscriptionService, projectAPI) {
+  })
+  .run(function(projectAdapterService, objectTypeAdapter, ASTrackerSubscriptionService, projectAPI) {
     objectTypeAdapter.register('project', projectAdapterService);
     ASTrackerSubscriptionService.register('project', {get: projectAPI.get});
-  }]);
+  });

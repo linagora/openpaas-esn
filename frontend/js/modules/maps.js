@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
-  .factory('osmAPI', ['$http', function($http) {
+  .factory('osmAPI', function($http) {
 
     function reverse(latitude, longitude, config) {
       config = config || {};
@@ -20,8 +20,8 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
     return {
       reverse: reverse
     };
-  }])
-  .factory('geoAPI', ['$window', '$geolocation', 'osmAPI', function($window, $geolocation, osmAPI) {
+  })
+  .factory('geoAPI', function($window, $geolocation, osmAPI) {
 
     function supported() {
       return 'geolocation' in $window.navigator;
@@ -40,7 +40,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       reverse: reverse,
       getCurrentPosition: getCurrentPosition
     };
-  }])
+  })
   .directive('mapGetDisplayCurrentPosition', function() {
     return {
       restrict: 'E',
@@ -59,7 +59,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
       controller: 'mapDisplayController'
     };
   })
-  .directive('fillPosition', ['geoAPI', function(geoAPI) {
+  .directive('fillPosition', function(geoAPI) {
     return {
       restrict: 'A',
       link: function($scope, elem) {
@@ -99,7 +99,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
         });
       }
     };
-  }])
+  })
   .controller('mapDisplayController', function($scope) {
 
     angular.extend($scope, {

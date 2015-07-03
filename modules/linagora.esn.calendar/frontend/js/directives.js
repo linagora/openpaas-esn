@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventMessage', ['calendarService', 'session', function(calendarService, session) {
+  .directive('eventMessage', function(calendarService, session) {
     return {
       restrict: 'E',
       replace: true,
@@ -50,7 +50,7 @@ angular.module('esn.calendar')
         updateEvent();
       }
     };
-  }])
+  })
   .directive('eventButtonCreate', function() {
     return {
       restrict: 'E',
@@ -76,10 +76,9 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
-  .directive('eventCreateQuickFormWizard', ['widget.wizard', '$rootScope',
-    function(Wizard, $rootScope) {
+  .directive('eventCreateQuickFormWizard', function(WidgetWizard, $rootScope) {
       function link($scope, element) {
-        $scope.wizard = new Wizard([
+        $scope.wizard = new WidgetWizard([
           '/calendar/views/partials/event-create-quick-form-wizard'
         ]);
         $rootScope.$on('modal.show', function() {
@@ -98,8 +97,7 @@ angular.module('esn.calendar')
         },
         link: link
       };
-    }
-  ])
+    })
   .directive('eventEdition', function() {
     return {
       restrict: 'E',
@@ -107,8 +105,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', ['$q', 'domainAPI', 'calendarUtils', 'session',
-    function($q, domainAPI, calendarUtils, session) {
+  .directive('eventForm', function($q, domainAPI, calendarUtils, session) {
       function link($scope, element, attrs, controller) {
         controller.initFormData();
 
@@ -160,7 +157,7 @@ angular.module('esn.calendar')
         link: link
       };
     }
-  ])
+  )
   .directive('friendlifyEndDate', function(moment) {
     function link(scope, element, attrs, ngModel) {
       function _ToView(value) {
@@ -235,4 +232,3 @@ angular.module('esn.calendar')
       controller: 'calendarController'
     };
   });
-

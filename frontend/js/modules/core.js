@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.core', [])
-  .factory('CounterFactory', ['$log', '$timeout', function($log, $timeout) {
+  .factory('CounterFactory', function($log, $timeout) {
 
     function Counter(initialCount, refreshTimer, refreshFn) {
       this.count = initialCount;
@@ -55,7 +55,7 @@ angular.module('esn.core', [])
         return new Counter(initialCount, refreshTimer, refreshFn);
       }
     };
-  }])
+  })
   .filter('bytes', function() {
     return function(bytes, precision) {
       if (bytes === 0) {
@@ -86,7 +86,7 @@ angular.module('esn.core', [])
       }
     };
   })
-  .directive('esnMainNavbar', ['$location', function($location) {
+  .directive('esnMainNavbar', function($location) {
 
     function firstPathSegment() {
       return $location.path().replace(/^\//, '').split('/').shift();
@@ -111,9 +111,9 @@ angular.module('esn.core', [])
       templateUrl: '/views/modules/core/esn-main-navbar.html',
       link: link
     };
-  }])
+  })
 
-  .directive('onFinishRender', ['$timeout', function($timeout) {
+  .directive('onFinishRender', function($timeout) {
     return {
       restrict: 'A',
       link: function($scope) {
@@ -124,7 +124,7 @@ angular.module('esn.core', [])
         }
       }
     };
-  }])
+  })
 
   .constant('routeResolver', {
     session: function(type) {

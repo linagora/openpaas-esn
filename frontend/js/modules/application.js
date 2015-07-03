@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.application', ['restangular'])
-  .controller('applicationController', ['$scope', '$log', '$location', 'applicationAPI', 'applications', function($scope, $log, $location, applicationAPI, applications) {
+  .controller('applicationController', function($scope, $log, $location, applicationAPI, applications) {
     $scope.applications = applications;
     $scope.sending = false;
     $scope.client = {};
@@ -20,8 +20,8 @@ angular.module('esn.application', ['restangular'])
         $scope.sending = false;
       });
     };
-  }])
-  .controller('applicationDetailsController', ['$scope', '$log', 'applicationAPI', 'application', function($scope, $log, applicationAPI, application) {
+  })
+  .controller('applicationDetailsController', function($scope, $log, applicationAPI, application) {
     $scope.client = application;
     $scope.sending = false;
 
@@ -37,7 +37,7 @@ angular.module('esn.application', ['restangular'])
     $scope.delete = function() {
       $log.debug('Delete client', $scope.client);
     };
-  }])
+  })
   .directive('applicationDisplay', function() {
     return {
       restrict: 'E',
@@ -56,7 +56,7 @@ angular.module('esn.application', ['restangular'])
       templateUrl: '/views/modules/application/application-edit-form.html'
     };
   })
-  .factory('applicationAPI', ['Restangular', function(Restangular) {
+  .factory('applicationAPI', function(Restangular) {
 
     function get(id) {
       return Restangular.one('oauth/clients', id).get();
@@ -85,4 +85,4 @@ angular.module('esn.application', ['restangular'])
       created: created,
       remove: remove
     };
-  }]);
+  });

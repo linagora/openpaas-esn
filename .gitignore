@@ -1,4 +1,5 @@
 node_modules/
+venv/
 config/default.dev.json
 config/default.test.json
 config/default.production.json

@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('esn.project')
-.run(['objectTypeResolver', 'objectTypeAdapter', 'projectAPI', 'projectAdapterService', 'Restangular', function(objectTypeResolver, objectTypeAdapter, projectAPI, projectAdapterService, Restangular) {
+.run(function(objectTypeResolver, objectTypeAdapter, projectAPI, projectAdapterService, Restangular) {
   objectTypeResolver.register('project', projectAPI.get);
   objectTypeAdapter.register('project', projectAdapterService);
   Restangular.extendModel('project', function(model) {
     return projectAdapterService(model);
   });
-}])
+})
 .factory('ProjectRestangular', function(Restangular) {
   return Restangular.withConfig(function(RestangularConfigurer) {
     RestangularConfigurer.setBaseUrl('/project/api');
@@ -24,8 +24,7 @@ angular.module('esn.project')
     return project;
   };
 })
-.factory('projectCreationService', ['$q', '$log', '$timeout', 'projectAPI',
-function($q, $log, $timeout, projectAPI) {
+.factory('projectCreationService', function($q, $log, $timeout, projectAPI) {
 
   function notifyProgress(d, step, percent) {
     d.notify({
@@ -104,8 +103,8 @@ function($q, $log, $timeout, projectAPI) {
     return d.promise;
   }
   return createProject;
-}])
-  .factory('projectAPI', ['ProjectRestangular', '$upload', function(ProjectRestangular, $upload) {
+})
+  .factory('projectAPI', function(ProjectRestangular, $upload) {
     function list(domain, options) {
       var query = options || {};
       query.domain_id = domain;
@@ -148,7 +147,7 @@ function($q, $log, $timeout, projectAPI) {
       list: list,
       uploadAvatar: uploadAvatar
     };
-  }])
+  })
   .factory('projectService', function() {
 
     function isMember(project) {
@@ -179,7 +178,7 @@ function($q, $log, $timeout, projectAPI) {
       canWrite: canWrite
     };
   })
-  .factory('projectStreamsService', ['userAPI', function(userAPI) {
+  .factory('projectStreamsService', function(userAPI) {
 
     function getProjectsActivityStreams(domainId) {
       return userAPI.getActivityStreams({domainid: domainId}).then(function(response) {
@@ -193,4 +192,4 @@ function($q, $log, $timeout, projectAPI) {
     return {
       getProjectsActivityStreams: getProjectsActivityStreams
     };
-  }]);
+  });
