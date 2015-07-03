@@ -95,7 +95,7 @@ describe('The addressbooks dav proxy', function() {
     });
 
     describe('headers', function() {
-      it('should proxy headers', function() {
+      describe('should proxy headers', function() {
         it('should return 200 with the result', function(done) {
           var self = this;
           var yo = 'lo';
@@ -124,7 +124,7 @@ describe('The addressbooks dav proxy', function() {
               var req = loggedInAsUser(request(self.app).get(PREFIX + path));
               req.set('yo', yo);
               req.set('lo', lo);
-              req.expect(200).end(function(err, done) {
+              req.expect(200).end(function(err) {
                 expect(err).to.not.exist;
                 expect(called).to.be.true;
                 done();
