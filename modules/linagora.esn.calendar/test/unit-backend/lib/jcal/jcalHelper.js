@@ -31,6 +31,8 @@ describe.skip('jcalHelper', function() {
     it('should parse jcal formatted event and return a pruned content for the email', function() {
       ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/meeting.ics').toString('utf8');
       expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
+        method: 'REQUEST',
+        sequence: 0,
         summary: 'Démo OPENPAAS',
         start: {
           date: '06/12/2015',
@@ -63,6 +65,8 @@ describe.skip('jcalHelper', function() {
     it('should parse jcal formatted event without end date nor duration', function() {
       ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/cancel-event.ics').toString('utf8');
       expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
+        method: 'CANCEL',
+        sequence: 0,
         summary: 'Démo OPENPAAS',
         start: {
           date: '06/12/2015',
