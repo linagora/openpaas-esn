@@ -51,7 +51,7 @@ angular.module('linagora.esn.contact')
       });
     };
   })
-  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, gracePeriodService, openContactForm, sharedDataService) {
+  .controller('newContactController', function($rootScope, $scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, gracePeriodService, openContactForm, sharedDataService, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.contact = sharedDataService.contact;
 
@@ -60,8 +60,14 @@ angular.module('linagora.esn.contact')
       return sendContactToBackend($scope, function() {
         return contactsService.create($scope.bookId, $scope.contact).then(null, function(err) {
           notificationFactory.weakError('Contact creation', err && err.message || 'Something went wrong');
+
+          return $q.reject(err);
         });
-      }).then(closeForm, displayError).then(function() {
+      }).then(closeForm, function(err) {
+        displayError(err);
+
+        return $q.reject(err);
+      }).then(function() {
         return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition').then(null, function() {
           contactsService.remove($scope.bookId, $scope.contact).then(function() {
             openContactForm($scope.bookId, $scope.contact);

@@ -147,6 +147,15 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
       });
 
+      it('should not grace the request when contact is not valid', function(done) {
+        gracePeriodService.grace = done;
+
+        scope.accept();
+        scope.$digest();
+
+        done();
+      });
+
       it('should call contactsService.create with right bookId and contact', function(done) {
         scope.contact = { firstName: 'Foo', lastName: 'Bar' };
         contactsService.create = function(id, contact) {
@@ -236,6 +245,21 @@ describe('The Contacts Angular module', function() {
 
         scope.accept();
         scope.$digest();
+      });
+
+      it('should not grace the request on contactsService.create failure', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        gracePeriodService.grace = done;
+
+        contactsService.create = function() {
+          return $q.reject();
+        };
+
+        scope.accept();
+        scope.$digest();
+
+        done();
       });
 
       it('should delete the contact if the user cancels during the grace period', function(done) {
