@@ -320,7 +320,7 @@ describe('The Calendar Angular module controllers', function() {
       });
     });
 
-    describe('the ws event listener', function() {
+    describe.skip('the ws event listener', function() {
 
       var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener;
 
