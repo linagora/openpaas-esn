@@ -105,7 +105,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', function($q, domainAPI, calendarUtils, session) {
+  .directive('eventForm', function($timeout, $q, domainAPI, calendarUtils, session) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -147,8 +147,11 @@ angular.module('esn.calendar')
         );
         return deferred.promise;
       };
-    }
 
+      $timeout(function() {
+        element.find('.title')[0].focus();
+      }, 0);
+    }
 
     return {
       restrict: 'E',
