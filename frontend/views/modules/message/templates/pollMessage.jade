@@ -7,9 +7,9 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
         i.fa.fa-envelope.message-source-email(ng-show='message.source === "email"', title='sent via email reply')
         a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
         span &nbsp;#{__('landed a poll')}
-        include ./includes/dateLink
+        message-date-link(message='message', activitystream='activitystream')
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
-      include ../templates/includes/shareMessage
+      message-shared(message='message')
       display-position(position='message.position')
       
       p 
@@ -46,7 +46,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               span(ng-show='!showMeChart') #{__('Show results as chart')}
               span(ng-show='showMeChart') #{__('Hide chart')}
             canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
-    include ./includes/messagesBottomLinks
-    include ./includes/attachments.jade
-    include ./includes/oembed.jade
-    include ./includes/comments.jade
+    message-bottom-links
+    message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+    message-oembeds(message='message')
+    message-comments
