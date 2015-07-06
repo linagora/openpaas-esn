@@ -3,163 +3,163 @@
 angular.module('esn.calendar')
 
   .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session, EVENT_FORM) {
-      $scope.editedEvent = {};
-      $scope.restActive = false;
+    $scope.editedEvent = {};
+    $scope.restActive = false;
 
-      this.isNew = function(event) {
-        return angular.isUndefined(event._id);
-      };
+    this.isNew = function(event) {
+      return angular.isUndefined(event._id);
+    };
 
-      this.initFormData = function() {
-        $scope.event = $scope.event || {};
-        if (this.isNew($scope.event)) {
-          $scope.event = {
-            start: $scope.event.start || calendarUtils.getNewStartDate(),
-            end: $scope.event.end || calendarUtils.getNewEndDate(),
-            allDay: $scope.event.allDay || false
-          };
-        }
-        eventService.copyEventObject($scope.event, $scope.editedEvent);
+    this.initFormData = function() {
+      $scope.event = $scope.event || {};
+      if (this.isNew($scope.event)) {
+        $scope.event = {
+          start: $scope.event.start || calendarUtils.getNewStartDate(),
+          end: $scope.event.end || calendarUtils.getNewEndDate(),
+          allDay: $scope.event.allDay || false
+        };
+      }
+      eventService.copyEventObject($scope.event, $scope.editedEvent);
 
-        // on load, ensure that duration between start and end is stored inside editedEvent
-        this.onEndDateChange();
-      };
+      // on load, ensure that duration between start and end is stored inside editedEvent
+      this.onEndDateChange();
+    };
 
-      function _displayError(err) {
-        $alert({
-          content: err,
-          type: 'danger',
-          show: true,
-          position: 'bottom',
-          container: '.event-create-error-message',
-          duration: '2',
-          animation: 'am-flip-x'
-        });
+    function _displayError(err) {
+      $alert({
+        content: err,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '.event-create-error-message',
+        duration: '2',
+        animation: 'am-flip-x'
+      });
+    }
+
+    function _displayNotification(notificationFactoryFunction, title, content) {
+      notificationFactoryFunction(title, content);
+      if ($scope.createModal) {
+        $scope.createModal.hide();
+      }
+    }
+
+    this.addNewEvent = function() {
+      if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
+        $scope.editedEvent.title = EVENT_FORM.title.default;
       }
 
-      function _displayNotification(notificationFactoryFunction, title, content) {
-        notificationFactoryFunction(title, content);
+      if (!$scope.calendarId) {
+        $scope.calendarId = calendarService.calendarId;
+      }
+
+      var event = $scope.editedEvent;
+      event.organizer = session.user;
+      var path = '/calendars/' + $scope.calendarId + '/events';
+      var vcalendar = calendarService.shellToICAL(event);
+      $scope.restActive = true;
+      calendarService.create(path, vcalendar).then(function(response) {
+        if ($scope.activitystream) {
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+            id: response.headers('ESN-Message-Id')
+          });
+        }
+
+        _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
+      }, function(err) {
+        _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
+      }).finally (function() {
+        $scope.restActive = false;
+      });
+    };
+
+    this.deleteEvent = function() {
+      if (!$scope.calendarId) {
+        $scope.calendarId = calendarService.calendarId;
+      }
+      var path = '/calendars/' + $scope.calendarId + '/events';
+      $scope.restActive = true;
+      calendarService.remove(path, $scope.event).then(function(response) {
+        if ($scope.activitystream) {
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+            id: response.headers('ESN-Message-Id')
+          });
+        }
+
+        _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
+      }, function(err) {
+        _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
+      }).finally (function() {
+        $scope.restActive = false;
+      });
+    };
+
+    this.modifyEvent = function() {
+      if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
+        _displayError('You must define an event title');
+        return;
+      }
+
+      if (!$scope.calendarId) {
+        $scope.calendarId = calendarService.calendarId;
+      }
+      var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
+
+      if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
         if ($scope.createModal) {
           $scope.createModal.hide();
         }
+        return;
       }
 
-      this.addNewEvent = function() {
-        if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-          $scope.editedEvent.title = EVENT_FORM.title.default;
+      $scope.restActive = true;
+      calendarService.modify(path, $scope.editedEvent).then(function(response) {
+        if ($scope.activitystream) {
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: $scope.activitystream.activity_stream.uuid,
+            id: response.headers('ESN-Message-Id')
+          });
         }
 
-        if (!$scope.calendarId) {
-          $scope.calendarId = calendarService.calendarId;
-        }
+        _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
+      }, function(err) {
+        _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+      }).finally (function() {
+        $scope.restActive = false;
+      });
+    };
 
-        var event = $scope.editedEvent;
-        event.organizer = session.user;
-        var path = '/calendars/' + $scope.calendarId + '/events';
-        var vcalendar = calendarService.shellToICAL(event);
-        $scope.restActive = true;
-        calendarService.create(path, vcalendar).then(function(response) {
-          if ($scope.activitystream) {
-            $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-              id: response.headers('ESN-Message-Id')
-            });
-          }
-
-          _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
-        }, function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
-        }).finally (function() {
-          $scope.restActive = false;
-        });
+    this.resetEvent = function() {
+      $scope.rows = 1;
+      $scope.editedEvent = {
+        start: calendarUtils.getNewStartDate(),
+        end: calendarUtils.getNewEndDate(),
+        diff: 1,
+        allDay: false
       };
+    };
 
-      this.deleteEvent = function() {
-        if (!$scope.calendarId) {
-          $scope.calendarId = calendarService.calendarId;
-        }
-        var path = '/calendars/' + $scope.calendarId + '/events';
-        $scope.restActive = true;
-        calendarService.remove(path, $scope.event).then(function(response) {
-          if ($scope.activitystream) {
-            $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-              id: response.headers('ESN-Message-Id')
-            });
-          }
+    this.getMinDate = function() {
+      if ($scope.editedEvent.start) {
+        return moment($scope.editedEvent.start).subtract(1, 'days');
+      }
+      return null;
+    };
 
-          _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
-        }, function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
-        }).finally (function() {
-          $scope.restActive = false;
-        });
-      };
+    this.getMinTime = function() {
+      return $scope.editedEvent.start || null;
+    };
 
-      this.modifyEvent = function() {
-        if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-          _displayError('You must define an event title');
-          return;
-        }
+    this.onStartDateChange = function() {
+      $scope.editedEvent.end = moment($scope.editedEvent.start).add($scope.editedEvent.diff / 1000 || 3600, 'seconds');
+    };
 
-        if (!$scope.calendarId) {
-          $scope.calendarId = calendarService.calendarId;
-        }
-        var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
-
-        if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
-          if ($scope.createModal) {
-            $scope.createModal.hide();
-          }
-          return;
-        }
-
-        $scope.restActive = true;
-        calendarService.modify(path, $scope.editedEvent).then(function(response) {
-          if ($scope.activitystream) {
-            $rootScope.$emit('message:posted', {
-              activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-              id: response.headers('ESN-Message-Id')
-            });
-          }
-
-          _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
-        }, function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
-        }).finally (function() {
-          $scope.restActive = false;
-        });
-      };
-
-      this.resetEvent = function() {
-        $scope.rows = 1;
-        $scope.editedEvent = {
-          start: calendarUtils.getNewStartDate(),
-          end: calendarUtils.getNewEndDate(),
-          diff: 1,
-          allDay: false
-        };
-      };
-
-      this.getMinDate = function() {
-        if ($scope.editedEvent.start) {
-          return moment($scope.editedEvent.start).subtract(1, 'days');
-        }
-        return null;
-      };
-
-      this.getMinTime = function() {
-        return $scope.editedEvent.start || null;
-      };
-
-      this.onStartDateChange = function() {
-        $scope.editedEvent.end = moment($scope.editedEvent.start).add($scope.editedEvent.diff / 1000 || 3600, 'seconds');
-      };
-
-      this.onEndDateChange = function() {
-        $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
-      };
-    })
+    this.onEndDateChange = function() {
+      $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
+    };
+  })
 
   .controller('communityCalendarController', function($scope, community, COMMUNITY_UI_CONFIG) {
     $scope.calendarId = community._id;
