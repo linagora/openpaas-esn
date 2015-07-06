@@ -51,7 +51,7 @@ angular.module('esn.calendar')
       }
     };
   })
-  .directive('eventButtonCreate', function() {
+  .directive('eventCreateButton', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -59,7 +59,7 @@ angular.module('esn.calendar')
         community: '=',
         user: '='
       },
-      templateUrl: '/calendar/views/partials/event-button-creation.html'
+      templateUrl: '/calendar/views/partials/event-create-button.html'
     };
   })
   .directive('calendarButtonToolbar', function() {
@@ -76,19 +76,15 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
-  .directive('eventCreateQuickFormWizard', function(WidgetWizard, $rootScope) {
+  .directive('eventQuickFormWizard', function(WidgetWizard, $rootScope) {
     function link($scope, element) {
       $scope.wizard = new WidgetWizard([
-        '/calendar/views/partials/event-create-quick-form-wizard'
+        '/calendar/views/partials/event-quick-form-wizard-step-0'
       ]);
-      $rootScope.$on('modal.show', function() {
-        element.find('input[ng-model="event.title"]').focus();
-      });
-      $scope.rows = 1;
     }
     return {
       restrict: 'E',
-      templateUrl: '/calendar/views/partials/event-create-quick-form',
+      templateUrl: '/calendar/views/partials/event-quick-form-wizard',
       scope: {
         user: '=',
         domain: '=',
@@ -105,7 +101,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', function($timeout, $q, domainAPI, calendarUtils, session) {
+  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -155,7 +151,7 @@ angular.module('esn.calendar')
       restrict: 'E',
       replace: true,
       controller: 'eventFormController',
-      templateUrl: '/calendar/views/partials/event-form.html',
+      templateUrl: '/calendar/views/partials/event-quick-form.html',
       link: link
     };
   })

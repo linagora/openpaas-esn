@@ -55,7 +55,7 @@ describe('The Calendar Angular module directives', function() {
       this.calendarUtils = calendarUtils;
 
       this.initDirective = function(scope) {
-        var html = '<event-form/>';
+        var html = '<event-quick-form/>';
         var element = this.$compile(html)(scope);
         scope.$digest();
         return element;

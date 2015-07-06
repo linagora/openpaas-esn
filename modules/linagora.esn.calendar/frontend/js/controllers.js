@@ -182,7 +182,7 @@ angular.module('esn.calendar')
 
     $scope.eventClick = function(event) {
       $scope.event = event;
-      $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
+      $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
     };
 
     $scope.eventDropAndResize = function(event) {
@@ -219,7 +219,7 @@ angular.module('esn.calendar')
         end: date.end,
         allDay: !start.hasTime(end)
       };
-      $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-create-quick-form-modal', backdrop: 'static'});
+      $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
     };
     $scope.eventSources = [calendarEventSource($scope.calendarId)];
 
