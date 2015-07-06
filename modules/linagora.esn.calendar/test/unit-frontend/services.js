@@ -217,6 +217,59 @@ describe('The Calendar Angular module services', function() {
     });
   });
 
+  describe('The calendarEventSource service', function() {
+    var ICAL;
+    var $qInjected;
+
+    beforeEach(function() {
+      angular.mock.module('esn.calendar');
+      angular.mock.module('esn.ical');
+    });
+
+    it('should propagate an error if calendar events cannot be retrieved', function(done) {
+
+      var start = moment('2015-01-01 09:00:00');
+      var end = moment('2015-01-01 09:30:00');
+      var calendarId = 'User0';
+      var localTimezone = 'local';
+
+      angular.mock.module(function($provide) {
+        $provide.factory('calendarService', function() {
+          return {
+            list: function(path, startMoment, endMoment, timezone) {
+              expect(path).to.equals('/calendars/' + calendarId + '/events/');
+              expect(startMoment).to.deep.equal(start);
+              expect(endMoment).to.deep.equal(end);
+              expect(timezone).to.equals(localTimezone);
+              return $qInjected.reject('Trouble to display');
+            }
+          };
+        });
+      });
+
+      angular.mock.inject(function(calendarEventSource, $rootScope, _ICAL_, _$q_) {
+        this.$rootScope = $rootScope;
+        this.calendarEventSource = calendarEventSource;
+        $qInjected = _$q_;
+        ICAL = _ICAL_;
+      });
+
+      var noErrorsCallback = function(events) {
+        expect(events).to.deep.equal([]);
+      };
+
+      var displayCalendarErrorMock = function(err, errorMessage) {
+        expect(errorMessage).to.equal('Can not get calendar events');
+        done();
+      };
+
+      var factoryForCalendarEvents = this.calendarEventSource(calendarId, displayCalendarErrorMock);
+      factoryForCalendarEvents(start, end, localTimezone, noErrorsCallback);
+      this.$rootScope.$apply();
+    });
+
+  });
+
   describe('The calendarService service', function() {
     var ICAL;
     var emitMessage;

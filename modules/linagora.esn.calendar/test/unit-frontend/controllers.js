@@ -451,6 +451,26 @@ describe('The Calendar Angular module controllers', function() {
       uiCalendarDiv.remove();
     });
 
+    it('should display an error if calendar events cannot be retrieved', function(done) {
+
+      var calendarEventSourceMock = function(calendarId, errorCallback) {
+        errorCallback(new Error('Trouble'), 'Can not get calendar events');
+      };
+
+      var $alertMock = function(alertObject) {
+        expect(alertObject.show).to.be.true;
+        expect(alertObject.content).to.equal('Can not get calendar events');
+        done();
+      };
+
+      this.controller('calendarController', {
+        $scope: this.scope,
+        $alert: $alertMock,
+        calendarEventSource: calendarEventSourceMock
+      });
+
+    });
+
     it('should initialize a listener on event:created ws event', function(done) {
       liveNotification = function(namespace) {
         expect(namespace).to.equal('/calendars');

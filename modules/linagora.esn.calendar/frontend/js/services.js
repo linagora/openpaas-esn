@@ -7,12 +7,18 @@ angular.module('esn.calendar')
       RestangularConfigurer.setFullResponse(true);
     });
   })
-  .factory('calendarEventSource', function($log, calendarService) {
-    return function(calendarId) {
+  .factory('calendarEventSource', function($log, calendarService, $alert) {
+    return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        var path = '/calendars/' + calendarId + '/events';
-        return calendarService.list(path, start, end, timezone).then(callback);
+        var path = '/calendars/' + calendarId + '/events/';
+        return calendarService.list(path, start, end, timezone).then(callback,
+            function(err) {
+              callback([]);
+              if (errorCallback) {
+                errorCallback(err, 'Can not get calendar events');
+              }
+            });
       };
     };
   })
