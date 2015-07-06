@@ -51,7 +51,7 @@ angular.module('esn.calendar')
       }
     };
   })
-  .directive('eventButtonCreate', function() {
+  .directive('eventCreateButton', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -59,7 +59,7 @@ angular.module('esn.calendar')
         community: '=',
         user: '='
       },
-      templateUrl: '/calendar/views/partials/event-button-creation.html'
+      templateUrl: '/calendar/views/partials/event-create-button.html'
     };
   })
   .directive('calendarButtonToolbar', function() {
@@ -76,28 +76,24 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
     };
   })
-  .directive('eventCreateQuickFormWizard', function(WidgetWizard, $rootScope) {
-      function link($scope, element) {
-        $scope.wizard = new WidgetWizard([
-          '/calendar/views/partials/event-create-quick-form-wizard'
-        ]);
-        $rootScope.$on('modal.show', function() {
-          element.find('input[ng-model="event.title"]').focus();
-        });
-        $scope.rows = 1;
-      }
-      return {
-        restrict: 'E',
-        templateUrl: '/calendar/views/partials/event-create-quick-form',
-        scope: {
-          user: '=',
-          domain: '=',
-          createModal: '=',
-          event: '='
-        },
-        link: link
-      };
-    })
+  .directive('eventQuickFormWizard', function(WidgetWizard, $rootScope) {
+    function link($scope, element) {
+      $scope.wizard = new WidgetWizard([
+        '/calendar/views/partials/event-quick-form-wizard-step-0'
+      ]);
+    }
+    return {
+      restrict: 'E',
+      templateUrl: '/calendar/views/partials/event-quick-form-wizard',
+      scope: {
+        user: '=',
+        domain: '=',
+        createModal: '=',
+        event: '='
+      },
+      link: link
+    };
+  })
   .directive('eventEdition', function() {
     return {
       restrict: 'E',
@@ -105,59 +101,60 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventForm', function($q, domainAPI, calendarUtils, session) {
-      function link($scope, element, attrs, controller) {
-        controller.initFormData();
+  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session) {
+    function link($scope, element, attrs, controller) {
+      controller.initFormData();
 
-        $scope.closeModal = function() {
-          $scope.createModal.hide();
-        };
-
-        $scope.isNew = controller.isNew;
-        $scope.addNewEvent = controller.addNewEvent;
-        $scope.deleteEvent = controller.deleteEvent;
-        $scope.modifyEvent = controller.modifyEvent;
-        $scope.resetEvent = controller.resetEvent;
-        $scope.getMinDate = controller.getMinDate;
-        $scope.onAllDayChecked = controller.onAllDayChecked;
-        $scope.onStartDateChange = controller.onStartDateChange;
-        $scope.onStartTimeChange = controller.onStartTimeChange;
-        $scope.onEndTimeChange = controller.onEndTimeChange;
-        $scope.getMinTime = controller.getMinTime;
-
-        $scope.getInvitableAttendees = function(query) {
-          var deferred = $q.defer();
-          $scope.query = query;
-
-          domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
-            function(response) {
-              var resolved = response.data.filter(function(user) {
-                return user.emails[0] !== session.user.emails[0];
-              }).map(function(user) {
-                return angular.extend(user, {
-                  email: user.emails[0],
-                  displayName: (user.firstname && user.lastname) ?
-                    calendarUtils.diplayNameOf(user.firstname, user.lastname) :
-                    user.emails[0]
-                });
-              });
-              $scope.query = '';
-              deferred.resolve(resolved);
-            }, deferred.reject
-          );
-          return deferred.promise;
-        };
-      }
-
-      return {
-        restrict: 'E',
-        replace: true,
-        controller: 'eventFormController',
-        templateUrl: '/calendar/views/partials/event-form.html',
-        link: link
+      $scope.closeModal = function() {
+        $scope.createModal.hide();
       };
+
+      $scope.isNew = controller.isNew;
+      $scope.addNewEvent = controller.addNewEvent;
+      $scope.deleteEvent = controller.deleteEvent;
+      $scope.modifyEvent = controller.modifyEvent;
+      $scope.resetEvent = controller.resetEvent;
+      $scope.getMinDate = controller.getMinDate;
+      $scope.onStartDateChange = controller.onStartDateChange;
+      $scope.onEndDateChange = controller.onEndDateChange;
+      $scope.getMinTime = controller.getMinTime;
+
+      $scope.getInvitableAttendees = function(query) {
+        var deferred = $q.defer();
+        $scope.query = query;
+
+        domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
+          function(response) {
+            var resolved = response.data.filter(function(user) {
+              return user.emails[0] !== session.user.emails[0];
+            }).map(function(user) {
+              return angular.extend(user, {
+                email: user.emails[0],
+                displayName: (user.firstname && user.lastname) ?
+                  calendarUtils.diplayNameOf(user.firstname, user.lastname) :
+                  user.emails[0]
+              });
+            });
+            $scope.query = '';
+            deferred.resolve(resolved);
+          }, deferred.reject
+        );
+        return deferred.promise;
+      };
+
+      $timeout(function() {
+        element.find('.title')[0].focus();
+      }, 0);
     }
-  )
+
+    return {
+      restrict: 'E',
+      replace: true,
+      controller: 'eventFormController',
+      templateUrl: '/calendar/views/partials/event-quick-form.html',
+      link: link
+    };
+  })
   .directive('friendlifyEndDate', function(moment) {
     function link(scope, element, attrs, ngModel) {
       function _ToView(value) {
