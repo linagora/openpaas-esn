@@ -96,20 +96,20 @@ describe('The calendar core module', function() {
     this.moduleHelpers.addDep('content-sender', contentSenderMock);
     this.moduleHelpers.addDep('config', configMock);
     this.moduleHelpers.addDep('esn-config', esnConfigMock);
+
+    this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
   });
 
   describe('The dispatch fn', function() {
     it('should return an error if data is undefined', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(null, function(err, result) {
+      this.module.dispatch(null, function(err, result) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should return an error if data is not an object', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch('test', function(err, result) {
+      this.module.dispatch('test', function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -124,8 +124,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -140,8 +139,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -154,8 +152,7 @@ describe('The calendar core module', function() {
         event: 'test'
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -170,8 +167,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -186,8 +182,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -203,8 +198,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.exist;
         done();
       });
@@ -233,8 +227,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
         expect(result).to.be.false;
@@ -281,8 +274,7 @@ describe('The calendar core module', function() {
       };
       mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
         expect(result._id).to.equal('123123');
@@ -318,33 +310,27 @@ describe('The calendar core module', function() {
     var attendeeEmails = [attendee1.emails[0], attendee2.emails[0]];
 
     it('should return with success if notify is false', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees({}, ['foo@bar.com'], false, 'REQUEST', 'ICS', this.helpers.callbacks.noError(done));
+      this.module.inviteAttendees({}, ['foo@bar.com'], false, 'REQUEST', 'ICS', this.helpers.callbacks.noError(done));
     });
 
     it('should return an error if organizer is undefined', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees(null, ['foo@bar.com'], true, 'REQUEST', 'ICS', this.helpers.callbacks.error(done));
+      this.module.inviteAttendees(null, ['foo@bar.com'], true, 'REQUEST', 'ICS', this.helpers.callbacks.error(done));
     });
 
     it('should return an error if attendeeEmails is not an array', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees({}, {}, true, 'REQUEST', 'ICS', this.helpers.callbacks.error(done));
+      this.module.inviteAttendees({}, {}, true, 'REQUEST', 'ICS', this.helpers.callbacks.error(done));
     });
 
     it('should return an error if attendeeEmails is an empty array', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees({}, [], true, 'REQUEST', 'ICS', this.helpers.callbacks.error(done));
+      this.module.inviteAttendees({}, [], true, 'REQUEST', 'ICS', this.helpers.callbacks.error(done));
     });
 
     it('should return an error if method is undefined', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees({}, ['foo@bar.com'], true, null, 'ICS', this.helpers.callbacks.error(done));
+      this.module.inviteAttendees({}, ['foo@bar.com'], true, null, 'ICS', this.helpers.callbacks.error(done));
     });
 
     it('should return an error if ics is undefined', function(done) {
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees({}, ['foo@bar.com'], true, 'REQUEST', null, this.helpers.callbacks.error(done));
+      this.module.inviteAttendees({}, ['foo@bar.com'], true, 'REQUEST', null, this.helpers.callbacks.error(done));
     });
 
     it('should return an error if findByEmail return an error', function(done) {
@@ -355,8 +341,7 @@ describe('The calendar core module', function() {
         return callback(new Error('Error in findByEmail'));
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees(organizer, attendeeEmails, true, method, ics, this.helpers.callbacks.error(done));
+      this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, this.helpers.callbacks.error(done));
     });
 
     it('should return an error if contentSender.send return an error', function(done) {
@@ -375,8 +360,7 @@ describe('The calendar core module', function() {
         return q.reject(new Error('Error in contentSender.send'));
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees(organizer, attendeeEmails, true, method, ics, this.helpers.callbacks.error(done));
+      this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, this.helpers.callbacks.error(done));
     });
 
     it('should call content-sender.send with correct parameters', function(done) {
@@ -443,8 +427,7 @@ describe('The calendar core module', function() {
         return q();
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+      this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
         expect(err).to.not.exist;
         expect(called).to.equal(2);
         done();
@@ -490,8 +473,7 @@ describe('The calendar core module', function() {
         return q();
       };
 
-      var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-      module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+      this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
         expect(err).to.not.exist;
         expect(called).to.equal(1);
         done();
@@ -518,8 +500,7 @@ describe('The calendar core module', function() {
           return q();
         };
 
-        var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -544,8 +525,7 @@ describe('The calendar core module', function() {
           return q();
         };
 
-        var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -572,8 +552,7 @@ describe('The calendar core module', function() {
           return q();
         };
 
-        var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -600,8 +579,7 @@ describe('The calendar core module', function() {
           return q();
         };
 
-        var module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
           expect(err).to.not.exist;
           done();
         });
