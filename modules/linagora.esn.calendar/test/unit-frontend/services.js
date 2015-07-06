@@ -352,9 +352,9 @@ describe('The Calendar Angular module services', function() {
               ['location', {}, 'text', 'location'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
-              ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
-              ['attendee', { 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
-              ['attendee', { 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com'],
+              ['attendee', { 'x-rse-id': 1, 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
+              ['attendee', { 'x-rse-id': 2, 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
+              ['attendee', { 'x-rse-id': 3, 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com'],
               ['organizer', { 'cn': 'organizer' }, 'cal-address', 'mailto:organizer@example.com']
            ], []]
          ]],
@@ -391,9 +391,9 @@ describe('The Calendar Angular module services', function() {
           expect(event.attendeesPerPartstat.OTHER.length).to.equal(1);
           expect(event.attendeesPerPartstat.OTHER[0].fullmail).to.equal('tentative@example.com');
           expect(event.attendeesPerPartstat.OTHER[0].partstat).to.equal('TENTATIVE');
-
           expect(event.attendees).to.deep.equal([
             {
+              id: 1,
               fullmail: 'name <test@example.com>',
               email: 'test@example.com',
               name: 'name',
@@ -401,6 +401,7 @@ describe('The Calendar Angular module services', function() {
               displayName: 'name'
             },
             {
+              id: 2,
               fullmail: 'noname@example.com',
               email: 'noname@example.com',
               name: 'noname@example.com',
@@ -408,6 +409,7 @@ describe('The Calendar Angular module services', function() {
               displayName: 'noname@example.com'
             },
             {
+              id: 3,
               fullmail: 'tentative@example.com',
               email: 'tentative@example.com',
               name: 'tentative@example.com',
@@ -786,11 +788,13 @@ describe('The Calendar Angular module services', function() {
           location: 'location',
           description: 'description',
           attendees: [{
+            id: '123456',
             emails: [
               'user1@open-paas.org'
             ],
             displayName: 'User One'
           }, {
+            id: '654321',
             emails: [
               'user2@open-paas.org'
            ],
@@ -867,6 +871,7 @@ describe('The Calendar Angular module services', function() {
                 [
                   'attendee',
                   {
+                    'x-rse-id': '123456',
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
                     'role': 'REQ-PARTICIPANT',
@@ -878,6 +883,7 @@ describe('The Calendar Angular module services', function() {
                 [
                   'attendee',
                   {
+                    'x-rse-id': '654321',
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
                     'role': 'REQ-PARTICIPANT'

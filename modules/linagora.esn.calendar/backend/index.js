@@ -45,7 +45,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       app.use('/', this.api.calendar);
 
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('calendar', ['app.js', 'constants.js', 'controllers.js', 'directives.js', 'services.js', 'ical.js'], ['esn.calendar', 'esn.ical'], ['esn']);
+      webserverWrapper.injectAngularModules('calendar', ['app.js', 'constants.js', 'controllers.js', 'directives.js', 'filter.js', 'services.js', 'ical.js'], ['esn.calendar', 'esn.ical'], ['esn']);
       webserverWrapper.injectCSS('calendar', ['styles.css'], 'esn');
       webserverWrapper.addApp('calendar', app);
 

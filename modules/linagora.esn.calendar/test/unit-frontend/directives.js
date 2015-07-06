@@ -24,9 +24,9 @@ describe('The Calendar Angular module directives', function() {
           then: function(onSuccess) {
             var response = {
               data: [
-                { firstname: 'first', lastname: 'last', emails: ['user1@test.com'] },
-                { emails: ['fist@last'] },
-                { firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] }
+                { _id: '111111', firstname: 'first', lastname: 'last', emails: ['user1@test.com'] },
+                { _id: '222222', emails: ['fist@last'] },
+                { _id: '333333', firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] }
               ],
               domainId: domainId,
               query: query
@@ -46,7 +46,6 @@ describe('The Calendar Angular module directives', function() {
   });
 
   describe('The eventForm directive', function() {
-
     beforeEach(inject(['$compile', '$rootScope', 'moment', 'calendarUtils', function($c, $r, moment, calendarUtils) {
       this.$compile = $c;
       this.$rootScope = $r;
@@ -62,11 +61,12 @@ describe('The Calendar Angular module directives', function() {
       };
     }]));
 
-    it('should initiate $scope.editedEvent from $scope.event if it exists', function() {
+
+    it('should initiate $scope.editedEvent from $scope.event if it exists with id', function() {
       this.$scope.event = {
         _id: '123456',
         allDay: true,
-        attendees: [{'displayName': 'user1@openpaas.org'}],
+        attendees: [{'displayName': 'user1@openpaas.org', clicked: false}],
         start: this.moment('2013-02-08 12:30'),
         end: this.moment('2013-02-08 13:30')
       };
@@ -79,6 +79,24 @@ describe('The Calendar Angular module directives', function() {
       });
     });
 
+    it('should initiate $scope.editedEvent with list of attendees ', function() {
+      this.$scope.event = {
+        _id: '123456',
+        allDay: true,
+        attendees: [{'displayName': 'user1@openpaas.org'}],
+        start: this.moment('2013-02-08 12:30'),
+        end: this.moment('2013-02-08 13:30')
+      };
+      this.initDirective(this.$scope);
+      expect(this.$scope.editedEvent).to.shallowDeepEqual({
+        _id: '123456',
+        allDay: true,
+        attendees: [{'displayName': 'user1@openpaas.org', clicked: false}],
+        diff: 3600000
+      });
+    });
+
+
     it('should initiate $scope.editedEvent with default values if $scope.event does not exists', function() {
       this.initDirective(this.$scope);
       expect(this.moment(this.$scope.editedEvent.start).isSame(this.calendarUtils.getNewStartDate())).to.be.true;
@@ -90,8 +108,24 @@ describe('The Calendar Angular module directives', function() {
       this.initDirective(this.$scope);
       this.$scope.getInvitableAttendees('aQuery').then(function(response) {
         expect(response).to.deep.equal([
-          { emails: ['fist@last'], displayName: 'fist@last', email: 'fist@last' },
-          { firstname: 'john', lastname: 'doe', 'emails': ['johndoe@test.com'], displayName: 'john doe', email: 'johndoe@test.com'}
+          { id: '222222', _id: '222222', emails: ['fist@last'], displayName: 'fist@last', email: 'fist@last', partstat: 'NEEDS-ACTION' },
+          { id: '333333', _id: '333333', firstname: 'john', lastname: 'doe', 'emails': ['johndoe@test.com'],
+            displayName: 'john doe', email: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
+        ]);
+        done();
+      });
+      this.$scope.$digest();
+    });
+
+    it('should have a getInvitableAttendees method that call domainApi to return displayName and remove added attendees', function(done) {
+      this.initDirective(this.$scope);
+      this.$scope.editedEvent.attendees = [{
+        email: 'fist@last'
+      }];
+      this.$scope.getInvitableAttendees('aQuery').then(function(response) {
+        expect(response).to.deep.equal([
+          { id: '333333', _id: '333333', firstname: 'john', lastname: 'doe', 'emails': ['johndoe@test.com'],
+            displayName: 'john doe', email: 'johndoe@test.com', partstat: 'NEEDS-ACTION'}
         ]);
         done();
       });
@@ -125,9 +159,7 @@ describe('The Calendar Angular module directives', function() {
       it('should bail on already added attendees', function() {
         var att, res;
         this.initDirective(this.$scope);
-        this.$scope.editedEvent = {
-          attendees: [{ email: 'hello@example.com' }]
-        };
+        this.$scope.newAttendees = [{ email: 'hello@example.com' }];
 
         att = { displayName: 'hello@example.com' };
         res = this.$scope.onAddingAttendee(att);

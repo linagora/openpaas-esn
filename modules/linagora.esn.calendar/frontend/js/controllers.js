@@ -2,27 +2,13 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, session, EVENT_FORM) {
+  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, ICAL_PROPERTIES, session, EVENT_FORM) {
+
     $scope.editedEvent = {};
     $scope.restActive = false;
 
     this.isNew = function(event) {
       return angular.isUndefined(event._id);
-    };
-
-    this.initFormData = function() {
-      $scope.event = $scope.event || {};
-      if (this.isNew($scope.event)) {
-        $scope.event = {
-          start: $scope.event.start || calendarUtils.getNewStartDate(),
-          end: $scope.event.end || calendarUtils.getNewEndDate(),
-          allDay: $scope.event.allDay || false
-        };
-      }
-      eventService.copyEventObject($scope.event, $scope.editedEvent);
-
-      // on load, ensure that duration between start and end is stored inside editedEvent
-      this.onEndDateChange();
     };
 
     function _displayError(err) {
@@ -36,6 +22,40 @@ angular.module('esn.calendar')
         animation: 'am-flip-x'
       });
     }
+    this.initFormData = function() {
+      $scope.event = $scope.event || {};
+      if (this.isNew($scope.event)) {
+        $scope.event = {
+          start: $scope.event.start || calendarUtils.getNewStartDate(),
+          end: $scope.event.end || calendarUtils.getNewEndDate(),
+          allDay: $scope.event.allDay || false
+        };
+      }
+      eventService.copyEventObject($scope.event, $scope.editedEvent);
+      $scope.newAttendees = [];
+
+      if ($scope.editedEvent.attendees) {
+        $scope.hasAttendees = true;
+        $scope.editedEvent.attendees.forEach(function(att) {
+          att.clicked = false;
+          if (att.partstat === ICAL_PROPERTIES.partstat.needsaction) {
+            $scope.hasNeedActionAttendee = true;
+          }
+          if (att.partstat === ICAL_PROPERTIES.partstat.accepted) {
+            $scope.hasAcceptedAttendee = true;
+          }
+          if (att.partstat === ICAL_PROPERTIES.partstat.declined) {
+            $scope.hasDeclinedAttendee = true;
+          }
+        });
+      }
+
+      if ($scope.event.organizer) {
+        $scope.isOrganizer = session.user.emails[0] === $scope.event.organizer.email;
+      }
+      // on load, ensure that duration between start and end is stored inside editedEvent
+      this.onEndDateChange();
+    };
 
     function _displayNotification(notificationFactoryFunction, title, content) {
       notificationFactoryFunction(title, content);
@@ -43,6 +63,18 @@ angular.module('esn.calendar')
         $scope.createModal.hide();
       }
     }
+    this.selectAttendee = function(attId) {
+      $scope.editedEvent.attendees.forEach(function(attendee) {
+        if (attendee.id === attId) {
+          attendee.clicked = !attendee.clicked;
+        }
+      });
+      $scope.hasAttendeesClicked = true;
+    };
+
+    this.deleteSelectedAttendees = function() {
+      $scope.editedEvent.attendees = $scope.editedEvent.attendees.filter(function(attendee) { return !attendee.clicked;});
+    };
 
     this.addNewEvent = function() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
@@ -51,6 +83,9 @@ angular.module('esn.calendar')
 
       if (!$scope.calendarId) {
         $scope.calendarId = calendarService.calendarId;
+      }
+      if ($scope.newAttendees) {
+        $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
       var event = $scope.editedEvent;
@@ -65,7 +100,6 @@ angular.module('esn.calendar')
             id: response.headers('ESN-Message-Id')
           });
         }
-
         _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
       }, function(err) {
         _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
@@ -87,7 +121,6 @@ angular.module('esn.calendar')
             id: response.headers('ESN-Message-Id')
           });
         }
-
         _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
       }, function(err) {
         _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
@@ -105,6 +138,13 @@ angular.module('esn.calendar')
       if (!$scope.calendarId) {
         $scope.calendarId = calendarService.calendarId;
       }
+
+      if ($scope.editedEvent.attendees && $scope.newAttendees) {
+        $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat($scope.newAttendees);
+      } else {
+        $scope.editedEvent.attendees = $scope.newAttendees;
+      }
+
       var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
 
       if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
@@ -113,7 +153,6 @@ angular.module('esn.calendar')
         }
         return;
       }
-
       $scope.restActive = true;
       calendarService.modify(path, $scope.editedEvent).then(function(response) {
         if ($scope.activitystream) {

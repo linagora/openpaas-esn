@@ -56,4 +56,49 @@ tags-input .autocomplete {
     padding-top: 2em;
   }
 
+  .attendees-list {
+    position: relative;
+
+    ul {
+      margin-left: 25px;
+    }
+
+    .acceptAttendee {
+      color: limegreen;
+    }
+
+    .needActionAttendee {
+      color: indianred;
+    }
+
+    .declineAttendee {
+      color: darkorange;
+    }
+
+    .scrollable {
+      max-height: 200px;
+      overflow-y: scroll;
+    }
+
+    .attendee-avatar {
+      .ResizeImage(45px, auto);
+      position: relative;
+      i {
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        .BoxShadow(0px 0px 15px -3px black);
+        margin-right: 0px;
+        color: black;
+        background-color: white;
+      }
+    }
+
+    .trash {
+      position: absolute;
+      color: red;
+      height: 100%;
+      right: 0px;
+    }
+  }
 }

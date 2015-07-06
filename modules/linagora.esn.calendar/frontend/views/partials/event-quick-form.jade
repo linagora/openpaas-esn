@@ -34,13 +34,29 @@ form.event-quick-form.form-container(role='form')
       span.input-group-addon
         i.fa.fa-location-arrow.fa-2x.fa-fw
       input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
-  .form-group
+  .form-group(ng-show='isOrganizer || isNew(editedEvent)')
     .input-group
       span.input-group-addon
         i.fa.fa-users.fa-2x.fa-fw
-      tags-input(ng-model='editedEvent.attendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
+      tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
-  .form-group.nopadding
+  .row.attendees-list(ng-show='hasAttendees')
+    .form-group.col-xs-11.scrollable
+      .row.acceptAttendee(ng-show='hasAcceptedAttendee') #{__('Accepted')}
+        ul.list-inline
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.id")
+            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+      .row.declineAttendee(ng-show="hasDeclinedAttendee")  #{__('Declined')}
+        ul.list-inline
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.id")
+            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+      .row.needActionAttendee(ng-show="hasNeedActionAttendee")  #{__('Need-Action')}
+        ul.list-inline
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.id")
+            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+    .col-xs-1.trash.all-centered.no-padding
+      i.mdi-2x.mdi-action-delete(ng-show='hasAttendeesClicked', ng-click='deleteSelectedAttendees()')
+  .form-group.nopadding(ng-show='isOrganizer || isNew(editedEvent)')
     .text-center
       button.btn.btn-default.submit-button.pull-left(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Create')}
