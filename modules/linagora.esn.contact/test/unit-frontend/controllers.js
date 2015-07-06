@@ -7,7 +7,8 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $q, scope, bookId = '123456789', contactsService,
-      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService;
+      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService,
+      sortedContacts;
 
   beforeEach(function() {
     contactsService = {
@@ -61,11 +62,16 @@ describe('The Contacts Angular module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _sharedDataService_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _sharedDataService_, ALPHA_ITEMS) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $q = _$q_;
     sharedDataService = _sharedDataService_;
+    sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {
+      a[b] = [];
+
+      return a;
+    }, {});
 
     scope = $rootScope.$new();
     scope.contact = {};
@@ -536,6 +542,90 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$broadcast('contact:cancel:delete', contact);
       $rootScope.$digest();
+    });
+
+    it('should add no item to the categories when contactsService.list returns an empty list', function() {
+      contactsService.list = function() {
+        return $q.when([]);
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+
+      $rootScope.$digest();
+
+      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+    });
+
+    it('should sort contacts by FN', function() {
+      var contactWithA = { displayName: 'A B'},
+          contactWithC = { displayName: 'C D' };
+
+      contactsService.list = function() {
+        return $q.when([contactWithA, contactWithC]);
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+
+      sortedContacts.A = [contactWithA];
+      sortedContacts.C = [contactWithC];
+
+      $rootScope.$digest();
+
+      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+    });
+
+    it('should correctly sort contacts when multiple contacts have the same FN', function() {
+      var contact1 = { displayName: 'A B'},
+          contact2 = { displayName: 'A B' };
+
+      contactsService.list = function() {
+        return $q.when([contact1, contact2]);
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+
+      sortedContacts.A = [contact1, contact2];
+
+      $rootScope.$digest();
+
+      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+    });
+
+    it('should correctly sort contacts when multiple contacts have the same beginning of FN', function() {
+      var contact1 = { displayName: 'A B'},
+          contact2 = { displayName: 'A C' };
+
+      contactsService.list = function() {
+        return $q.when([contact1, contact2]);
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+
+      sortedContacts.A = [contact1, contact2];
+
+      $rootScope.$digest();
+
+      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
     });
 
     describe('The loadContacts function', function() {
