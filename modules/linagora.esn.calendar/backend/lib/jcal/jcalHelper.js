@@ -28,7 +28,7 @@ function _getEmail(attendee) {
       description: 'aDescription',
       organizer: {
         cn: 'aOrganizer',
-        mail: 'aorganizer@linagora.com',
+        email: 'aorganizer@linagora.com',
         avatar: 'http://localhost:8080/api/avatars?objectType=user&email=aorganizer@linagora.com'
       },
       attendees: {
@@ -81,7 +81,7 @@ function jcal2content(icalendar, baseUrl) {
   var mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
   organizer = {
     cn: cn,
-    mail: mail,
+    email: mail,
     avatar: url.resolve(baseUrl, 'api/avatars?objectType=user&email=' + mail)
   };
 

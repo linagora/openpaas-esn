@@ -46,7 +46,7 @@ describe.skip('jcalHelper', function() {
         description: 'Présentation de OPENPAAS',
         organizer: {
           cn: 'John Doe',
-          mail: 'johndoe@open-paas.org',
+          email: 'johndoe@open-paas.org',
           avatar: 'http://localhost:8080/api/avatars?objectType=user&email=johndoe@open-paas.org'
         },
         attendees: {
@@ -77,7 +77,7 @@ describe.skip('jcalHelper', function() {
         description: 'Présentation de OPENPAAS',
         organizer: {
           cn: 'John Doe',
-          mail: 'johndoe@open-paas.org',
+          email: 'johndoe@open-paas.org',
           avatar: 'http://localhost:8080/api/avatars?objectType=user&email=johndoe@open-paas.org'
         },
         attendees: {

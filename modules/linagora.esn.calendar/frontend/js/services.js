@@ -54,7 +54,7 @@ angular.module('esn.calendar')
         var partstat = att.getParameter('partstat');
         var data = {
           fullmail: calendarUtils.fullmailOf(cn, mail),
-          mail: mail,
+          email: mail,
           name: cn || mail,
           partstat: partstat,
           displayName: cn || mail
@@ -76,7 +76,7 @@ angular.module('esn.calendar')
         var cn = organizer.getParameter('cn');
         this.organizer = {
           fullmail: calendarUtils.fullmailOf(cn, mail),
-          mail: mail,
+          email: mail,
           name: cn || mail,
           displayName: cn || mail
         };
@@ -150,7 +150,7 @@ angular.module('esn.calendar')
       dtend.isDate = shell.allDay;
 
       if (shell.organizer) {
-        var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.mail || shell.organizer.emails[0]));
+        var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.email || shell.organizer.emails[0]));
         organizer.setParameter('cn', shell.organizer.displayName || calendarUtils.diplayNameOf(shell.organizer.firstname, shell.organizer.lastname));
       }
 
@@ -168,7 +168,7 @@ angular.module('esn.calendar')
 
       if (shell.attendees && shell.attendees.length) {
         shell.attendees.forEach(function(attendee) {
-          var mail = angular.isArray(attendee.emails) ? attendee.emails[0] : attendee.mail;
+          var mail = attendee.email || attendee.emails[0];
           var mailto = calendarUtils.prependMailto(mail);
           var property = vevent.addPropertyWithValue('attendee', mailto);
           property.setParameter('partstat', ICAL_PROPERTIES.partstat.needsaction);
@@ -362,7 +362,7 @@ angular.module('esn.calendar')
       var sessionUserAsAttendee = [];
       if (event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction]) {
         sessionUserAsAttendee = event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction].filter(function(attendee) {
-          return attendee.mail === session.user.emails[0];
+          return attendee.email === session.user.emails[0];
         });
       }
 

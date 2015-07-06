@@ -97,7 +97,6 @@ describe('The Calendar Angular module directives', function() {
       });
       this.$scope.$digest();
     });
-
   });
 
   describe('The friendlifyEndDate directive', function() {
