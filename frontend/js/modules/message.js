@@ -1026,4 +1026,11 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       },
       templateUrl: '/views/modules/message/templates/includes/dateLink.html'
     };
+  })
+  .directive('messageBottomLinks', function() {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: '/views/modules/message/templates/includes/messagesBottomLinks.html'
+    };
   });

@@ -401,6 +401,65 @@ describe('The esn.message Angular module', function() {
   });
 
 
+  describe('messageBottomLinks directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+
+    beforeEach(inject(function ($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should render ul element having message-bottom-links class', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = false;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('ul').hasClass('message-bottom-links')).to.be.true;
+    });
+
+    it('should have shareMessageButton directive', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = false;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+      expect(element.find('ul').find('share-message-button').length).to.equal(1);
+    });
+
+    it('should hide li elements when writable is false', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = false;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('li').hasClass('ng-hide')).to.be.true;
+    });
+
+    it('should show li elements when writable is true', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = true;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('li').hasClass('ng-hide')).to.be.false;
+    });
+
+  });
+
+
   describe('messageController', function() {
 
     beforeEach(inject(function($rootScope, $controller, $q) {
