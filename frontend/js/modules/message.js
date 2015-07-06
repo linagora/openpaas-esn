@@ -1033,4 +1033,12 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       scope: true,
       templateUrl: '/views/modules/message/templates/includes/messagesBottomLinks.html'
     };
-  });
+  })
+  .directive('messageComments', function () {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: '/views/modules/message/templates/includes/comments.html'
+    };
+  })
+  ;
