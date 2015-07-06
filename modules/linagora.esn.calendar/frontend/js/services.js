@@ -11,7 +11,7 @@ angular.module('esn.calendar')
     return function(calendarId) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        var path = '/calendars/' + calendarId + '/events/';
+        var path = '/calendars/' + calendarId + '/events';
         return calendarService.list(path, start, end, timezone).then(callback);
       };
     };
