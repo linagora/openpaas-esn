@@ -42,10 +42,10 @@ form.event-quick-form.form-container(role='form')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
   .form-group.nopadding
     .text-center
-      button.btn.btn-default.submit-button.pull-left(type='button', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
+      button.btn.btn-default.submit-button.pull-left(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Create')}
         i.fa.fa-check.fa-2x.visible-xs
-      button.btn.btn-default.submit-button.pull-left(type='button', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
+      button.btn.btn-default.submit-button.pull-left(type='submit', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Modify')}
         i.fa.fa-check.fa-2x.visible-xs
       button.btn.btn-default.submit-button(type='button', ng-if="isNew(editedEvent)", ng-disabled="true")
