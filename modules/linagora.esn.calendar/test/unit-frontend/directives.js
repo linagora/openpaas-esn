@@ -103,21 +103,21 @@ describe('The Calendar Angular module directives', function() {
         var att, res;
         this.initDirective(this.$scope);
 
-        att = { displayName: 'hello' };
+        att = { displayName: 'hello@example.com' };
         res = this.$scope.onAddingAttendee(att);
-        expect(att.email).to.equal('hello');
-        expect(att.displayName).to.equal('hello');
+        expect(att.email).to.equal('hello@example.com');
+        expect(att.displayName).to.equal('hello@example.com');
         expect(res).to.be.true;
 
-        att = { email: 'hello', displayName: 'world' };
+        att = { email: 'hello@example.com', displayName: 'world' };
         res = this.$scope.onAddingAttendee(att);
-        expect(att.email).to.equal('hello');
+        expect(att.email).to.equal('hello@example.com');
         expect(att.displayName).to.equal('world');
         expect(res).to.be.true;
 
-        att = { emails: ['hello'], displayName: 'world' };
+        att = { emails: ['hello@example.com'], displayName: 'world' };
         res = this.$scope.onAddingAttendee(att);
-        expect(att.emails).to.deep.equal(['hello']);
+        expect(att.emails).to.deep.equal(['hello@example.com']);
         expect(att.displayName).to.equal('world');
         expect(res).to.be.true;
       });
@@ -126,18 +126,29 @@ describe('The Calendar Angular module directives', function() {
         var att, res;
         this.initDirective(this.$scope);
         this.$scope.editedEvent = {
-          attendees: [{ email: 'hello' }]
+          attendees: [{ email: 'hello@example.com' }]
         };
 
-        att = { displayName: 'hello' };
+        att = { displayName: 'hello@example.com' };
         res = this.$scope.onAddingAttendee(att);
         expect(res).to.be.false;
 
-        // ...but only when adding the email prop, otherwise ng-tags-input will
-        // take care.
-        att = { email: 'hello', displayName: 'world' };
+        att = { email: 'hello@example.com', displayName: 'world' };
         res = this.$scope.onAddingAttendee(att);
-        expect(res).to.be.true;
+        expect(res).to.be.false;
+      });
+
+      it('should bail on invalid emails', function() {
+        var att, res;
+        this.initDirective(this.$scope);
+
+        att = { displayName: 'aaaaaaaaaarrrggghhhh' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+
+        att = { email: 'wooooohooooooooo', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
       });
     });
   });

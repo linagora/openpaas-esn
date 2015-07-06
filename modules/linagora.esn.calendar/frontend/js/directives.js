@@ -123,18 +123,20 @@ angular.module('esn.calendar')
         // Attendees are added via tags-input, which uses displayName as the
         // property for both display and newly created tags. We need to adapt
         // the tag for this case.
-        var hasEmails = att.email || (att.emails && att.emails.length);
-        var valid = true;
-        if (att.displayName && !hasEmails) {
-          att.email = att.displayName;
-          // Need to check again if it's a duplicate, since ng-tags-input does
-          // this a bit early for our taste.
-          valid = $scope.editedEvent.attendees.every(function(existingAtt) {
-            return existingAtt.email !== att.email;
-          });
+        var firstEmail = att.email || (att.emails && att.emails[0]);
+        if (att.displayName && !firstEmail) {
+          att.email = firstEmail = att.displayName;
         }
 
-        return valid;
+        // Need to check again if it's a duplicate, since ng-tags-input does
+        // this a bit early for our taste.
+        var noduplicate = $scope.editedEvent.attendees.every(function(existingAtt) {
+          return existingAtt.email !== firstEmail;
+        });
+
+        // As a nice side-effect, allows us to check for a valid email
+        var emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$/;
+        return noduplicate && !!emailRegex.exec(firstEmail);
       };
 
       $scope.getInvitableAttendees = function(query) {
