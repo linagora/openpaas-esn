@@ -33,23 +33,29 @@ html.mail
                   span.small
                     a(href='mailto:#{content.event.organizer.email}')
                       img(src="cid:email", alt="Organizer mail")
-                  | )
-                p.big has invited you to a meeting!
+                    | )
+                p.big #{content.inviteMessage}
             td.avatar
               img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
           tr
             th(colspan="6").title #{content.event.summary}
           tr
             td
-              img(src="cid:access_time", alt="From")
+              if (content.event.end)
+                img(src="cid:access_time", alt="From")
+              else
+                img(src="cid:access_time", alt="At")
             td
               p #{content.event.start.date}
               p #{content.event.start.time}
-            td
-              img(src="cid:keyboard_arrow_right", alt="To")
-            td
-              p #{content.event.end.date}
-              p #{content.event.end.time}
+            if (content.event.end)
+              td
+                img(src="cid:keyboard_arrow_right", alt="To")
+              td
+                p #{content.event.end.date}
+                p #{content.event.end.time}
+            else
+              td(colspan="2")
             td.recurrence
             td
               a(href='#{content.baseUrl}/#/calendar') See in calendar
@@ -78,15 +84,16 @@ html.mail
                 img(src="cid:folder_open", alt="Files")
               td(colspan="5")
                 span file.odt
-          tr.table-footer
-            td.attend-question(colspan="3")
-              | Will you attend ?
-            td(colspan="1")
-              a.green(href="http://localhost:8080/") Yes
-            td(colspan="1")
-              a.blue(href="http://localhost:8080/") Maybe
-            td(colspan="1")
-              a.red(href="http://localhost:8080/") No
+          if (content.event.method != 'CANCEL')
+            tr.table-footer
+              td.attend-question(colspan="3")
+                | Will you attend ?
+              td(colspan="1")
+                a.green(href="http://localhost:8080/") Yes
+              td(colspan="1")
+                a.blue(href="http://localhost:8080/") Maybe
+              td(colspan="1")
+                a.red(href="http://localhost:8080/") No
 
       footer
         div.footer

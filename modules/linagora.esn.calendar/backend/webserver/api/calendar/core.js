@@ -202,26 +202,30 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
     return q.all(getAllUsersAttendees).then(function(users) {
       var from = { objectType: 'email', id: organizer.email || organizer.emails[0] };
       var event = jcal2content(ics, baseUrl);
-
+      var inviteMessage;
       var subject = 'Unknown method';
       var template = 'event.invitation';
       switch (method) {
         case 'REQUEST':
-          if (event.sequence === 0) {
-            subject = i18n.__('New event from %s: %s', userDisplayName(organizer), event.summary);
-            template = 'event.invitation';
-          } else {
+          if (event.sequence) {
             subject = i18n.__('Event %s from %s updated', event.summary, userDisplayName(organizer));
             template = 'event.update';
+            inviteMessage = i18n.__('has updated a meeting!');
+          } else {
+            subject = i18n.__('New event from %s: %s', userDisplayName(organizer), event.summary);
+            template = 'event.invitation';
+            inviteMessage = i18n.__('has invited you to a meeting!');
           }
           break;
         case 'REPLY':
           subject = i18n.__('Participation updated: %s', event.summary);
           template = 'event.reply';
+          inviteMessage = i18n.__('has changed his participation!');
           break;
         case 'CANCEL':
           subject = i18n.__('Event %s from %s canceled', event.summary, userDisplayName(organizer));
           template = 'event.cancel';
+          inviteMessage = i18n.__('has canceled a meeting!');
           break;
       }
 
@@ -245,6 +249,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
 
       var content = {
         baseUrl: baseUrl,
+        inviteMessage: inviteMessage,
         event: event
       };
 

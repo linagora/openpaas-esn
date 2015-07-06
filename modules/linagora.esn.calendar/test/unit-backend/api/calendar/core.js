@@ -313,6 +313,7 @@ describe('The calendar core module', function() {
     var ics = ['BEGIN:VCALENDAR',
       'BEGIN:VEVENT',
       'UID:123123',
+      'SUMMARY:description',
       'DTSTART:20150101T010101',
       'DTEND:20150101T020202',
       'ORGANIZER;CN="' + organizer.firstname + ' ' + organizer.lastname + '":mailto:' + organizer.emails[0],
@@ -448,9 +449,9 @@ describe('The calendar core module', function() {
           expect(to).to.deep.equal({objectType: 'email', id: attendee2.emails[0]});
         }
         var expectedOptions = {
-          template: 'event.update',
+          template: 'event.invitation',
           message: {
-            subject: 'Event null from ' + organizer.firstname + ' ' + organizer.lastname + ' updated',
+            subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname + ': description',
             alternatives: [{
               content: ics,
               contentType: 'text/calendar; charset=UTF-8; method=' + method,
