@@ -119,10 +119,8 @@ angular.module('esn.calendar')
       $scope.modifyEvent = controller.modifyEvent;
       $scope.resetEvent = controller.resetEvent;
       $scope.getMinDate = controller.getMinDate;
-      $scope.onAllDayChecked = controller.onAllDayChecked;
       $scope.onStartDateChange = controller.onStartDateChange;
-      $scope.onStartTimeChange = controller.onStartTimeChange;
-      $scope.onEndTimeChange = controller.onEndTimeChange;
+      $scope.onEndDateChange = controller.onEndDateChange;
       $scope.getMinTime = controller.getMinTime;
 
       $scope.getInvitableAttendees = function(query) {

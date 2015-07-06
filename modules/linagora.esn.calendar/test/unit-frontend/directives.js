@@ -66,10 +66,17 @@ describe('The Calendar Angular module directives', function() {
       this.$scope.event = {
         _id: '123456',
         allDay: true,
-        attendees: [{'displayName': 'user1@openpaas.org'}]
+        attendees: [{'displayName': 'user1@openpaas.org'}],
+        start: this.moment('2013-02-08 12:30'),
+        end: this.moment('2013-02-08 13:30')
       };
       this.initDirective(this.$scope);
-      expect(this.$scope.editedEvent).to.deep.equal(this.$scope.event);
+      expect(this.$scope.editedEvent).to.shallowDeepEqual({
+        _id: '123456',
+        allDay: true,
+        attendees: [{'displayName': 'user1@openpaas.org'}],
+        diff: 3600000
+      });
     });
 
     it('should initiate $scope.editedEvent with default values if $scope.event does not exists', function() {

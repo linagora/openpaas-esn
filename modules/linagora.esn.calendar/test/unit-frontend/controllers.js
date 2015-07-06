@@ -5,9 +5,6 @@
 var expect = chai.expect;
 
 describe('The Calendar Angular module controllers', function() {
-
-  var newDate = 'newDate';
-  var newEndDate = 'newEndDate';
   var event;
   var liveNotification;
 
@@ -16,10 +13,10 @@ describe('The Calendar Angular module controllers', function() {
 
     var calendarUtilsMock = {
       getNewStartDate: function() {
-        return newDate;
+        return moment('2013-02-08 09:30'); // jshint ignore:line
       },
       getNewEndDate: function() {
-        return newEndDate;
+        return moment('2013-02-08 10:30'); // jshint ignore:line
       }
     };
 
@@ -97,7 +94,7 @@ describe('The Calendar Angular module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -105,6 +102,7 @@ describe('The Calendar Angular module controllers', function() {
     this.$timeout = $timeout;
     this.$window = $window;
     this.USER_UI_CONFIG = USER_UI_CONFIG;
+    this.moment = moment;
   }));
 
   describe('The eventFormController controller', function() {
@@ -120,23 +118,26 @@ describe('The Calendar Angular module controllers', function() {
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.eventFormController.initFormData();
         var expected = {
-          start: newDate,
-          end: newEndDate,
-          allDay: false
+          start: this.moment('2013-02-08 09:30'),
+          end: this.moment('2013-02-08 10:30'),
+          allDay: false,
+          diff: 3600000
         };
         expect(this.scope.editedEvent).to.deep.equal(expected);
+        delete expected.diff;
         expect(this.scope.event).to.deep.equal(expected);
       });
 
       it('should initialize the scope with $scope.event if it exists', function() {
         this.scope.event = {
           _id: '123456',
-          startDate: new Date(),
-          endDate: new Date(),
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
           allDay: false,
           otherProperty: 'aString'
         };
         this.eventFormController.initFormData();
+        this.scope.event.diff = 3600000;
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
       });
     });

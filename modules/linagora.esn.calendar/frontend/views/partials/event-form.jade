@@ -12,18 +12,18 @@ form.event-quick-form.form-container(role='form')
         .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
           span.input-group-addon
             i.fa.fa-clock-o.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartTimeChange()", bs-timepicker, date-to-moment)
+          input(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", bs-timepicker, date-to-moment)
       .col-xs-2.nopadding
         h3.text-center #{__('To')}
       .col-xs-4.nopadding
         .input-group
           span.input-group-addon
             i.fa.fa-calendar.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", bs-datepicker, date-to-moment, friendlify-end-date)
+          input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", bs-datepicker, date-to-moment, friendlify-end-date)
         .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
           span.input-group-addon
             i.fa.fa-clock-o.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndTimeChange()", bs-timepicker, date-to-moment)
+          input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", bs-timepicker, date-to-moment)
       .col-xs-2.allday
         .checkbox
           label

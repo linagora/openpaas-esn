@@ -20,6 +20,9 @@ angular.module('esn.calendar')
           };
         }
         eventService.copyEventObject($scope.event, $scope.editedEvent);
+
+        // on load, ensure that duration between start and end is stored inside editedEvent
+        this.onEndDateChange();
       };
 
       function _displayError(err) {
@@ -150,20 +153,10 @@ angular.module('esn.calendar')
       };
 
       this.onStartDateChange = function() {
-        if ($scope.editedEvent.start.isAfter($scope.editedEvent.end)) {
-          $scope.editedEvent.end = moment($scope.editedEvent.start).add(1, 'hours');
-        }
+        $scope.editedEvent.end = moment($scope.editedEvent.start).add($scope.editedEvent.diff / 1000 || 3600, 'seconds');
       };
 
-      this.onStartTimeChange = function() {
-        var start = $scope.editedEvent.start;
-        var end = $scope.editedEvent.end;
-        if (start.isAfter(end) || start.isSame(end)) {
-          $scope.editedEvent.end = moment(start).add($scope.editedEvent.diff * 1000 || 3600, 'seconds');
-        }
-      };
-
-      this.onEndTimeChange = function() {
+      this.onEndDateChange = function() {
         $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
       };
     })
