@@ -1017,6 +1017,24 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       }
     };
   })
+  .directive('messageShared', function () {
+    return {
+      restrict: 'E',
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/templates/includes/shareMessage.html'
+    };
+  })
+  .directive('messageOembeds', function () {
+    return {
+      restrict: 'E',
+      scope: {
+        message: '='
+      },
+      templateUrl: '/views/modules/message/templates/includes/oembed.html'
+    };
+  })
   .directive('messageDateLink', function () {
     return {
       restrict: 'E',
