@@ -6,6 +6,57 @@
 var expect = chai.expect;
 
 describe('The Calendar Angular module services', function() {
+  describe('The calendarEventSource', function() {
+    beforeEach(function() {
+
+      this.tokenAPI = {
+        _token: '123',
+        getNewToken: function() {
+          var token = this._token;
+          return {
+            then: function(callback) {
+              callback({ data: { token: token } });
+            }
+          };
+        }
+      };
+
+      var self = this;
+      angular.mock.module('esn.calendar');
+      angular.mock.module('esn.ical');
+      angular.mock.module(function($provide) {
+        $provide.value('tokenAPI', self.tokenAPI);
+      });
+
+      angular.mock.inject(function(calendarEventSource, $httpBackend) {
+        this.$httpBackend = $httpBackend;
+        this.calendarEventSource = calendarEventSource;
+      });
+    });
+
+    it('should use the correct path', function(done) {
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
+        var data = {
+          match: { start: '20140101T000000', end: '20140102T000000' }
+        };
+        this.$httpBackend.expectPOST('/calendars/test/events.json', data).respond({
+          '_links': { 'self': { 'href': '/path/to/calendar.json' } },
+          '_embedded': { 'dav:item': [] }
+        });
+
+        var start = new Date(2014, 0, 1);
+        var end = new Date(2014, 0, 2);
+
+        var source = this.calendarEventSource('test');
+
+        source(start, end, false, function(events) {
+          // Just getting here is fine, the http backend will check for the
+          // right URL.
+          done();
+        });
+        this.$httpBackend.flush();
+    });
+  });
 
   describe('The calendarUtils service', function() {
     beforeEach(function() {
