@@ -41,7 +41,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
                 span(ng-if='!$last') #{', '}
 
       message-bottom-links
-      message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+      message-attachments(message='message')
       message-comments
     div.error.hidden
       h4 #{__('Unable to get event details from server... sorry')}

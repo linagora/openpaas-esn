@@ -91,7 +91,7 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-  describe('messagesAttachments directive', function() {
+  describe('messageAttachments directive', function() {
 
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
@@ -124,6 +124,40 @@ describe('The esn.message Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[0].name);
       expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[1].name);
     });
+
+    it('should be hide when there is no attachments', function () {
+      var html = '<message-attachments message="testMessage"></message-attachments>';
+
+      var scope = this.$rootScope.$new();
+      var element = this.$compile(html)(scope);
+
+      scope.testMessage = {};
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
+
+      scope.testMessage = { attachments: [] };
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
+    });
+
+    it('should not be hide when there is/are attachments', function () {
+      var html = '<message-attachments message="testMessage"></message-attachments>';
+
+      var scope = this.$rootScope.$new();
+      var element = this.$compile(html)(scope);
+
+      scope.testMessage = {};
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
+
+      scope.testMessage.attachments = [
+        {id: 123, name: 'foo.png', contentType: 'application/png', length: 1024},
+        {id: 456, name: 'ms.doc', contentType: 'application/doc', length: 10240}
+      ];
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.false;
+    });
+
   });
 
 

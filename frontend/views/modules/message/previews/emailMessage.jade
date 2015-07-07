@@ -36,4 +36,4 @@ div.message-preview
         blockquote
           p.multilines.email-message-body(data-ng-show='message.body.text' ng-bind-html="message.body.text | linky")
 
-    message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+    message-attachments(message='message')

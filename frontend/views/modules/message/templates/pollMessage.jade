@@ -47,6 +47,6 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
               span(ng-show='showMeChart') #{__('Hide chart')}
             canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
     message-bottom-links
-    message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+    message-attachments(message='message')
     message-oembeds(message='message')
     message-comments

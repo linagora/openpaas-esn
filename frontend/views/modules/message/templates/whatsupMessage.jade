@@ -15,6 +15,6 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
       .row
 
     message-bottom-links
-    message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+    message-attachments(message='message')
     message-oembeds(message='message')
     message-comments

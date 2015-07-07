@@ -9,4 +9,4 @@ div.media.message-preview
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
       display-position(position='message.position')
       p.multilines.scrollable(ng-bind-html="message.content | linky:'_blank'")
-    message-attachments(ng-show='message.attachments && message.attachments.length > 0', message='message')
+    message-attachments(message='message')

@@ -1,4 +1,4 @@
-.attachments
+.attachments(ng-show='message.attachments && message.attachments.length > 0')
   ul.list-inline
     li(ng-repeat='attachment in message.attachments')
       message-attachment(attachment='attachment')
