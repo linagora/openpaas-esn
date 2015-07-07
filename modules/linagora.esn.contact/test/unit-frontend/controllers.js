@@ -628,6 +628,30 @@ describe('The Contacts Angular module', function() {
       expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
     });
 
+    it('should correctly sort contacts when some contacts does not have FN', function() {
+      var contact1 = { firstName: 'A'},
+          contact2 = { displayName: 'A C'},
+          contact3 = { id: '123' };
+
+      contactsService.list = function() {
+        return $q.when([contact1, contact2, contact3]);
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+
+      sortedContacts.A = [{displayName: contact1.firstName, firstName: contact1.firstName}, contact2];
+      sortedContacts['#'] = [{displayName: contact3.id, id: contact3.id}];
+
+      $rootScope.$digest();
+
+      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+    });
+
     describe('The loadContacts function', function() {
 
       it('should call the contactsService.list fn', function(done) {
