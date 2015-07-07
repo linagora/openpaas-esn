@@ -7,6 +7,9 @@ var expect = chai.expect;
 
 describe('The Calendar Angular module services', function() {
   describe('The calendarEventSource', function() {
+    var ICAL;
+    var $qInjected;
+
     beforeEach(function() {
 
       this.tokenAPI = {
@@ -15,7 +18,7 @@ describe('The Calendar Angular module services', function() {
           var token = this._token;
           return {
             then: function(callback) {
-              callback({ data: { token: token } });
+              callback({data: {token: token}});
             }
           };
         }
@@ -28,33 +31,78 @@ describe('The Calendar Angular module services', function() {
         $provide.value('tokenAPI', self.tokenAPI);
       });
 
+    });
+
+    it('should use the correct path', function(done) {
+
       angular.mock.inject(function(calendarEventSource, $httpBackend) {
         this.$httpBackend = $httpBackend;
         this.calendarEventSource = calendarEventSource;
       });
+
+      this.$httpBackend.whenGET('/davserver/api/info').respond({url: ''});
+      var data = {
+        match: {start: '20140101T000000', end: '20140102T000000'}
+      };
+      this.$httpBackend.expectPOST('/calendars/test/events.json', data).respond({
+        '_links': {'self': {'href': '/path/to/calendar.json'}},
+        '_embedded': {'dav:item': []}
+      });
+
+      var start = new Date(2014, 0, 1);
+      var end = new Date(2014, 0, 2);
+
+      var source = this.calendarEventSource('test', function() {
+      });
+
+      source(start, end, false, function(events) {
+        // Just getting here is fine, the http backend will check for the
+        // right URL.
+        done();
+      });
+      this.$httpBackend.flush();
     });
 
-    it('should use the correct path', function(done) {
-        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
-        var data = {
-          match: { start: '20140101T000000', end: '20140102T000000' }
-        };
-        this.$httpBackend.expectPOST('/calendars/test/events.json', data).respond({
-          '_links': { 'self': { 'href': '/path/to/calendar.json' } },
-          '_embedded': { 'dav:item': [] }
+    it('should propagate an error if calendar events cannot be retrieved', function(done) {
+
+      var start = moment('2015-01-01 09:00:00');
+      var end = moment('2015-01-01 09:30:00');
+      var calendarId = 'test';
+      var localTimezone = 'local';
+
+      angular.mock.module(function($provide) {
+        $provide.factory('calendarService', function() {
+          return {
+            list: function(path, startMoment, endMoment, timezone) {
+              expect(path).to.equals('/calendars/' + calendarId + '/events');
+              expect(startMoment).to.deep.equal(start);
+              expect(endMoment).to.deep.equal(end);
+              expect(timezone).to.equals(localTimezone);
+              return $qInjected.reject('Trouble to display');
+            }
+          };
         });
+      });
 
-        var start = new Date(2014, 0, 1);
-        var end = new Date(2014, 0, 2);
+      angular.mock.inject(function(calendarEventSource, $rootScope, _ICAL_, _$q_) {
+        this.calendarEventSource = calendarEventSource;
+        this.$rootScope = $rootScope;
+        $qInjected = _$q_;
+        ICAL = _ICAL_;
+      });
 
-        var source = this.calendarEventSource('test');
+      var noErrorsCallback = function(events) {
+        expect(events).to.deep.equal([]);
+      };
 
-        source(start, end, false, function(events) {
-          // Just getting here is fine, the http backend will check for the
-          // right URL.
-          done();
-        });
-        this.$httpBackend.flush();
+      var displayCalendarErrorMock = function(errorMessage) {
+        expect(errorMessage).to.equal('Can not get calendar events');
+        done();
+      };
+
+      var factoryForCalendarEvents = this.calendarEventSource(calendarId, displayCalendarErrorMock);
+      factoryForCalendarEvents(start, end, localTimezone, noErrorsCallback);
+      this.$rootScope.$apply();
     });
   });
 
@@ -215,59 +263,6 @@ describe('The Calendar Angular module services', function() {
       expect(copy.attendees).to.deep.equal(event.attendees);
       expect(copy.attendeesPerPartstat).to.deep.equal(event.attendeesPerPartstat);
     });
-  });
-
-  describe('The calendarEventSource service', function() {
-    var ICAL;
-    var $qInjected;
-
-    beforeEach(function() {
-      angular.mock.module('esn.calendar');
-      angular.mock.module('esn.ical');
-    });
-
-    it('should propagate an error if calendar events cannot be retrieved', function(done) {
-
-      var start = moment('2015-01-01 09:00:00');
-      var end = moment('2015-01-01 09:30:00');
-      var calendarId = 'User0';
-      var localTimezone = 'local';
-
-      angular.mock.module(function($provide) {
-        $provide.factory('calendarService', function() {
-          return {
-            list: function(path, startMoment, endMoment, timezone) {
-              expect(path).to.equals('/calendars/' + calendarId + '/events/');
-              expect(startMoment).to.deep.equal(start);
-              expect(endMoment).to.deep.equal(end);
-              expect(timezone).to.equals(localTimezone);
-              return $qInjected.reject('Trouble to display');
-            }
-          };
-        });
-      });
-
-      angular.mock.inject(function(calendarEventSource, $rootScope, _ICAL_, _$q_) {
-        this.$rootScope = $rootScope;
-        this.calendarEventSource = calendarEventSource;
-        $qInjected = _$q_;
-        ICAL = _ICAL_;
-      });
-
-      var noErrorsCallback = function(events) {
-        expect(events).to.deep.equal([]);
-      };
-
-      var displayCalendarErrorMock = function(err, errorMessage) {
-        expect(errorMessage).to.equal('Can not get calendar events');
-        done();
-      };
-
-      var factoryForCalendarEvents = this.calendarEventSource(calendarId, displayCalendarErrorMock);
-      factoryForCalendarEvents(start, end, localTimezone, noErrorsCallback);
-      this.$rootScope.$apply();
-    });
-
   });
 
   describe('The calendarService service', function() {

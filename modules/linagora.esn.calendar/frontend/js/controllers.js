@@ -260,8 +260,7 @@ angular.module('esn.calendar')
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
     };
 
-    $scope.displayCalendarError = function(err, errorMessage) {
-      $log.error(errorMessage, err);
+    $scope.displayCalendarError = function(errorMessage) {
       $alert({
         content: errorMessage,
         type: 'danger',

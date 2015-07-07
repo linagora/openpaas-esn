@@ -454,7 +454,7 @@ describe('The Calendar Angular module controllers', function() {
     it('should display an error if calendar events cannot be retrieved', function(done) {
 
       var calendarEventSourceMock = function(calendarId, errorCallback) {
-        errorCallback(new Error('Trouble'), 'Can not get calendar events');
+        errorCallback('Can not get calendar events');
       };
 
       var $alertMock = function(alertObject) {
