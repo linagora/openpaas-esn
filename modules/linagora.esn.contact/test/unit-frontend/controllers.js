@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
-  var $rootScope, $controller, $q, scope, bookId = '123456789', contactsService,
+  var $rootScope, $controller, $q, $timeout, scope, bookId = '123456789', contactsService,
       notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService,
       sortedContacts;
 
@@ -62,10 +62,11 @@ describe('The Contacts Angular module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _sharedDataService_, ALPHA_ITEMS) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$timeout_, _sharedDataService_, ALPHA_ITEMS) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $q = _$q_;
+    $timeout = _$timeout_;
     sharedDataService = _sharedDataService_;
     sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {
       a[b] = [];
@@ -138,7 +139,6 @@ describe('The Contacts Angular module', function() {
         contactsService.create = function() {
           return done(new Error('This test should not call contactsService.create'));
         };
-
         scope.accept();
         done();
       });
@@ -318,9 +318,7 @@ describe('The Contacts Angular module', function() {
   describe('The showContactController', function() {
 
     beforeEach(function() {
-      $controller('showContactController', {
-        $scope: scope
-      });
+      this.initController = $controller.bind(null, 'showContactController', { $scope: scope});
     });
 
     it('should go back to the list of contacts when close is called', function(done) {
@@ -329,6 +327,7 @@ describe('The Contacts Angular module', function() {
         done();
       };
 
+      this.initController();
       scope.close();
     });
 
@@ -338,77 +337,41 @@ describe('The Contacts Angular module', function() {
       };
       $alert.alert = function() { done(); };
 
-      $controller('showContactController', {
-        $scope: scope
-      });
+      this.initController();
       scope.$digest();
     });
-
     describe('The accept function', function() {
 
-      it('should delegate to $scope.modify', function(done) {
-        scope.modify = done;
-
-        scope.accept();
-      });
-
-      it('should change page on contactsService.modify success', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar', displayName: 'Foo Bar'};
-
-        $location.path = function(path) {
-          expect(path).to.equal('/contact');
-
-          done();
-        };
-
-        contactsService.modify = function() {
-          return $q.when(scope.contact);
-        };
-
-        scope.accept();
-        scope.$digest();
-      });
-
-      it('should not change page if the contact is invalid', function(done) {
-        $location.path = function() {
-          done('This test should not change the location');
-        };
-
-        scope.accept();
-        scope.$digest();
-
-        done();
-      });
-
-    });
-
-    describe('The modify function', function() {
-
-      it('should not call contactsService.modify when already calling it', function(done) {
+      it('should not call contactsService.modify when already calling it', function() {
         scope.calling = true;
         contactsService.modify = function() {
-          return done(new Error('This test should not call contactsService.modify'));
+          throw new Error('This test should not call contactsService.modify');
         };
-        scope.modify();
-        done();
+
+        this.initController();
+        scope.accept();
+        $timeout.flush();
       });
 
-      it('should not call contactsService.modify when contact is not valid', function(done) {
+      it('should not call contactsService.modify when contact is not valid', function() {
         contactsService.modify = function() {
-          return done(new Error('This test should not call contactsService.modify'));
+          throw new Error('This test should not call contactsService.modify');
         };
-        scope.modify();
-        done();
+
+        this.initController();
+        scope.accept();
+        $timeout.flush();
       });
 
       it('should display an error when contact is not valid', function(done) {
-        contactsService.create = function() {
+        contactsService.modify = function() {
           return done(new Error('This test should not call contactsService.create'));
         };
         $alert.alert = function() { done(); };
 
-        scope.modify();
-        scope.$digest();
+        this.initController();
+        scope.accept();
+        $timeout.flush();
       });
 
       it('should call contactsService.modify with right bookId and contact', function(done) {
@@ -416,44 +379,134 @@ describe('The Contacts Angular module', function() {
         contactsService.modify = function(id, contact) {
           expect(id).to.deep.equal(bookId);
           expect(contact).to.deep.equal(scope.contact);
-
           done();
         };
 
-        scope.modify();
+        contactsService.getCard = function(path) {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+
+        this.initController();
+        scope.accept();
+        $timeout.flush();
       });
 
       it('should notify user on contactsService.modify failure', function(done) {
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
-
         $location.path = function() {
           done(new Error('This test should not change the location !'));
         };
-        notificationFactory.weakError = function() {
-          done();
-        };
-
+        var displayError;
+        displayError = done();
         contactsService.modify = function() {
           return $q.reject();
         };
+        contactsService.getCard = function(path) {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
 
-        scope.modify();
-        scope.$digest();
+        this.initController();
+        scope.accept();
+        $timeout.flush();
       });
 
-      it('should set back the calling flag to false when complete', function(done) {
+      it('should set back the calling flag to false when complete', function() {
+
         scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
-        $location.path = function() {};
         contactsService.modify = function() {
           return $q.when(scope.contact);
         };
+        contactsService.getCard = function() {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+        this.initController();
+        scope.accept();
+        $timeout.flush();
+        expect(scope.calling).to.be.false;
+      });
+    });
+    describe('The modify function', function() {
 
-        scope.modify().then(function() {
-          expect(scope.calling).to.be.false;
+      it('should not call contactsService.modify when already calling it', function() {
+        scope.calling = true;
+        contactsService.modify = function() {
+          throw new Error('This test should not call contactsService.modify');
+        };
 
+        this.initController();
+        scope.modify();
+        $timeout.flush();
+      });
+
+      it('should not call contactsService.modify when contact is not valid', function() {
+        contactsService.modify = function() {
+          throw new Error('This test should not call contactsService.modify');
+        };
+
+        this.initController();
+        scope.modify();
+        $timeout.flush();
+      });
+
+      it('should display an error when contact is not valid', function(done) {
+        contactsService.modify = function() {
+          return done(new Error('This test should not call contactsService.create'));
+        };
+        $alert.alert = function() { done(); };
+
+        this.initController();
+        scope.modify();
+        $timeout.flush();
+      });
+
+      it('should call contactsService.modify with right bookId and contact', function(done) {
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        contactsService.modify = function(id, contact) {
+          expect(id).to.deep.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
           done();
-        });
-        scope.$digest();
+        };
+
+        contactsService.getCard = function(path) {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+
+        this.initController();
+        scope.modify();
+        $timeout.flush();
+      });
+
+      it('should notify user on contactsService.modify failure', function(done) {
+        $location.path = function() {
+          done(new Error('This test should not change the location !'));
+        };
+        var displayError;
+        displayError = done();
+        contactsService.modify = function() {
+          return $q.reject();
+        };
+        contactsService.getCard = function(path) {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+
+        this.initController();
+        scope.modify();
+        $timeout.flush();
+      });
+
+      it('should set back the calling flag to false when complete', function() {
+
+        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
+        contactsService.modify = function() {
+          return $q.when(scope.contact);
+        };
+        contactsService.getCard = function() {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+        this.initController();
+        scope.modify();
+        $timeout.flush();
+        expect(scope.calling).to.be.false;
+
       });
 
     });

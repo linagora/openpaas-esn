@@ -78,30 +78,43 @@ angular.module('linagora.esn.contact')
 
     sharedDataService.contact = {};
   })
-  .controller('showContactController', function($scope, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, $rootScope, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
 
     $scope.close = closeForm;
-    $scope.modify = function() {
+
+    function _modify() {
       return sendContactToBackend($scope, function() {
         return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
-          notificationFactory.weakInfo('Contact modification success', 'Successfully modified the contact ' + contact.displayName);
+          $rootScope.$broadcast('contact:updated');
           $scope.contact = contact;
-
           return contact;
         }, function(err) {
-          notificationFactory.weakError('Contact modification failure', err && err.message || 'Something went wrong');
         });
       }).then(null, function(err) {
         displayError(err);
-
         return $q.reject(err);
       });
+    }
+
+    $scope.modify = function() {
+      $timeout(_modify, 0);
     };
+
     $scope.accept = function() {
-      return $scope.modify().then(closeForm);
+      $timeout(function() {
+        return sendContactToBackend($scope, function() {
+          return contactsService.modify($scope.bookId, $scope.contact).then(
+            closeForm, function(err) {
+          });
+        }).then(null, function(err) {
+          closeForm();
+          displayError(err);
+          return $q.reject(err);
+        });
+      }, 0);
     };
 
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
