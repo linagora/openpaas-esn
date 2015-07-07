@@ -274,6 +274,7 @@ describe('The calendar core module', function() {
       };
       mockery.registerMock('./../../../lib/message/eventmessage.core', eventMessageMock);
 
+      this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       this.module.dispatch(data, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.exist;
@@ -467,6 +468,7 @@ describe('The calendar core module', function() {
         return q();
       };
 
+      this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
         expect(err).to.not.exist;
         expect(called).to.equal(2);
@@ -512,6 +514,7 @@ describe('The calendar core module', function() {
         return q();
       };
 
+      this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, function(err) {
         expect(err).to.not.exist;
         expect(called).to.equal(1);
