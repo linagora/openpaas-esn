@@ -98,6 +98,59 @@ describe('The Calendar Angular module directives', function() {
       this.$scope.$digest();
     });
 
+    describe('the onAddingAttendee fn', function() {
+      it('should support adding external attendees', function() {
+        var att, res;
+        this.initDirective(this.$scope);
+
+        att = { displayName: 'hello@example.com' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(att.email).to.equal('hello@example.com');
+        expect(att.displayName).to.equal('hello@example.com');
+        expect(res).to.be.true;
+
+        att = { email: 'hello@example.com', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(att.email).to.equal('hello@example.com');
+        expect(att.displayName).to.equal('world');
+        expect(res).to.be.true;
+
+        att = { emails: ['hello@example.com'], displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(att.emails).to.deep.equal(['hello@example.com']);
+        expect(att.displayName).to.equal('world');
+        expect(res).to.be.true;
+      });
+
+      it('should bail on already added attendees', function() {
+        var att, res;
+        this.initDirective(this.$scope);
+        this.$scope.editedEvent = {
+          attendees: [{ email: 'hello@example.com' }]
+        };
+
+        att = { displayName: 'hello@example.com' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+
+        att = { email: 'hello@example.com', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+      });
+
+      it('should bail on invalid emails', function() {
+        var att, res;
+        this.initDirective(this.$scope);
+
+        att = { displayName: 'aaaaaaaaaarrrggghhhh' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+
+        att = { email: 'wooooohooooooooo', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+      });
+    });
   });
 
   describe('The friendlifyEndDate directive', function() {
@@ -152,6 +205,5 @@ describe('The Calendar Angular module directives', function() {
       var parser = element.controller('ngModel').$parsers[0];
       expect(parser(this.moment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.moment('2015/07/03').format('YYYY/MM/DD'));
     });
-
   });
 });

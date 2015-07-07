@@ -179,7 +179,15 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
   }
 
   var getAllUsersAttendees = attendeeEmails.map(function(attendeeEmail) {
-    return q.nfcall(userModule.findByEmail, attendeeEmail);
+    var deferred = q.defer();
+    userModule.findByEmail(attendeeEmail, function(err, found) {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        deferred.resolve(found || { emails: [attendeeEmail] });
+      }
+    });
+    return deferred.promise;
   });
 
   return esnconfig('web').get(function(web) {
@@ -192,8 +200,7 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
     }
 
     return q.all(getAllUsersAttendees).then(function(users) {
-
-      var from = { objectType: 'email', id: organizer.emails[0] };
+      var from = { objectType: 'email', id: organizer.email || organizer.emails[0] };
       var event = jcal2content(ics, baseUrl);
 
       var subject = 'Unknown method';
@@ -241,8 +248,8 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
         event: event
       };
 
-      var sendMailToAllAttendees = users.filter(Boolean).map(function(user) {
-        var to = { objectType: 'email', id: user.emails[0] };
+      var sendMailToAllAttendees = users.map(function(user) {
+        var to = { objectType: 'email', id: user.email || user.emails[0] };
         return contentSender.send(from, to, content, options, 'email');
       });
 

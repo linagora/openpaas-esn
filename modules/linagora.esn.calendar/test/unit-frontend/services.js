@@ -138,7 +138,7 @@ describe('The Calendar Angular module services', function() {
 
     it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
       event.attendeesPerPartstat['NEEDS-ACTION'].push({
-        mail: 'aAttendee@open-paas.org'
+        email: 'aAttendee@open-paas.org'
       });
       this.eventService.render(event, element);
       expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
@@ -327,13 +327,13 @@ describe('The Calendar Angular module services', function() {
 
           expect(event.attendeesPerPartstat.ACCEPTED.length).to.equal(1);
           expect(event.attendeesPerPartstat.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
-          expect(event.attendeesPerPartstat.ACCEPTED[0].mail).to.equal('test@example.com');
+          expect(event.attendeesPerPartstat.ACCEPTED[0].email).to.equal('test@example.com');
           expect(event.attendeesPerPartstat.ACCEPTED[0].name).to.equal('name');
           expect(event.attendeesPerPartstat.ACCEPTED[0].partstat).to.equal('ACCEPTED');
 
           expect(event.attendeesPerPartstat.DECLINED.length).to.equal(1);
           expect(event.attendeesPerPartstat.DECLINED[0].fullmail).to.equal('noname@example.com');
-          expect(event.attendeesPerPartstat.DECLINED[0].mail).to.equal('noname@example.com');
+          expect(event.attendeesPerPartstat.DECLINED[0].email).to.equal('noname@example.com');
           expect(event.attendeesPerPartstat.DECLINED[0].name).to.equal('noname@example.com');
           expect(event.attendeesPerPartstat.DECLINED[0].partstat).to.equal('DECLINED');
 
@@ -344,21 +344,21 @@ describe('The Calendar Angular module services', function() {
           expect(event.attendees).to.deep.equal([
             {
               fullmail: 'name <test@example.com>',
-              mail: 'test@example.com',
+              email: 'test@example.com',
               name: 'name',
               partstat: 'ACCEPTED',
               displayName: 'name'
             },
             {
               fullmail: 'noname@example.com',
-              mail: 'noname@example.com',
+              email: 'noname@example.com',
               name: 'noname@example.com',
               partstat: 'DECLINED',
               displayName: 'noname@example.com'
             },
             {
               fullmail: 'tentative@example.com',
-              mail: 'tentative@example.com',
+              email: 'tentative@example.com',
               name: 'tentative@example.com',
               partstat: 'TENTATIVE',
               displayName: 'tentative@example.com'
@@ -366,7 +366,7 @@ describe('The Calendar Angular module services', function() {
 
           expect(event.organizer).to.deep.equal({
             fullmail: 'organizer <organizer@example.com>',
-            mail: 'organizer@example.com',
+            email: 'organizer@example.com',
             name: 'organizer',
             displayName: 'organizer'
           });
@@ -737,8 +737,8 @@ describe('The Calendar Angular module services', function() {
           attendees: [{
             emails: [
               'user1@open-paas.org'
-           ],
-            displayName: 'user1@open-paas.org'
+            ],
+            displayName: 'User One'
           }, {
             emails: [
               'user2@open-paas.org'
@@ -819,7 +819,7 @@ describe('The Calendar Angular module services', function() {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
                     'role': 'REQ-PARTICIPANT',
-                    'cn': 'user1@open-paas.org'
+                    'cn': 'User One'
                   },
                   'cal-address',
                   'mailto:user1@open-paas.org'
@@ -829,8 +829,7 @@ describe('The Calendar Angular module services', function() {
                   {
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
-                    'role': 'REQ-PARTICIPANT',
-                    'cn': 'user2@open-paas.org'
+                    'role': 'REQ-PARTICIPANT'
                   },
                   'cal-address',
                   'mailto:user2@open-paas.org'
