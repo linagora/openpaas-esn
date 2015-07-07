@@ -110,16 +110,29 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper) {
+    var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
-    $scope.sortBy = 'displayName';
+    $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
     $scope.showMenu = false;
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
+    function fillRequiredContactInformation(contact) {
+      if (!contact[requiredKey]) {
+        var fn = ContactsHelper.getFormattedName(contact);
+        if (!fn) {
+          fn = contact.id;
+        }
+        contact[requiredKey] = fn;
+      }
+      return contact;
+    }
+
     function addItemsToCategories(data) {
+      data = data.map(fillRequiredContactInformation);
       $scope.categories.addItems(data);
       $scope.sorted_contacts = $scope.categories.get();
     }
