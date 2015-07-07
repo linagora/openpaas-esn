@@ -1023,7 +1023,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       scope: {
         message: '='
       },
-      templateUrl: '/views/modules/message/templates/includes/shareMessage.html'
+      templateUrl: '/views/modules/message/templates/includes/messageShared.html'
     };
   })
   .directive('messageOembeds', function () {
@@ -1032,7 +1032,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       scope: {
         message: '='
       },
-      templateUrl: '/views/modules/message/templates/includes/oembed.html'
+      templateUrl: '/views/modules/message/templates/includes/messageOembeds.html'
     };
   })
   .directive('messageDateLink', function () {
@@ -1042,21 +1042,21 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
         'message': '=',
         'activitystream': '='
       },
-      templateUrl: '/views/modules/message/templates/includes/dateLink.html'
+      templateUrl: '/views/modules/message/templates/includes/messageDateLink.html'
     };
   })
   .directive('messageBottomLinks', function() {
     return {
       restrict: 'E',
       scope: true,
-      templateUrl: '/views/modules/message/templates/includes/messagesBottomLinks.html'
+      templateUrl: '/views/modules/message/templates/includes/messageBottomLinks.html'
     };
   })
   .directive('messageComments', function () {
     return {
       restrict: 'E',
       scope: true,
-      templateUrl: '/views/modules/message/templates/includes/comments.html'
+      templateUrl: '/views/modules/message/templates/includes/messageComments.html'
     };
   })
   ;
