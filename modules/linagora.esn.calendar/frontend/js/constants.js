@@ -47,6 +47,7 @@ angular.module('esn.calendar')
   .constant('EVENT_FORM', {
     title: {
       // TODO: i18n
-      default: 'No title'
+      default: 'No title',
+      maxlength: 1024
     }
   });
