@@ -42,7 +42,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
   $scope.domain = session.domain;
 })
 
-.controller('sessionInitESNController', function($scope, sessionFactory) {
+.controller('sessionInitESNController', function($scope, sessionFactory, $route) {
 
   $scope.session = {
     template: '/views/commons/loading.html'
