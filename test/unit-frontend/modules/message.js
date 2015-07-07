@@ -348,6 +348,51 @@ describe('The esn.message Angular module', function() {
     });
   });
 
+  describe('messageShared directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+    beforeEach(module('esn.activitystream'));
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should be rendered in template', function () {
+      var html = '<message-shared></message-shared>';
+
+      var scope = this.$rootScope.$new();
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.length).to.equal(1);
+
+    });
+  });
+
+  describe('messageOembeds directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should be rendered in template', function () {
+      var html = '<message-oembeds></message-oembeds>';
+
+      var scope = this.$rootScope.$new();
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.length).to.equal(1);
+
+    });
+  });
+
 
   describe('messageDateLink directive', function() {
 
@@ -457,6 +502,28 @@ describe('The esn.message Angular module', function() {
       expect(element.find('li').hasClass('ng-hide')).to.be.false;
     });
 
+  });
+
+
+  describe('messageComments directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.core'));
+
+    beforeEach(inject(function ($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should be able to render template correctly', function () {
+      var html = '<message-comments></message-comments>';
+
+      var scope = this.$rootScope.$new();
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.length).to.equal(1);
+    });
   });
 
 
