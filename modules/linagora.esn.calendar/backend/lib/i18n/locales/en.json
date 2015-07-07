@@ -27,5 +27,9 @@
   "New event from %s: %s": "New event from %s: %s",
   "Event %s from %s updated": "Event %s from %s updated",
   "Participation updated: %s": "Participation updated: %s",
-  "Event %s from %s canceled": "Event %s from %s canceled"
+  "Event %s from %s canceled": "Event %s from %s canceled",
+  "has updated a meeting!": "has updated a meeting!",
+  "has invited you to a meeting!": "has invited you to a meeting!",
+  "has changed his participation!": "has changed his participation!",
+  "has canceled a meeting!": "has canceled a meeting!"
 }
