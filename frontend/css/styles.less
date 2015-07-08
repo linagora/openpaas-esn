@@ -140,20 +140,20 @@ html.no-websockets body.esn-welcome-app #unsupported img {
 }
 
 .nopadding {
-   padding: 0 !important;
-   margin: 0 !important;
+   padding: 0 !important; /* this rule deliberately overwrites padding */
+   margin: 0 !important; /* this rule deliberately overwrites the margin */
 }
 
 .nopadding-left {
-  padding-left: 0 !important;
+  padding-left: 0 !important; /* this rule deliberately overwrites padding */
 }
 
 .nomargin {
-  margin: 0 !important;
+  margin: 0 !important; /* this rule deliberately overwrites the margin */
 }
 
 .noborder {
-  border: 0 !important;
+  border: 0 !important; /* this rule deliberately overwrites the border */
 }
 
 // Upload file
@@ -348,7 +348,7 @@ header.topbar {
     .popover {
       font-size: 0.5em;
       .arrow {
-        left: 17px !important;
+        left: 17px;
       }
     }
     .notification-body {
@@ -365,7 +365,7 @@ header.topbar {
 @media (min-width: @screen-sm-min) {
   .esn-user-notification {
     .popover {
-      left: -42px !important;
+      left: -42px !important; /* bootstrap sets element style we want to overwrite */
     }
     i {
       font-size: 1.3em;
@@ -647,10 +647,6 @@ header.topbar {
   -ms-transform:translate(-35%) rotate(90deg); /* IE 9 */
   -webkit-transform:translate(-35%) rotate(90deg); /* Opera, Chrome, and Safari */
   z-index: 1;
-}
-
-.feedback.ng-hide-add-active {
-  display: none !important;
 }
 
 .feedback.aside {
