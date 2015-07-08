@@ -36,11 +36,23 @@ describe('The Calendar Angular module controllers', function() {
       },
       icalToShell: function(event) {
         return event;
+      },
+      modify: function(path , e) {
+        event = e;
+        return {
+          then: function() {
+            return {
+              finally: function() {}
+            };
+          }
+        };
       }
     };
 
     var sessionMock = {
-      user: 'aUser'
+      user: {
+        emails: ['user@test.com']
+      }
     };
 
     var liveNotificationMock = function(namespace) {
@@ -76,7 +88,6 @@ describe('The Calendar Angular module controllers', function() {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
-      $provide.value('calendarService', calendarServiceMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -94,17 +105,96 @@ describe('The Calendar Angular module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment) {
+
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, _$filter_) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.$compile = $compile;
     this.$timeout = $timeout;
     this.$window = $window;
+    this.$filter = _$filter_;
     this.USER_UI_CONFIG = USER_UI_CONFIG;
     this.moment = moment;
   }));
 
+  describe('The partstat filter', function() {
+    it('should filter attendess by parstat', function() {
+      var attendees = [
+        {
+          id: 1,
+          partstat: 'NEEDS-ACTION'
+        },
+        {
+          id: 2,
+          partstat: 'ACCEPTED'
+        },
+        {
+          id: 3,
+          partstat: 'NEEDS-ACTION'
+        },
+        {
+          id: 4,
+          partstat: 'ACCEPTED'
+        },
+        {
+          id: 5,
+          partstat: 'NEEDS-ACTION'
+        },
+        {
+          id: 6,
+          partstat: 'DECLINED'
+        },
+        {
+          id: 7,
+          partstat: 'DECLINED'
+        }
+      ];
+      var declinedAttendees, acceptedAttendees, needsActionAttendees;
+
+      declinedAttendees = this.$filter('partstat')(attendees, 'DECLINED');
+      acceptedAttendees = this.$filter('partstat')(attendees, 'ACCEPTED');
+      needsActionAttendees = this.$filter('partstat')(attendees, 'NEEDS-ACTION');
+
+      expect(declinedAttendees).to.deep.equal([
+        {
+          id: 6,
+          partstat: 'DECLINED'
+        },
+        {
+          id: 7,
+          partstat: 'DECLINED'
+        }
+      ]);
+
+      expect(acceptedAttendees).to.deep.equal([
+        {
+          id: 2,
+          partstat: 'ACCEPTED'
+        },
+        {
+          id: 4,
+          partstat: 'ACCEPTED'
+        }
+      ]);
+
+      expect(needsActionAttendees).to.deep.equal([
+        {
+          id: 1,
+          partstat: 'NEEDS-ACTION'
+        },
+        {
+          id: 3,
+          partstat: 'NEEDS-ACTION'
+        },
+        {
+          id: 5,
+          partstat: 'NEEDS-ACTION'
+        }
+      ]);
+    });
+
+  });
   describe('The eventFormController controller', function() {
 
     beforeEach(function() {
@@ -140,6 +230,36 @@ describe('The Calendar Angular module controllers', function() {
         this.scope.event.diff = 3600000;
         expect(this.scope.editedEvent).to.deep.equal(this.scope.event);
       });
+
+      it('should detect if organizer', function() {
+        this.scope.event = {
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          allDay: false,
+          organizer: {
+            email: 'user@test.com'
+          },
+          otherProperty: 'aString'
+        };
+        this.eventFormController.initFormData();
+        expect(this.scope.isOrganizer).to.equal(true);
+      });
+
+      it('should detect if not organizer', function() {
+        this.scope.event = {
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          organizer: {
+            email: 'other@test.com'
+          },
+          otherProperty: 'aString'
+        };
+        this.eventFormController.initFormData();
+        expect(this.scope.isOrganizer).to.equal(false);
+      });
+
     });
 
     describe('modifyEvent function', function() {
@@ -179,6 +299,23 @@ describe('The Calendar Angular module controllers', function() {
         this.scope.editedEvent = this.scope.event;
         this.eventFormController.modifyEvent();
       });
+
+      it('should add newAttendees', function() {
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+        this.scope.editedEvent = {
+          title: 'title',
+          attendees: ['user1@test.com']
+        };
+        this.scope.newAttendees = ['user2@test.com', 'user3@test.com'];
+        this.eventFormController.modifyEvent();
+        expect(event).to.deep.equal({
+          title: 'title',
+          attendees: ['user1@test.com', 'user2@test.com', 'user3@test.com']
+        });
+      });
     });
 
     describe('addNewEvent function', function() {
@@ -190,9 +327,24 @@ describe('The Calendar Angular module controllers', function() {
 
         this.scope.editedEvent = {};
         this.eventFormController.addNewEvent();
+        expect(this.scope.editedEvent.title).to.equal('No title');
+      });
+
+      it('should add newAttendees from the form', function() {
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+
+        this.scope.editedEvent = {};
+        this.scope.newAttendees = ['user1@test.com', 'user2@test.com'];
+        this.eventFormController.addNewEvent();
         expect(event).to.deep.equal({
           title: 'No title',
-          organizer: 'aUser'
+          attendees: ['user1@test.com', 'user2@test.com'],
+          organizer: {
+            emails: ['user@test.com']
+          }
         });
       });
     });

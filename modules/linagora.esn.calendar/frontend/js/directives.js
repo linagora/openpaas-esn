@@ -46,7 +46,6 @@ angular.module('esn.calendar')
             element.find('>div>.error').text(error).removeClass('hidden');
           });
         }
-
         updateEvent();
       }
     };
@@ -101,7 +100,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session) {
+  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -118,7 +117,6 @@ angular.module('esn.calendar')
       $scope.onStartDateChange = controller.onStartDateChange;
       $scope.onEndDateChange = controller.onEndDateChange;
       $scope.getMinTime = controller.getMinTime;
-
       $scope.onAddingAttendee = function(att) {
         // Attendees are added via tags-input, which uses displayName as the
         // property for both display and newly created tags. We need to adapt
@@ -130,14 +128,15 @@ angular.module('esn.calendar')
 
         // Need to check again if it's a duplicate, since ng-tags-input does
         // this a bit early for our taste.
-        var noduplicate = $scope.editedEvent.attendees.every(function(existingAtt) {
+        var noduplicate = $scope.newAttendees.every(function(existingAtt) {
           return existingAtt.email !== firstEmail;
         });
-
         // As a nice side-effect, allows us to check for a valid email
         var emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$/;
         return noduplicate && !!emailRegex.exec(firstEmail);
       };
+      $scope.selectAttendee = controller.selectAttendee;
+      $scope.deleteSelectedAttendees = controller.deleteSelectedAttendees;
 
       $scope.getInvitableAttendees = function(query) {
         var deferred = $q.defer();
@@ -146,13 +145,22 @@ angular.module('esn.calendar')
         domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
           function(response) {
             var resolved = response.data.filter(function(user) {
-              return user.emails[0] !== session.user.emails[0];
+              if ($scope.editedEvent.attendees) {
+                var isAddedAttendees = $scope.editedEvent.attendees.some(function(att) {
+                  return att.email === user.emails[0];
+                });
+                return ((user.emails[0] !== session.user.emails[0]) && !isAddedAttendees);
+              } else {
+                return (user.emails[0] !== session.user.emails[0]);
+              }
             }).map(function(user) {
               return angular.extend(user, {
+                id: user._id,
                 email: user.emails[0],
                 displayName: (user.firstname && user.lastname) ?
                   calendarUtils.diplayNameOf(user.firstname, user.lastname) :
-                  user.emails[0]
+                  user.emails[0],
+                partstat: ICAL_PROPERTIES.partstat.needsaction
               });
             });
             $scope.query = '';
@@ -236,6 +244,17 @@ angular.module('esn.calendar')
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/user/user-calendar-navbar-link.html'
+    };
+  })
+  .directive('attendeeListItem', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/calendar/views/attendee/attendee-list-item.html',
+      controller: 'eventFormController',
+      scope: {
+        attendee: '='
+      }
     };
   })
   .directive('calendarDisplay', function() {
