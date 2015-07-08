@@ -340,90 +340,6 @@ describe('The Contacts Angular module', function() {
       this.initController();
       scope.$digest();
     });
-    describe('The accept function', function() {
-
-      it('should not call contactsService.modify when already calling it', function() {
-        scope.calling = true;
-        contactsService.modify = function() {
-          throw new Error('This test should not call contactsService.modify');
-        };
-
-        this.initController();
-        scope.accept();
-        $timeout.flush();
-      });
-
-      it('should not call contactsService.modify when contact is not valid', function() {
-        contactsService.modify = function() {
-          throw new Error('This test should not call contactsService.modify');
-        };
-
-        this.initController();
-        scope.accept();
-        $timeout.flush();
-      });
-
-      it('should display an error when contact is not valid', function(done) {
-        contactsService.modify = function() {
-          return done(new Error('This test should not call contactsService.create'));
-        };
-        $alert.alert = function() { done(); };
-
-        this.initController();
-        scope.accept();
-        $timeout.flush();
-      });
-
-      it('should call contactsService.modify with right bookId and contact', function(done) {
-        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-        contactsService.modify = function(id, contact) {
-          expect(id).to.deep.equal(bookId);
-          expect(contact).to.deep.equal(scope.contact);
-          done();
-        };
-
-        contactsService.getCard = function(path) {
-          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-        };
-
-        this.initController();
-        scope.accept();
-        $timeout.flush();
-      });
-
-      it('should notify user on contactsService.modify failure', function(done) {
-        $location.path = function() {
-          done(new Error('This test should not change the location !'));
-        };
-        var displayError;
-        displayError = done();
-        contactsService.modify = function() {
-          return $q.reject();
-        };
-        contactsService.getCard = function(path) {
-          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-        };
-
-        this.initController();
-        scope.accept();
-        $timeout.flush();
-      });
-
-      it('should set back the calling flag to false when complete', function() {
-
-        scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
-        contactsService.modify = function() {
-          return $q.when(scope.contact);
-        };
-        contactsService.getCard = function() {
-          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-        };
-        this.initController();
-        scope.accept();
-        $timeout.flush();
-        expect(scope.calling).to.be.false;
-      });
-    });
     describe('The modify function', function() {
 
       it('should not call contactsService.modify when already calling it', function() {
@@ -531,6 +447,10 @@ describe('The Contacts Angular module', function() {
         var blob = 'theblob';
         var imageAsBase64 = 'image';
         var modalHidden = false;
+
+        scope.modify = function() {
+          return $q.when(scope.contact);
+        };
 
         window.FileReader = function() {
           return {
