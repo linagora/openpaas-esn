@@ -15,9 +15,9 @@ angular.module('esn.calendar')
         return calendarService.list(path, start, end, timezone).then(callback,
             function(err) {
               callback([]);
+              $log.error(err);
               if (errorCallback) {
-                $log.error(err);
-                errorCallback('Can not get calendar events');
+                errorCallback(err, 'Can not get calendar events');
               }
             });
       };

@@ -7,7 +7,6 @@ var expect = chai.expect;
 
 describe('The Calendar Angular module services', function() {
   describe('The calendarEventSource', function() {
-    var ICAL;
     var $qInjected;
 
     beforeEach(function() {
@@ -78,24 +77,23 @@ describe('The Calendar Angular module services', function() {
               expect(startMoment).to.deep.equal(start);
               expect(endMoment).to.deep.equal(end);
               expect(timezone).to.equals(localTimezone);
-              return $qInjected.reject('Trouble to display');
+              return $qInjected.reject('');
             }
           };
         });
       });
 
-      angular.mock.inject(function(calendarEventSource, $rootScope, _ICAL_, _$q_) {
+      angular.mock.inject(function(calendarEventSource, $rootScope, _$q_) {
         this.calendarEventSource = calendarEventSource;
         this.$rootScope = $rootScope;
         $qInjected = _$q_;
-        ICAL = _ICAL_;
       });
 
       var noErrorsCallback = function(events) {
         expect(events).to.deep.equal([]);
       };
 
-      var displayCalendarErrorMock = function(errorMessage) {
+      var displayCalendarErrorMock = function(errorObject, errorMessage) {
         expect(errorMessage).to.equal('Can not get calendar events');
         done();
       };
