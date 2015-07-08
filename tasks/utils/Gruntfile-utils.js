@@ -122,17 +122,17 @@ function GruntfileUtils(grunt, servers) {
 
 GruntfileUtils.prototype.command = function command() {
   var servers = this.servers;
-  var command = {};
+  var commandObject = {};
 
-  command.ldap = servers.ldap.cmd;
+  commandObject.ldap = servers.ldap.cmd;
 
-  command.redis = util.format('%s --port %s %s %s',
+  commandObject.redis = util.format('%s --port %s %s %s',
       servers.redis.cmd,
       (servers.redis.port ? servers.redis.port : '23457'),
       (servers.redis.pwd ? '--requirepass' + servers.redis.pwd : ''),
       (servers.redis.conf_file ? servers.redis.conf_file : ''));
 
-  command.mongo = function (repl) {
+  commandObject.mongo = function(repl) {
     var replset = repl ?
       util.format('--replset \'%s\' --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name) :
       '--nojournal';
@@ -144,7 +144,7 @@ GruntfileUtils.prototype.command = function command() {
       replset);
   };
 
-  command.elasticsearch = servers.elasticsearch.cmd +
+  commandObject.elasticsearch = servers.elasticsearch.cmd +
       ' -Des.http.port=' + servers.elasticsearch.port +
       ' -Des.transport.tcp.port=' + servers.elasticsearch.communication_port +
       ' -Des.cluster.name=' + servers.elasticsearch.cluster_name +
@@ -153,7 +153,7 @@ GruntfileUtils.prototype.command = function command() {
       ' -Des.path.logs=' + servers.elasticsearch.logs_path +
       ' -Des.discovery.zen.ping.multicast.enabled=false';
 
-  return command;
+  return commandObject;
 };
 
 GruntfileUtils.prototype.shell = function shell() {
@@ -189,9 +189,9 @@ GruntfileUtils.prototype.container = function container() {
           startContainerOptions: startContainerOptions,
           matchOutput: _taskSuccessIfMatch(grunt, regex, info)
         }
-      }
+      };
     }
-  }
+  };
 };
 
 GruntfileUtils.prototype.runGrunt = function runGrunt() {
@@ -208,7 +208,7 @@ GruntfileUtils.prototype.runGrunt = function runGrunt() {
     }
   }
   return {
-    newProcess: function (task) {
+    newProcess: function(task) {
       return {
         options: {
           log: true,
@@ -219,7 +219,7 @@ GruntfileUtils.prototype.runGrunt = function runGrunt() {
           task: task
         },
         src: ['Gruntfile-tests.js']
-      }
+      };
     }
   };
 };
@@ -280,20 +280,20 @@ GruntfileUtils.prototype.cleanEnvironment = function cleanEnvironment() {
 
     var done = this.async();
     done(true);
-  }
+  };
 };
 
 GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
   var grunt = this.grunt;
   var servers = this.servers;
 
-  return function () {
+  return function() {
     var done = this.async();
     var command = this.args[0];
 
     var _doReplSet = function() {
       var client = new MongoClient(new Server('localhost', servers.mongodb.port), {native_parser: true});
-      client.open(function (err, mongoClient) {
+      client.open(function(err, mongoClient) {
         if (err) {
           grunt.log.error('MongoDB - Error when open a mongodb connection : ' + err);
           return done(false);
@@ -311,7 +311,7 @@ GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
         }
         db.command({
           replSetInitiate: replSetCommand
-        }, function (err, response) {
+        }, function(err, response) {
           if (err) {
             grunt.log.error('MongoDB - Error when executing rs.initiate() : ' + err);
             return done(false);
@@ -321,10 +321,10 @@ GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
 
             var nbExecuted = 0;
             var finish = false;
-            async.doWhilst(function (callback) {
-              setTimeout(function () {
+            async.doWhilst(function(callback) {
+              setTimeout(function() {
 
-                db.command({isMaster: 1}, function (err, response) {
+                db.command({isMaster: 1}, function(err, response) {
                   if (err) {
                     grunt.log.error('MongoDB - Error when executing db.isMaster() : ' + err);
                     return done(false);
@@ -343,9 +343,9 @@ GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
                 });
               }, servers.mongodb.interval_replica_set);
 
-            }, function () {
+            }, function() {
               return (!finish) && nbExecuted < servers.mongodb.tries_replica_set;
-            }, function (err) {
+            }, function(err) {
               if (err) {
                 return done(false);
               }
@@ -363,7 +363,7 @@ GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
     };
 
     _doReplSet();
-  }
+  };
 };
 
 GruntfileUtils.prototype.setupElasticsearchUsersIndex = function() {
@@ -379,7 +379,7 @@ GruntfileUtils.prototype.setupElasticsearchUsersIndex = function() {
         .put(elasticsearchURL + '/' + 'users.idx')
         .set('Content-Type', 'application/json')
         .send(ELASTICSEARCH_SETTINGS)
-        .end(function (res) {
+        .end(function(res) {
           if (res.status === 200) {
             grunt.log.write('Elasticsearch settings are successfully added');
             done(true);
@@ -409,13 +409,13 @@ GruntfileUtils.prototype.setupElasticsearchMongoRiver = function setupElasticsea
       servers.mongodb.port = 27017;
     }
 
-    var wrapper = function (collection) {
-      var functionToAdd = function (callback) {
+    var wrapper = function(collection) {
+      var functionToAdd = function(callback) {
         request
           .put(elasticsearchURL + '/_river/' + collection + '/_meta')
           .set('Content-Type', 'application/json')
           .send(RIVER_SETTINGS(servers, collection))
-          .end(function (res) {
+          .end(function(res) {
             if (res.status === 201) {
               callback(null, res.body);
             } else {
@@ -431,14 +431,14 @@ GruntfileUtils.prototype.setupElasticsearchMongoRiver = function setupElasticsea
       wrapper(collection);
     }
 
-    async.parallel(functionsArray, function (err, results) {
+    async.parallel(functionsArray, function(err, results) {
       if (err) {
         done(err);
       }
       grunt.log.write('Elasticsearch rivers are successfully setup');
       done(true);
     });
-  }
+  };
 };
 
 module.exports = GruntfileUtils;
