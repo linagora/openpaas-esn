@@ -523,7 +523,7 @@ describe('The calendar core module', function() {
       });
     });
 
-    describe.skip('when method is REQUEST', function() {
+    describe('when method is REQUEST', function() {
       it('should call content-sender.send with new event subject and template if sequence is 0', function(done) {
         var method = 'REQUEST';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/request-new-event.ics', 'utf-8');
@@ -575,7 +575,7 @@ describe('The calendar core module', function() {
       });
     });
 
-    describe.skip('when method is REPLY', function() {
+    describe('when method is REPLY', function() {
       it('should call content-sender.send with reply event subject and template', function(done) {
         var method = 'REPLY';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/reply.ics', 'utf-8');
@@ -602,7 +602,7 @@ describe('The calendar core module', function() {
       });
     });
 
-    describe.skip('when method is CANCEL', function() {
+    describe('when method is CANCEL', function() {
       it('should call content-sender.send with cancel event subject', function(done) {
         var method = 'CANCEL';
         var ics = fs.readFileSync(__dirname + '/../../fixtures/cancel.ics', 'utf-8');
