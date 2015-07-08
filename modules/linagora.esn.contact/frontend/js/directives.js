@@ -2,6 +2,8 @@
 
 angular.module('linagora.esn.contact')
   .constant('DEFAULT_AVATAR', '/images/user.png')
+  .constant('ENTER_KEY', 13)
+  .constant('ESCAPE_KEY', 27)
   .directive('contactNavbarLink', function() {
     return {
       restrict: 'E',
@@ -40,6 +42,27 @@ angular.module('linagora.esn.contact')
         if (!item[valueToCheck]) {
           _acceptRemove($index);
         }
+      };
+    };
+
+    this.createVerifyNewAddressFunction = function() {
+      var args = arguments;
+
+      return function() {
+        if (Array.prototype.some.call(args, function(arg) { return !!$scope.newItem[arg]; })) {
+          _acceptNew();
+        }
+      };
+    };
+
+    this.createVerifyRemoveAddressFunction = function(/* valuesToCheck... */) {
+      var args = arguments;
+      return function($index) {
+       $scope.content.forEach(function(item) {
+          if (Array.prototype.every.call(args, function(arg) { return !item[arg]; })) {
+            _acceptRemove($index);
+          }
+        });
       };
     };
 
@@ -90,7 +113,8 @@ angular.module('linagora.esn.contact')
         types: '=multiInputTypes',
         inputType: '@multiInputTexttype',
         placeholder: '@multiInputPlaceholder',
-        onSave: '=multiInputOnSave'
+        onSave: '=multiInputOnSave',
+        name: '@'
       },
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group.html',
       controller: 'MultiInputGroupController',
@@ -113,8 +137,8 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/multi-inline-editable-input-group-address',
       controller: 'MultiInputGroupController',
       link: function(scope, element, attrs, controller) {
-        scope.verifyNew = controller.createVerifyNewFunction('street', 'zip', 'city', 'country');
-        scope.verifyRemove = controller.createVerifyRemoveFunction('street');
+        scope.verifyNew = controller.createVerifyNewAddressFunction('street', 'zip', 'city', 'country');
+        scope.verifyRemove = controller.createVerifyRemoveAddressFunction('street', 'zip', 'city', 'country');
       }
     };
   })
@@ -129,7 +153,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-display.html'
     };
   })
-  .directive('inlineEditableInput', function($timeout) {
+  .directive('inlineEditableInput', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY) {
     function link(scope, element, attrs, controller) {
       var input = element.find('input');
       var inputGroup = element.find('.input-group');
@@ -156,6 +180,8 @@ angular.module('linagora.esn.contact')
 
       input.bind('focus', function() {
         oldValue = controller.$viewValue;
+        scope.updateSuccessFlag = false;
+        scope.lastModifiedFlag = false;
         oldInputGroupWidth = inputGroup.width();
         _resizeInputGroup();
         $timeout(_toggleGroupButtons, 0);
@@ -164,6 +190,14 @@ angular.module('linagora.esn.contact')
       input.bind('blur', function() {
         $timeout(function() {
           if (oldValue !== controller.$viewValue) {
+            if (attrs.newItem !== 'true') {
+              scope.lastModifiedFlag = true;
+            }
+            else {
+              scope.$watch(attrs.newItem, function() {
+                $rootScope.$broadcast('contact:flag:last:item', attrs.name);
+              });
+            }
             scope.saveInput();
           }
           _resetInputGroup();
@@ -175,10 +209,15 @@ angular.module('linagora.esn.contact')
       });
 
       input.bind('keydown', function(event) {
-        var escape = event.which === 27;
+        var escape = event.which === ESCAPE_KEY;
+        var enter = event.which === ENTER_KEY;
         var target = event.target;
         if (escape) {
           $timeout(scope.resetInput, 0);
+          target.blur();
+          event.preventDefault();
+        }
+        if (enter) {
           target.blur();
           event.preventDefault();
         }
@@ -190,6 +229,30 @@ angular.module('linagora.esn.contact')
         controller.$setViewValue(oldValue);
         controller.$render();
       };
+
+      $rootScope.$on('contact:updated', function() {
+        if (attrs.newItem !== 'true') {
+          scope.updateSuccessFlag = true;
+        }
+        else {
+          $rootScope.$broadcast('contact:add:check');
+        }
+      });
+
+      $rootScope.$on('contact:flag:last:item', function(event, fieldName) {
+        $timeout(function() {
+          if (attrs.lastItem === 'true' && fieldName === attrs.name) {
+            scope.lastModifiedFlag = true;
+          }
+        }, 0);
+      });
+
+      $rootScope.$on('contact:add:check', function() {
+        if (attrs.lastItem === 'true') {
+          scope.updateSuccessFlag = true;
+        }
+      });
+
     }
 
     return {
@@ -204,6 +267,87 @@ angular.module('linagora.esn.contact')
       require: 'ngModel',
       restrict: 'E',
       templateUrl: '/contact/views/partials/inline-editable-input.html',
+      link: link
+    };
+  })
+  .directive('editableField', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY) {
+    function link(scope, element, attrs, controller) {
+      var oldValue;
+
+      element.bind('focus', function() {
+        oldValue = controller.$viewValue;
+        $rootScope.$broadcast('contact:reset:flags', attrs.name);
+      });
+
+      element.bind('blur', function() {
+        $timeout(function() {
+          if (oldValue !== controller.$viewValue) {
+            $rootScope.$broadcast('contact:set:flag', attrs.name);
+            scope.save();
+          }
+          if (scope.onBlur) {
+            scope.onBlur();
+          }
+        }, 200);
+      });
+      element.bind('keydown', function(event) {
+        var escape = event.which === ESCAPE_KEY;
+        var target = event.target;
+        if (escape) {
+          $timeout(scope.reset, 0);
+          target.blur();
+          event.preventDefault();
+        }
+        if (attrs.name === 'date') {
+          var enter = event.which === ENTER_KEY;
+          if (enter) {
+            target.blur();
+            event.preventDefault();
+          }
+        }
+      });
+      scope.save = scope.onSave || function() {};
+
+      scope.reset = function() {
+        controller.$setViewValue(oldValue);
+        controller.$render();
+      };
+    }
+
+    return {
+      scope: {
+        ngModel: '=',
+        onSave: '=',
+        onBlur: '='
+      },
+      require: 'ngModel',
+      restrict: 'A',
+      link: link
+    };
+  })
+  .directive('inlineNotify', function($rootScope) {
+    function link(scope, element, attrs) {
+      $rootScope.$on('contact:reset:flags', function(event, fieldName) {
+        if (fieldName === attrs.name) {
+          scope.updateSuccessFlag = false;
+          scope.lastModifiedFlag = false;
+        }
+      });
+      $rootScope.$on('contact:set:flag', function(event, fieldName) {
+        if (fieldName === attrs.name) {
+          scope.lastModifiedFlag = true;
+        }
+      });
+      $rootScope.$on('contact:updated', function() {
+        scope.updateSuccessFlag = true;
+      });
+    }
+    return {
+      scope: {
+        name: '@'
+      },
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/inline-notify.html',
       link: link
     };
   })
