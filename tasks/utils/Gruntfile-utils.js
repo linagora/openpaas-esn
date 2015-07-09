@@ -79,7 +79,7 @@ var RIVER_SETTINGS = function(servers, collection) {
   return {
     'type': 'mongodb',
     'mongodb': {
-      'servers': [{host: 'mongo', port: servers.mongodb.port}],
+      'servers': [{host: servers.mongodb.ip, port: servers.mongodb.port}],
       'db': servers.mongodb.dbname,
       'collection': collection
     },
@@ -134,7 +134,7 @@ GruntfileUtils.prototype.command = function command() {
 
   commandObject.mongo = function(repl) {
     var replset = repl ?
-      util.format('--replset \'%s\' --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name) :
+      util.format('--replSet \'%s\' --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name) :
       '--nojournal';
 
     return util.format('%s --dbpath %s --port %s %s',
@@ -167,7 +167,7 @@ GruntfileUtils.prototype.shell = function shell() {
           async: false,
           stdout: _taskSuccessIfMatch(grunt, regex, info),
           stderr: grunt.log.error,
-          canKill: false
+          canKill: true
         }
       };
     }
@@ -407,6 +407,9 @@ GruntfileUtils.prototype.setupElasticsearchMongoRiver = function setupElasticsea
     if (command === 'docker') {
       servers = extend(true, servers);
       servers.mongodb.port = 27017;
+      servers.mongodb.ip = 'mongo';
+    } else {
+      servers.mongodb.ip = '127.0.0.1';
     }
 
     var wrapper = function(collection) {
