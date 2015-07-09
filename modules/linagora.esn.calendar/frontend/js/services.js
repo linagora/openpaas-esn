@@ -8,11 +8,18 @@ angular.module('esn.calendar')
     });
   })
   .factory('calendarEventSource', function($log, calendarService) {
-    return function(calendarId) {
+    return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
         var path = '/calendars/' + calendarId + '/events';
-        return calendarService.list(path, start, end, timezone).then(callback);
+        return calendarService.list(path, start, end, timezone).then(callback,
+            function(err) {
+              callback([]);
+              $log.error(err);
+              if (errorCallback) {
+                errorCallback(err, 'Can not get calendar events');
+              }
+            });
       };
     };
   })

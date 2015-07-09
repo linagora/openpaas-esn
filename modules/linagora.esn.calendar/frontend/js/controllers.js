@@ -209,8 +209,7 @@ angular.module('esn.calendar')
     $scope.calendarId = user._id;
     $scope.uiConfig = USER_UI_CONFIG;
   })
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification) {
-    $scope.eventSources = [calendarEventSource($scope.calendarId)];
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification) {
 
     var windowJQuery = angular.element($window);
 
@@ -260,7 +259,20 @@ angular.module('esn.calendar')
       };
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
     };
-    $scope.eventSources = [calendarEventSource($scope.calendarId)];
+
+    $scope.displayCalendarError = function(err, errorMessage) {
+      $alert({
+        content: err && err.message || errorMessage,
+        type: 'danger',
+        show: true,
+        position: 'bottom',
+        container: '.calendar-error-message',
+        duration: '3',
+        animation: 'am-flip-x'
+      });
+    };
+
+    $scope.eventSources = [calendarEventSource($scope.calendarId, $scope.displayCalendarError)];
 
     function _modifiedCalendarItem(data) {
       uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
