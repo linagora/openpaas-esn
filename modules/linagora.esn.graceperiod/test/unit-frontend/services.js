@@ -44,16 +44,16 @@ describe('The GracePeriod Angular module', function() {
       });
 
       it('should resolve the promise when the delay elapses', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10).then(function(resolveData) {
-          if (!resolveData.cancelled) {
+        gracePeriodService.grace('Test', 'Cancel', 10).then(function(data) {
+          if (!data.cancelled) {
             done();
           }
         });
       });
 
       it('should resolve the promise when the close button is clicked', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(resolveData) {
-          if (!resolveData.cancelled) {
+        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(data) {
+          if (!data.cancelled) {
             done();
           }
         });
@@ -61,8 +61,8 @@ describe('The GracePeriod Angular module', function() {
       });
 
       it('should reject the promise when the cancel link is clicked', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(resolveData) {
-          if (resolveData.cancelled) {
+        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(data) {
+          if (data.cancelled) {
             done();
           }
         });

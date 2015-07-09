@@ -273,9 +273,9 @@ describe('The Contacts Angular module', function() {
 
         gracePeriodService.grace = function() {
           return $q.when({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function(textToDisplay) {
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
             }});
         };
         contactsService.create = function() {
@@ -297,9 +297,9 @@ describe('The Contacts Angular module', function() {
 
         gracePeriodService.grace = function() {
           return $q.when({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function(textToDisplay) {
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
               done();
             }});
         };
@@ -322,9 +322,9 @@ describe('The Contacts Angular module', function() {
 
         gracePeriodService.grace = function() {
           return $q.when({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function(textToDisplay) {
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
             }});
         };
         contactsService.create = function() {

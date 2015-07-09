@@ -378,13 +378,13 @@ angular.module('linagora.esn.contact')
             return $q.reject(err);
           }).then(function(taskId) {
             return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel')
-                .then(function(resolveData) {
-                  if (resolveData.cancelled) {
+                .then(function(data) {
+                  if (data.cancelled) {
                     return gracePeriodService.cancel(taskId).then(function() {
-                      resolveData.notificationSuccess();
+                      data.success();
                       $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
                     }, function(err) {
-                      resolveData.notificationError('Cannot cancel contact delete, the contact is deleted');
+                      data.error('Cannot cancel contact delete, the contact is deleted');
                       return $q.reject(err);
                     });
                   }

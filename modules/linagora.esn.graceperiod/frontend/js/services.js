@@ -56,14 +56,14 @@ angular.module('linagora.esn.graceperiod')
         notification.get().find('a.cancel-task').click(function() {
           $rootScope.$apply(function() {
             resolve({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function() {
               notification.remove(false);
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
               notification.update({
                 type: 'error',
                 text: textToDisplay,
-                delay: 5
+                delay: 5000
               });
             }});
           });

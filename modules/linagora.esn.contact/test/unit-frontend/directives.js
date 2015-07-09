@@ -279,9 +279,9 @@ describe('The contact Angular module directives', function() {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
           return self.$q.when({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function(textToDisplay) {
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
             }});
         };
         this.contactsService.remove = function() {
@@ -304,9 +304,9 @@ describe('The contact Angular module directives', function() {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
           return self.$q.when({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function(textToDisplay) {
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
               done();
             }});
         };
@@ -329,9 +329,9 @@ describe('The contact Angular module directives', function() {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
           return self.$q.when({cancelled: true,
-            notificationSuccess: function(textToDisplay) {
+            success: function(textToDisplay) {
             },
-            notificationError: function(textToDisplay) {
+            error: function(textToDisplay) {
             }});
         };
         this.gracePeriodService.cancel = function() {

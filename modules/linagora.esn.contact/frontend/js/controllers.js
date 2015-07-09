@@ -69,13 +69,13 @@ angular.module('linagora.esn.contact')
         return $q.reject(err);
       }).then(function() {
         return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
-            .then(function(resolveData) {
-              if (resolveData.cancelled) {
+            .then(function(data) {
+              if (data.cancelled) {
                   contactsService.remove($scope.bookId, $scope.contact).then(function() {
-                    resolveData.notificationSuccess();
+                    data.success();
                     openContactForm($scope.bookId, $scope.contact);
                   }, function(err) {
-                    resolveData.notificationError('Cannot cancel contact creation, the contact is created');
+                    data.error('Cannot cancel contact creation, the contact is created');
                     return $q.reject(err);
                 });
               }
