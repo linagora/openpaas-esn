@@ -78,6 +78,48 @@ function client(callback) {
 }
 module.exports.client = client;
 
+function addDocumentToIndex(document, options, callback) {
+
+  client(function(err, esClient) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (!esClient) {
+      return callback(new Error('Can not get ES client'));
+    }
+
+    esClient.index({
+      index: options.index,
+      type: options.type,
+      id: options.id,
+      body: document
+    }, callback);
+  });
+}
+
+module.exports.addDocumentToIndex = addDocumentToIndex;
+
+function removeDocumentFromIndex(options, callback) {
+
+  client(function(err, esClient) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (!esClient) {
+      return callback(new Error('Can not get ES client'));
+    }
+
+    esClient.delete({
+      index: options.index,
+      type: options.type,
+      id: options.id
+    }, callback);
+  });
+}
+module.exports.removeDocumentFromIndex = removeDocumentFromIndex;
+
 function getIndexName() {
   return 'users.idx';
 }
