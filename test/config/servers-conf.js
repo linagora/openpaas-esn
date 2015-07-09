@@ -20,6 +20,10 @@ module.exports = {
     'logpath' : '',
     'elasticsearch': {
       'rivers': ['users', 'domains', 'messages', 'communities']
+    },
+    'container': {
+      'image': 'mongo:2.6.6',
+      'name': 'mongo_for_esn_test'
     }
   },
 
@@ -28,7 +32,11 @@ module.exports = {
     'port' : process.env.PORT_REDIS || 23457,
     'conf_file' : '',
     'log_path' : '',
-    'pwd' : ''
+    'pwd' : '',
+    'container': {
+      'image': 'redis:latest',
+      'name': 'redis_for_esn_test'
+    }
   },
 
   ldap: {
@@ -48,6 +56,10 @@ module.exports = {
     'cluster_name': 'elasticsearch',
     'data_path': tmp + '/elasticsearch/data',
     'work_path': tmp + '/elasticsearch/work',
-    'logs_path': tmp + '/elasticsearch/logs'
+    'logs_path': tmp + '/elasticsearch/logs',
+    'container': {
+      'image': 'linagora/esn-elasticsearch:latest',
+      'name': 'elasticsearch_for_esn_test'
+    }
   }
 };

@@ -83,12 +83,36 @@ module.exports = function(grunt) {
         options: {
           files: ['test/unit-storage/all.js', grunt.option('test') || 'test/unit-storage/**/*.js']
         }
+      },
+      modulesStorage: {
+        options: {
+          files: ['test/unit-storage/all.js', grunt.option('test') || 'modules/**/test/unit-storage/**/*.js']
+        }
+      }
+    },
+    karma: {
+      unit: {
+        configFile: './test/config/karma.conf.js',
+        browsers: ['PhantomJS']
+      },
+      modulesUnit: {
+        configFile: './test/config/karma.modules.conf.js',
+        browsers: ['PhantomJS']
+      },
+      all: {
+        configFile: './test/config/karma.conf.js',
+        browsers: ['PhantomJS', 'Firefox', 'Chrome']
+      },
+      modulesAll: {
+        configFile: './test/config/karma.modules.conf.js',
+        browsers: ['PhantomJS', 'Firefox', 'Chrome']
       }
     }
   });
 
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-mocha-cli');
+  grunt.loadNpmTasks('grunt-karma');
 
   grunt.loadTasks('tasks');
 
@@ -99,45 +123,10 @@ module.exports = function(grunt) {
   grunt.registerTask('test-unit-storage', 'run storage tests', ['mochacli:storage']);
   grunt.registerTask('test-backend', 'run both the unit & midway tests', ['test-unit-backend', 'test-unit-storage', 'test-midway-backend']);
 
-  grunt.registerTask('test-frontend', 'run the FrontEnd tests', function() {
-    var done = this.async();
-
-    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS', './test/config/karma.conf.js']);
-
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close', function(code) { done(code ? false : true); });
-  });
-
-  grunt.registerTask('test-modules-frontend', 'run the FrontEnd tests', function() {
-    var done = this.async();
-
-    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS', './test/config/karma.modules.conf.js']);
-
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close', function(code) { done(code ? false : true); });
-  });
-
-  grunt.registerTask('test-frontend-all', 'run the FrontEnd tests on all possible browsers', function() {
-    var done = this.async();
-
-    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS,Firefox,Chrome', './test/config/karma.conf.js']);
-
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close', function(code) { done(code ? false : true); });
-  });
-
-  grunt.registerTask('test-modules-frontend-all', 'run the FrontEnd tests on all possible browsers', function() {
-    var done = this.async();
-
-    var child = require('child_process').spawn('karma', ['start', '--browsers', 'PhantomJS,Firefox,Chrome', './test/config/karma.modules.conf.js']);
-
-    child.stdout.on('data', function(chunk) { grunt.log.write(chunk); });
-    child.stderr.on('data', function(chunk) { grunt.log.error(chunk); });
-    child.on('close', function(code) { done(code ? false : true); });
-  });
+  grunt.registerTask('test-frontend', 'run the FrontEnd tests', ['karma:unit']);
+  grunt.registerTask('test-modules-frontend', 'run the FrontEnd tests of modules', ['karma:modulesUnit']);
+  grunt.registerTask('test-frontend-all', 'run the FrontEnd tests on all possible browsers', ['karma:all']);
+  grunt.registerTask('test-modules-frontend-all', 'run the FrontEnd tests of modules on all possible browsers', ['karma:modulesAll']);
 
   grunt.registerTask('test', ['test-backend', 'test-frontend']);
   grunt.registerTask('default', ['test']);
