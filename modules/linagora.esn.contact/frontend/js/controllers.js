@@ -116,6 +116,15 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
+  .controller('displayContactController', function() {
+    $scope.bookId = $route.current.params.bookId;
+    $scope.cardId = $route.current.params.cardId;
+    $scope.contact = {};
+    $scope.back = closeForm;
+  })
+  .controller('editContactController', function() {
+
+  })
   .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper) {
     var requiredKey = 'displayName';
     $scope.user = user;

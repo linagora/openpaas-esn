@@ -30,4 +30,20 @@ angular.module('linagora.esn.contact', [
       user: routeResolver.session('user')
     }
   });
+  $routeProvider.when('/contact/mobile/show/:bookId/:cardId', {
+    templateUrl: '/contact/views/contact-mobile-show',
+    controller: 'displayContactController',
+    resolve: {
+      domain: routeResolver.session('domain'),
+      user: routeResolver.session('user')
+    }
+  });
+  $routeProvider.when('/contact/mobile/edit/:bookId/:cardId', {
+    templateUrl: '/contact/views/contact-mobile-edit',
+    controller: 'editContactController',
+    resolve: {
+      domain: routeResolver.session('domain'),
+      user: routeResolver.session('user')
+    }
+  });
 });
