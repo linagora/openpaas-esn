@@ -1,0 +1,58 @@
+.row.panel-header
+    .contact-controls
+      button.btn.btn-default(type='button', ng-click='back()')
+        i.fa.fa-reply.controls-fa
+      button.btn.btn-default(type='button')
+        i.fa.fa-pencil.controls-fa
+      button.btn.btn-default(type='button')
+        i.fa.fa-search.controls-fa
+      button.btn.btn-default(type='button')
+        i.fa.fa-ellipsis-h.controls-fa
+    img.full-width(ng-src='{{contact.photo || defaultAvatar}}')
+.row.create-content
+  .contact-error-container
+  .vertiz-space
+    div.contact-fn
+      span.contact-heading-mobile
+        | {{contact.displayName}}
+    button.btn.btn-default.contact-card(type='button' ng-repeat='tel in contact.tel track by $index')
+        i.fa.fa-whatsapp.contact-card-fa
+        p.contact-card-infos {{tel.value}}
+        p.contact-card-type {{tel.type}}
+    button.btn.btn-default.contact-card(type='button' ng-repeat='email in contact.emails track by $index')
+        i.fa.fa-at.contact-card-fa
+        p.contact-card-infos {{email.value}}
+        p.contact-card-type {{email.type}}  
+    button.btn.btn-default.contact-card(type='button' ng-repeat='social in contact.social track by $index')
+        i.fa.fa-group.contact-card-fa
+        p.contact-card-infos {{social.value}}
+        p.contact-card-type {{social.type}}        
+    button.btn.btn-default.contact-card
+        i.fa.fa-globe.contact-card-fa
+        p.contact-card-infos {{contact.orgUri}}
+        p.contact-card-type Website          
+    button.btn.btn-default.contact-card(ng-repeat='address in contact.addresses track by $index')
+        i.fa.fa-map-marker.contact-card-fa   
+        .contact-card-infos 
+          p {{address.street}}
+          p {{address.zip}} {{address.city}}
+          p {{address.country}}
+          p.contact-card-type {{address.type}}
+    button.btn.btn-default.contact-card
+        i.fa.fa-suitcase.contact-card-fa
+        p.contact-card-infos {{contact.org[0]}}
+        p.contact-card-infos {{contact.orgRole}}
+    button.btn.btn-default.contact-card(type='button')
+        i.fa.fa-tags.contact-card-fa
+        p.contact-card-infos(ng-repeat='tag in contact.tags track by $index') {{tag.text}}     
+    button.btn.btn-default.contact-card
+        i.fa.fa-user.contact-card-fa
+        p.contact-card-infos First name: {{contact.firstName}}
+        p.contact-card-infos Last name: {{contact.lastName}}
+        p.contact-card-infos Nickname: {{contact.nickname}}
+    button.btn.btn-default.contact-card
+        i.fa.fa-birthday-cake.contact-card-fa
+        p.contact-card-infos {{contact.birthday}}
+    button.btn.btn-default.contact-card
+        i.fa.fa-align-left.contact-card-fa
+    p {{contact.notes}}        

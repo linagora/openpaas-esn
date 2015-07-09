@@ -1,5 +1,6 @@
 @import '../../../../frontend/css/commons';
 
+<<<<<<< HEAD
 .contact-field-label {
   padding-top: 7px;
 }
@@ -7,6 +8,116 @@
 .contact-buttons {
   padding: 18px;
   float: right;
+=======
+.contact-panel {
+
+  hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+}
+
+.modify-success {
+  color: green;
+  animation-duration: 2s;
+  animation-name: fade-in;
+}
+
+.no-padding {
+  margin: 0;
+  padding: 0;
+}
+
+.contact-address-infos {
+  float:fleft;
+}
+
+.full-width {
+  width: 100%;
+  z-index: -1;
+  border-bottom: 1px solid grey;
+}
+
+.contact-controls {
+  position:absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+  text-align:center;
+}
+
+.contact-fn.affix {
+  z-index: 1199;
+  margin-top: 36px;
+  height: 100px;
+  background-color: white;
+}
+
+.contact-fn.affix span {
+  position: absolute;
+  top: 50px;
+  width: 100%;
+  left:0;
+}
+
+
+.contact-controls.affix {
+  z-index: 1210;
+  margin-top: 36px;
+}
+
+.contact-card {
+  min-height: 60px;
+  margin: 0;
+  width:100%;
+  border-bottom:1px solid lightgrey;
+}
+
+.contact-card-fa {
+  font-size: 18pt;
+  width: 30px;
+  min-height:100%;
+  float: left;
+}
+
+.contact-card-infos {
+  text-align: left;
+  text-transform: none;
+  margin: 0 0 0 60px;
+}
+
+.contact-card-type {
+  color:grey;
+  font-size: 8pt;
+  text-align: left;
+  text-transform: none;
+  margin-left: 60px;
+}
+
+.contact-card-infos .contact-card-type{
+  margin-left: 0;
+}
+
+.contact-heading-mobile{
+  font-size: 24pt;
+}
+
+.contact-fn {
+  text-align: center;
+  border-bottom:1px solid lightgrey;
+}
+
+.controls-fa {
+  color:white;
+  font-size: 18pt;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+>>>>>>> OR-1463 - Create view for mobile display
 
   button {
     margin-right: 5px;

@@ -116,11 +116,20 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('displayContactController', function() {
+  .controller('displayContactController', function($scope, $timeout, $route, contactsService, closeForm, displayError) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
     $scope.back = closeForm;
+
+    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
+      $scope.contact = card;
+      console.log($scope.contact);
+    }, function() {
+      displayError('Cannot get contact details');
+    });
+    $('.panel-header').parent().parent().parent().parent().addClass('no-padding');
+    $scope.controlBarPosition = $('.contact-controls').offset();
   })
   .controller('editContactController', function() {
 
