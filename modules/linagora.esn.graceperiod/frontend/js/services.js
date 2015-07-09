@@ -48,17 +48,25 @@ angular.module('linagora.esn.graceperiod')
           },
           after_close: function() {
             $rootScope.$apply(function() {
-              resolve();
+              resolve({cancelled: false});
             });
           }
         });
 
         notification.get().find('a.cancel-task').click(function() {
           $rootScope.$apply(function() {
-            reject();
+            resolve({cancelled: true,
+            notificationSuccess: function(textToDisplay) {
+              notification.remove(false);
+            },
+            notificationError: function(textToDisplay) {
+              notification.update({
+                type: 'error',
+                text: textToDisplay,
+                delay: 5
+              });
+            }});
           });
-
-          notification.remove(false);
         });
       });
     };

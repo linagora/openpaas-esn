@@ -44,16 +44,28 @@ describe('The GracePeriod Angular module', function() {
       });
 
       it('should resolve the promise when the delay elapses', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10).then(done);
+        gracePeriodService.grace('Test', 'Cancel', 10).then(function(resolveData) {
+          if (!resolveData.cancelled) {
+            done();
+          }
+        });
       });
 
       it('should resolve the promise when the close button is clicked', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10000).then(done);
+        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(resolveData) {
+          if (!resolveData.cancelled) {
+            done();
+          }
+        });
         angular.element('.ui-pnotify-closer').click();
       });
 
       it('should reject the promise when the cancel link is clicked', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10000).then(null, done);
+        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(resolveData) {
+          if (resolveData.cancelled) {
+            done();
+          }
+        });
         angular.element('a.cancel-task').click();
       });
 

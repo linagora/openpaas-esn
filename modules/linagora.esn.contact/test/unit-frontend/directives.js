@@ -278,7 +278,11 @@ describe('The contact Angular module directives', function() {
       it('should cancel the request if the user cancels during the grace period', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
-          return self.$q.reject();
+          return self.$q.when({cancelled: true,
+            notificationSuccess: function(textToDisplay) {
+            },
+            notificationError: function(textToDisplay) {
+            }});
         };
         this.contactsService.remove = function() {
           return self.$q.when('myTaskId');
@@ -296,10 +300,39 @@ describe('The contact Angular module directives', function() {
         this.scope.$digest();
       });
 
+      it('should notice the user that the contact deletion can\'t be cancelled', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.gracePeriodService.grace = function() {
+          return self.$q.when({cancelled: true,
+            notificationSuccess: function(textToDisplay) {
+            },
+            notificationError: function(textToDisplay) {
+              done();
+            }});
+        };
+        this.contactsService.remove = function() {
+          return self.$q.when('myTaskId');
+        };
+        this.gracePeriodService.cancel = function(taskId) {
+          expect(taskId).to.equal('myTaskId');
+          return self.$q.reject();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+      });
+
       it('should broadcast contact:cancel:delete on successful cancellation of a request', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
-          return self.$q.reject();
+          return self.$q.when({cancelled: true,
+            notificationSuccess: function(textToDisplay) {
+            },
+            notificationError: function(textToDisplay) {
+            }});
         };
         this.gracePeriodService.cancel = function() {
           return self.$q.when();
