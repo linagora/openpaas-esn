@@ -1017,7 +1017,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       }
     };
   })
-  .directive('messageShared', function () {
+  .directive('messageShared', function() {
     return {
       restrict: 'E',
       scope: {
@@ -1026,7 +1026,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/templates/includes/messageShared.html'
     };
   })
-  .directive('messageOembeds', function () {
+  .directive('messageOembeds', function() {
     return {
       restrict: 'E',
       scope: {
@@ -1035,7 +1035,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/templates/includes/messageOembeds.html'
     };
   })
-  .directive('messageDateLink', function () {
+  .directive('messageDateLink', function() {
     return {
       restrict: 'E',
       scope: {
@@ -1052,11 +1052,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/templates/includes/messageBottomLinks.html'
     };
   })
-  .directive('messageComments', function () {
+  .directive('messageComments', function() {
     return {
       restrict: 'E',
       scope: true,
       templateUrl: '/views/modules/message/templates/includes/messageComments.html'
     };
-  })
-  ;
+  });
