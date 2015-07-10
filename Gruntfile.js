@@ -188,6 +188,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-run-grunt');
   grunt.loadNpmTasks('grunt-node-inspector');
   grunt.loadNpmTasks('grunt-lint-pattern');
+  grunt.loadNpmTasks('grunt-docker-spawn');
 
   grunt.loadTasks('tasks');
 
