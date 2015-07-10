@@ -34,6 +34,12 @@ form.event-quick-form.form-container(role='form')
       span.input-group-addon
         i.fa.fa-location-arrow.fa-2x.fa-fw
       input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
+  .form-group(ng-hide="isOrganizer")
+    .row.all-centered
+      span.col-xs-5 #{__('Will you attend?')}
+      button.btn.btn-default.col-xs-2.yes(ng-click="accept()") #{__('Yes')}
+      button.btn.btn-default.col-xs-2.maybe(ng-click="maybe()") #{__('Maybe')}
+      button.btn.btn-default.col-xs-2.no(ng-click="decline()") #{__('No')}
   .form-group(ng-show='isOrganizer || isNew(editedEvent)')
     .input-group
       span.input-group-addon
