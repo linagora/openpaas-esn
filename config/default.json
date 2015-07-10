@@ -60,7 +60,8 @@
     "linagora.esn.cron",
     "linagora.esn.digest.daily",
     "linagora.esn.graceperiod",
-    "linagora.esn.davproxy"
+    "linagora.esn.davproxy",
+    "linagora.esn.unifiedinbox"
   ],
   "email": {
     "templatesDir": "./templates/email"
