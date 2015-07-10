@@ -1,9 +1,6 @@
 'use strict';
 
-var httpProxy = require('http-proxy');
-var proxy = httpProxy.createProxyServer();
-var https = require('https');
-var url = require('url');
+var httpproxy = require('express-http-proxy');
 
 module.exports = function(dependencies) {
 
@@ -12,20 +9,26 @@ module.exports = function(dependencies) {
 
   function http(req, res, options) {
 
-    var params = {
-      target: options.endpoint
-    };
+    httpproxy(options.endpoint, {
+      forwardPath: function(req) {
+        return '/' + options.path + req.url;
+      },
 
-    var u = url.parse(params.target);
+      intercept: function(rsp, data, req, res, callback) {
 
-    if (u.protocol === 'https:') {
-      params.agent = https.globalAgent;
-      params.headers = {
-        host: u.host
-      };
-    }
+        if (rsp.statusCode >= 200 && rsp.statusCode < 300) {
+          if (options.onSuccess) {
+            return options.onSuccess(rsp, data, req, res, callback);
+          }
+        } else {
+          if (options.onError) {
+            return options.onError(rsp, data, req, res, callback);
+          }
+        }
 
-    proxy.web(req, res, params, function(err) {
+        callback(null, data);
+      }
+    })(req, res, function(err) {
       logger.error('Error while sending request to service', err);
       return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while sending request to service'}});
     });

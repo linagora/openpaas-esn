@@ -23,17 +23,13 @@ describe('The proxy dispatcher module', function() {
 
     it('should send back 500 if proxy fails', function(done) {
 
-      var proxy = {
-        createProxyServer: function() {
-          return {
-            web: function(req, res, options, callback) {
-              return callback(new Error());
-            }
-          };
-        }
+      var proxy = function(path, options) {
+        return function(req, res, next) {
+          return next(new Error('You failed'));
+        };
       };
 
-      mockery.registerMock('http-proxy', proxy);
+      mockery.registerMock('express-http-proxy', proxy);
       mockery.registerMock('./graceperiod', function() {});
 
       getHandler('http')({},
@@ -55,44 +51,13 @@ describe('The proxy dispatcher module', function() {
         endpoint: endpoint
       };
 
-      var proxy = {
-        createProxyServer: function() {
-          return {
-            web: function(req, res, options) {
-              expect(options.target).to.equal(endpoint);
-              done();
-            }
-          };
-        }
+      var proxy = function(path, options) {
+        expect(path).to.equal(endpoint);
+        done();
+        return function() {};
       };
 
-      mockery.registerMock('http-proxy', proxy);
-      mockery.registerMock('./graceperiod', function() {});
-
-      getHandler('http')({}, {}, options);
-    });
-
-    it('should call proxy with https parameters', function(done) {
-
-      var endpoint = 'https://localhost:9393/foobar';
-      var options = {
-        endpoint: endpoint
-      };
-
-      var proxy = {
-        createProxyServer: function() {
-          return {
-            web: function(req, res, options) {
-              expect(options.target).to.equal(endpoint);
-              expect(options.headers.host).to.equal('localhost:9393');
-              expect(options.agent).to.deep.equal(require('https').globalAgent);
-              done();
-            }
-          };
-        }
-      };
-
-      mockery.registerMock('http-proxy', proxy);
+      mockery.registerMock('express-http-proxy', proxy);
       mockery.registerMock('./graceperiod', function() {});
 
       getHandler('http')({}, {}, options);

@@ -1,6 +1,6 @@
 'use strict';
 
-var request = require('request');
+var client = require('../http-client');
 
 module.exports = function(dependencies) {
 
@@ -9,9 +9,8 @@ module.exports = function(dependencies) {
 
   return function(req, res, options) {
 
-    var target = options.endpoint + req.url;
+    var target = options.endpoint + '/' + options.path + req.url;
     var delay = options.graceperiod;
-
     var context = {
       user: req.user._id
     };
@@ -30,13 +29,27 @@ module.exports = function(dependencies) {
         requestOptions.body = req.body;
       }
 
-      request(requestOptions, function(err, response) {
+      client(requestOptions, function(err, response, body) {
         if (err) {
           logger.error('Error while sending request', err);
+
+          if (options.onError) {
+            return options.onError(response, body, req, res, function() {
+              callback(new Error('Error while sending request'));
+            });
+          }
+
           return callback(new Error('Error while sending request'));
         }
 
         logger.info('Response from remote service: HTTP %s', response.statusCode);
+
+        if (options.onSuccess) {
+          return options.onSuccess(response, body, req, res, function() {
+            callback(null, response);
+          });
+        }
+
         callback(null, response);
       });
     }

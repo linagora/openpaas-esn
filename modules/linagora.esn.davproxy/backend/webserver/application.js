@@ -3,13 +3,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
-var restreamer = require('./proxy/restreamer');
-
-module.exports = function(dependencies) {
+module.exports = function() {
   var application = express();
 
   application.use(bodyParser.json());
-  application.use(restreamer());
+  application.use(bodyParser.json({type: 'application/vcard+json'}));
 
   return application;
 };
