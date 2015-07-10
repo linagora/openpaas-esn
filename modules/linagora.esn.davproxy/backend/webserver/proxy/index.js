@@ -1,32 +1,18 @@
 'use strict';
 
-var CONFIG_KEY = 'davserver';
-var DEFAULT_DAV_SERVER = 'http://localhost:80';
-
 module.exports = function(dependencies) {
 
-  var esnConfig = dependencies('esn-config');
   var proxy = require('./proxy')(dependencies);
 
-  function getTarget(callback) {
-    esnConfig(CONFIG_KEY).get(function(err, data) {
-      if (err) {
-        return callback(DEFAULT_DAV_SERVER);
-      }
+  return function(path) {
 
-      if (data && data.backend && data.backend.url) {
-        return callback(data.backend.url);
-      }
+    function handle(options) {
 
-      return callback(DEFAULT_DAV_SERVER);
-    });
-  }
+      options = options || {};
+      options.path = path;
 
-  function handle(path) {
-    return function(req, res, next) {
-
-      getTarget(function(endpoint) {
-        var options = {endpoint: endpoint + '/' + path};
+      return function(req, res) {
+        options.endpoint = req.davserver;
 
         if (req.query.graceperiod) {
           options.graceperiod = req.query.graceperiod;
@@ -34,12 +20,11 @@ module.exports = function(dependencies) {
         }
 
         return proxy.http(req, res, options);
-      });
+      };
+    }
+
+    return {
+      handle: handle
     };
-  }
-
-  return {
-    handle: handle
   };
-
 };

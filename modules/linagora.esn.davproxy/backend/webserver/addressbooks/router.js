@@ -8,9 +8,12 @@ module.exports = function(dependencies) {
 
   var authorizationMW = dependencies('authorizationMW');
   var middleware = require('../proxy/middleware')(dependencies);
+  var controller = require('./controller')(dependencies);
 
-  var proxy = require('../proxy')(dependencies);
-  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, proxy.handle('addressbooks'));
+  router.get('/:bookId/contacts/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, middleware.getDavEndpoint, controller.getContact);
+  router.put('/:bookId/contacts/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, middleware.getDavEndpoint, controller.updateContact);
+  router.delete('/:bookId/contacts/:contactId.vcf', authorizationMW.requiresAPILogin, middleware.generateNewToken, middleware.getDavEndpoint, controller.deleteContact);
+  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, middleware.getDavEndpoint, controller.defaultHandler);
 
   return router;
 };

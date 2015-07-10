@@ -3,9 +3,13 @@
 var GRACE_PERIOD = 10000;
 var FACTOR = 2;
 
+var CONFIG_KEY = 'davserver';
+var DEFAULT_DAV_SERVER = 'http://localhost:80';
+
 module.exports = function(dependencies) {
 
   var authToken = dependencies('auth').token;
+  var esnConfig = dependencies('esn-config');
   var logger = dependencies('logger');
 
   function generateNewToken(req, res, next) {
@@ -23,7 +27,29 @@ module.exports = function(dependencies) {
     });
   }
 
+  function getDavEndpoint(req, res, next) {
+
+    function defaultDav() {
+      req.davserver = DEFAULT_DAV_SERVER;
+      return next();
+    }
+
+    esnConfig(CONFIG_KEY).get(function(err, data) {
+      if (err) {
+        return defaultDav();
+      }
+
+      if (data && data.backend && data.backend.url) {
+        req.davserver = data.backend.url;
+        return next();
+      }
+
+      defaultDav();
+    });
+  }
+
   return {
-    generateNewToken: generateNewToken
+    generateNewToken: generateNewToken,
+    getDavEndpoint: getDavEndpoint
   };
 };
