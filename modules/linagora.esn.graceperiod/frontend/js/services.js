@@ -20,7 +20,7 @@ angular.module('linagora.esn.graceperiod')
     };
   })
 
-  .factory('notifyOfGracedRequest', function(GRACE_DELAY, notificationService, $q, $rootScope) {
+  .factory('notifyOfGracedRequest', function(GRACE_DELAY, ERROR_DELAY, notificationService, $q, $rootScope) {
     var stack = {
       dir1: 'up',
       dir2: 'right',
@@ -63,7 +63,7 @@ angular.module('linagora.esn.graceperiod')
               notification.update({
                 type: 'error',
                 text: textToDisplay,
-                delay: 5000
+                delay: ERROR_DELAY
               });
             }});
           });
