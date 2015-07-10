@@ -5,7 +5,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div
     a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-    include ../../../../../../frontend/views/modules/message/templates/includes/dateLink
+    message-date-link(message='message', activitystream='streamable')
     activity-stream-origin(ng-if='parentMessage', streams='streams', message='message', activitystream='streamable')
     div.loading.text-center
       div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner', spinner-size='0.3', spinner-start-active)
@@ -40,8 +40,8 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
                 a(href='mailto:{{att.email}}' title='{{att.fullmail}}') {{att.name}}
                 span(ng-if='!$last') #{', '}
 
-      include ../../../../../../frontend/views/modules/message/templates/includes/messagesBottomLinks
-      include ../../../../../../frontend/views/modules/message/templates/includes/attachments
-      include ../../../../../../frontend/views/modules/message/templates/includes/comments
+      message-bottom-links
+      message-attachments(message='message')
+      message-comments
     div.error.hidden
       h4 #{__('Unable to get event details from server... sorry')}

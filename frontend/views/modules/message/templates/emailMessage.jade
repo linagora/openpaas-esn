@@ -4,7 +4,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
   div.esn-email
     h4.media-heading
       a(href="#") {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
-      include ./includes/dateLink
+      message-date-link(message='message', activitystream='activitystream')
     activity-stream-origin(ng-if='parentMessage', streams='streams', message='message', activitystream='streamable')
     div.email-message
       div.message-title
@@ -34,6 +34,6 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
       .row.body
         blockquote
           p.multilines.email-message-body(data-ng-show='message.body.text || message.body.html' ng-bind-html="(message.body.text || message.body.html) | linky")
-    include ./includes/messagesBottomLinks
-    include ./includes/attachments.jade
-    include ./includes/comments.jade
+    message-bottom-links
+    message-attachments(message='message')
+    message-comments

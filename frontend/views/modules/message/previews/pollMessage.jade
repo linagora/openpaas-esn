@@ -9,4 +9,4 @@ div.media.message-preview
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
       display-position(position='message.position')
       p.multilines.scrollable(ng-bind-html="message.content | linky:'_blank'")
-    include ../templates/includes/attachments.jade
+    message-attachments(message='message')

@@ -91,7 +91,7 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-  describe('messagesAttachments directive', function() {
+  describe('messageAttachments directive', function() {
 
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
@@ -124,6 +124,40 @@ describe('The esn.message Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[0].name);
       expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[1].name);
     });
+
+    it('should be hide when there is no attachments', function () {
+      var html = '<message-attachments message="testMessage"></message-attachments>';
+
+      var scope = this.$rootScope.$new();
+      var element = this.$compile(html)(scope);
+
+      scope.testMessage = {};
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
+
+      scope.testMessage = { attachments: [] };
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
+    });
+
+    it('should not be hide when there is/are attachments', function () {
+      var html = '<message-attachments message="testMessage"></message-attachments>';
+
+      var scope = this.$rootScope.$new();
+      var element = this.$compile(html)(scope);
+
+      scope.testMessage = {};
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
+
+      scope.testMessage.attachments = [
+        {id: 123, name: 'foo.png', contentType: 'application/png', length: 1024},
+        {id: 456, name: 'ms.doc', contentType: 'application/doc', length: 10240}
+      ];
+      scope.$digest();
+      expect(element.find('div.attachments').hasClass('ng-hide')).to.be.false;
+    });
+
   });
 
 
@@ -347,6 +381,185 @@ describe('The esn.message Angular module', function() {
       expect(this.$rootScope.validationError.title).to.not.exist;
     });
   });
+
+  describe('messageShared directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+    beforeEach(module('esn.activitystream'));
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should be rendered in template', function () {
+      var html = '<message-shared></message-shared>';
+
+      var scope = this.$rootScope.$new();
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.length).to.equal(1);
+
+    });
+  });
+
+  describe('messageOembeds directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should be rendered in template', function () {
+      var html = '<message-oembeds></message-oembeds>';
+
+      var scope = this.$rootScope.$new();
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.length).to.equal(1);
+
+    });
+  });
+
+
+  describe('messageDateLink directive', function() {
+
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should render link based on scope correctly', function() {
+      var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
+
+      var scope = this.$rootScope.$new();
+      scope.message = { _id: '1234' };
+      scope.activitystream = { activity_stream: { uuid: '5678' } };
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('a').attr('href'))
+        .to.equal('/#messages/1234/activitystreams/5678');
+    });
+
+    it('should render time based on message.published correctly', function () {
+      var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
+
+      var scope = this.$rootScope.$new();
+      scope.message = { published: new Date() };
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('a').find('small').text())
+        .to.equal('a few seconds ago');
+    });
+
+    it('should render time based on message.timestamps.creation correctly', function () {
+      var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
+
+      var scope = this.$rootScope.$new();
+      scope.message = { timestamps: { creation: new Date() } };
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('a').find('small').text())
+        .to.equal('a few seconds ago');
+    });
+  });
+
+
+  describe('messageBottomLinks directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.message'));
+
+    beforeEach(inject(function ($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should render ul element having message-bottom-links class', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = false;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('ul').hasClass('message-bottom-links')).to.be.true;
+    });
+
+    it('should have shareMessageButton directive', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = false;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+      expect(element.find('ul').find('share-message-button').length).to.equal(1);
+    });
+
+    it('should hide li elements when writable is false', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = false;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('li').hasClass('ng-hide')).to.be.true;
+    });
+
+    it('should show li elements when writable is true', function () {
+      var html = '<message-bottom-links></message-bottom-links>';
+
+      var scope = this.$rootScope.$new();
+      scope.writable = true;
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.find('li').hasClass('ng-hide')).to.be.false;
+    });
+
+  });
+
+
+  describe('messageComments directive', function () {
+    beforeEach(module('jadeTemplates'));
+    beforeEach(module('esn.core'));
+
+    beforeEach(inject(function ($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+    }));
+
+    it('should be able to render template correctly', function () {
+      var html = '<message-comments></message-comments>';
+
+      var scope = this.$rootScope.$new();
+
+      var element = this.$compile(html)(scope);
+      scope.$digest();
+
+      expect(element.length).to.equal(1);
+    });
+  });
+
 
   describe('messageController', function() {
 
