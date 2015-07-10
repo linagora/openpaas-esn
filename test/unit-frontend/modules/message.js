@@ -125,7 +125,7 @@ describe('The esn.message Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[1].name);
     });
 
-    it('should be hide when there is no attachments', function () {
+    it('should be hide when there is no attachments', function() {
       var html = '<message-attachments message="testMessage"></message-attachments>';
 
       var scope = this.$rootScope.$new();
@@ -140,7 +140,7 @@ describe('The esn.message Angular module', function() {
       expect(element.find('div.attachments').hasClass('ng-hide')).to.be.true;
     });
 
-    it('should not be hide when there is/are attachments', function () {
+    it('should not be hide when there is/are attachments', function() {
       var html = '<message-attachments message="testMessage"></message-attachments>';
 
       var scope = this.$rootScope.$new();
@@ -382,7 +382,7 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-  describe('messageShared directive', function () {
+  describe('messageShared directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.message'));
     beforeEach(module('esn.activitystream'));
@@ -392,7 +392,7 @@ describe('The esn.message Angular module', function() {
       this.$rootScope = $rootScope;
     }));
 
-    it('should be rendered in template', function () {
+    it('should be rendered in template', function() {
       var html = '<message-shared></message-shared>';
 
       var scope = this.$rootScope.$new();
@@ -405,7 +405,7 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-  describe('messageOembeds directive', function () {
+  describe('messageOembeds directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.message'));
 
@@ -414,7 +414,7 @@ describe('The esn.message Angular module', function() {
       this.$rootScope = $rootScope;
     }));
 
-    it('should be rendered in template', function () {
+    it('should be rendered in template', function() {
       var html = '<message-oembeds></message-oembeds>';
 
       var scope = this.$rootScope.$new();
@@ -452,7 +452,7 @@ describe('The esn.message Angular module', function() {
         .to.equal('/#messages/1234/activitystreams/5678');
     });
 
-    it('should render time based on message.published correctly', function () {
+    it('should render time based on message.published correctly', function() {
       var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
 
       var scope = this.$rootScope.$new();
@@ -465,7 +465,7 @@ describe('The esn.message Angular module', function() {
         .to.equal('a few seconds ago');
     });
 
-    it('should render time based on message.timestamps.creation correctly', function () {
+    it('should render time based on message.timestamps.creation correctly', function() {
       var html = '<message-date-link message="message" activitystream="activitystream"></message-date-link>';
 
       var scope = this.$rootScope.$new();
@@ -480,16 +480,16 @@ describe('The esn.message Angular module', function() {
   });
 
 
-  describe('messageBottomLinks directive', function () {
+  describe('messageBottomLinks directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.message'));
 
-    beforeEach(inject(function ($compile, $rootScope) {
+    beforeEach(inject(function($compile, $rootScope) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
     }));
 
-    it('should render ul element having message-bottom-links class', function () {
+    it('should render ul element having message-bottom-links class', function() {
       var html = '<message-bottom-links></message-bottom-links>';
 
       var scope = this.$rootScope.$new();
@@ -501,7 +501,7 @@ describe('The esn.message Angular module', function() {
       expect(element.find('ul').hasClass('message-bottom-links')).to.be.true;
     });
 
-    it('should have shareMessageButton directive', function () {
+    it('should have shareMessageButton directive', function() {
       var html = '<message-bottom-links></message-bottom-links>';
 
       var scope = this.$rootScope.$new();
@@ -512,7 +512,7 @@ describe('The esn.message Angular module', function() {
       expect(element.find('ul').find('share-message-button').length).to.equal(1);
     });
 
-    it('should hide li elements when writable is false', function () {
+    it('should hide li elements when writable is false', function() {
       var html = '<message-bottom-links></message-bottom-links>';
 
       var scope = this.$rootScope.$new();
@@ -524,7 +524,7 @@ describe('The esn.message Angular module', function() {
       expect(element.find('li').hasClass('ng-hide')).to.be.true;
     });
 
-    it('should show li elements when writable is true', function () {
+    it('should show li elements when writable is true', function() {
       var html = '<message-bottom-links></message-bottom-links>';
 
       var scope = this.$rootScope.$new();
@@ -539,16 +539,16 @@ describe('The esn.message Angular module', function() {
   });
 
 
-  describe('messageComments directive', function () {
+  describe('messageComments directive', function() {
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
 
-    beforeEach(inject(function ($compile, $rootScope) {
+    beforeEach(inject(function($compile, $rootScope) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
     }));
 
-    it('should be able to render template correctly', function () {
+    it('should be able to render template correctly', function() {
       var html = '<message-comments></message-comments>';
 
       var scope = this.$rootScope.$new();
