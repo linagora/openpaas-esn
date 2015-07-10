@@ -69,11 +69,11 @@ describe('The contacts search Module', function() {
     });
   });
 
-  describe('The deleteContact function', function() {
+  describe('The removeContactFromIndex function', function() {
 
     it('should send back error when contact is undefined', function(done) {
       var module = require('../../../../backend/lib/search')(dependencies);
-      module.indexContact(null, function(err) {
+      module.removeContactFromIndex(null, function(err) {
         expect(err.message).to.match(/Contact is required/);
         done();
       });
@@ -90,7 +90,7 @@ describe('The contacts search Module', function() {
       };
 
       var module = require('../../../../backend/lib/search')(dependencies);
-      module.deleteContact(contact, function(err) {
+      module.removeContactFromIndex(contact, function(err) {
         expect(err).to.not.exist;
         done();
       });

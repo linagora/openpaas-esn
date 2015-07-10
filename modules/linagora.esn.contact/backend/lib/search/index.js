@@ -14,7 +14,7 @@ module.exports = function(dependencies) {
   var elasticsearch = dependencies('elasticsearch');
 
   function indexContact(contact, callback) {
-    logger.debug('Indexing contact', contact);
+    logger.debug('Indexing contact into elasticseach', contact);
 
     if (!contact) {
       return callback(new Error('Contact is required'));
@@ -23,8 +23,8 @@ module.exports = function(dependencies) {
     elasticsearch.addDocumentToIndex(contact, {index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
   }
 
-  function deleteContact(contact, callback) {
-    logger.info('Deleting contact', contact);
+  function removeContactFromIndex(contact, callback) {
+    logger.info('Removing contact from index', contact);
 
     if (!contact) {
       return callback(new Error('Contact is required'));
@@ -38,7 +38,10 @@ module.exports = function(dependencies) {
     logger.info('Subscribing to contact updates for indexing');
 
     pubsub.topic(CONTACT_ADDED).subscribe(function(data) {
-      indexContact(data, function(err) {
+      var contact = data;
+      contact.id = data.contactId;
+
+      indexContact(contact, function(err) {
         if (err) {
           logger.error('Error while adding contact in index', err);
         }
@@ -46,7 +49,10 @@ module.exports = function(dependencies) {
     });
 
     pubsub.topic(CONTACT_UPDATED).subscribe(function(data) {
-      indexContact(data, function(err) {
+      var contact = data;
+      contact.id = data.contactId;
+
+      indexContact(contact, function(err) {
         if (err) {
           logger.error('Error while updating contact in index', err);
         }
@@ -54,7 +60,7 @@ module.exports = function(dependencies) {
     });
 
     pubsub.topic(CONTACT_DELETED).subscribe(function(data) {
-      deleteContact(data, function(err) {
+      removeContactFromIndex({id: data.contactId}, function(err) {
         if (err) {
           logger.error('Error while deleting contact from index', err);
         }
@@ -65,7 +71,7 @@ module.exports = function(dependencies) {
   return {
     listen: listen,
     indexContact: indexContact,
-    deleteContact: deleteContact
+    removeContactFromIndex: removeContactFromIndex
   };
 
 };
