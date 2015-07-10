@@ -59,7 +59,7 @@ angular.module('linagora.esn.contact')
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
         return contactsService.create($scope.bookId, $scope.contact).then(null, function(err) {
-          notificationFactory.weakError('Contact creation', err && err.message || 'Something went wrong');
+          notificationFactory.weakError('Contact creation', err && err.message || 'The contact cannot be created, please retry later');
 
           return $q.reject(err);
         });
@@ -68,11 +68,18 @@ angular.module('linagora.esn.contact')
 
         return $q.reject(err);
       }).then(function() {
-        return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition').then(null, function() {
-          contactsService.remove($scope.bookId, $scope.contact).then(function() {
-            openContactForm($scope.bookId, $scope.contact);
-          });
-        });
+        return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
+            .then(function(data) {
+              if (data.cancelled) {
+                  contactsService.remove($scope.bookId, $scope.contact).then(function() {
+                    data.success();
+                    openContactForm($scope.bookId, $scope.contact);
+                  }, function(err) {
+                    data.error('Cannot cancel contact creation, the contact is created');
+                    return $q.reject(err);
+                });
+              }
+            });
       });
     };
 

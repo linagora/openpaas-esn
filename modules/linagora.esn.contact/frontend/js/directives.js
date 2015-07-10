@@ -373,14 +373,21 @@ angular.module('linagora.esn.contact')
 
         $scope.deleteContact = function() {
           contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {
-            notificationFactory.weakError('Contact Delete', 'Can not delete contact');
+            notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
 
             return $q.reject(err);
           }).then(function(taskId) {
-            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
-              return gracePeriodService.cancel(taskId).then(function() {
-                $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
-              });
+            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel')
+                .then(function(data) {
+                  if (data.cancelled) {
+                    return gracePeriodService.cancel(taskId).then(function() {
+                      data.success();
+                      $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
+                    }, function(err) {
+                      data.error('Cannot cancel contact delete, the contact is deleted');
+                      return $q.reject(err);
+                    });
+                  }
             });
           });
         };

@@ -272,7 +272,11 @@ describe('The Contacts Angular module', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
         gracePeriodService.grace = function() {
-          return $q.reject();
+          return $q.when({cancelled: true,
+            success: function(textToDisplay) {
+            },
+            error: function(textToDisplay) {
+            }});
         };
         contactsService.create = function() {
           return $q.when();
@@ -288,11 +292,40 @@ describe('The Contacts Angular module', function() {
         scope.$digest();
       });
 
+      it('should notice the user that the contact creation can\'t be cancelled', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar'};
+
+        gracePeriodService.grace = function() {
+          return $q.when({cancelled: true,
+            success: function(textToDisplay) {
+            },
+            error: function(textToDisplay) {
+              done();
+            }});
+        };
+        contactsService.create = function() {
+          return $q.when();
+        };
+        contactsService.remove = function(id, contact) {
+          expect(id).to.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
+
+          return $q.reject();
+        };
+
+        scope.accept();
+        scope.$digest();
+      });
+
       it('should go back to the editing form if the user cancels during the grace period, saving the contact', function(done) {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', title: 'PDG'};
 
         gracePeriodService.grace = function() {
-          return $q.reject();
+          return $q.when({cancelled: true,
+            success: function(textToDisplay) {
+            },
+            error: function(textToDisplay) {
+            }});
         };
         contactsService.create = function() {
           return $q.when();
