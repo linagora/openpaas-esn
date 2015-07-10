@@ -109,9 +109,8 @@ angular.module('esn.calendar')
       };
 
       $scope.isNew = controller.isNew;
-      $scope.addNewEvent = controller.addNewEvent;
       $scope.deleteEvent = controller.deleteEvent;
-      $scope.modifyEvent = controller.modifyEvent;
+      $scope.submit = $scope.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       $scope.changeParticipation = controller.changeParticipation;
       $scope.resetEvent = controller.resetEvent;
       $scope.getMinDate = controller.getMinDate;

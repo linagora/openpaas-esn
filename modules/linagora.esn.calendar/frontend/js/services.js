@@ -389,7 +389,9 @@ angular.module('esn.calendar')
     function changeParticipation(eventPath, event, emails, status, etag) {
       var emailMap = Object.create(null);
       var needsModify = false;
-
+      if (!angular.isArray(event.attendees)) {
+        return $q.when(null);
+      }
       emails.forEach(function(email) { emailMap[email.toLowerCase()] = true; });
       event.attendees.forEach(function(attendee) {
         if ((attendee.email.toLowerCase() in emailMap) && attendee.partstat !== status) {
