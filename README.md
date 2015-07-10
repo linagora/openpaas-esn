@@ -32,7 +32,7 @@ Then run the scripts (curl and java are needed) in the correct order:
 Before running step 3, you must configure MongoDB cluster in replica set. Open `/etc/mongod.conf` and modify replSet
 
         replSet=rs
-        
+
 Then restart MongoDB
 
         service mongod restart
@@ -48,7 +48,7 @@ Open the mongo shell (with `mongo`) and launch
 About a minute later, you will have a PRIMARY prompt that will appear when checking the status of MongoDB
 
         > rs.status()
-        
+
 Then continue with 3rd script (when the cluster is running as a PRIMARY node)
 
         3_config_elasticsearch_mongodb_river.sh
@@ -66,17 +66,20 @@ Please note that your version of node.js must be greater than version 0.10.28 bu
 5. Install the npm dependencies (as an administrator)
 
         npm install -g mocha grunt-cli bower karma-cli
-    
+
 6. Install the gjslint dependency (as an administrator)
 
         easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
 
     more informations [can be found here](https://developers.google.com/closure/utilities/docs/linter_howto)
-    
+
 7. Go into the project directory and install project dependencies (not as an administrator)
 
         cd rse
         npm install
+
+If you have any problem relating to `node-canvas` during the dependencies installation,
+make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
 
 Testing
 -------
@@ -115,13 +118,13 @@ Starting the server
 You should first start mongodb and redis-server.
 
 Then npm start to start the ESN server !
- 
+
     npm start
 
 
-Your ESN can be reached at the following address: http://<ip>:8080. Now simply follow the wizard to 
+Your ESN can be reached at the following address: http://<ip>:8080. Now simply follow the wizard to
 prepare your working ESN with MongoDB port (default is 27017)
-    
+
 
 Develop the ESN
 ---------------
