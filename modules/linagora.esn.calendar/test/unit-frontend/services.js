@@ -215,51 +215,84 @@ describe('The Calendar Angular module services', function() {
       this.eventService = eventService;
     }));
 
-    it('should add ellipsis class to .fc-content', function() {
-      this.eventService.render(event, element);
-      expect(fcContent.class).to.deep.equal(['ellipsis']);
-    });
-
-    it('should add ellipsis to .fc-title if location is defined and redefined the content html', function() {
-      event.location = 'aLocation';
-      this.eventService.render(event, element);
-      expect(fcTitle.class).to.deep.equal(['ellipsis']);
-      expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
-    });
-
-    it('should add a title attribute if description is defined', function() {
-      event.description = 'aDescription';
-      this.eventService.render(event, element);
-      expect(element.attributes.title).to.equal('aDescription');
-    });
-
-    it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
-      event.attendeesPerPartstat['NEEDS-ACTION'].push({
-        email: 'aAttendee@open-paas.org'
+    describe('render function', function() {
+      it('should add ellipsis class to .fc-content', function() {
+        this.eventService.render(event, element);
+        expect(fcContent.class).to.deep.equal(['ellipsis']);
       });
-      this.eventService.render(event, element);
-      expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
+
+      it('should add ellipsis to .fc-title if location is defined and redefined the content html', function() {
+        event.location = 'aLocation';
+        this.eventService.render(event, element);
+        expect(fcTitle.class).to.deep.equal(['ellipsis']);
+        expect(fcTitle.htmlContent).to.equal('aContent (aLocation)');
+      });
+
+      it('should add a title attribute if description is defined', function() {
+        event.description = 'aDescription';
+        this.eventService.render(event, element);
+        expect(element.attributes.title).to.equal('aDescription');
+      });
+
+      it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
+        event.attendeesPerPartstat['NEEDS-ACTION'].push({
+          email: 'aAttendee@open-paas.org'
+        });
+        this.eventService.render(event, element);
+        expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
+      });
+
+      it('should add event-common class otherwise', function() {
+        this.eventService.render(event, element);
+        expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
+      });
+
+      it('should create a copy of an eventObject ', function() {
+        var copy = {};
+        this.eventService.copyEventObject(event, copy);
+        expect(copy).to.deep.equal(event);
+      });
+
+      it('should copy non standard properties of an eventObject ', function() {
+        event.attendees = ['attendee1', 'attendee2'];
+        var copy = {};
+        this.eventService.copyNonStandardProperties(event, copy);
+        expect(copy.location).to.deep.equal(event.location);
+        expect(copy.description).to.deep.equal(event.description);
+        expect(copy.attendees).to.deep.equal(event.attendees);
+        expect(copy.attendeesPerPartstat).to.deep.equal(event.attendeesPerPartstat);
+      });
     });
 
-    it('should add event-common class otherwise', function() {
-      this.eventService.render(event, element);
-      expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
-    });
+    describe('isOrganizer function', function() {
+      it('should return true when the event organizer is the current user', function() {
+        var event = {
+          organizer: {
+            email: 'aAttendee@open-paas.org'
+          }
+        };
+        expect(this.eventService.isOrganizer(event)).to.be.true;
+      });
 
-    it('should create a copy of an eventObject ', function() {
-      var copy = {};
-      this.eventService.copyEventObject(event, copy);
-      expect(copy).to.deep.equal(event);
-    });
+      it('should return false when the event organizer is not the current user', function() {
+        var event = {
+          organizer: {
+            email: 'not-organizer@bar.com'
+          }
+        };
+        expect(this.eventService.isOrganizer(event)).to.be.false;
+      });
 
-    it('should copy non standard properties of an eventObject ', function() {
-      event.attendees = ['attendee1', 'attendee2'];
-      var copy = {};
-      this.eventService.copyNonStandardProperties(event, copy);
-      expect(copy.location).to.deep.equal(event.location);
-      expect(copy.description).to.deep.equal(event.description);
-      expect(copy.attendees).to.deep.equal(event.attendees);
-      expect(copy.attendeesPerPartstat).to.deep.equal(event.attendeesPerPartstat);
+      it('should return true when the event is undefined', function() {
+        expect(this.eventService.isOrganizer(null)).to.be.true;
+      });
+
+      it('should return true when the event organizer is undefined', function() {
+        var event = {
+          organizer: null
+        };
+        expect(this.eventService.isOrganizer(event)).to.be.true;
+      });
     });
   });
 
@@ -785,18 +818,26 @@ describe('The Calendar Angular module services', function() {
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
         vevent.addPropertyWithValue('summary', 'test event');
+        vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(moment().toDate())).setParameter('tzid', this.jstz.determine().name());
+        vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(moment().toDate())).setParameter('tzid', this.jstz.determine().name());
+        vevent.addPropertyWithValue('transp', 'OPAQUE');
         vevent.addPropertyWithValue('location', 'test location');
-        vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(new Date()));
-        vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(new Date()));
         var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
         att.setParameter('partstat', 'DECLINED');
+        att.setParameter('rsvp', 'TRUE');
+        att.setParameter('role', 'REQ-PARTICIPANT');
         vcalendar.addSubcomponent(vevent);
         this.vcalendar = vcalendar;
         this.event = {
           id: '00000000-0000-4000-a000-000000000000',
           title: 'test event',
+          location: 'test location',
           start: moment(),
-          end: moment()
+          end: moment(),
+          attendees: [{
+            email: 'test@example.com',
+            partstat: 'DECLINED'
+          }]
         };
 
         this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
@@ -813,6 +854,17 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.expectPUT('/path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
 
         this.calendarService.changeParticipation('/path/to/uid.ics', this.event, emails, 'ACCEPTED').then(
+          function(response) { done(); }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should not change the participation status when the status is the actual attendee status', function(done) {
+        var emails = ['test@example.com'];
+
+        this.calendarService.changeParticipation('/path/to/uid.ics', this.event, emails, 'DECLINED').then(
           function(response) { done(); }, unexpected.bind(null, done)
         );
 

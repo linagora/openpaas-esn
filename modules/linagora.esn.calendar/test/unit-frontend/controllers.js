@@ -88,6 +88,7 @@ describe('The Calendar Angular module controllers', function() {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
+      $provide.value('calendarService', calendarServiceMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -104,7 +105,6 @@ describe('The Calendar Angular module controllers', function() {
       });
     });
   });
-
 
   beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, _$filter_) {
     this.rootScope = $rootScope;

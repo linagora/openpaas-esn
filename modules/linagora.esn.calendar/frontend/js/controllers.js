@@ -50,9 +50,7 @@ angular.module('esn.calendar')
         });
       }
 
-      if ($scope.event.organizer) {
-        $scope.isOrganizer = session.user.emails[0] === $scope.event.organizer.email;
-      }
+      $scope.isOrganizer = eventService.isOrganizer($scope.event);
       // on load, ensure that duration between start and end is stored inside editedEvent
       this.onEndDateChange();
     };
@@ -168,6 +166,33 @@ angular.module('esn.calendar')
       }).finally (function() {
         $scope.restActive = false;
       });
+    };
+
+    function _changeParticipation(status) {
+      $scope.restActive = true;
+      calendarService.changeParticipation($scope.editedEvent.path, $scope.editedEvent, [session.user.emails[0]], status).then(function(response) {
+        var icalPartStatToReadableStatus = Object.create(null);
+        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.accepted] = 'accepted';
+        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.declined] = 'declined';
+        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.needsaction] = 'set to maybe';
+        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', $scope.editedEvent.title + ' participation has been ' + icalPartStatToReadableStatus[status]);
+      }, function(err) {
+        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+      }).finally (function() {
+        $scope.restActive = false;
+      });
+    }
+
+    this.accept = function() {
+      _changeParticipation(ICAL_PROPERTIES.partstat.accepted);
+    };
+
+    this.decline = function() {
+      _changeParticipation(ICAL_PROPERTIES.partstat.declined);
+    };
+
+    this.maybe = function() {
+      _changeParticipation(ICAL_PROPERTIES.partstat.needsaction);
     };
 
     this.resetEvent = function() {

@@ -315,16 +315,16 @@ angular.module('esn.calendar')
     }
 
     function changeParticipation(eventPath, event, emails, status, etag) {
-      var vcalendar = shellToICAL(event);
-      var atts = getInvitedAttendees(vcalendar, emails);
       var needsModify = false;
-      atts.forEach(function(att) {
-        if (att.getParameter('partstat') !== status) {
-          att.setParameter('partstat', status);
-          needsModify = true;
-        }
+      event.attendees.forEach(function(attendee) {
+        emails.forEach(function(email) {
+          if (attendee.email === email && attendee.partstat !== status) {
+            attendee.partstat = status;
+            needsModify = true;
+          }
+        });
       });
-      if (!atts.length || !needsModify) {
+      if (!needsModify) {
         return $q.when(null);
       }
 
@@ -413,10 +413,18 @@ angular.module('esn.calendar')
       }
     }
 
+    function isOrganizer(event) {
+      if (!event || !event.organizer) {
+        return true;
+      }
+      return event.organizer.email === session.user.emails[0];
+    }
+
     return {
       render: render,
       copyNonStandardProperties: copyNonStandardProperties,
-      copyEventObject: copyEventObject
+      copyEventObject: copyEventObject,
+      isOrganizer: isOrganizer
     };
 
   })
