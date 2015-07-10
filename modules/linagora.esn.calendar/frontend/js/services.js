@@ -12,14 +12,19 @@ angular.module('esn.calendar')
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
         var path = '/calendars/' + calendarId + '/events';
-        return calendarService.list(path, start, end, timezone).then(callback,
-            function(err) {
-              callback([]);
-              $log.error(err);
-              if (errorCallback) {
-                errorCallback(err, 'Can not get calendar events');
-              }
-            });
+        return calendarService.list(path, start, end, timezone).then(
+          function(events) {
+            callback(events.filter(function(calendarShell) {
+              return !calendarShell.status || calendarShell.status !== 'CANCELLED';
+            }));
+          },
+          function(err) {
+            callback([]);
+            $log.error(err);
+            if (errorCallback) {
+              errorCallback(err, 'Can not get calendar events');
+            }
+          });
       };
     };
   })
@@ -47,6 +52,10 @@ angular.module('esn.calendar')
       this.formattedStartA = this.start.format('a');
       this.formattedEndTime = this.end.format('h');
       this.formattedEndA = this.end.format('a');
+      var status = vevent.getFirstPropertyValue('status');
+      if (status) {
+        this.status = status;
+      }
 
       var attendeesPerPartstat = this.attendeesPerPartstat = {};
       var attendees = this.attendees = [];
@@ -143,7 +152,7 @@ angular.module('esn.calendar')
       });
     }
 
-      var timezoneLocal = this.timezoneLocal || jstz.determine().name();
+    var timezoneLocal = this.timezoneLocal || jstz.determine().name();
 
     function shellToICAL(shell) {
       var uid = shell.id || uuid4.generate();

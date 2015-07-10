@@ -62,6 +62,50 @@ describe('The Calendar Angular module services', function() {
       this.$httpBackend.flush();
     });
 
+
+    it('should filter cancelled events', function(done) {
+      this.$httpBackend.whenGET('/davserver/api/info').respond({url: ''});
+      var data = {
+        match: {start: '20140101T000000', end: '20140102T000000'}
+      };
+      this.$httpBackend.expectPOST('/calendars/test/events.json', data).respond({
+        '_links': {
+          'self': { 'href': '/path/to/calendar.json' }
+        },
+        '_embedded': {
+          'dav:item': [{
+            '_links': {
+              'self': { 'href': '/path/to/calendar/myuid.ics' }
+            },
+            'etag': '"123123"',
+            'data': [
+              'vcalendar', [], [
+                ['vevent', [
+                  ['uid', {}, 'text', 'myuid'],
+                  ['summary', {}, 'text', 'title'],
+                  ['location', {}, 'text', 'location'],
+                  ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+                  ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
+                  ['status', {}, 'text', 'CANCELLED']
+                ], []]
+              ]
+            ]
+          }]
+        }
+      });
+
+      var start = new Date(2014, 0, 1);
+      var end = new Date(2014, 0, 2);
+
+      var source = this.calendarEventSource('test');
+
+      source(start, end, false, function(events) {
+        expect(events).to.deep.equal([]);
+        done();
+      });
+      this.$httpBackend.flush();
+    });
+
     it('should propagate an error if calendar events cannot be retrieved', function(done) {
 
       var start = moment('2015-01-01 09:00:00');
@@ -415,6 +459,7 @@ describe('The Calendar Angular module services', function() {
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
+
     });
 
     describe('The getEvent fn', function() {
