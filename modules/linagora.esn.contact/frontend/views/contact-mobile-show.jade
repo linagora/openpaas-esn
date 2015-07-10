@@ -42,9 +42,10 @@
         i.fa.fa-suitcase.contact-card-fa
         p.contact-card-infos {{contact.org[0]}}
         p.contact-card-infos {{contact.orgRole}}
-    button.btn.btn-default.contact-card(type='button')
+    button.btn.btn-default.contact-card.tags(type='button')
         i.fa.fa-tags.contact-card-fa
-        p.contact-card-infos(ng-repeat='tag in contact.tags track by $index') {{tag.text}}     
+        ul.tag-list.contact-card-infos
+          li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}     
     button.btn.btn-default.contact-card
         i.fa.fa-user.contact-card-fa
         p.contact-card-infos First name: {{contact.firstName}}
@@ -52,7 +53,7 @@
         p.contact-card-infos Nickname: {{contact.nickname}}
     button.btn.btn-default.contact-card
         i.fa.fa-birthday-cake.contact-card-fa
-        p.contact-card-infos {{contact.birthday}}
-    button.btn.btn-default.contact-card
+        p.contact-card-infos {{formatedBirthday}}
+    .contact-card.contact-card-comments
         i.fa.fa-align-left.contact-card-fa
-    p {{contact.notes}}        
+        p.contact-card-infos {{contact.notes}}        

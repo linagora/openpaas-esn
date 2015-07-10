@@ -125,6 +125,16 @@ angular.module('linagora.esn.contact')
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
       console.log($scope.contact);
+      if ($scope.contact.birthday instanceof Date) {
+        $scope.formatedBirthday = $scope.contact.birthday.getMonth() +
+                                  '/' +
+                                  $scope.contact.birthday.getUTCDate() +
+                                  '/' +
+                                  $scope.contact.birthday.getUTCFullYear();
+      }
+      else {
+        $scope.formatedBirthday = $scope.contact.birthday;
+      }
     }, function() {
       displayError('Cannot get contact details');
     });
