@@ -35,11 +35,11 @@ form.event-quick-form.form-container(role='form')
         i.fa.fa-location-arrow.fa-2x.fa-fw
       input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
   .form-group(ng-hide="isOrganizer")
-    .row.all-centered
+    .row.all-centered.status
       span.col-xs-5 #{__('Will you attend?')}
-      button.btn.btn-default.col-xs-2.yes(ng-click="accept()") #{__('Yes')}
-      button.btn.btn-default.col-xs-2.maybe(ng-click="maybe()") #{__('Maybe')}
-      button.btn.btn-default.col-xs-2.no(ng-click="decline()") #{__('No')}
+      button.btn.btn-default.col-xs-2.accepted(ng-click="accept()") #{__('Yes')}
+      button.btn.btn-default.col-xs-2.undecided(ng-click="maybe()") #{__('Maybe')}
+      button.btn.btn-default.col-xs-2.declined(ng-click="decline()") #{__('No')}
   .form-group(ng-show='isOrganizer || isNew(editedEvent)')
     .input-group
       span.input-group-addon
@@ -48,15 +48,15 @@ form.event-quick-form.form-container(role='form')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
   .row.attendees-list(ng-show='hasAttendees')
     .form-group.col-xs-11.scrollable
-      .row.acceptAttendee(ng-show='hasAcceptedAttendee') #{__('Accepted')}
+      .row.accepted(ng-show='hasAcceptedAttendee') #{__('Accepted')}
         ul.list-inline
           li(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.id")
             attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
-      .row.declineAttendee(ng-show="hasDeclinedAttendee")  #{__('Declined')}
+      .row.declined(ng-show="hasDeclinedAttendee")  #{__('Declined')}
         ul.list-inline
           li(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.id")
             attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
-      .row.needActionAttendee(ng-show="hasNeedActionAttendee")  #{__('Need-Action')}
+      .row.undecided(ng-show="hasNeedActionAttendee")  #{__('Need-Action')}
         ul.list-inline
           li(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.id")
             attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
