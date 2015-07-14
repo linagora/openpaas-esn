@@ -100,7 +100,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES) {
+  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES, AUTOCOMPLETE_MAX_RESULTS) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -142,7 +142,7 @@ angular.module('esn.calendar')
       $scope.getInvitableAttendees = function(query) {
         $scope.query = query;
 
-        var memberQuery = { search: query, limit: 5 };
+        var memberQuery = { search: query, limit: AUTOCOMPLETE_MAX_RESULTS };
         return domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
           var addedAttendees = Object.create(null);
           if ($scope.editedEvent.attendees) {
