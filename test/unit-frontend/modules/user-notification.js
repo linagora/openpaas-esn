@@ -219,7 +219,7 @@ describe('The esn.user-notification Angular module', function() {
 
   describe('The userNotificationPopoverController controller', function() {
 
-    beforeEach(inject(function($rootScope, $controller, $q) {
+    beforeEach(inject(function($rootScope, $controller) {
       this.getItems = function() {};
       var self = this;
       this.userNotificationAPI = {};
@@ -229,7 +229,6 @@ describe('The esn.user-notification Angular module', function() {
         };
       };
       this.rootScope = $rootScope;
-      this.$q = $q;
       this.scope = $rootScope.$new();
 
       $controller('userNotificationPopoverController', {
@@ -254,10 +253,9 @@ describe('The esn.user-notification Angular module', function() {
     });
 
     describe('initPager()', function() {
-      beforeEach(inject(function($rootScope, $controller, $q, paginator) {
+      beforeEach(inject(function($rootScope, $controller, paginator) {
         this.userNotificationAPI = {};
         this.rootScope = $rootScope;
-        this.$q = $q;
         this.scope = $rootScope.$new();
         this.paginator = paginator;
 
@@ -272,14 +270,11 @@ describe('The esn.user-notification Angular module', function() {
         var array = [1, 2, 3];
         var size = 103;
 
-        var defer = this.$q.defer();
         this.userNotificationAPI.list = function(options) {
-          return defer.promise;
+          return $q.when({ data: array, headers: function() {
+            return size;
+          }});
         };
-
-        defer.resolve({data: array, headers: function() {
-          return size;
-        }});
 
         this.scope.initPager(3);
         this.scope.$digest();
@@ -292,14 +287,12 @@ describe('The esn.user-notification Angular module', function() {
         var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         var size = 101;
 
-        var defer = this.$q.defer();
         this.userNotificationAPI.list = function(options) {
-          return defer.promise;
+          return $q.when({ data: array, headers: function() {
+            return size;
+          }});
         };
 
-        defer.resolve({data: array, headers: function() {
-          return size;
-        }});
 
         this.scope.initPager(10);
         this.scope.$digest();
@@ -311,12 +304,10 @@ describe('The esn.user-notification Angular module', function() {
       });
 
       it('should set error on request failure', function(done) {
-        var defer = this.$q.defer();
         this.userNotificationAPI.list = function(options) {
-          return defer.promise;
+          return $q.reject(new Error());
         };
 
-        defer.reject(new Error());
         this.scope.initPager(1);
         this.scope.$digest();
         expect(this.scope.error).to.be.true;
@@ -353,10 +344,9 @@ describe('The esn.user-notification Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, collaborationAPI, userNotificationAPI, objectTypeResolver, userAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, userNotificationAPI, objectTypeResolver, userAPI) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.collaborationAPI = collaborationAPI;
       this.userNotificationAPI = userNotificationAPI;
@@ -378,53 +368,47 @@ describe('The esn.user-notification Angular module', function() {
 
     describe('The controller', function() {
       it('should resolve notification data', function() {
-        var userDefer = this.$q.defer();
-        var collaborationDefer = this.$q.defer();
+        var scope = this.scope;
         this.objectTypeResolver.resolve = function(type) {
           if (type === 'user') {
-            return userDefer.promise;
+            return $q.when({ data: { _id: scope.notification.subject.id } });
           }
 
           if (type === 'community') {
-            return collaborationDefer.promise;
+            return $q.when({ data: { _id: scope.notification.complement.id } });
           }
         };
-        userDefer.resolve({data: {_id: this.scope.notification.subject.id}});
-        collaborationDefer.resolve({data: {_id: this.scope.notification.complement.id}});
-        this.$compile(this.html)(this.scope);
-        this.scope.$digest();
+        this.$compile(this.html)(scope);
+        scope.$digest();
 
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
+        var element = this.$compile(this.html)(scope);
+        scope.$digest();
         var eltScope = element.isolateScope();
 
         expect(eltScope.invitationSender).to.exist;
-        expect(eltScope.invitationSender._id).to.equal(this.scope.notification.subject.id);
+        expect(eltScope.invitationSender._id).to.equal(scope.notification.subject.id);
         expect(eltScope.invitationCollaboration).to.exist;
-        expect(eltScope.invitationCollaboration._id).to.equal(this.scope.notification.complement.id);
+        expect(eltScope.invitationCollaboration._id).to.equal(scope.notification.complement.id);
         expect(eltScope.error).to.be.false;
         expect(eltScope.loading).to.be.false;
       });
 
       it('should set scope.error if community fetch fails', function() {
-        var userDefer = this.$q.defer();
-        var collaborationDefer = this.$q.defer();
+        var scope = this.scope;
         this.objectTypeResolver.resolve = function(type) {
           if (type === 'user') {
-            return userDefer.promise;
+            return $q.when({ data: { _id: scope.notification.subject.id } });
           }
 
           if (type === 'community') {
-            return collaborationDefer.promise;
+            return $q.reject();
           }
         };
-        userDefer.resolve({data: {_id: this.scope.notification.subject.id}});
-        collaborationDefer.reject();
-        this.$compile(this.html)(this.scope);
-        this.scope.$digest();
+        this.$compile(this.html)(scope);
+        scope.$digest();
 
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
+        var element = this.$compile(this.html)(scope);
+        scope.$digest();
         var eltScope = element.isolateScope();
 
         expect(eltScope.invitationSender).to.not.exist;
@@ -434,24 +418,21 @@ describe('The esn.user-notification Angular module', function() {
       });
 
       it('should set scope.error if user fetch fails', function() {
-        var userDefer = this.$q.defer();
-        var collaborationDefer = this.$q.defer();
+        var scope = this.scope;
         this.objectTypeResolver.resolve = function(type) {
           if (type === 'user') {
-            return userDefer.promise;
+            return $q.reject({});
           }
 
           if (type === 'community') {
-            return collaborationDefer.promise;
+            return $q.when({ data: { _id: scope.notification.complement.id } });
           }
         };
-        userDefer.reject({});
-        collaborationDefer.resolve({data: {_id: this.scope.notification.complement.id}});
-        this.$compile(this.html)(this.scope);
-        this.scope.$digest();
+        this.$compile(this.html)(scope);
+        scope.$digest();
 
-        var element = this.$compile(this.html)(this.scope);
-        this.scope.$digest();
+        var element = this.$compile(this.html)(scope);
+        scope.$digest();
         var eltScope = element.isolateScope();
 
         expect(eltScope.invitationSender).to.not.exist;
@@ -491,10 +472,9 @@ describe('The esn.user-notification Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.collaborationAPI = collaborationAPI;
       this.userNotificationAPI = userNotificationAPI;
@@ -524,10 +504,8 @@ describe('The esn.user-notification Angular module', function() {
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
-      var joinDefer = this.$q.defer();
       this.collaborationAPI.join = function() {
-        joinDefer.resolve({data: {_id: 123}});
-        return joinDefer.promise;
+        return $q.when({ data: { _id: 123 } });
       };
       this.userNotificationAPI.setAcknowledged = function() {
         return done();
@@ -569,10 +547,9 @@ describe('The esn.user-notification Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.collaborationAPI = collaborationAPI;
       this.userNotificationAPI = userNotificationAPI;
@@ -602,10 +579,8 @@ describe('The esn.user-notification Angular module', function() {
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
-      var cancelRequestMemberShipDefer = this.$q.defer();
       this.collaborationAPI.cancelRequestMembership = function() {
-        cancelRequestMemberShipDefer.resolve();
-        return cancelRequestMemberShipDefer.promise;
+        return $q.when();
       };
       this.userNotificationAPI.setAcknowledged = function() {
         return done();

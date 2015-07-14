@@ -66,7 +66,7 @@ describe('The Member Angular module', function() {
   });
 
   describe('memberscontroller', function() {
-    beforeEach(angular.mock.inject(function($controller, $q, $rootScope, $routeParams, Restangular, memberSearchConfiguration) {
+    beforeEach(angular.mock.inject(function($controller, $rootScope, $routeParams, Restangular, memberSearchConfiguration) {
       this.searchConf = memberSearchConfiguration;
 
       this.domainAPI = {};
@@ -83,7 +83,6 @@ describe('The Member Angular module', function() {
       this.$routeParams = {
         domain_id: this.domainId
       };
-      this.$q = $q;
       $controller('memberscontroller', {
         $scope: this.scope,
         domainAPI: this.domainAPI,
@@ -155,14 +154,11 @@ describe('The Member Angular module', function() {
           done();
         };
 
-        var defer = this.$q.defer();
         this.domainAPI.getMembers = function(domain_id, opts) {
-          return defer.promise;
+          return $q.when({
+            headers: function() {}
+          });
         };
-        var data = {
-          headers: function() {}
-        };
-        defer.resolve(data);
         this.scope.loadMoreElements();
         this.scope.$digest();
       });
@@ -179,11 +175,9 @@ describe('The Member Angular module', function() {
           done();
         };
 
-        var defer = this.$q.defer();
         this.domainAPI.getMembers = function(domain_id, opts) {
-          return defer.promise;
+          return $q.reject({});
         };
-        defer.reject({});
         this.scope.loadMoreElements();
         this.scope.$digest();
       });

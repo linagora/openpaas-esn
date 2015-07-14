@@ -10,9 +10,8 @@ describe('The ObjectType Angular module', function() {
 
   describe('objectTypeResolver service', function() {
 
-    beforeEach(angular.mock.inject(function(objectTypeResolver, $q, $rootScope) {
+    beforeEach(angular.mock.inject(function(objectTypeResolver, $rootScope) {
       this.objectTypeResolver = objectTypeResolver;
-      this.$q = $q;
       this.$rootScope = $rootScope;
     }));
 
@@ -85,18 +84,15 @@ describe('The ObjectType Angular module', function() {
 
   describe('register then resolve', function() {
     it('should call the registered resolver', function(done) {
-
-      var defer = this.$q.defer();
       var call;
-
-      var resolver = function(id) {
-        call = id;
-        return defer.promise;
-      };
-
       var resolved = {
         _id: 123,
         name: 'foo'
+      };
+
+      var resolver = function(id) {
+        call = id;
+        return $q.when(resolved);
       };
 
       var objectType = 'user';
@@ -113,7 +109,6 @@ describe('The ObjectType Angular module', function() {
       }, function(err) {
         return done(err);
       });
-      defer.resolve(resolved);
       this.$rootScope.$digest();
     });
   });

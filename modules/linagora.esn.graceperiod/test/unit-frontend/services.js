@@ -14,7 +14,7 @@ describe('The GracePeriod Angular module', function() {
       module('linagora.esn.graceperiod');
     });
 
-    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$httpBackend_, _$rootScope_, _$q_) {
+    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$httpBackend_, _$rootScope_) {
       $httpBackend = _$httpBackend_;
       $rootScope = _$rootScope_;
       gracePeriodService = _gracePeriodService_;

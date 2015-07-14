@@ -67,11 +67,10 @@ describe('The Maps Angular module', function() {
       this.html = '<a href="#" fill-position></a>';
     });
 
-    beforeEach(inject(['$compile', '$rootScope', '$q', function($c, $r, $q) {
-      this.$compile = $c;
-      this.$rootScope = $r;
-      this.$q = $q;
-    }]));
+    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
+      this.$compile = _$compile_;
+      this.$rootScope = _$rootScope_;
+    }));
 
     describe('fillPosition function', function() {
 
@@ -88,10 +87,8 @@ describe('The Maps Angular module', function() {
         var element = this.$compile(this.html)(this.$rootScope);
 
         var result = {coords: {latitude: 1, longitude: 2}};
-        var defer = this.$q.defer();
         this.geoAPI.getCurrentPosition = function() {
-          defer.resolve(result);
-          return defer.promise;
+          return $q.when(result);
         };
         this.geoAPI.reverse = function(lat, long) {
           expect(lat).to.equal(result.coords.latitude);
@@ -107,10 +104,8 @@ describe('The Maps Angular module', function() {
         this.$rootScope.position = {};
         var element = this.$compile(this.html)(this.$rootScope);
 
-        var defer = this.$q.defer();
         this.geoAPI.getCurrentPosition = function() {
-          defer.reject({error: {code: 1}});
-          return defer.promise;
+          return $q.reject({ error: { code: 1 } });
         };
 
         element.scope().fillPosition();

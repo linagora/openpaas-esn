@@ -156,9 +156,8 @@ describe('The esn.contact Angular module', function() {
 
     beforeEach(function() {
       angular.mock.module('esn.contact');
-      angular.mock.inject(function($controller, $rootScope, $q) {
+      angular.mock.inject(function($controller, $rootScope) {
         this.$rootScope = $rootScope;
-        this.$q = $q;
         this.$controller = $controller;
         this.scope = $rootScope.$new();
         this.user = { _id: '539b0ba6b801603217aa2e24' };
@@ -602,25 +601,21 @@ describe('The esn.contact Angular module', function() {
       });
 
       it('should push the contact ID in the invited array on success', function() {
-        var d = this.$q.defer();
-        d.resolve({});
         this.contactAPI.sendInvitation = function() {
-          return d.promise;
+          return $q.when({});
         };
         this.scope.sendInvitation({emails: ['foo@bar.com']});
         this.$rootScope.$digest();
-        expect(this.scope.invited.length === 1);
+        expect(this.scope.invited.length).to.equal(1);
       });
 
       it('should not push the contact ID in the invited array on error', function() {
-        var d = this.$q.defer();
-        d.reject({});
         this.contactAPI.sendInvitation = function() {
-          return d.promise;
+          return $q.reject({});
         };
         this.scope.sendInvitation({emails: ['foo@bar.com']});
         this.$rootScope.$digest();
-        expect(this.scope.invited.length === 0);
+        expect(this.scope.invited.length).to.equal(0);
       });
     });
   });

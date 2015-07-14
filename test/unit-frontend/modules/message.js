@@ -563,21 +563,19 @@ describe('The esn.message Angular module', function() {
 
   describe('messageController', function() {
 
-    beforeEach(inject(function($rootScope, $controller, $q) {
+    beforeEach(inject(function($rootScope, $controller) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.session = {};
-      this.alert = function() {
-      };
+      this.alert = function() {};
       this.geoAPI = {};
       this.geoAPI.getCurrentPosition = function() {};
       this.geoAPI.reverse = function() {};
 
       $controller('messageController', {
         $scope: this.scope,
-        $q: this.$q,
+        $q: $q,
         messageAPI: this.messageAPI,
         $alert: this.alert,
         $rootScope: this.rootScope,
@@ -665,15 +663,13 @@ describe('The esn.message Angular module', function() {
       });
 
       it('should display a warning when user is not authorized to post message', function(done) {
-        var defer = this.$q.defer();
         this.messageAPI.post = function() {
-          return defer.promise;
+          return $q.reject({ data: { status: 403 } });
         };
         this.scope.displayError = function(err) {
           expect(err).to.match(/You do not have enough rights to write a new message here/);
           done();
         };
-        defer.reject({data: {status: 403}});
         this.scope.activitystream = {activity_stream: {uuid: '0987654321'}};
         this.scope.messageContent = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
@@ -713,10 +709,9 @@ describe('The esn.message Angular module', function() {
 
   describe('messageCommentController controller', function() {
 
-    beforeEach(inject(function($rootScope, $controller, $q) {
+    beforeEach(inject(function($rootScope, $controller) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.alert = function() {
       };
@@ -726,7 +721,7 @@ describe('The esn.message Angular module', function() {
 
       $controller('messageCommentController', {
         $scope: this.scope,
-        $q: this.$q,
+        $q: $q,
         messageAPI: this.messageAPI,
         $alert: this.alert,
         $rootScope: this.rootScope,
@@ -749,7 +744,7 @@ describe('The esn.message Angular module', function() {
 
         this.controller('messageCommentController', {
             $scope: this.scope,
-            $q: this.$q,
+            $q: $q,
             messageAPI: this.messageAPI,
             $alert: this.alert,
             $rootScope: this.rootScope,
@@ -904,10 +899,8 @@ describe('The esn.message Angular module', function() {
 
         it('should set scope.sending to false', function(done) {
           var scope = this.scope;
-          var defer = this.$q.defer();
-          defer.resolve({data: {_id: 1}});
           this.messageAPI.addComment = function() {
-            return defer.promise;
+            return $q.when({data: {_id: 1}});
           };
           this.scope.shrink = function() {};
           this.scope.displayError = function() {
@@ -920,19 +913,15 @@ describe('The esn.message Angular module', function() {
           };
           this.scope.addComment();
           this.scope.$digest();
-          this.$q.when(defer.promise).then(function() {
-            expect(scope.sending).to.be.false;
-            done();
-          });
-          this.scope.$digest();
+
+          expect(scope.sending).to.be.false;
+          done();
         });
 
         it('should set scope.commentContent to an empty string', function(done) {
-          var defer = this.$q.defer();
-          defer.resolve({data: {_id: 1}});
           var scope = this.scope;
           this.messageAPI.addComment = function() {
-            return defer.promise;
+            return $q.when({ data: { _id: 1 } });
           };
           this.scope.shrink = function() {};
           this.scope.displayError = function() {
@@ -945,22 +934,16 @@ describe('The esn.message Angular module', function() {
           };
           this.scope.addComment();
           this.scope.$digest();
-          this.$q.when(defer.promise).then(function() {
-            expect(scope.commentContent).to.be.a.string;
-            expect(scope.commentContent).to.have.length(0);
-            done();
-          });
-          this.scope.$digest();
+
+          expect(scope.commentContent).to.be.a.string;
+          expect(scope.commentContent).to.have.length(0);
+          done();
         });
 
         it('should emit a message:comment event on rootScope', function(done) {
           var scope = this.scope;
           this.messageAPI.addComment = function() {
-            return {
-              then: function(callback) {
-                callback({data: {_id: 'comment1'}});
-              }
-            };
+            return $q.when({ data: { _id: 'comment1' } });
           };
           this.scope.shrink = function() {};
           this.scope.displayError = function() {
@@ -981,11 +964,9 @@ describe('The esn.message Angular module', function() {
         });
 
         it('should display warning if user does not have rights to comment message', function(done) {
-          var defer = this.$q.defer();
           this.messageAPI.addComment = function() {
-            return defer.promise;
+            return $q.reject({ data: { status: 403 } });
           };
-          defer.reject({data: {status: 403}});
           this.scope.shrink = function() {};
           this.scope.displayError = function(err) {
             expect(err).to.match(/You do not have enough rights to write a response here/);
@@ -1000,7 +981,6 @@ describe('The esn.message Angular module', function() {
           this.scope.$digest();
         });
       });
-
     });
   });
 

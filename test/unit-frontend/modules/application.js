@@ -8,12 +8,11 @@ describe('The Application Angular module', function() {
   beforeEach(angular.mock.module('esn.application'));
 
   describe('applicationController controller', function() {
-    beforeEach(angular.mock.inject(function($controller, $rootScope, $log, $location, $q, applicationAPI) {
+    beforeEach(angular.mock.inject(function($controller, $rootScope, $log, $location, applicationAPI) {
       this.applicationAPI = applicationAPI;
       this.$controller = $controller;
       this.$location = $location;
       this.$log = $log;
-      this.$q = $q;
       this.$rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.applications = [];
@@ -46,11 +45,8 @@ describe('The Application Angular module', function() {
     });
 
     it('$scope.create should redirect to application details on create success', function(done) {
-      var d = this.$q.defer();
-      d.resolve({data: {_id: '123'}});
-
       this.applicationAPI.create = function() {
-        return d.promise;
+        return $q.when({ data: { _id: '123' } });
       };
 
       this.$location.path = function() {
@@ -62,11 +58,8 @@ describe('The Application Angular module', function() {
     });
 
     it('$scope.create should log error on create failure', function(done) {
-      var d = this.$q.defer();
-      d.reject({error: 'ooops'});
-
       this.applicationAPI.create = function() {
-        return d.promise;
+        return $q.reject({error: 'ooops'});
       };
 
       this.$location.path = function() {
