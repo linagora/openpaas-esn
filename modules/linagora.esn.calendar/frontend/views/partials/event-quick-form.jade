@@ -34,12 +34,12 @@ form.event-quick-form.form-container(role='form')
       span.input-group-addon
         i.fa.fa-location-arrow.fa-2x.fa-fw
       input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
-  .form-group(ng-hide="isOrganizer")
+  .form-group(ng-show='hasAttendees')
     .row.all-centered.status
       span.col-xs-5 #{__('Will you attend?')}
-      button.btn.btn-default.col-xs-2.accepted(ng-click="accept()") #{__('Yes')}
-      button.btn.btn-default.col-xs-2.undecided(ng-click="maybe()") #{__('Maybe')}
-      button.btn.btn-default.col-xs-2.declined(ng-click="decline()") #{__('No')}
+      button.btn.btn-default.col-xs-2.accepted(ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
+      button.btn.btn-default.col-xs-3.undecided(ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE" }') #{__('Maybe')}
+      button.btn.btn-default.col-xs-2.declined(ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}
   .form-group(ng-show='isOrganizer || isNew(editedEvent)')
     .input-group
       span.input-group-addon
@@ -64,7 +64,7 @@ form.event-quick-form.form-container(role='form')
             attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
     .col-xs-1.trash.all-centered.no-padding
       i.mdi-2x.mdi-action-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
-  .form-group.nopadding(ng-show='isOrganizer || isNew(editedEvent)')
+  .form-group.nopadding
     .text-center
       button.btn.btn-default.submit-button.pull-left(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Create')}
@@ -75,9 +75,10 @@ form.event-quick-form.form-container(role='form')
       button.btn.btn-default.submit-button(type='button', ng-if="isNew(editedEvent)", ng-disabled="true")
         span.hidden-xs #{__('More options')}
         i.fa.fa-bars.fa-2x.visible-xs
-      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
+      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="isOrganizer && !isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Delete')}
         i.fa.fa-trash-o.fa-2x.visible-xs
       button.btn.btn-default.submit-button.pull-right(type='button', ng-click="closeModal()")
         span.hidden-xs #{__('Cancel')}
         i.fa.fa-close.fa-2x.visible-xs
+      .clearfix

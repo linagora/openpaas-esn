@@ -142,6 +142,34 @@ angular.module('esn.calendar')
     };
 
     this.modifyEvent = function() {
+      if ($scope.isOrganizer) {
+        modifyOrganizerEvent();
+      } else {
+        modifyAttendeeEvent();
+      }
+    };
+
+    function modifyAttendeeEvent() {
+      var status = $scope.invitedAttendee.partstat;
+
+      $scope.restActive = true;
+      calendarService.changeParticipation($scope.editedEvent.path, $scope.event, session.user.emails, status).then(function(response) {
+        if (!response) {
+          return _hideModal();
+        }
+        var icalPartStatToReadableStatus = Object.create(null);
+        icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
+        icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
+        icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
+        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
+      }, function(err) {
+        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+      }).finally (function() {
+        $scope.restActive = false;
+      });
+    }
+
+    function modifyOrganizerEvent() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
         _displayError('You must define an event title');
         return;
@@ -178,29 +206,18 @@ angular.module('esn.calendar')
       }).finally (function() {
         $scope.restActive = false;
       });
-    };
-
-    function _changeParticipation(status) {
-      $scope.restActive = true;
-      calendarService.changeParticipation($scope.editedEvent.path, $scope.editedEvent, [session.user.emails[0]], status).then(function(response) {
-        if (!response) {
-          return _hideModal();
-        }
-        var icalPartStatToReadableStatus = Object.create(null);
-        icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
-        icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
-        icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
-        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
-      }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
-      }).finally (function() {
-        $scope.restActive = false;
-      });
     }
 
-    this.accept = _changeParticipation.bind(null, 'ACCEPTED');
-    this.decline = _changeParticipation.bind(null, 'DECLINED');
-    this.maybe = _changeParticipation.bind(null, 'TENTATIVE');
+    this.changeParticipation = function(status) {
+      if ($scope.isOrganizer && !$scope.invitedAttendee) {
+        var organizer = angular.copy($scope.editedEvent.organizer);
+        $scope.editedEvent.attendees.push(organizer);
+        $scope.invitedAttendee = organizer;
+      }
+
+      $scope.invitedAttendee.partstat = status;
+      updateAttendeeStats();
+    };
 
     this.resetEvent = function() {
       $scope.rows = 1;

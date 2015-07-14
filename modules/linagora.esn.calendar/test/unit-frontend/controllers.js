@@ -292,53 +292,118 @@ describe('The Calendar Angular module controllers', function() {
     });
 
     describe('modifyEvent function', function() {
-      it('should display an error if the edited event has no title', function(done) {
-        var $alertMock = function(alertObject) {
-          expect(alertObject.show).to.be.true;
-          expect(alertObject.content).to.equal('You must define an event title');
-          done();
-        };
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope,
-          $alert: $alertMock
+      describe('as an organizer', function() {
+        beforeEach(function() {
+          this.scope.isOrganizer = true;
         });
-
-        this.scope.editedEvent = {};
-        this.eventFormController.modifyEvent();
-      });
-
-      it('should not send modify request if no change', function(done) {
-        this.scope.createModal = {
-          hide: function() {
+        it('should display an error if the edited event has no title', function(done) {
+          var $alertMock = function(alertObject) {
+            expect(alertObject.show).to.be.true;
+            expect(alertObject.content).to.equal('You must define an event title');
             done();
-          }
-        };
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
+          };
+          this.eventFormController = this.controller('eventFormController', {
+            $rootScope: this.rootScope,
+            $scope: this.scope,
+            $alert: $alertMock
+          });
+
+          this.scope.editedEvent = {};
+          this.eventFormController.modifyEvent();
         });
 
-        this.scope.event = {
-          startDate: new Date(),
-          endDate: new Date(),
-          allDay: false,
-          title: 'title'
-        };
-        this.scope.editedEvent = this.scope.event;
-        this.eventFormController.modifyEvent();
+        it('should not send modify request if no change', function(done) {
+          this.scope.createModal = {
+            hide: function() {
+              done();
+            }
+          };
+          this.eventFormController = this.controller('eventFormController', {
+            $rootScope: this.rootScope,
+            $scope: this.scope
+          });
+
+          this.scope.event = {
+            startDate: new Date(),
+            endDate: new Date(),
+            allDay: false,
+            title: 'title'
+          };
+          this.scope.editedEvent = this.scope.event;
+          this.eventFormController.modifyEvent();
+        });
+
+        it('should add newAttendees', function() {
+          this.scope.editedEvent = {
+            title: 'title',
+            attendees: ['user1@test.com']
+          };
+          this.scope.newAttendees = ['user2@test.com', 'user3@test.com'];
+          this.eventFormController.modifyEvent();
+          expect(event).to.deep.equal({
+            title: 'title',
+            attendees: ['user1@test.com', 'user2@test.com', 'user3@test.com']
+          });
+        });
       });
 
-      it('should add newAttendees', function() {
-        this.scope.editedEvent = {
-          title: 'title',
-          attendees: ['user1@test.com']
-        };
-        this.scope.newAttendees = ['user2@test.com', 'user3@test.com'];
-        this.eventFormController.modifyEvent();
-        expect(event).to.deep.equal({
-          title: 'title',
-          attendees: ['user1@test.com', 'user2@test.com', 'user3@test.com']
+      describe('as an attendee', function() {
+        var weakInfo;
+
+        beforeEach(function() {
+          this.scope.isOrganizer = false;
+          this.notificationFactory.weakInfo = weakInfo = sinon.spy();
+        });
+
+        it('should changeParticipation with ACCEPTED', function(done) {
+          var status = null;
+
+          this.scope.invitedAttendee = {
+            partstat: 'ACCEPTED'
+          };
+
+          this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+            status = _status_;
+            return $q.when({});
+          };
+          this.scope.createModal = {
+            hide: function() {
+              expect(status).to.equal('ACCEPTED');
+              expect(weakInfo).to.have.been.called;
+              done();
+            }
+          };
+          this.eventFormController = this.controller('eventFormController', {
+            $rootScope: this.rootScope,
+            $scope: this.scope
+          });
+          this.eventFormController.modifyEvent();
+          this.scope.$digest();
+        });
+
+        it('should no displayNotification if response is null', function(done) {
+          var status = null;
+
+          this.scope.invitedAttendee = {
+            partstat: 'DECLINED'
+          };
+          this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+            status = _status_;
+            return $q.when(null);
+          };
+          this.scope.createModal = {
+            hide: function() {
+              expect(status).to.equal('DECLINED');
+              expect(weakInfo).to.have.not.been.called;
+              done();
+            }
+          };
+          this.eventFormController = this.controller('eventFormController', {
+            $rootScope: this.rootScope,
+            $scope: this.scope
+          });
+          this.eventFormController.modifyEvent();
+          this.scope.$digest();
         });
       });
     });
@@ -363,106 +428,6 @@ describe('The Calendar Angular module controllers', function() {
         });
       });
     });
-
-    describe('accept function', function() {
-      it('should changeParticipation with ACCEPTED', function(done) {
-        var spy = sinon.spy();
-        var status = null;
-
-        this.notificationFactory.weakInfo = spy;
-        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
-          status = _status_;
-          return $q.when({});
-        };
-        this.scope.createModal = {
-          hide: function() {
-            expect(status).to.deep.equal('ACCEPTED');
-            expect(spy).to.have.been.called;
-            done();
-          }
-        };
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        this.eventFormController.accept();
-        this.scope.$digest();
-      });
-
-      it('should no displayNotification if response is null', function(done) {
-        var spy = sinon.spy();
-
-        this.notificationFactory.weakInfo = spy;
-        this.calendarServiceMock.changeParticipation = function(path, event, emails, status) {
-          return $q.when(null);
-        };
-        this.scope.createModal = {
-          hide: function() {
-            expect(spy).to.have.not.been.called;
-            done();
-          }
-        };
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        this.eventFormController.accept();
-        this.scope.$digest();
-      });
-    });
-
-    describe('decline function', function() {
-      it('should changeParticipation with DECLINED', function(done) {
-        var spy = sinon.spy();
-        var status = null;
-
-        this.notificationFactory.weakInfo = spy;
-        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
-          status = _status_;
-          return $q.when({});
-        };
-        this.scope.createModal = {
-          hide: function() {
-            expect(status).to.deep.equal('DECLINED');
-            expect(spy).to.have.been.called;
-            done();
-          }
-        };
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        this.eventFormController.decline();
-        this.scope.$digest();
-      });
-    });
-
-    describe('maybe function', function() {
-      it('should changeParticipation with TENTATIVE', function(done) {
-        var spy = sinon.spy();
-        var status = null;
-
-        this.notificationFactory.weakInfo = spy;
-        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
-          status = _status_;
-          return $q.when({});
-        };
-        this.scope.createModal = {
-          hide: function() {
-            expect(status).to.deep.equal('TENTATIVE');
-            expect(spy).to.have.been.called;
-            done();
-          }
-        };
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-        this.eventFormController.maybe();
-        this.scope.$digest();
-      });
-    });
-
   });
 
   describe('The calendarController controller', function() {
