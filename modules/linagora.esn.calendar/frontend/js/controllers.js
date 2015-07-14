@@ -88,7 +88,7 @@ angular.module('esn.calendar')
 
       var event = $scope.editedEvent;
       event.organizer = session.user;
-      var path = '/calendars/' + $scope.calendarId + '/events';
+      var path = 'calendars/' + $scope.calendarId + '/events';
       var vcalendar = calendarService.shellToICAL(event);
       $scope.restActive = true;
       calendarService.create(path, vcalendar).then(function(response) {
@@ -110,9 +110,8 @@ angular.module('esn.calendar')
       if (!$scope.calendarId) {
         $scope.calendarId = calendarService.calendarId;
       }
-      var path = '/calendars/' + $scope.calendarId + '/events';
       $scope.restActive = true;
-      calendarService.remove(path, $scope.event).then(function(response) {
+      calendarService.remove($scope.event.path, $scope.event, $scope.event.etag).then(function(response) {
         if ($scope.activitystream) {
           $rootScope.$emit('message:posted', {
             activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -143,8 +142,6 @@ angular.module('esn.calendar')
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
-      var path = '/calendars/' + $scope.calendarId + '/events/' + $scope.editedEvent.id + '.ics';
-
       if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
         if ($scope.createModal) {
           $scope.createModal.hide();
@@ -152,7 +149,7 @@ angular.module('esn.calendar')
         return;
       }
       $scope.restActive = true;
-      calendarService.modify(path, $scope.editedEvent).then(function(response) {
+      calendarService.modify($scope.editedEvent.path, $scope.editedEvent).then(function(response) {
         if ($scope.activitystream) {
           $rootScope.$emit('message:posted', {
             activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -249,8 +246,7 @@ angular.module('esn.calendar')
     };
 
     $scope.eventDropAndResize = function(event) {
-      var path = '/calendars/' + $scope.calendarId + '/events/' + event.id + '.ics';
-      calendarService.modify(path, event).then(function() {
+      calendarService.modify(event.path, event, event.etag).then(function() {
         notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
       });
     };
