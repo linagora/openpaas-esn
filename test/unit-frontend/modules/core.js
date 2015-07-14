@@ -152,4 +152,14 @@ describe('The Angular core module', function() {
     });
   });
 
+  describe('The urlencode filter', function() {
+    var urlencode;
+    beforeEach(inject(function($filter) {
+      urlencode = $filter('urlencode');
+    }));
+
+    it('should encode things', function() {
+      expect(urlencode('#$%@&ing tests!')).to.equal('%23%24%25%40%26ing%20tests!');
+    });
+  });
 });

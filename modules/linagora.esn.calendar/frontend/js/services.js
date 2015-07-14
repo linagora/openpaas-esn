@@ -65,7 +65,6 @@ angular.module('esn.calendar')
           return;
         }
         var cn = att.getParameter('cn');
-        var attendeeId = att.getParameter('x-rse-id');
         var mail = calendarUtils.removeMailto(id);
         var partstat = att.getParameter('partstat');
         attendees.push({
@@ -186,7 +185,6 @@ angular.module('esn.calendar')
           var mail = attendee.email || attendee.emails[0];
           var mailto = calendarUtils.prependMailto(mail);
           var property = vevent.addPropertyWithValue('attendee', mailto);
-          property.setParameter('x-rse-id', attendee.id);
           property.setParameter('partstat', attendee.partstat || ICAL_PROPERTIES.partstat.needsaction);
           property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.true);
           property.setParameter('role', ICAL_PROPERTIES.role.reqparticipant);

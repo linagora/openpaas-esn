@@ -63,6 +63,7 @@ angular.module('esn.calendar')
 
       updateAttendeeStats();
 
+      $scope.attendeeClickedCount = 0;
       $scope.isOrganizer = eventService.isOrganizer($scope.event);
       // on load, ensure that duration between start and end is stored inside editedEvent
       this.onEndDateChange();
@@ -79,13 +80,9 @@ angular.module('esn.calendar')
       _hideModal();
     }
 
-    this.selectAttendee = function(attId) {
-      $scope.editedEvent.attendees.forEach(function(attendee) {
-        if (attendee.id === attId) {
-          attendee.clicked = !attendee.clicked;
-        }
-      });
-      $scope.hasAttendeesClicked = true;
+    this.selectAttendee = function(attendee) {
+      attendee.clicked = !attendee.clicked;
+      $scope.attendeeClickedCount += attendee.clicked ? 1 : -1;
     };
 
     this.deleteSelectedAttendees = function() {
