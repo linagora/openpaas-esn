@@ -57,7 +57,6 @@ angular.module('esn.calendar')
         this.status = status;
       }
 
-      var attendeesPerPartstat = this.attendeesPerPartstat = {};
       var attendees = this.attendees = [];
 
       vevent.getAllProperties('attendee').forEach(function(att) {
@@ -69,23 +68,13 @@ angular.module('esn.calendar')
         var attendeeId = att.getParameter('x-rse-id');
         var mail = calendarUtils.removeMailto(id);
         var partstat = att.getParameter('partstat');
-        var data = {
-          id: attendeeId,
+        attendees.push({
           fullmail: calendarUtils.fullmailOf(cn, mail),
           email: mail,
           name: cn || mail,
           partstat: partstat,
           displayName: cn || mail
-        };
-
-        // We will only handle these four cases
-        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED' && partstat !== 'NEEDS-ACTION' && partstat !== 'TENTATIVE') {
-          partstat = 'OTHER';
-        }
-
-        attendeesPerPartstat[partstat] = attendeesPerPartstat[partstat] || [];
-        attendeesPerPartstat[partstat].push(data);
-        attendees.push(data);
+        });
       });
 
       var organizer = vevent.getFirstProperty('organizer');
@@ -372,7 +361,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .service('eventService', function(session, ICAL_PROPERTIES, ICAL) {
+  .service('eventService', function(session, ICAL) {
     function render(event, element) {
       element.find('.fc-content').addClass('ellipsis');
 
@@ -387,14 +376,16 @@ angular.module('esn.calendar')
         element.attr('title', event.description);
       }
 
-      var sessionUserAsAttendee = [];
-      if (event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction]) {
-        sessionUserAsAttendee = event.attendeesPerPartstat[ICAL_PROPERTIES.partstat.needsaction].filter(function(attendee) {
-          return attendee.email === session.user.emails[0];
+      var invitedAttendee = null;
+      if (event.attendees) {
+        event.attendees.forEach(function(att) {
+          if (att.email === session.user.emails[0]) {
+            invitedAttendee = att;
+          }
         });
       }
 
-      if (sessionUserAsAttendee[0]) {
+      if (invitedAttendee && (invitedAttendee.partstat === 'NEEDS-ACTION' || invitedAttendee.partstat === 'TENTATIVE')) {
         element.addClass('event-needs-action');
       } else {
         element.addClass('event-accepted');
@@ -409,9 +400,6 @@ angular.module('esn.calendar')
       dest.description = src.description;
       if (src.attendees) {
         dest.attendees = src.attendees;
-      }
-      if (src.attendeesPerPartstat) {
-        dest.attendeesPerPartstat = src.attendeesPerPartstat;
       }
     }
 
