@@ -5,11 +5,12 @@ module.exports = function(config) {
     basePath: '../../',
 
     files: [
-      'test/frontend/karma-include/*.js',
       'frontend/components/jquery/dist/jquery.js',
       'frontend/components/angular/angular.js',
-      'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-mocks/angular-mocks.js',
+      'test/frontend/karma-include/*.js',
+
+      'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-animate/angular-animate.js',
       'frontend/components/angular-strap/dist/angular-strap.js',
       'frontend/components/angular-strap/dist/angular-strap.tpl.js',
