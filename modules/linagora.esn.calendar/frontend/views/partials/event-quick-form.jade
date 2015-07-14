@@ -48,17 +48,19 @@ form.event-quick-form.form-container(role='form')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
   .row.attendees-list(ng-show='hasAttendees')
     .form-group.col-xs-11.scrollable
-      .row.accepted(ng-show='hasAcceptedAttendee') #{__('Accepted')}
+      .row.accepted(ng-show='attendeesPerPartstat.ACCEPTED > 0') #{__('Accepted')}
         ul.list-inline
           li(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.id")
             attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
-      .row.declined(ng-show="hasDeclinedAttendee")  #{__('Declined')}
+      .row.declined(ng-show='attendeesPerPartstat.DECLINED > 0')  #{__('Declined')}
         ul.list-inline
           li(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.id")
             attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
-      .row.undecided(ng-show="hasNeedActionAttendee")  #{__('Need-Action')}
+      .row.undecided(ng-show='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')  #{__('Undecided')}
         ul.list-inline
           li(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.id")
+            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'TENTATIVE' track by attendee.id")
             attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
     .col-xs-1.trash.all-centered.no-padding
       i.mdi-2x.mdi-action-delete(ng-show='hasAttendeesClicked', ng-click='deleteSelectedAttendees()')

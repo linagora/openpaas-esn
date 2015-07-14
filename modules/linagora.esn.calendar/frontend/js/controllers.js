@@ -22,6 +22,31 @@ angular.module('esn.calendar')
         animation: 'am-flip-x'
       });
     }
+
+    function updateAttendeeStats() {
+      var partstatMap = $scope.attendeesPerPartstat = {
+        'NEEDS-ACTION': 0,
+        'ACCEPTED': 0,
+        'TENTATIVE': 0,
+        'DECLINED': 0,
+        'OTHER': 0
+      };
+
+      $scope.invitedAttendee = null;
+      $scope.hasAttendees = !!$scope.editedEvent.attendees;
+
+      if ($scope.hasAttendees) {
+        var sessionUser = session.user.emails[0];
+        $scope.editedEvent.attendees.forEach(function(att) {
+          partstatMap[att.partstat in partstatMap ? att.partstat : 'OTHER']++;
+
+          if (att.email === sessionUser) {
+            $scope.invitedAttendee = att;
+          }
+        });
+      }
+    }
+
     this.initFormData = function() {
       $scope.event = $scope.event || {};
       if (this.isNew($scope.event)) {
@@ -34,21 +59,8 @@ angular.module('esn.calendar')
       eventService.copyEventObject($scope.event, $scope.editedEvent);
       $scope.newAttendees = [];
 
-      if ($scope.editedEvent.attendees) {
-        $scope.hasAttendees = true;
-        $scope.editedEvent.attendees.forEach(function(att) {
-          att.clicked = false;
-          if (att.partstat === ICAL_PROPERTIES.partstat.needsaction) {
-            $scope.hasNeedActionAttendee = true;
-          }
-          if (att.partstat === ICAL_PROPERTIES.partstat.accepted) {
-            $scope.hasAcceptedAttendee = true;
-          }
-          if (att.partstat === ICAL_PROPERTIES.partstat.declined) {
-            $scope.hasDeclinedAttendee = true;
-          }
-        });
-      }
+
+      updateAttendeeStats();
 
       $scope.isOrganizer = eventService.isOrganizer($scope.event);
       // on load, ensure that duration between start and end is stored inside editedEvent

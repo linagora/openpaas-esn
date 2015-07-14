@@ -478,7 +478,7 @@ describe('The Calendar Angular module services', function() {
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
               ['attendee', { 'x-rse-id': 1, 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
               ['attendee', { 'x-rse-id': 2, 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
-              ['attendee', { 'x-rse-id': 3, 'partstat': 'TENTATIVE' }, 'cal-address', 'mailto:tentative@example.com'],
+              ['attendee', { 'x-rse-id': 3, 'partstat': 'YOLO' }, 'cal-address', 'mailto:yolo@example.com'],
               ['organizer', { 'cn': 'organizer' }, 'cal-address', 'mailto:organizer@example.com']
            ], []]
          ]],
@@ -513,8 +513,8 @@ describe('The Calendar Angular module services', function() {
           expect(event.attendeesPerPartstat.DECLINED[0].partstat).to.equal('DECLINED');
 
           expect(event.attendeesPerPartstat.OTHER.length).to.equal(1);
-          expect(event.attendeesPerPartstat.OTHER[0].fullmail).to.equal('tentative@example.com');
-          expect(event.attendeesPerPartstat.OTHER[0].partstat).to.equal('TENTATIVE');
+          expect(event.attendeesPerPartstat.OTHER[0].fullmail).to.equal('yolo@example.com');
+          expect(event.attendeesPerPartstat.OTHER[0].partstat).to.equal('YOLO');
           expect(event.attendees).to.deep.equal([
             {
               id: 1,
@@ -534,11 +534,11 @@ describe('The Calendar Angular module services', function() {
             },
             {
               id: 3,
-              fullmail: 'tentative@example.com',
-              email: 'tentative@example.com',
-              name: 'tentative@example.com',
-              partstat: 'TENTATIVE',
-              displayName: 'tentative@example.com'
+              fullmail: 'yolo@example.com',
+              email: 'yolo@example.com',
+              name: 'yolo@example.com',
+              partstat: 'YOLO',
+              displayName: 'yolo@example.com'
             }]);
 
           expect(event.organizer).to.deep.equal({
