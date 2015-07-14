@@ -37,11 +37,10 @@ angular.module('esn.calendar')
       $scope.hasAttendees = !!$scope.editedEvent.attendees;
 
       if ($scope.hasAttendees) {
-        var sessionUser = session.user.emails[0];
         $scope.editedEvent.attendees.forEach(function(att) {
           partstatMap[att.partstat in partstatMap ? att.partstat : 'OTHER']++;
 
-          if (att.email === sessionUser) {
+          if (att.email in session.user.emailMap) {
             $scope.invitedAttendee = att;
           }
         });
@@ -102,7 +101,11 @@ angular.module('esn.calendar')
       }
 
       var event = $scope.editedEvent;
-      event.organizer = session.user;
+      var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
+      event.organizer = {
+        displayName: displayName,
+        emails: session.user.emails
+      };
       var path = 'calendars/' + $scope.calendarId + '/events';
       var vcalendar = calendarService.shellToICAL(event);
       $scope.restActive = true;

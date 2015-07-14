@@ -24,6 +24,11 @@ angular.module('esn.session', ['esn.user', 'esn.domain', 'ngRoute'])
 
   function setUser(user) {
     angular.copy(user, session.user);
+
+    var emailMap = session.user.emailMap = Object.create(null);
+    session.user.emails.forEach(function(em) {
+      emailMap[em] = true;
+    });
     checkBootstrap();
   }
 

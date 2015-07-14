@@ -33,11 +33,12 @@ angular.module('esn.profile', ['restangular', 'xeditable', 'openpaas-logo', 'esn
       link: function($scope) {
         if (!$scope.user) {
           $scope.name = '';
-        }
-        if ($scope.user.firstname || $scope.user.lastname) {
-          $scope.name = ($scope.user.firstname || '') + ' ' + ($scope.user.lastname || '');
         } else {
-          $scope.name = $scope.user.emails[0];
+          if ($scope.user.firstname || $scope.user.lastname) {
+            $scope.name = ($scope.user.firstname || '') + ' ' + ($scope.user.lastname || '');
+          } else {
+            $scope.name = $scope.user.emails[0];
+          }
         }
       }
     };

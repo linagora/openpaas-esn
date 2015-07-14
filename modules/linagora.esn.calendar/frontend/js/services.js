@@ -165,7 +165,7 @@ angular.module('esn.calendar')
 
       if (shell.organizer) {
         var organizer = vevent.addPropertyWithValue('organizer', calendarUtils.prependMailto(shell.organizer.email || shell.organizer.emails[0]));
-        organizer.setParameter('cn', shell.organizer.displayName || calendarUtils.diplayNameOf(shell.organizer.firstname, shell.organizer.lastname));
+        organizer.setParameter('cn', shell.organizer.displayName || calendarUtils.displayNameOf(shell.organizer.firstname, shell.organizer.lastname));
       }
 
       vevent.addPropertyWithValue('dtstart', dtstart).setParameter('tzid', timezoneLocal);
@@ -377,7 +377,7 @@ angular.module('esn.calendar')
       var invitedAttendee = null;
       if (event.attendees) {
         event.attendees.forEach(function(att) {
-          if (att.email === session.user.emails[0]) {
+          if (att.email in session.user.emailMap) {
             invitedAttendee = att;
           }
         });
@@ -416,10 +416,8 @@ angular.module('esn.calendar')
     }
 
     function isOrganizer(event) {
-      if (!event || !event.organizer) {
-        return true;
-      }
-      return event.organizer.email === session.user.emails[0];
+      var organizerMail = event && event.organizer && (event.organizer.email || event.organizer.emails[0]);
+      return !organizerMail || (organizerMail in session.user.emailMap);
     }
 
     return {
@@ -508,7 +506,7 @@ angular.module('esn.calendar')
       prependMailto: prependMailto,
       removeMailto: removeMailto,
       fullmailOf: fullmailOf,
-      diplayNameOf: displayNameOf,
+      displayNameOf: displayNameOf,
       getNewStartDate: getNewStartDate,
       getNewEndDate: getNewEndDate,
       isSameDay: isSameDay,

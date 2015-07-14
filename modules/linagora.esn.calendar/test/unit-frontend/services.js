@@ -223,7 +223,8 @@ describe('The Calendar Angular module services', function() {
       var asSession = {
         user: {
           _id: '123456',
-          emails: ['aAttendee@open-paas.org']
+          emails: ['aAttendee@open-paas.org'],
+          emailMap: { 'aAttendee@open-paas.org': true }
         },
         domain: {
           company_name: 'test'
