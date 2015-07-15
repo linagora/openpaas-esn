@@ -116,7 +116,7 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('displayContactController', function($scope, $timeout, $route, contactsService, closeForm, displayError) {
+  .controller('displayContactController', function($scope, gracePeriodService, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
@@ -138,11 +138,27 @@ angular.module('linagora.esn.contact')
     }, function() {
       displayError('Cannot get contact details');
     });
+
+    $scope.deleteContact = function() {
+      contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {
+        notificationFactory.weakError('Contact Delete', 'Can not delete contact');
+
+        return $q.reject(err);
+      }).then(closeForm).then(function(taskId) {
+        return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
+          return gracePeriodService.cancel(taskId).then(function() {
+            $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
+          });
+        });
+      });
+    };
+
     $('.panel-header').parent().parent().parent().parent().addClass('no-padding');
     $scope.controlBarPosition = $('.contact-controls').offset();
   })
   .controller('editContactController', function() {
-
+    $scope.bookId = $route.current.params.bookId;
+    $scope.cardId = $route.current.params.cardId;
   })
   .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper) {
     var requiredKey = 'displayName';

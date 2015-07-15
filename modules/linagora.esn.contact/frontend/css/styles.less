@@ -1,6 +1,5 @@
 @import '../../../../frontend/css/commons';
 
-<<<<<<< HEAD
 .contact-field-label {
   padding-top: 7px;
 }
@@ -8,7 +7,7 @@
 .contact-buttons {
   padding: 18px;
   float: right;
-=======
+
 .contact-panel {
 
   hr {
@@ -30,6 +29,11 @@
 
 .contact-address-infos {
   float:fleft;
+}
+
+.contact-dropdown{
+    margin: 10px 1px;
+    padding: 8px 30px;
 }
 
 .tag-item {
@@ -85,6 +89,11 @@ ul.tag-list {
   margin: 0;
   width:100%;
   border-bottom:1px solid lightgrey;
+
+  a {
+    color:@defaultFontColor;
+  }
+
 }
 
 .contact-card-fa {
@@ -134,7 +143,6 @@ ul.tag-list {
   from {
     opacity: 0;
   }
->>>>>>> OR-1463 - Create view for mobile display
 
   button {
     margin-right: 5px;
@@ -146,5 +154,159 @@ ul.tag-list {
   h1 {
     font-size: 22px;
     color: @m-white;
+
+contact-display, contact-display-editable {
+  .photo {
+    position: relative;
+
+    .hint {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      color: @light-grey;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    img {
+      width: auto;
+      height: 18.2ex;
+      cursor: pointer;
+    }
+  }
+
+  .noindent {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .noindent-left {
+    padding-left: 0;
+  }
+
+  .bigger {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+
+  .tags-group {
+    min-height: 5.9em;
+  }
+
+  .input-group {
+    display: block;
+  }
+
+  input.ng-invalid-required, input.ng-invalid-email {
+    border-color: @red;
+  }
+
+  .input-group {
+    .inline-input-edition-group-btn {
+      display: inline;
+
+      .btn {
+        border: none;
+        background:transparent;
+        padding: 5px 10px;
+      }
+      .btn:hover {
+        box-shadow: none;
+      }
+
+      [class^="fa-"], [class*="fa-"] {
+        margin-right: 0;
+      }
+
+      z-index: 3;
+    }
+
+    .inline-check-button {
+      position: absolute;
+      right: 70px;
+      top: 0;
+    }
+
+    .inline-remove-button {
+      position: absolute;
+      right: 35px;
+      top: 0;
+    }
+  }
+}
+
+.contact-list-item {
+  overflow: visible;
+
+  .ResizeImage(@defaultImageSizeMedium, auto);
+
+  .touch-zone {
+    min-height: 50px;
+  }
+
+  .contact-actions {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .action-item {
+    padding-left: 5px;
+    .dropdown {
+      position: absolute;
+    }
+    button.btn {
+      float: right;
+    }
+    a {
+      cursor: pointer;
+    }
+    a.write {
+      color: @red
+    }
+    a.call {
+      color: @dark-green
+    }
+    a.moreactions {
+      color: @black
+    }
+  }
+}
+
+.alphascroll {
+
+  ul {
+
+    :hover {
+      transform: scale(1.2);
+    }
+
+    list-style: none;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    li {
+      padding-top: 0px;
+      padding-bottom: 0px;
+
+      a {
+        color: @black;
+        cursor: pointer;
+        text-decoration: none;
+        opacity: 0.6;
+      }
+
+      a.active {
+        color: @black;
+        font-weight: bold;
+        font-size: 1.2em;
+        opacity: 1;
+      }
+    }
+  }
+
+  &.affix-bottom {
+    position: fixed !important; /* needed to overwrite styles automatically set using the style attribute */
+    top: 40px !important; /* needed to overwrite styles automatically set using the style attribute */
+    width: 24px !important; /* needed to overwrite styles automatically set using the style attribute */
   }
 }

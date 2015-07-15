@@ -1,0 +1,25 @@
+div.contact-list-item
+  .col-xs-2.nopadding.touch-zone(ng-click='displayContact()')
+    contact-photo.visible-xs.media-object(contact='contact')
+  .col-xs-8.touch-zone(ng-click='displayContact()')
+
+      h4.media-heading.ellipsis {{::contact.displayName}}
+      .row
+        .col-xs-12.nopadding.ellipsis
+  .col-xs-2.contact-actions
+
+    .row.vertical-centered.pull-right
+
+      .col-xs-4.action-item
+        .dropdown.pull-right
+          a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+            i.mdi-navigation-more-vert
+          ul.dropdown-menu.dropdown-menu-right(role="menu")
+            li
+              a(ng-href="") Send Message
+            li
+              a(ng-href="") Call
+            li
+              a(ng-href='#/contact/mobile/edit/{{::bookId}}/{{::contact.id}}') Modify
+            li
+              a(ng-click="deleteContact()") Delete

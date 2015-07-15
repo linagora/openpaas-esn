@@ -1,13 +1,18 @@
-.row.panel-header
+.row.panel-header.contact-list-mobile
     .contact-controls
       button.btn.btn-default(type='button', ng-click='back()')
         i.fa.fa-reply.controls-fa
-      button.btn.btn-default(type='button')
-        i.fa.fa-pencil.controls-fa
+      a(ng-href='#/contact/mobile/edit/{{::bookId}}/{{::contact.id}}')    
+        button.btn.btn-default(type='button')
+          i.fa.fa-pencil.controls-fa
       button.btn.btn-default(type='button')
         i.fa.fa-search.controls-fa
-      button.btn.btn-default(type='button')
-        i.fa.fa-ellipsis-h.controls-fa
+      .contact-dropdown.dropdown.pull-right         
+        a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+          i.fa.fa-ellipsis-h.controls-fa
+        ul.dropdown-menu.dropdown-menu-right(role="menu")
+          li
+            a(ng-click="deleteContact()") Delete       
     img.full-width(ng-src='{{contact.photo || defaultAvatar}}')
 .row.create-content
   .contact-error-container
@@ -15,19 +20,24 @@
     div.contact-fn
       span.contact-heading-mobile
         | {{contact.displayName}}
-    button.btn.btn-default.contact-card(type='button' ng-repeat='tel in contact.tel track by $index')
-        i.fa.fa-whatsapp.contact-card-fa
-        p.contact-card-infos {{tel.value}}
-        p.contact-card-type {{tel.type}}
-    button.btn.btn-default.contact-card(type='button' ng-repeat='email in contact.emails track by $index')
-        i.fa.fa-at.contact-card-fa
-        p.contact-card-infos {{email.value}}
-        p.contact-card-type {{email.type}}  
+    div(ng-repeat='tel in contact.tel track by $index')      
+      a(ng-href='tel:{{tel.value}}')
+        button.btn.btn-default.contact-card(type='button')
+            i.fa.fa-whatsapp.contact-card-fa
+            p.contact-card-infos {{tel.value}}
+            p.contact-card-type {{tel.type}}
+    div(ng-repeat='email in contact.emails track by $index')      
+      a(ng-href='mailto:{{email.value}}')        
+        button.btn.btn-default.contact-card(type='button')
+            i.fa.fa-at.contact-card-fa
+            p.contact-card-infos {{email.value}}
+            p.contact-card-type {{email.type}}  
     button.btn.btn-default.contact-card(type='button' ng-repeat='social in contact.social track by $index')
         i.fa.fa-group.contact-card-fa
         p.contact-card-infos {{social.value}}
         p.contact-card-type {{social.type}}        
-    button.btn.btn-default.contact-card
+    a(ng-href='{{contact.orgUri}}')  
+      button.btn.btn-default.contact-card
         i.fa.fa-globe.contact-card-fa
         p.contact-card-infos {{contact.orgUri}}
         p.contact-card-type Website          
