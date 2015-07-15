@@ -233,7 +233,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
             var deferred = $q.defer();
             collaborationAPI.getInvitablePeople($scope.objectType, $scope.collaboration._id, {search: query, limit: 5}).then(
               function(response) {
-                var cache = [];
+                var cache = Object.create(null);
                 response.data.forEach(function(user) {
                   if (user.firstname && user.lastname) {
                     user.displayName = user.firstname + ' ' + user.lastname;
@@ -241,10 +241,10 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
                     user.displayName = user.emails[0];
                   }
 
-                  if (cache.indexOf(user.displayName) > -1 && user.displayName !== user.emails[0]) {
+                  if ((user.displayName in cache) && user.displayName !== user.emails[0]) {
                     user.displayName += ' - ' + user.emails[0];
                   }
-                  cache.push(user.displayName);
+                  cache[user.displayName] = true;
 
                   $scope.query = '';
                 });

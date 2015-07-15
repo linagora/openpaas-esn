@@ -917,6 +917,53 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.flush();
       });
 
+      it('should retry participation change on 412', function(done) {
+
+        var emails = ['test@example.com'];
+        var copy = new ICAL.Component(ICAL.helpers.clone(this.vcalendar.jCal, true));
+        var vevent = copy.getFirstSubcomponent('vevent');
+        var att = vevent.getFirstProperty('attendee');
+        att.setParameter('partstat', 'ACCEPTED');
+
+        var requestHeaders = {
+          'If-Match': 'etag',
+          'ESNToken': '123',
+          'Prefer': 'return-representation',
+          'Content-Type': 'application/calendar+json',
+          'Accept': 'application/json, text/plain, */*'
+        };
+
+        var conflictHeaders = {
+          'ETag': 'conflict'
+        };
+
+        var successRequestHeaders = {
+          'If-Match': 'conflict',
+          'ESNToken': '123',
+          'Prefer': 'return-representation',
+          'Content-Type': 'application/calendar+json',
+          'Accept': 'application/json, text/plain, */*'
+        };
+        var successHeaders = {
+          'ETag': 'success'
+        };
+
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics', copy.toJSON(), requestHeaders).respond(412, this.vcalendar.toJSON(), conflictHeaders);
+        this.$httpBackend.expectGET('http://localhost/prepath/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), conflictHeaders);
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics', copy.toJSON(), successRequestHeaders).respond(200, this.vcalendar.toJSON(), successHeaders);
+
+        this.calendarService.changeParticipation('path/to/uid.ics', this.event, emails, 'ACCEPTED', 'etag').then(
+          function(shell) {
+            expect(shell.etag).to.equal('success');
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       // Everything else is covered by the modify fn
     });
 

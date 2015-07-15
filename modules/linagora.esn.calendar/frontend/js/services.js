@@ -324,14 +324,15 @@ angular.module('esn.calendar')
     }
 
     function changeParticipation(eventPath, event, emails, status, etag) {
+      var emailMap = Object.create(null);
       var needsModify = false;
+
+      emails.forEach(function(email) { emailMap[email.toLowerCase()] = true; });
       event.attendees.forEach(function(attendee) {
-        emails.forEach(function(email) {
-          if (attendee.email === email && attendee.partstat !== status) {
-            attendee.partstat = status;
-            needsModify = true;
-          }
-        });
+        if ((attendee.email.toLowerCase() in emailMap) && attendee.partstat !== status) {
+          attendee.partstat = status;
+          needsModify = true;
+        }
       });
       if (!needsModify) {
         return $q.when(null);
