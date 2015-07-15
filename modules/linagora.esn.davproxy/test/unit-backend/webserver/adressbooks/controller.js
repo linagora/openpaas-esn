@@ -168,9 +168,11 @@ describe('The addressbooks module', function() {
         return {
           publish: function(data) {
             called = true;
-            expect(data.contactId).to.equal(req.params.contactId);
-            expect(data.bookId).to.equal(req.params.bookId);
-            expect(data.vcard).to.equal(req.body);
+            expect(data).to.deep.equal({
+              contactId: req.params.contactId,
+              bookId: req.params.bookId,
+              vcard: req.body
+            });
           }
         };
       };
@@ -199,9 +201,11 @@ describe('The addressbooks module', function() {
         return {
           publish: function(data) {
             called = true;
-            expect(data.contactId).to.equal(req.params.contactId);
-            expect(data.bookId).to.equal(req.params.bookId);
-            expect(data.vcard).to.equal(req.body);
+            expect(data).to.deep.equal({
+              contactId: req.params.contactId,
+              bookId: req.params.bookId,
+              vcard: req.body
+            });
           }
         };
       };
@@ -260,8 +264,10 @@ describe('The addressbooks module', function() {
         return {
           publish: function(data) {
             called = true;
-            expect(data.contactId).to.equal(req.params.contactId);
-            expect(data.bookId).to.equal(req.params.bookId);
+            expect(data).to.deep.equal({
+              contactId: req.params.contactId,
+              bookId: req.params.bookId
+            });
             expect(data.vcard).to.not.exist;
           }
         };
