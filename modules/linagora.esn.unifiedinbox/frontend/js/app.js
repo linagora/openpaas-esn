@@ -5,7 +5,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'angularMoment',
   'esn.notification',
   'esn.iframe-resizer-wrapper',
-  'esn.file'
+  'esn.file',
+  'esn.box-overlay'
   ])
   .config(function($routeProvider) {
     $routeProvider.when('/unifiedinbox', {
