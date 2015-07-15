@@ -183,6 +183,12 @@ angular.module('esn.calendar')
       $timeout(function() {
         element.find('.title')[0].focus();
       }, 0);
+
+      $scope.focusSubmitButton = function() {
+        $timeout(function() {
+          element.find('button[type="submit"]').focus();
+        });
+      };
     }
 
     return {

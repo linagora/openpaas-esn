@@ -1035,6 +1035,25 @@ describe('The Calendar Angular module services', function() {
         };
       });
 
+      it('should return null if event.attendees is not an array', function(done) {
+        var emails = ['test@example.com'];
+        var event = {
+          id: '00000000-0000-4000-a000-000000000000',
+          title: 'test event',
+          location: 'test location',
+          start: moment(),
+          end: moment(),
+          attendees: []
+        };
+
+        this.calendarService.changeParticipation('/path/to/uid.ics', event, emails, 'ACCEPTED').then(
+          function(response) { expect(response).to.be.null; done(); }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
       it('should change the participation status', function(done) {
 
         var emails = ['test@example.com'];
@@ -1057,7 +1076,7 @@ describe('The Calendar Angular module services', function() {
         var emails = ['test@example.com'];
 
         this.calendarService.changeParticipation('/path/to/uid.ics', this.event, emails, 'DECLINED').then(
-          function(response) { done(); }, unexpected.bind(null, done)
+          function(response) { expect(response).to.be.null; done(); }, unexpected.bind(null, done)
         );
 
         this.$rootScope.$apply();
