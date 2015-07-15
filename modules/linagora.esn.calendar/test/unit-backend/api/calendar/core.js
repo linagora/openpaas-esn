@@ -357,6 +357,21 @@ describe('The calendar core module', function() {
       this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, this.helpers.callbacks.error(done));
     });
 
+    it('should return an error it cannot retrieve ', function(done) {
+      var esnConfigMock = function() {
+        return {
+          get: function(callback) {
+            callback(new Error('cannot get base_url'));
+          }
+        };
+      };
+      this.moduleHelpers.addDep('esn-config', esnConfigMock);
+
+      var method = 'REQUEST';
+      this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
+      this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, this.helpers.callbacks.error(done));
+    });
+
     it('should return an error if contentSender.send return an error', function(done) {
       var method = 'REQUEST';
 
@@ -488,7 +503,7 @@ describe('The calendar core module', function() {
       var esnConfigMock = function() {
         return {
           get: function(callback) {
-            callback({
+            callback(null, {
               base_url: 'https://dev.open-paas.org'
             });
           }

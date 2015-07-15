@@ -190,7 +190,10 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
     return deferred.promise;
   });
 
-  return esnconfig('web').get(function(web) {
+  return esnconfig('web').get(function(err, web) {
+    if (err) {
+      return q.reject(err).nodeify(callback);
+    }
     var baseUrl = 'http://localhost:';
     if (web && web.base_url) {
       baseUrl = web.base_url;
