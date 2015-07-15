@@ -1,39 +1,39 @@
-form.event-quick-form.form-container(role='form')
+form.event-quick-form.form-container(role='form', ng-class="{ 'readonly': !isOrganizer }")
   span.event-create-error-message
   .form-group
-    input.title.event-input.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('No title')}")
+    input.title.event-input.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('No title')}", ng-readonly="!isOrganizer")
   .form-group.form-inline
     .row
       .col-xs-4.nopadding
         .input-group
           span.input-group-addon
             i.fa.fa-calendar.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", bs-datepicker, date-to-moment)
+          input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", bs-datepicker, date-to-moment, ng-disabled="!isOrganizer")
         .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
           span.input-group-addon
             i.fa.fa-clock-o.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", bs-timepicker, date-to-moment)
+          input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", bs-timepicker, date-to-moment, ng-disabled="!isOrganizer")
       .col-xs-2.nopadding
         h3.text-center #{__('To')}
       .col-xs-4.nopadding
         .input-group
           span.input-group-addon
             i.fa.fa-calendar.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", bs-datepicker, date-to-moment, friendlify-end-date)
+          input.form-control(type="text", size="10", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", bs-datepicker, date-to-moment, friendlify-end-date, ng-disabled="!isOrganizer")
         .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
           span.input-group-addon
             i.fa.fa-clock-o.fa-2x.fa-fw
-          input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", bs-timepicker, date-to-moment)
+          input.form-control(type="text", size="10", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", bs-timepicker, date-to-moment, ng-disabled="!isOrganizer")
       .col-xs-2.allday
         .checkbox
           label
-            input(type="checkbox", ng-model='editedEvent.allDay' , style='margin-left:10px; margin-right:10px')
+            input(type="checkbox", ng-model='editedEvent.allDay', ng-disabled="!isOrganizer")
             | #{__('All day')}
-  .form-group
+  .form-group(ng-show="isOrganizer || editedEvent.location")
     .input-group
       span.input-group-addon
         i.fa.fa-location-arrow.fa-2x.fa-fw
-      input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
+      input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
   .form-group(ng-show='hasAttendees')
     .row.all-centered.status
       span.col-xs-5 #{__('Will you attend?')}
