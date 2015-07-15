@@ -86,6 +86,37 @@ describe('The elasticsearch module', function() {
     });
   });
 
+  describe('The getClient function', function() {
+    it('should reject when client sends back error', function(done) {
+      var error = 'You failed';
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(new Error(error));
+      });
+      module.getClient().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.errorWithMessage(done, error));
+    });
+
+    it('should reject when client can not be found', function(done) {
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback();
+      });
+      module.getClient().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.errorWithMessage(done, 'Can not get ES client'));
+    });
+
+    it('should resolve with the client whn it exists', function(done) {
+      var client = {id: 1};
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(null, client);
+      });
+      module.getClient().then(function(result) {
+        expect(result).to.deep.equal(client);
+        done();
+      }, this.helpers.callbacks.notCalled(done));
+    });
+  });
+
   describe('The addDocumentToIndex function', function() {
 
     it('should send back error when getClient sends back error', function(done) {
