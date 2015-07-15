@@ -85,4 +85,138 @@ describe('The elasticsearch module', function() {
       });
     });
   });
+
+  describe('The getClient function', function() {
+    it('should reject when client sends back error', function(done) {
+      var error = 'You failed';
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(new Error(error));
+      });
+      module.getClient().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.errorWithMessage(done, error));
+    });
+
+    it('should reject when client can not be found', function(done) {
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback();
+      });
+      module.getClient().then(this.helpers.callbacks.notCalled(done), this.helpers.callbacks.errorWithMessage(done, 'Can not get ES client'));
+    });
+
+    it('should resolve with the client whn it exists', function(done) {
+      var client = {id: 1};
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(null, client);
+      });
+      module.getClient().then(function(result) {
+        expect(result).to.deep.equal(client);
+        done();
+      }, this.helpers.callbacks.notCalled(done));
+    });
+  });
+
+  describe('The addDocumentToIndex function', function() {
+
+    it('should send back error when getClient sends back error', function(done) {
+      var error = new Error('You failed');
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(error);
+      });
+      module.addDocumentToIndex({}, {}, function(err) {
+        expect(err).to.equal(error);
+        done();
+      });
+    });
+
+    it('should send back error when getClient does not return client', function(done) {
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback();
+      });
+      module.addDocumentToIndex({}, {}, function(err) {
+        expect(err.message).to.match(/Can not get ES client/);
+        done();
+      });
+    });
+
+    it('should index document with given options', function(done) {
+
+      var opts = {
+        index: 'users.idx',
+        type: 'user',
+        id: '123'
+      };
+
+      var document = {
+        id: '123',
+        yo: 'lo'
+      };
+
+      var client = {
+        index: function(options, callback) {
+          expect(options.index).to.equal(opts.index);
+          expect(options.type).to.equal(opts.type);
+          expect(options.id).to.equal(opts.id);
+          callback();
+        }
+      };
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(null, client);
+      });
+      module.addDocumentToIndex(document, opts, done);
+    });
+  });
+
+  describe('The removeDocumentFromIndex function', function() {
+
+    it('should send back error when getClient sends back error', function(done) {
+      var error = new Error('You failed');
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(error);
+      });
+      module.removeDocumentFromIndex({}, function(err) {
+        expect(err).to.equal(error);
+        done();
+      });
+    });
+
+    it('should send back error when getClient does not return client', function(done) {
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback();
+      });
+      module.removeDocumentFromIndex({}, function(err) {
+        expect(err.message).to.match(/Can not get ES client/);
+        done();
+      });
+    });
+
+    it('should remove the document with given options', function(done) {
+
+      var opts = {
+        id: '123',
+        index: 'users.idx',
+        type: 'user'
+      };
+
+      var client = {
+        'delete': function(options, callback) {
+          expect(options.index).to.equal(opts.index);
+          expect(options.type).to.equal(opts.type);
+          expect(options.id).to.equal(opts.id);
+          callback();
+        }
+      };
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(null, client);
+      });
+      module.removeDocumentFromIndex(opts, done);
+    });
+  });
 });

@@ -2,6 +2,7 @@
 
 var esnconfig = require('../esn-config');
 var elasticsearch = require('elasticsearch');
+var q = require('q');
 
 var currentClient,
   currentClientHash = null;
@@ -77,6 +78,46 @@ function client(callback) {
   });
 }
 module.exports.client = client;
+
+function getClient() {
+  var defer = q.defer();
+  client(function(err, esClient) {
+    if (err) {
+      defer.reject(err);
+    }
+
+    if (!esClient) {
+      defer.reject(new Error('Can not get ES client'));
+    }
+
+    defer.resolve(esClient);
+  });
+  return defer.promise;
+}
+module.exports.getClient = getClient;
+
+function addDocumentToIndex(document, options, callback) {
+  getClient().then(function(esClient) {
+    esClient.index({
+      index: options.index,
+      type: options.type,
+      id: options.id,
+      body: document
+    }, callback);
+  }, callback);
+}
+module.exports.addDocumentToIndex = addDocumentToIndex;
+
+function removeDocumentFromIndex(options, callback) {
+  getClient().then(function(esClient) {
+    esClient.delete({
+      index: options.index,
+      type: options.type,
+      id: options.id
+    }, callback);
+  }, callback);
+}
+module.exports.removeDocumentFromIndex = removeDocumentFromIndex;
 
 function getIndexName() {
   return 'users.idx';

@@ -7,13 +7,16 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.elasticsearch', 'elasticsearch'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {
-      return callback(null, {});
+      var lib = require('./backend/lib')(dependencies);
+      return callback(null, {lib: lib});
     },
 
     deploy: function(dependencies, callback) {
@@ -28,7 +31,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     },
 
     start: function(dependencies, callback) {
-      callback();
+      this.lib.start(callback);
     }
   }
 });
