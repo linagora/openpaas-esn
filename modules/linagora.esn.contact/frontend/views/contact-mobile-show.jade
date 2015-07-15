@@ -36,8 +36,8 @@
         i.fa.fa-group.contact-card-fa
         p.contact-card-infos {{social.value}}
         p.contact-card-type {{social.type}}        
-    a(ng-href='{{contact.orgUri}}')  
-      button.btn.btn-default.contact-card
+    a(target="_blank" ng-href='{{contact.orgUri}}')  
+      button.btn.btn-default.contact-card(ng-if='contact.orgUri')
         i.fa.fa-globe.contact-card-fa
         p.contact-card-infos {{contact.orgUri}}
         p.contact-card-type Website          
@@ -48,22 +48,22 @@
           p {{address.zip}} {{address.city}}
           p {{address.country}}
           p.contact-card-type {{address.type}}
-    button.btn.btn-default.contact-card
+    button.btn.btn-default.contact-card(ng-if='contact.org[0] || contact.orgRole')
         i.fa.fa-suitcase.contact-card-fa
-        p.contact-card-infos {{contact.org[0]}}
-        p.contact-card-infos {{contact.orgRole}}
-    button.btn.btn-default.contact-card.tags(type='button')
+        p.contact-card-infos(ng-if='contact.org[0]') {{contact.org[0]}}
+        p.contact-card-infos(ng-if='contact.orgRole') {{contact.orgRole}}
+    button.btn.btn-default.contact-card.tags(type='button' ng-if='contact.tags.length!=0')
         i.fa.fa-tags.contact-card-fa
         ul.tag-list.contact-card-infos
           li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}     
-    button.btn.btn-default.contact-card
+    button.btn.btn-default.contact-card(ng-if='contact.firstName || contact.lastName || contact.nickname')
         i.fa.fa-user.contact-card-fa
-        p.contact-card-infos First name: {{contact.firstName}}
-        p.contact-card-infos Last name: {{contact.lastName}}
-        p.contact-card-infos Nickname: {{contact.nickname}}
-    button.btn.btn-default.contact-card
+        p.contact-card-infos(ng-if='contact.firstName') First name: {{contact.firstName}}
+        p.contact-card-infos(ng-if='contact.lastName') Last name: {{contact.lastName}}
+        p.contact-card-infos(ng-if='contact.nickname') Nickname: {{contact.nickname}}
+    button.btn.btn-default.contact-card(ng-if='formatedBirthday')
         i.fa.fa-birthday-cake.contact-card-fa
         p.contact-card-infos {{formatedBirthday}}
-    .contact-card.contact-card-comments
+    .contact-card.contact-card-comments(ng-if='contact.notes')
         i.fa.fa-align-left.contact-card-fa
         p.contact-card-infos {{contact.notes}}        

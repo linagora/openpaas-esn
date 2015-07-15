@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
+  .constant('DEFAULT_AVATAR', '/images/user.png')
   .factory('displayError', function($alert) {
     return function(err) {
       $alert({
@@ -116,7 +117,7 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('displayContactController', function($scope, gracePeriodService, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
+  .controller('displayContactController', function($scope, gracePeriodService, DEFAULT_AVATAR, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
@@ -124,7 +125,6 @@ angular.module('linagora.esn.contact')
 
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
-      console.log($scope.contact);
       if ($scope.contact.birthday instanceof Date) {
         $scope.formatedBirthday = $scope.contact.birthday.getMonth() +
                                   '/' +
@@ -135,6 +135,8 @@ angular.module('linagora.esn.contact')
       else {
         $scope.formatedBirthday = $scope.contact.birthday;
       }
+      $scope.defaultAvatar = DEFAULT_AVATAR;
+      console.log($scope);
     }, function() {
       displayError('Cannot get contact details');
     });
