@@ -158,9 +158,34 @@ angular.module('linagora.esn.contact')
 
     $('.panel-header').parent().parent().parent().parent().addClass('no-padding');
   })
-  .controller('editContactController', function() {
+  .controller('editContactController', function($scope, displayError, $location, sendContactToBackend, $route, contactsService, DEFAULT_AVATAR) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
+    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
+      $scope.contact = card;
+      $scope.defaultAvatar = DEFAULT_AVATAR;
+      console.log($scope);
+    }, function() {
+      displayError('Cannot get contact details');
+    });
+
+    $('.contact-controls').parent().parent().parent().parent().addClass('no-padding');
+
+    $scope.save = function() {
+      return sendContactToBackend($scope, function() {
+        return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
+          $scope.contact = contact;
+          return contact;
+        }, function(err) {
+        });
+      }).then(function(){
+        $location.path('/contact/mobile/show/'+$scope.bookId+'/'+$scope.cardId);
+      }, function(err) {
+        displayError(err);
+        return $q.reject(err);
+      });
+    }
+
   })
   .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper) {
     var requiredKey = 'displayName';
