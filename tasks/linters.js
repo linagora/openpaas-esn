@@ -28,12 +28,11 @@ module.exports = function(grunt) {
       if (files.length) {
         grunt.log.ok('Running linters on files:');
         grunt.log.oklns(grunt.log.wordlist(files));
-        grunt.config.set('jshint.quick.src', files);
-        done();
       } else {
-        grunt.fail.fatal('No changed files');
-        done(false);
+        grunt.log.ok('No changed files');
       }
+      grunt.config.set('jshint.quick.src', files);
+      done();
     });
   });
 };
