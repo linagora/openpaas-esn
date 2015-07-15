@@ -1,18 +1,19 @@
 .row.panel-header.contact-list-mobile
-    .contact-controls
-      button.btn.btn-default(type='button', ng-click='back()')
-        i.fa.fa-reply.controls-fa
-      a(ng-href='#/contact/mobile/edit/{{::bookId}}/{{::contact.id}}')    
+    .contact-controls-wrapper
+      .contact-controls(data-offset-top="80" bs-affix)
+        button.btn.btn-default(type='button', ng-click='back()')
+          i.fa.fa-reply.controls-fa
+        a(ng-href='#/contact/mobile/edit/{{::bookId}}/{{::contact.id}}')    
+          button.btn.btn-default(type='button')
+            i.fa.fa-pencil.controls-fa
         button.btn.btn-default(type='button')
-          i.fa.fa-pencil.controls-fa
-      button.btn.btn-default(type='button')
-        i.fa.fa-search.controls-fa
-      .contact-dropdown.dropdown.pull-right         
-        a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-          i.fa.fa-ellipsis-h.controls-fa
-        ul.dropdown-menu.dropdown-menu-right(role="menu")
-          li
-            a(ng-click="deleteContact()") Delete       
+          i.fa.fa-search.controls-fa
+        .contact-dropdown.dropdown.pull-right         
+          a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+            i.fa.fa-ellipsis-h.controls-fa
+          ul.dropdown-menu.dropdown-menu-right(role="menu")
+            li
+              a(ng-click="deleteContact()") Delete       
     img.full-width(ng-src='{{contact.photo || defaultAvatar}}')
 .row.create-content
   .contact-error-container

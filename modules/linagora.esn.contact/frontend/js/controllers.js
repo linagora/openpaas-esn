@@ -117,7 +117,7 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('displayContactController', function($scope, gracePeriodService, DEFAULT_AVATAR, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
+  .controller('displayContactController', function($scope, $window, gracePeriodService, DEFAULT_AVATAR, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
@@ -136,6 +136,7 @@ angular.module('linagora.esn.contact')
         $scope.formatedBirthday = $scope.contact.birthday;
       }
       $scope.defaultAvatar = DEFAULT_AVATAR;
+      $scope.displayNameOffset = Math.floor($window.innerWidth);
       console.log($scope);
     }, function() {
       displayError('Cannot get contact details');
@@ -156,7 +157,6 @@ angular.module('linagora.esn.contact')
     };
 
     $('.panel-header').parent().parent().parent().parent().addClass('no-padding');
-    $scope.controlBarPosition = $('.contact-controls').offset();
   })
   .controller('editContactController', function() {
     $scope.bookId = $route.current.params.bookId;

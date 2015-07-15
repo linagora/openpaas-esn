@@ -16,6 +16,12 @@
   }
 }
 
+.panel-header {
+  .affix-top {
+    position: absolute;
+  }
+}
+
 .modify-success {
   color: green;
   animation-duration: 2s;
@@ -55,7 +61,7 @@ ul.tag-list {
   border-bottom: 1px solid grey;
 }
 
-.contact-controls {
+.contact-controls-wrapper {
   position:absolute;
   width: 100%;
   top: 0;
@@ -68,7 +74,7 @@ ul.tag-list {
   z-index: 1199;
   margin-top: 36px;
   height: 100px;
-  background-color: white;
+  background-color: @secondary-yellow;
 }
 
 .contact-fn.affix span {
@@ -82,6 +88,7 @@ ul.tag-list {
 .contact-controls.affix {
   z-index: 1210;
   margin-top: 36px;
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
 }
 
 .contact-card {
