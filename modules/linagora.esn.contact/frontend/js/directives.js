@@ -407,6 +407,12 @@ angular.module('linagora.esn.contact')
       }
     };
   })
+  .directive('contactSearchForm', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-search-form.html'
+    };
+  })
   .directive('relaxedDate', function(DATE_FORMAT, $dateParser, $dateFormatter) {
     return {
       restrict: 'A',

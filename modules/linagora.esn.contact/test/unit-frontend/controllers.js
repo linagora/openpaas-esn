@@ -728,6 +728,114 @@ describe('The Contacts Angular module', function() {
         scope.openContactCreation();
       });
     });
+
+    describe('The search function', function() {
+      it('should get all the user contacts when searchInput is undefined', function(done) {
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            }
+          },
+          user: {
+            _id: '123'
+          }
+        });
+
+        scope.loadContacts = done;
+        scope.search();
+        scope.$digest();
+      });
+
+      it('should call contactsService.search with right values', function(done) {
+        var search = 'Bruce Willis';
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            },
+            search: function(bookId, userId, data) {
+              expect(bookId).to.equal(scope.bookId);
+              expect(userId).to.equal(scope.user._id);
+              expect(data).to.equal(search);
+              done();
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.search();
+        scope.$digest();
+      });
+
+      it('should update the contacts list on search success', function() {
+        var search = 'Bruce Willis';
+
+        var contactWithA = { displayName: 'A B'};
+        var contactWithB = { displayName: 'B C'};
+        var contactWithC = { displayName: 'C D'};
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([contactWithA, contactWithB, contactWithC]);
+            },
+            search: function() {
+              return $q.when([contactWithA, contactWithC]);
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.search();
+        scope.$digest();
+
+        sortedContacts.A = [contactWithA];
+        sortedContacts.C = [contactWithC];
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      });
+
+      it('should displayError on search failure', function(done) {
+        var search = 'Bruce Willis';
+
+        $controller('contactsListController', {
+          $scope: scope,
+          displayError: function(error) {
+            expect(error).to.match(/Can not search contacts/);
+            done();
+          },
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            },
+            search: function() {
+              return $q.reject(new Error('WTF'));
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.search();
+        scope.$digest();
+      });
+
+    });
   });
 
 });
