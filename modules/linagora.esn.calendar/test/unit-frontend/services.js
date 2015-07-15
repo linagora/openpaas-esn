@@ -29,22 +29,20 @@ describe('The Calendar Angular module services', function() {
       angular.mock.module(function($provide) {
         $provide.value('tokenAPI', self.tokenAPI);
       });
-
     });
 
     it('should use the correct path', function(done) {
-
       angular.mock.inject(function(calendarEventSource, $httpBackend) {
         this.$httpBackend = $httpBackend;
         this.calendarEventSource = calendarEventSource;
       });
+      this.$httpBackend.whenGET('/davserver/api/info').respond({url: 'http://localhost/prepath'});
 
-      this.$httpBackend.whenGET('/davserver/api/info').respond({url: ''});
       var data = {
         match: {start: '20140101T000000', end: '20140102T000000'}
       };
-      this.$httpBackend.expectPOST('/calendars/test/events.json', data).respond({
-        '_links': {'self': {'href': '/path/to/calendar.json'}},
+      this.$httpBackend.expectPOST('http://localhost/prepath/calendars/test/events.json', data).respond({
+        '_links': {'self': {'href': '/prepath/path/to/calendar.json'}},
         '_embedded': {'dav:item': []}
       });
 
@@ -64,18 +62,23 @@ describe('The Calendar Angular module services', function() {
 
 
     it('should filter cancelled events', function(done) {
-      this.$httpBackend.whenGET('/davserver/api/info').respond({url: ''});
+      angular.mock.inject(function(calendarEventSource, $httpBackend) {
+        this.$httpBackend = $httpBackend;
+        this.calendarEventSource = calendarEventSource;
+      });
+      this.$httpBackend.whenGET('/davserver/api/info').respond({url: 'http://localhost/prepath'});
+
       var data = {
         match: {start: '20140101T000000', end: '20140102T000000'}
       };
-      this.$httpBackend.expectPOST('/calendars/test/events.json', data).respond({
+      this.$httpBackend.expectPOST('http://localhost/prepath/calendars/test/events.json', data).respond({
         '_links': {
-          'self': { 'href': '/path/to/calendar.json' }
+          'self': { 'href': '/prepath/path/to/calendar.json' }
         },
         '_embedded': {
           'dav:item': [{
             '_links': {
-              'self': { 'href': '/path/to/calendar/myuid.ics' }
+              'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
             },
             'etag': '"123123"',
             'data': [
@@ -117,7 +120,7 @@ describe('The Calendar Angular module services', function() {
         $provide.factory('calendarService', function() {
           return {
             list: function(path, startMoment, endMoment, timezone) {
-              expect(path).to.equals('/calendars/' + calendarId + '/events');
+              expect(path).to.equals('calendars/' + calendarId + '/events');
               expect(startMoment).to.deep.equal(start);
               expect(endMoment).to.deep.equal(end);
               expect(timezone).to.equals(localTimezone);
@@ -407,22 +410,24 @@ describe('The Calendar Angular module services', function() {
     }));
 
     describe('The list fn', function() {
-      it('should list events', function(done) {
+      beforeEach(function() {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: 'http://localhost/prepath' });
+      });
 
+      it('should list events', function(done) {
         // The caldav server will be hit
         var data = {
           match: { start: '20140101T000000', end: '20140102T000000' }
         };
-        this.$httpBackend.expectPOST('/path/to/calendar.json', data).respond({
+        this.$httpBackend.expectPOST('http://localhost/prepath/path/to/calendar.json', data).respond({
           '_links': {
-            'self': { 'href': '/path/to/calendar.json' }
+            'self': { 'href': '/prepath/path/to/calendar.json' }
           },
           '_embedded': {
             'dav:item': [{
               '_links': {
-                'self': { 'href': '/path/to/calendar/myuid.ics' }
+                'self': { 'href': '/prepath/path/to/calendar/myuid.ics' }
               },
               'etag': '"123123"',
               'data': [
@@ -443,7 +448,7 @@ describe('The Calendar Angular module services', function() {
         var start = new Date(2014, 0, 1);
         var end = new Date(2014, 0, 2);
 
-        this.calendarService.list('/path/to/calendar', start, end, false).then(function(events) {
+        this.calendarService.list('path/to/calendar', start, end, false).then(function(events) {
             expect(events).to.be.an.array;
             expect(events.length).to.equal(1);
             expect(events[0].id).to.equal('myuid');
@@ -453,7 +458,7 @@ describe('The Calendar Angular module services', function() {
             expect(events[0].end.toDate()).to.equalDate(moment('2014-01-01 03:03:04').toDate());
             expect(events[0].vcalendar).to.be.an('object');
             expect(events[0].etag).to.equal('"123123"');
-            expect(events[0].path).to.equal('/path/to/calendar/myuid.ics');
+            expect(events[0].path).to.equal('/prepath/path/to/calendar/myuid.ics');
         }.bind(this)).finally (done);
 
         this.$rootScope.$apply();
@@ -463,12 +468,14 @@ describe('The Calendar Angular module services', function() {
     });
 
     describe('The getEvent fn', function() {
-      it('should return an event', function(done) {
+      beforeEach(function() {
         // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: 'http://localhost/prepath' });
+      });
 
+      it('should return an event', function(done) {
         // The caldav server will be hit
-        this.$httpBackend.expectGET('/path/to/event.ics').respond(
+        this.$httpBackend.expectGET('http://localhost/prepath/path/to/event.ics').respond(
           ['vcalendar', [], [
             ['vevent', [
               ['uid', {}, 'text', 'myuid'],
@@ -486,7 +493,7 @@ describe('The Calendar Angular module services', function() {
           { 'ETag': 'testing-tag' }
         );
 
-        this.calendarService.getEvent('/path/to/event.ics').then(function(event) {
+        this.calendarService.getEvent('path/to/event.ics').then(function(event) {
           expect(event).to.be.an('object');
           expect(event.id).to.equal('myuid');
           expect(event.title).to.equal('title');
@@ -549,7 +556,7 @@ describe('The Calendar Angular module services', function() {
           });
 
           expect(event.vcalendar).to.be.an('object');
-          expect(event.path).to.equal('/path/to/event.ics');
+          expect(event.path).to.equal('path/to/event.ics');
           expect(event.etag).to.equal('testing-tag');
         }.bind(this)).finally (done);
 
@@ -563,9 +570,14 @@ describe('The Calendar Angular module services', function() {
         done(new Error('Unexpected'));
       }
 
+      beforeEach(function() {
+        // The server url needs to be retrieved
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: 'http://localhost/prepath' });
+      });
+
       it('should fail on missing vevent', function(done) {
         var vcalendar = new ICAL.Component('vcalendar');
-        this.calendarService.create('/path/to/uid.ics', vcalendar).then(
+        this.calendarService.create('path/to/uid.ics', vcalendar).then(
           unexpected.bind(null, done), function(e) {
             expect(e.message).to.equal('Missing VEVENT in VCALENDAR');
             done();
@@ -579,7 +591,7 @@ describe('The Calendar Angular module services', function() {
         var vevent = new ICAL.Component('vevent');
         vcalendar.addSubcomponent(vevent);
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('path/to/calendar', vcalendar).then(
           unexpected.bind(null, done), function(e) {
             expect(e.message).to.equal('Missing UID in VEVENT');
             done();
@@ -589,18 +601,15 @@ describe('The Calendar Angular module services', function() {
       });
 
       it('should fail on 500 response status', function(done) {
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
-
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(500, '');
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(500, '');
 
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
         vcalendar.addSubcomponent(vevent);
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('path/to/calendar', vcalendar).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(500);
             done();
@@ -617,13 +626,11 @@ describe('The Calendar Angular module services', function() {
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
         vcalendar.addSubcomponent(vevent);
 
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
 
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, '');
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, '');
 
-        this.calendarService.create('/path/to/calendar', vcalendar).then(
+        this.calendarService.create('path/to/calendar', vcalendar).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(200);
             done();
@@ -642,12 +649,33 @@ describe('The Calendar Angular module services', function() {
         vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
         vcalendar.addSubcomponent(vevent);
 
+        // The caldav server will be hit
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
+        emitMessage = null;
 
-        // The server url needs to be retrieved
-        this.$httpBackend.expectGET('/davserver/api/info').respond({ url: ''});
+        this.calendarService.create('path/to/calendar', vcalendar).then(
+          function(response) {
+            expect(response.status).to.equal(201);
+            expect(response.data).to.deep.equal(vcalendar.toJSON());
+            expect(emitMessage).to.equal('addedCalendarItem');
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed with an absolute url', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
+        vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
+        vcalendar.addSubcomponent(vevent);
 
         // The caldav server will be hit
-        this.$httpBackend.expectPUT('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
+        this.$httpBackend.expectPUT('http://localhost/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(201, vcalendar.toJSON());
         emitMessage = null;
 
         this.calendarService.create('/path/to/calendar', vcalendar).then(
@@ -686,13 +714,13 @@ describe('The Calendar Angular module services', function() {
           end: moment()
         };
 
-        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: 'http://localhost/prepath'});
       });
 
       it('should fail if status is 201', function(done) {
-        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(201, this.vcalendar.toJSON());
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics').respond(201, this.vcalendar.toJSON());
 
-        this.calendarService.modify('/path/to/uid.ics', this.event).then(
+        this.calendarService.modify('path/to/uid.ics', this.event).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(201);
             done();
@@ -705,7 +733,25 @@ describe('The Calendar Angular module services', function() {
 
       it('should succeed on 200 without emitMessage', function(done) {
         emitMessage = null;
-        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+
+        this.calendarService.modify('path/to/uid.ics', this.event).then(
+          function(shell) {
+            expect(shell.title).to.equal('test event');
+            expect(shell.etag).to.equal('changed-etag');
+            expect(shell.vcalendar.toJSON()).to.deep.equal(this.vcalendar.toJSON());
+            expect(emitMessage).to.be.null;
+            done();
+          }.bind(this), unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed on 200 with an absolute url', function(done) {
+        emitMessage = null;
+        this.$httpBackend.expectPUT('http://localhost/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
 
         this.calendarService.modify('/path/to/uid.ics', this.event).then(
           function(shell) {
@@ -724,10 +770,10 @@ describe('The Calendar Angular module services', function() {
       it('should succeed on 204', function(done) {
         emitMessage = null;
         var headers = { 'ETag': 'changed-etag' };
-        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(204, '');
-        this.$httpBackend.expectGET('/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics').respond(204, '');
+        this.$httpBackend.expectGET('http://localhost/prepath/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
 
-        this.calendarService.modify('/path/to/uid.ics', this.event).then(
+        this.calendarService.modify('path/to/uid.ics', this.event).then(
           function(shell) {
             expect(shell.title).to.equal('test event');
             expect(shell.etag).to.equal('changed-etag');
@@ -743,15 +789,15 @@ describe('The Calendar Angular module services', function() {
       it('should succeed on 204 and send an "event:updated" message into the websocket', function(done) {
         emitMessage = null;
         var headers = { 'ETag': 'changed-etag' };
-        this.$httpBackend.expectPUT('/path/to/uid.ics').respond(204, '');
-        this.$httpBackend.expectGET('/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics').respond(204, '');
+        this.$httpBackend.expectGET('http://localhost/prepath/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
 
         this.socketEmit = function(event, data) {
           expect(event).to.equal('event:updated');
           expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
         };
 
-        this.calendarService.modify('/path/to/uid.ics', this.event).then(
+        this.calendarService.modify('path/to/uid.ics', this.event).then(
           function() {
             done();
           }, unexpected.bind(null, done)
@@ -769,9 +815,9 @@ describe('The Calendar Angular module services', function() {
           'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
-        this.$httpBackend.expectPUT('/path/to/uid.ics', this.vcalendar.toJSON(), requestHeaders).respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics', this.vcalendar.toJSON(), requestHeaders).respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
 
-        this.calendarService.modify('/path/to/uid.ics', this.event, 'etag').then(
+        this.calendarService.modify('path/to/uid.ics', this.event, 'etag').then(
           function(shell) { done(); }, unexpected.bind(null, done)
         );
 
@@ -799,13 +845,13 @@ describe('The Calendar Angular module services', function() {
           end: moment()
         };
 
-        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: 'http://localhost/prepath'});
       });
 
       it('should fail if status is not 204', function(done) {
-        this.$httpBackend.expectDELETE('/path/to/00000000-0000-4000-a000-000000000000.ics').respond(201);
+        this.$httpBackend.expectDELETE('http://localhost/prepath/path/to/00000000-0000-4000-a000-000000000000.ics').respond(201);
 
-        this.calendarService.remove('/path/to/', this.event).then(
+        this.calendarService.remove('path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(201);
             done();
@@ -818,13 +864,32 @@ describe('The Calendar Angular module services', function() {
 
       it('should succeed on 204', function(done) {
         emitMessage = null;
-        this.$httpBackend.expectDELETE('/path/to/00000000-0000-4000-a000-000000000000.ics').respond(204);
+        this.$httpBackend.expectDELETE('http://localhost/prepath/path/to/00000000-0000-4000-a000-000000000000.ics').respond(204);
         this.socketEmit = function(event, data) {
           expect(event).to.equal('event:deleted');
           expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
         };
 
-        this.calendarService.remove('/path/to/', this.event).then(
+        this.calendarService.remove('path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
+          function(response) {
+            expect(response.status).to.equal(204);
+            expect(emitMessage).to.equal('removedCalendarItem');
+            done();
+          }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+      it('should succeed with an absolute path', function(done) {
+        emitMessage = null;
+        this.$httpBackend.expectDELETE('http://localhost/path/to/00000000-0000-4000-a000-000000000000.ics').respond(204);
+        this.socketEmit = function(event, data) {
+          expect(event).to.equal('event:deleted');
+          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
+        };
+
+        this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
           function(response) {
             expect(response.status).to.equal(204);
             expect(emitMessage).to.equal('removedCalendarItem');
@@ -842,9 +907,9 @@ describe('The Calendar Angular module services', function() {
           'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
-        this.$httpBackend.expectDELETE('/path/to/00000000-0000-4000-a000-000000000000.ics', requestHeaders).respond(204);
+        this.$httpBackend.expectDELETE('http://localhost/prepath/path/to/00000000-0000-4000-a000-000000000000.ics', requestHeaders).respond(204);
 
-        this.calendarService.remove('/path/to/', this.event, 'etag').then(
+        this.calendarService.remove('path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
           function() { done(); }, unexpected.bind(null, done)
         );
 
@@ -885,7 +950,7 @@ describe('The Calendar Angular module services', function() {
           }]
         };
 
-        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: ''});
+        this.$httpBackend.whenGET('/davserver/api/info').respond({ url: 'http://localhost/prepath'});
       });
 
       it('should change the participation status', function(done) {
@@ -896,7 +961,25 @@ describe('The Calendar Angular module services', function() {
         var att = vevent.getFirstProperty('attendee');
         att.setParameter('partstat', 'ACCEPTED');
 
-        this.$httpBackend.expectPUT('/path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
+        this.$httpBackend.expectPUT('http://localhost/prepath/path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
+
+        this.calendarService.changeParticipation('path/to/uid.ics', this.event, emails, 'ACCEPTED').then(
+          function(response) { done(); }, unexpected.bind(null, done)
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should change the participation status with an absolute url', function(done) {
+
+        var emails = ['test@example.com'];
+        var copy = new ICAL.Component(ICAL.helpers.clone(this.vcalendar.jCal, true));
+        var vevent = copy.getFirstSubcomponent('vevent');
+        var att = vevent.getFirstProperty('attendee');
+        att.setParameter('partstat', 'ACCEPTED');
+
+        this.$httpBackend.expectPUT('http://localhost/path/to/uid.ics', copy.toJSON()).respond(200, this.vcalendar.toJSON());
 
         this.calendarService.changeParticipation('/path/to/uid.ics', this.event, emails, 'ACCEPTED').then(
           function(response) { done(); }, unexpected.bind(null, done)
@@ -909,7 +992,7 @@ describe('The Calendar Angular module services', function() {
       it('should not change the participation status when the status is the actual attendee status', function(done) {
         var emails = ['test@example.com'];
 
-        this.calendarService.changeParticipation('/path/to/uid.ics', this.event, emails, 'DECLINED').then(
+        this.calendarService.changeParticipation('path/to/uid.ics', this.event, emails, 'DECLINED').then(
           function(response) { done(); }, unexpected.bind(null, done)
         );
 

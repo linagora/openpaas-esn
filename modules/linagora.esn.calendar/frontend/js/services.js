@@ -11,7 +11,7 @@ angular.module('esn.calendar')
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        var path = '/calendars/' + calendarId + '/events';
+        var path = 'calendars/' + calendarId + '/events';
         return calendarService.list(path, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
@@ -132,8 +132,16 @@ angular.module('esn.calendar')
         headers = headers || {};
         headers.ESNToken = token;
 
+        if (path[0] === '/') {
+          var a = document.createElement('a');
+          a.href = url;
+          url = a.protocol + '//' + a.host;
+        } else {
+          url = url.replace(/\/$/, '') + '/';
+        }
+
         var config = {
-          url: url.replace(/\/$/, '') + path,
+          url: url + path,
           method: method,
           headers: headers
         };
@@ -281,13 +289,11 @@ angular.module('esn.calendar')
       });
     }
 
-    function remove(calendarPath, event, etag) {
-
+    function remove(eventPath, event, etag) {
       var headers = {};
       if (etag) {
         headers['If-Match'] = etag;
       }
-      var eventPath = calendarPath.replace(/\/$/, '') + '/' + event.id + '.ics';
       return request('delete', eventPath, headers).then(function(response) {
         if (response.status !== 204) {
           return $q.reject(response);
