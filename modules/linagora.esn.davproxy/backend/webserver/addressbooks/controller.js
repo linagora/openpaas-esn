@@ -6,6 +6,7 @@ var PATH = 'addressbooks';
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
+  var pubsub = dependencies('pubsub').local;
   var proxy = require('../proxy')(dependencies)(PATH);
 
   function getURL(req) {
@@ -28,6 +29,12 @@ module.exports = function(dependencies) {
   function updateContact(req, res) {
     var headers = req.headers || {};
     headers.ESNToken = req.token && req.token.token ? req.token.token : '';
+
+    var create = true;
+    if (headers['if-match']) {
+      create = false;
+    }
+
     delete headers['if-match'];
 
     client({method: 'PUT', body: req.body, headers: headers, url: getURL(req), json: true}, function(err, response, body) {
@@ -35,6 +42,9 @@ module.exports = function(dependencies) {
         logger.error('Error while updating contact on DAV', err);
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while updating contact on DAV server'}});
       }
+
+      pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body});
+
       return res.json(response.statusCode, body);
     });
   }
@@ -49,6 +59,9 @@ module.exports = function(dependencies) {
 
       onSuccess: function(response, data, req, res, callback) {
         logger.debug('Success while deleting contact %s', req.params.contactId);
+
+        pubsub.topic('contacts:contact:delete').publish({contactId: req.params.contactId, bookId: req.params.bookId});
+
         return callback(null, data);
       }
     })(req, res);
