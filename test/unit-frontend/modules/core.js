@@ -35,6 +35,8 @@ describe('The Angular core module', function() {
       });
     });
 
+    // Using the global $q instead causes strange test failures that I cannot
+    // find a solution to. Remove with caution.
     beforeEach(angular.mock.inject(function($injector, _$q_, _$rootScope_) {
       service = $injector.get('CounterFactory');
       $q = _$q_;

@@ -643,9 +643,8 @@ describe('The esn.activitystreams-tracker Angular module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(ASTrackerSubscriptionService, $q) {
+    beforeEach(angular.mock.inject(function(ASTrackerSubscriptionService) {
       this.ASTrackerSubscriptionService = ASTrackerSubscriptionService;
-      this.$q = $q;
     }));
 
     describe('register function', function() {

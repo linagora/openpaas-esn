@@ -422,10 +422,9 @@ describe('The esn.activitystream Angular module', function() {
     });
 
     beforeEach(function() {
-      angular.mock.inject(function($compile, $rootScope, $q) {
+      angular.mock.inject(function($compile, $rootScope) {
         this.$compile = $compile;
         this.$rootScope = $rootScope;
-        this.$q = $q;
         this.$scope = this.$rootScope.$new();
       });
     });
@@ -437,15 +436,12 @@ describe('The esn.activitystream Angular module', function() {
       };
       this.$scope.streams = [];
 
-      var self = this;
       this.storageService.getOrCreateInstance = function(storageName) {
         expect(storageName).to.equal('streamFilters');
         return {
           getItem: function(itemName) {
             expect(itemName).to.equal(ASId);
-            var defer = self.$q.defer();
-            defer.resolve({});
-            return defer.promise;
+            return $q.when({});
           }
         };
       };
@@ -467,15 +463,12 @@ describe('The esn.activitystream Angular module', function() {
       };
       this.$scope.streams = [{activity_stream: {uuid: ASUUID}}];
 
-      var self = this;
       this.storageService.getOrCreateInstance = function(storageName) {
         expect(storageName).to.equal('streamFilters');
         return {
           getItem: function(itemName) {
             expect(itemName).to.equal(ASId);
-            var defer = self.$q.defer();
-            defer.resolve(ASUUID);
-            return defer.promise;
+            return $q.when(ASUUID);
           }
         };
       };
@@ -504,9 +497,7 @@ describe('The esn.activitystream Angular module', function() {
           expect(storageName).to.equal('streamFilters');
           return {
             getItem: function() {
-              var defer = self.$q.defer();
-              defer.resolve({});
-              return defer.promise;
+              return $q.when({});
             },
             setItem: function() {
               expect(self.$scope.selectedStream).to.deep.equal(selectedStream);
@@ -534,9 +525,7 @@ describe('The esn.activitystream Angular module', function() {
           expect(storageName).to.equal('streamFilters');
           return {
             getItem: function() {
-              var defer = self.$q.defer();
-              defer.resolve({});
-              return defer.promise;
+              return $q.when({});
             },
             removeItem: function(item) {
               expect(item).to.equal(self.$scope.activitystream._id);

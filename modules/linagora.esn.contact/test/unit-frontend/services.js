@@ -11,7 +11,11 @@ describe('The Contacts Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.tokenAPI = {};
+      this.tokenAPI = {
+        getNewToken: function() {
+          return $q.when({ data: { token: self._token } });
+        }
+      };
       this.uuid4 = {
         // This is a valid uuid4. Change this if you need other uuids generated.
         _uuid: '00000000-0000-4000-a000-000000000000',
@@ -36,11 +40,10 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH) {
+    beforeEach(angular.mock.inject(function(contactsService, $httpBackend, $rootScope, _ICAL_, DAV_PATH) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
-      this.$q = $q;
       this.DAV_PATH = DAV_PATH;
 
       this.getExpectedPath = function(path) {
@@ -48,14 +51,6 @@ describe('The Contacts Angular module', function() {
       };
 
       ICAL = _ICAL_;
-
-      var self = this;
-      self.tokenAPI.getNewToken = function() {
-        var token = self._token;
-        var defer = self.$q.defer();
-        defer.resolve({data: {token: token}});
-        return defer.promise;
-      };
     }));
 
     describe('The list fn', function() {

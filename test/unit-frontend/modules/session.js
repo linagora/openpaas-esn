@@ -66,7 +66,7 @@ describe('The esn.session Angular module', function() {
   });
 
   describe('sessionFactory service', function() {
-    var service, $q, $rootScope, userdefer, domaindefer, tokendefer, userAPI, domainAPI, session, tokenAPI;
+    var service, $rootScope, userdefer, domaindefer, tokendefer, userAPI, domainAPI, session, tokenAPI;
 
     beforeEach(function() {
 
@@ -107,9 +107,8 @@ describe('The esn.session Angular module', function() {
         $provide.value('session', session);
       });
 
-      inject(function($injector, _$q_, _$rootScope_) {
+      inject(function($injector, _$rootScope_) {
         service = $injector.get('sessionFactory');
-        $q = _$q_;
         $rootScope = _$rootScope_;
       });
     });

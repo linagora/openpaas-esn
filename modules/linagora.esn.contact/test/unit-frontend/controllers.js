@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
-  var $rootScope, $controller, $q, $timeout, scope, bookId = '123456789', contactsService,
+  var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
       notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService,
       sortedContacts;
 
@@ -62,10 +62,9 @@ describe('The Contacts Angular module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$timeout_, _sharedDataService_, ALPHA_ITEMS) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _sharedDataService_, ALPHA_ITEMS) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
-    $q = _$q_;
     $timeout = _$timeout_;
     sharedDataService = _sharedDataService_;
     sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {

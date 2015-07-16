@@ -169,10 +169,9 @@ describe('The contact Angular module directives', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.contact = {
         uid: 'myuid'
@@ -224,10 +223,8 @@ describe('The contact Angular module directives', function() {
           done();
         };
 
-        var defer = this.$q.defer();
-        defer.reject();
         this.contactsService.remove = function() {
-          return defer.promise;
+          return $q.reject();
         };
 
         var element = this.$compile(this.html)(this.scope);
@@ -245,7 +242,7 @@ describe('The contact Angular module directives', function() {
         this.gracePeriodService.grace = done;
 
         this.contactsService.remove = function() {
-          return self.$q.reject();
+          return $q.reject();
         };
 
         var element = this.$compile(this.html)(this.scope);
@@ -260,7 +257,7 @@ describe('The contact Angular module directives', function() {
       it('should grace the request using the default delay on success', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.contactsService.remove = function() {
-          return self.$q.when('myTaskId');
+          return $q.when('myTaskId');
         };
         this.gracePeriodService.grace = function(text, linkText, delay) {
           expect(delay).to.not.exist;
@@ -278,14 +275,14 @@ describe('The contact Angular module directives', function() {
       it('should cancel the request if the user cancels during the grace period', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
-          return self.$q.when({cancelled: true,
+          return $q.when({cancelled: true,
             success: function(textToDisplay) {
             },
             error: function(textToDisplay) {
             }});
         };
         this.contactsService.remove = function() {
-          return self.$q.when('myTaskId');
+          return $q.when('myTaskId');
         };
         this.gracePeriodService.cancel = function(taskId) {
           expect(taskId).to.equal('myTaskId');
@@ -303,7 +300,7 @@ describe('The contact Angular module directives', function() {
       it('should notice the user that the contact deletion can\'t be cancelled', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
-          return self.$q.when({cancelled: true,
+          return $q.when({cancelled: true,
             success: function(textToDisplay) {
             },
             error: function(textToDisplay) {
@@ -311,11 +308,11 @@ describe('The contact Angular module directives', function() {
             }});
         };
         this.contactsService.remove = function() {
-          return self.$q.when('myTaskId');
+          return $q.when('myTaskId');
         };
         this.gracePeriodService.cancel = function(taskId) {
           expect(taskId).to.equal('myTaskId');
-          return self.$q.reject();
+          return $q.reject();
         };
 
         var element = this.$compile(this.html)(this.scope);
@@ -328,17 +325,17 @@ describe('The contact Angular module directives', function() {
       it('should broadcast contact:cancel:delete on successful cancellation of a request', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
-          return self.$q.when({cancelled: true,
+          return $q.when({cancelled: true,
             success: function(textToDisplay) {
             },
             error: function(textToDisplay) {
             }});
         };
         this.gracePeriodService.cancel = function() {
-          return self.$q.when();
+          return $q.when();
         };
         this.contactsService.remove = function() {
-          return self.$q.when('myTaskId');
+          return $q.when('myTaskId');
         };
 
         self.$rootScope.$on('contact:cancel:delete', function() {

@@ -42,10 +42,9 @@ describe('The esn.activitystream Angular module', function() {
       });
     });
 
-    beforeEach(inject(function(activitystreamAggregator, $rootScope, $q) {
+    beforeEach(inject(function(activitystreamAggregator, $rootScope) {
       this.agg = activitystreamAggregator;
       this.$rootScope = $rootScope;
-      this.$q = $q;
     }));
 
     it('should be a function', function() {
@@ -94,10 +93,9 @@ describe('The esn.activitystream Angular module', function() {
       });
     });
 
-    beforeEach(inject(function(activitystreamMessageDecorator, $rootScope, $q) {
+    beforeEach(inject(function(activitystreamMessageDecorator, $rootScope) {
       this.decorator = activitystreamMessageDecorator;
       this.$rootScope = $rootScope;
-      this.$q = $q;
     }));
 
     it('should be a function', function() {
@@ -158,10 +156,8 @@ describe('The esn.activitystream Angular module', function() {
         {object: { _id: 'ID5' }},
         {object: { _id: 'ID2' }}
       ];
-      var d = this.$q.defer();
-      d.reject({data: 'ERROR'});
       this.msgAPI.get = function(options) {
-        return d.promise;
+        return $q.reject({ data: 'ERROR' });
       };
       var instance = this.decorator(function(err) {
         expect(err).to.equal('ERROR');
@@ -181,10 +177,8 @@ describe('The esn.activitystream Angular module', function() {
         {_id: 'ID5', objectType: 'whatsup' },
         {error: 404, message: 'Not found', details: 'message ID2 could not be found'}
       ];
-      var d = this.$q.defer();
-      d.resolve({data: msgResp});
       this.msgAPI.get = function(options) {
-        return d.promise;
+        return $q.when({ data: msgResp });
       };
       var instance = this.decorator(function(err) {
         expect(err.code).to.equal(400);
@@ -207,10 +201,8 @@ describe('The esn.activitystream Angular module', function() {
         {_id: 'ID5', objectType: 'whatsup', content: 'yolo' },
         {_id: 'ID2', objectType: 'whatsup', content: 'lgtm' }
       ];
-      var d = this.$q.defer();
-      d.resolve({data: msgResp});
       this.msgAPI.get = function(options) {
-        return d.promise;
+        return $q.when({ data: msgResp });
       };
       var instance = this.decorator(function(err, response) {
         expect(response).to.deep.equal([

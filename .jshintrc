@@ -23,6 +23,7 @@
     "angular": false,
     "jQuery": false,
     "$": false,
+    "$q": false,
     "after": false,
     "afterEach": false,
     "angular": false,

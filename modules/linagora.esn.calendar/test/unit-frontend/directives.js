@@ -5,7 +5,6 @@
 var expect = chai.expect;
 
 describe('The Calendar Angular module directives', function() {
-
   beforeEach(function() {
     var asSession = {
       user: {
@@ -46,9 +45,9 @@ describe('The Calendar Angular module directives', function() {
   });
 
   describe('The eventForm directive', function() {
-    beforeEach(inject(['$compile', '$rootScope', 'moment', 'calendarUtils', function($c, $r, moment, calendarUtils) {
-      this.$compile = $c;
-      this.$rootScope = $r;
+    beforeEach(angular.mock.inject(function($compile, $rootScope, moment, calendarUtils) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.moment = moment;
       this.calendarUtils = calendarUtils;
@@ -59,7 +58,7 @@ describe('The Calendar Angular module directives', function() {
         scope.$digest();
         return element;
       };
-    }]));
+    }));
 
 
     it('should initiate $scope.editedEvent from $scope.event if it exists with id', function() {

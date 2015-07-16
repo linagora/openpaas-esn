@@ -63,10 +63,9 @@ describe('The Collaboration Angular module', function() {
       module('esn.core');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.collaboration = {
         _id: 'community1',
@@ -84,16 +83,14 @@ describe('The Collaboration Angular module', function() {
     });
 
     it('should set more to the difference between header and array size', function(done) {
-      var defer = this.$q.defer();
       this.collaborationAPI.getMembers = function() {
-        return defer.promise;
+        return $q.when({
+          headers: function() {
+            return 3;
+          },
+          data: [{ user: { firstname: 'john' } }]
+        });
       };
-      defer.resolve({
-        headers: function() {
-          return 3;
-        },
-        data: [{user: {firstname: 'john'}}]
-      });
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
@@ -125,23 +122,21 @@ describe('The Collaboration Angular module', function() {
     });
 
     it('should slice members', function(done) {
-      var defer = this.$q.defer();
       this.collaborationAPI.getMembers = function() {
-        return defer.promise;
+        return $q.when({
+          headers: function() {
+            return 3;
+          },
+          data: [
+            { user: { firstname: 'joe' } },
+            { user: { firstname: 'jack' } },
+            { user: { firstname: 'william' } },
+            { user: { firstname: 'averell' } },
+            { user: { firstname: 'calamity jane' } },
+            { user: { firstname: 'billy the kid' } }
+          ]
+        });
       };
-      defer.resolve({
-        headers: function() {
-          return 3;
-        },
-        data: [
-          {user: {firstname: 'joe'}},
-          {user: {firstname: 'jack'}},
-          {user: {firstname: 'william'}},
-          {user: {firstname: 'averell'}},
-          {user: {firstname: 'calamity jane'}},
-          {user: {firstname: 'billy the kid'}}
-        ]
-      });
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
@@ -155,11 +150,9 @@ describe('The Collaboration Angular module', function() {
     });
 
     it('should set error when call the API fails', function(done) {
-      var defer = this.$q.defer();
       this.collaborationAPI.getMembers = function() {
-        return defer.promise;
+        return $q.reject();
       };
-      defer.reject();
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
@@ -206,23 +199,21 @@ describe('The Collaboration Angular module', function() {
 
       describe('when in-slices-of is not set', function() {
         it('should set scope.inSlicesOf to 3', function(done) {
-          var defer = this.$q.defer();
           this.collaborationAPI.getMembers = function() {
-            return defer.promise;
+            return $q.when({
+              headers: function() {
+                return 6;
+              },
+              data: [
+                { user: { firstname: 'joe' } },
+                { user: { firstname: 'jack' } },
+                { user: { firstname: 'william' } },
+                { user: { firstname: 'averell' } },
+                { user: { firstname: 'calamity jane' } },
+                { user: { firstname: 'billy the kid' } }
+              ]
+            });
           };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
 
@@ -232,23 +223,22 @@ describe('The Collaboration Angular module', function() {
         });
 
         it('should slice members by packs of 3', function(done) {
-          var defer = this.$q.defer();
           this.collaborationAPI.getMembers = function() {
-            return defer.promise;
+            return $q.when({
+              headers: function() {
+                return 6;
+              },
+              data: [
+                { user: { firstname: 'joe' } },
+                { user: { firstname: 'jack' } },
+                { user: { firstname: 'william' } },
+                { user: { firstname: 'averell' } },
+                { user: { firstname: 'calamity jane' } },
+                { user: { firstname: 'billy the kid' } }
+              ]
+            });
           };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
+
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
 
@@ -264,23 +254,22 @@ describe('The Collaboration Angular module', function() {
       describe('when in-slices-of is set to 4', function() {
         it('should slice members by packs of 4', function(done) {
           var html = '<collaboration-members-widget collaboration="collaboration" in-slices-of="4" />';
-          var defer = this.$q.defer();
           this.collaborationAPI.getMembers = function() {
-            return defer.promise;
+            return $q.when({
+              headers: function() {
+                return 6;
+              },
+              data: [
+                { user: { firstname: 'joe' } },
+                { user: { firstname: 'jack' } },
+                { user: { firstname: 'william' } },
+                { user: { firstname: 'averell' } },
+                { user: { firstname: 'calamity jane' } },
+                { user: { firstname: 'billy the kid' } }
+              ]
+            });
           };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
+
           var element = this.$compile(html)(this.scope);
           this.scope.$digest();
 
@@ -296,23 +285,22 @@ describe('The Collaboration Angular module', function() {
       describe('when in-slices-of is set to 6', function() {
         it('should slice members by packs of 6', function(done) {
           var html = '<collaboration-members-widget collaboration="collaboration" in-slices-of="6" />';
-          var defer = this.$q.defer();
           this.collaborationAPI.getMembers = function() {
-            return defer.promise;
+            return $q.when({
+              headers: function() {
+                return 6;
+              },
+              data: [
+                { user: { firstname: 'joe' } },
+                { user: { firstname: 'jack' } },
+                { user: { firstname: 'william' } },
+                { user: { firstname: 'averell' } },
+                { user: { firstname: 'calamity jane' } },
+                { user: { firstname: 'billy the kid' } }
+              ]
+            });
           };
-          defer.resolve({
-            headers: function() {
-              return 6;
-            },
-            data: [
-              {user: {firstname: 'joe'}},
-              {user: {firstname: 'jack'}},
-              {user: {firstname: 'william'}},
-              {user: {firstname: 'averell'}},
-              {user: {firstname: 'calamity jane'}},
-              {user: {firstname: 'billy the kid'}}
-            ]
-          });
+
           var element = this.$compile(html)(this.scope);
           this.scope.$digest();
 

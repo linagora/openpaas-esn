@@ -7,8 +7,6 @@ var expect = chai.expect;
 
 describe('The Calendar Angular module services', function() {
   describe('The calendarEventSource', function() {
-    var $qInjected;
-
     beforeEach(function() {
 
       this.tokenAPI = {
@@ -124,16 +122,15 @@ describe('The Calendar Angular module services', function() {
               expect(startMoment).to.deep.equal(start);
               expect(endMoment).to.deep.equal(end);
               expect(timezone).to.equals(localTimezone);
-              return $qInjected.reject('');
+              return $q.reject('');
             }
           };
         });
       });
 
-      angular.mock.inject(function(calendarEventSource, $rootScope, _$q_) {
+      angular.mock.inject(function(calendarEventSource, $rootScope) {
         this.calendarEventSource = calendarEventSource;
         this.$rootScope = $rootScope;
-        $qInjected = _$q_;
       });
 
       var noErrorsCallback = function(events) {

@@ -10,9 +10,8 @@ describe('The esn.parser Angular module', function() {
 
   describe('parserResolver service', function() {
 
-    beforeEach(angular.mock.inject(function(parserResolver, $q, $rootScope) {
+    beforeEach(angular.mock.inject(function(parserResolver, $rootScope) {
       this.parserResolver = parserResolver;
-      this.$q = $q;
       this.$rootScope = $rootScope;
     }));
 
@@ -125,17 +124,14 @@ describe('The esn.parser Angular module', function() {
 
     describe('register then resolve', function() {
       it('should call the registered resolver', function(done) {
-
-        var defer = this.$q.defer();
+        var parserName = 'markdown';
+        var text = '123';
         var call;
 
         var resolver = function(text) {
           call = text;
-          return defer.promise;
+          return $q.when(text);
         };
-
-        var parserName = 'markdown';
-        var text = '123';
 
         this.parserResolver.register(parserName, resolver);
         this.parserResolver.resolve(parserName, text).then(function(result) {
@@ -148,19 +144,16 @@ describe('The esn.parser Angular module', function() {
         }, function(err) {
           return done(err);
         });
-        defer.resolve(text);
         this.$rootScope.$digest();
       });
 
       it('should call the registered resolver with resolverChain', function(done) {
-        var self = this;
-
         var parser1 = function(text) {
-          return self.$q.when(text + 'parser1');
+          return $q.when(text + 'parser1');
         };
 
         var parser2 = function(text) {
-          return self.$q.when(text + 'parser2');
+          return $q.when(text + 'parser2');
         };
 
         this.parserResolver.register('parser1', parser1);
@@ -178,7 +171,7 @@ describe('The esn.parser Angular module', function() {
   describe('textParser directive', function() {
     var parserResolverMock = {};
 
-    function setupMock($q) {
+    function setupMock() {
       parserResolverMock.resolveChain = function resolveChain(parsers, text) {
         return $q.when(text);
       };
@@ -190,13 +183,11 @@ describe('The esn.parser Angular module', function() {
       });
     });
 
-    beforeEach(inject(function($rootScope, $compile, $q) {
+    beforeEach(inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.$compile = $compile;
-      this.$q = $q;
-
-      setupMock($q);
+      setupMock();
     }));
 
     it('should do nothing without parameter', function(done) {
@@ -220,14 +211,12 @@ describe('The esn.parser Angular module', function() {
     });
 
     it('should parse the text with all parsers', function(done) {
-      var self = this;
-
       parserResolverMock.resolveChain = function resolveChain(parsers, text) {
         expect(parsers).to.exist;
         expect(text).to.exist;
         expect(parsers).to.deep.equal([{name: 'markdown'}]);
         expect(text).to.equal('text');
-        return self.$q.when(text + 'parser');
+        return $q.when(text + 'parser');
       };
       this.html = '<text-parser parsers=\'[{"name":"markdown"}]\' text="text"></text-parser>';
       var element = this.$compile(this.html)(this.scope);

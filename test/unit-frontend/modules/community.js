@@ -7,13 +7,39 @@ var expect = chai.expect;
 describe.skip('The Community Angular module', function() {
   beforeEach(angular.mock.module('esn.community'));
 
+  function httpPromise(promise, config) {
+    config = config || {};
+
+    promise.success = function(fn) {
+      promise.then(function(response) {
+        fn(response.data, response.status, response.headers, config);
+      });
+      return promise;
+    };
+
+    promise.error = function(fn) {
+      promise.then(null, function(response) {
+        fn(response.data, response.status, response.headers, config);
+      });
+      return promise;
+    };
+
+    promise.progress = function(fn) {
+      promise.then(null, null, function(update) {
+        fn(update);
+      });
+      return promise;
+    };
+
+    return promise;
+  }
+
   describe('The communityMembersController controller', function() {
 
-    beforeEach(angular.mock.inject(function($controller, $q, $rootScope) {
+    beforeEach(angular.mock.inject(function($controller, $rootScope) {
       var self = this;
-      this.$q = $q;
       this.collaborationAPI = {};
-      this.defer = this.$q.defer();
+      this.defer = $q.defer();
       this.collaborationAPI.getMembers = function(id, opts) {
         return self.defer.promise;
       };
@@ -363,7 +389,7 @@ describe.skip('The Community Angular module', function() {
 
     var create;
 
-    beforeEach(inject(['$document', '$rootScope', '$controller', '$q', '$compile', 'selectionService', function($document, $rootScope, $controller, $q, $compile, selectionService) {
+    beforeEach(inject(['$document', '$rootScope', '$controller', '$compile', 'selectionService', function($document, $rootScope, $controller, $compile, selectionService) {
       this.communityAPI = {};
       this.location = {};
       this.log = {
@@ -375,7 +401,6 @@ describe.skip('The Community Angular module', function() {
       this.session = {domain: {_id: 123}};
       this.scope = $rootScope.$new();
       this.scope.createStatus = {};
-      this.$q = $q;
       this.$upload = {};
       this.selectionService = selectionService;
       this.$compile = $compile;
@@ -445,11 +470,9 @@ describe.skip('The Community Angular module', function() {
         expect(path).to.equal('/communities/123');
         return done();
       };
-      var communityDefer = this.$q.defer();
       this.communityAPI.create = function() {
-        return communityDefer.promise;
+        return $q.when({data: {_id: 123, title: 'Node.js'}});
       };
-      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
       this.scope.create({title: 'Node.js', domain_ids: ['123']});
       this.scope.$digest();
     });
@@ -461,11 +484,9 @@ describe.skip('The Community Angular module', function() {
       this.location.path = function(path) {
         return done(new Error());
       };
-      var communityDefer = this.$q.defer();
       this.communityAPI.create = function() {
-        return communityDefer.promise;
+        return $q.reject({error: 500});
       };
-      communityDefer.reject({error: 500});
       this.scope.create({title: 'Node.js', domain_ids: ['123']});
       this.scope.$digest();
     });
@@ -636,11 +657,9 @@ describe.skip('The Community Angular module', function() {
         };
       };
 
-      var communityDefer = this.$q.defer();
       this.communityAPI.create = function() {
-        return communityDefer.promise;
+        return $q.when({data: {_id: 123, title: 'Node.js'}});
       };
-      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
       this.scope.create({title: 'Node.js', domain_ids: ['123']});
       this.scope.$digest();
     });
@@ -667,11 +686,9 @@ describe.skip('The Community Angular module', function() {
         };
       };
 
-      var communityDefer = this.$q.defer();
       this.communityAPI.create = function() {
-        return communityDefer.promise;
+        return $q.when({data: {_id: 123, title: 'Node.js'}});
       };
-      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
       this.communityAPI.uploadAvatar = function() {
         return done();
       };
@@ -701,41 +718,13 @@ describe.skip('The Community Angular module', function() {
         };
       };
 
-      var communityDefer = this.$q.defer();
-      var uploadDefer = this.$q.defer();
-      var promise = uploadDefer.promise;
-      var config = {};
-      promise.success = function(fn) {
-        promise.then(function(response) {
-          fn(response.data, response.status, response.headers, config);
-        });
-        return promise;
-      };
-
-      promise.error = function(fn) {
-        promise.then(null, function(response) {
-          fn(response.data, response.status, response.headers, config);
-        });
-        return promise;
-      };
-
-      promise.progress = function(fn) {
-        promise.then(null, null, function(update) {
-          fn(update);
-        });
-        return promise;
-      };
-
       this.communityAPI.create = function() {
-        return communityDefer.promise;
+        return $q.when({data: {_id: 123, title: 'Node.js'}});
       };
-      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
 
       this.communityAPI.uploadAvatar = function() {
-        return promise;
+        return httpPromise($q.when({data: {_id: 456}}));
       };
-
-      uploadDefer.resolve({data: {_id: 456}});
 
       this.location.path = function() {
         return done();
@@ -767,41 +756,13 @@ describe.skip('The Community Angular module', function() {
         };
       };
 
-      var communityDefer = this.$q.defer();
-      var uploadDefer = this.$q.defer();
-      var promise = uploadDefer.promise;
-      var config = {};
-      promise.success = function(fn) {
-        promise.then(function(response) {
-          fn(response.data, response.status, response.headers, config);
-        });
-        return promise;
-      };
-
-      promise.error = function(fn) {
-        promise.then(null, function(response) {
-          fn(response.data, response.status, response.headers, config);
-        });
-        return promise;
-      };
-
-      promise.progress = function(fn) {
-        promise.then(null, null, function(update) {
-          fn(update);
-        });
-        return promise;
-      };
-
       this.communityAPI.create = function() {
-        return communityDefer.promise;
+        return $q.when({data: {_id: 123, title: 'Node.js'}});
       };
-      communityDefer.resolve({data: {_id: 123, title: 'Node.js'}});
 
       this.communityAPI.uploadAvatar = function() {
-        return promise;
+        return httpPromise($q.reject({data: {_id: 456}}));
       };
-
-      uploadDefer.reject({data: {_id: 456}});
 
       this.location.path = function() {
         return done();
@@ -813,7 +774,7 @@ describe.skip('The Community Angular module', function() {
   });
 
   describe('communitiesController controller', function() {
-    beforeEach(inject(function($rootScope, $controller, $q) {
+    beforeEach(inject(function($rootScope, $controller) {
       this.communityAPI = {
         list: function() {
           return {
@@ -840,7 +801,6 @@ describe.skip('The Community Angular module', function() {
       this.domain = {_id: 123};
       this.user = {_id: 456};
       this.scope = $rootScope.$new();
-      this.$q = $q;
       this.log = {
         error: function() {
         }
@@ -868,11 +828,9 @@ describe.skip('The Community Angular module', function() {
 
       it('should set the $scope.communities with communityAPI#list result', function(done) {
         var result = [{_id: 123}, {_id: 234}];
-        var communityDefer = this.$q.defer();
         this.communityAPI.list = function() {
-          return communityDefer.promise;
+          return $q.when({data: result});
         };
-        communityDefer.resolve({data: result});
         this.scope.getAll();
         this.scope.$digest();
         expect(this.scope.communities).to.deep.equal(result);
@@ -880,11 +838,9 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should set $scope.error to true when communityAPI#list fails', function(done) {
-        var communityDefer = this.$q.defer();
         this.communityAPI.list = function() {
-          return communityDefer.promise;
+          return $q.reject({err: 'failed'});
         };
-        communityDefer.reject({err: 'failed'});
         this.scope.getAll();
         this.scope.$digest();
         expect(this.scope.error).to.be.true;
@@ -892,11 +848,9 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should set $scope.selected to all', function(done) {
-        var communityDefer = this.$q.defer();
         this.communityAPI.list = function() {
-          return communityDefer.promise;
+          return $q.reject({err: 'failed'});
         };
-        communityDefer.reject({err: 'failed'});
         this.scope.getAll();
         this.scope.$digest();
         expect(this.scope.selected).to.equal('all');
@@ -914,11 +868,9 @@ describe.skip('The Community Angular module', function() {
 
       it('should set the $scope.communities with communityAPI#list result', function(done) {
         var result = [{_id: 123}, {_id: 234}];
-        var communityDefer = this.$q.defer();
         this.communityAPI.list = function() {
-          return communityDefer.promise;
+          return $q.when({ data: result });
         };
-        communityDefer.resolve({data: result});
         this.scope.getModerator();
         this.scope.$digest();
         expect(this.scope.communities).to.deep.equal(result);
@@ -926,11 +878,9 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should set $scope.error to true when communityAPI#list fails', function(done) {
-        var communityDefer = this.$q.defer();
         this.communityAPI.list = function() {
-          return communityDefer.promise;
+          return $q.reject({ err: 'failed' });
         };
-        communityDefer.reject({err: 'failed'});
         this.scope.getModerator();
         this.scope.$digest();
         expect(this.scope.error).to.be.true;
@@ -938,11 +888,9 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should set $scope.selected to moderator', function(done) {
-        var communityDefer = this.$q.defer();
         this.communityAPI.list = function() {
-          return communityDefer.promise;
+          return $q.reject({err: 'failed'});
         };
-        communityDefer.reject({err: 'failed'});
         this.scope.getModerator();
         this.scope.$digest();
         expect(this.scope.selected).to.equal('moderator');
@@ -960,11 +908,9 @@ describe.skip('The Community Angular module', function() {
 
       it('should set the $scope.communities with userAPI#getCommunities result', function(done) {
         var result = [{_id: 123}, {_id: 234}];
-        var communityDefer = this.$q.defer();
         this.userAPI.getCommunities = function() {
-          return communityDefer.promise;
+          return $q.when({ data: result });
         };
-        communityDefer.resolve({data: result});
         this.scope.getMembership();
         this.scope.$digest();
         expect(this.scope.communities).to.deep.equal(result);
@@ -972,11 +918,9 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should set $scope.error to true when userAPI#getCommunities fails', function(done) {
-        var communityDefer = this.$q.defer();
         this.userAPI.getCommunities = function() {
-          return communityDefer.promise;
+          return $q.reject({ err: 'failed' });
         };
-        communityDefer.reject({err: 'failed'});
         this.scope.getMembership();
         this.scope.$digest();
         expect(this.scope.error).to.be.true;
@@ -984,11 +928,9 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should set $scope.selected to membership', function(done) {
-        var communityDefer = this.$q.defer();
         this.userAPI.getCommunities = function() {
-          return communityDefer.promise;
+          return $q.reject({err: 'failed'});
         };
-        communityDefer.reject({err: 'failed'});
         this.scope.getMembership();
         this.scope.$digest();
         expect(this.scope.selected).to.equal('membership');
@@ -1008,11 +950,10 @@ describe.skip('The Community Angular module', function() {
 
     describe('leaveSuccess() method', function() {
       it('should call communityAPI.get(:id)', function(done) {
-        var communityDefer = this.$q.defer();
         this.communityAPI.get = function(id) {
           expect(id).to.equal('community1');
           done();
-          return communityDefer.promise;
+          return $q.defer().promise;
         };
         this.scope.leaveSuccess({_id: 'community1'});
       });
@@ -1024,11 +965,9 @@ describe.skip('The Community Angular module', function() {
           this.scope.communities.push({_id: 'community3'});
           this.scope.communities.push({_id: 'community2'});
           this.scope.communities.push({_id: 'community1'});
-          var communityDefer = this.$q.defer();
 
           this.communityAPI.get = function(id) {
-            communityDefer.resolve({data: {_id: 'community3', updated: true}});
-            return communityDefer.promise;
+            return $q.when({ data: { _id: 'community3', updated: true } });
           };
 
           this.scope.leaveSuccess({_id: 'community3'});
@@ -1048,7 +987,7 @@ describe.skip('The Community Angular module', function() {
 
   describe('communityController controller', function() {
 
-    beforeEach(inject(['$rootScope', '$controller', '$q', function($rootScope, $controller, $q) {
+    beforeEach(inject(['$rootScope', '$controller', '$q', function($rootScope, $controller) {
       this.$rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.location = {};
@@ -1057,7 +996,6 @@ describe.skip('The Community Angular module', function() {
       this.communityAPI = {};
       this.communityService = {};
       this.session = {domain: {_id: 'domain1'}, user: {_id: 'user1'}};
-      this.$q = $q;
       this.memberOf = [];
 
       $controller('communityController', {
@@ -1075,22 +1013,19 @@ describe.skip('The Community Angular module', function() {
 
     describe('reload() method', function() {
       it('should call communityAPI.get(:id)', function(done) {
-        var communityDefer = this.$q.defer();
         this.communityAPI.get = function(id) {
           expect(id).to.equal('community1');
           done();
-          return communityDefer.promise;
+          return $q.defer().promise;
         };
         this.scope.reload();
       });
 
       describe('communityAPI.get(:id) handler', function() {
         it('should update scope.community', function() {
-          var communityDefer = this.$q.defer();
           this.communityAPI.get = function(id) {
             expect(id).to.equal('community1');
-            communityDefer.resolve({data: {_id: 'community1', updated: true}});
-            return communityDefer.promise;
+            return $q.when({data: {_id: 'community1', updated: true}});
           };
           this.scope.reload();
           this.scope.$digest();
@@ -1164,11 +1099,9 @@ describe.skip('The Community Angular module', function() {
 
       it('should update $scope if event target is the current community', function(done) {
         var result = {_id: this.community._id, added: true, writable: true};
-        var communityDefer = this.$q.defer();
         this.communityAPI.get = function(id) {
-          return communityDefer.promise;
+          return $q.when({data: result});
         };
-        communityDefer.resolve({data: result});
         this.$rootScope.$emit('collaboration:join', {collaboration: {objectType: 'community', id: 'community1'}});
         this.scope.$digest();
 
@@ -1209,11 +1142,9 @@ describe.skip('The Community Angular module', function() {
 
       it('should update $scope if event target is the current community', function(done) {
         var result = {_id: this.community._id, added: true, writable: true};
-        var communityDefer = this.$q.defer();
         this.communityAPI.get = function(id) {
-          return communityDefer.promise;
+          return $q.when({ data: result });
         };
-        communityDefer.resolve({data: result});
         this.$rootScope.$emit('collaboration:leave', {collaboration: {objectType: 'community', id: 'community1'}});
         this.scope.$digest();
 
@@ -1303,10 +1234,9 @@ describe.skip('The Community Angular module', function() {
   });
 
   describe('communityService service', function() {
-    beforeEach(angular.mock.inject(function(communityService, communityAPI, $q, $rootScope) {
+    beforeEach(angular.mock.inject(function(communityService, communityAPI, $rootScope) {
       this.communityAPI = communityAPI;
       this.communityService = communityService;
-      this.$q = $q;
       this.$rootScope = $rootScope;
     }));
 
@@ -1602,10 +1532,9 @@ describe.skip('The Community Angular module', function() {
       });
       module('jadeTemplates');
     });
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -1654,9 +1583,8 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        var deferred = this.$q.defer();
         this.communityService.join = function(cid, uid) {
-          return deferred.promise;
+          return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
@@ -1668,7 +1596,7 @@ describe.skip('The Community Angular module', function() {
 
       describe('on communityService.join() response', function() {
         it('should enable back the button on success', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.join = function(cid, uid) {
             return deferred.promise;
           };
@@ -1681,7 +1609,7 @@ describe.skip('The Community Angular module', function() {
           expect(element.attr('disabled')).to.be.undefined;
         });
         it('should enable back the button on failure', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.join = function(cid, uid) {
             return deferred.promise;
           };
@@ -1697,7 +1625,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the success callback on success', function(done) {
           this.html = '<community-button-join community="community" user="user" on-join="joinSuccess(community)"></community-button-join>';
           this.scope.joinSuccess = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.join = function(cid, uid) {
             return deferred.promise;
           };
@@ -1712,7 +1640,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the failure callback on failure', function(done) {
           this.html = '<community-button-join community="community" user="user" on-fail="joinFailure(community)"></community-button-join>';
           this.scope.joinFailure = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.join = function(cid, uid) {
             return deferred.promise;
           };
@@ -1736,10 +1664,9 @@ describe.skip('The Community Angular module', function() {
       });
       module('jadeTemplates');
     });
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -1789,9 +1716,8 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        var deferred = this.$q.defer();
         this.communityService.leave = function(cid, uid) {
-          return deferred.promise;
+          return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
@@ -1803,7 +1729,7 @@ describe.skip('The Community Angular module', function() {
 
       describe('on communityService.leave() response', function() {
         it('should enable back the button on success', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.leave = function(cid, uid) {
             return deferred.promise;
           };
@@ -1817,7 +1743,7 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should enable back the button on failure', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.leave = function(cid, uid) {
             return deferred.promise;
           };
@@ -1833,7 +1759,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the success callback on success', function(done) {
           this.html = '<community-button-leave community="community" user="user" on-leave="leaveSuccess(community)"></community-button-leave>';
           this.scope.leaveSuccess = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.leave = function(cid, uid) {
             return deferred.promise;
           };
@@ -1848,7 +1774,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the failure callback on failure', function(done) {
           this.html = '<community-button-leave community="community" user="user" on-fail="leaveFailure(community)"></community-button-leave>';
           this.scope.leaveFailure = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.leave = function(cid, uid) {
             return deferred.promise;
           };
@@ -1872,10 +1798,9 @@ describe.skip('The Community Angular module', function() {
       });
       module('jadeTemplates');
     });
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -1924,9 +1849,8 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        var deferred = this.$q.defer();
         this.communityService.requestMembership = function(cid, uid) {
-          return deferred.promise;
+          return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
@@ -1938,7 +1862,7 @@ describe.skip('The Community Angular module', function() {
 
       describe('on communityService.requestMembership() response', function() {
         it('should enable back the button on success', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.requestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -1951,7 +1875,7 @@ describe.skip('The Community Angular module', function() {
           expect(element.attr('disabled')).to.be.undefined;
         });
         it('should enable back the button on failure', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.requestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -1967,7 +1891,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the success callback on success', function(done) {
           this.html = '<community-button-request-membership community="community" user="user" on-request="requestMembershipSuccess(community)"></community-button-request-membership>';
           this.scope.requestMembershipSuccess = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.requestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -1982,7 +1906,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the failure callback on failure', function(done) {
           this.html = '<community-button-request-membership community="community" user="user" on-fail="requestMembershipFailure(community)"></community-button-request-membership>';
           this.scope.requestMembershipFailure = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.requestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -2006,10 +1930,9 @@ describe.skip('The Community Angular module', function() {
       });
       module('jadeTemplates');
     });
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -2058,9 +1981,8 @@ describe.skip('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        var deferred = this.$q.defer();
         this.communityService.cancelRequestMembership = function(cid, uid) {
-          return deferred.promise;
+          return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
         this.scope.$digest();
@@ -2072,7 +1994,7 @@ describe.skip('The Community Angular module', function() {
 
       describe('on communityService.cancelRequestMembership() response', function() {
         it('should enable back the button on success', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.cancelRequestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -2085,7 +2007,7 @@ describe.skip('The Community Angular module', function() {
           expect(element.attr('disabled')).to.be.undefined;
         });
         it('should enable back the button on failure', function() {
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.cancelRequestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -2101,7 +2023,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the success callback on success', function(done) {
           this.html = '<community-button-cancel-request-membership community="community" user="user" on-cancel-request="cancelRequestMembershipSuccess(community)"></community-button-cancel-request-membership>';
           this.scope.cancelRequestMembershipSuccess = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.cancelRequestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -2116,7 +2038,7 @@ describe.skip('The Community Angular module', function() {
         it('should call the failure callback on failure', function(done) {
           this.html = '<community-button-cancel-request-membership community="community" user="user" on-fail="cancelRequestMembershipFailure(community)"></community-button-cancel-request-membership>';
           this.scope.cancelRequestMembershipFailure = function() {done();};
-          var deferred = this.$q.defer();
+          var deferred = $q.defer();
           this.communityService.cancelRequestMembership = function(cid, uid) {
             return deferred.promise;
           };
@@ -2145,10 +2067,9 @@ describe.skip('The Community Angular module', function() {
       module('esn.core');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -2174,11 +2095,9 @@ describe.skip('The Community Angular module', function() {
     });
 
     it('should set error when call the API fails', function(done) {
-      var defer = this.$q.defer();
       this.communityAPI.getRequestMemberships = function() {
-        return defer.promise;
+        return $q.reject();
       };
-      defer.reject();
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
@@ -2191,11 +2110,9 @@ describe.skip('The Community Angular module', function() {
 
     it('should set requests in the scope when API call succeeds', function(done) {
       var result = [{user: {_id: 1, emails: ['foo@bar.com']}}, {user: {_id: 2, emails: ['baz@bar.com']}}];
-      var defer = this.$q.defer();
       this.communityAPI.getRequestMemberships = function() {
-        return defer.promise;
+        return $q.when({ data: result });
       };
-      defer.resolve({data: result});
 
       var element = this.$compile(this.html)(this.scope);
       this.scope.$digest();
@@ -2213,10 +2130,9 @@ describe.skip('The Community Angular module', function() {
       module('esn.core');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -2297,10 +2213,9 @@ describe.skip('The Community Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, communityAPI) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.communityAPI = communityAPI;
       this.scope.community = {
@@ -2328,10 +2243,8 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should set $scope.done on communityAPI#join success', function() {
-          var defer = this.$q.defer();
           this.communityAPI.join = function() {
-            defer.resolve();
-            return defer.promise;
+            return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
@@ -2342,10 +2255,8 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should set $scope.error on communityAPI#join failure', function() {
-          var defer = this.$q.defer();
           this.communityAPI.join = function() {
-            defer.reject();
-            return defer.promise;
+            return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
@@ -2371,10 +2282,8 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should set $scope.error on communityAPI#cancelRequestMembership failure', function() {
-          var defer = this.$q.defer();
           this.communityAPI.cancelRequestMembership = function() {
-            defer.reject();
-            return defer.promise;
+            return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
@@ -2385,10 +2294,8 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should set $scope.done on communityAPI#cancelRequestMembership success', function() {
-          var defer = this.$q.defer();
           this.communityAPI.cancelRequestMembership = function() {
-            defer.resolve();
-            return defer.promise;
+            return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
@@ -2415,10 +2322,9 @@ describe.skip('The Community Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -2441,13 +2347,9 @@ describe.skip('The Community Angular module', function() {
       this.$compile(this.html)(this.scope);
 
       var result = [1, 2, 3];
-      var defer = this.$q.defer();
       this.communityAPI.getRequestMemberships = function() {
-        return defer.promise;
+        return $q.when({ data: result });
       };
-      defer.resolve({
-        data: result
-      });
       this.scope.$digest();
       expect(this.scope.requests).to.deep.equal(result);
       done();
@@ -2455,11 +2357,9 @@ describe.skip('The Community Angular module', function() {
 
     it('should display error when communityAPI.getRequestMemberships fails', function(done) {
       var element = this.$compile(this.html)(this.scope);
-      var defer = this.$q.defer();
       this.communityAPI.getRequestMemberships = function() {
-        return defer.promise;
+        return $q.reject();
       };
-      defer.reject();
       this.scope.$digest();
       var error = $(element.find('[error-container]')[0]);
       expect(error).to.not.have.class('hidden');
@@ -2483,10 +2383,9 @@ describe.skip('The Community Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.scope.community = {
         _id: 'community1',
@@ -2514,13 +2413,11 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should hide the button on success', function() {
-          var defer = this.$q.defer();
           this.communityAPI.cancelRequestMembership = function() {
-            return defer.promise;
+            return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
-          defer.resolve();
           var button = element.find('.btn');
           button.click();
           this.scope.$digest();
@@ -2528,13 +2425,11 @@ describe.skip('The Community Angular module', function() {
         });
 
         it('should enable the button on failure', function() {
-          var defer = this.$q.defer();
           this.communityAPI.cancelRequestMembership = function() {
-            return defer.promise;
+            return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
           this.scope.$digest();
-          defer.reject();
           var button = element.find('.btn');
           button.click();
           this.scope.$digest();
@@ -2567,10 +2462,9 @@ describe.skip('The Community Angular module', function() {
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, $q, communityAPI, communityService) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, communityAPI, communityService) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
-      this.$q = $q;
       this.scope = $rootScope.$new();
       this.communityAPI = communityAPI;
       this.communityService = communityService;
@@ -2654,7 +2548,8 @@ describe.skip('The Community Angular module', function() {
             return {};
           };
 
-          this.$q.all = function(promises) {
+          var oldQAll = $q.all;
+          $q.all = function(promises) {
             expect(promises).to.have.length(2);
             return {
               then: function() {}
@@ -2666,6 +2561,7 @@ describe.skip('The Community Angular module', function() {
           var iscope = element.isolateScope();
           iscope.users = users;
           iscope.inviteUsers();
+          $q.all = oldQAll;
         });
 
         it('should not call communityAPI#requestMembership if there are no user in the scope', function(done) {
@@ -2709,7 +2605,8 @@ describe.skip('The Community Angular module', function() {
             return {};
           };
 
-          this.$q.all = function(promises) {
+          var oldQAll = $q.all;
+          $q.all = function(promises) {
             expect(promises).to.have.length(2);
             return {
               then: function(successCB) {
@@ -2730,6 +2627,8 @@ describe.skip('The Community Angular module', function() {
           expect(iscope.getButtonContent().hasClass('hidden')).to.be.false;
           expect(iscope.getErrorDiv().hasClass('hidden')).to.be.true;
           expect(iscope.getSuccessDiv().hasClass('hidden')).to.be.false;
+
+          $q.all = oldQAll;
         });
 
         it('should show success message if rest calls are OK', function() {
@@ -2747,7 +2646,8 @@ describe.skip('The Community Angular module', function() {
           };
 
           var restError = new Error({details: 'oups'});
-          this.$q.all = function(promises) {
+          var oldQAll = $q.all;
+          $q.all = function(promises) {
             expect(promises).to.have.length(2);
             return {
               then: function(successCB, errorCB) {
@@ -2769,6 +2669,8 @@ describe.skip('The Community Angular module', function() {
           expect(iscope.getErrorDiv().hasClass('hidden')).to.be.false;
           expect(iscope.getSuccessDiv().hasClass('hidden')).to.be.true;
           expect(iscope.error).to.equal(restError);
+
+          $q.all = oldQAll;
         });
       });
     });
