@@ -169,10 +169,10 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       calendarService.changeParticipation($scope.editedEvent.path, $scope.editedEvent, [session.user.emails[0]], status).then(function(response) {
         var icalPartStatToReadableStatus = Object.create(null);
-        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.accepted] = 'accepted';
-        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.declined] = 'declined';
-        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.needsaction] = 'set to maybe';
-        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', $scope.editedEvent.title + ' participation has been ' + icalPartStatToReadableStatus[status]);
+        icalPartStatToReadableStatus['ACCEPTED'] = 'You will attend this meeting';
+        icalPartStatToReadableStatus['DECLINED'] = 'You will not attend this meeting';
+        icalPartStatToReadableStatus['NEEDS-ACTION'] = 'Your participation is undefined';
+        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
       }, function(err) {
         _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
       }).finally (function() {
