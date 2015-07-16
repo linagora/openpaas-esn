@@ -5,6 +5,6 @@ div.media.message-preview
     div
       h4.media-heading
         a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
-        a.message-date(href="/#messages/{{::message._id}}/activitystreams/{{::activitystreamUuid}}")
+        a.message-date(ng-href="/#messages/{{::message._id}}/activitystreams/{{::activitystreamUuid}}")
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
     message-attachments(message='message')
