@@ -6,6 +6,14 @@ angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DAV_PATH', '/dav/api')
   .factory('ContactsHelper', function(DATE_FORMAT, $dateFormatter) {
+
+    function getFormattedBirthday(birthday) {
+      if (birthday instanceof Date) {
+        return moment(birthday).format('MM/DD/YYYY');
+      }
+        return birthday;
+    }
+
     function getFormattedName(contact) {
 
       function notNullNorEmpty(value) {
@@ -109,7 +117,8 @@ angular.module('linagora.esn.contact')
     }
 
     return {
-      getFormattedName: getFormattedName
+      getFormattedName: getFormattedName,
+      getFormattedBirthday: getFormattedBirthday
     };
   })
   .factory('contactsService', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {

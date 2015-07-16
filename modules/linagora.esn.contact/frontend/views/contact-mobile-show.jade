@@ -1,14 +1,14 @@
 .row.panel-header.contact-list-mobile(full-width-page ng-swipe-right='back()')
     .contact-controls-wrapper
-      .contact-controls(data-offset-top="80" bs-affix)
-        button.btn.btn-default(type='button', ng-click='back()')
+      .contact-controls.row(data-offset-top="80" bs-affix)
+        button.btn.btn-default.col-xs-3(type='button', ng-click='back()')
           i.fa.fa-reply.controls-fa
-        a(ng-href='#/contact/mobile/edit/{{::bookId}}/{{::contact.id}}')    
+        a.col-xs-3(ng-href='#/contact/mobile/edit/{{::bookId}}/{{::contact.id}}')    
           button.btn.btn-default(type='button')
             i.fa.fa-pencil.controls-fa
-        button.btn.btn-default(type='button')
+        button.col-xs-3.btn.btn-default(type='button')
           i.fa.fa-search.controls-fa
-        .contact-dropdown.dropdown.pull-right         
+        .contact-dropdown.dropdown.pull-right.col-xs-3         
           a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
             i.fa.fa-ellipsis-h.controls-fa
           ul.dropdown-menu.dropdown-menu-right(role="menu")
@@ -64,9 +64,9 @@
         p.contact-card-infos(ng-if='contact.firstName') First name: {{contact.firstName}}
         p.contact-card-infos(ng-if='contact.lastName') Last name: {{contact.lastName}}
         p.contact-card-infos(ng-if='contact.nickname') Nickname: {{contact.nickname}}
-    button.btn.btn-default.contact-card(ng-if='formatedBirthday')
+    button.btn.btn-default.contact-card(ng-if='formattedBirthday')
         i.fa.fa-birthday-cake.contact-card-fa
-        p.contact-card-infos {{formatedBirthday}}
+        p.contact-card-infos {{formattedBirthday}}
     .contact-card.contact-card-comments(ng-if='contact.notes')
         i.fa.fa-align-left.contact-card-fa
         p.contact-card-infos {{contact.notes}}        

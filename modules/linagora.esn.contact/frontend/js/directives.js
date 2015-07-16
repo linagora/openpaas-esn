@@ -1,7 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .constant('DEFAULT_AVATAR', '/images/user.png')
   .constant('ENTER_KEY', 13)
   .constant('ESCAPE_KEY', 27)
   .directive('contactNavbarLink', function() {
@@ -438,7 +437,7 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'A',
       link: function(scope, element) {
-        angular.element(element).parents().eq(3).addClass('no-padding');
+        angular.element(element).parents().eq(3).addClass('nopadding');
       }
     };
   })

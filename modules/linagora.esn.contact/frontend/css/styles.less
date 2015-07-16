@@ -16,13 +16,8 @@
   }
 }
 
-.no-padding {
-  margin: 0;
-  padding: 0;
-}
-
 .modify-success {
-  color: green;
+  color: @dark-green;
   animation-duration: 2s;
   animation-name: fade-in;
 }
@@ -41,7 +36,7 @@
   .full-width {
     width: 100%;
     z-index: -1;
-    border-bottom: 1px solid grey;
+    border-bottom: 1px solid @dark-grey;
   }
 
   .contact-controls-wrapper {
@@ -53,21 +48,32 @@
   }
 
   .contact-controls {
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+    transition: 1s background;
+    button {
+      margin-left:0;
+      margin-right:0;
+    }
   }
 
   .contact-controls.affix {
     z-index: 1210;
     margin-top: 36px;
+    background: @esn-secondary-dark;
+    transition: 1s background;
+    button {
+      margin-left:0;
+      margin-right:0;
+    }
   }
 
   .controls-fa {
-    color:white;
+    color: @white;
     font-size: 18pt;
   }
 
   .contact-dropdown{
-    margin: 10px 1px;
+    margin: 10px 0px;
     padding: 8px 30px;
   }
 }
@@ -75,7 +81,7 @@
 .create-content {
   .contact-fn {
     text-align: center;
-    border-bottom:1px solid lightgrey;
+    border-bottom:1px solid @middle-dark-grey;
 
     .contact-heading-mobile{
       font-size: 24pt;
@@ -107,15 +113,15 @@
     min-height: 60px;
     margin: 0;
     width:100%;
-    border-bottom:1px solid lightgrey;
+    border-bottom:1px solid @middle-dark-grey;
 
     a {
       color:@defaultFontColor;
     }
 
     .tag-item {
-      background-color: #2196F3;
-      color: white;
+      background-color: @blue;
+      color: @white;
       padding: 3px 5px 0px 5px;
       margin: 2px;
       float: left;
@@ -140,7 +146,7 @@
     }
 
     .contact-card-type {
-      color:grey;
+      color: @dark-grey;
       font-size: 8pt;
       text-align: left;
       text-transform: none;
