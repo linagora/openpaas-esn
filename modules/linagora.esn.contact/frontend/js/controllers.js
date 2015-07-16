@@ -164,6 +164,21 @@ angular.module('linagora.esn.contact')
       $scope.showMenu = true;
     });
 
+    $scope.search = function() {
+
+      if (!$scope.searchInput) {
+        return $scope.loadContacts();
+      }
+
+      contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
+        $scope.categories.init();
+        addItemsToCategories(data);
+      }, function(err) {
+        $log.error('Can not search contacts', err);
+        displayError('Can not search contacts');
+      });
+    };
+
     $scope.loadContacts();
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {

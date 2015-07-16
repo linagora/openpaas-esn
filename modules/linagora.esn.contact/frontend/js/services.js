@@ -426,13 +426,19 @@ angular.module('linagora.esn.contact')
       });
     }
 
+    function search(bookId, userId, data) {
+      var defer = $q.defer();
+      defer.resolve([]);
+      return defer.promise;
+    }
+
     return {
       remove: remove,
       list: list,
       create: create,
       modify: modify,
       getCard: getCard,
-
+      search: search,
       shellToVCARD: shellToVCARD
     };
   });

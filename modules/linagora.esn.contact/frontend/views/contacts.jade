@@ -5,6 +5,9 @@
       fab.fab-fixed-bottom(type='create', on-click='openContactCreation()')
 
   .row.panel-content
+    .row.col-xs-12.search
+      contact-search-form
+
     .contact-error-container
     .col-xs-11
       .row(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
