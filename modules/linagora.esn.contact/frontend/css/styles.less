@@ -16,10 +16,9 @@
   }
 }
 
-.panel-header {
-  .affix-top {
-    position: absolute;
-  }
+.no-padding {
+  margin: 0;
+  padding: 0;
 }
 
 .modify-success {
@@ -28,128 +27,129 @@
   animation-name: fade-in;
 }
 
-.no-padding {
-  margin: 0;
-  padding: 0;
-}
-
-.contact-address-infos {
-  float:fleft;
-}
-
-.contact-dropdown{
-    margin: 10px 1px;
-    padding: 8px 30px;
-}
-
-.tag-item {
-  background-color: #2196F3;
-  color: white;
-  padding: 3px 5px 0px 5px;
-  margin: 2px;
-  float: left;
-  list-style: none;
-}
-
-ul.tag-list {
-  padding:0;
-}
-
-.full-width {
-  width: 100%;
-  z-index: -1;
-  border-bottom: 1px solid grey;
-}
-
-.contact-controls-wrapper {
-  position:absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-  text-align:center;
-}
-
-.contact-fn.affix {
-  z-index: 1199;
-  margin-top: 36px;
-  height: 100px;
-  background-color: @secondary-yellow;
-}
-
-.contact-fn.affix span {
-  position: absolute;
-  top: 50px;
-  width: 100%;
-  left:0;
-}
-
-.contact-controls {
-  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
-}
-
-.contact-controls.affix {
-  z-index: 1210;
-  margin-top: 36px;
-}
-
-.contact-card {
-  min-height: 60px;
-  margin: 0;
-  width:100%;
-  border-bottom:1px solid lightgrey;
-
-  a {
-    color:@defaultFontColor;
-  }
-
-}
-
-.contact-card-fa {
-  font-size: 18pt;
-  width: 30px;
-  min-height:100%;
-  float: left;
-}
-
-.contact-card-infos {
-  text-align: left;
-  text-transform: none;
-  margin: 0 0 0 60px;
-}
-
-.contact-card-type {
-  color:grey;
-  font-size: 8pt;
-  text-align: left;
-  text-transform: none;
-  margin-left: 60px;
-}
-
-.contact-card-infos .contact-card-type{
-  margin-left: 0;
-}
-
-.contact-card-comments {
-  padding: 8px 30px;
-}
-
-.contact-heading-mobile{
-  font-size: 24pt;
-}
-
-.contact-fn {
-  text-align: center;
-  border-bottom:1px solid lightgrey;
-}
-
-.controls-fa {
-  color:white;
-  font-size: 18pt;
-}
-
 @keyframes fade-in {
   from {
     opacity: 0;
+  }
+
+  to {
+    opacity:1;
+  }
+}
+
+.panel-header {
+  .full-width {
+    width: 100%;
+    z-index: -1;
+    border-bottom: 1px solid grey;
+  }
+
+  .contact-controls-wrapper {
+    position:absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    text-align:center;
+  }
+
+  .contact-controls {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+  }
+
+  .contact-controls.affix {
+    z-index: 1210;
+    margin-top: 36px;
+  }
+
+  .controls-fa {
+    color:white;
+    font-size: 18pt;
+  }
+
+  .contact-dropdown{
+    margin: 10px 1px;
+    padding: 8px 30px;
+  }
+}
+
+.create-content {
+  .contact-fn {
+    text-align: center;
+    border-bottom:1px solid lightgrey;
+
+    .contact-heading-mobile{
+      font-size: 24pt;
+    }
+  }
+
+  contact-photo {
+    .photo {
+      position: relative;
+
+      .hint {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        color: @light-grey;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      img {
+        width: auto;
+        height: 18.2ex;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .contact-card {
+    min-height: 60px;
+    margin: 0;
+    width:100%;
+    border-bottom:1px solid lightgrey;
+
+    a {
+      color:@defaultFontColor;
+    }
+
+    .tag-item {
+      background-color: #2196F3;
+      color: white;
+      padding: 3px 5px 0px 5px;
+      margin: 2px;
+      float: left;
+      list-style: none;
+    }
+
+    ul.tag-list {
+      padding:0;
+    }
+
+    .contact-card-fa {
+      font-size: 18pt;
+      width: 30px;
+      min-height:100%;
+      float: left;
+    }
+
+    .contact-card-infos {
+      text-align: left;
+      text-transform: none;
+      margin: 0 0 0 60px;
+    }
+
+    .contact-card-type {
+      color:grey;
+      font-size: 8pt;
+      text-align: left;
+      text-transform: none;
+      margin-left: 60px;
+    }
+
+    .contact-card-infos .contact-card-type{
+      margin-left: 0;
+    }
   }
 
   button {
@@ -173,13 +173,14 @@ ul.tag-list {
     width: 100%;
     color: @light-grey;
     background-color: rgba(0, 0, 0, 0.3);
+
+  .contact-card-comments {
+    padding: 8px 30px;
+  }
+  .full-width {
+    width:100%;
   }
 
-  img {
-    width: auto;
-    height: 18.2ex;
-    cursor: pointer;
-  }
 }
 
 contact-display, contact-display-editable {

@@ -434,6 +434,14 @@ angular.module('linagora.esn.contact')
       }
     };
   })
+  .directive('fullWidthPage', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        angular.element(element).parents().eq(3).addClass('no-padding');
+      }
+    };
+  })
   .directive('contactPhoto', function(DEFAULT_AVATAR) {
     return {
       restrict: 'E',

@@ -1,13 +1,14 @@
-.contact-controls(data-offset-top="80" bs-affix)
-  button.btn.btn-default(type='button', ng-click='save()')
-    i.fa.fa-check.controls-fa
-  .contact-dropdown.dropdown.pull-right         
-    a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-      i.fa.fa-ellipsis-h.controls-fa
-    ul.dropdown-menu.dropdown-menu-right(role="menu")
-      li
-        a(ng-click="deleteContact()") Delete       
-.form-horizontal
+.panel-header
+  .contact-controls(data-offset-top="80" bs-affix full-width-page)
+    button.btn.btn-default(type='button', ng-click='save()')
+      i.fa.fa-check.controls-fa
+    .contact-dropdown.dropdown.pull-right         
+      a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+        i.fa.fa-ellipsis-h.controls-fa
+      ul.dropdown-menu.dropdown-menu-right(role="menu")
+        li
+          a(ng-click="deleteContact()") Delete       
+.form-horizontal.create-content
   .row
     .col-lg-7
       .row
@@ -51,6 +52,6 @@
     .col-md-12
       .form-group
         .col-xs-12
-          .input-group
+          .input-group.full-width
             textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
             inline-notify(name='comments')

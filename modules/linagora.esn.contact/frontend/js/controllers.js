@@ -158,8 +158,6 @@ angular.module('linagora.esn.contact')
       closeForm();
       $timeout(_deleteContact, 200);
     };
-
-    $('.panel-header').parent().parent().parent().parent().addClass('no-padding');
   })
   .controller('editContactController', function($scope, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, DEFAULT_AVATAR, GRACE_DELAY) {
     $scope.bookId = $route.current.params.bookId;
@@ -170,8 +168,6 @@ angular.module('linagora.esn.contact')
     }, function() {
       displayError('Cannot get contact details');
     });
-
-    $('.contact-controls').parent().parent().parent().parent().addClass('no-padding');
 
     $scope.save = function() {
       return sendContactToBackend($scope, function() {
