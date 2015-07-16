@@ -5,8 +5,10 @@ var url = require('url');
 
 module.exports = function(options, callback) {
 
-  var u = url.parse(options.url);
-  options.headers.host = u.host;
+  if (options.url) {
+    var u = url.parse(options.url);
+    options.headers.host = u.host;
+  }
 
   var requestOptions = {
     method: options.method || 'GET',
