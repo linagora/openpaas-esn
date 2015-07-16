@@ -163,6 +163,25 @@ ul.tag-list {
     font-size: 22px;
     color: @m-white;
 
+.photo {
+  position: relative;
+
+  .hint {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: @light-grey;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  img {
+    width: auto;
+    height: 18.2ex;
+    cursor: pointer;
+  }
+}
+
 contact-display, contact-display-editable {
   .photo {
     position: relative;
