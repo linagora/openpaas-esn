@@ -117,7 +117,7 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
   })
-  .controller('displayContactController', function($scope, $timeout, $rootScope, gracePeriodService, notificationFactory, DEFAULT_AVATAR, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
+  .controller('displayContactController', function($scope, $q, $timeout, $rootScope, gracePeriodService, notificationFactory, DEFAULT_AVATAR, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
@@ -149,7 +149,6 @@ angular.module('linagora.esn.contact')
             });
           } , function(err) {
             notificationFactory.weakError('Contact Delete', 'Can not delete contact');
-
             return $q.reject(err);
           });
     }
@@ -159,7 +158,7 @@ angular.module('linagora.esn.contact')
       $timeout(_deleteContact, 200);
     };
   })
-  .controller('editContactController', function($scope, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, DEFAULT_AVATAR, GRACE_DELAY) {
+  .controller('editContactController', function($scope, $q, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, DEFAULT_AVATAR, GRACE_DELAY) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
@@ -176,8 +175,8 @@ angular.module('linagora.esn.contact')
           return contact;
         }, function(err) {
         });
-      }).then(function(){
-        $location.path('/contact/mobile/show/'+$scope.bookId+'/'+$scope.cardId);
+      }).then(function() {
+        $location.path('/contact/mobile/show/' + $scope.bookId + '/' + $scope.cardId);
       }, function(err) {
         displayError(err);
         return $q.reject(err);
