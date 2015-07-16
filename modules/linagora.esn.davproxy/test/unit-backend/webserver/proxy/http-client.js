@@ -53,4 +53,18 @@ describe('The http-client module', function() {
     });
   });
 
+  it('should update the host header', function(done) {
+    var url = 'http://davbackend';
+    var headers = {foo: 'bar', bar: 'baz', host: 'localhost'};
+
+    mockery.registerMock('request', function(options, callback) {
+      expect(options.headers.host).to.equal('davbackend');
+      callback();
+    });
+
+    getModule()({method: 'GET', json: true, url: url, headers: headers}, function() {
+      done();
+    });
+  });
+
 });
