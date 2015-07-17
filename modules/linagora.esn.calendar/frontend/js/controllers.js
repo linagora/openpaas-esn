@@ -67,12 +67,17 @@ angular.module('esn.calendar')
       this.onEndDateChange();
     };
 
-    function _displayNotification(notificationFactoryFunction, title, content) {
-      notificationFactoryFunction(title, content);
+    function _hideModal() {
       if ($scope.createModal) {
         $scope.createModal.hide();
       }
     }
+
+    function _displayNotification(notificationFactoryFunction, title, content) {
+      notificationFactoryFunction(title, content);
+      _hideModal();
+    }
+
     this.selectAttendee = function(attId) {
       $scope.editedEvent.attendees.forEach(function(attendee) {
         if (attendee.id === attId) {
@@ -180,11 +185,14 @@ angular.module('esn.calendar')
     function _changeParticipation(status) {
       $scope.restActive = true;
       calendarService.changeParticipation($scope.editedEvent.path, $scope.editedEvent, [session.user.emails[0]], status).then(function(response) {
+        if (!response) {
+          return _hideModal();
+        }
         var icalPartStatToReadableStatus = Object.create(null);
-        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.accepted] = 'accepted';
-        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.declined] = 'declined';
-        icalPartStatToReadableStatus[ICAL_PROPERTIES.partstat.needsaction] = 'set to maybe';
-        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', $scope.editedEvent.title + ' participation has been ' + icalPartStatToReadableStatus[status]);
+        icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
+        icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
+        icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
+        _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
       }, function(err) {
         _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
       }).finally (function() {
@@ -192,17 +200,9 @@ angular.module('esn.calendar')
       });
     }
 
-    this.accept = function() {
-      _changeParticipation(ICAL_PROPERTIES.partstat.accepted);
-    };
-
-    this.decline = function() {
-      _changeParticipation(ICAL_PROPERTIES.partstat.declined);
-    };
-
-    this.maybe = function() {
-      _changeParticipation(ICAL_PROPERTIES.partstat.needsaction);
-    };
+    this.accept = _changeParticipation.bind(null, 'ACCEPTED');
+    this.decline = _changeParticipation.bind(null, 'DECLINED');
+    this.maybe = _changeParticipation.bind(null, 'TENTATIVE');
 
     this.resetEvent = function() {
       $scope.rows = 1;

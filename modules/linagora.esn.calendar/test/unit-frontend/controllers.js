@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -20,7 +21,7 @@ describe('The Calendar Angular module controllers', function() {
       }
     };
 
-    var calendarServiceMock = {
+    this.calendarServiceMock = {
       calendarId: '1234',
       shellToICAL: function(e) {
         event = e;
@@ -78,6 +79,8 @@ describe('The Calendar Angular module controllers', function() {
       }
     };
 
+    this.notificationFactory = {};
+
     var self = this;
     angular.mock.module('esn.calendar');
     angular.mock.module('ui.calendar', function($provide) {
@@ -85,10 +88,10 @@ describe('The Calendar Angular module controllers', function() {
     });
     angular.mock.module(function($provide) {
       $provide.value('calendarUtils', calendarUtilsMock);
-      $provide.value('calendarService', calendarServiceMock);
+      $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
-      $provide.value('calendarService', calendarServiceMock);
+      $provide.value('notificationFactory', self.notificationFactory);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -327,10 +330,6 @@ describe('The Calendar Angular module controllers', function() {
       });
 
       it('should add newAttendees', function() {
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
         this.scope.editedEvent = {
           title: 'title',
           attendees: ['user1@test.com']
@@ -346,22 +345,12 @@ describe('The Calendar Angular module controllers', function() {
 
     describe('addNewEvent function', function() {
       it('should force title to \'No title\' if the edited event has no title', function() {
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-
         this.scope.editedEvent = {};
         this.eventFormController.addNewEvent();
         expect(this.scope.editedEvent.title).to.equal('No title');
       });
 
       it('should add newAttendees from the form', function() {
-        this.eventFormController = this.controller('eventFormController', {
-          $rootScope: this.rootScope,
-          $scope: this.scope
-        });
-
         this.scope.editedEvent = {};
         this.scope.newAttendees = ['user1@test.com', 'user2@test.com'];
         this.eventFormController.addNewEvent();
@@ -372,6 +361,105 @@ describe('The Calendar Angular module controllers', function() {
             emails: ['user@test.com']
           }
         });
+      });
+    });
+
+    describe('accept function', function() {
+      it('should changeParticipation with ACCEPTED', function(done) {
+        var spy = sinon.spy();
+        var status = null;
+
+        this.notificationFactory.weakInfo = spy;
+        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          status = _status_;
+          return $q.when({});
+        };
+        this.scope.createModal = {
+          hide: function() {
+            expect(status).to.deep.equal('ACCEPTED');
+            expect(spy).to.have.been.called;
+            done();
+          }
+        };
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+        this.eventFormController.accept();
+        this.scope.$digest();
+      });
+
+      it('should no displayNotification if response is null', function(done) {
+        var spy = sinon.spy();
+
+        this.notificationFactory.weakInfo = spy;
+        this.calendarServiceMock.changeParticipation = function(path, event, emails, status) {
+          return $q.when(null);
+        };
+        this.scope.createModal = {
+          hide: function() {
+            expect(spy).to.have.not.been.called;
+            done();
+          }
+        };
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+        this.eventFormController.accept();
+        this.scope.$digest();
+      });
+    });
+
+    describe('decline function', function() {
+      it('should changeParticipation with DECLINED', function(done) {
+        var spy = sinon.spy();
+        var status = null;
+
+        this.notificationFactory.weakInfo = spy;
+        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          status = _status_;
+          return $q.when({});
+        };
+        this.scope.createModal = {
+          hide: function() {
+            expect(status).to.deep.equal('DECLINED');
+            expect(spy).to.have.been.called;
+            done();
+          }
+        };
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+        this.eventFormController.decline();
+        this.scope.$digest();
+      });
+    });
+
+    describe('maybe function', function() {
+      it('should changeParticipation with TENTATIVE', function(done) {
+        var spy = sinon.spy();
+        var status = null;
+
+        this.notificationFactory.weakInfo = spy;
+        this.calendarServiceMock.changeParticipation = function(path, event, emails, _status_) {
+          status = _status_;
+          return $q.when({});
+        };
+        this.scope.createModal = {
+          hide: function() {
+            expect(status).to.deep.equal('TENTATIVE');
+            expect(spy).to.have.been.called;
+            done();
+          }
+        };
+        this.eventFormController = this.controller('eventFormController', {
+          $rootScope: this.rootScope,
+          $scope: this.scope
+        });
+        this.eventFormController.maybe();
+        this.scope.$digest();
       });
     });
 
