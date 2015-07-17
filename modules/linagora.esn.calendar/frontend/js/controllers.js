@@ -118,7 +118,7 @@ angular.module('esn.calendar')
         }
         _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
+        _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err));
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -138,7 +138,7 @@ angular.module('esn.calendar')
         }
         _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -166,7 +166,7 @@ angular.module('esn.calendar')
         icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
         _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -205,7 +205,7 @@ angular.module('esn.calendar')
 
         _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally (function() {
         $scope.restActive = false;
       });
