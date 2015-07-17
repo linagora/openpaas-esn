@@ -27,26 +27,14 @@ describe('The Calendar Angular module controllers', function() {
         event = e;
       },
       create: function() {
-        return {
-          then: function() {
-            return {
-              finally: function() {}
-            };
-          }
-        };
+        return $q.when();
       },
       icalToShell: function(event) {
         return event;
       },
       modify: function(path , e) {
         event = e;
-        return {
-          then: function() {
-            return {
-              finally: function() {}
-            };
-          }
-        };
+        return $q.when();
       }
     };
 
@@ -82,7 +70,10 @@ describe('The Calendar Angular module controllers', function() {
       }
     };
 
-    this.notificationFactory = {};
+    this.notificationFactory = {
+      weakInfo: sinon.spy(),
+      weakError: sinon.spy()
+    };
 
     var self = this;
     angular.mock.module('esn.calendar');
@@ -339,6 +330,11 @@ describe('The Calendar Angular module controllers', function() {
         });
 
         it('should add newAttendees', function() {
+          this.scope.event = {
+            title: 'oldtitle',
+            path: '/path/to/event',
+            attendees: ['user1@test.com']
+          };
           this.scope.editedEvent = {
             title: 'title',
             attendees: ['user1@test.com']
@@ -350,18 +346,42 @@ describe('The Calendar Angular module controllers', function() {
             attendees: ['user1@test.com', 'user2@test.com', 'user3@test.com']
           });
         });
+
+        it('should pass along the etag', function() {
+          this.scope.event = {
+            title: 'oldtitle',
+            path: '/path/to/event',
+            etag: '123123'
+          };
+
+          this.scope.editedEvent = {
+            title: 'title',
+            path: '/path/to/event',
+            etag: '123123'
+          };
+
+          this.calendarServiceMock.modify = sinon.spy(function(path, event, etag) {
+            expect(event.title).to.equal('title');
+            expect(path).to.equal('/path/to/event');
+            expect(etag).to.equal('123123');
+            return $q.when();
+          });
+
+          this.eventFormController.modifyEvent();
+
+          this.scope.$digest();
+          expect(this.calendarServiceMock.modify).to.have.been.called;
+        });
       });
 
       describe('as an attendee', function() {
-        var weakInfo;
-
         beforeEach(function() {
           this.scope.isOrganizer = false;
-          this.notificationFactory.weakInfo = weakInfo = sinon.spy();
         });
 
         it('should changeParticipation with ACCEPTED', function(done) {
           var status = null;
+          var self = this;
 
           this.scope.invitedAttendee = {
             partstat: 'ACCEPTED'
@@ -374,7 +394,7 @@ describe('The Calendar Angular module controllers', function() {
           this.scope.createModal = {
             hide: function() {
               expect(status).to.equal('ACCEPTED');
-              expect(weakInfo).to.have.been.called;
+              expect(self.notificationFactory.weakInfo).to.have.been.called;
               done();
             }
           };
@@ -388,6 +408,7 @@ describe('The Calendar Angular module controllers', function() {
 
         it('should no displayNotification if response is null', function(done) {
           var status = null;
+          var self = this;
 
           this.scope.invitedAttendee = {
             partstat: 'DECLINED'
@@ -399,7 +420,7 @@ describe('The Calendar Angular module controllers', function() {
           this.scope.createModal = {
             hide: function() {
               expect(status).to.equal('DECLINED');
-              expect(weakInfo).to.have.not.been.called;
+              expect(self.notificationFactory.weakInfo).to.have.not.been.called;
               done();
             }
           };

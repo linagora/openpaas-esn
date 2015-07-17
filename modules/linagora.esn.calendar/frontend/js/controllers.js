@@ -195,7 +195,7 @@ angular.module('esn.calendar')
         return;
       }
       $scope.restActive = true;
-      calendarService.modify($scope.editedEvent.path, $scope.editedEvent).then(function(response) {
+      calendarService.modify($scope.event.path, $scope.editedEvent, $scope.event.etag).then(function(response) {
         if ($scope.activitystream) {
           $rootScope.$emit('message:posted', {
             activitystreamUuid: $scope.activitystream.activity_stream.uuid,
