@@ -78,8 +78,8 @@ angular.module('esn.calendar')
           displayName: cn || mail
         };
 
-        // We will only handle these three cases
-        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED' && partstat !== 'NEEDS-ACTION') {
+        // We will only handle these four cases
+        if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED' && partstat !== 'NEEDS-ACTION' && partstat !== 'TENTATIVE') {
           partstat = 'OTHER';
         }
 

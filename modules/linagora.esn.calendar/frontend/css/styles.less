@@ -56,23 +56,30 @@ tags-input .autocomplete {
     padding-top: 2em;
   }
 
+  .accepted, .btn.accepted  {
+    color: @green;
+  }
+
+  .undecided, .btn.undecided {
+    color: @blue;
+  }
+
+  .declined, .btn.declined {
+    color: @red;
+  }
+
+  .row.status {
+    .btn.active {
+      background-color: @light-grey;
+      box-shadow: none;
+    }
+  }
+
   .attendees-list {
     position: relative;
 
     ul {
       margin-left: 25px;
-    }
-
-    .acceptAttendee {
-      color: limegreen;
-    }
-
-    .needActionAttendee {
-      color: indianred;
-    }
-
-    .declineAttendee {
-      color: darkorange;
     }
 
     .scrollable {
@@ -101,16 +108,5 @@ tags-input .autocomplete {
       right: 0px;
     }
 
-    .btn.yes {
-      color: @green;
-    }
-
-    .btn.maybe {
-      color: @blue;
-    }
-
-    .btn.no {
-      color: @red;
-    }
   }
 }
