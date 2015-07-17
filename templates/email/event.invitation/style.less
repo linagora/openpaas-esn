@@ -5,7 +5,7 @@
 @esn-primary-middle: rgb(65,65,65);
 @esn-highlight: #ffc107;
 @esn-highlight-dark: rgb(21,21,21);
-@esn-fa: #FAFAFA;
+@esn-fa: #EEEEEE;
 @esn-linagora: #BE1F3A;
 @published-date: darken(@esn-primary-lesslight, 20%);
 @font-color: #333;
@@ -19,23 +19,29 @@ body {
   }
 
   .wrapper {
-    max-width: 800px;
+    width: 700px;
     margin-left: auto;
     margin-right: auto;
-    background-color: white;
   }
 
   .mail-content {
-    padding: 0 10px 10px 10px;
+    padding: 10px 13px;
     border-radius: 5px;
     text-align: justify;
-    color: @font-color;
+    background-color: white;
   }
 
   .title {
-    font-size: 1.5em;
+    font-size: 1.3em;
     padding-bottom: 10px;
     padding-top: 20px;
+    text-align: left;
+  }
+
+  .check-transform {
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
   }
 
   .small {
@@ -60,7 +66,7 @@ body {
 
   .table-footer {
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.2em;
     border-top: 1px solid @esn-primary-lesslight;
     td {
       padding-top: 20px;
@@ -72,9 +78,12 @@ body {
     }
 
     .attend-question {
-      font-size: 0.6em;
       color: grey;
     }
+  }
+
+  .indent {
+    padding-left: 10px;
   }
 
   .table-header {
@@ -91,6 +100,9 @@ body {
 
     td.organizer {
       text-align: right;
+      transform: translate(80px);
+      -webkit-transform: translate(80px);
+      -moz-transform: translate(80px);
       img {
         margin: 0;
         padding: 0;
@@ -102,21 +114,27 @@ body {
     }
 
     td.avatar {
-      text-align: left;
+      img {
+        width: 54px;
+        height: 50px;
+        padding: 0px;
+      }
     }
   }
 
   table {
     border-collapse: collapse;
     width: 100%;
-
-    img {
-      padding: 0 30px 0 0;
-    }
+    color: @font-color;
 
     td {
       padding-top: 10px;
       padding-bottom: 10px;
+    }
+
+    .indent-right {
+      text-align: right;
+      padding-right: 15px;
     }
   }
 
@@ -125,9 +143,6 @@ body {
     margin-top:10px;
     .footer {
       text-align: right;
-    }
-    a {
-      color: @esn-linagora;
     }
   }
 }
