@@ -1,7 +1,7 @@
 form.event-quick-form.form-container(role='form')
   span.event-create-error-message
   .form-group
-    input.title.event-input.form-control(type="text", ng-model='editedEvent.title', placeholder="#{__('No title')}")
+    input.title.event-input.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('No title')}")
   .form-group.form-inline
     .row
       .col-xs-4.nopadding

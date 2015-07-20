@@ -6,6 +6,7 @@ angular.module('esn.calendar')
 
     $scope.editedEvent = {};
     $scope.restActive = false;
+    $scope.EVENT_FORM = EVENT_FORM;
 
     this.isNew = function(event) {
       return angular.isUndefined(event._id);
