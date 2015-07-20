@@ -16,8 +16,6 @@
           h4.visible-xs {{letter}}
           .row(ng-repeat="contact in contacts")
             hr.hidden-xs
-            contact-list-item.hidden-xs(contact='contact', book-id="bookId")
-            mobile-contact-list-item.visible-xs(contact='contact', book-id="bookId")  
-          .vertiz-space
+            contact-list-item(contact='contact', book-id="bookId")
     .col-xs-1.nopadding.hidden-xs-height
       alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")

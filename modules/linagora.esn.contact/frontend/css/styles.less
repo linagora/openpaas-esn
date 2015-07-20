@@ -8,156 +8,6 @@
   padding: 18px;
   float: right;
 
-.contact-panel {
-
-  hr {
-    margin-top: 5px;
-    margin-bottom: 5px;
-  }
-}
-
-.modify-success {
-  color: @dark-green;
-  animation-duration: 2s;
-  animation-name: fade-in;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity:1;
-  }
-}
-
-.panel-header {
-  .full-width {
-    width: 100%;
-    z-index: -1;
-    border-bottom: 1px solid @dark-grey;
-  }
-
-  .contact-controls-wrapper {
-    position:absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-    text-align:center;
-  }
-
-  .contact-controls {
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
-    transition: 1s background;
-    button {
-      margin-left:0;
-      margin-right:0;
-    }
-  }
-
-  .contact-controls.affix {
-    z-index: 1210;
-    margin-top: 36px;
-    background: @esn-secondary-dark;
-    transition: 1s background;
-    button {
-      margin-left:0;
-      margin-right:0;
-    }
-  }
-
-  .controls-fa {
-    color: @white;
-    font-size: 18pt;
-  }
-
-  .contact-dropdown{
-    margin: 10px 0px;
-    padding: 8px 30px;
-  }
-}
-
-.create-content {
-  .contact-fn {
-    text-align: center;
-    border-bottom:1px solid @middle-dark-grey;
-
-    .contact-heading-mobile{
-      font-size: 24pt;
-    }
-  }
-
-  contact-photo {
-    .photo {
-      position: relative;
-
-      .hint {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        color: @light-grey;
-        background-color: rgba(0, 0, 0, 0.3);
-      }
-
-      img {
-        width: auto;
-        height: 18.2ex;
-        cursor: pointer;
-      }
-    }
-  }
-
-  .contact-card {
-    min-height: 60px;
-    margin: 0;
-    width:100%;
-    border-bottom:1px solid @middle-dark-grey;
-
-    a {
-      color:@defaultFontColor;
-    }
-
-    .tag-item {
-      background-color: @blue;
-      color: @white;
-      padding: 3px 5px 0px 5px;
-      margin: 2px;
-      float: left;
-      list-style: none;
-    }
-
-    ul.tag-list {
-      padding:0;
-    }
-
-    .contact-card-fa {
-      font-size: 18pt;
-      width: 30px;
-      min-height:100%;
-      float: left;
-    }
-
-    .contact-card-infos {
-      text-align: left;
-      text-transform: none;
-      margin: 0 0 0 60px;
-    }
-
-    .contact-card-type {
-      color: @dark-grey;
-      font-size: 8pt;
-      text-align: left;
-      text-transform: none;
-      margin-left: 60px;
-    }
-
-    .contact-card-infos .contact-card-type{
-      margin-left: 0;
-    }
-  }
-
   button {
     margin-right: 5px;
   }
@@ -168,179 +18,115 @@
   h1 {
     font-size: 22px;
     color: @m-white;
-
-.photo {
-  position: relative;
-
-  .hint {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    color: @light-grey;
-    background-color: rgba(0, 0, 0, 0.3);
-
-  .contact-card-comments {
-    padding: 8px 30px;
   }
-  .full-width {
-    width:100%;
-  }
-
 }
 
-contact-display, contact-display-editable {
-  .photo {
-    position: relative;
-
-    .hint {
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      color: @light-grey;
-      background-color: rgba(0, 0, 0, 0.3);
+.contact-header.visible-xs {
+  background-color: transparent;
+  & > .contact-controls-wrapper {
+    position:absolute;
+    z-index: 9;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+    .mdi {
+      font-size: 1.9em;
+      color: @m-white;
+      padding: 10px 0;
     }
-
-    img {
-      width: auto;
-      height: 18.2ex;
-      cursor: pointer;
+    .row > a, .dropdown {
+      text-align: center;
+    }
+    .contact-controls {
+      transition: 1s background;
+    }
+    .contact-controls.affix {
+      transition: 1s background;
+      position: fixed;
+      top: 64px !important;
+      width: 100% !important;
+      z-index: 9;
+      background-color: @primaryColor;
     }
   }
-
-  .noindent {
-    padding-left: 0;
-    padding-right: 0;
+  & > img {
+  border-bottom: 1px solid @gray;
   }
+}
 
-  .noindent-left {
-    padding-left: 0;
+.contact-content.visible-xs {
+  .contact-fn {
+    text-align: center;
+    border-bottom:1px solid @m-gray;
+    font-size: 18pt;
   }
-
-  .bigger {
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-
-  .tags-group {
-    min-height: 5.9em;
-  }
-
-  .input-group {
-    display: block;
-  }
-
-  input.ng-invalid-required, input.ng-invalid-email {
-    border-color: @red;
-  }
-
-  .input-group {
-    .inline-input-edition-group-btn {
-      display: inline;
-
-      .btn {
-        border: none;
-        background:transparent;
-        padding: 5px 10px;
+  .contact-infos {
+    display: flex;
+    flex-direction: column;
+    button {
+      width:100%;
+    }
+    .contact-card {
+      min-height: 60px;
+      margin: 0;
+      width:100%;
+      border-bottom:1px solid @m-gray;
+      a {
+        color: @text-color;
       }
-      .btn:hover {
-        box-shadow: none;
+      .tag-item {
+        background-color: @m-blue;
+        color: @m-white;
+        padding: 3px 5px 0px 5px;
+        margin: 2px;
+        float: left;
+        list-style: none;
       }
-
-      [class^="fa-"], [class*="fa-"] {
-        margin-right: 0;
+      ul.tag-list {
+        padding:0;
       }
-
-      z-index: 3;
+      .contact-card-fa {
+        font-size: 18pt;
+        width: 30px;
+        min-height:100%;
+        float: left;
+      }
+      .contact-card-infos {
+        text-align: left;
+        text-transform: none;
+        margin: 0 0 0 60px;
+      }
+      .contact-card-type {
+        color: @m-gray;
+        font-size: 8pt;
+        text-align: left;
+        text-transform: none;
+        margin-left: 60px;
+      }
+      .contact-card-infos .contact-card-type {
+        margin-left: 0;
+      }
     }
-
-    .inline-check-button {
-      position: absolute;
-      right: 70px;
-      top: 0;
+    .contact-card-comments {
+      padding: 6px 12px;
+      background-color: @m-white;
     }
+  }
+}
 
-    .inline-remove-button {
-      position: absolute;
-      right: 35px;
-      top: 0;
-    }
+.contact-edit-content-mobile {
+  background-color: @m-white;
+  .input-group-addon .mdi {
+    font-size: 23px;
+  }
+  tags-input .tags {
+    border: none !important;
+    box-shadow: none !important;
   }
 }
 
 .contact-list-item {
-  overflow: visible;
-
-  .ResizeImage(@defaultImageSizeMedium, auto);
-
-  .touch-zone {
-    min-height: 50px;
-  }
-
-  .contact-actions {
-    padding-top: 15px;
-    padding-bottom: 15px;
-  }
-
-  .action-item {
-    padding-left: 5px;
-    .dropdown {
-      position: absolute;
-    }
-    button.btn {
-      float: right;
-    }
-    a {
-      cursor: pointer;
-    }
-    a.write {
-      color: @red
-    }
-    a.call {
-      color: @dark-green
-    }
-    a.moreactions {
-      color: @black
-    }
-  }
-}
-
-.alphascroll {
-
-  ul {
-
-    :hover {
-      transform: scale(1.2);
-    }
-
-    list-style: none;
-    padding-left: 10px;
-    padding-right: 10px;
-
-    li {
-      padding-top: 0px;
-      padding-bottom: 0px;
-
-      a {
-        color: @black;
-        cursor: pointer;
-        text-decoration: none;
-        opacity: 0.6;
-      }
-
-      a.active {
-        color: @black;
-        font-weight: bold;
-        font-size: 1.2em;
-        opacity: 1;
-      }
-    }
-  }
-
-  &.affix-bottom {
-    position: fixed !important; /* needed to overwrite styles automatically set using the style attribute */
-    top: 40px !important; /* needed to overwrite styles automatically set using the style attribute */
-    width: 24px !important; /* needed to overwrite styles automatically set using the style attribute */
+  img {
+    width: auto;
+    height: 48px;
+    cursor: pointer;
   }
 }

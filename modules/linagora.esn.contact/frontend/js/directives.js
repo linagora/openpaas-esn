@@ -350,7 +350,7 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', function($rootScope, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
+  .directive('contactListItem', function($rootScope, $location, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -369,6 +369,10 @@ angular.module('linagora.esn.contact')
 
         $scope.email = getFirstValue('emails');
         $scope.tel = getFirstValue('tel');
+
+        $scope.displayContact = function($event) {
+          $location.path('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+        };
 
         $scope.deleteContact = function() {
           contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {
@@ -390,54 +394,6 @@ angular.module('linagora.esn.contact')
             });
           });
         };
-      }
-    };
-  })
-  .directive('mobileContactListItem', function($rootScope, $location, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
-    return {
-      restrict: 'E',
-      templateUrl: '/contact/views/partials/mobile-contact-list-item.html',
-      scope: {
-        contact: '=',
-        bookId: '='
-      },
-      link: function($scope) {
-
-        function getFirstValue(property) {
-          if (!$scope.contact[property] || !$scope.contact[property][0]) {
-            return;
-          }
-          return $scope.contact[property][0].value;
-        }
-
-        $scope.email = getFirstValue('emails');
-        $scope.tel = getFirstValue('tel');
-
-        $scope.displayContact = function($event) {
-          $location.path('/contact/mobile/show/' + $scope.bookId + '/' + $scope.contact.id);
-        };
-
-        $scope.deleteContact = function() {
-          contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {
-            notificationFactory.weakError('Contact Delete', 'Can not delete contact');
-
-            return $q.reject(err);
-          }).then(function(taskId) {
-            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
-              return gracePeriodService.cancel(taskId).then(function() {
-                $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
-              });
-            });
-          });
-        };
-      }
-    };
-  })
-  .directive('fullWidthPage', function() {
-    return {
-      restrict: 'A',
-      link: function(scope, element) {
-        angular.element(element).parents().eq(3).addClass('nopadding');
       }
     };
   })

@@ -458,6 +458,36 @@ describe('The Contacts Angular module', function() {
       });
 
     });
+
+    describe('The deleteContact function', function() {
+
+      it('should go back to the list of contacts when called', function(done) {
+        $location.path = function(path) {
+          expect(path).to.equal('/contact');
+          done();
+        };
+        this.initController();
+        scope.deleteContact();
+      });
+
+      it('should call contactsService.remove with the right bookId and cardId', function(done) {
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        contactsService.deleteContact = function(id, contact) {
+          expect(id).to.deep.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
+          done();
+      };
+
+        contactsService.getCard = function(path) {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+
+        this.initController();
+        scope.deleteContact();
+        $timeout.flush();
+      });
+    });
+
   });
 
   describe('the contactAvatarModalController', function() {
@@ -516,52 +546,6 @@ describe('The Contacts Angular module', function() {
 
   });
 
-  describe('The displayContactController controller', function() {
-
-    beforeEach(function() {
-      this.initController = $controller.bind(null, 'displayContactController', { $scope: scope});
-    });
-
-    it('should go back to the list of contacts when back() is called', function(done) {
-      $location.path = function(path) {
-        expect(path).to.equal('/contact');
-        done();
-      };
-      this.initController();
-      scope.back();
-    });
-
-    describe('The deleteContact function', function() {
-
-        it('should go back to the list of contacts when called', function(done) {
-          $location.path = function(path) {
-            expect(path).to.equal('/contact');
-            done();
-          };
-          this.initController();
-          scope.deleteContact();
-        });
-
-        it('should call contactsService.remove with the right bookId and cardId', function(done) {
-          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          contactsService.remove = function(id, contact) {
-            expect(id).to.deep.equal(bookId);
-            expect(contact).to.deep.equal(scope.contact);
-            done();
-          };
-
-          contactsService.getCard = function(path) {
-            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
-          };
-
-          this.initController();
-          scope.deleteContact();
-          $timeout.flush();
-        });
-    });
-
-  });
-
   describe('The editContactController controller', function() {
 
     beforeEach(function() {
@@ -590,7 +574,7 @@ describe('The Contacts Angular module', function() {
           scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
 
           $location.path = function(path) {
-            expect(path).to.equal('/contact/mobile/show/' + scope.bookId + '/' + scope.cardId);
+            expect(path).to.equal('/contact/show/' + scope.bookId + '/' + scope.cardId);
             done();
           };
 
@@ -629,7 +613,7 @@ describe('The Contacts Angular module', function() {
 
         it('should call contactsService.remove with the right bookId and cardId', function(done) {
           scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-          contactsService.remove = function(id, contact) {
+          contactsService.deleteContact = function(id, contact) {
             expect(id).to.deep.equal(bookId);
             expect(contact).to.deep.equal(scope.contact);
             done();

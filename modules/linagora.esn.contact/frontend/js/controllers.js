@@ -86,12 +86,19 @@ angular.module('linagora.esn.contact')
 
     sharedDataService.contact = {};
   })
-  .controller('showContactController', function($scope, $rootScope, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
 
     $scope.close = closeForm;
+
+    $scope.deleteContact = function() {
+      closeForm();
+      $timeout(function() {
+        contactsService.deleteContact($scope.bookId, $scope.contact);
+      }, 200);
+    };
 
     function _modify() {
       return sendContactToBackend($scope, function() {
@@ -113,41 +120,12 @@ angular.module('linagora.esn.contact')
 
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
-    }, function() {
-      displayError('Cannot get contact details');
-    });
-  })
-  .controller('displayContactController', function($scope, ContactsHelper, $q, $timeout, $rootScope, gracePeriodService, notificationFactory, DEFAULT_AVATAR, GRACE_DELAY, $route, contactsService, closeForm, displayError) {
-    $scope.bookId = $route.current.params.bookId;
-    $scope.cardId = $route.current.params.cardId;
-    $scope.contact = {};
-    $scope.back = closeForm;
-
-    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
-      $scope.contact = card;
       $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
       $scope.defaultAvatar = DEFAULT_AVATAR;
     }, function() {
       displayError('Cannot get contact details');
     });
 
-    function _deleteContact() {
-      contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(function(taskId) {
-            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
-              return gracePeriodService.cancel(taskId).then(function() {
-                $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
-              });
-            });
-          } , function(err) {
-            notificationFactory.weakError('Contact Delete', 'Can not delete contact');
-            return $q.reject(err);
-          });
-    }
-
-    $scope.deleteContact = function() {
-      closeForm();
-      $timeout(_deleteContact, 200);
-    };
   })
   .controller('editContactController', function($scope, $q, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, DEFAULT_AVATAR, GRACE_DELAY) {
     $scope.bookId = $route.current.params.bookId;
@@ -167,30 +145,18 @@ angular.module('linagora.esn.contact')
         }, function(err) {
         });
       }).then(function() {
-        $location.path('/contact/mobile/show/' + $scope.bookId + '/' + $scope.cardId);
+        $location.path('/contact/show/' + $scope.bookId + '/' + $scope.cardId);
       }, function(err) {
         displayError(err);
         return $q.reject(err);
       });
     };
 
-    function _deleteContact() {
-      contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(function(taskId) {
-            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel').then(null, function() {
-              return gracePeriodService.cancel(taskId).then(function() {
-                $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
-              });
-            });
-          } , function(err) {
-            notificationFactory.weakError('Contact Delete', 'Can not delete contact');
-
-            return $q.reject(err);
-          });
-    }
-
     $scope.deleteContact = function() {
       closeForm();
-      $timeout(_deleteContact, 200);
+      $timeout(function() {
+        contactsService.deleteContact($scope.bookId, $scope.contact);
+      }, 200);
     };
 
   })
