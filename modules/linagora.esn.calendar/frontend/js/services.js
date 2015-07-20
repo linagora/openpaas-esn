@@ -1,12 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('CalendarRestangular', function(Restangular) {
-    return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl('/davserver/api');
-      RestangularConfigurer.setFullResponse(true);
-    });
-  })
+
   .factory('calendarEventSource', function($log, calendarService) {
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
@@ -29,7 +24,45 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES, socket) {
+  .factory('request', function($http, tokenAPI, DAV_PATH) {
+    function _configureRequest(method, path, headers, body) {
+      return tokenAPI.getNewToken().then(function(result) {
+        var token = result.data.token;
+        var url = DAV_PATH;
+
+        headers = headers || {};
+        headers.ESNToken = token;
+
+        if (path[0] === '/') {
+          var a = document.createElement('a');
+          a.href = url;
+          url = a.protocol + '//' + a.host;
+        } else {
+          url = url.replace(/\/$/, '') + '/';
+        }
+
+        var config = {
+          url: url + path,
+          method: method,
+          headers: headers
+        };
+
+        if (body) {
+          config.data = body;
+        }
+
+        return config;
+      });
+    }
+
+    function request(method, path, headers, body) {
+      return _configureRequest(method, path, headers, body).then($http);
+    }
+
+    return request;
+  })
+
+  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarUtils, ICAL, ICAL_PROPERTIES) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -93,59 +126,6 @@ angular.module('esn.calendar')
       this.vcalendar = vcalendar;
       this.path = path;
       this.etag = etag;
-    }
-
-    function getCaldavServerURL() {
-      if (serverUrlCache) {
-        return serverUrlCache.promise;
-      }
-
-      serverUrlCache = $q.defer();
-      CalendarRestangular.one('info').get().then(
-        function(response) {
-          serverUrlCache.resolve(response.data.url);
-        },
-        function(err) {
-          serverUrlCache.reject(err);
-        }
-      );
-
-      return serverUrlCache.promise;
-    }
-
-    function configureRequest(method, path, headers, body) {
-      return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
-        var token = results[0].data.token, url = results[1];
-
-        headers = headers || {};
-        headers.ESNToken = token;
-
-        if (path[0] === '/') {
-          var a = document.createElement('a');
-          a.href = url;
-          url = a.protocol + '//' + a.host;
-        } else {
-          url = url.replace(/\/$/, '') + '/';
-        }
-
-        var config = {
-          url: url + path,
-          method: method,
-          headers: headers
-        };
-
-        if (body) {
-          config.data = body;
-        }
-
-        return config;
-      });
-    }
-
-    function request(method, path, headers, body) {
-      return configureRequest(method, path, headers, body).then(function(config) {
-        return $http(config);
-      });
     }
 
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
@@ -351,7 +331,6 @@ angular.module('esn.calendar')
       });
     }
 
-    var serverUrlCache = null;
     return {
       list: list,
       create: create,
