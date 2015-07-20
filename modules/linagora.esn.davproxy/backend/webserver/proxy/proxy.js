@@ -1,6 +1,7 @@
 'use strict';
 
 var httpproxy = require('express-http-proxy');
+var url = require('url');
 
 module.exports = function(dependencies) {
 
@@ -8,10 +9,16 @@ module.exports = function(dependencies) {
   var graceperiod = require('./graceperiod')(dependencies);
 
   function http(req, res, options) {
+    var endpointUrl = url.parse(options.endpoint);
 
-    httpproxy(options.endpoint, {
+    var proxyPath = endpointUrl.pathname;
+    if (proxyPath[proxyPath.length - 1] !== '/') {
+      proxyPath = proxyPath + '/';
+    }
+
+    httpproxy(endpointUrl.host, {
       forwardPath: function(req) {
-        return '/' + options.path + req.url;
+        return proxyPath + options.path + req.url;
       },
 
       intercept: function(rsp, data, req, res, callback) {
