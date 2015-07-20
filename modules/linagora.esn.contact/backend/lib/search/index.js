@@ -1,5 +1,7 @@
 'use strict';
 
+var denormalize = require('./denormalize');
+
 var CONTACT_ADDED = 'contacts:contact:add';
 var CONTACT_UPDATED = 'contacts:contact:update';
 var CONTACT_DELETED = 'contacts:contact:delete';
@@ -20,7 +22,7 @@ module.exports = function(dependencies) {
       return callback(new Error('Contact is required'));
     }
 
-    elasticsearch.addDocumentToIndex(contact, {index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
+    elasticsearch.addDocumentToIndex(denormalize(contact), {index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
   }
 
   function removeContactFromIndex(contact, callback) {

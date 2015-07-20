@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var mockery = require('mockery');
 
 describe('The contacts search Module', function() {
 
@@ -48,10 +49,11 @@ describe('The contacts search Module', function() {
     });
 
     it('should call the elasticsearch module', function(done) {
-      var contact = {id: '123', firstName: 'Bruce'};
+      var contact = {id: '123', fn: 'Bruce'};
+      var denormalized = {id: '123', fn: 'Bruce', fistName: 'Bruce'};
 
       deps.elasticsearch.addDocumentToIndex = function(document, options, callback) {
-        expect(document).to.deep.equal(contact);
+        expect(document).to.deep.equal(denormalized);
         expect(options).to.deep.equal({
           id: contact.id,
           type: 'contacts',
@@ -59,6 +61,10 @@ describe('The contacts search Module', function() {
         });
         return callback();
       };
+
+      mockery.registerMock('./denormalize', function() {
+        return denormalized;
+      });
 
       var module = require('../../../../backend/lib/search')(dependencies);
       module.indexContact(contact, this.helpers.callbacks.noError(done));
