@@ -42,6 +42,7 @@ describe('jcalHelper', function() {
           date: '06/12/2015',
           time: '3:30 PM'
         },
+        allDay: false,
         location: 'https://hubl.in/openpaas',
         description: 'Présentation de OPENPAAS',
         organizer: {
@@ -73,6 +74,42 @@ describe('jcalHelper', function() {
           time: '3:00 PM'
         },
         end: null,
+        allDay: false,
+        location: 'https://hubl.in/openpaas',
+        description: 'Présentation de OPENPAAS',
+        organizer: {
+          cn: 'John Doe',
+          email: 'johndoe@open-paas.org',
+          avatar: 'http://localhost:8080/api/avatars?objectType=user&email=johndoe@open-paas.org'
+        },
+        attendees: {
+          'johndoe@open-paas.org': {
+            cn: 'John Doe',
+            partstat: 'ACCEPTED'
+          },
+          'janedoe@open-paas.org': {
+            cn: 'Jane Doe',
+            partstat: 'NEEDS-ACTION'
+          }
+        }
+      });
+    });
+
+    it('should parse jcal formatted allDay event', function() {
+      ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
+      expect(this.jcalHelper.jcal2content(ics, 'http://localhost:8080/')).to.deep.equal({
+        method: 'REQUEST',
+        sequence: 0,
+        summary: 'Démo OPENPAAS',
+        start: {
+          date: '06/12/2015',
+          time: '12:00 AM'
+        },
+        end: {
+          date: '09/12/2015',
+          time: '12:00 AM'
+        },
+        allDay: true,
         location: 'https://hubl.in/openpaas',
         description: 'Présentation de OPENPAAS',
         organizer: {
