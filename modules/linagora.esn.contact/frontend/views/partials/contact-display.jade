@@ -7,14 +7,14 @@
             contact-photo(contact='contact', editable='true')
         .col-xs-12.col-sm-8.col-sm-pull-4
           .form-group
-            input.bigger.form-control.floating-label(ng-if='!update', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
-            inline-editable-input(ng-if='update', input-class='bigger form-control', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', on-save='modify')
+            input.form-control.floating-label(ng-if='!update', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
+            inline-editable-input(ng-if='update', input-class='form-control', type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName', on-save='modify')
           .form-group
-            inline-editable-input(ng-if='update', input-class='bigger form-control', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', on-save='modify')
-            input.bigger.form-control.floating-label(ng-if='!update', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
+            inline-editable-input(ng-if='update', input-class='form-control', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName', on-save='modify')
+            input.form-control.floating-label(ng-if='!update', type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
           .form-group
-            inline-editable-input(ng-if='update', input-class='bigger form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
-            input.bigger.form-control.floating-label(ng-if="!update", type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
+            inline-editable-input(ng-if='update', input-class='form-control', type='text', placeholder='#{__("Organization")}', ng-model='contact.org', on-save='modify')
+            input.form-control.floating-label(ng-if="!update", type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
       .form-group(ng-show='contact.org')
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
@@ -27,7 +27,7 @@
       multi-input-group(ng-if='!update', multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
       multi-input-group-address(ng-if='!update', multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]')
     .col-lg-5
-      .form-group.tags-group
+      .form-group
         label.control-label.sr-only #{__("Tags")}
         .col-sm-12
           tags-input(ng-if='!update', ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')

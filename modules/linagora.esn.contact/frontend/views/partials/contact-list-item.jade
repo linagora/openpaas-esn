@@ -1,4 +1,4 @@
-div.contact-list-item
+div
   .col-xs-2.nopadding
     a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
       contact-photo.media-object(contact='contact')
@@ -18,19 +18,19 @@ div.contact-list-item
             i.fa.fa-phone
             | {{::tel}}
 
-  .col-xs-3.contact-actions
+  .col-xs-3
 
     .row.vertical-centered.pull-right
 
-      .col-xs-4.action-item.hidden-xs
+      .col-xs-4.hidden-xs
         a.write(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
           i.mdi-content-create
 
-      .col-xs-4.action-item.hidden-xs
+      .col-xs-4.hidden-xs
         a.call(ng-href="")
           i.mdi-communication-call
 
-      .col-xs-4.action-item
+      .col-xs-4
         .dropdown.pull-right
           a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
             i.mdi-navigation-more-vert
