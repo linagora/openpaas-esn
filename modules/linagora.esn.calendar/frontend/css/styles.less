@@ -1,13 +1,15 @@
-@import "../../../../frontend/components/bootstrap/less/variables";
-@import "../../../../frontend/css/variables";
-@import "../../../../frontend/css/commons";
+@import "../../../../frontend/css/styles";
 
-.submit-button {
-  margin-right: 10px;
+/*
+ * Vendor Overrides
+ */
+@import '../../../../frontend/components/material-admin/less/inc/vendor-overrides/fullcalendar';
+
+.fc-today-button {
+
 }
 
 .event-common {
-
 }
 
 .event-accepted {
@@ -22,11 +24,6 @@
 .user-auto-complete {
   display: flex;
   align-items: center;
-  @media (max-width: @screen-xs-max) {
-    img {
-      max-width: 40px;
-    }
-  }
 }
 
 tags-input .autocomplete {
@@ -34,84 +31,11 @@ tags-input .autocomplete {
   padding: 0;
 }
 
-.modal-body.modal-event-quick-form {
-  padding: 10px 24px 0;
-}
-
-.event-quick-form {
-  margin: auto auto 10px auto;
-  padding: 1em;
-
-  .input-group-addon {
-    padding: 6px 12px 6px 0;
-  }
-
-  .title, .title:focus {
-    height: 48px;
-    font-size: 2em;
-  }
-
-  .allday {
-    padding-right: 0;
-    padding-top: 2em;
-
-    .checkbox-material {
-      padding-right: 5px;
+@media (max-width: @screen-xs-max) {
+  .user-auto-complete {
+    img {
+      max-width: 40px;
     }
-  }
-
-  .accepted, .btn.accepted  {
-    color: green;
-  }
-
-  .undecided, .btn.undecided {
-    color: blue;
-  }
-
-  .declined, .btn.declined {
-    color: red;
-  }
-
-  .row.status {
-    .btn.active {
-      background-color: grey;
-      box-shadow: none;
-    }
-  }
-
-  .attendees-list {
-    position: relative;
-
-    ul {
-      margin-left: 25px;
-    }
-
-    .scrollable {
-      max-height: 200px;
-      overflow-y: scroll;
-    }
-
-    .attendee-avatar {
-      .ResizeImage(45px, auto);
-      position: relative;
-      i {
-        position: absolute;
-        bottom: 0px;
-        right: 0px;
-        .BoxShadow(0px 0px 15px -3px black);
-        margin-right: 0px;
-        color: black;
-        background-color: white;
-      }
-    }
-
-    .trash {
-      position: absolute;
-      color: red;
-      height: 100%;
-      right: 0px;
-    }
-
   }
 
   &.readonly {
