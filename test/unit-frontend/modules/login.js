@@ -73,7 +73,7 @@ describe('The Login Angular module', function() {
         this.loginAPI.login = function() {
           done();
         };
-        this.scope.login();
+        this.scope.login(this.scope.form);
       });
 
       it('should call the loginAPI.login() method with scope credentials', function(done) {
@@ -87,7 +87,7 @@ describe('The Login Angular module', function() {
           expect(credentials.rememberme).to.be.true;
           done();
         };
-        this.scope.login();
+        this.scope.login(this.scope.form);
       });
 
       it('should reload the page after login', function(done) {
@@ -106,7 +106,7 @@ describe('The Login Angular module', function() {
           };
         };
 
-        this.scope.login();
+        this.scope.login(this.scope.form);
       });
 
     });

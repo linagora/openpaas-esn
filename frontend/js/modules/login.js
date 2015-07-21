@@ -17,6 +17,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
     };
   })
   .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService) {
+    $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
       needed: false,
@@ -36,8 +37,8 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
       running: false
     };
 
-    $scope.login = function() {
-      if ($scope.form.$invalid) {
+    $scope.login = function(form) {
+      if (form.$invalid) {
         return;
       }
 

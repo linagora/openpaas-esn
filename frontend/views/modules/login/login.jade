@@ -1,29 +1,20 @@
-.col-md-12.panel.form-container
-  form(name='form')
-    .alert.alert-danger(ng-hide='!showError()')
-      p
-        strong #{__('Error')} :&nbsp;
-        | {{error.error.details || 'Bad username or password'}}
-    .alert.alert-info(ng-show='loginIn')
-      p #{__('Please wait...')}
-    fieldset(ng-disabled='loginIn')
-      .row
-        .col-md-12.col-sm-12.form-group
-          input.form-control(type='email', ng-model='credentials.username', name='username', id='username', placeholder="#{__('Email')}", autofocus=true, required)
-        .col-md-8.col-sm-12.form-group
-          input.form-control(type='password', ng-model='credentials.password', name='password', id='password', placeholder="#{__('Password')}", required, autocomplete='{{autocomplete}}')
-        .col-md-4.col-sm-12.form-group
-          button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
-            i.mdi.mdi-exit-to-app(ng-hide='loginTask.running') &nbsp;
-            i(ng-hide='!loginTask.running') &nbsp;
-            | #{__('{{loginButton.label}}')}
-      .row
-        .col-md-6.col-sm-12.form-group
-          label
-            input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
-            | &nbsp; #{__('Remember me')}
-        .col-md-6.col-sm-12.form-group
-          a(href='/#')
-            | #{__("Forgot password ?")}
-        .form-group
-          include recaptcha
+form(name='form')
+  fieldset(ng-disabled='loginIn')
+    .input-group.m-b-20
+      span.input-group-addon
+        i.mdi.mdi-account
+      .fg-line
+        input.form-control(type='email', ng-model='credentials.username', name='username', id='username', placeholder="#{__('Email')}", autofocus=true, required)
+    .input-group.m-b-20
+      span.input-group-addon
+        i.mdi.mdi-lock
+      .fg-line
+        input.form-control(type='password', ng-model='credentials.password', name='password', id='password', placeholder="#{__('Password')}", required, autocomplete='{{autocomplete}}')
+    .clearfix
+    .checkbox
+      label
+        input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
+        i.input-helper
+        |                     #{__('Remember me')}
+    button.btn.btn-login.btn-danger.btn-float(type='submit', ng-click='autofill(); login(form)', ng-disabled='loginTask.running')
+      i.mdi.mdi-arrow-right

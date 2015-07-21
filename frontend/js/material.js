@@ -1,5 +1,4 @@
 'use strict';
 
-$(function() {
-  $.material.init();
-});
+/* exported materialAdmin */
+var materialAdmin = angular.module('materialAdmin', []);
