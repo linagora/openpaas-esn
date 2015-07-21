@@ -1,16 +1,16 @@
-div.feedback.aside( tabindex='-1' role='dialog' ng-controller='feedback')
-    div.aside-dialog
-        div.aside-content
-            div.aside-header
-                button.close(type='button' ng-click='$hide()') &times;
-                h4.aside-title #{__('Give a feedback')}
-            form(name='feedbackFrom')
-                div.aside-body
-                    div.alert.alert-danger(ng-show='error') #{__('There was an error while sending your feedback. Please try again.')}
-                    textarea.feedback.form-control(ng-model='feedback' ng-hide='feedbackTask.done' placeholder='#{__("We love feedback")}...' ng-change='error = false')
-                    div(ng-show='feedbackTask.done') #{__('Your feedback has been sent')}
-                div.aside-footer
-                    button.btn.btn-default(type='button' ng-click='$hide()') #{__('Close')}
-                    button.btn.btn-primary(type='button' ng-click='submit()' ng-disabled='feedbackTask.running || !feedback.length' ng-hide='feedbackTask.done')
-                        i.feedback.fa.fa-spinner.fa-spin(ng-show='feedbackTask.running') &nbsp;
-                        | #{__('{{feedbackButton.label}}')}
+div.aside( tabindex='-1' role='dialog' ng-controller='feedback')
+  div.aside-dialog
+    div.aside-content
+      div.aside-header
+        button.close(type='button' ng-click='$hide()') &times;
+        h4.aside-title #{__('Give a feedback')}
+        form(name='feedbackFrom')
+          div.aside-body
+            div.alert.alert-danger(ng-show='error') #{__('There was an error while sending your feedback. Please try again.')}
+            textarea.form-control(ng-model='feedback' ng-hide='feedbackTask.done' placeholder='#{__("We love feedback")}...' ng-change='error = false')
+              div(ng-show='feedbackTask.done') #{__('Your feedback has been sent')}
+              div.aside-footer
+                button.btn.btn-default(type='button' ng-click='$hide()') #{__('Close')}
+                button.btn.btn-primary(type='button' ng-click='submit()' ng-disabled='feedbackTask.running || !feedback.length' ng-hide='feedbackTask.done')
+                  i.fa.fa-spinner.fa-spin(ng-show='feedbackTask.running') &nbsp;
+                  | #{__('{{feedbackButton.label}}')}

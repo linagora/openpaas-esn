@@ -1,6 +1,6 @@
 .row
-  .col-xs-12.esn-panel(ng-if='!isCommunityManager()')
-    p.text-center.community-not-allowed #{__('You are not allowed to see the sent invitations of this community')}
+  .col-xs-12(ng-if='!isCommunityManager()')
+    p.text-center #{__('You are not allowed to see the sent invitations of this community')}
 
 .row(ng-if="isCommunityManager()")
 

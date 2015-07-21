@@ -1,4 +1,4 @@
-div.col-xs-12.nopadding.esn-community
+div.col-xs-12.nopadding
   .col-lg-2.col-sm-3.col-xs-4
     a(href='#/communities/{{community._id}}')
       img.thumbnail(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
@@ -16,7 +16,7 @@ div.col-xs-12.nopadding.esn-community
       li.pull-left(ng-show="isCreator()")
         span.label.label-warning #{__('Creator')}
       .clearfix
-    blockquote.hidden-xs.community-description(ng-show='community.description')
+    blockquote.hidden-xs(ng-show='community.description')
       p(ng-hide='truncate && truncate === true') {{community.description}}
   .col-lg-3.col-sm-4.col-xs-12.vertiz-space
     community-button-join(community='community', user='user', on-join='reload(community)', on-fail='joinFailure(community)')

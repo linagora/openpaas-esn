@@ -34,7 +34,7 @@
           .radio.radio-primary.disabled.col-xs-10.col-xs-offset-1.text-justify
             label
               input(type="radio", ng-model="community.type", value="confidential" disabled)
-              .label.label-disabled #{__('Confidential')}
+              .label #{__('Confidential')}
               p.description(ng-class='{"text-muted" : community.type!=="confidential"}') #{__('Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation')}.
 .modal-footer(ng-hide="sending")
   button.btn.btn-secondary-dark(type="button", ng-disabled="!communityForm.title.$viewValue || communityForm.title.$error.unique || communityForm.$pending", ng-click="wizard.nextStep()")

@@ -1,5 +1,5 @@
 div
-  div.inner-widget.media.message-comment(ng-repeat='response in message.responses')
+  div.media(ng-repeat='response in message.responses')
     message-template-displayer(message='response', activitystream='activitystream')
-  div.media.message-add-comment(data-ng-if='writable && parentMessage')
+  div.media(data-ng-if='writable && parentMessage')
     whatsup-add-comment

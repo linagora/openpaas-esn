@@ -25,8 +25,7 @@ follow the template example pattern.
 
 #### Template example
 
-        .esn-panel
-          div
+        div
             ...
         .vertiz-space
 

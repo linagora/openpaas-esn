@@ -1,7 +1,7 @@
-div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
+div.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
   form(name='messageform')
     .form-group
-      textarea.whatsup-input.form-control(ng-model='messageContent', placeholder="#{__('Enter your poll description and question')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+      textarea.form-control(ng-model='messageContent', placeholder="#{__('Enter your poll description and question')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
     .form-group
       map-get-display-current-position
     .form-group(ng-show='attachments && attachments.length > 0')

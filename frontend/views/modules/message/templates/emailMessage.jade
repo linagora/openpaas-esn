@@ -1,5 +1,5 @@
 div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
-  a.pull-left.message-avatar(href='#')
+  a.pull-left(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div.esn-email
     h4.media-heading
@@ -11,7 +11,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
         span {{message.parsedHeaders.subject}}
 
       .row.header
-        a.avatar(href='#', title='{{message.parsedHeaders.from.name}} <{{message.parsedHeaders.from.address}}>')
+        a(href='#', title='{{message.parsedHeaders.from.name}} <{{message.parsedHeaders.from.address}}>')
           img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{message.parsedHeaders.from.address}}")
           span.label.label-danger.emaillabel From
 
@@ -22,18 +22,18 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
           b {{message.parsedHeaders.date | amCalendar}}
 
       .row.to
-        ul.emails-list
+        ul
           li(ng-repeat="to in message.parsedHeaders.to")
             profile-minicard(user='to', label='To', labelclass='label-primary')
 
       .row.cc
-        ul.emails-list
+        ul
           li(ng-repeat="cc in message.parsedHeaders.cc")
             profile-minicard(user='cc', label='Cc', labelclass='label-info')
 
       .row.body
         blockquote
-          p.multilines.email-message-body(data-ng-show='message.body.text || message.body.html' ng-bind-html="(message.body.text || message.body.html) | linky")
+          p.multilines(data-ng-show='message.body.text || message.body.html' ng-bind-html="(message.body.text || message.body.html) | linky")
     message-bottom-links
     message-attachments(message='message')
     message-comments

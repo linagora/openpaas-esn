@@ -14,7 +14,7 @@
       avatar-picker
     .form-group
       label #{__('Description')}
-      textarea.form-control.textarea-fixed(rows="3", ng-model='project.description', name='description')
+      textarea.form-control(rows="3", ng-model='project.description', name='description')
       span.help-block #{__("A human readable description which will help users know what this project is about")}.
 
 .modal-footer(ng-hide="sending")

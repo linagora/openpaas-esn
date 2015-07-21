@@ -28,6 +28,6 @@
           .col-xs-9.col-md-9.col-lg-9(ng-show='preview')
             img-loaded(width="380")
                 
-      .modal-footer.esn-panel(ng-hide='uploading')
+      .modal-footer(ng-hide='uploading')
         button.btn.btn-primary(type="button", ng-disabled="uploading || !preview", ng-click="upload()") #{__('Update')}
         button.btn.btn-default(type="button", ng-disabled="uploading", ng-click="$hide()") #{__('Cancel')}

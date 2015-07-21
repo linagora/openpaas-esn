@@ -1,10 +1,10 @@
 div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
-  a.pull-left.message-avatar(href='#')
+  a.pull-left(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div.media-body
     div
       h4.media-heading
-        i.fa.fa-envelope.message-source-email(ng-show='message.source === "email"', title='sent via email reply')
+        i.fa.fa-envelope(ng-show='message.source === "email"', title='sent via email reply')
         a(href="#") {{message.author.firstname}} {{message.author.lastname}}
         message-date-link(message='message', activitystream='activitystream')
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')

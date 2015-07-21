@@ -1,4 +1,4 @@
-.col-md-12.panel.esn-panel.form-container
+.col-md-12.panel.form-container
   form(name='form')
     .alert.alert-danger(ng-hide='!showError()')
       p
@@ -23,7 +23,7 @@
             input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
             | &nbsp; #{__('Remember me')}
         .col-md-6.col-sm-12.form-group
-          a.esn-pull-right-md(href='/#')
+          a(href='/#')
             | #{__("Forgot password ?")}
         .form-group
           include recaptcha

@@ -1,13 +1,13 @@
 .div
   .row
     .col-xs-12(ng-if='!readable')
-      p.text-center.community-not-allowed #{__('You are no allowed to see the members of this collaboration')}
+      p.text-center #{__('You are no allowed to see the members of this collaboration')}
 
   .row(ng-if="readable" ng-controller="collaborationMembersController")
     .col-xs-12.alert-danger(ng-show="error", role="alert")
       p #{__('Error while getting collaboration members')}.
     .col-xs-12
-      .members-infinite-list
+      div
         infinite-list
           .row(ng-repeat="member in members", ng-switch="member.objectType")
             hr
@@ -16,5 +16,5 @@
             community-display(ng-switch-when="community", community='member.community', actions='false')
             project-display(ng-switch-when="project", project='member.project')
     .col-xs-12
-      .throbber-container.text-center
+      .text-center
         div.throbber(openpaas-logo-spinner, spinner-key='membersSpinner')

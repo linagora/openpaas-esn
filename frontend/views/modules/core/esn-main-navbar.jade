@@ -1,13 +1,13 @@
 .container-fluid
   .row.esn-navbar-wrapper
-    .col-sm-2.hidden-xs.nopadding.esn-navbar-side.text-center #{appName}
+    .col-sm-2.hidden-xs.nopadding.text-center #{appName}
     .col-sm-10.col-xs-12.nopadding
-      div.esn-navbar-side
-        div.esn-item.esn-user-notification(ng-controller="userNotificationController")
+      div
+        .esn-item(ng-controller="userNotificationController")
           span
             user-notification-button
             span.badge(data-ng-hide="!unreadCount.count") {{ unreadCount.count }}
-      div.esn-navbar-main(ng-controller='currentDomainController')
+      div(ng-controller='currentDomainController')
         .esn-item(data-esn-path='communities')
           span
             a(href='#/communities')

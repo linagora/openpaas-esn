@@ -1,4 +1,4 @@
-.media.notification-content.esn-panel
+.media
   div(ng-show='error')
     p #{__('Error while getting notifications')}
   div(ng-show='loading && !error')
@@ -9,10 +9,10 @@
     a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::collaborationJoined._id}}')
       img.media-object(ng-src='/api/avatars?objectType={{::collaborationJoined.objectType}}&id={{::collaborationJoined._id}}', fallback-src='/images/collaboration.png')
     .media-body
-      .notification-head.ellipsis
+      .ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
         a(ng-href="/#/{{::collaborationPath}}/{{::collaborationJoined._id}}") {{::collaborationJoined.title}}
-      .notification-body
+      div
         span
           a(ng-href="/#/profile/{{::joiner._id}}") {{::joiner.firstname}} {{::joiner.lastname}}
           span(ng-switch='collaborationJoined.objectType')

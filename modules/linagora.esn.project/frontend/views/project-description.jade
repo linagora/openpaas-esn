@@ -1,4 +1,4 @@
-div.col-xs-12.nopadding.esn-community
+div.col-xs-12.nopadding
   .col-lg-2.col-sm-3.col-xs-4
     a(href='#/project/{{::project._id}}')
       img.thumbnail(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{::project._id}}/avatar')
@@ -31,5 +31,5 @@ div.col-xs-12.nopadding.esn-community
             .input-group-addon
               i.fa.fa-calendar
             input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
-    blockquote.hidden-xs.community-description(ng-show='project.description')
+    blockquote.hidden-xs(ng-show='project.description')
       p(ng-hide='truncate === true') {{::project.description}}

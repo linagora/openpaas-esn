@@ -1,9 +1,9 @@
-div.inner-widget.form-container(ng-controller='messageCommentController')
+div.form-container(ng-controller='messageCommentController')
   div.media-body
     div(error-message-id='{{message._id}}')
     form(name='whatsupcommentform')
       .form-group(ng-class='{nopadding: rows !== 4}')
-        textarea.whatsupcomment-input.form-control(ng-model='commentContent', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+        textarea..form-control(ng-model='commentContent', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Add a comment')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
       .form-group
         map-get-display-current-position
       .form-group(ng-show='attachments && attachments.length > 0')

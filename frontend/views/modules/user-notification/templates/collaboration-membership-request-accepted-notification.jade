@@ -1,4 +1,4 @@
-.media.notification-content.esn-panel
+.media
   div(ng-show='error')
     p #{__('Error while getting notifications')}
   div(ng-show='loading && !error')
@@ -9,10 +9,10 @@
     a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::collaboration._id}}')
       img.media-object(ng-src='/api/avatars?objectType={{::collaboration.objectType}}&id={{::collaboration._id}}', fallback-src='/images/collaboration.png')
     .media-body
-      .notification-head.ellipsis
+      .ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
         a(ng-href="/#/{{::collaborationPath}}/{{::collaboration._id}}") {{::collaboration.title}}
-      .notification-body(ng-switch='collaboration.objectType')
+      div(ng-switch='collaboration.objectType')
         span(ng-switch-when='community') #{__('Your request has been accepted, welcome to the community')} !
         span(ng-switch-when='project') #{__('Your request has been accepted, welcome to the project')} !
         span(ng-switch-default) #{__('Your request has been accepted, welcome')} !

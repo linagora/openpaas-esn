@@ -2,10 +2,10 @@ div
   header(class="topbar" role="navigation")
     .container-fluid
       a(href="#/")
-        img.logo(src="/images/logo.png")
-      div.pull-right.avatar
+        img(src="/images/logo.png")
+      div.pull-right
         div.dropdown
-          button.navbar-username.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
+          button.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
             user-name-display.hidden-xs
             | &nbsp;
             img.img-circle(ng-controller='avatarController', ng-src='{{avatarURL}}' width="24px" height="24px")
@@ -22,6 +22,6 @@ div
               li: a(href='/logout') #{__('Logout')}
 
   api-notification
-  .nav-wrapper
+  div
     nav(class="navbar navbar-default" role="navigation" data-offset-top="44" bs-affix)
       esn-main-navbar

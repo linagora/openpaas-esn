@@ -1,4 +1,4 @@
-.media.notification-content.esn-panel
+.media
   div(ng-show='error')
     p #{__('Error while getting notifications')}
   div(ng-show='loading && !error')
@@ -9,10 +9,10 @@
     a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::invitationCollaboration._id}}')
       img.media-object(ng-src='/api/avatars?objectType={{::invitationCollaboration.objectType}}&id={{::invitationCollaboration._id}}', fallback-src='/images/collaboration.png')
     .media-body
-      .notification-head.ellipsis
+      .ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
         a(ng-href="/#/{{::collaborationPath}}/{{::invitationCollaboration._id}}") {{::invitationCollaboration.title}}
-      .notification-body
+      div
         span
           a(ng-href="/#/profile/{{::invitationSender._id}}") {{::invitationSender.firstname}} {{::invitationSender.lastname}}
           span(ng-switch='invitationCollaboration.objectType')
@@ -20,13 +20,13 @@
             span(ng-switch-when='project') &nbsp; #{__('invites you to join this project')}
             span(ng-switch-default) &nbsp; #{__('invites you to join this collaboration')}
       div(ng-switch='notification.actionDone')
-        .notification-actions(ng-switch-default)
+        div(ng-switch-default)
           collaboration-invitation-accept-button
           &nbsp;
           collaboration-invitation-decline-button
-        .notification-actions(ng-switch-when='accept')
+        div(ng-switch-when='accept')
           span(ng-switch='invitationCollaboration.objectType')
             span(ng-switch-when='community') #{__('You have been added to the community, welcome')} !
             span(ng-switch-when='project') #{__('You have been added to the project, welcome')} !
             span(ng-switch-default) #{__('You have been added to the collaboration, welcome')} !
-        .notification-actions(ng-switch-when='decline') #{__('You have declined the invitation')}
+        div(ng-switch-when='decline') #{__('You have declined the invitation')}

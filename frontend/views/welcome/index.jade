@@ -28,7 +28,7 @@ html
     script(src='js/modules/form-helper.js')
     script(src='js/modules/modernizr.js')
 
-  body.esn-welcome-app(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
+  body-app(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     #wrap
       include ./partials/header
       div(ng-view ng-cloak)
