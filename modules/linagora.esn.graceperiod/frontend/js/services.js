@@ -38,7 +38,7 @@ angular.module('linagora.esn.graceperiod')
           type: 'success',
           text: appendCancelLink(text, linkText),
           stack: stack,
-          addclass: 'graceperiod text-center',
+          addclass: 'text-center',
           animate_speed: 'normal',
           width: false,
           delay: delay || GRACE_DELAY,
