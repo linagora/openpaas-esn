@@ -5,8 +5,28 @@
  */
 @import '../../../../frontend/components/material-admin/less/inc/vendor-overrides/fullcalendar';
 
-.fc-today-button {
+.fc-toolbar {
+  background-color: @m-lightblue;
+  .btn {
+    padding: 6px 12px;
+  }
+  .fc-today-button, .fc-button-group {
+    margin-top: 2px;
+  }
+}
 
+.fc th {
+  background: darken(@m-lightblue, 5%);
+}
+
+.fc-toolbar .ui-button>span.ui-icon-circle-triangle-w:before {
+  font-family: 'MaterialDesignIcons';
+  content: "\f13f";
+}
+
+.fc-toolbar .ui-button>span.ui-icon-circle-triangle-e:before {
+  font-family: 'MaterialDesignIcons';
+  content: "\f144";
 }
 
 .event-common {

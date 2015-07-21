@@ -30,8 +30,8 @@ angular.module('esn.calendar')
       weekNumbers: true,
       firstDay: 1,
       header: {
-        left: 'today',
-        center: 'prev, title, next',
+        left: 'prev, next, today',
+        center: 'title',
         right: 'month,agendaWeek,agendaDay'
       },
       // TODO: i18n
