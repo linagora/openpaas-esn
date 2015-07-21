@@ -11,6 +11,4 @@ div.aside( tabindex='-1' role='dialog' ng-controller='feedback')
               div(ng-show='feedbackTask.done') #{__('Your feedback has been sent')}
               div.aside-footer
                 button.btn.btn-default(type='button' ng-click='$hide()') #{__('Close')}
-                button.btn.btn-primary(type='button' ng-click='submit()' ng-disabled='feedbackTask.running || !feedback.length' ng-hide='feedbackTask.done')
-                  i.fa.fa-spinner.fa-spin(ng-show='feedbackTask.running') &nbsp;
-                  | #{__('{{feedbackButton.label}}')}
+                button.btn.btn-primary(type='button' ng-click='submit()' ng-disabled='feedbackTask.running || !feedback.length' ng-hide='feedbackTask.done') #{__('{{feedbackButton.label}}')}

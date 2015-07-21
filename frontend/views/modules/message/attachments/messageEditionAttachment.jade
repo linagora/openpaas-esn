@@ -1,6 +1,6 @@
 .attachment-widget
   a.cancel(href="", ng-click='cancel()')
-    i.nomargin.remove.fa.fa-remove
+    i.nomargin.remove.mdi.mdi-close
   attachment-icon(type='{{::attachment.file.type}}')
   div.ellipsis
     a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{::attachment.response._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}

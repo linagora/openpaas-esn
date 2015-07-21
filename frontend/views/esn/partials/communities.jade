@@ -3,7 +3,7 @@
     h2
       ul.list-inline
         li
-          i.fa.fa-users
+          i.mdi.mdi-account-multiple
           | #{__('Communities')}
         li.pull-right
           community-create-button
@@ -24,7 +24,6 @@
 
   .row.alert.alert-info(ng-show="loading", role="alert")
     p
-      i.fa.fa-cog.fa-spin
       | #{__('Loading communities...')}
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
     p #{__('Error while loading communities !')}

@@ -9,7 +9,6 @@
         .row.error(ng-hide="uploading")
         .row.alert.alert-info(ng-show="uploading", role="alert")
           p
-            i.fa.fa-cog.fa-spin
             span(ng-show="step === 'uploading'") #{__('Uploading avatar')}...
             span(ng-show="step === 'redirect'") #{__('Avatar updated')}!
 
@@ -27,7 +26,7 @@
               canvas(width="128", height="128", id="preview", img-preview)
           .col-xs-9.col-md-9.col-lg-9(ng-show='preview')
             img-loaded(width="380")
-                
+
       .modal-footer(ng-hide='uploading')
         button.btn.btn-primary(type="button", ng-disabled="uploading || !preview", ng-click="upload()") #{__('Update')}
         button.btn.btn-default(type="button", ng-disabled="uploading", ng-click="$hide()") #{__('Cancel')}

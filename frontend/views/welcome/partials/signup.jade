@@ -20,8 +20,8 @@ div.col-md-12.panel(ng-show="!error")
       .row
         .col-xs-6.col-xs-offset-6.form-group
           button.btn.btn-primary.pull-right(type='submit', ng-disabled='signupTask.running')
-            i.fa.fa-sign-in(ng-hide="signupTask.running") &nbsp;
-            i.fa.fa-spinner(ng-hide="!signupTask.running") &nbsp;
+            i.mdi.mdi-exit-to-app(ng-hide="signupTask.running") &nbsp;
+            i(ng-hide="!signupTask.running") &nbsp;
             | #{__('{{signupButton.label}}')}
 
 div.col-md-12.panel(ng-show="error")

@@ -2,9 +2,7 @@
   div(ng-show='error')
     p #{__('Error while getting notifications')}
   div(ng-show='loading && !error')
-    p
-      i.fa.fa-cog.fa-spin
-      | #{__('Loading notifications')}
+    p #{__('Loading notifications')}
   div(ng-hide='loading || error')
     a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::invitationCollaboration._id}}')
       img.media-object(ng-src='/api/avatars?objectType={{::invitationCollaboration.objectType}}&id={{::invitationCollaboration._id}}', fallback-src='/images/collaboration.png')

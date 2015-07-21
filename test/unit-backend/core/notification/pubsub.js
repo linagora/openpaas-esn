@@ -53,7 +53,7 @@ describe('The notification pubsub module', function() {
           complement: {objectType: 'community', id: '789'},
           context: null,
           description: null,
-          icon: {objectType: 'icon', id: 'fa-users'},
+          icon: {objectType: 'icon', id: 'mdi-account-multiple'},
           category: 'collaboration:membership:accepted',
           read: false,
           interactive: false,
@@ -97,7 +97,7 @@ describe('The notification pubsub module', function() {
           complement: {objectType: 'community', id: '789'},
           context: null,
           description: null,
-          icon: {objectType: 'icon', id: 'fa-users'},
+          icon: {objectType: 'icon', id: 'mdi-account-multiple'},
           category: 'collaboration:membership:invite',
           interactive: true,
           target: data.target

@@ -2,7 +2,7 @@
   .btn-group.btn-group-justified
     .btn-group
       span.btn.btn-info.btn-file
-        i.fa.fa-upload
+        i.mdi.mdi-upload
         | #{__('Select an image')}
         input(type="file", accept="image/*", load-button)
 .vertiz-space
@@ -14,7 +14,7 @@
     div(ng-show='image.selected')
       .img-preview
         a(data-ng-click='removeSelectedImage()', href='')
-          i.fa.fa-times.fa-5.fa-border
+          i.mdi.mdi-close
         canvas(width="128", height="128", id="preview", img-preview)
   .col-xs-8.col-xs-offset-2.col-sm-9.col-sm-offset-0(ng-show='image.selected')
     .hidden-md.hidden-sm.hidden-lg

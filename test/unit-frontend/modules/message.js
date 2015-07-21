@@ -38,7 +38,7 @@ describe('The esn.message Angular module', function() {
       expect(element.html()).to.have.string(this.$rootScope.testAttachment.name);
     });
 
-    it('The getClass fn should return the fa-file-text fontwasome class for application', function(done) {
+    it('The getClass fn should return the mdi-file-document fontwasome class for application', function(done) {
       var html = '<message-attachment attachment="testAttachment"></messages-display>';
       var element = this.$compile(html)(this.$rootScope);
 
@@ -47,11 +47,11 @@ describe('The esn.message Angular module', function() {
       };
 
       this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-text');
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-document');
       done();
     });
 
-    it('The getClass fn should return the fa-file-image-o fontwasome class for image', function(done) {
+    it('The getClass fn should return the mdi-file-image fontwasome class for image', function(done) {
       var html = '<message-attachment attachment="testAttachment"></messages-display>';
       var element = this.$compile(html)(this.$rootScope);
 
@@ -60,11 +60,11 @@ describe('The esn.message Angular module', function() {
       };
 
       this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-image-o');
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-image');
       done();
     });
 
-    it('The getClass fn should return the fa-file-video-o fontwasome class for video', function(done) {
+    it('The getClass fn should return the mdi-file-video fontwasome class for video', function(done) {
       var html = '<message-attachment attachment="testAttachment"></messages-display>';
       var element = this.$compile(html)(this.$rootScope);
 
@@ -73,11 +73,11 @@ describe('The esn.message Angular module', function() {
       };
 
       this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-video-o');
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-video');
       done();
     });
 
-    it('The getClass fn should return the fa-file-o fontwasome class for unknown type', function(done) {
+    it('The getClass fn should return the mdi-file-outline fontwasome class for unknown type', function(done) {
       var html = '<message-attachment attachment="testAttachment"></messages-display>';
       var element = this.$compile(html)(this.$rootScope);
 
@@ -86,7 +86,7 @@ describe('The esn.message Angular module', function() {
       };
 
       this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('fa-file-o');
+      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-outline');
       done();
     });
   });

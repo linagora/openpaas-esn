@@ -11,11 +11,9 @@ div
                     on-tag-removed='validateTags($tag)')
                 .form-group
                     button.btn.btn-primary.pull-right(type='submit', ng-click='invite()', ng-disabled='running || error')
-                        i.fa.fa-sign-in(ng-hide="running") &nbsp;
+                        i.mdi.mdi-exit-to-app(ng-hide="running") &nbsp;
                             | #{__('Send invitations')}
-                        span(ng-hide="!running")
-                            i.fa.fa-spinner.fa-spin &nbsp;
-                            | #{__('Please wait...')}
+                        span(ng-hide="!running") #{__('Please wait...')}
 
     div.form-container(ng-show='step===1')
         .alert.alert-success.animated

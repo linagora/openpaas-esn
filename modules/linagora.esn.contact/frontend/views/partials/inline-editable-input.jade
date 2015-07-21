@@ -2,11 +2,11 @@
   input(class='{{inputClass}}', type='{{type}}', placeholder='{{placeholder}}', ng-model='ngModel', ng-model-options='{updateOn: "blur"}')
   span.input-group-btn.hidden-xs(ng-show='showGroupButtons')
     button.btn.btn-default(type='button', ng-click='resetInput()')
-      i.fa.fa-remove
+      i.mdi.mdi-close
   span.input-group-btn(ng-if='lastModifiedFlag && updateSuccessFlag')
     button.btn.btn-default(type='button')
-      i.fa.fa-check
+      i.mdi.mdi-check
   span.input-group-btn.hidden-xs(ng-show='showGroupButtons')
     button.btn.btn-default(type='button')
-      i.fa.fa-check
+      i.mdi.mdi-check
   

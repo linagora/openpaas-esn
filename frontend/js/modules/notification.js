@@ -61,13 +61,13 @@ angular.module('esn.notification', ['ui.notify', 'angularMoment'])
       }
 
       var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
-      icon = icon || 'fa-info';
+      icon = icon || 'mdi-information';
       buttons = buttons || ['OK', 'Cancel'];
 
       (notificationService.notify({
         title: title,
         text: text,
-        icon: 'fa ' + icon + ' fa-2 faa-ring animated',
+        icon: 'mdi ' + icon,
         addclass: 'stack-topright',
         stack: stack_topright,
         hide: false,

@@ -12,7 +12,7 @@ div.nopadding
       small &nbsp; {{project.type}}
     ul.list-inline
       li.pull-left
-        i.fa.fa-users
+        i.mdi.mdi-account-multiple
         span(ng-if='project.members_count !== 1') {{project.members_count || 0}} #{__('members')}
         span(ng-if='project.members_count === 1') 1 #{__('member')}
       .clearfix
@@ -23,14 +23,14 @@ div.nopadding
         .form-group
           .input-group
             .input-group-addon
-              i.fa.fa-calendar
+              i.mdi.mdi-calendar
             input.form-control(type="text", value="{{project.startDate | amDateFormat:'MMM DD YYYY'}}" disabled)
       .col-xs-12.col-sm-6.nopadding-left
         label #{__('To')}
         .form-group
           .input-group
             .input-group-addon
-              i.fa.fa-calendar
+              i.mdi.mdi-calendar
             input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
 
     .clearfix

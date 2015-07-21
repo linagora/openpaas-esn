@@ -6,7 +6,6 @@ div
     p #{__('Error while getting memberships')}.
 
   .row(ng-show="loading")
-    i.fa.fa-cog.fa-spin
     | #{__("Loading membership requests")}
 
   .row(ng-show="requests && !error")

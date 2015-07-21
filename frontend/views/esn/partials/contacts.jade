@@ -2,12 +2,12 @@
       .row
         .col-xs-12
           h2
-            i.fa.fa-user
+            i.mdi.mdi-account
             | #{__('Contacts')}
       .row.text-center(ng-show='restActive')
         div.throbber(openpaas-logo-spinner, spinner-key='addressbooksSpinner')
       .row(ng-show='!restActive && !addressbooks.length')
-        .col-xs-12 
+        .col-xs-12
           | #{__('No addressbooks')}
           hr
           .vertiz-space(ng-controller='googleContactImporterController')
@@ -55,9 +55,7 @@
                   hr
                   div
                     button.btn.btn-primary(type='submit', ng-click='sendInvitation(contact)', ng-disabled='running || isInvited(contact)')
-                      i.fa.fa-sign-in(ng-hide="running") &nbsp;
+                      i.mdi.mdi-exit-to-app(ng-hide="running") &nbsp;
                         | {{isInvited(contact) ? 'Invited' : 'Invite!'}}
-                      span(ng-hide="!running")
-                        i.fa.fa-spinner.fa-spin &nbsp;
-                        | #{__('Please wait...')}
+                      span(ng-hide="!running") #{__('Please wait...')}
                     .vertiz-space

@@ -14,8 +14,8 @@
           input.form-control(type='password', ng-model='credentials.password', name='password', id='password', placeholder="#{__('Password')}", required, autocomplete='{{autocomplete}}')
         .col-md-4.col-sm-12.form-group
           button.btn.btn-primary.pull-right(type='submit', ng-click='autofill(); login()', ng-disabled='loginTask.running')
-            i.fa.fa-sign-in(ng-hide='loginTask.running') &nbsp;
-            i.fa.fa-spinner.fa-spin(ng-hide='!loginTask.running') &nbsp;
+            i.mdi.mdi-exit-to-app(ng-hide='loginTask.running') &nbsp;
+            i(ng-hide='!loginTask.running') &nbsp;
             | #{__('{{loginButton.label}}')}
       .row
         .col-md-6.col-sm-12.form-group

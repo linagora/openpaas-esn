@@ -16,14 +16,14 @@ div.form-container(ng-controller='messageController', nv-file-drop="" uploader="
     .form-group
       p
         button.btn.btn-link(ng-click='appendChoice()')
-          i.fa.fa-plus 
+          i.mdi.mdi-plus 
             span #{__('Add another option')}
     .form-group()
       .text-left
         button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Publish')}
         &nbsp;
         button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
-          i.fa.fa-paperclip
+          i.mdi.mdi-paperclip
         &nbsp;
         a(href='', fill-position)
-          i.fa.fa-map-marker
+          i.mdi.mdi-map-marker

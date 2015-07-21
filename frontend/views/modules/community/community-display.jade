@@ -12,7 +12,7 @@ div.nopadding
       small &nbsp; {{community.type}}
     ul.list-inline
       li.pull-left
-        i.fa.fa-users
+        i.mdi.mdi-account-multiple
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
       li.pull-right(ng-if='::actions')

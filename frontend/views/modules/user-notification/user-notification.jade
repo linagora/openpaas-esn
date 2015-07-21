@@ -7,7 +7,6 @@
       li.popover-item.read.text-center(ng-show="!notifications.length && !loading") #{__('You have no notifications.')}
       li.popover-item.read.text-center(ng-show="error && !loading") #{__('Error while getting notifications')}.
       li.popover-item.read.text-center(ng-show="!notifications.length && loading")
-        i.fa.fa-cog.fa-spin
         | #{__('Loading notifications')}...
       li.popover-item(ng-repeat="notification in notifications")
         notification-template-displayer(notification='notification')

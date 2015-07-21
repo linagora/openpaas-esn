@@ -636,10 +636,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
   })
   .directive('attachmentIcon', function(contentTypeService) {
     var classes = {
-      application: 'fa-file-text',
-      image: 'fa-file-image-o',
-      video: 'fa-file-video-o',
-      'default': 'fa-file-o'
+      application: 'mdi-file-document',
+      image: 'mdi-file-image',
+      video: 'mdi-file-video',
+      'default': 'mdi-file-outline'
     };
     return {
       restrict: 'E',
@@ -652,10 +652,10 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
   })
   .directive('messageAttachment', function(contentTypeService) {
     var classes = {
-      application: 'fa-file-text',
-      image: 'fa-file-image-o',
-      video: 'fa-file-video-o',
-      'default': 'fa-file-o'
+      application: 'mdi-file-document',
+      image: 'mdi-file-image',
+      video: 'mdi-file-video',
+      'default': 'mdi-file-outline'
     };
     return {
       restrict: 'E',

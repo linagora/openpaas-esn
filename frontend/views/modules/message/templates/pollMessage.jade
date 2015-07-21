@@ -4,7 +4,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
   div.media-body
     div
       h4.media-heading
-        i.fa.fa-envelope(ng-show='message.source === "email"', title='sent via email reply')
+        i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
         a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
         span &nbsp;#{__('landed a poll')}
         message-date-link(message='message', activitystream='activitystream')
@@ -42,7 +42,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
         .row(ng-show='pollContext.hasVoted === true')
           .col-xs-12
             a.chart(href='', ng-click='toggleChartDisplay()')
-              i.fa.fa-pie-chart
+              i.mdi.mdi-chart-pie
               span(ng-show='!showMeChart') #{__('Show results as chart')}
               span(ng-show='showMeChart') #{__('Hide chart')}
             canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")

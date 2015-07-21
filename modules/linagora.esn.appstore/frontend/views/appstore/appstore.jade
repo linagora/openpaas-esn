@@ -3,16 +3,14 @@
     h2.esn-communities-header
       ul.list-inline
         li
-          i.fa.fa-cloud
+          i.mdi.mdi-cloud
           | #{__('Module Manager')}
         li.pull-right
           appstore-button-submit
   .vertiz-space
 
   .row.alert.alert-info(ng-show="loading", role="alert")
-    p
-      i.fa.fa-cog.fa-spin
-      | #{__('Loading modules...')}
+    p #{__('Loading modules...')}
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
     p #{__('Error while loading modules !')}
   .row.alert.alert-info(ng-show="!loading && !error && applications.length === 0", role="alert")

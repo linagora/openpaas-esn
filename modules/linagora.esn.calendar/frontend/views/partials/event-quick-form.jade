@@ -7,22 +7,22 @@ form.form-container(role='form', ng-class="{ 'readonly': !isOrganizer }")
       .col-xs-4.nopadding
         .input-group
           span.input-group-addon
-            i.fa.fa-calendar.fa-2x.fa-fw
+            i.mdi.mdi-calendar.mdi-2x.mdi-fw
           input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", bs-datepicker, date-to-moment, ng-disabled="!isOrganizer")
         .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
           span.input-group-addon
-            i.fa.fa-clock-o.fa-2x.fa-fw
+            i.mdi.mdi-clock-o.mdi-2x.mdi-fw
           input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", bs-timepicker, date-to-moment, ng-disabled="!isOrganizer")
       .col-xs-2.nopadding
         h3.text-center #{__('To')}
       .col-xs-4.nopadding
         .input-group
           span.input-group-addon
-            i.fa.fa-calendar.fa-2x.fa-fw
+            i.mdi.mdi-calendar.mdi-2x.mdi-fw
           input.form-control(type="text", size="10", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", bs-datepicker, date-to-moment, friendlify-end-date, ng-disabled="!isOrganizer")
         .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
           span.input-group-addon
-            i.fa.fa-clock-o.fa-2x.fa-fw
+            i.mdi.mdi-clock-o.mdi-2x.mdi-fw
           input.form-control(type="text", size="10", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", bs-timepicker, date-to-moment, ng-disabled="!isOrganizer")
       .col-xs-2
         .checkbox
@@ -32,7 +32,7 @@ form.form-container(role='form', ng-class="{ 'readonly': !isOrganizer }")
   .form-group(ng-show="isOrganizer || editedEvent.location")
     .input-group
       span.input-group-addon
-        i.fa.fa-location-arrow.fa-2x.fa-fw
+        i.mdi.mdi-map-marker.mdi-2x.mdi-fw
       input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
   .form-group(ng-show='hasAttendees')
     .row.all-centered.status
@@ -43,7 +43,7 @@ form.form-container(role='form', ng-class="{ 'readonly': !isOrganizer }")
   .form-group(ng-show='isOrganizer || isNew(editedEvent)')
     .input-group
       span.input-group-addon
-        i.fa.fa-users.fa-2x.fa-fw
+        i.mdi.mdi-account-multiple
       tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
         auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
   .row(ng-show='hasAttendees')
@@ -68,17 +68,17 @@ form.form-container(role='form', ng-class="{ 'readonly': !isOrganizer }")
     .text-center
       button.btn.btn-default.pull-left(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Create')}
-        i.fa.fa-check.fa-2x.visible-xs
+        i.mdi.mdi-check.visible-xs
       button.btn.btn-default.pull-left(type='submit', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Modify')}
-        i.fa.fa-check.fa-2x.visible-xs
+        i.mdi.mdi-check.mdi-2x.visible-xs
       button.btn.btn-default(type='button', ng-if="isNew(editedEvent)", ng-disabled="true")
         span.hidden-xs #{__('More options')}
-        i.fa.fa-bars.fa-2x.visible-xs
+        i.mdi.mdi-view-headline.mdi-2x.visible-xs
       button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="isOrganizer && !isNew(editedEvent)", ng-disabled="restActive")
         span.hidden-xs #{__('Delete')}
-        i.fa.fa-trash-o.fa-2x.visible-xs
+        i.mdi.mdi-delete-o.mdi-2x.visible-xs
       button.btn.btn-default.pull-right(type='button', ng-click="closeModal()")
         span.hidden-xs #{__('Cancel')}
-        i.fa.fa-close.fa-2x.visible-xs
+        i.mdi.mdi-close.mdi-2x.visible-xs
       .clearfix

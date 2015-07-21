@@ -10,12 +10,12 @@ div
       .row
         .col-xs-12.col-md-7.nopadding.ellipsis
           span(ng-if='email')
-            i.fa.fa-envelope-o.hidden-xs
+            i.mdi.mdi-email-outline.hidden-xs
             a(ng-href="mailto:{{::email}}") {{::email}}
 
         .col-md-5.hidden-xs.nopadding.ellipsis
           span.hidden-xs(ng-if='tel')
-            i.fa.fa-phone
+            i.mdi.mdi-phone
             | {{::tel}}
 
   .col-xs-3

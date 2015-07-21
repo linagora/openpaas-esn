@@ -4,7 +4,7 @@ div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': p
   div.media-body
     div
       h4.media-heading
-        i.fa.fa-envelope(ng-show='message.source === "email"', title='sent via email reply')
+        i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
         a(href="#") {{message.author.firstname}} {{message.author.lastname}}
         message-date-link(message='message', activitystream='activitystream')
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')

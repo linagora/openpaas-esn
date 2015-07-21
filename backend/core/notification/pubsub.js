@@ -41,7 +41,7 @@ function augmentToMembershipAccepted(data, callback) {
     complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
+    icon: {objectType: 'icon', id: 'mdi-account-multiple'},
     category: 'collaboration:membership:accepted',
     read: false,
     interactive: false,
@@ -58,7 +58,7 @@ function augmentToCollaborationJoin(data, callback) {
     complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
+    icon: {objectType: 'icon', id: 'mdi-account-multiple'},
     category: 'collaboration:join',
     target: data.manager
   };
@@ -103,7 +103,7 @@ function augmentToMembershipInvite(data, callback) {
     complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
+    icon: {objectType: 'icon', id: 'mdi-account-multiple'},
     category: 'collaboration:membership:invite',
     interactive: true,
     target: data.target
@@ -137,7 +137,7 @@ function augmentToMembershipRefused(data, callback) {
     complement: {objectType: data.collaboration.objectType, id: id},
     context: null,
     description: null,
-    icon: {objectType: 'icon', id: 'fa-users'},
+    icon: {objectType: 'icon', id: 'mdi-account-multiple'},
     category: 'collaboration:membership:refused',
     read: false,
     interactive: false,

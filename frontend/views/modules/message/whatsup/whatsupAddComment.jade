@@ -14,8 +14,8 @@ div.form-container(ng-controller='messageCommentController')
         button.btn.btn-default(type='reset', ng-click='resetComment()', ng-disabled='sending') #{__('Cancel')}
         &nbsp;
         button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
-          i.fa.fa-paperclip
+          i.mdi.mdi-paperclip
         &nbsp;
         a(href='', ng-disabled='sending', fill-position)
-          i.fa.fa-map-marker
+          i.mdi.mdi-map-marker
         &nbsp;
