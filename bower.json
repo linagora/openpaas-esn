@@ -65,7 +65,6 @@
     "bootstrap-switch": "~3.3.2",
     "angular-chart.js": "~0.5.1",
     "Chart.js": "nnnick/Chart.js#~1.0.1",
-    "bootstrap-material-design": "~0.3.0",
     "arrive": "~2.2.0",
     "angular-jstz": "czarpino/angular-jstz",
     "angular-scroll": "~0.7.0",
