@@ -300,20 +300,24 @@ describe('The Calendar Angular module services', function() {
         expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
       });
 
-      it('should create a copy of an eventObject ', function() {
-        var copy = {};
-        this.eventService.copyEventObject(event, copy);
-        expect(copy).to.deep.equal(event);
-      });
+    });
 
-      it('should copy non standard properties of an eventObject ', function() {
-        event.attendees = ['attendee1', 'attendee2'];
-        var copy = {};
-        this.eventService.copyNonStandardProperties(event, copy);
-        expect(copy.location).to.deep.equal(event.location);
-        expect(copy.description).to.deep.equal(event.description);
-        expect(copy.attendees).to.deep.equal(event.attendees);
-        expect(copy.attendeesPerPartstat).to.deep.equal(event.attendeesPerPartstat);
+    describe('copyEventObject function', function() {
+      it('should create a copy of an eventObject ', function() {
+        var src = {
+          vcalendar: ['vcalendar', [], []],
+          something: 'original'
+        };
+        var dst = {
+          something: 'existing'
+        };
+        this.eventService.copyEventObject(src, dst);
+
+        src.vcalendar[0] = 'vcalchanged';
+        src.something = 'changed';
+
+        expect(dst.something).to.equal('original');
+        expect(dst.vcalendar).to.deep.equal(src.vcalendar);
       });
     });
 

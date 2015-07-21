@@ -392,15 +392,6 @@ angular.module('esn.calendar')
       element.addClass('event-common');
     }
 
-    function copyNonStandardProperties(src, dest) {
-
-      dest.location = src.location;
-      dest.description = src.description;
-      if (src.attendees) {
-        dest.attendees = src.attendees;
-      }
-    }
-
     function copyEventObject(src, dest) {
 
       var vcal;
@@ -422,7 +413,6 @@ angular.module('esn.calendar')
 
     return {
       render: render,
-      copyNonStandardProperties: copyNonStandardProperties,
       copyEventObject: copyEventObject,
       isOrganizer: isOrganizer
     };

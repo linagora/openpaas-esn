@@ -325,10 +325,12 @@ angular.module('esn.calendar')
 
     $scope.eventSources = [calendarEventSource($scope.calendarId, $scope.displayCalendarError)];
 
-    function _modifiedCalendarItem(data) {
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
-      var events = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', data.id);
-      eventService.copyNonStandardProperties(data, events[0]);
+    function _modifiedCalendarItem(newEvent) {
+      var calendar = uiCalendarConfig.calendars[$scope.calendarId];
+
+      var event = calendar.fullCalendar('clientEvents', newEvent.id)[0];
+      angular.extend(event, newEvent);
+      calendar.fullCalendar('updateEvent', event);
     }
 
     var unregisterFunctions = [
@@ -348,15 +350,7 @@ angular.module('esn.calendar')
     }
 
     function liveNotificationHandlerOnUpdate(msg) {
-      var newEvent = calendarService.icalToShell(msg);
-      var oldEvent = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', newEvent.id)[0];
-
-      newEvent._allDay = oldEvent._allDay;
-      newEvent._end = oldEvent._end;
-      newEvent._id = oldEvent._id;
-      newEvent._start = oldEvent._start;
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', newEvent);
-      eventService.copyNonStandardProperties(newEvent, oldEvent);
+      _modifiedCalendarItem(calendarService.icalToShell(msg));
     }
 
     function liveNotificationHandlerOnDelete(msg) {
