@@ -270,9 +270,14 @@ angular.module('esn.calendar')
         if (response.status !== 201) {
           return $q.reject(response);
         }
-        $rootScope.$emit('addedCalendarItem', new CalendarShell(vcalendar));
-        socket('/calendars').emit('event:created', vcalendar);
-        return response;
+        // Unfortunately, sabredav doesn't support Prefer:
+        // return=representation on the PUT request,
+        // so we have to retrieve the event again for the etag.
+        return getEvent(eventPath).then(function(shell) {
+          $rootScope.$emit('addedCalendarItem', shell);
+          socket('/calendars').emit('event:created', shell.vcalendar);
+          return shell;
+        });
       });
     }
 
@@ -294,7 +299,7 @@ angular.module('esn.calendar')
     function modify(eventPath, event, etag) {
       var headers = {
         'Content-Type': 'application/calendar+json',
-        'Prefer': 'return-representation'
+        'Prefer': 'return=representation'
       };
       var body = shellToICAL(event).toJSON();
 
@@ -307,9 +312,11 @@ angular.module('esn.calendar')
           var vcalendar = new ICAL.Component(response.data);
           return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
         } else if (response.status === 204) {
-          $rootScope.$emit('modifiedCalendarItem', event);
-          socket('/calendars').emit('event:updated', shellToICAL(event));
-          return getEvent(eventPath);
+          return getEvent(eventPath).then(function(shell) {
+            $rootScope.$emit('modifiedCalendarItem', shell);
+            socket('/calendars').emit('event:updated', shell.vcalendar);
+            return shell;
+          });
         } else {
           return $q.reject(response);
         }
