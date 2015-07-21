@@ -70,7 +70,8 @@
     "twitter-platform-widget": "http://platform.twitter.com/widgets.js",
     "ng-device-detector": "~1.1.7",
     "material-admin": "https://ci.open-paas.org/stash/scm/or/material-admin.git",
-    "mdi": "~1.1.70"
+    "mdi": "~1.1.70",
+    "roboto-fontface": "~0.4.3"
   },
   "resolutions": {
     "jquery": "2.1.1",
