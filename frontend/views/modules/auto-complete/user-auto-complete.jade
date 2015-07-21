@@ -1,4 +1,4 @@
-.row.user-auto-complete
+.row
   img.col-xs-2.col-sm-1.nopadding(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/users/{{data._id}}/profile/avatar')
   .row
     .col-xs-10.col-sm-11(ng-bind-html="$highlight(data.firstname + ' '+ data.lastname)")

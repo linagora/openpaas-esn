@@ -21,10 +21,10 @@ html
     body
 
       div.container(ng-cloak ng-app='setupApp' ng-controller='wizardController')
-          div.page-header.center
+          div
               h1 #{__('Setup your software')}
 
-          div.jumbotron.wizard-bg(ng-hide='step != 0')
+          div(ng-hide='step != 0')
               h2 #{__('Welcome to the Linagora Enterprise Social Network')}!
               div
                   p #{__('The following wizard will help you configuring the software')}.
@@ -32,9 +32,9 @@ html
   
               button.btn.pull-right(ng-click='step = step + 1') Next
   
-          div.wizard-step(ng-hide='step != 1')
-              h2.center.subtitle #{__('Configure access to the MongoDB server')}
-              div.wizard-bg
+          div(ng-hide='step != 1')
+              h2 #{__('Configure access to the MongoDB server')}
+              div
                 div.form-container
                   form(role="form")
                     div.form-group
@@ -53,9 +53,9 @@ html
                     div.form-group
                       label(for='password') #{__('Database Password')}
                       input(type='password' ng-model='settings.password' ng-change='test.status="none"' class='form-control' id='password' ng-disabled='ajaxRunning()')
-                    div.test-feedback(ng-show="test.status=='success'")
+                    div(ng-show="test.status=='success'")
                       div.text-success #{__('Successfull connection to the database')}
-                    div.test-feedback(ng-show="test.status=='error'")
+                    div(ng-show="test.status=='error'")
                       div.text-danger {{test.err.message}}: {{test.err.details}}
                     
                     button.pull-left.btn.btn-info(ng-disabled='!infocomplete() || ajaxRunning()' ng-click='testConnection()' type='button')
@@ -73,7 +73,7 @@ html
                       .clearfix &nbsp;
 
           div(ng-hide='step != 2')
-            div.wizard-bg.form-container
+            div.form-container
               h2 #{__('Wonderful! The setup is complete')}.
               p #{__('Well you certainly were expecting a longer, and more complicated journey. Sorry')}.
               p.text-primary #{__('Please reload this page to get started with Linagora ESN')}.

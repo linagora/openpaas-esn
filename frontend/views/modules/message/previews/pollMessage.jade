@@ -8,5 +8,5 @@ div.media
         a(ng-href="/#/messages/{{::message._id}}/activitystreams/{{activitystreamUuid}}")
           small {{::message.published | amDateFormat:'MMM D YY, h:mm a'}}
       display-position(position='message.position')
-      p.multilines.scrollable(ng-bind-html="message.content | linky:'_blank'")
+      p.multilines(ng-bind-html="message.content | linky:'_blank'")
     message-attachments(message='message')

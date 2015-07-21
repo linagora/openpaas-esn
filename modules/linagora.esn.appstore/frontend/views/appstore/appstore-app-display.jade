@@ -1,14 +1,10 @@
-.card.people
-  .card-top.blue
-    img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png")
-  .card-info
-    .ellipsis
-      a(href='#/appstore/apps/{{::application._id}}').title.text-center
-        span {{::application.title}}
-        small(data-ng-if="application.version") {{::application.version}}
-    .desc {{::application.description | characters:128 :false }}
-  .card-bottom
-    .row
-      appstore-label-domain-deploy(application='application')
-    .row
-      appstore-switch-deploy(application="application", version="1.0.0", domain-deployment="domainDeployment")
+.people
+  img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png")
+  a(href='#/appstore/apps/{{::application._id}}').title.text-center
+    span {{::application.title}}
+    small(data-ng-if="application.version") {{::application.version}}
+div {{::application.description | characters:128 :false }}
+  .row
+    appstore-label-domain-deploy(application='application')
+  .row
+    appstore-switch-deploy(application="application", version="1.0.0", domain-deployment="domainDeployment")

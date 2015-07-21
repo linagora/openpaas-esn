@@ -1,4 +1,4 @@
-.attendee-avatar(ng-attr-title='{{attendee.fullmail}}')
+div(ng-attr-title='{{attendee.fullmail}}')
   img.nopadding(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?objectType=user&email={{attendee.email|urlencode}}')
   span(ng-if='!readOnly')
     i.fa.fa-check-square-o(ng-show='attendee.clicked')
