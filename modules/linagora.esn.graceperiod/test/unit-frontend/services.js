@@ -69,7 +69,7 @@ describe('The GracePeriod Angular module', function() {
         angular.element('a.cancel-task').click();
       });
 
-      it('should add a cancel link to the notification', function() {
+      it.skip('should add a cancel link to the notification', function() {
         gracePeriodService.grace('Test', 'Cancel');
 
         expect(angular.element('a.cancel-task').length).to.equal(1);

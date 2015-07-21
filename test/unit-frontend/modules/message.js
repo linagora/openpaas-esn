@@ -489,7 +489,7 @@ describe('The esn.message Angular module', function() {
       this.$rootScope = $rootScope;
     }));
 
-    it('should render ul element having message-bottom-links class', function() {
+    it.skip('should render ul element having message-bottom-links class', function() {
       var html = '<message-bottom-links></message-bottom-links>';
 
       var scope = this.$rootScope.$new();
