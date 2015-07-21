@@ -119,6 +119,13 @@ function removeDocumentFromIndex(options, callback) {
 }
 module.exports.removeDocumentFromIndex = removeDocumentFromIndex;
 
+function searchDocuments(options, callback) {
+  getClient().then(function(esClient) {
+    esClient.search(options, callback);
+  }, callback);
+}
+module.exports.searchDocuments = searchDocuments;
+
 function getIndexName() {
   return 'users.idx';
 }

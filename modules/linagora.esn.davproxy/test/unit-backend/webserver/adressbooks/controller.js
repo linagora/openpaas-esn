@@ -3,6 +3,7 @@
 var chai = require('chai');
 var expect = chai.expect;
 var mockery = require('mockery');
+var q = require('q');
 
 describe('The addressbooks module', function() {
 
@@ -11,7 +12,7 @@ describe('The addressbooks module', function() {
 
   beforeEach(function() {
     dependencies = {
-      'esn-config': function() {
+        'esn-config': function() {
         return {
           get: function(callback) {
             return callback(null, {backend: {url: endpoint}});
@@ -20,7 +21,8 @@ describe('The addressbooks module', function() {
       },
       logger: {
         error: function() {},
-        debug: function() {}
+        debug: function() {},
+        warn: function() {}
       },
       pubsub: {
         local: {
@@ -306,6 +308,181 @@ describe('The addressbooks module', function() {
         };
       });
       getController().defaultHandler();
+    });
+  });
+
+  describe('The searchContacts function', function() {
+    it('should call contact.searchContacts', function(done) {
+      var search = 'Bruce';
+      var user = {_id: 123};
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options) {
+              expect(options).to.deep.equal({search: search, user: user._id});
+              done();
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({query: {search: search}, user: user});
+    });
+
+    it('should send back HTTP 500 when contact.searchContacts fails', function(done) {
+      var search = 'Bruce';
+      var user = {_id: 123};
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              return callback(new Error());
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({query: {search: search}, user: user}, {
+        json: function(code) {
+          expect(code).to.equal(500);
+          done();
+        }
+      });
+    });
+
+    it('should send back HTTP 200 when contact.searchContacts returns empty object', function(done) {
+      var search = 'Bruce';
+      var user = {_id: 123};
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              return callback(null, {});
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({query: {search: search}, user: user}, {
+        header: function(name, value) {
+          expect(value).to.equal(0);
+        },
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._embedded['dav:item']).to.deep.equal([]);
+          done();
+        }
+      });
+    });
+
+    it('should send back HTTP 200 when contact.searchContacts returns empty list', function(done) {
+      var search = 'Bruce';
+      var user = {_id: 123};
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              return callback(null, {list: []});
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({query: {search: search}, user: user}, {
+        header: function(name, value) {
+          expect(value).to.equal(0);
+
+        },
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._embedded['dav:item']).to.deep.equal([]);
+          done();
+        }
+      });
+    });
+
+    it('should build the response by calling the dav server for each contact found', function(done) {
+      var search = 'Bruce';
+      var user = {_id: '123'};
+      var bookId = '456';
+      var called = 0;
+      var cards = [{_id: 'A'}, {_id: 'B'}, {_id: 'C'}];
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              return callback(null, {list: [{_id: '1'}, {_id: '2'}, {_id: '3'}], total_count: cards.length});
+            }
+          },
+          client: {
+            get: function() {
+              called++;
+              return q(cards[called - 1]);
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
+        header: function(name, value) {
+          expect(value).to.equal(3);
+        },
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._embedded['dav:item'].length).to.equal(3);
+          done();
+        }
+      });
+    });
+
+    it('should not fail when can not get some contact details after successful search', function(done) {
+      var search = 'Bruce';
+      var user = {_id: '123'};
+      var bookId = '456';
+      var call = 0;
+      var result = [{_id: '1'}, {_id: '2'}, {_id: '3'}];
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              return callback(null, {list: result, total_count: result.length});
+            }
+          },
+          client: {
+            get: function() {
+              call++;
+              if (call === 3) {
+                return q.reject(new Error());
+              }
+
+              return q(result[call]);
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
+        header: function(name, value) {
+          expect(value).to.equal(result.length);
+        },
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._embedded['dav:item'].length).to.equal(2);
+          done();
+        }
+      });
     });
   });
 });

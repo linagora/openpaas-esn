@@ -35,6 +35,45 @@ module.exports = function(dependencies) {
     elasticsearch.removeDocumentFromIndex({index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
   }
 
+  function searchContacts(query, callback) {
+    logger.debug('Searching contacts with options', query);
+
+    var terms = query.search;
+    var offset = query.offset || 0;
+    var limit = query.limit;
+
+    var elasticsearchQuery = {
+      sort: [
+        {'fn.sort': 'asc'}
+      ],
+      query: {
+        multi_match: {
+          query: terms,
+          type: 'cross_fields',
+          fields: ['fn', 'name', 'firstName', 'lastName', 'emails', 'urls', 'org', 'socialprofiles', 'nickname', 'addresses'],
+          operator: 'and'
+        }
+      }
+    };
+
+    elasticsearch.searchDocuments({
+      index: INDEX_NAME,
+      type: TYPE_NAME,
+      from: offset,
+      size: limit,
+      body: elasticsearchQuery
+    },function(err, result) {
+      if (err) {
+        return callback(err);
+      }
+
+      return callback(null, {
+        total_count: result.hits.total,
+        list: result.hits.hits
+      });
+    });
+  }
+
   function listen() {
 
     logger.info('Subscribing to contact updates for indexing');
@@ -72,6 +111,7 @@ module.exports = function(dependencies) {
 
   return {
     listen: listen,
+    searchContacts: searchContacts,
     indexContact: indexContact,
     removeContactFromIndex: removeContactFromIndex
   };

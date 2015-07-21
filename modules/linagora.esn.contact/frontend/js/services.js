@@ -361,16 +361,17 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    function list(bookId) {
-      return request('get', bookUrl(bookId)).then(function(response) {
-        if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
-          return response.data._embedded['dav:item'].map(function(vcarddata) {
-            return new ContactsShell(new ICAL.Component(vcarddata.data));
-          });
-        }
+    function responseAsContactsShell(response) {
+      if (response.data && response.data._embedded && response.data._embedded['dav:item']) {
+        return response.data._embedded['dav:item'].map(function(vcarddata) {
+          return new ContactsShell(new ICAL.Component(vcarddata.data));
+        });
+      }
+      return [];
+    }
 
-        return [];
-      });
+    function list(bookId) {
+      return request('get', bookUrl(bookId)).then(responseAsContactsShell);
     }
 
     function create(bookId, contact) {
@@ -427,9 +428,7 @@ angular.module('linagora.esn.contact')
     }
 
     function search(bookId, userId, data) {
-      var defer = $q.defer();
-      defer.resolve([]);
-      return defer.promise;
+      return request('get', bookUrl(bookId), null, null, {search: data, userId: userId}).then(responseAsContactsShell);
     }
 
     return {

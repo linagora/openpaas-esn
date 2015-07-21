@@ -219,4 +219,27 @@ describe('The elasticsearch module', function() {
       module.removeDocumentFromIndex(opts, done);
     });
   });
+
+  describe('the searchDocuments function', function() {
+    it('should call search on ES client', function(done) {
+
+      var opts = {
+        id: '123',
+        index: 'users.idx',
+        query: 'foobar'
+      };
+
+      var client = {
+        'search': function(options, callback) {
+          expect(options).to.deep.equal(opts);
+          callback();
+        }
+      };
+      var module = this.helpers.rewireBackend('core/elasticsearch');
+      module.__set__('client', function(callback) {
+        return callback(null, client);
+      });
+      module.searchDocuments(opts, done);
+    });
+  });
 });
