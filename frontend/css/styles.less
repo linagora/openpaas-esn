@@ -1,11 +1,31 @@
 @import "../components/bootstrap/less/bootstrap";
-@import "./variables";
-@import "./commons";
-
 @icon-font-path: '/components/bootstrap/dist/fonts/';
 
-// Scaffolding
-// -------------------------
+/*
+ * LESS Plugins
+ */
+@import '/components/material-admin/less/inc/less-plugins/for';
+
+/*
+ * Variable and Mixin
+ */
+
+@import '/components/material-admin/less/inc/variables';
+@import '/components/material-admin/less/inc/mixin';
+
+/*
+ * Load material-admin related LESS files
+ */
+@import '/components/material-admin/less/inc/generics';
+@import '/components/material-admin/less/inc/bootstrap-overrides';
+@import '/components/material-admin/less/inc/base';
+
+
+/*
+ * Custom LESS files
+ */
+@import "./variables";
+@import "./commons";
 
 // Extra space between font-awesome icons and text
 [class^="fa-"],
