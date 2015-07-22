@@ -4,48 +4,8 @@
  * Vendor Overrides
  */
 @import '../../../../frontend/components/material-admin/less/inc/vendor-overrides/fullcalendar';
-
-.fc-toolbar {
-  background-color: @m-lightblue;
-  .btn {
-    padding: 6px 12px;
-  }
-  .fc-today-button, .fc-button-group {
-    margin-top: 2px;
-  }
-  .fc-agendaWeek-button {
-    display:none;
-  }
-  .fc-agendaDay-button {
-    display:none;
-  }
-}
-
-.fc th {
-  background: darken(@m-lightblue, 5%);
-}
-
-.fc-toolbar .ui-button>span.ui-icon-circle-triangle-w:before {
-  font-family: 'MaterialDesignIcons';
-  content: "\f13f";
-}
-
-.fc-toolbar .ui-button>span.ui-icon-circle-triangle-e:before {
-  font-family: 'MaterialDesignIcons';
-  content: "\f144";
-}
-
-.event-common {
-}
-
-.event-accepted {
-  border: solid 1px rgba(255,255,255,0.5);
-}
-
-.event-needs-action {
-  background-color:rgba(58, 135, 173, 0.5);
-  border: dashed 1px rgba(255,255,255,0.5);
-}
+@import './calendar-header';
+@import './event';
 
 .user-auto-complete {
   display: flex;
@@ -75,32 +35,4 @@ tags-input .autocomplete {
       background-image: none;
     }
   }
-}
-
-/* Small devices (tablets, 768px and up) */
-@media (min-width: @screen-sm-min) {
-  .fc-toolbar {
-    .fc-agendaWeek-button {
-      display:block;
-    }
-    .fc-agendaDay-button {
-      display:block;
-    }
-    .fc-basicWeek-button {
-      display:none;
-    }
-    .fc-basicDay-button {
-      display:none;
-    }
-  }
-}
-
-/* Medium devices (desktops, 992px and up) */
-@media (min-width: @screen-md-min) {
-
-}
-
-/* Large devices (large desktops, 1200px and up) */
-@media (min-width: @screen-lg-min) {
-
 }
