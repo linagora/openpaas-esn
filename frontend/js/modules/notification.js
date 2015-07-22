@@ -1,103 +1,50 @@
 'use strict';
 
-angular.module('esn.notification', ['ui.notify', 'angularMoment'])
-  .factory('notificationFactory', function(notificationService) {
-    var stack_bottomright = {'dir1': 'up', 'dir2': 'left', 'push': 'top'};
-    var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
+angular.module('esn.notification', ['angularMoment'])
+  .factory('notificationFactory', function() {
+    var bottom_right = { from: 'bottom', align: 'right'},
+        top_right = { from: 'top', align: 'right' };
 
-    function weakOf(stack_placement, title, text, type) {
-      return {
+    function notify(type, title, text, placement, delay) {
+      return $.notify({
         title: title,
-        text: text,
-        nonblock: {
-          nonblock: true,
-          nonblock_opacity: 0.2
-        },
-        addclass: 'stack-bottomright',
-        stack: stack_placement,
+        message: text
+      }, {
         type: type,
-        delay: 3000,
-        styling: 'fontawesome'
-      };
-    }
-
-    function weakInfo(title, text) {
-      notificationService.notify(weakOf(stack_bottomright, title, text, 'info'));
-    }
-
-    function weakSuccess(title, text) {
-      notificationService.notify(weakOf(stack_bottomright, title, text, 'success'));
-    }
-
-    function weakError(title, text) {
-      notificationService.notify(weakOf(stack_bottomright, title, text, 'error'));
-    }
-
-    function strongInfo(title, text) {
-      notificationService.notify({
-        title: title,
-        text: text,
-        addclass: 'stack_topright',
-        stack: stack_topright,
-        hide: false,
-        styling: 'fontawesome'
+        placement: placement,
+        delay: delay
       });
     }
 
-    /**
-     * Notification with confirm/cancel dialog
-     *
-     * @param {string} title The notification title
-     * @param {string} text The notification text
-     * @param {string} The font-awesome icon name
-     * @param {Array} An array of two elements with the names of the accept and cancel buttons
-     * @param {object} data The parameter for `handlerConfirm` and `handlerCancel`
-     * @param {function} handlerConfirm fn like handlerConfirm(data)
-     * @param {function} handlerCancel fn like handlerCancel(data)
-     */
-    function confirm(title, text, icon, buttons, data, handlerConfirm, handlerCancel) {
-      if (! handlerCancel) {
-        handlerCancel = function() {};
-      }
-
-      var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
-      icon = icon || 'mdi-information';
-      buttons = buttons || ['OK', 'Cancel'];
-
-      (notificationService.notify({
-        title: title,
-        text: text,
-        icon: 'mdi ' + icon,
-        addclass: 'stack-topright',
-        stack: stack_topright,
-        hide: false,
-        confirm: {
-          confirm: true,
-          buttons: [
-            {
-              text: buttons[0] || 'OK'
-            },
-            {
-              text: buttons[1] || 'Cancel'
-            }
-          ]
-        },
-        buttons: {
-          sticker: false
-        },
-        styling: 'fontawesome'
-      })).get().on('pnotify.confirm', function() {
-          handlerConfirm(data);
-        }
-      ).on('pnotify.cancel', function() {
-          handlerCancel(data);
-        });
+    function weakNotification(type, title, text) {
+      return notify(type, title, text, bottom_right, 3000);
     }
+
+    function strongNotification(type, title, text) {
+      return notify(type, title, text, top_right, 0);
+    }
+
+    function weakSuccess(title, text) {
+      return weakNotification('success', title, text);
+    }
+
+    function weakInfo(title, text) {
+      return weakNotification('info', title, text);
+    }
+
+    function weakError(title, text) {
+      return weakNotification('danger', title, text);
+    }
+
+    function strongInfo(title, text) {
+      return strongNotification('info', title, text);
+    }
+
     return {
       weakInfo: weakInfo,
       weakError: weakError,
       weakSuccess: weakSuccess,
-      strongInfo: strongInfo,
-      confirm: confirm
+      strongInfo: strongInfo
     };
+
   });

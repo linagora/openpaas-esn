@@ -39,12 +39,14 @@ describe('The GracePeriod Angular module', function() {
 
     describe('The grace fn', function() {
 
+      this.timeout(10000);
+
       afterEach(function() {
-        angular.element('.graceperiod').remove();
+        angular.element('[data-notify="container"]').remove();
       });
 
       it('should resolve the promise when the delay elapses', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10).then(function(data) {
+        gracePeriodService.grace('Test', 'Cancel', 100).then(function(data) {
           if (!data.cancelled) {
             done();
           }
@@ -57,7 +59,8 @@ describe('The GracePeriod Angular module', function() {
             done();
           }
         });
-        angular.element('.ui-pnotify-closer').click();
+
+        angular.element('[data-notify="dismiss"]').click();
       });
 
       it('should reject the promise when the cancel link is clicked', function(done) {
@@ -66,10 +69,11 @@ describe('The GracePeriod Angular module', function() {
             done();
           }
         });
+
         angular.element('a.cancel-task').click();
       });
 
-      it.skip('should add a cancel link to the notification', function() {
+      it('should add a cancel link to the notification', function() {
         gracePeriodService.grace('Test', 'Cancel');
 
         expect(angular.element('a.cancel-task').length).to.equal(1);
