@@ -109,23 +109,6 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
         $scope.inSlicesOf = attrs.inSlicesOf && angular.isNumber(parseInt(attrs.inSlicesOf, 10)) ?
           parseInt(attrs.inSlicesOf, 10) : 3;
         $scope.error = false;
-
-        function sliceMembers(members) {
-          if ($scope.inSlicesOf < 1 || !angular.isArray(members)) {
-            return members;
-          }
-          var array = [];
-          for (var i = 0; i < members.length; i++) {
-            var chunkIndex = parseInt(i / $scope.inSlicesOf, 10);
-            var isFirst = (i % $scope.inSlicesOf === 0);
-            if (isFirst) {
-              array[chunkIndex] = [];
-            }
-            array[chunkIndex].push(members[i]);
-          }
-          return array;
-        }
-
         var query = { limit: 16 };
 
         if ($scope.objectTypeFilter) {
@@ -137,7 +120,7 @@ angular.module('esn.collaboration', ['restangular', 'esn.notification'])
             var total = parseInt(result.headers('X-ESN-Items-Count'), 10);
             var members = result.data;
             $scope.more = total - members.length;
-            $scope.members = sliceMembers(members);
+            $scope.members = members;
           }, function() {
             $scope.error = true;
           });
