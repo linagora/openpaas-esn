@@ -1,18 +1,7 @@
+// inspired by material-admin/less/inc/profile.less
+
 .p-t-5 {
   padding-top: 5px !important;
-}
-
-.message-input {
-  background-color: white;
-  padding-left: 12px;
-  padding-right: 12px;
-  padding-bottom: 12px;
-  padding-top: 12px;
-}
-
-.message-add-comment {
-  margin-bottom: 20px;
-  margin-top: 20px;
 }
 
 .t-view .share {
@@ -86,7 +75,7 @@
   border-radius: 50%;
 }
 
-.t-view:before {
+.t-view-liner:before {
   position: absolute;
   width: 40px;
   height: 40px;
@@ -98,11 +87,11 @@
   font-size: 20px;
   line-height: 34px;
   color: #FFF;
-  font-family: 'Material-Design-Icons';
+  font-family: 'MaterialDesignIcons';
   z-index: 1;
 }
 
-.t-view:after {
+.t-view-liner:after {
   content: "";
   position: absolute;
   top: 0;
@@ -111,34 +100,34 @@
   height: calc(100% + 37px);
 }
 
-.t-view[data-tv-type="text"]:before {
-  content: "\e709";
-  background: #00bcd4;
-  box-shadow: 0 0 0 1px #00bcd4;
+.t-view-liner[data-tv-type="text"]:before {
+  content: "\f437";
+  background: @m-lightblue;
+  box-shadow: 0 0 0 1px @m-lightblue;
 }
 
-.t-view[data-tv-type="text"]:after {
-  background: #00bcd4;
+.t-view-liner[data-tv-type="text"]:after {
+  background: @m-lightblue;
 }
 
-.t-view[data-tv-type="poll"]:before {
-  content: "\e6e7";
-  background: #4caf50;
-  box-shadow: 0 0 0 1px #4caf50;
+.t-view-liner[data-tv-type="poll"]:before {
+  content: "\f1ed";
+  background: @m-lightgreen;
+  box-shadow: 0 0 0 1px @m-lightgreen;
 }
 
-.t-view[data-tv-type="poll"]:after {
-  background: #4caf50;
+.t-view-liner[data-tv-type="poll"]:after {
+  background: @m-lightgreen;
 }
 
-.t-view[data-tv-type="event"]:before {
-  content: "\e8bd";
-  background: #ffc107;
-  box-shadow: 0 0 0 1px #ffc107;
+.t-view-liner[data-tv-type="event"]:before {
+  content: "\f1c3";
+  background: @m-yellow;
+  box-shadow: 0 0 0 1px @m-yellow;
 }
 
-.t-view[data-tv-type="event"]:after {
-  background: #ffc107;
+.t-view-liner[data-tv-type="event"]:after {
+  background: @m-yellow;
 }
 
 .t-view .tvb-stats {
@@ -162,18 +151,18 @@
 }
 
 .t-view .tvb-stats > li.tvbs-comments {
-  border-color: #4caf50;
-  color: #4caf50;
+  border-color: @m-green;
+  color: @m-green;
 }
 
 .t-view .tvb-stats > li.tvbs-likes {
-  border-color: #03a9f4;
-  color: #03a9f4;
+  border-color: @m-cyan;
+  color: @m-cyan;
 }
 
 .t-view .tvb-stats > li.tvbs-views {
-  border-color: #ff9800;
-  color: #ff9800;
+  border-color: @m-amber;
+  color: @m-amber;
 }
 
 .tv-comments {
