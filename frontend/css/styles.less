@@ -10,6 +10,9 @@
  * Variables and Mixins
  */
 @import './commons';
+@import '../components/material-admin/less/inc/variables';
+@import '../components/material-admin/less/inc/mixin';
+@import "./variables";
 
 /*
  * Vendors
@@ -65,9 +68,16 @@
 @import "./modules/login";
 @import "./modules/activitystream";
 @import "./modules/message";
+@import './modules/sidebar';
 
 html, body {
   height: 100%;
+}
+
+// Used in selectors
+.just-posted {
+  animation: swing 1s;
+  -webkit-animation: swing 1s;
 }
 
 // Used in selectors

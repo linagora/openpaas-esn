@@ -3,25 +3,56 @@ div
     .container-fluid
       a(href="#/")
         img(src="/images/logo.png")
-      div.pull-right
-        div.dropdown
-          button.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
-            user-name-display.hidden-xs
-            | &nbsp;
-            img.img-circle(ng-controller='avatarController', ng-src='{{avatarURL}}' width="24px" height="24px")
-            span.caret
-          ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
-              li: a(href='/#/profile') #{__('My Account')}
-              li.visible-xs(data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body'): a(href='') #{__('Feedback')}
-              li: a(href='{{"/#/domains/" + domain._id + "/members"}}') #{__('Members')}
-              li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}') #{__('Invitation')}
-              li: a(href='/#/applications') #{__('Applications')}
-              li: a(href='/#/appstore') #{__('Module Manager')}
-              injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
-              li.divider
-              li: a(href='/logout') #{__('Logout')}
 
   api-notification
   div
     nav(class="navbar navbar-default" role="navigation" data-offset-top="44" bs-affix)
       esn-main-navbar
+
+  div(style="position:fixed; top:5px; left:5px; background: red;" side-bar-toggler)
+    a(href="") |Toogle Sidebar
+    
+  aside#sidebar(collaborations-event-listener, sidebar)
+    .sidebar-inner
+      .profile-menu
+        a(href="" toggle-submenu)
+          .profile-pic
+            img(ng-controller='avatarController' ng-src='{{avatarURL}}')
+          .profile-info
+            user-name-display
+            i.mdi.mdi-chevron-down
+    
+        ul#profileMenuContent.collapse.main-menu(ng-controller='currentDomainController' close-sidebar-on-click)
+          li: a(href='/#/profile')
+            i.mdi.mdi-account
+            | #{__('My Account')}
+          li: a(href='{{"/#/domains/" + domain._id + "/members"}}')
+            i.mdi.mdi-account-multiple
+            | #{__('Members')}
+          li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}')
+            i.mdi.mdi-account-plus
+            | #{__('Invitation')}
+          li: a(href='/#/applications')
+            i.mdi.mdi-basket
+            | #{__('Applications')}
+          li: a(href='/#/appstore')
+            i.mdi.mdi-package-variant
+            | #{__('Module Manager')}
+          injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
+          li: a(href='/logout')
+            i.mdi.mdi-account-remove
+            | #{__('Logout')}
+
+      ul.main-menu.app-menu(ng-controller='ASTrackerController')
+        li: a(href='/#/')
+          i.mdi.mdi-home
+          | #{__('Home')}
+        li: a(href='/#/calendar')
+          i.mdi.mdi-calendar
+          | #{__('My calendar')}
+        li: a(href='/#/contact')
+          i.mdi.mdi-account-star
+          | #{__('My contacts')}  
+                  
+        list-community-activity-streams
+        list-project-activity-streams   
