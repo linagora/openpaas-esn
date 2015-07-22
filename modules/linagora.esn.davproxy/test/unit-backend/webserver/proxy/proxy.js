@@ -52,7 +52,64 @@ describe('The proxy dispatcher module', function() {
       };
 
       var proxy = function(path, options) {
-        expect(path).to.equal(endpoint);
+        expect(path).to.equal('localhost:9393');
+        done();
+        return function() {};
+      };
+
+      mockery.registerMock('express-http-proxy', proxy);
+      mockery.registerMock('./graceperiod', function() {});
+
+      getHandler('http')({}, {}, options);
+    });
+
+    it('should call proxy with only host part of endpoint', function(done) {
+
+      var endpoint = 'http://localhost:9393/some/path/here/';
+      var options = {
+        endpoint: endpoint
+      };
+
+      var proxy = function(path, options) {
+        expect(path).to.equal('localhost:9393');
+        done();
+        return function() {};
+      };
+
+      mockery.registerMock('express-http-proxy', proxy);
+      mockery.registerMock('./graceperiod', function() {});
+
+      getHandler('http')({}, {}, options);
+    });
+
+    it('should prefix forwardPath with path-without-slash of endpoint', function(done) {
+      var options = {
+        path: 'addressbooks',
+        endpoint: 'http://localhost:9393/path/without/slash'
+      };
+
+      var proxy = function(path, options) {
+        expect(options.forwardPath({ url: '/123/contact.json' }))
+          .to.equal('/path/without/slash/addressbooks/123/contact.json');
+        done();
+        return function() {};
+      };
+
+      mockery.registerMock('express-http-proxy', proxy);
+      mockery.registerMock('./graceperiod', function() {});
+
+      getHandler('http')({}, {}, options);
+    });
+
+    it('should prefix forwardPath with path-with-slash of endpoint', function(done) {
+      var options = {
+        path: 'addressbooks',
+        endpoint: 'http://localhost:9393/path/with/slash/'
+      };
+
+      var proxy = function(path, options) {
+        expect(options.forwardPath({ url: '/123/contact.json' }))
+          .to.equal('/path/with/slash/addressbooks/123/contact.json');
         done();
         return function() {};
       };
