@@ -1,24 +1,31 @@
-div.nopadding
-
-  .col-lg-2.col-sm-3.col-xs-4
-
+.communities-display
+  .pull-left
     a(href='#/communities/{{community._id}}')
-      img.thumbnail.nopadding(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
-
-  .col-lg-10.col-sm-9.col-xs-8
-    h4.media-heading
+      img.thumbnail.lv-img-xl(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
+  .media-body
+    .lv-title
       a(href='#/communities/{{community._id}}')
-        strong {{community.title}}
-      small &nbsp; {{community.type}}
-    ul.list-inline
-      li.pull-left
+        | {{community.title}}
+    small.lv-small.hidden-xs.community-description(ng-show='community.description')
+      | {{community.description | characters:256 :false }}
+    ul.lv-attrs
+      li(ng-show='community.members_count')
         i.mdi.mdi-account-multiple
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
-      li.pull-right(ng-if='::actions')
-        community-button-join(community='community', user='user', on-join='joinSuccess()', on-fail='joinFailure()')
-        community-button-leave(community='community', user='user', on-leave='leaveSuccess()', on-fail='leaveFailure()')
-        community-button-request-membership(community='community', user='user', on-request='requestMembershipSuccess()', on-fail='requestMembershipFailure()')
-        community-button-cancel-request-membership(community='community', user='user', on-cancel-request='cancelRequestMembershipSuccess()', on-fail='cancelRequestMembershipFailure()')
-      .clearfix
-    p.hidden-xs.community-description(ng-show='community.description') {{community.description | characters:256 :false }}
+      li
+        | {{community.type}}
+      li(ng-if='canCancelMembership')
+        | #{__('Membership request pending')}
+    .lv-actions.actions.dropdown(ng-show='actionVisible')
+      a(data-toggle="dropdown", href="")
+        i.mdi.mdi-dots-vertical
+      ul.dropdown-menu.dropdown-menu-right
+        li(ng-show='canJoin')
+          a(href="", ng-click='join()') #{__('Join')}
+        li(ng-show='canLeave')
+          a(href="", ng-click='leave()') #{__('Leave')}
+        li(ng-show='canRequestMembership')
+          a(href="", ng-click='requestMembership()') #{__('Request Membership')}
+        li(ng-show='canCancelMembership')
+          a(href="", ng-click='cancelMembership()') #{__('Cancel membership request')}

@@ -297,7 +297,7 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
 
     $scope.getAll();
   })
-  .directive('communityDisplay', function(communityAPI, session, $log, $location) {
+  .directive('communityDisplay', function(communityAPI, communityService, session, $log, $location) {
     return {
       restrict: 'E',
       scope: {
@@ -307,53 +307,47 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       replace: true,
       templateUrl: '/views/modules/community/community-display.html',
       link: function($scope) {
-        $scope.user = session.user;
-
         function refreshCommunity() {
-          communityAPI.get($scope.community._id).then(
-            function(response) {
-              $scope.community = response.data;
-            },
-            function(err) {
-              $log.error('Error while loading community', err);
-            }
-          );
+          communityAPI.get($scope.community._id).then(function(response) {
+            $scope.community = response.data;
+          }, function(err) {
+            $log.error('Error while loading community', err);
+          });
         }
 
-        $scope.joinSuccess = function() {
-          $location.path('/communities/' + $scope.community._id);
+        function runAndRefresh(promise) {
+          return promise.then(refreshCommunity, refreshCommunity);
+        }
+
+        $scope.$watch('community', function() {
+          $scope.canJoin = communityService.canJoin($scope.community, session.user);
+          $scope.canLeave = communityService.canLeave($scope.community, session.user);
+          $scope.canRequestMembership = communityService.canRequestMembership($scope.community, session.user);
+          $scope.canCancelMembership = communityService.canCancelRequestMembership($scope.community, session.user);
+
+          $scope.actionVisible = $scope.actions && ($scope.canJoin || $scope.canLeave || $scope.canRequestMembership || $scope.canCancelMembership);
+        });
+
+        $scope.join = function() {
+          $scope.canJoin = false;
+          communityService.join($scope.community, session.user).then(function() {
+            $location.path('/communities/' + $scope.community._id);
+          }, refreshCommunity);
         };
 
-        $scope.joinFailure = function() {
-          $log.error('failed to join community', $scope.community);
-          refreshCommunity();
+        $scope.leave = function() {
+          $scope.canLeave = false;
+          runAndRefresh(communityService.leave($scope.community, session.user));
         };
 
-        $scope.leaveSuccess = function() {
-          refreshCommunity();
+        $scope.requestMembership = function() {
+          $scope.canRequestMembership = false;
+          runAndRefresh(communityService.requestMembership($scope.community, session.user));
         };
 
-        $scope.leaveFailure = function() {
-          $log.error('failed to leave community', $scope.community);
-          refreshCommunity();
-        };
-
-        $scope.requestMembershipSuccess = function() {
-          refreshCommunity();
-        };
-
-        $scope.requestMembershipFailure = function() {
-          $log.error('failed to request membership to the community', $scope.community);
-          refreshCommunity();
-        };
-
-        $scope.cancelRequestMembershipSuccess = function() {
-          refreshCommunity();
-        };
-
-        $scope.cancelRequestMembershipFailure = function() {
-          $log.error('failed to cancel request membership to the community', $scope.community);
-          refreshCommunity();
+        $scope.cancelMembership = function() {
+          $scope.canCancelMembership = false;
+          runAndRefresh(communityService.cancelRequestMembership($scope.community, session.user));
         };
       }
     };
