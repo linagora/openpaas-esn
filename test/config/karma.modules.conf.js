@@ -53,6 +53,7 @@ module.exports = function(config) {
       'frontend/components/blueimp-canvas-to-blob/js/canvas-to-blob.js',
       'frontend/components/re-tree/re-tree.js',
       'frontend/components/ng-device-detector/ng-device-detector.js',
+      'frontend/components/remarkable-bootstrap-notify/bootstrap-notify.min.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',
