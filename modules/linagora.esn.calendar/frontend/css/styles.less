@@ -13,6 +13,12 @@
   .fc-today-button, .fc-button-group {
     margin-top: 2px;
   }
+  .fc-agendaWeek-button {
+    display:none;
+  }
+  .fc-agendaDay-button {
+    display:none;
+  }
 }
 
 .fc th {
@@ -69,4 +75,32 @@ tags-input .autocomplete {
       background-image: none;
     }
   }
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
+  .fc-toolbar {
+    .fc-agendaWeek-button {
+      display:block;
+    }
+    .fc-agendaDay-button {
+      display:block;
+    }
+    .fc-basicWeek-button {
+      display:none;
+    }
+    .fc-basicDay-button {
+      display:none;
+    }
+  }
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) {
+
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: @screen-lg-min) {
+
 }

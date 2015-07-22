@@ -32,7 +32,7 @@ angular.module('esn.calendar')
       header: {
         left: 'prev, next, today',
         center: 'title',
-        right: 'month,agendaWeek,agendaDay'
+        right: 'month,agendaWeek,agendaDay,basicWeek,basicDay'
       },
       // TODO: i18n
       buttonText: {
