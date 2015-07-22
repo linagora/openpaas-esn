@@ -6,7 +6,6 @@ angular.module('esnApp', [
   'restangular',
   'ngRoute',
   'mgcrea.ngStrap.affix',
-  'ui.notify',
   'angularMoment',
   'truncate',
   'openpaas-logo',
