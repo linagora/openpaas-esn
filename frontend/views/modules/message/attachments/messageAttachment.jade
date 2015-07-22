@@ -1,6 +1,9 @@
-.attachment-widget
-  attachment-icon(type='{{::attachment.contentType}}')
-  div.ellipsis
-    a.download(target='_blank', ng-href='/api/files/{{::attachment._id}}' title='Download {{::attachment.name}}') {{::attachment.name}}
-  span.meta.ellipsis
-    {{::attachment.length | bytes}} {{::attachment.contentType | extension | uppercase}} file
+.message-attachment
+  .icon
+    a(target='_blank', ng-href='/api/files/{{::attachment._id}}' title='Download {{::attachment.name}}')
+      attachment-icon(type='{{::attachment.contentType}}')
+  .metadata
+    h2.ellipsis
+      a(target='_blank', ng-href='/api/files/{{::attachment._id}}' title='Download {{::attachment.name}}') {{::attachment.name}}
+    small.ellipsis
+      {{::attachment.length | bytes}} {{::attachment.contentType | extension | uppercase}} file

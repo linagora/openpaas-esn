@@ -16,3 +16,69 @@
   margin-bottom: 20px;
   margin-top: 20px;
 }
+
+.message-attachment {
+  background-color: @m-lightblue;
+  color: @m-white;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  position: relative;
+  margin-bottom: 15px;
+
+  .icon {
+    float: left;
+    font-size: 44px;
+    padding: 6px;
+    a {
+      color: @m-white;
+    }
+  }
+
+  .metadata {
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 16px 12px;
+
+    & > h2 {
+      margin: 0;
+      line-height: 100%;
+      font-size: 18px;
+      font-weight: 300;
+      a {
+        color: @m-white;
+      }
+    }
+
+    & > small {
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    & > h2,
+    & > small {
+      .text-overflow();
+    }
+  }
+
+  &:before {
+    .transition(width);
+    .transition-duration(200ms);
+    .backface-visibility(hidden);
+    content: "";
+    width: 0px;
+    height: 100%;
+    background: rgba(0,0,0,0.1);
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  &:hover {
+    .metadata {
+      color: @m-white !important;
+    }
+
+    &:before {
+      width: 68px;
+    }
+  }
+}
