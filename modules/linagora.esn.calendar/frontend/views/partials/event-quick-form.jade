@@ -50,20 +50,20 @@ form.event-quick-form.form-container(role='form')
     .form-group.col-xs-11.scrollable
       .row.accepted(ng-show='attendeesPerPartstat.ACCEPTED > 0') #{__('Accepted')}
         ul.list-inline
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.id")
-            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.email")
+            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
       .row.declined(ng-show='attendeesPerPartstat.DECLINED > 0')  #{__('Declined')}
         ul.list-inline
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.id")
-            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.email")
+            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
       .row.undecided(ng-show='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')  #{__('Undecided')}
         ul.list-inline
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.id")
-            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'TENTATIVE' track by attendee.id")
-            attendee-list-item(attendee='attendee', ng-click= "selectAttendee(attendee.id)")
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
+            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
+          li(ng-repeat="attendee in editedEvent.attendees | partstat:'TENTATIVE' track by attendee.email")
+            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
     .col-xs-1.trash.all-centered.no-padding
-      i.mdi-2x.mdi-action-delete(ng-show='hasAttendeesClicked', ng-click='deleteSelectedAttendees()')
+      i.mdi-2x.mdi-action-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
   .form-group.nopadding(ng-show='isOrganizer || isNew(editedEvent)')
     .text-center
       button.btn.btn-default.submit-button.pull-left(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")

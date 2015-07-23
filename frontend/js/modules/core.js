@@ -77,6 +77,9 @@ angular.module('esn.core', [])
       return (val.match(/\.0*$/) ? val.substr(0, val.indexOf('.')) : val) + '' + units[number];
     };
   })
+  .filter('urlencode', function($window) {
+    return $window.encodeURIComponent;
+  })
   .directive('fallbackSrc', function() {
     return {
       link: function postLink(scope, element, attrs) {

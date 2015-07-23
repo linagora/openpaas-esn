@@ -256,7 +256,8 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/attendee/attendee-list-item.html',
       controller: 'eventFormController',
       scope: {
-        attendee: '='
+        attendee: '=',
+        readOnly: '='
       }
     };
   })

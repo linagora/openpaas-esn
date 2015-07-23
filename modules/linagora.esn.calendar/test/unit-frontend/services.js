@@ -242,12 +242,10 @@ describe('The Calendar Angular module services', function() {
         title: 'myTitle',
         description: 'description',
         location: 'location',
-        vcalendar: vcalendar
+        vcalendar: vcalendar,
+        attendees: []
       };
 
-      event.attendeesPerPartstat = {
-        'NEEDS-ACTION': []
-      };
       element = new Element();
       fcContent = new Element();
       fcTitle = new Element();
@@ -278,9 +276,19 @@ describe('The Calendar Angular module services', function() {
         expect(element.attributes.title).to.equal('aDescription');
       });
 
-      it('should add event-needs-action class if current user is found in the needs-action attendees', function() {
-        event.attendeesPerPartstat['NEEDS-ACTION'].push({
-          email: 'aAttendee@open-paas.org'
+      it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
+        event.attendees.push({
+          email: 'aAttendee@open-paas.org',
+          partstat: 'NEEDS-ACTION'
+        });
+        this.eventService.render(event, element);
+        expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
+      });
+
+      it('should add event-needs-action class if current user is found in the TENTATIVE attendees', function() {
+        event.attendees.push({
+          email: 'aAttendee@open-paas.org',
+          partstat: 'TENTATIVE'
         });
         this.eventService.render(event, element);
         expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
@@ -480,9 +488,9 @@ describe('The Calendar Angular module services', function() {
               ['location', {}, 'text', 'location'],
               ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
               ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
-              ['attendee', { 'x-rse-id': 1, 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
-              ['attendee', { 'x-rse-id': 2, 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
-              ['attendee', { 'x-rse-id': 3, 'partstat': 'YOLO' }, 'cal-address', 'mailto:yolo@example.com'],
+              ['attendee', { 'partstat': 'ACCEPTED', 'cn': 'name' }, 'cal-address', 'mailto:test@example.com'],
+              ['attendee', { 'partstat': 'DECLINED' }, 'cal-address', 'mailto:noname@example.com'],
+              ['attendee', { 'partstat': 'YOLO' }, 'cal-address', 'mailto:yolo@example.com'],
               ['organizer', { 'cn': 'organizer' }, 'cal-address', 'mailto:organizer@example.com']
            ], []]
          ]],
@@ -504,24 +512,8 @@ describe('The Calendar Angular module services', function() {
           expect(event.formattedEndTime).to.equal('3');
           expect(event.formattedEndA).to.equal('am');
 
-          expect(event.attendeesPerPartstat.ACCEPTED.length).to.equal(1);
-          expect(event.attendeesPerPartstat.ACCEPTED[0].fullmail).to.equal('name <test@example.com>');
-          expect(event.attendeesPerPartstat.ACCEPTED[0].email).to.equal('test@example.com');
-          expect(event.attendeesPerPartstat.ACCEPTED[0].name).to.equal('name');
-          expect(event.attendeesPerPartstat.ACCEPTED[0].partstat).to.equal('ACCEPTED');
-
-          expect(event.attendeesPerPartstat.DECLINED.length).to.equal(1);
-          expect(event.attendeesPerPartstat.DECLINED[0].fullmail).to.equal('noname@example.com');
-          expect(event.attendeesPerPartstat.DECLINED[0].email).to.equal('noname@example.com');
-          expect(event.attendeesPerPartstat.DECLINED[0].name).to.equal('noname@example.com');
-          expect(event.attendeesPerPartstat.DECLINED[0].partstat).to.equal('DECLINED');
-
-          expect(event.attendeesPerPartstat.OTHER.length).to.equal(1);
-          expect(event.attendeesPerPartstat.OTHER[0].fullmail).to.equal('yolo@example.com');
-          expect(event.attendeesPerPartstat.OTHER[0].partstat).to.equal('YOLO');
           expect(event.attendees).to.deep.equal([
             {
-              id: 1,
               fullmail: 'name <test@example.com>',
               email: 'test@example.com',
               name: 'name',
@@ -529,7 +521,6 @@ describe('The Calendar Angular module services', function() {
               displayName: 'name'
             },
             {
-              id: 2,
               fullmail: 'noname@example.com',
               email: 'noname@example.com',
               name: 'noname@example.com',
@@ -537,13 +528,13 @@ describe('The Calendar Angular module services', function() {
               displayName: 'noname@example.com'
             },
             {
-              id: 3,
               fullmail: 'yolo@example.com',
               email: 'yolo@example.com',
               name: 'yolo@example.com',
               partstat: 'YOLO',
               displayName: 'yolo@example.com'
-            }]);
+            }
+          ]);
 
           expect(event.organizer).to.deep.equal({
             fullmail: 'organizer <organizer@example.com>',
@@ -1058,13 +1049,11 @@ describe('The Calendar Angular module services', function() {
           location: 'location',
           description: 'description',
           attendees: [{
-            id: '123456',
             emails: [
               'user1@open-paas.org'
             ],
             displayName: 'User One'
           }, {
-            id: '654321',
             emails: [
               'user2@open-paas.org'
            ],
@@ -1141,7 +1130,6 @@ describe('The Calendar Angular module services', function() {
                 [
                   'attendee',
                   {
-                    'x-rse-id': '123456',
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
                     'role': 'REQ-PARTICIPANT',
@@ -1153,7 +1141,6 @@ describe('The Calendar Angular module services', function() {
                 [
                   'attendee',
                   {
-                    'x-rse-id': '654321',
                     'partstat': 'NEEDS-ACTION',
                     'rsvp': 'TRUE',
                     'role': 'REQ-PARTICIPANT'
