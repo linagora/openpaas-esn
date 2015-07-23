@@ -30,11 +30,15 @@ describe('The esn.session Angular module', function() {
         var user = this.session.user;
         var user1 = {
           _id: '1',
-          name: 'hello'
+          name: 'hello',
+          emails: ['someone@example.com'],
+          emailMap: { 'someone@example.com': true }
         };
         var user2 = {
           _id: '2',
-          name: 'yolo'
+          name: 'yolo',
+          emails: ['yolo@example.com'],
+          emailMap: { 'yolo@example.com': true }
         };
 
         this.session.setUser(user1);

@@ -52,7 +52,10 @@ describe('The Calendar Angular module controllers', function() {
 
     var sessionMock = {
       user: {
-        emails: ['user@test.com']
+        firstname: 'first',
+        lastname: 'last',
+        emails: ['user@test.com'],
+        emailMap: { 'user@test.com': true }
       }
     };
 
@@ -87,7 +90,9 @@ describe('The Calendar Angular module controllers', function() {
       $provide.constant('uiCalendarConfig', self.uiCalendarConfig);
     });
     angular.mock.module(function($provide) {
-      $provide.value('calendarUtils', calendarUtilsMock);
+      $provide.decorator('calendarUtils', function($delegate) {
+        return angular.extend($delegate, calendarUtilsMock);
+      });
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
@@ -423,6 +428,7 @@ describe('The Calendar Angular module controllers', function() {
           title: 'No title',
           attendees: ['user1@test.com', 'user2@test.com'],
           organizer: {
+            displayName: 'first last',
             emails: ['user@test.com']
           }
         });

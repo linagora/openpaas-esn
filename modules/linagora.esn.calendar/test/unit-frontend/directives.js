@@ -9,7 +9,8 @@ describe('The Calendar Angular module directives', function() {
     var asSession = {
       user: {
         _id: '123456',
-        emails: ['user1@test.com']
+        emails: ['user1@test.com'],
+        emailMap: { 'user1@test.com': true }
       },
       domain: {
         company_name: 'test',
@@ -19,20 +20,15 @@ describe('The Calendar Angular module directives', function() {
 
     var asDomainAPI = {
       getMembers: function(domainId, query) {
-        return {
-          then: function(onSuccess) {
-            var response = {
-              data: [
-                { _id: '111111', firstname: 'first', lastname: 'last', emails: ['user1@test.com'] },
-                { _id: '222222', emails: ['fist@last'] },
-                { _id: '333333', firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] }
-              ],
-              domainId: domainId,
-              query: query
-            };
-            onSuccess(response);
-          }
-        };
+        return $q.when({
+          data: [
+            { _id: '111111', firstname: 'first', lastname: 'last', emails: ['user1@test.com'] },
+            { _id: '222222', emails: ['fist@last'] },
+            { _id: '333333', firstname: 'john', lastname: 'doe', emails: ['johndoe@test.com'] }
+          ],
+          domainId: domainId,
+          query: query
+        });
       }
     };
 

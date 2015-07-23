@@ -100,7 +100,7 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/message/event/event-edition.html'
     };
   })
-  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES) {
+  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES, AUTOCOMPLETE_MAX_RESULTS) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -140,35 +140,45 @@ angular.module('esn.calendar')
       $scope.deleteSelectedAttendees = controller.deleteSelectedAttendees;
 
       $scope.getInvitableAttendees = function(query) {
-        var deferred = $q.defer();
         $scope.query = query;
 
-        domainAPI.getMembers(session.domain._id, {search: query, limit: 5}).then(
-          function(response) {
-            var resolved = response.data.filter(function(user) {
-              if ($scope.editedEvent.attendees) {
-                var isAddedAttendees = $scope.editedEvent.attendees.some(function(att) {
-                  return att.email === user.emails[0];
-                });
-                return ((user.emails[0] !== session.user.emails[0]) && !isAddedAttendees);
-              } else {
-                return (user.emails[0] !== session.user.emails[0]);
+        var memberQuery = { search: query, limit: AUTOCOMPLETE_MAX_RESULTS };
+        return domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
+          var addedAttendees = Object.create(null);
+          if ($scope.editedEvent.attendees) {
+            $scope.editedEvent.attendees.forEach(function(att) {
+              if (att.email) {
+                addedAttendees[att.email] = att;
               }
-            }).map(function(user) {
-              return angular.extend(user, {
-                id: user._id,
-                email: user.emails[0],
-                displayName: (user.firstname && user.lastname) ?
-                  calendarUtils.diplayNameOf(user.firstname, user.lastname) :
-                  user.emails[0],
-                partstat: ICAL_PROPERTIES.partstat.needsaction
-              });
+              if (att.emails) {
+                att.emails.forEach(function(email) {
+                  addedAttendees[email] = att;
+                });
+              }
             });
-            $scope.query = '';
-            deferred.resolve(resolved);
-          }, deferred.reject
-        );
-        return deferred.promise;
+          }
+
+          $scope.query = '';
+          return $q.when(response.data.reduce(function(members, user) {
+            var alreadyAdded = user.emails.some(function(email) {
+              return (email in addedAttendees) || (email in session.user.emailMap);
+            });
+
+            if (!alreadyAdded) {
+              var firstEmail = user.emails[0];
+              members.push(angular.extend(user, {
+                id: user._id,
+                email: firstEmail,
+                emails: user.emails,
+                displayName: (user.firstname && user.lastname) ?
+                  calendarUtils.displayNameOf(user.firstname, user.lastname) :
+                  firstEmail,
+                partstat: ICAL_PROPERTIES.partstat.needsaction
+              }));
+            }
+            return members;
+          }, []));
+        });
       };
 
       $timeout(function() {
