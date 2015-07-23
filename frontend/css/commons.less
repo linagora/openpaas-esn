@@ -46,9 +46,21 @@
 }
 
 .rotate(@degrees) {
-  transform:rotate(@degrees);
-  -ms-transform:rotate(@degrees); /* IE 9 */
-  -webkit-transform:rotate(@degrees); /* Opera, Chrome, and Safari */
+  transform: rotate(@degrees);
+  -ms-transform: rotate(@degrees); /* IE 9 */
+  -webkit-transform: rotate(@degrees); /* Opera, Chrome, and Safari */
+}
+
+.translate(@xpx, @ypx) {
+  transform: translate(@xpx, @ypx);
+  -ms-transform: translate(@xpx, @ypx); /* IE 9 */
+  -webkit-transform: translate(@xpx, @ypx); /* Opera, Chrome, and Safari */
+}
+
+.transform(@transform) {
+  transform: @transform;
+  -ms-transform: @transform; /* IE 9 */
+  -webkit-transform: @transform; /* Opera, Chrome, and Safari */
 }
 
 .vertical-centered {
