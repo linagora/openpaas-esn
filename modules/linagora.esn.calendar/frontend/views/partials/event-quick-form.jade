@@ -5,7 +5,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         h4.modal-title
           .col-sm-12
             .form-group
-              input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('No title')}", ng-readonly="!isOrganizer")
+              input.input-lg.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
       .modal-body
         .col-sm-2
           .form-group
@@ -14,9 +14,9 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         .col-sm-3
           .form-group
             .fg-line
-              input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
-            .fg-line(ng-hide='editedEvent.allDay')
-              input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", data-format="LT", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+              input.input-lg.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+            .fg-line(ng-if='!editedEvent.allDay')
+              input.input-lg.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", data-format="LT", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
         .col-sm-2
           .form-group
             .fg-line
@@ -24,19 +24,26 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         .col-sm-3
           .form-group
             .fg-line
-              input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
-            .fg-line(ng-hide='editedEvent.allDay')
-              input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", data-format="LT", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+              input.input-lg.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+            .fg-line(ng-if='!editedEvent.allDay')
+              input.input-lg(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", data-format="LT", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+        .col-sm-2
+          .form-group
+            .fg-line
+              .checkbox
+                label
+                  input(type="checkbox", ng-model='editedEvent.allDay', ng-disabled="!isOrganizer")
+                  i.input-helper #{__('All day')}
         .col-sm-12
           .form-group(ng-show="isOrganizer || editedEvent.location")
             .input-group
               span.input-group-addon
                 i.mdi.mdi-map-marker
               .fg-line
-                input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                input.input-lg.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
         .col-sm-12
           // ng-show="hasAttendees"
-          .form-group(ng-show="true")
+          .form-group.status(ng-show="true")
             span.col-xs-6 #{__('Will you attend?')}
             button.btn.btn-default.col-xs-2.accepted(ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
             button.btn.btn-default.col-xs-2.undecided(ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE" }') #{__('Maybe')}
