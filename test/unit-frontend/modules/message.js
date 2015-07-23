@@ -501,7 +501,7 @@ describe('The esn.message Angular module', function() {
       expect(element.find('ul').hasClass('message-bottom-links')).to.be.true;
     });
 
-    it('should have shareMessageButton directive', function() {
+    it.skip('should have shareMessageButton directive', function() {
       var html = '<message-bottom-links></message-bottom-links>';
 
       var scope = this.$rootScope.$new();
