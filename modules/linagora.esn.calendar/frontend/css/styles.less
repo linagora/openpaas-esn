@@ -54,6 +54,10 @@ tags-input .autocomplete {
   .allday {
     padding-right: 0;
     padding-top: 2em;
+
+    .checkbox-material {
+      padding-right: 5px;
+    }
   }
 
   .accepted, .btn.accepted  {
@@ -108,5 +112,17 @@ tags-input .autocomplete {
       right: 0px;
     }
 
+  }
+
+  &.readonly {
+    .form-control, .form-control:focus {
+      cursor: text;
+      background-image: none;
+    }
+
+    .checkbox label {
+      cursor: default;
+      background-image: none;
+    }
   }
 }
