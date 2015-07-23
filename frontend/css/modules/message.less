@@ -21,11 +21,29 @@
 }
 
 .message-attachment {
+
+  animation: fadeIn 0.5s;
+  -webkit-animation: fadeIn 0.5s;
+
   background-color: @m-lightblue;
   color: @m-white;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
   position: relative;
   margin-bottom: 15px;
+  height: 67px;
+  
+  .cancel {
+    display: flex;
+    float: right;
+    opacity: 0.7;
+    padding-top: 3px;
+    padding-right: 3px;
+    a {
+      color: @m-white;
+      font-weight: bold;
+      font-size: larger;
+    }
+  }
 
   .icon {
     float: left;
