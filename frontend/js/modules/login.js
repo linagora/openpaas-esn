@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.login', ['restangular', 'vcRecaptcha'])
+angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
   .directive('esnLoginAutofill', function() {
     return {
       restrict: 'A',
@@ -16,7 +16,7 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
       }
     };
   })
-  .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService) {
+  .controller('login', function($scope, $location, $window, loginAPI, loginErrorService, vcRecaptchaService, notificationFactory) {
     $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
@@ -28,11 +28,6 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
     $scope.error = loginErrorService.getError();
     $scope.autocomplete = ($location.path() === '/') ? 'on' : 'off';
 
-    $scope.loginButton = {
-      label: 'Sign In',
-      notRunning: 'Sign In',
-      running: 'Please wait...'
-    };
     $scope.loginTask = {
       running: false
     };
@@ -43,22 +38,19 @@ angular.module('esn.login', ['restangular', 'vcRecaptcha'])
       }
 
       $scope.loginTask.running = true;
-      $scope.loginButton.label = $scope.loginButton.running;
 
       loginAPI.login($scope.credentials).then(
-        function(data) {
+        function() {
           $scope.loginIn = true;
           $scope.loginTask.running = false;
-
           $window.location.reload();
         },
         function(err) {
-          $scope.loginButton.label = $scope.loginButton.notRunning;
           $scope.loginTask.running = false;
           $scope.error = err.data;
           $scope.credentials.password = '';
           loginErrorService.set($scope.credentials, err.data);
-          $location.path('/login');
+          notificationFactory.weakError('Login error, please check credentials');
           $scope.recaptcha.needed = err.data.recaptcha || false;
           try {
             vcRecaptchaService.reload();

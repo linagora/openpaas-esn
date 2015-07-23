@@ -45,6 +45,7 @@ describe('The Login Angular module', function() {
       var self = this;
       this.loginAPI = {};
       this.searchObject = {};
+      this.notificationFactory = {};
       this.scope = $rootScope.$new();
       this.request = {
       };
@@ -61,7 +62,8 @@ describe('The Login Angular module', function() {
         $window: {
           location: {}
         },
-        loginAPI: this.loginAPI
+        loginAPI: this.loginAPI,
+        notificationFactory: this.notificationFactory
       };
       $controller('login', this.locals);
     }));
@@ -109,6 +111,20 @@ describe('The Login Angular module', function() {
         this.scope.login(this.scope.form);
       });
 
+      it('should display an error message when login fails', function(done) {
+        this.scope.form = {$invalid: false};
+
+        this.notificationFactory.weakError = function(message) {
+          expect(message).to.match(/Login error, please check credentials/);
+          done();
+        };
+
+        this.loginAPI.login = function() {
+          return $q.reject({data: {}});
+        };
+        this.scope.login(this.scope.form);
+        this.scope.$digest();
+      });
     });
   });
 
