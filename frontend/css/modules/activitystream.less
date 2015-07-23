@@ -9,13 +9,13 @@
   justify-content: flex-end;
 
   i {
-    color: #555;
+    color: @m-bluegray;
     font-size: 14px;
     cursor: pointer;
   }
 
   i:hover {
-    color: #111;
+    color: @m-black;
   }
 }
 
@@ -34,16 +34,16 @@
   margin-top: 30px;
 }
 .t-view {
-  border: 1px solid #eee;
+  border: 1px solid lighten(@m-gray, 30%);
   position: relative;
   margin-bottom: 10px;
-  background-color: #FFF;
+  background-color: @m-white;
 }
 
 .t-view .tv-header {
   padding: 16px 18px;
-  border-bottom: 1px solid #eee;
-  background: #F9F9F9;
+  border-bottom: 1px solid lighten(@m-gray, 30%);
+  background: lighten(@m-gray, 35%);
 }
 
 .t-view .tv-header .actions {
@@ -82,11 +82,11 @@
   border-radius: 50%;
   left: -70px;
   top: 0;
-  border: 3px solid #FFF;
+  border: 3px solid @m-white;
   text-align: center;
   font-size: 20px;
   line-height: 34px;
-  color: #FFF;
+  color: @m-white;
   font-family: 'MaterialDesignIcons';
   z-index: 1;
 }
@@ -139,7 +139,7 @@
 .t-view .tvb-stats > li {
   display: inline-block;
   padding: 5px 10px 6px;
-  border: 1px solid #ccc;
+  border: 1px solid @m-gray;
   margin-right: 2px;
 }
 
@@ -181,17 +181,17 @@
 .tv-comments .tvc-lists > li {
   padding: 15px 20px;
   margin: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid lighten(@m-gray, 30%);
 }
 
 .tvc-more {
-  color: #333;
+  color: @m-bluegray;
   display: block;
   margin-bottom: -10px;
 }
 
 .tvc-more:hover {
-  color: #000;
+  color: @m-black;
 }
 
 .tvc-more i {
