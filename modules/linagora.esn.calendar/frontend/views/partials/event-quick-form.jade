@@ -1,84 +1,73 @@
-form.form-container(role='form', ng-class="{ 'readonly': !isOrganizer }")
-  span.event-create-error-message
-  .form-group
-    input.title.event-input.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('No title')}", ng-readonly="!isOrganizer")
-  .form-group.form-inline
-    .row
-      .col-xs-4.nopadding
-        .input-group
-          span.input-group-addon
-            i.mdi.mdi-calendar.mdi-2x.mdi-fw
-          input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", bs-datepicker, date-to-moment, ng-disabled="!isOrganizer")
-        .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
-          span.input-group-addon
-            i.mdi.mdi-clock-o.mdi-2x.mdi-fw
-          input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", bs-timepicker, date-to-moment, ng-disabled="!isOrganizer")
-      .col-xs-2.nopadding
-        h3.text-center #{__('To')}
-      .col-xs-4.nopadding
-        .input-group
-          span.input-group-addon
-            i.mdi.mdi-calendar.mdi-2x.mdi-fw
-          input.form-control(type="text", size="10", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", bs-datepicker, date-to-moment, friendlify-end-date, ng-disabled="!isOrganizer")
-        .input-group.margin-bottom-sm(ng-hide='editedEvent.allDay')
-          span.input-group-addon
-            i.mdi.mdi-clock-o.mdi-2x.mdi-fw
-          input.form-control(type="text", size="10", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", bs-timepicker, date-to-moment, ng-disabled="!isOrganizer")
-      .col-xs-2
-        .checkbox
-          label
-            input(type="checkbox", ng-model='editedEvent.allDay', ng-disabled="!isOrganizer")
-            | #{__('All day')}
-  .form-group(ng-show="isOrganizer || editedEvent.location")
-    .input-group
-      span.input-group-addon
-        i.mdi.mdi-map-marker.mdi-2x.mdi-fw
-      input.event-input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
-  .form-group(ng-show='hasAttendees')
-    .row.all-centered.status
-      span.col-xs-5 #{__('Will you attend?')}
-      button.btn.btn-default.col-xs-2.accepted(ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
-      button.btn.btn-default.col-xs-3.undecided(ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE" }') #{__('Maybe')}
-      button.btn.btn-default.col-xs-2.declined(ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}
-  .form-group(ng-show='isOrganizer || isNew(editedEvent)')
-    .input-group
-      span.input-group-addon
-        i.mdi.mdi-account-multiple
-      tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
-        auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
-  .row(ng-show='hasAttendees')
-    .form-group.col-xs-11
-      .row(ng-show='attendeesPerPartstat.ACCEPTED > 0') #{__('Accepted')}
-        ul.list-inline
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.email")
-            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-      .row.declined(ng-show='attendeesPerPartstat.DECLINED > 0')  #{__('Declined')}
-        ul.list-inline
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.email")
-            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-      .row.undecided(ng-show='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')  #{__('Undecided')}
-        ul.list-inline
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
-            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-          li(ng-repeat="attendee in editedEvent.attendees | partstat:'TENTATIVE' track by attendee.email")
-            attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-    .col-xs-1.trash.all-centered.no-padding
-      i.mdi-2x.mdi-action-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
-  .form-group.nopadding
-    .text-center
-      button.btn.btn-default.pull-left(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
-        span.hidden-xs #{__('Create')}
-        i.mdi.mdi-check.visible-xs
-      button.btn.btn-default.pull-left(type='submit', ng-click="modifyEvent()", ng-if="!isNew(editedEvent)", ng-disabled="restActive")
-        span.hidden-xs #{__('Modify')}
-        i.mdi.mdi-check.mdi-2x.visible-xs
-      button.btn.btn-default(type='button', ng-if="isNew(editedEvent)", ng-disabled="true")
-        span.hidden-xs #{__('More options')}
-        i.mdi.mdi-view-headline.mdi-2x.visible-xs
-      button.btn.btn-default.submit-button(type='button', ng-click="deleteEvent()", ng-if="isOrganizer && !isNew(editedEvent)", ng-disabled="restActive")
-        span.hidden-xs #{__('Delete')}
-        i.mdi.mdi-delete-o.mdi-2x.visible-xs
-      button.btn.btn-default.pull-right(type='button', ng-click="closeModal()")
-        span.hidden-xs #{__('Cancel')}
-        i.mdi.mdi-close.mdi-2x.visible-xs
-      .clearfix
+form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title
+          .col-sm-12
+            .form-group
+              input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('No title')}", ng-readonly="!isOrganizer")
+      .modal-body
+        .col-sm-2
+          .form-group
+            .fg-line
+              i.mdi.mdi-calendar
+        .col-sm-3
+          .form-group
+            .fg-line
+              input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+            .fg-line(ng-hide='editedEvent.allDay')
+              input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", data-format="LT", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+        .col-sm-2
+          .form-group
+            .fg-line
+              i.mdi.mdi-check
+        .col-sm-3
+          .form-group
+            .fg-line
+              input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+            .fg-line(ng-hide='editedEvent.allDay')
+              input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", data-format="LT", data-dt-picker, aria-expanded="false", data-toggle="dropdown", ng-disabled="!isOrganizer")
+        .col-sm-12
+          .form-group(ng-show="isOrganizer || editedEvent.location")
+            .input-group
+              span.input-group-addon
+                i.mdi.mdi-map-marker
+              .fg-line
+                input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+        .col-sm-12
+          // ng-show="hasAttendees"
+          .form-group(ng-show="true")
+            span.col-xs-6 #{__('Will you attend?')}
+            button.btn.btn-default.col-xs-2.accepted(ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
+            button.btn.btn-default.col-xs-2.undecided(ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE" }') #{__('Maybe')}
+            button.btn.btn-default.col-xs-2.declined(ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}
+        .col-sm-12
+          hr
+        .col-sm-12
+          .form-group(ng-show='isOrganizer || isNew(editedEvent)')
+            .input-group
+              span.input-group-addon
+                i.mdi.mdi-users
+              .fg-line
+                tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
+                  auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
+
+      .modal-footer
+        .col-sm-12
+          .form-group
+            .fg-line
+              .col-sm-3
+                button.btn.btn-default(type='submit', ng-click='addNewEvent()', ng-if="isNew(editedEvent)", ng-disabled="restActive")
+                  span.hidden-xs #{__('Save')}
+                  i.mdi.mdi-check.visible-xs
+              .col-sm-3
+                button.btn.btn-default(type='button', ng-if="isNew(editedEvent)", ng-disabled="true")
+                  span.hidden-xs #{__('More options')}
+              .col-sm-3
+                button.btn.btn-default(type='button', ng-click="deleteEvent()", ng-if="isOrganizer && !isNew(editedEvent)", ng-disabled="restActive")
+                  span.hidden-xs #{__('Delete')}
+                  i.mdi.mdi-trash-o.visible-xs
+              .col-sm-3
+                button.btn.btn-default(type='button', ng-click="closeModal()")
+                  span.hidden-xs #{__('Cancel')}
+                  i.mdi.mdi-close.visible-xs
