@@ -1,52 +1,58 @@
-div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
-  a.pull-left(href='#')
-    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
-  div.media-body
-    div
-      h4.media-heading
-        i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
-        a(href="#") {{::message.author.firstname}} {{::message.author.lastname}}
-        span &nbsp;#{__('landed a poll')}
-        message-date-link(message='message', activitystream='activitystream')
+.t-view(data-tv-type="poll" ng-class="{'t-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
+  .tv-header.media
+    a.tvh-user.pull-left(href='#')
+      img.img-responsive(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+    .media-body.p-t-5
+      i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
+      strong {{message.author.firstname}} {{message.author.lastname}}
+      span &nbsp;#{__('landed a poll')}
+      br
+      message-date-link(message='message', activitystream='activitystream')
+      .share
+        message-bottom-links
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
       message-shared(message='message')
-      display-position(position='message.position')
-      
-      p 
-        i {{message.pollResults.length}} #{__('people have already voted')}.
-      div
-        p.multilines
-          text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-        div.container-fluid(ng-show='pollContext.hasVoted === false')
-          form.horizontal-form
-            .form-group.radio.radio-primary(ng-repeat='choice in message.pollChoices')
-              label
-                input(type='radio' name='{{::message._id}}' ng-model='pollContext.vote' value='{{$index}}')
-                | {{choice.label}}
-            button(type='submit', class='btn btn-primary vote-button' ng-click='recordVote()' ng-disabled='pollContext.vote === null') #{__('Vote')}
-        table.table.table-condensed.table-responsive(ng-show='pollContext.hasVoted === true')
-          thead
-            tr
-              th.col-md-7 #{__('Choice')}
-              th.col-md-3
-              th.col-md-2 #{__('Votes')}
-          tbody
-            tr(ng-repeat='result in pollContext.results')
-              td.col-md-7 {{result.label}}
-              td.col-md-3
-                div.progress
-                  div.progress-bar(role="progressbar" aria-valuenow="{{result.ratio}}" aria-valuemin="0" aria-valuemax="100" style="width: {{result.ratio}}%; min-width:0.1em")
-                    span(ng-if="result.ratio !== 0") {{result.ratio}}%
-              td.col-md-2
-                strong {{result.votes}}
-        .row(ng-show='pollContext.hasVoted === true')
-          .col-xs-12
-            a.chart(href='', ng-click='toggleChartDisplay()')
-              i.mdi.mdi-chart-pie
-              span(ng-show='!showMeChart') #{__('Show results as chart')}
-              span(ng-show='showMeChart') #{__('Hide chart')}
-            canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
-    message-bottom-links
-    message-attachments(message='message')
-    message-oembeds(message='message')
+  .tv-body
+    display-position(position='message.position')
+    p
+      i {{message.pollResults.length}} #{__('people have already voted')}.
+    p.multilines
+      text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
+
+    div.container-fluid(ng-show='pollContext.hasVoted === false')
+      form.horizontal-form
+        .radio(ng-repeat='choice in message.pollChoices')
+          label
+            input(type='radio' name='{{::message._id}}' ng-model='pollContext.vote' value='{{$index}}')
+            | {{choice.label}}
+            i.input-helper
+        button(type='submit', class='btn btn-primary vote-button' ng-click='recordVote()' ng-disabled='pollContext.vote === null') #{__('Vote')}
+    table.table.table-condensed.table-responsive(ng-show='pollContext.hasVoted === true')
+      thead
+        tr
+          th.col-md-7 #{__('Choice')}
+          th.col-md-3
+          th.col-md-2 #{__('Votes')}
+      tbody
+        tr(ng-repeat='result in pollContext.results')
+          td.col-md-7 {{result.label}}
+          td.col-md-3
+            div.progress
+              div.progress-bar(role="progressbar" aria-valuenow="{{result.ratio}}" aria-valuemin="0" aria-valuemax="100" style="width: {{result.ratio}}%; min-width:0.1em")
+                span(ng-if="result.ratio !== 0") {{result.ratio}}%
+          td.col-md-2
+            strong {{result.votes}}
+    .row(ng-show='pollContext.hasVoted === true')
+      .col-xs-12
+        a.chart(href='', ng-click='toggleChartDisplay()')
+          i.mdi.mdi-chart-pie
+          span(ng-show='!showMeChart') #{__('Show results as chart')}
+          span(ng-show='showMeChart') #{__('Hide chart')}
+        canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
+
+    .row
+      message-attachments(message='message')
+    .row
+      message-oembeds(message='message')
+  .tv-comments
     message-comments

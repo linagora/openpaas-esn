@@ -1,13 +1,16 @@
-.attachment-widget
-  a.cancel(href="", ng-click='cancel()')
-    i.nomargin.remove.mdi.mdi-close
-  attachment-icon(type='{{::attachment.file.type}}')
-  div.ellipsis
-    a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{::attachment.response._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}
-    span(ng-if='!attachment.uploaded') {{::attachment.file.name}}
-  span.meta.ellipsis
-    {{::attachment.file.size | bytes}} {{::attachment.file.type | extension | uppercase}} file
-  div
-    div.progress(ng-show='attachment.uploading')
-      .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{attachment.progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{attachment.progress}}%")
-        span.sr-only {{attachment.progress}} % #{__('Complete')}
+.message-attachment
+  .cancel
+    a(href="", ng-click='cancel()')
+      i.nomargin.mdi.mdi-close
+  .icon
+    attachment-icon(type='{{::attachment.file.type}}')
+  .metadata
+    h2.ellipsis
+      a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{::attachment.response._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}
+      span(ng-if='!attachment.uploaded') {{::attachment.file.name}}
+    small.ellipsis
+      {{::attachment.file.size | bytes}} {{::attachment.file.type | extension | uppercase}} file
+    div
+      div.progress(ng-show='attachment.uploading')
+        .progress-bar.progress-bar-warning.progress-bar-striped.active(role="progressbar", aria-valuenow="{{attachment.progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{attachment.progress}}%")
+          span.sr-only {{attachment.progress}} % #{__('Complete')}

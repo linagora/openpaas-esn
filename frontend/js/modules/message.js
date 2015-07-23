@@ -718,6 +718,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
   .directive('shareMessageButton', function($modal) {
     return {
       restrict: 'E',
+      replace: true,
       templateUrl: '/views/modules/message/share/share-message-button.html',
       scope: true,
       link: function($scope) {

@@ -1,7 +1,8 @@
 div.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
   form(name='messageform')
     .form-group
-      textarea.form-control(ng-model='messageContent', placeholder="#{__('Enter your poll description and question')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+      .fg-line
+        textarea.form-control(ng-model='messageContent', placeholder="#{__('Enter your poll description and question')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
     .form-group
       map-get-display-current-position
     .form-group(ng-show='attachments && attachments.length > 0')
@@ -12,7 +13,8 @@ div.form-container(ng-controller='messageController', nv-file-drop="" uploader="
       .form-group(ng-repeat='choice in additionalData.pollChoices')
         label.col-sm-2.control-label #{__('Option')} {{$index + 1}}
         .col-sm-10
-          input.form-control(type='text' ng-model='choice.label' placeholder="#{__('Poll option description...')}")
+          .fg-line
+            input.form-control(type='text' ng-model='choice.label' placeholder="#{__('Poll option description...')}")
     .form-group
       p
         button.btn.btn-link(ng-click='appendChoice()')

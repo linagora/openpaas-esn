@@ -50,7 +50,8 @@ angular.module('esnApp', [
   'esn.injection',
   'esn.collaboration',
   'esn.company',
-  'esn.localstorage'
+  'esn.localstorage',
+  'materialAdmin'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {
