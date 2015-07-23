@@ -1,0 +1,56 @@
+#sidebar {
+  .profile-menu {
+    & > a {
+      background: transparent url("../../images/sidebar.png") no-repeat scroll left top / 100% auto;
+    }
+    .profile-info > span {
+      text-decoration: none;
+    }
+  }
+
+  .main-menu {
+    & > li {
+      & > a {
+        &:hover, &.active {
+          text-decoration: none;
+        }
+      }
+      &.sub-menu {
+        & > a {
+          &:before, &:after {
+            font-family: 'MaterialDesignIcons';
+          }
+          &:before {
+            content: "\f454";
+            .scale3d(1,1,1);
+          }
+          &:after {
+            content: "\f3d0";
+            .scale3d(0,0,0);
+          }
+        }
+        &.toggled {
+          & > a {
+            &:before {
+              content: "\f454";
+              .scale3d(0,0,0);
+              transform: rotateX(-90deg);
+            }
+            &:after {
+              content: "\f3d0";
+              .scale3d(1,1,1);
+            }
+          }
+        }
+        img {
+          height: 25px;
+          width: 25px;
+          margin-right: 10px;
+        }
+        & > ul > li > a {
+          padding-left: 30px;
+        }
+      }
+    }
+  }
+}

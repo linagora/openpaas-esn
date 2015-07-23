@@ -1,13 +1,12 @@
-div(ng-controller="communityAStrackerController")
-    div.title
-        i.mdi.mdi-account-multiple
-        | #{__('My communities')}
-    hr
-    div(ng-show='error') {{error}}
-    ul.nav.nav-pills.nav-stacked(ng-hide='error')
-        li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'community'}")
-            a(ng-href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
-                .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
-                .ellipsis
-                    img(src='/images/community.png' ng-src='{{::activityStream.img}}')
-                    | {{::activityStream.display_name}}
+li.sub-menu(ng-controller="communityAStrackerController")
+  a(href="" toggle-submenu="")
+    i.mdi.mdi-account-multiple
+    | #{__('My communities')}
+  div(ng-show='error') {{error}}
+  ul.nav.nav-pills.nav-stacked(ng-hide='error')
+      li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'community'}")
+          a(close-sidebar-on-click ng-href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
+              .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
+              .ellipsis
+                  img(src='/images/community.png' ng-src='{{::activityStream.img}}')
+                  | {{::activityStream.display_name}}

@@ -18,7 +18,7 @@ angular.module('esn.sidebar', [])
           if (!e.isDefaultPrevented()) {
             close();
           }
-          return ;
+          return;
         }
       }
 
@@ -57,8 +57,9 @@ angular.module('esn.sidebar', [])
   }
 
   return {
-    restrict: 'A',
-    link: link
+    restrict: 'E',
+    link: link,
+    templateUrl: '/views/esn/partials/sidebar.html'
   };
 }])
 .directive('sideBarToggler', ['$rootScope', function($rootScope) {
@@ -94,14 +95,14 @@ angular.module('esn.sidebar', [])
     link: link
   };
 }])
-.directive('toggleSubmenu', function(){
+.directive('toggleSubmenu', function() {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
-            element.click(function(){
+            element.click(function() {
                 element.parent().toggleClass('toggled');
                 element.parent().find('ul').stop(true, false).slideToggle(200);
-            })
+            });
         }
-    }
+    };
 });
