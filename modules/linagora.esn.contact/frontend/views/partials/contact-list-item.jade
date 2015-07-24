@@ -1,33 +1,35 @@
-div.contact-list-item.hidden-xs
-  .col-xs-2.nopadding
-    a(ng-href='#/contact/show/{{::bookId}}/{{::contact.id}}')
+.contact-list-item.media.hidden-xs
+  .pull-left
+    a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
       contact-photo.media-object(contact='contact')
-  .col-xs-7
-      h4.media-heading.ellipsis {{::contact.displayName}}
-      .row
-        .col-xs-12.col-md-7.nopadding.ellipsis
-          span(ng-if='email')
-            i.fa.fa-envelope-o
-            a(ng-href="mailto:{{::email}}") {{::email}}
-        .col-md-5.nopadding.ellipsis
-          span(ng-if='tel')
-            i.fa.fa-phone
-            | {{::tel}}
-  .col-xs-3
-    .row.vertical-centered.pull-right
-      .col-xs-4.action-item
-        a.write(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-          i.mdi-content-create
-      .col-xs-4.action-item
-        a.call(ng-href="")
-          i.mdi-communication-call
-      .col-xs-4
-        .dropdown.pull-right
-          a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.mdi-navigation-more-vert
-          ul.dropdown-menu.dropdown-menu-right(role="menu")
-            li
-              a(ng-click="deleteContact()") Delete
+  .media-body
+    .lv-title
+      | {{::contact.displayName}}
+    ul.lv-attrs
+      li.hidden-xs(ng-if='email')
+        span
+          i.mdi.mdi-email-outline
+          a(ng-href="mailto:{{::email}}") {{::email}}
+      li.hidden-xs(ng-if='tel')
+        span
+          i.mdi.mdi-phone
+          | {{::tel}}
+    .lv-actions.actions
+      li
+        a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
+          i.mdi.mdi-pencil
+      li.dropdown
+        a(href='', data-toggle='dropdown', aria-expanded='true')
+          i.mdi.mdi-dots-vertical
+        ul.dropdown-menu.dropdown-menu-right
+          li.visible-xs
+            a(ng-href="") Send Message
+          li.visible-xs
+            a(ng-href="") Call
+          li.visible-xs
+            a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
+          li
+            a(ng-click="deleteContact()") Delete
               
 div.contact-list-item.visible-xs
   .col-xs-2.nopadding.touch-zone(ng-click='displayContact()')

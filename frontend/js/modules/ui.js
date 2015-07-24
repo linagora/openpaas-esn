@@ -6,7 +6,7 @@ angular.module('esn.ui', [])
 
   // types are defined from http://fezvrasta.github.io/bootstrap-material-design/bootstrap-elements.html#icon
   .constant('FAB_TYPES', {
-    create: 'mdi-content-add'
+    create: 'mdi mdi-plus'
   })
 
   .directive('fab', function(FAB_TYPES, DEFAULT_FAB_TYPE) {
