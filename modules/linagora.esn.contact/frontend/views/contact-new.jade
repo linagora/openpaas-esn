@@ -1,16 +1,14 @@
 .card(ng-submit='accept()')
-  .card-header
+  .card-header.contact-header
     .row
-      .col-sm-7.col-xs-12
+      .col-xs-8
         h1 #{__('Create a new contact')}
-      .col-sm-5.col-xs-12
+      .col-xs-4
         .contact-buttons
-          button.btn.btn-warning.btn-lg(type='button', ng-click='close()')
-            i.mdi.mdi-arrow-left
+          button.btn.btn-default(type='button', ng-click='close()')
             | #{__('Cancel')}
-          button.btn.btn-primary.btn-lg(ng-disabled='calling', type='button', ng-click='accept()')
+          button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
             | #{__('Create')}
-            i.mdi.mdi-check
   .card-body.card-padding
     .contact-error-container
     contact-display(contact='contact', update='true', modify='modify')

@@ -1,13 +1,12 @@
 .card(ng-submit='accept()')
-  .card-header
+  .card-header.contact-header
     .row
-      .col-sm-7.col-xs-12
+      .col-xs-8
         h1 {{contact.displayName}}
-      .col-sm-5.col-xs-12
+      .col-xs-4
         .contact-buttons
-          button.btn.btn-warning.btn-lg(type='button', ng-click='close()')
-            i.mdi.mdi-arrow-left
-            | #{__('Back')}  
+          button.btn.btn-default(type='button', ng-click='close()')
+            | #{__('Back')}
   .card-body.card-padding
     .contact-error-container
     contact-display(contact='contact', update='true', modify='modify')
