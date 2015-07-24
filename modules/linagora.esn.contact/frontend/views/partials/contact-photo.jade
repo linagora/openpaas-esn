@@ -1,3 +1,4 @@
 div
   img(ng-src='{{contact.photo || defaultAvatar}}')
-  i.mdi.mdi-pencil.text-center(ng-show='editable') #{__('Click to edit')}
+.text-center
+  i.mdi.mdi-pencil(ng-show='editable') #{__('Click to edit')}
