@@ -12,6 +12,9 @@ aside#sidebar(collaborations-event-listener)
         li: a(href='/#/profile')
           i.mdi.mdi-account
           | #{__('My Account')}
+        li(data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body'): a(href='')
+          i.mdi.mdi-emoticon
+          | #{__('Feedback')}
         li: a(href='{{"/#/domains/" + domain._id + "/members"}}')
           i.mdi.mdi-account-multiple
           | #{__('Members')}
