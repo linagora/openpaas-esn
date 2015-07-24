@@ -11,7 +11,9 @@
         | #{__('Register')}
     hr
     .login(data-ng-if='!login.step || login.step === 1')
+      h4 #{__('Login to OpenPaas')}
       include ../../modules/login/login
     .signup(ng-controller='signup' data-ng-if='login.step === 2')
+      h4 #{__('Sign up in OpenPaas')}
       include ./signup
 
