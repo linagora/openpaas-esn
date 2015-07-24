@@ -1,0 +1,75 @@
+.modal-profile-avatar {
+  .select-image {
+    display: flex;
+    justify-content: center;
+    padding: 0 10px;
+    input {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-height: 100%;
+      min-width: 100%;
+    }
+  }
+}
+
+dl {
+  height: 2em;
+  dd {
+    & > a.edit-hint {
+      display: none;
+      background-color: @lightPrimaryColor;
+      color: @text-color;
+      padding: 2px;
+      border: 1px solid @lightPrimaryColor;
+    }
+    & > span {
+      border: 1px solid transparent;
+      padding: 2px;
+    }
+  }
+
+  dd:hover {
+    & > span {
+    border: 1px solid @lightPrimaryColor;
+    padding: 2px;
+    }
+    & > a.edit-hint {
+    display: inline;
+    }
+  }
+
+  form.editable-wrap {
+    .custom-input-sm {
+      height: 1.7em;
+      border: 1px solid @lightPrimaryColor;
+      padding: 2px;
+      color: @text-color;
+    }
+    .custom-input-sm:focus {
+      border: 1px solid @lightPrimaryColor;
+    }
+    .editable-buttons {
+      & > button {
+        &.btn:not(.btn-link):not(.btn-float):not(.command-edit):not(.command-delete):not(.selectpicker) {
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+          margin: 0;
+          color: @text-color;
+        }
+        & > span {
+          height: 1.7em;
+          line-height: 1.7em;
+          vertical-align: middle;
+          background-color: @lightPrimaryColor;
+          color: @text-color;
+          padding: 0 2px;
+          margin-top: -1px;
+          border: 1px solid @lightPrimaryColor;
+        }
+      }
+    }
+  }
+}

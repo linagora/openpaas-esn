@@ -1,40 +1,69 @@
-.container
+.container(ng-controller='profileEditionController')
   .block-header
-    h2 User.formattedName
-      small User.Job, User.location
-    ul.actions.m-t-20.hidden-xs
-      li.dropdown
-        a(data-toggle='dropdown', href='', aria-expended='false')
-          i.mdi.mdi-dots-vertical
-  #profile-main.card(ng-controller='profileCtrl as pctrl')
+    h2 #{__('My Account')}
+  #profile-main.card
     .pm-overview.c-overflow
       .pmo-pic
-        .p-relative
-          a(href='')
-            img(src="../../../images/user.png")
-          .dropdown pmop-message
-          a.pmop-edit(href='')
-          .pmo-stat
-      .pmo-block.pmo-contact.hidden-xs
-        h2 Contact
-        ul
-          li Yo
-          li lorem
-      .pmo-block.pmo-items.hidden-xs
-        h2 Connection
+        .p-relative(ng-controller='avatarController')
+          a
+            img(src="{{avatarURL}}")
+          a.pmop-edit(ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
+            i.mdi.mdi-camera
+            span.hidden-xs
+              | #{__('Update Profile Picture')}
+        .pmo-stat
+          h2.m-0.c-white
+            |{{user.firstname}} {{user.lastname}}
+          |{{user.job_title}}
     .pm-body.clearfix
       data(ui-view='')
-        .pmbb-header
-          h2 
-            i.mdi-.mdi-briefcase
-            | Summary
-          ul.actions
-            li.dropdown
-              a(data-toggle='dropdown', href='', aria-expended='false')
-                i.mdi.mdi-dots-vertical
-              ul.dropdown-menu.dropdown-menu-righti.mdi.mdi-dots-vertical
-                li Edit
-        .pmbb-body.p-l-30
-          .pmbb-view
-            |Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          
+        .pmb-block
+          .pmbb-header
+            h2 
+              i.mdi.mdi-account.m-r-5
+              | #{__('Profile Informations')}
+            ul.actions
+              li.dropdown
+                a( href='')
+                  i.mdi.mdi-pencil
+          .pmbb-body.p-l-30
+            .pmbb-view
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-email.m-r-5 
+                  | #{__('Email')}
+                dd 
+                  a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-phone.m-r-5 
+                  | #{__('Phone')}
+                dd.visible-xs
+                  {{ user.main_phone }}  
+                dd.hidden-xs
+                  span(ng-click='phoneForm.$show()', editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)',
+                  e-placeHolder="#{__('Phone')}", e-maxlength='20', e-class='custom-input-sm') {{ user.main_phone }}  
+                  a.edit-hint(ng-hide='phoneForm.$visible', ng-disabled='running.phone')
+                    i.mdi.mdi-pencil
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-city.m-r-5 
+                  | #{__('Building Location')}
+                  dd.visible-xs
+                    {{ user.building_location }}
+                  dd.hidden-xs
+                    span(ng-click='buildingForm.$show()', editable-text='user.building_location', e-form='buildingForm', onbeforesave='updateBuildingLocation($data)',
+                    e-placeHolder="#{__('Building Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.building_location }}
+                    a.edit-hint(ng-hide='buildingForm.$visible', ng-disabled='running.building_location')
+                      i.mdi.mdi-pencil
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-monitor.m-r-5 
+                  | #{__('Office Location')}
+                  dd.visible-xs
+                    {{ user.office_location }}
+                  dd.hidden-xs
+                    span(ng-click='officeForm.$show()', editable-text='user.office_location', e-form='officeForm', onbeforesave='updateOfficeLocation($data)',
+                    e-placeHolder="#{__('Office Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.office_location }}
+                    a.edit-hint(ng-hide='officeForm.$visible', ng-disabled='running.office_location')
+                      i.mdi.mdi-pencil
