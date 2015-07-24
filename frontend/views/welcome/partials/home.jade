@@ -1,19 +1,17 @@
 .login-content(esn-login-autofill, ng-controller='login')
 
-  .lc-block.toggled(data-ng-if='!login.step || login.step === 1')
-    include ../../modules/login/login
-    ul.login-navigation
-      li.bgm-red(data-ng-click="login.step = 2") #{__('Register')}
-      li.bgm-orange(data-ng-click="login.step = 3") #{__('Forgot Password')}
+  .lc-block.zoomIn
+    include ./welcome
+    .btn-group.btn-group-justified
+      .btn.btn-icon-text.btn-default(data-ng-click="login.step = 1") 
+        i.mdi.mdi-login
+        | #{__('Login')}
+      .btn.btn-icon-text.btn-default(data-ng-click="login.step = 2")
+        i.mdi.mdi-account-plus
+        | #{__('Register')}
+    hr
+    .login(data-ng-if='!login.step || login.step === 1')
+      include ../../modules/login/login
+    .signup(ng-controller='signup' data-ng-if='login.step === 2')
+      include ./signup
 
-  .lc-block(ng-controller='signup' data-ng-if='login.step === 2')
-    include ./signup
-    ul.login-navigation
-      li.bgm-green(data-ng-click="login.step = 1") #{__('Login')}
-      li.bgm-orange(data-ng-click="login.step = 3") #{__('Forgot password')}
-
-  .lc-block(data-ng-if='login.step === 3')
-    include ./forgot
-    ul.login-navigation
-      li.bgm-green(data-ng-click='login.step = 1') #{__('Login')}
-      li.bgm-red(data-ng-click='login.step = 3') #{__('Register')}

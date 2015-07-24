@@ -15,5 +15,5 @@ form(name='form', ng-submit='signup()')
     .fg-line
       input.form-control(type='email', ng-model='settings.email', name='email', placeholder="#{__('Email')}", autofocus=true, required, esn-track-first-blur)
   .clearfix
-  button.btn.btn-login.btn-danger.btn-float(type='submit', ng-disabled='signupTask.running')
-    i.mdi.mdi-arrow-right
+  button.btn.btn-login.btn-success.btn-float(type='submit', ng-disabled='signupTask.running')
+    i.mdi.mdi-account-plus
