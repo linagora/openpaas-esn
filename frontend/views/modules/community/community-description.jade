@@ -1,25 +1,30 @@
-div.col-xs-12.nopadding
-  .col-lg-2.col-sm-3.col-xs-4
-    a(href='#/communities/{{community._id}}')
-      img.thumbnail(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
-    .text-center
-      span.label.label-default {{community.type}}
-  .col-lg-7.col-sm-5.col-xs-8
-    h4.media-heading
-      a(href='#/communities/{{community._id}}') {{community.title}}
-      small &nbsp; {{community.type}}
-    ul.list-inline
-      li.pull-left
-        i.mdi.mdi-account-multiple
-        span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
+.card
+  .card-header.bgm-red.community-header
+    h2 {{::community.title}}
+      small
+        span {{::community.type}}, &nbsp;
+        span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
-      li.pull-left(ng-show="isCreator()")
-        span.label.label-warning #{__('Creator')}
-      .clearfix
-    blockquote.hidden-xs(ng-show='community.description')
-      p(ng-hide='truncate && truncate === true') {{community.description}}
-  .col-lg-3.col-sm-4.col-xs-12.vertiz-space
-    community-button-join(community='community', user='user', on-join='reload(community)', on-fail='joinFailure(community)')
-    community-button-leave(community='community', user='user', on-leave='onLeave(community)', on-fail='leaveFailure(community)')
-    community-button-request-membership(community='community', user='user', on-request='reload(community)', on-fail='requestMembershipFailure(community)')
-    community-button-cancel-request-membership(community='community', user='user', on-cancel-request='reload(community)', on-fail='cancelRequestMembershipFailure(community)')
+    ul.actions.actions-alt
+      li.dropdown
+        a(href="" data-toggle="dropdown" aria-expanded="false")
+          i.mdi.mdi-dots-vertical
+        ul.dropdown-menu.dropdown-menu-right
+          li(ng-show='canManage')
+            a(href="", ng-click='manage()') #{__('Manage')}
+          li(ng-show='canJoin')
+            a(href="", ng-click='join()') #{__('Join')}
+          li(ng-show='canLeave')
+            a(href="", ng-click='leave()') #{__('Leave')}
+          li(ng-show='canRequestMembership')
+            a(href="", ng-click='requestMembership()') #{__('Request Membership')}
+          li(ng-show='canCancelMembership')
+            a(href="", ng-click='cancelMembership()') #{__('Cancel membership request')}
+
+  .card-body
+    .community-description
+      a(href='#/communities/{{::community._id}}')
+        img.thumbnail.lv-img-xl(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
+      .media-body
+        .hidden-xs.text(ng-show='community.description')
+          | {{::community.description}}

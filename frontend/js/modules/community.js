@@ -412,11 +412,47 @@ angular.module('esn.community', ['esn.activitystreams-tracker', 'esn.session', '
       }
     };
   })
-  .directive('communityDescription', function() {
+  .directive('communityDescription', function($location, $log, communityAPI, session, communityService) {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/community/community-description.html'
+      templateUrl: '/views/modules/community/community-description.html',
+      link: function($scope) {
+
+        $scope.$watch('community', function() {
+          $scope.canManage = communityService.isManager($scope.community, session.user);
+          $scope.canJoin = communityService.canJoin($scope.community, session.user);
+          $scope.canLeave = communityService.canLeave($scope.community, session.user);
+          $scope.canRequestMembership = communityService.canRequestMembership($scope.community, session.user);
+          $scope.canCancelMembership = communityService.canCancelRequestMembership($scope.community, session.user);
+          $scope.actionVisible = $scope.actions && ($scope.canManage || $scope.canJoin || $scope.canLeave || $scope.canRequestMembership || $scope.canCancelMembership);
+        });
+
+        $scope.manage = function() {
+        };
+
+        $scope.join = function() {
+          $scope.canJoin = false;
+          communityService.join($scope.community, session.user).then(function() {
+            $scope.reload($scope.community);
+          }, $scope.joinFailure);
+        };
+
+        $scope.leave = function() {
+          $scope.canLeave = false;
+          communityService.leave($scope.community, session.user).then($scope.reload, $scope.leaveFailure);
+        };
+
+        $scope.requestMembership = function() {
+          $scope.canRequestMembership = false;
+          communityService.requestMembership($scope.community, session.user).then($scope.requestMembershipSuccess, $scope.requestMembershipFailure);
+        };
+
+        $scope.cancelMembership = function() {
+          $scope.canCancelMembership = false;
+          communityService.cancelRequestMembership($scope.community, session.user).then($scope.reload, $scope.cancelRequestMembershipFailure);
+        };
+      }
     };
   })
   .directive('communityButtonJoin', function(communityService) {
