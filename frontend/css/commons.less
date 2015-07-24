@@ -109,12 +109,20 @@
 .ellipsis {
 }
 
-.all-centered {
+.flex-horizontal-centered {
   display: flex;
   justify-content: center;
+}
+
+.flex-vertical-centered {
+  display: flex;
   align-items: center;
 }
 
+.all-centered {
+  .flex-horizontal-centered;
+  .flex-vertical-centered;
+}
 
 .aligner {
   height: 100%;
