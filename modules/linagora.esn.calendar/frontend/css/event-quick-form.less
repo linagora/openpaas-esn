@@ -1,4 +1,35 @@
 .event-quick-form {
+  .modal-footer {
+    padding: 0;
+
+    button {
+      font-size: 17px;
+    }
+
+    button.save {
+      color: @m-green;
+    }
+
+    button.delete {
+      color: @m-red;
+    }
+
+    .form-group {
+      .fg-line {
+        .col-sm-3:first-child {
+          text-align: left;
+        }
+        .col-sm-3:nth-child(2) {
+          padding-left: 0;
+        }
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
   .btn:not(.btn-link):not(.btn-float):not(.command-edit):not(.command-delete):not(.selectpicker) {
     box-shadow: none;
   }
@@ -32,9 +63,13 @@
   .status span {
       font-size: 17px;
       text-align: center;
+      padding: 6px 12px;
   }
 
   .status {
+    .btn {
+      font-size: 17px;
+    }
     .btn.active {
       background-color: lighten(@m-gray, 10%);
       box-shadow: none;
