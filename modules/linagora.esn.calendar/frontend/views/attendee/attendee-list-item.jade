@@ -1,5 +1,7 @@
-div(ng-attr-title='{{attendee.fullmail}}')
-  img.nopadding(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?objectType=user&email={{attendee.email|urlencode}}')
-  span(ng-if='!readOnly')
-    i.mdi.mdi-check-square-o(ng-show='attendee.clicked')
-    i.mdi.mdi-crop-square(ng-show='!attendee.clicked')
+a.attendee-avatar(href="", ng-attr-title='{{attendee.fullmail}}')
+  img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?objectType=user&email={{attendee.email|urlencode}}')
+  .checkbox(ng-if='!readOnly')
+    label
+      input(type="checkbox", ng-if="!attendee.clicked")
+      input(type="checkbox", ng-if="attendee.clicked", checked)
+      i.input-helper

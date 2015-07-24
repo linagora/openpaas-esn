@@ -2,7 +2,7 @@
   .modal-footer {
     padding: 0;
 
-    button {
+    button, .accepted, .undecided, .declined {
       font-size: 17px;
     }
 
@@ -73,6 +73,38 @@
     .btn.active {
       background-color: lighten(@m-gray, 10%);
       box-shadow: none;
+    }
+  }
+
+  .attendees-list {
+    font-size: 17px;
+    .col-sm-1:first-child {
+      margin-left: 25px;
+    }
+    .attendee-avatar {
+      .checkbox {
+        position: absolute;
+        bottom: -2px;
+        right: -20px;
+      }
+      img {
+        border: 1px solid black;
+        border-radius: 2px;
+      }
+    }
+
+    .trash {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translate(0%,-50%);
+      height: 50%;
+      a {
+        color: @m-red;
+      }
+      a:hover, a:focus {
+        color: darken(@m-red, 10%);
+      }
     }
   }
 }
