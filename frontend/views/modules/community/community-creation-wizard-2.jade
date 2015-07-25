@@ -5,21 +5,24 @@
   form(name='communityForm')
     .form-group
       .row.alert.alert-warning(role="alert")
-        p #{__('You are about to create')}
-          strong &nbsp;'{{community.title}}'&nbsp;
-          | #{__('as a')}
-          strong &nbsp;'{{community.type}}'&nbsp;
-          | #{__('community')}. #{__('You can customize it with an avatar and a description now or do it later on the community page')}.
-      label #{__('Avatar')}
+        p(ng-switch='community.type')
+          | #{__('You are about to create')}
+          strong &nbsp;{{community.title}}&nbsp;
+          span(ng-switch-when='open') #{__('as an open community')}
+          span(ng-switch-when='private') #{__('as a private community')}
+          span(ng-switch-when='restricted') #{__('as a restricted community')}
+          span(ng-switch-when='confidential') #{__('as an confidential community')}
+          strong(ng-switch-default) MISSING LOCALIZATION
+          | . #{__('You can customize it with an avatar and a description now or do it later on the community page')}.
+      label.control-label #{__('Avatar')}
       avatar-picker
     .form-group
-      label #{__('Description')}
-      textarea.form-control(rows="3", ng-model='community.description', name='description')
-      span.help-block #{__("A human readable description which will help users know what this community is about")}.
-
+      .fg-line
+        label.control-label #{__('Description')}
+        textarea.form-control(rows="3", ng-model='community.description', name='description', placeholder='#{__("What is your community about?")}')
 .modal-footer(ng-hide="sending")
   button.btn.btn-default.pull-left(type="button", ng-click="wizard.previousStep()")
     i.mdi.mdi-chevron-left
     | #{__('Previous')}
-  button.btn.btn-secondary-dark(type="button", ng-click="createCommunity()") #{__('Create')}
   button.btn.btn-default(type="button", ng-click="createModal.hide()") #{__('Cancel')}
+  button.btn.btn-primary(type="button", ng-click="createCommunity()") #{__('Create')}
