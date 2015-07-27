@@ -14,6 +14,7 @@
     "bcrypt-nodejs": "~0.0.3",
     "body-parser": "~1.2.0",
     "busboy": "^0.2.9",
+    "canvas": "1.2.3",
     "chokidar": "~0.8.1",
     "composable-middleware": "^0.3.0",
     "connect-dynamic-middleware": "~0.1.0",

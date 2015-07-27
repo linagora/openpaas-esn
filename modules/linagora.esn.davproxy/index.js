@@ -19,13 +19,15 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
       var addressbooks = require('./backend/webserver/addressbooks')(dependencies);
       var calendars = require('./backend/webserver/calendars')(dependencies);
       var json = require('./backend/webserver/json')(dependencies);
+      var davMiddleware = require('./backend/webserver/proxy/middleware')(dependencies);
 
       var lib = {
         api: {
           addressbooks: addressbooks,
           calendars: calendars,
           json: json
-        }
+        },
+        davMiddleware: davMiddleware
       };
 
       return callback(null, lib);

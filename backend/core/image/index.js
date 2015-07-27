@@ -13,6 +13,7 @@ var filestore = require('../filestore');
 var async = require('async');
 var extend = require('extend');
 var ObjectId = require('mongoose').Types.ObjectId;
+var avatarModule = require('./avatar');
 
 function getDuplicates(readable) {
   var p1 = new PassThrough();
@@ -175,3 +176,4 @@ module.exports.getSmallAvatar = getSmallAvatar;
 module.exports.checkImageSquare = checkImageSquare;
 module.exports.recordAvatar = recordAvatar;
 module.exports.setDefaultAvatarSize = setDefaultAvatarSize;
+module.exports.avatarModule = avatarModule;
