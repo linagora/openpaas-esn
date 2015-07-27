@@ -8,7 +8,8 @@ describe('The proxy dispatcher module', function() {
 
   var dependencies = {
     logger: {
-      error: function() {}
+      error: function() {},
+      debug: function() {}
     }
   };
   var deps = function(name) {
@@ -52,7 +53,7 @@ describe('The proxy dispatcher module', function() {
       };
 
       var proxy = function(path, options) {
-        expect(path).to.equal('localhost:9393');
+        expect(path).to.equal('http://localhost:9393');
         done();
         return function() {};
       };
@@ -71,7 +72,7 @@ describe('The proxy dispatcher module', function() {
       };
 
       var proxy = function(path, options) {
-        expect(path).to.equal('localhost:9393');
+        expect(path).to.equal('http://localhost:9393');
         done();
         return function() {};
       };
@@ -89,7 +90,7 @@ describe('The proxy dispatcher module', function() {
       };
 
       var proxy = function(path, options) {
-        expect(options.forwardPath({ url: '/123/contact.json' }))
+        expect(options.forwardPath())
           .to.equal('/path/without/slash/addressbooks/123/contact.json');
         done();
         return function() {};
@@ -98,7 +99,7 @@ describe('The proxy dispatcher module', function() {
       mockery.registerMock('express-http-proxy', proxy);
       mockery.registerMock('./graceperiod', function() {});
 
-      getHandler('http')({}, {}, options);
+      getHandler('http')({url: '/123/contact.json'}, {}, options);
     });
 
     it('should prefix forwardPath with path-with-slash of endpoint', function(done) {
@@ -108,7 +109,7 @@ describe('The proxy dispatcher module', function() {
       };
 
       var proxy = function(path, options) {
-        expect(options.forwardPath({ url: '/123/contact.json' }))
+        expect(options.forwardPath())
           .to.equal('/path/with/slash/addressbooks/123/contact.json');
         done();
         return function() {};
@@ -117,7 +118,7 @@ describe('The proxy dispatcher module', function() {
       mockery.registerMock('express-http-proxy', proxy);
       mockery.registerMock('./graceperiod', function() {});
 
-      getHandler('http')({}, {}, options);
+      getHandler('http')({ url: '/123/contact.json' }, {}, options);
     });
   });
 

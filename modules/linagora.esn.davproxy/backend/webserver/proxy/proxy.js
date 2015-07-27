@@ -16,9 +16,13 @@ module.exports = function(dependencies) {
       proxyPath = proxyPath + '/';
     }
 
-    httpproxy(endpointUrl.host, {
-      forwardPath: function(req) {
-        return proxyPath + options.path + req.url;
+    var forwardPath = proxyPath + options.path + req.url;
+    var host = endpointUrl.protocol + '//' + endpointUrl.host;
+    logger.debug('Proxy request to host %s on path %s', host, forwardPath);
+
+    httpproxy(host, {
+      forwardPath: function() {
+        return forwardPath;
       },
 
       intercept: function(rsp, data, req, res, callback) {
