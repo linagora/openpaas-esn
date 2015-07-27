@@ -50,7 +50,7 @@ module.exports = function(dependencies) {
         multi_match: {
           query: terms,
           type: 'cross_fields',
-          fields: ['fn', 'name', 'firstName', 'lastName', 'emails', 'urls', 'org', 'socialprofiles', 'nickname', 'addresses'],
+          fields: ['fn', 'name', 'firstName', 'lastName', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
           operator: 'and'
         }
       }
@@ -82,7 +82,7 @@ module.exports = function(dependencies) {
       var contact = data;
       contact.id = data.contactId;
 
-      indexContact(contact, function(err) {
+      indexContact(contact, function(err, value) {
         if (err) {
           logger.error('Error while adding contact in index', err);
         }

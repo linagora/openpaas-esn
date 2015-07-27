@@ -28,14 +28,20 @@ describe('The addressbooks dav proxy', function() {
           return done(err);
         }
 
-        self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        self.helpers.modules.start(moduleName, function(err) {
           if (err) {
             return done(err);
           }
-          domain = models.domain;
-          user = models.users[0];
-          self.models = models;
-          done();
+
+          self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+            if (err) {
+              return done(err);
+            }
+            domain = models.domain;
+            user = models.users[0];
+            self.models = models;
+            done();
+          });
         });
       });
     });
@@ -71,9 +77,13 @@ describe('The addressbooks dav proxy', function() {
         return done();
       }
 
-      self.davServer.close(function() {
+      try {
+        self.davServer.close(function() {
+          done();
+        });
+      } catch (e) {
         done();
-      });
+      }
     };
   });
 
@@ -167,6 +177,102 @@ describe('The addressbooks dav proxy', function() {
               done();
             });
           });
+        });
+      });
+    });
+
+    describe('The search contacts module', function() {
+
+      describe('Single Properties search', function() {
+        var pubsubLocal;
+        var contact;
+
+        var search = function(term, done) {
+          pubsubLocal.topic('contacts:contact:add').publish(contact);
+          var self = this;
+          this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
+            if (err) {
+              return done(err);
+            }
+
+            self.helpers.elasticsearch.checkDocumentsIndexed('contacts.idx', 'contacts', [contact.id], function(err) {
+              if (err) {
+                return done(err);
+              }
+
+              var req = requestAsMember(request(self.app).get(PREFIX + '/addressbooks/' + user._id + '/contacts.json'));
+              req.query({search: term}).expect(200).end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.headers['x-esn-items-count']).to.equal('1');
+                done();
+              });
+            });
+          });
+        };
+
+        beforeEach(function(done) {
+          pubsubLocal = this.helpers.requireBackend('core/pubsub').local;
+          contact = {
+            contactId: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9',
+            bookId: user._id.toString(),
+            vcard: ['vcard', [
+              ['version', {}, 'text', '4.0'],
+              ['uid', {}, 'text', '3c6d4032-fce2-485b-b708-3d8d9ba280da'],
+              ['fn', {}, 'text', 'Brubru Will'],
+              ['n', {}, 'text', ['Willis', 'Bruce']],
+              ['org', {}, 'text', 'Master of the world'],
+              ['url', {type: 'Work'}, 'text', 'http://will.io'],
+              ['socialprofile', {type: 'Twitter'}, 'text', '@twillis'],
+              ['socialprofile', {type: 'Facebook'}, 'text', 'http://facebook.com/fbruce'],
+              ['nickname', {}, 'text', 'Bruno'],
+              ['email', {type: 'Home'}, 'text', 'mailto:me@home.com'],
+              ['email', {type: 'Office'}, 'text', 'mailto:me@work.com'],
+              ['adr', {type: 'Home'}, 'text', ['', '', '123 Main Street', 'Any Town', 'CA', '91921-1234', 'U.S.A.']]
+            ]],
+            id: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9'
+          };
+          this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
+        });
+
+        it('should return contact with matching fn', function(done) {
+          search.bind(this)('Brubru', done);
+        });
+
+        it('should return contact with matching firstname', function(done) {
+          search.bind(this)('bruce', done);
+        });
+
+        it('should return contact with matching lastname', function(done) {
+          search.bind(this)('willis', done);
+        });
+
+        it('should return contact with matching emails', function(done) {
+          search.bind(this)('me@home', done);
+        });
+
+        it('should return contact with matching org', function(done) {
+          search.bind(this)('master of', done);
+        });
+
+        it('should return contact with matching url', function(done) {
+          search.bind(this)('http://will.io', done);
+        });
+
+        it('should return contact with matching twitter socialprofile', function(done) {
+          search.bind(this)('@twilli', done);
+        });
+
+        it('should return contact with matching facebook socialprofile', function(done) {
+          search.bind(this)('facebook.com/fbru', done);
+        });
+
+        it('should return contact with matching nickname', function(done) {
+          search.bind(this)('bruno', done);
+        });
+
+        it('should return contact with matching adr', function(done) {
+          search.bind(this)('123 Main', done);
         });
       });
     });

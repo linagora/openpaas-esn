@@ -67,4 +67,13 @@ module.exports = function(mixin, testEnv) {
     application.use(app);
     return application;
   };
+
+  modules.start = function(moduleName, done) {
+    var moduleManager = require('../backend/module-manager');
+    moduleManager.manager.fire('start', moduleName).then(function(data) {
+      done();
+    }, function(err) {
+      done(err);
+    });
+  };
 };

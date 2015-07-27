@@ -204,10 +204,11 @@ module.exports = function(grunt) {
   grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', gruntfileUtils.setupMongoReplSet());
   grunt.registerTask('setupElasticsearchMongoRiver', 'setup elasticsearch mongodb river', gruntfileUtils.setupElasticsearchMongoRiver());
   grunt.registerTask('setupElasticsearchUsersIndex', 'setup elasticsearch mongodb users index', gruntfileUtils.setupElasticsearchUsersIndex());
+  grunt.registerTask('setupElasticsearchContactsIndex', 'setup elasticsearch mongodb contacts index', gruntfileUtils.setupElasticsearchContactsIndex());
 
   grunt.registerTask('dev', ['nodemon:dev']);
   grunt.registerTask('debug', ['node-inspector:dev']);
-  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchMongoRiver']);
+  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continueOn', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchMongoRiver']);
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
