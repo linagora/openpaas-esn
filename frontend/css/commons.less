@@ -110,12 +110,16 @@
 }
 
 .flex-horizontal-centered {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
 }
 
 .flex-vertical-centered {
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
 }
 
@@ -126,9 +130,7 @@
 
 .aligner {
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  .all-centered;
 }
 
 .aligner-item-top {
