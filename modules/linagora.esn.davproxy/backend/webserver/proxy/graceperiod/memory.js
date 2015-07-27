@@ -64,7 +64,7 @@ module.exports = function(dependencies) {
         logger.error('Error while sending request to remote service', err);
       }
       if (result) {
-        logger.info('Remote service response', result);
+        logger.info('Remote service response status code', result.statusCode);
       }
     }
 
