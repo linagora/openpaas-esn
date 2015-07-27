@@ -25,7 +25,7 @@ angular.module('esn.calendar')
   })
 
   .factory('request', function($http, tokenAPI, DAV_PATH) {
-    function _configureRequest(method, path, headers, body) {
+    function _configureRequest(method, path, headers, body, params) {
       return tokenAPI.getNewToken().then(function(result) {
         var token = result.data.token;
         var url = DAV_PATH;
@@ -44,7 +44,8 @@ angular.module('esn.calendar')
         var config = {
           url: url + path,
           method: method,
-          headers: headers
+          headers: headers,
+          params: params
         };
 
         if (body) {
@@ -55,14 +56,39 @@ angular.module('esn.calendar')
       });
     }
 
-    function request(method, path, headers, body) {
-      return _configureRequest(method, path, headers, body).then($http);
+    function request(method, path, headers, body, params) {
+      return _configureRequest(method, path, headers, body, params).then($http);
     }
 
     return request;
   })
 
-  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarUtils, ICAL, ICAL_PROPERTIES) {
+  .factory('calendarEventEmitter', function($rootScope, $q, socket) {
+    var websocket = socket('/calendars');
+
+    return {
+      activitystream: {
+        emitPostedMessage: function(messageId, activityStreamUuid) {
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: activityStreamUuid,
+            id: messageId
+          });
+        }
+      },
+      fullcalendar: {
+        emitCreatedEvent: function(shell) {
+          $rootScope.$emit('addedCalendarItem', shell);
+        }
+      },
+      websocket: {
+        emitCreatedEvent: function(vcalendar) {
+          websocket.emit('event:created', vcalendar);
+        }
+      }
+    };
+  })
+
+  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, GRACE_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -246,19 +272,32 @@ angular.module('esn.calendar')
       var headers = { 'Content-Type': 'application/calendar+json' };
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body).then(function(response) {
-        if (response.status !== 201) {
-          return $q.reject(response);
-        }
-        // Unfortunately, sabredav doesn't support Prefer:
-        // return=representation on the PUT request,
-        // so we have to retrieve the event again for the etag.
-        return getEvent(eventPath).then(function(shell) {
-          $rootScope.$emit('addedCalendarItem', shell);
-          socket('/calendars').emit('event:created', shell.vcalendar);
-          return shell;
+      var taskId = null;
+      return request('put', eventPath, headers, body, { graceperiod: GRACE_DELAY })
+        .then(function(response) {
+          if (response.status !== 202) {
+            return $q.reject(response);
+          }
+          taskId = response.data.id;
+        })
+        .then(gracePeriodService.grace.bind(null, 'You are about to created a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it'))
+        .then(function(data) {
+          var task = data;
+          if (task.cancelled) {
+            gracePeriodService.cancel(taskId).then(task.success, function(err) {
+              task.error(err.statusText);
+            });
+          } else {
+            // Unfortunately, sabredav doesn't support Prefer:
+            // return=representation on the PUT request,
+            // so we have to retrieve the event again for the etag.
+            return getEvent(eventPath).then(function(shell) {
+              calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+              calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
+              return shell;
+            });
+          }
         });
-      });
     }
 
     function remove(eventPath, event, etag) {

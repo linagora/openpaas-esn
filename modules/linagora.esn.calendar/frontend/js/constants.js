@@ -55,4 +55,6 @@ angular.module('esn.calendar')
 
   .constant('AUTOCOMPLETE_MAX_RESULTS', 5)
 
-  .constant('DAV_PATH', '/dav/api');
+  .constant('DAV_PATH', '/dav/api')
+
+  .constant('GRACE_DELAY', 10000);

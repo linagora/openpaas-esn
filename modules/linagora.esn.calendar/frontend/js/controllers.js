@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, moment, notificationFactory, ICAL_PROPERTIES, session, EVENT_FORM) {
+  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, moment, session, notificationFactory, ICAL_PROPERTIES, EVENT_FORM) {
 
     $scope.editedEvent = {};
     $scope.restActive = false;
@@ -109,19 +109,14 @@ angular.module('esn.calendar')
       var path = 'calendars/' + $scope.calendarId + '/events';
       var vcalendar = calendarService.shellToICAL(event);
       $scope.restActive = true;
-      calendarService.create(path, vcalendar).then(function(response) {
-        if ($scope.activitystream) {
-          $rootScope.$emit('message:posted', {
-            activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-            id: response.headers('ESN-Message-Id')
-          });
-        }
-        _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
-      }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err));
-      }).finally (function() {
-        $scope.restActive = false;
-      });
+      _hideModal();
+      calendarService.create(path, vcalendar)
+        .catch(function(err) {
+          _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err));
+        })
+        .finally (function() {
+          $scope.restActive = false;
+        });
     };
 
     this.deleteEvent = function() {
