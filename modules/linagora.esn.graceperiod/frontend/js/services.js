@@ -38,14 +38,14 @@ angular.module('linagora.esn.graceperiod')
           },
           delay: delay || GRACE_DELAY,
           onClosed: function() {
-            $rootScope.$apply(function() {
+            $rootScope.$applyAsync(function() {
               resolve({ cancelled: false });
             });
           }
         });
 
         notification.$ele.find('a.cancel-task').click(function() {
-          $rootScope.$apply(function() {
+          $rootScope.$applyAsync(function() {
             resolve({
               cancelled: true,
               success: function() {

@@ -8,16 +8,18 @@ describe('The GracePeriod Angular module', function() {
 
   describe('The gracePeriodService service', function() {
 
-    var gracePeriodService, $httpBackend, $rootScope;
+    var gracePeriodService, $httpBackend, $rootScope, $browser, $timeout;
 
     beforeEach(function() {
       module('linagora.esn.graceperiod');
     });
 
-    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$httpBackend_, _$rootScope_) {
+    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$httpBackend_, _$rootScope_, _$browser_, _$timeout_) {
       $httpBackend = _$httpBackend_;
       $rootScope = _$rootScope_;
       gracePeriodService = _gracePeriodService_;
+      $browser = _$browser_;
+      $timeout = _$timeout_;
     }));
 
     describe('The cancel fn', function() {
@@ -38,10 +40,16 @@ describe('The GracePeriod Angular module', function() {
     });
 
     describe('The grace fn', function() {
+      var oldApplyAsync;
 
       this.timeout(10000);
+      beforeEach(function() {
+        oldApplyAsync = $rootScope.$applyAsync;
+        $rootScope.$applyAsync = $rootScope.$apply;
+      });
 
       afterEach(function() {
+        $rootScope.$applyAsync = oldApplyAsync;
         angular.element('[data-notify="container"]').remove();
       });
 
