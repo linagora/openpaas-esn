@@ -11,6 +11,7 @@ angular.module('esnApp', [
   'openpaas-logo',
   'frapontillo.bootstrap-switch',
   'chart.js',
+  'FBAngular',
   'esn.core',
   'esn.member',
   'esn.header',
