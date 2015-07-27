@@ -232,7 +232,12 @@ angular.module('esn.activitystreams-tracker', [
       function unsubscribeFromStreamNotification(streamId) {
         if (self.notifications[streamId]) {
           self.notifications[streamId].removeListener('notification', liveNotificationHandler);
+          delete self.notifications[streamId];
         }
+      }
+
+      function streamNotificationHasSubscribers(streamId) {
+        return !!self.notifications[streamId];
       }
 
       function addItem(stream) {
@@ -256,7 +261,8 @@ angular.module('esn.activitystreams-tracker', [
         unsubscribeFromStreamNotification: unsubscribeFromStreamNotification,
         removeAllListeners: removeAllListeners,
         getUnreadUpdate: getUnreadUpdate,
-        streams: self.activityStreams
+        streams: self.activityStreams,
+        streamNotificationHasSubscribers: streamNotificationHasSubscribers
       };
   })
   .factory('ASTrackerSubscriptionService', function($log, objectTypeAdapter, ASTrackerNotificationService) {
