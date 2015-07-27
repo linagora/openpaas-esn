@@ -5,34 +5,5 @@
  */
 @import '../../../../frontend/components/material-admin/less/inc/vendor-overrides/fullcalendar';
 @import './calendar-header';
+@import './event-quick-form';
 @import './event';
-
-.user-auto-complete {
-  display: flex;
-  align-items: center;
-}
-
-tags-input .autocomplete {
-  margin-top: 0;
-  padding: 0;
-}
-
-@media (max-width: @screen-xs-max) {
-  .user-auto-complete {
-    img {
-      max-width: 40px;
-    }
-  }
-
-  &.readonly {
-    .form-control, .form-control:focus {
-      cursor: text;
-      background-image: none;
-    }
-
-    .checkbox label {
-      cursor: default;
-      background-image: none;
-    }
-  }
-}
