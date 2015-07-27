@@ -1,5 +1,4 @@
 body.login {
-
   &:after {
     content: "";
     vertical-align: middle;
@@ -8,12 +7,12 @@ body.login {
   }
 
   &:before {
-    height: 50%;
+    height: 49%;
     width: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    background: @m-cyan;
+    background: @primaryColor;
     content: "";
     z-index: 0;
   }
@@ -26,22 +25,32 @@ body.login {
   }
 
   .lc-block {
-    animation: fadeIn 0.3s;
-    -webkit-animation: fadeIn 0.3s;
+    vertical-align: middle;
+    position: relative;
+
+    width: 600px;
+    padding: 30px 30px;
+    margin-top: -60px;
 
     background: @m-white;
     box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
     border-radius: 2px;
-    padding: 35px 55px 35px;
-    width: 500px;
     display: inline-block;
-    margin-top: -60px;
-    vertical-align: middle;
-    position: relative;
 
     @media (max-width: @screen-xs-max) {
       padding: 15px 35px 25px 20px;
-      width: ~"calc(100% - 60px)";
+      width: 100%;
+    }
+
+    .btn-group {
+      box-shadow: none;
+      .btn {
+        color: @secondaryTextColor;
+
+        .mdi-account-plus {
+          margin-right: 5px;
+        }
+      }
     }
 
     .checkbox {
@@ -50,11 +59,19 @@ body.login {
     }
 
     .btn-login {
-      top: 50%;
-      margin-top: -25px;
-      right: -25px;
+      bottom: -5%;
+      right: 7%;
+      line-height: inherit;
+      color: @text-color;
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.14),0 4px 8px rgba(0, 0, 0, 0.28);
       padding-top: 10px;
+      opacity: 0;
+
+      .zoomIn();
+
+      &.card-delay {
+        animation-delay: .25s;
+      }
     }
 
     &.toggled {
@@ -62,49 +79,40 @@ body.login {
     }
   }
 
+  h1, h2, h3, h4 {
+    font-family: @defaultFont;
+    font-weight: normal;
+  }
+  h4 {
+    color: @secondaryTextColor;
+  }
+
   .login-navigation {
     list-style: none;
     padding: 0;
     margin: 0;
     position: absolute;
-    width: 100%;
-    text-align: center;
-    left: 0%;
-    bottom: -45px;
+    right: 0;
+    bottom: 0;
 
-    & > li {
-      display: inline-block;
-      margin: 0 2px;
-      .transition(all);
-      .transition-duration(150ms);
-      cursor: pointer;
-      vertical-align: top;
-      color: @m-white;
-      line-height: 16px;
-      min-width: 16px;
-      min-height: 16px;
-      text-transform: uppercase;
-      .backface-visibility(hidden);
-
-      & > span {
-        .opacity(0);
-      }
-
-      &:not(:hover) {
-        font-size: 0px;
-        border-radius: 100%;
-      }
-
-      &:hover {
-        border-radius: 10px;
-        padding: 0 5px;
-        font-size: 8px;
-
-        & > span {
-          .opacity(1);
-        }
-      }
-
+    .btn-default {
+      color: @secondaryTextColor;
     }
+  }
+
+  .zoomIn {
+    animation: zoomIn .25s ease-out forwards;
+  }
+}
+
+
+@keyframes zoomIn {
+  0% {
+    transform: scale3d(0,0,0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale3d(1,1,1);
+    opacity: 1;
   }
 }

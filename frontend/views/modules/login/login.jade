@@ -16,5 +16,5 @@ form(name='form')
         input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
         i.input-helper
         |                     #{__('Remember me')}
-    button.btn.btn-login.btn-danger.btn-float(type='submit', ng-click='autofill(); login(form)', ng-disabled='loginTask.running')
+    button.btn.btn-login.btn-accent.btn-float.card-delay(type='submit', ng-click='autofill(); login(form)', ng-disabled='loginTask.running')
       i.mdi.mdi-arrow-right
