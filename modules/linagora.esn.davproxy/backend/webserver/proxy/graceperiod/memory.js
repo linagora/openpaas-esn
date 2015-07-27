@@ -25,6 +25,10 @@ module.exports = function(dependencies) {
         }
       };
 
+      if (options.json) {
+        requestOptions.json = options.json;
+      }
+
       if (req.body && req.method !== 'DELETE') {
         requestOptions.body = req.body;
       }
