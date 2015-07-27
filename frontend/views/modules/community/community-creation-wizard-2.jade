@@ -14,12 +14,12 @@
       avatar-picker
     .form-group
       label #{__('Description')}
-      textarea.form-control.textarea-fixed(rows="3", ng-model='community.description', name='description')
+      textarea.form-control(rows="3", ng-model='community.description', name='description')
       span.help-block #{__("A human readable description which will help users know what this community is about")}.
 
 .modal-footer(ng-hide="sending")
   button.btn.btn-default.pull-left(type="button", ng-click="wizard.previousStep()")
-    i.fa.fa-chevron-left
+    i.mdi.mdi-chevron-left
     | #{__('Previous')}
   button.btn.btn-secondary-dark(type="button", ng-click="createCommunity()") #{__('Create')}
   button.btn.btn-default(type="button", ng-click="createModal.hide()") #{__('Cancel')}

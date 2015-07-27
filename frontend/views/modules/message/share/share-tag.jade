@@ -1,11 +1,11 @@
-.share-widget
+div
   a.cancel(href="", ng-click='removeShare(share)')
-    i.nomargin.remove.fa.fa-remove
+    i.nomargin.remove.mdi.mdi-close
 
-  img.avatar.nopadding(fallback-src='/images/activitystream.png', ng-src="/api/avatars?objectType=image&id={{::share.target.image}}")
+  img.nopadding(fallback-src='/images/activitystream.png', ng-src="/api/avatars?objectType=image&id={{::share.target.image}}")
 
   div.ellipsis
     span.name {{::share.target.displayName}}
 
   div
-    i.nopadding.already-shared.fa.fa-exclamation-triangle(ng-if="share.already" data-html="true" data-title='This message has<br>already been shared here', data-animation="am-flip-x", data-placement="bottom", bs-tooltip="tooltip")
+    i.nopadding.already-shared.mdi.mdi-alert(ng-if="share.already" data-html="true" data-title='This message has<br>already been shared here', data-animation="am-flip-x", data-placement="bottom", bs-tooltip="tooltip")

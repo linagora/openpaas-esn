@@ -1,14 +1,14 @@
-.col-xs-12.esn-panel.nopadding
+.col-xs-12.nopadding
   div(ng-controller="memberscontroller")
     .row
       .col-xs-12
         h2
-          i.fa.fa-male
+          i.mdi.mdi-account
           | #{__("Members")}
         search-form(search-spinner-key="membersSpinner")
         .row.alert.alert-danger(ng-show="error", role="alert")
           p #{__('Error while searching members')}.
-    .members-infinite-list
+    div
       infinite-list
         .row(ng-repeat="member in members")
           hr

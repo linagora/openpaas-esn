@@ -1,27 +1,33 @@
 div
-  header(class="topbar" role="navigation")
-    .container-fluid
-      a(href="#/")
-        img.logo(src="/images/logo.png")
-      div.pull-right.avatar
-        div.dropdown
-          button.navbar-username.dropdown-toggle(type="button" id="userPreferencesMenu" data-toggle="dropdown")
-            user-name-display.hidden-xs
-            | &nbsp;
-            img.img-circle(ng-controller='avatarController', ng-src='{{avatarURL}}' width="24px" height="24px")
-            span.caret
-          ul.dropdown-menu.dropdown-menu-right(ng-controller='currentDomainController', role="menu", aria-labelledby="userPreferencesMenu")
-              li: a(href='/#/profile') #{__('My Account')}
-              li.visible-xs(data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body'): a(href='') #{__('Feedback')}
-              li: a(href='{{"/#/domains/" + domain._id + "/members"}}') #{__('Members')}
-              li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}') #{__('Invitation')}
-              li: a(href='/#/applications') #{__('Applications')}
-              li: a(href='/#/appstore') #{__('Module Manager')}
-              injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
-              li.divider
-              li: a(href='/logout') #{__('Logout')}
-
+  header#header
+    div.header-inner.flex-vertical-centered
+      ul.list-inline.all-centered
+        li#menu-trigger(side-bar-toggler)
+          .line-wrap
+            .line.top
+            .line.center
+            .line.bottom
+        li.logo.hidden-xs
+          a(href='#') OpenPaaS
+      ul.list-inline.all-centered
+        li
+          toggle-switch(data-ts-color="white")
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-magnify
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-email
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-bell
+        li.hover-scale-animation.dropdown-open-animation
+          a(data-toggle='dropdown', href='')
+            i.mdi.mdi-dots-vertical
+          ul.dropdown-menu.dm-icon.pull-right
+            li
+              a(href='', ng-click='toggleFullScreen()')
+                i.md.mdi.mdi-fullscreen
+                | #{__('Toggle Fullscreen')}
+  sidebar
   api-notification
-  .nav-wrapper
-    nav(class="navbar navbar-default" role="navigation" data-offset-top="44" bs-affix)
-      esn-main-navbar

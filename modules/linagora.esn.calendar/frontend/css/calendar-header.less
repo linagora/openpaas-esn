@@ -1,0 +1,47 @@
+.fc-toolbar {
+  background-color: @primaryColor;
+  .btn {
+    padding: 6px 12px;
+  }
+  .fc-today-button, .fc-button-group {
+    margin-top: 2px;
+  }
+  .fc-agendaWeek-button {
+    display:none;
+  }
+  .fc-agendaDay-button {
+    display:none;
+  }
+}
+
+.fc th {
+  background: @darkPrimaryColor;
+}
+
+.fc-toolbar .ui-button>span.ui-icon-circle-triangle-w:before {
+  font-family: 'MaterialDesignIcons';
+  content: "\f13f";
+}
+
+.fc-toolbar .ui-button>span.ui-icon-circle-triangle-e:before {
+  font-family: 'MaterialDesignIcons';
+  content: "\f144";
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) {
+  .fc-toolbar {
+    .fc-agendaWeek-button {
+      display:block;
+    }
+    .fc-agendaDay-button {
+      display:block;
+    }
+    .fc-basicWeek-button {
+      display:none;
+    }
+    .fc-basicDay-button {
+      display:none;
+    }
+  }
+}

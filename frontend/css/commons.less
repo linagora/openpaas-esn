@@ -1,3 +1,19 @@
+@import '../components/bootstrap/less/variables';
+@import '../components/bootstrap/less/mixins';
+@import '../components/material-admin/less/inc/variables';
+@import '../components/material-admin/less/inc/mixin';
+@import './variables';
+
+.PrimaryColor() {
+  background-color: @primaryColor;
+  color: @textPrimaryColor;
+}
+
+.AccentColor() {
+  background-color: @accentColor;
+  color: @textPrimaryColor;
+}
+
 .RoundedShape(@radius:@defaultRadius){
   -webkit-border-radius: @radius;
   -moz-border-radius: @radius;
@@ -26,4 +42,191 @@
 
 .invisible {
   visibility: hidden;
+}
+
+.rotate(@degrees) {
+  transform: rotate(@degrees);
+  -ms-transform: rotate(@degrees); /* IE 9 */
+  -webkit-transform: rotate(@degrees); /* Opera, Chrome, and Safari */
+}
+
+.translate(@xpx, @ypx) {
+  transform: translate(@xpx, @ypx);
+  -ms-transform: translate(@xpx, @ypx); /* IE 9 */
+  -webkit-transform: translate(@xpx, @ypx); /* Opera, Chrome, and Safari */
+}
+
+.transform(@transform) {
+  transform: @transform;
+  -ms-transform: @transform; /* IE 9 */
+  -webkit-transform: @transform; /* Opera, Chrome, and Safari */
+}
+
+.vertical-centered {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.transparent {
+  opacity: 0;
+}
+
+.opaque {
+  opacity: 1;
+}
+
+.multilines {
+  white-space: pre-wrap;
+}
+
+.nopadding {
+   padding: 0 !important; /* this rule deliberately overwrites padding */
+   margin: 0 !important; /* this rule deliberately overwrites the margin */
+}
+
+.nopadding-left {
+  padding-left: 0 !important; /* this rule deliberately overwrites padding */
+}
+
+.nomargin {
+  margin: 0 !important; /* this rule deliberately overwrites the margin */
+}
+
+.noborder {
+  border: 0 !important; /* this rule deliberately overwrites the border */
+}
+
+.horiz-space {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+.vertiz-space {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.ellipsis {
+}
+
+.flex-horizontal-centered {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+.flex-vertical-centered {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.all-centered {
+  .flex-horizontal-centered;
+  .flex-vertical-centered;
+}
+
+.aligner {
+  height: 100%;
+  .all-centered;
+}
+
+.aligner-item-top {
+  align-self: flex-start;
+}
+
+.aligner-item-bottom {
+  align-self: flex-end;
+}
+
+
+.rotate {
+  animation-duration: 2s;
+  animation-name: rotate;
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-name: rotate;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-duration: 2s;
+  -moz-animation-name: rotate;
+  -ie-animation-iteration-count: infinite;
+  -ie-animation-duration: 2s;
+  -ie-animation-name: rotate;
+}
+
+@keyframes rotate {
+  from {
+    tranform: rotate(0deg);
+    -webkit-tranform: rotate(0deg);
+  }
+
+  to {
+    tranform: rotate(360deg);
+    -webkit-tranform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-ie-keyframes rotate {
+  from {
+    transform: rotate(0deg);
+    -ie-transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+    -ie-transform: rotate(360deg);
+  }
+}
+
+.drop-menu-open-animation(@origin) {
+  &.open {
+    .dropdown-menu {
+      .scale3d(1, 1, 1);
+      .opacity(1);
+    }
+  }
+  .dropdown-menu {
+    display: block;
+    .opacity(0);
+    .scale3d(0, 0, 1);
+    .transform-origin(@origin);
+    .transition(all 250ms ease-out);
+  }
+}
+
+
+/* material-admin extras */
+
+.listview {
+  .lv-img-xl {
+    width: 128px;
+    height: 128px;
+  }
 }

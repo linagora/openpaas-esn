@@ -1,12 +1,12 @@
-.col-xs-12.esn-panel.esn-application-details
-
+.col-xs-12.esn-panel
+  
   .col-lg-2.col-md-3.col-xs-4
     a(href='#/appstore/apps/{{::application._id}}')
       img.thumbnail.nopadding(ng-src='/appstore/api/apps/{{::application._id}}/avatar', src='/appstore/images/application.png')
 
   .col-lg-10.col-md-9.col-xs-8
     .row
-      h2.media-heading
+      h2
         a(href='#/appstore/apps/{{::application._id}}')
           strong {{::application.title}}
           small &nbsp;{{::application.version}}

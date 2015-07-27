@@ -1,2 +1,2 @@
-a.message-date(ng-href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}" title="{{(message.published || message.timestamps.creation) | amDateFormat:'MMM D YY, h:mm a'}}")
+a(ng-href="/#messages/{{message._id}}/activitystreams/{{activitystream.activity_stream.uuid}}" title="{{(message.published || message.timestamps.creation) | amDateFormat:'MMM D YY, h:mm a'}}")
   small(am-time-ago="message.published || message.timestamps.creation")

@@ -1,8 +1,8 @@
-.col-xs-12.esn-panel.community-summary
+.col-xs-12
   project-description(project="project")
 .row(ng-if='canRead()')
   .row
-    .col-lg-9.col-md-9.col-sm-9.col-xs-12.esn-component-container
+    .col-lg-9.col-md-9.col-sm-9.col-xs-12
       // TODO Remove this when the injection module has
       // the method to inject inside all domains.
       activity-stream(activitystream='project', streams='streams', writable='writable', calendar-id='::project._id')
@@ -12,5 +12,5 @@
       collaboration-invite-users(ng-if='isProjectManager()' object-type="project", collaboration="project")
       .vertiz-space
       project-add-communities-widget(ng-if='isProjectManager()' project="project")
-.col-xs-12.esn-panel(ng-if='!canRead()')
-  p.text-center.community-not-allowed #{__('You are not allowed to see the content of this project.')}
+.col-xs-12(ng-if='!canRead()')
+  p.text-center #{__('You are not allowed to see the content of this project.')}

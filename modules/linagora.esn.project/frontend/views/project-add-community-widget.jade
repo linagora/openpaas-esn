@@ -1,4 +1,4 @@
-.default-collaboration-widget
+div
   .title.ellipsis
     | #{__('Add communities')}
   hr
@@ -15,8 +15,6 @@
       .form-group
         .row
           button.btn.btn-primary.pull-right(type='button', ng-click='addMembers()', ng-disabled='running')
-            i.fa.fa-sign-in(ng-hide='running') &nbsp;
+            i.mdi.mdi-exit-to-app(ng-hide='running') &nbsp;
               | #{__('Add')}
-            span(ng-show='running')
-              i.fa.fa-spinner.fa-spin &nbsp;
-              | #{__('Please wait...')}
+            span(ng-show='running') #{__('Please wait...')}

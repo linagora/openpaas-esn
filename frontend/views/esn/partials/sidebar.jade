@@ -1,0 +1,47 @@
+aside#sidebar(collaborations-event-listener)
+  .sidebar-inner
+    .profile-menu
+      a(href="" toggle-submenu)
+        .profile-pic
+          img(ng-controller='avatarController' ng-src='{{avatarURL}}')
+        .profile-info
+          user-name-display
+          i.mdi.mdi-chevron-down
+  
+      ul#profileMenuContent.collapse.main-menu(ng-controller='currentDomainController' close-sidebar-on-click)
+        li: a(href='/#/profile')
+          i.mdi.mdi-account
+          | #{__('My Account')}
+        li(data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body'): a(href='')
+          i.mdi.mdi-emoticon
+          | #{__('Feedback')}
+        li: a(href='{{"/#/domains/" + domain._id + "/members"}}')
+          i.mdi.mdi-account-multiple
+          | #{__('Members')}
+        li: a(href='{{"/#/domains/" + domain._id + "/members/invite"}}')
+          i.mdi.mdi-account-plus
+          | #{__('Invitation')}
+        li: a(href='/#/applications')
+          i.mdi.mdi-basket
+          | #{__('Applications')}
+        li: a(href='/#/appstore')
+          i.mdi.mdi-package-variant
+          | #{__('Module Manager')}
+        injections-widget(injection-anchor-id="domainUserRightDropdown", injection-subject="domain")
+        li: a(href='/logout')
+          i.mdi.mdi-account-remove
+          | #{__('Logout')}
+
+    ul.main-menu.app-menu(ng-controller='ASTrackerController')
+      li: a(href='/#/' close-sidebar-on-click)
+        i.mdi.mdi-home
+        | #{__('Home')}
+      li: a(href='/#/calendar' close-sidebar-on-click)
+        i.mdi.mdi-calendar
+        | #{__('My calendar')}
+      li: a(href='/#/contact' close-sidebar-on-click)
+        i.mdi.mdi-account-star
+        | #{__('My contacts')}
+
+      list-community-activity-streams
+      list-project-activity-streams

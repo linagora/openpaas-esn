@@ -1,10 +1,10 @@
 div
   form(role="form")
-    .input-group.esn-search-form-input
+    .input-group
       input.search-query.form-control(type='text', ng-model='searchInput', ng-change='search.status="none"', placeholder='#{__("Search")}')
       .input-group-btn
         button.btn.btn-default(type='submit', ng-click='doSearch()')
-          i.fa.fa-search
+          i.mdi.mdi-magnify
     .vertiz-space
     div(ng-show="search.status=='error'")
       .text-danger {{search.err.message}}: {{search.err.details}}

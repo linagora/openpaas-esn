@@ -269,7 +269,16 @@ angular.module('esn.calendar')
       }
     };
   })
-  .directive('calendarDisplay', function() {
+  .directive('calendarDisplay', function($timeout) {
+    function link(scope, element) {
+      $timeout(function() {
+        var today = element.find('.fc-today-button');
+        today.addClass('btn waves-effect');
+        var buttonGroup = element.find('.fc-button-group');
+        buttonGroup.addClass('btn-group');
+        buttonGroup.children().addClass('btn waves-effect');
+      }, 0);
+    }
     return {
       restrict: 'E',
       templateUrl: 'calendar/views/partials/calendar.html',
@@ -277,6 +286,7 @@ angular.module('esn.calendar')
         calendarId: '=',
         uiConfig: '='
       },
-      controller: 'calendarController'
+      controller: 'calendarController',
+      link: link
     };
   });

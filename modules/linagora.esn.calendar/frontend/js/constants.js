@@ -21,6 +21,7 @@ angular.module('esn.calendar')
   .constant('USER_UI_CONFIG', {
     calendar: {
       defaultView: 'agendaWeek',
+      theme: true,
       height: 450,
       editable: true,
       selectable: true,
@@ -29,16 +30,16 @@ angular.module('esn.calendar')
       weekNumbers: true,
       firstDay: 1,
       header: {
-        left: 'prev,next today',
+        left: 'prev, next, today',
         center: 'title',
-        right: 'month,agendaWeek,agendaDay'
+        right: 'month,agendaWeek,agendaDay,basicWeek,basicDay'
       },
       // TODO: i18n
       buttonText: {
         today: 'Today',
-        month: 'Month',
-        week: 'Week',
-        day: 'Day'
+        month: 'month',
+        week: 'week',
+        day: 'day'
       },
       handleWindowResize: false
     }

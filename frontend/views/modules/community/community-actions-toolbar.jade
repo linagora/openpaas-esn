@@ -1,8 +1,8 @@
-.col-xs-12.nopadding.esn-community.esn-community-toolbar
+.col-xs-12.nopadding
   // TODO Remove this when the injection module has
   // the method to inject inside all domains.
   calendar-button-toolbar
   a.btn.btn-info(ng-href='/#/appstore/communities/{{community._id}}/apps')
     | #{__('Module Manager')} &nbsp;
-    i.fa.fa-cubes
+    i.mdi.mdi-apps
   injections-widget(injection-anchor-id="communityPageActionsToolbar", injection-subject="community")

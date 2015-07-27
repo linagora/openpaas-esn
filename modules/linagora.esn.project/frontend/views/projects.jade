@@ -1,9 +1,9 @@
-.col-xs-12.esn-panel
+.col-xs-12
   .row
-    h2.esn-communities-header
+    h2
       ul.list-inline
         li
-          i.fa.fa-briefcase
+          i.mdi.mdi-briefcase
           | #{__('Projects')}
         li.pull-right
           project-create-button
@@ -23,9 +23,7 @@
     project-display(project="project")
 
   .row.alert.alert-info(ng-show="loading", role="alert")
-    p
-      i.fa.fa-cog.fa-spin
-      | #{__('Loading projects...')}
+    p #{__('Loading projects...')}
   .row.alert.alert-danger(ng-show="error && !loading", role="alert")
     p #{__('Error while loading projects !')}
   .row.alert.alert-info(ng-show="!loading && !error && projects.length === 0 && selected === 'all'", role="alert")

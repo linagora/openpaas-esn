@@ -1,4 +1,3 @@
 button.btn.btn-primary(type="button", ng-click="undeploy()", ng-disabled='disabled')
-  i.fa(ng-class="{'fa-remove': !loading, 'fa-cog': loading, 'fa-spin': loading}")
+  i.mdi(ng-class="{'mdi-close': !loading}")
   span #{__('Undeploy')}
-

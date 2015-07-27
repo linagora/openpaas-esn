@@ -1,31 +1,19 @@
-div.col-md-12.panel.esn-panel(ng-show="!error")
-  div.form-container
-    form(name='form' ng-submit='signup()')
-      legend #{__('No account yet ?')} #{__('Register today')}
-      .row
-        .col-xs-12.form-group(ng-class="{'has-error': form.email._blur && form.email.$invalid }")
-          input.form-control(type='email', ng-model='settings.email', name='email', placeholder="#{__('Email')}", autofocus=true, required, esn-track-first-blur)
-          .help-block(ng-show='form.email._blur && !form.email.$viewValue') #{__('Email address is required')}
-          .help-block(ng-show='form.email._blur && form.email.$viewValue && form.email.$invalid') #{__('This email address is invalid')}
-
-      .row
-        .col-lg-6.col-xs-12.form-group(ng-class="{'has-error':  form.firstname._blur && form.firstname.$invalid}")
-          input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required, esn-track-first-blur)
-          .help-block(ng-show='form.firstname._blur && !form.firstname.$viewValue') #{__('First name is required')}
-
-        .col-lg-6.col-xs-12.form-group(ng-class="{'has-error':  form.lastname._blur && form.lastname.$invalid}")
-          input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required, esn-track-first-blur)
-          .help-block(ng-show='form.lastname._blur && !form.lastname.$viewValue') #{__('Last name is required')}
-
-      .row
-        .col-xs-6.col-xs-offset-6.form-group
-          button.btn.btn-primary.pull-right(type='submit', ng-disabled='signupTask.running')
-            i.fa.fa-sign-in(ng-hide="signupTask.running") &nbsp;
-            i.fa.fa-spinner(ng-hide="!signupTask.running") &nbsp;
-            | #{__('{{signupButton.label}}')}
-
-div.col-md-12.panel.esn-panel(ng-show="error")
-  div.form-container
-    h2 #{__('Error')}.
-    div.alert.alert-danger
-      strong #{__('There was an error while signin up to the platform. Please try again.')}
+form(name='form', ng-submit='signup()')
+  .input-group.m-b-20
+    span.input-group-addon
+      i.mdi.mdi-account
+    .fg-line
+      input.form-control(type='text', ng-model='settings.firstname', name='firstname', id='firstname', placeholder="#{__('First Name')}", required, esn-track-first-blur)
+  .input-group.m-b-20
+    span.input-group-addon
+      i.mdi.mdi-account
+    .fg-line
+      input.form-control(type='text', ng-model='settings.lastname', name='lastname', id='lastname', placeholder="#{__('Last Name')}", required, esn-track-first-blur)
+  .input-group.m-b-20
+    span.input-group-addon
+      i.mdi.mdi-email
+    .fg-line
+      input.form-control(type='email', ng-model='settings.email', name='email', placeholder="#{__('Email')}", autofocus=true, required, esn-track-first-blur)
+  .clearfix
+  button.btn.btn-login.btn-danger.btn-float(type='submit', ng-disabled='signupTask.running')
+    i.mdi.mdi-arrow-right

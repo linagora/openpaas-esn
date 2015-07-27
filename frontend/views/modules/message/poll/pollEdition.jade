@@ -1,7 +1,8 @@
-div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
+div.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
   form(name='messageform')
     .form-group
-      textarea.whatsup-input.form-control(ng-model='messageContent', placeholder="#{__('Enter your poll description and question')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+      .fg-line
+        textarea.form-control(ng-model='messageContent', placeholder="#{__('Enter your poll description and question')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
     .form-group
       map-get-display-current-position
     .form-group(ng-show='attachments && attachments.length > 0')
@@ -12,18 +13,19 @@ div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop=
       .form-group(ng-repeat='choice in additionalData.pollChoices')
         label.col-sm-2.control-label #{__('Option')} {{$index + 1}}
         .col-sm-10
-          input.form-control(type='text' ng-model='choice.label' placeholder="#{__('Poll option description...')}")
+          .fg-line
+            input.form-control(type='text' ng-model='choice.label' placeholder="#{__('Poll option description...')}")
     .form-group
       p
         button.btn.btn-link(ng-click='appendChoice()')
-          i.fa.fa-plus 
+          i.mdi.mdi-plus 
             span #{__('Add another option')}
     .form-group()
       .text-left
         button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Publish')}
         &nbsp;
         button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
-          i.fa.fa-paperclip
+          i.mdi.mdi-paperclip
         &nbsp;
         a(href='', fill-position)
-          i.fa.fa-map-marker
+          i.mdi.mdi-map-marker

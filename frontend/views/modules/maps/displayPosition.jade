@@ -1,5 +1,5 @@
 div.ellipsis
   a.map(href='', ng-show='position', ng-click='toggleMapDisplay(position)')
-    i.fa.fa-map-marker
+    i.mdi.mdi-map-marker
     span(ng-show="position.display_name") #{__('Near')} {{position.display_name}}
   leaflet(ng-if="showMeMap", markers="markers", center="center", height="200px", width="100%")

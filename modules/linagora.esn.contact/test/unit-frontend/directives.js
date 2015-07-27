@@ -32,14 +32,6 @@ describe('The contact Angular module directives', function() {
       };
     }]));
 
-    it('should have the proper template', function() {
-      var html = '<inline-editable-input input-class="aClass" type="aType" placeholder="aPlaceholder" ng-model="aModel" on-blur="aBlurFunction" on-save ="aSaveFunction"/>';
-      var element = this.$compile(html)(this.$scope);
-      this.$rootScope.$digest();
-      expect(element.html()).to.deep.equal(
-        '<div class="input-group"><input type="aType" placeholder="aPlaceholder" ng-model="ngModel" ng-model-options="{updateOn: &quot;blur&quot;}" class="aClass"><span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-remove-button input-group-btn hidden-xs ng-hide"><button type="button" ng-click="resetInput()" class="btn btn-default"><i class="fa fa-remove"></i></button></span><!-- ngIf: lastModifiedFlag && updateSuccessFlag --><span ng-show="showGroupButtons" class="inline-input-edition-group-btn inline-check-button input-group-btn hidden-xs ng-hide"><button type="button" class="btn btn-default"><i class="fa fa-check"></i></button></span></div>');
-    });
-
     it('should bind on focus that toggle the group buttons', function() {
       var element = this.initDirective(this.$scope);
       var input = element.find('input');

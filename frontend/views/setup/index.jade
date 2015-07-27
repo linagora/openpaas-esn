@@ -7,9 +7,9 @@ html
         title #{title} - OpenPaas
         meta(name="viewport", content="width=device-width, initial-scale=1")
         link(rel='icon', type='image/png', href='images/logo-tiny.png')
-        link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
-        link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
-        link(rel='stylesheet', href='/css/style-setup-wizard.css')
+        link(rel='stylesheet', href='/components/roboto-fontface/css/roboto-fontface.css')
+        link(rel='stylesheet', href='/css/modernizr.css')
+        link(rel='stylesheet', href='/css/styles.css')
         +injectCSSFromModules('setup', injections)
         script(src='/components/jquery/dist/jquery.js')
         script(src='/components/bootstrap/dist/js/bootstrap.js')
@@ -21,20 +21,20 @@ html
     body
 
       div.container(ng-cloak ng-app='setupApp' ng-controller='wizardController')
-          div.page-header.center
+          div
               h1 #{__('Setup your software')}
 
-          div.jumbotron.wizard-bg(ng-hide='step != 0')
+          div(ng-hide='step != 0')
               h2 #{__('Welcome to the Linagora Enterprise Social Network')}!
               div
                   p #{__('The following wizard will help you configuring the software')}.
                   p #{__('You need a running MongoDB database server')}.
-  
+
               button.btn.pull-right(ng-click='step = step + 1') Next
-  
-          div.wizard-step(ng-hide='step != 1')
-              h2.center.subtitle #{__('Configure access to the MongoDB server')}
-              div.wizard-bg
+
+          div(ng-hide='step != 1')
+              h2 #{__('Configure access to the MongoDB server')}
+              div
                 div.form-container
                   form(role="form")
                     div.form-group
@@ -53,29 +53,25 @@ html
                     div.form-group
                       label(for='password') #{__('Database Password')}
                       input(type='password' ng-model='settings.password' ng-change='test.status="none"' class='form-control' id='password' ng-disabled='ajaxRunning()')
-                    div.test-feedback(ng-show="test.status=='success'")
+                    div(ng-show="test.status=='success'")
                       div.text-success #{__('Successfull connection to the database')}
-                    div.test-feedback(ng-show="test.status=='error'")
+                    div(ng-show="test.status=='error'")
                       div.text-danger {{test.err.message}}: {{test.err.details}}
-                    
+
                     button.pull-left.btn.btn-info(ng-disabled='!infocomplete() || ajaxRunning()' ng-click='testConnection()' type='button')
-                      i.fa.fa-spinner(ng-hide="!test.running") &nbsp;
                       &nbsp;{{testButton.label}}
-  
+
                     button.pull-right.btn.btn-primary(type='button' ng-disabled="test.status!='success' || ajaxRunning()" ng-click='recordSettings()')
-                      i.fa.fa-spinner(ng-hide="!record.running") &nbsp;
                       {{recordButton.label}}
                     .clearfix &nbsp;
-                    
+
                     div(ng-show="record.status=='error'")
                       .pull-right
                         div.text-danger {{record.err.message}}: {{record.err.details}}
                       .clearfix &nbsp;
 
           div(ng-hide='step != 2')
-            div.wizard-bg.form-container
+            div.form-container
               h2 #{__('Wonderful! The setup is complete')}.
               p #{__('Well you certainly were expecting a longer, and more complicated journey. Sorry')}.
               p.text-primary #{__('Please reload this page to get started with Linagora ESN')}.
-  
-  

@@ -1,91 +1,69 @@
-div.row.profile-edition(ng-controller='profileEditionController')
-
-  div.col-md-3.col-xs-12.profile-image.text-center
-    div(ng-controller='avatarController')
-      img(ng-src='{{avatarURL}}&format=original')
-    div(ng-controller='avatarEdit')
-      button.btn.btn-primary(type="button", ng-click="showAvatarEditModal()" width="150") #{__('Edit your photo')}
-
-  div.col-md-9.col-xs-12.profile-card
-
-    div.row
-      div.col-md-10.col-xs-10
-        span.edition-spinner(ng-show='running.name')
-          i.fa.fa-spinner.fa-spin
-        p.lead(editable-text='fullName', e-form='nameForm', onbeforesave='updateName($data)', e-class='profile-large-input') {{ fullName || initFullName(user.firstname, user.lastname) }}
-      div.col-md-2.col-xs-2
-        a(ng-click='nameForm.$show()', ng-hide='nameForm.$visible', ng-disabled='running.name') #{__('Edit')}
-
-    div.row
-      div.col-md-4.col-sm-4.col-xs-4
-        i.fa.fa-at.hidden-xs
-        i.fa.fa-at.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('Email')}
-      div.col-md-6.col-sm-4.col-xs-6
-        a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
-      div.col-md-2.col-sm-2.col-xs-2
-
-    div.row
-      div.col-md-4.col-sm-4.col-xs-4
-        i.fa.fa-quote-right.hidden-xs
-        i.fa.fa-quote-right.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('Job Title')}
-      div.col-md-6.col-sm-4.col-xs-6
-        span.edition-spinner(ng-show='running.job')
-          i.fa.fa-spinner.fa-spin
-        span(editable-text='user.job_title', e-form='jobForm', id= 'jobForm', onbeforesave='updateJob($data)'
-          e-placeHolder="#{__('Job Title')}", e-maxlength='100', e-class='profile-small-input') {{ user.job_title }}
-      div.col-md-2.col-sm-2.col-xs-2
-        a(ng-click='jobForm.$show()', ng-hide='jobForm.$visible', ng-disabled='running.job') #{__('Edit')}
-
-    div.row
-      div.col-md-4.col-sm-4.col-xs-4
-        i.fa.fa-briefcase.hidden-xs
-        i.fa.fa-briefcase.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('building_location')}
-      div.col-md-6.col-sm-4.col-xs-6
-        span.edition-spinner(ng-show='running.service')
-          i.fa.fa-spinner.fa-spin
-        span(editable-text='user.service', e-form='serviceForm', onbeforesave='updateService($data)',
-        e-placeHolder="#{__('Service')}", e-maxlength='400', e-class='profile-small-input') {{ user.service }}
-      div.col-md-2.col-sm-2.col-xs-2
-        a(ng-click='serviceForm.$show()', ng-hide='serviceForm.$visible', ng-disabled='running.service') #{__('Edit')}
-
-    div.row
-      div.col-md-4.col-sm-4.col-xs-4
-        i.fa.fa-building.hidden-xs
-        i.fa.fa-building.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('Building Location')}
-      div.col-md-6.col-sm-4.col-xs-6
-        span.edition-spinner(ng-show='running.building_location')
-          i.fa.fa-spinner.fa-spin
-        span(editable-text='user.building_location', e-form='buildingForm', onbeforesave='updateBuildingLocation($data)',
-        e-placeHolder="#{__('Building Location')}", e-maxlength='400', e-class='profile-small-input') {{ user.building_location }}
-      div.col-md-2.col-sm-2.col-xs-2
-        a(ng-click='buildingForm.$show()', ng-hide='buildingForm.$visible', ng-disabled='running.building_location') #{__('Edit')}
-
-    div.row
-      div.col-md-4.col-sm-4.col-xs-4
-        i.fa.fa-building-o.hidden-xs
-        i.fa.fa-building-o.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('Office Location')}
-      div.col-md-6.col-sm-4.col-xs-6
-        span.edition-spinner(ng-show='office_location')
-          i.fa.fa-spinner.fa-spin
-        span(editable-text='user.office_location', e-form='officeForm', onbeforesave='updateOfficeLocation($data)',
-        e-placeHolder="#{__('Office Location')}", e-maxlength='400', e-class='profile-small-input') {{ user.office_location }}
-      div.col-md-2.col-sm-2.col-xs-2
-        a(ng-click='officeForm.$show()', ng-hide='officeForm.$visible', ng-disabled='running.office_location') #{__('Edit')}
-
-    div.row
-      div.col-md-4.col-sm-4.col-xs-4
-        i.fa.fa-phone.hidden-xs
-        i.fa.fa-phone.fa-lg.pull-right.visible-xs
-        label.hidden-xs #{__('Phone')}
-      div.col-md-6.col-sm-4.col-xs-6
-        span.edition-spinner(ng-show='running.phone')
-          i.fa.fa-spinner.fa-spin
-        span(editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)',
-        e-placeHolder="#{__('Phone')}", e-maxlength='20', e-class='profile-small-input') {{ user.main_phone }}
-      div.col-md-2.col-sm-2.col-xs-2
-        a(ng-click='phoneForm.$show()', ng-hide='phoneForm.$visible', ng-disabled='running.phone') #{__('Edit')}
+.container(ng-controller='profileEditionController')
+  .block-header
+    h2 #{__('My Account')}
+  #profile-main.card
+    .pm-overview.c-overflow
+      .pmo-pic
+        .p-relative(ng-controller='avatarController')
+          a
+            img(src="{{avatarURL}}")
+          a.pmop-edit(ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
+            i.mdi.mdi-camera
+            span.hidden-xs
+              | #{__('Update Profile Picture')}
+        .pmo-stat
+          h2.m-0.c-white
+            |{{user.firstname}} {{user.lastname}}
+          |{{user.job_title}}
+    .pm-body.clearfix
+      data(ui-view='')
+        .pmb-block
+          .pmbb-header
+            h2 
+              i.mdi.mdi-account.m-r-5
+              | #{__('Profile Informations')}
+            ul.actions
+              li.dropdown
+                a( href='')
+                  i.mdi.mdi-pencil
+          .pmbb-body.p-l-30
+            .pmbb-view
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-email.m-r-5 
+                  | #{__('Email')}
+                dd 
+                  a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-phone.m-r-5 
+                  | #{__('Phone')}
+                dd.visible-xs
+                  {{ user.main_phone }}  
+                dd.hidden-xs
+                  span(ng-click='phoneForm.$show()', editable-text='user.main_phone', e-form='phoneForm', onbeforesave='updatePhone($data)',
+                  e-placeHolder="#{__('Phone')}", e-maxlength='20', e-class='custom-input-sm') {{ user.main_phone }}  
+                  a.edit-hint(ng-hide='phoneForm.$visible', ng-disabled='running.phone')
+                    i.mdi.mdi-pencil
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-city.m-r-5 
+                  | #{__('Building Location')}
+                  dd.visible-xs
+                    {{ user.building_location }}
+                  dd.hidden-xs
+                    span(ng-click='buildingForm.$show()', editable-text='user.building_location', e-form='buildingForm', onbeforesave='updateBuildingLocation($data)',
+                    e-placeHolder="#{__('Building Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.building_location }}
+                    a.edit-hint(ng-hide='buildingForm.$visible', ng-disabled='running.building_location')
+                      i.mdi.mdi-pencil
+              dl.dl-horizontal
+                dt 
+                  i.mdi.mdi-monitor.m-r-5 
+                  | #{__('Office Location')}
+                  dd.visible-xs
+                    {{ user.office_location }}
+                  dd.hidden-xs
+                    span(ng-click='officeForm.$show()', editable-text='user.office_location', e-form='officeForm', onbeforesave='updateOfficeLocation($data)',
+                    e-placeHolder="#{__('Office Location')}", e-maxlength='400', e-class='custom-input-sm') {{ user.office_location }}
+                    a.edit-hint(ng-hide='officeForm.$visible', ng-disabled='running.office_location')
+                      i.mdi.mdi-pencil

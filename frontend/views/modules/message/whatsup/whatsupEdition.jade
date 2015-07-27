@@ -1,11 +1,12 @@
-div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
+div.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
   form(name='whatsupform')
     .form-group(ng-class='{nopadding: rows !== 5}')
-      textarea.whatsup-input.form-control(ng-model='messageContent', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
-    .form-group
-      map-get-display-current-position
-    .form-group(ng-show='attachments && attachments.length > 0')
-      message-edition-attachments
+      .fg-line
+        textarea.form-control(ng-model='messageContent', ng-focus='expand()', ng-blur='shrink()', placeholder="#{__('Publish a new whatsup message')}", rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+    .row.form-group
+        map-get-display-current-position
+    .row.form-group(ng-show='attachments && attachments.length > 0')
+        message-edition-attachments
 
     .form-group(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')
       .text-left
@@ -14,7 +15,7 @@ div.whatsup-form.form-container(ng-controller='messageController', nv-file-drop=
         button.btn.btn-default(type='reset', ng-click='resetMessage()') #{__('Cancel')}
         &nbsp;
         button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
-          i.fa.fa-paperclip
+          i.mdi.mdi-paperclip
         &nbsp;
         a(href='', fill-position)
-          i.fa.fa-map-marker
+          i.mdi.mdi-map-marker

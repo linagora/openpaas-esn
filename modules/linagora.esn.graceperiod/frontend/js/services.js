@@ -20,52 +20,45 @@ angular.module('linagora.esn.graceperiod')
     };
   })
 
-  .factory('notifyOfGracedRequest', function(GRACE_DELAY, ERROR_DELAY, notificationService, $q, $rootScope) {
-    var stack = {
-      dir1: 'up',
-      dir2: 'right',
-      spacing1: 10,
-      spacing2: 10
-    };
-
+  .factory('notifyOfGracedRequest', function(GRACE_DELAY, ERROR_DELAY, $q, $rootScope) {
     function appendCancelLink(text, linkText) {
       return text + ' <a class="cancel-task">' + linkText + '</a>';
     }
 
     return function(text, linkText, delay) {
-      return $q(function(resolve, reject) {
-        var notification = notificationService.notify({
+      return $q(function(resolve) {
+        var notification = $.notify({
+          message: appendCancelLink(text, linkText)
+        }, {
           type: 'success',
           text: appendCancelLink(text, linkText),
-          stack: stack,
-          addclass: 'graceperiod text-center',
-          animate_speed: 'normal',
-          width: false,
-          delay: delay || GRACE_DELAY,
-          styling: 'fontawesome',
-          buttons: {
-            sticker: false
+          placement: {
+            from: 'bottom',
+            align: 'center'
           },
-          after_close: function() {
+          delay: delay || GRACE_DELAY,
+          onClosed: function() {
             $rootScope.$apply(function() {
-              resolve({cancelled: false});
+              resolve({ cancelled: false });
             });
           }
         });
 
-        notification.get().find('a.cancel-task').click(function() {
+        notification.$ele.find('a.cancel-task').click(function() {
           $rootScope.$apply(function() {
-            resolve({cancelled: true,
-            success: function() {
-              notification.remove(false);
-            },
-            error: function(textToDisplay) {
-              notification.update({
-                type: 'error',
-                text: textToDisplay,
-                delay: ERROR_DELAY
-              });
-            }});
+            resolve({
+              cancelled: true,
+              success: function() {
+                notification.close();
+              },
+              error: function(errorMessage) {
+                notification.update({
+                  type: 'danger',
+                  message: errorMessage,
+                  delay: ERROR_DELAY
+                });
+              }
+            });
           });
         });
       });

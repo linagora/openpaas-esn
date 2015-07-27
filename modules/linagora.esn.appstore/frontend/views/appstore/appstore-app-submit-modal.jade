@@ -9,7 +9,6 @@
 
         .row.alert.alert-info(ng-show="sending", role="alert")
           p
-            i.fa.fa-cog.fa-spin
             span(ng-show="createStatus.step === 'post'") #{__('Submitting the module')}...
             span(ng-show="createStatus.step === 'upload'") #{__('Uploading artifact')}...
             span(ng-show="createStatus.step === 'redirect'") #{__('Redirecting to module page')}...
@@ -25,7 +24,7 @@
           .form-group.has-feedback(ng-show="step === 0", ng-class='{"has-error": isTitleInvalid()}')
             label #{__('Title')}&nbsp;*
             input.form-control(type='text', ng-change='onInputChange()', ng-model='application.title', id="title", name='title', autofocus=true, required, ensure-unique-application-title, esn-track-first-blur)
-            span.fa.fa-cog.fa-spin.form-control-feedback(ng-show='applicationForm.title.$error.ajax')
+            span.form-control-feedback(ng-show='applicationForm.title.$error.ajax')
             span.help-block(ng-show='applicationForm.title.$error.unique && !applicationForm.title.$error.ajax') #{__('This module title already exists. Please choose another one.')}
             span.help-block(ng-show='validationError.ajax && !validationError.unique') #{__('An error occured while checking for module title validity.')}
             span.help-block(ng-show='!validationError.ajax && validationError.unique') #{__('This module title already exists. Please choose another one.')}
@@ -39,7 +38,7 @@
             .btn-group.btn-group-justified
               .btn-group
                 span.btn.btn-info.btn-file
-                  i.fa.fa-upload
+                  i.mdi.mdi-upload
                   | #{__('Select the artifact')}
                   input(type="file", ng-file-select="onFileSelect($files)", data-multiple='true')
             span.help-block(ng-show='artifact')
@@ -59,10 +58,10 @@
             span.help-block #{__("A human readable description which will help users know what this module is about")}.
       .modal-footer(ng-hide="sending")
         button.btn.btn-default.pull-left(type="button", ng-disabled="sending", ng-show="step === 1", ng-click="backToStep0()")
-          i.fa.fa-chevron-left
+          i.mdi.mdi-chevron-left
           | #{__('Previous')}
         button.btn.btn-secondary-dark(type="button", ng-disabled="isTitleEmpty() || applicationForm.title.$error.unique || applicationForm.title.$error.ajax || validationError.ajax || validationError.unique", ng-show="step === 0", ng-click="validateStep0()")
           | #{__('Next')} &nbsp;
-          i.fa.fa-chevron-right
+          i.mdi.mdi-chevron-right
         button.btn.btn-secondary-dark(type="button", ng-disabled="sending", ng-show="step === 1" ng-click="submit(application)") #{__('Submit')}
         button.btn.btn-default(type="button", ng-disabled="sending", ng-click="$hide()") #{__('Cancel')}

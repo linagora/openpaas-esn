@@ -1,12 +1,14 @@
-form.esn-panel.main-panel(ng-submit='accept()')
-  .row.panel-header
-    .col-sm-7.col-xs-12.panel-title
-      span.contact-heading
-        | #{__('Create a new contact')}
-    .col-sm-5.col-xs-12.action-bar
-      button.btn.btn-default.btn-raised.btn-cancel(type='button', ng-click='close()') #{__('Cancel')}
-      button.btn.btn-primary.btn-raised(ng-disabled='calling') #{__('Create')}
-  .row.create-content
+.card(ng-submit='accept()')
+  .card-header.contact-header
+    .row
+      .col-xs-8
+        h1 #{__('Create a new contact')}
+      .col-xs-4
+        .contact-buttons
+          button.btn.btn-default(type='button', ng-click='close()')
+            | #{__('Cancel')}
+          button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
+            | #{__('Create')}
+  .card-body.card-padding
     .contact-error-container
-    .vertiz-space
-      contact-display(contact='contact', update='false')
+    contact-display(contact='contact', update='true', modify='modify')

@@ -1,12 +1,8 @@
-.card.people
-  .card-top.blue
+.people
     img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png")
-  .card-info
-    .ellipsis
-      a(href='#/appstore/apps/{{::application._id}}').title.text-center
-        span {{::application.title}}
-        small(data-ng-if="application.version") {{::application.version}}
-    .desc {{::application.description | characters:128 :false }}
-  .card-bottom
-    .row
-      appstore-switch-install(community="community", application='application')
+    a(href='#/appstore/apps/{{::application._id}}').title.text-center
+      span {{::application.title}}
+      small(data-ng-if="application.version") {{::application.version}}
+    div {{::application.description | characters:128 :false }}
+  .row
+    appstore-switch-install(community="community", application='application')

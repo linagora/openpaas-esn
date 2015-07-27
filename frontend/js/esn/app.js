@@ -6,14 +6,16 @@ angular.module('esnApp', [
   'restangular',
   'ngRoute',
   'mgcrea.ngStrap.affix',
-  'ui.notify',
   'angularMoment',
   'truncate',
   'openpaas-logo',
   'frapontillo.bootstrap-switch',
   'chart.js',
+  'FBAngular',
   'esn.core',
   'esn.member',
+  'esn.header',
+  'esn.sidebar',
   'esn.domain',
   'esn.avatar',
   'esn.profile',
@@ -36,6 +38,7 @@ angular.module('esnApp', [
   'esn.parser',
   'esn.markdown-parser',
   'esn.widget.helper',
+  'esn.form.helper',
   'esn.twitter',
   'esn.ui',
   'esn.oembed',
@@ -51,7 +54,8 @@ angular.module('esnApp', [
   'esn.injection',
   'esn.collaboration',
   'esn.company',
-  'esn.localstorage'
+  'esn.localstorage',
+  'materialAdmin'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {

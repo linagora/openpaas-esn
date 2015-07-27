@@ -1,33 +1,31 @@
-.media.notification-content.esn-panel
+.media
   div(ng-show='error')
     p #{__('Error while getting notifications')}
   div(ng-show='loading && !error')
-    p
-      i.fa.fa-cog.fa-spin
-      | #{__('Loading notifications')}
+    p #{__('Loading notifications')}
   div(ng-hide='loading || error')
     a.pull-left(ng-show='context', ng-href='{{::context.url}}')
       img.media-object(ng-src='{{::context.avatarUrl}}')
     a.pull-left(ng-hide='context', ng-href='{{::subject.url}}')
       img.media-object(ng-src='{{::subject.avatarUrl}}')
     a.cancel(href="", ng-click='acknowledge()')
-      i.nomargin.remove.fa.fa-remove
+      i.nomargin.remove.mdi.mdi-close
     .media-body
-      .notification-head.ellipsis
+      .ellipsis
         span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
         a(ng-show='context', ng-href="{{::context.url}}") {{::context.displayName}}
-      .notification-body
+      div
         span
           a(ng-href="{{::subject.url}}") {{::subject.displayName}}
           &nbsp;
           span {{::verb}}
           &nbsp;
           span {{::complement}}
-      .notification-description(ng-show='notification.description')
+      div(ng-show='notification.description')
         span {{::notification.description}}
-      .notification-actions(ng-hide='notification.acknowledged')
+      div(ng-hide='notification.acknowledged')
         span(ng-repeat='action in notification.action')
           a(ng-href='{{::action.url}}', target='_blank')
             button.btn.btn-info(type="submit") {{::action.display.text}}
         &nbsp;
-      .notification-actions(ng-show='notification.acknowledged') #{__('This notification is processed')}
+      div(ng-show='notification.acknowledged') #{__('This notification is processed')}

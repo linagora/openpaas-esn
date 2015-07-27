@@ -18,15 +18,14 @@ follow the template example pattern.
         .esn-item(data-esn-path='projects')
           span
             a(href='#/projects')
-              i.fa.fa-suitcase
+              i.mdi.mdi-briefcase
               span.hidden-xs #{__('Projects')}
 
 ### communityPageRightPanel
 
 #### Template example
 
-        .esn-panel
-          div
+        div
             ...
         .vertiz-space
 
@@ -36,7 +35,7 @@ follow the template example pattern.
 
         a.btn.btn-info(ng-href='/#/appstore/communities/{{community._id}}/apps')
           | #{__('App store')} &nbsp;
-          i.fa.fa-cubes
+          i.mdi.mdi-apps
 
 ### messageEditionMessageTypeButton
 
@@ -44,7 +43,7 @@ follow the template example pattern.
 
         li(ng-show='::calendarId')
           button.btn.btn-link(type='button', ng-click='show("event")')
-            i.fa.fa-calendar
+            i.mdi.mdi-calendar
 
 ### messageEditionMessageTypeSwitch
 

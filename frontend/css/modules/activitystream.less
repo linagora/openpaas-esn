@@ -1,0 +1,200 @@
+// inspired by material-admin/less/inc/profile.less
+
+.p-t-5 {
+  padding-top: 5px
+}
+
+.t-view .share {
+  display: flex;
+  justify-content: flex-end;
+
+  i {
+    color: @m-bluegray;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  i:hover {
+    color: @m-black;
+  }
+}
+
+.t-view .oembeds .twitter-oembed {
+  display: flex;
+  justify-content: center;
+}
+
+.t-view .oembeds .youtube-oembed {
+  display: flex;
+  justify-content: center;
+}
+
+.timeline {
+  position: relative;
+  margin-top: 30px;
+}
+.t-view {
+  border: 1px solid lighten(@m-gray, 30%);
+  position: relative;
+  margin-bottom: 10px;
+  background-color: @m-white;
+}
+
+.t-view .tv-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid lighten(@m-gray, 30%);
+  background: lighten(@m-gray, 35%);
+}
+
+.t-view .tv-header .actions {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.t-view .tv-body {
+  padding: 23px 25px;
+}
+
+.t-view .tv-body .tvb-lightbox {
+  margin: 0 -8px 15px;
+}
+
+.t-view .tv-body .tvb-lightbox [data-src] {
+  padding: 0 5px;
+  margin-bottom: 5px;
+}
+
+.t-view .tvh-user {
+  display: block;
+}
+
+.t-view .tvh-user img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.t-view-liner:before {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  left: -70px;
+  top: 0;
+  border: 3px solid @m-white;
+  text-align: center;
+  font-size: 20px;
+  line-height: 34px;
+  color: @m-white;
+  font-family: 'MaterialDesignIcons';
+  z-index: 1;
+}
+
+.t-view-liner:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50px;
+  width: 1px;
+  height: calc(100% + 37px);
+}
+
+.t-view-liner[data-tv-type="text"]:before {
+  content: "\f437";
+  background: @m-lightblue;
+  box-shadow: 0 0 0 1px @m-lightblue;
+}
+
+.t-view-liner[data-tv-type="text"]:after {
+  background: @m-lightblue;
+}
+
+.t-view-liner[data-tv-type="poll"]:before {
+  content: "\f1ed";
+  background: @m-lightgreen;
+  box-shadow: 0 0 0 1px @m-lightgreen;
+}
+
+.t-view-liner[data-tv-type="poll"]:after {
+  background: @m-lightgreen;
+}
+
+.t-view-liner[data-tv-type="event"]:before {
+  content: "\f1c3";
+  background: @m-yellow;
+  box-shadow: 0 0 0 1px @m-yellow;
+}
+
+.t-view-liner[data-tv-type="event"]:after {
+  background: @m-yellow;
+}
+
+.t-view .tvb-stats {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 20px;
+}
+
+.t-view .tvb-stats > li {
+  display: inline-block;
+  padding: 5px 10px 6px;
+  border: 1px solid @m-gray;
+  margin-right: 2px;
+}
+
+.t-view .tvb-stats > li i {
+  font-size: 15px;
+  line-height: 100%;
+  vertical-align: top;
+  margin-top: 2px;
+}
+
+.t-view .tvb-stats > li.tvbs-comments {
+  border-color: @m-green;
+  color: @m-green;
+}
+
+.t-view .tvb-stats > li.tvbs-likes {
+  border-color: @m-cyan;
+  color: @m-cyan;
+}
+
+.t-view .tvb-stats > li.tvbs-views {
+  border-color: @m-amber;
+  color: @m-amber;
+}
+
+.tv-comments {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.tv-comments .tvc-lists {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.tv-comments .tvc-lists > li {
+  padding: 15px 20px;
+  margin: 0;
+  border-top: 1px solid lighten(@m-gray, 30%);
+}
+
+.tvc-more {
+  color: @m-bluegray;
+  display: block;
+  margin-bottom: -10px;
+}
+
+.tvc-more:hover {
+  color: @m-black;
+}
+
+.tvc-more i {
+  vertical-align: middle;
+  margin-right: 5px;
+}

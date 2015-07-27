@@ -1,5 +1,4 @@
-.collaboration-member-avatar
-  a(ng-href="#/profile/{{member.user._id}}", href="#", data-title='{{tooltip.title}}', data-animation="am-flip-x", data-placement="bottom", bs-tooltip="tooltip")
-    img(ng-src="/api/users/{{member.user._id}}/profile/avatar", src="/images/user.png")
-    span.badge.creator(title='Creator', ng-show='creator')
-      i.fa.fa-trophy
+a(ng-href="#/profile/{{member.user._id}}", href="#", data-toggle="tooltip", data-original-title='{{tooltip.title}}')
+  img(ng-src="/api/users/{{member.user._id}}/profile/avatar", src="/images/user.png")
+  span.esn-members-badge(title='Creator', ng-show='creator')
+    i.mdi.mdi-trophy

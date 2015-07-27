@@ -42,7 +42,7 @@ angular.module('esn.contact', ['restangular', 'openpaas-logo', 'mgcrea.ngStrap.a
 
     $scope.isChecked = function(id) {
       if ($scope.selected_addressbook === id) {
-        return 'fa fa-check';
+        return 'mdi mdi-check';
       }
       return false;
     };

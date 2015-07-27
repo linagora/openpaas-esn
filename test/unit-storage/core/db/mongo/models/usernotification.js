@@ -276,7 +276,7 @@ describe('the Usernotification mongoose model', function() {
         complement: {objectType: 'email', id: 'test@linagora.com'},
         category: 'link:follow',
         target: mongoose.Types.ObjectId(),
-        icon: {objectType: 'icon', id: 'fa-bell'}
+        icon: {objectType: 'icon', id: 'mdi-bell'}
       };
       var notif = new Model(data);
       notif.save(function(err, data) {

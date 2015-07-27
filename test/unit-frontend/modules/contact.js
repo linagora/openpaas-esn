@@ -228,9 +228,9 @@ describe('The esn.contact Angular module', function() {
         });
       }));
 
-      it('should return "fa fa-check" if $scope.selected_addressbook equals argument', function() {
+      it('should return "mdi mdi-check" if $scope.selected_addressbook equals argument', function() {
         this.scope.selected_addressbook = '12345';
-        expect(this.scope.isChecked('12345')).to.equal('fa fa-check');
+        expect(this.scope.isChecked('12345')).to.equal('mdi mdi-check');
       });
       it('should return "false" if $scope.selected_addressbook does not equal argument', function() {
         this.scope.selected_addressbook = '55555';

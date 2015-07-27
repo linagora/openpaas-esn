@@ -1,4 +1,4 @@
-.collaboration-membership-requests-widget
+div
   .title.ellipsis #{__('Membership requests')}
   hr
 
@@ -7,7 +7,6 @@
     p(ng-switch-default) #{__('Error while getting memberships')}.
 
   .row(ng-show="loading")
-    i.fa.fa-cog.fa-spin
     | #{__("Loading membership requests")}
 
   .row(ng-show="requests && !error")

@@ -1,20 +1,24 @@
-div(ng-class="{'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
-  a.pull-left.message-avatar(href='#')
-    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
-  div.media-body
-    div
-      h4.media-heading
-        i.fa.fa-envelope.message-source-email(ng-show='message.source === "email"', title='sent via email reply')
-        a(href="#") {{message.author.firstname}} {{message.author.lastname}}
-        message-date-link(message='message', activitystream='activitystream')
+div.t-view(data-tv-type="text" ng-class="{'t-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
+  .tv-header.media
+    a.tvh-user.pull-left(href='#')
+      img.img-responsive(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
+    .media-body.p-t-5
+      i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
+      strong {{message.author.firstname}} {{message.author.lastname}}
+      br
+      message-date-link(message='message', activitystream='activitystream')
+      .share
+        message-bottom-links
       activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
-      message-shared(message='message')
-      display-position(position='message.position')
-      p.multilines
-        text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-      .row
+  .tv-body
+    display-position(position='message.position')
 
-    message-bottom-links
-    message-attachments(message='message')
-    message-oembeds(message='message')
+    p.multilines
+      text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
+    .row
+      message-attachments(message='message')
+    .row
+      message-oembeds(message='message')
+
+  .tv-comments
     message-comments

@@ -1,13 +1,13 @@
-.col-xs-12.esn-panel.nopadding.contact-page
+.col-xs-12.nopadding
       .row
         .col-xs-12
           h2
-            i.fa.fa-user
+            i.mdi.mdi-account
             | #{__('Contacts')}
-      .row.throbber-container.text-center(ng-show='restActive')
+      .row.text-center(ng-show='restActive')
         div.throbber(openpaas-logo-spinner, spinner-key='addressbooksSpinner')
       .row(ng-show='!restActive && !addressbooks.length')
-        .col-xs-12 
+        .col-xs-12
           | #{__('No addressbooks')}
           hr
           .vertiz-space(ng-controller='googleContactImporterController')
@@ -27,21 +27,21 @@
               i.fa.fa-google.fa-lg.fa-border(ng-click='googleImport()')
               #contactserror
 
-          .col-xs-12.col-md-4.contacts-container
+          .col-xs-12.col-md-4
             div.hidden-md.hidden-lg
               .vertiz-space
                 button.btn.btn-lg(ng-click='selected_addressbook=null')
                   i.fa.fa-angle-double-left
                 strong.horiz-space {{selectedAddressBookName()}}
               hr
-            .row.throbber-container.text-center(ng-show='contactsRestActive')
+            .row.text-center(ng-show='contactsRestActive')
               span.throbber(openpaas-logo-spinner, spinner-key='contactsSpinner')
-            ul.contacts.nav.nav-list.ellipsis(ng-hide='contactsRestActive')
+            ul.nav.nav-list.ellipsis(ng-hide='contactsRestActive')
               li.vertiz-space.ellipsis(ng-repeat='contact in contacts', ng-class="isContactSelected(contact._id)", ng-click="selectContact(contact)")
                 span(title="{{ selectedContactDisplayName(contact) }}") {{ selectedContactDisplayName(contact) }}
 
-          .col-xs-12.col-md-6.contact-container
-            div.contact.container-fluid.ellipsis(ng-show='contact')
+          .col-xs-12.col-md-6
+            div.container-fluid.ellipsis(ng-show='contact')
               .row
                 .col-xs-12
                   h4.media-heading.vertiz-space.text-center.ellipsis(title="{{selectedContactDisplayName(contact)}}")
@@ -55,9 +55,7 @@
                   hr
                   div
                     button.btn.btn-primary(type='submit', ng-click='sendInvitation(contact)', ng-disabled='running || isInvited(contact)')
-                      i.fa.fa-sign-in(ng-hide="running") &nbsp;
+                      i.mdi.mdi-exit-to-app(ng-hide="running") &nbsp;
                         | {{isInvited(contact) ? 'Invited' : 'Invite!'}}
-                      span(ng-hide="!running")
-                        i.fa.fa-spinner.fa-spin &nbsp;
-                        | #{__('Please wait...')}
+                      span(ng-hide="!running") #{__('Please wait...')}
                     .vertiz-space

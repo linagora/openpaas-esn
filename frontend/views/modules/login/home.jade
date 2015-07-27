@@ -1,5 +1,3 @@
-.container
-  include ../../commons/flash
-  .row
-    .col-md-offset-3.col-md-5.col-xs-12(ng-controller='login' esn-login-autofill)
-        include login
+.login-content(esn-login-autofill, ng-controller='login')
+  .lc-block
+    include login

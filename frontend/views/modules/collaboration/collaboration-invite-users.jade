@@ -1,4 +1,4 @@
-.collaboration-membership-invite-widget.hidden
+.hidden
     .title.ellipsis
       | #{__('Invite people')}
     hr
@@ -17,7 +17,5 @@
             .form-group
                 .row
                     button.btn.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
-                        i.fa.fa-sign-in(button-content) &nbsp;&nbsp;#{__('Send')}
-                        span.hidden(running-container)
-                            i.fa.fa-spinner.fa-spin &nbsp;
-                            | #{__('Please wait...')}
+                        i.mdi.mdi-exit-to-app(button-content) &nbsp;&nbsp;#{__('Send')}
+                        span.hidden(running-container) #{__('Please wait...')}

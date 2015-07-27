@@ -1,4 +1,4 @@
-.bg-info.updates-notifier.transparent.text-center(ng-class="{opaque: asMessagesUpdates.post.length || asMessagesUpdates.update.length}")
+.bg-info.transparent.text-center(ng-class="{opaque: asMessagesUpdates.post.length || asMessagesUpdates.update.length}")
   a(ng-click="getStreamUpdates(activitystream.activity_stream.uuid)" href="javascript:undefined") Show 
     span(ng-if='asMessagesUpdates.post.length'){{asMessagesUpdates.post.length}} new
     span(ng-if='asMessagesUpdates.update.length'){{asMessagesUpdates.update.length}} updated

@@ -1,12 +1,11 @@
-div.list-community(ng-controller="projectsAStrackerController")
-  div.title
-    i.fa.fa-suitcase
-    | #{__('My projects')}
-  hr
+li.sub-menu(ng-controller="projectsAStrackerController")
+  a(href="" toggle-submenu="")
+    i.mdi.mdi-briefcase
+    | #{__('My Projects')}
   div(ng-show='error') {{error}}
-  ul.nav.nav-pills.nav-stacked(ng-hide='error || !show')
+  ul.nav.nav-pills.nav-stacked(ng-hide='error')
     li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'project'}")
-      a(ng-href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
+      a(close-sidebar-on-click ng-href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
         .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
         .ellipsis
           img(fallback-src='/project/images/project.png' src='/project/images/project.png' ng-src='{{::activityStream.img}}')

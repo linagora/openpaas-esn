@@ -8,7 +8,7 @@ describe('The Member Angular module', function() {
 
   beforeEach(angular.mock.module('esn.member'));
 
-  describe('memberDisplay directive', function() {
+  describe.skip('memberDisplay directive', function() {
 
     //Load the karma built module containing the templates
     beforeEach(module('jadeTemplates'));

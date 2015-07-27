@@ -33,4 +33,22 @@ angular.module('esn.form.helper', [])
       });
     }
   };
+})
+.directive('toggleSwitch', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    templateUrl: '/views/modules/form/toggle-switch.html',
+    scope: {
+      ngModel: '=?'
+    },
+    link: function(scope, element, attrs) {
+      if (scope.ngModel === undefined) {
+        scope.ngModel = false;
+      }
+      scope.toggle = function() {
+        scope.ngModel = !scope.ngModel;
+      };
+    }
+  };
 });

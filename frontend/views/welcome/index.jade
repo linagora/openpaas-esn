@@ -1,5 +1,5 @@
 doctype html
-html
+html.login-content
   include ../commons/utils
   head
     meta(charset='utf8')
@@ -7,9 +7,11 @@ html
     title #{title} - OpenPaas
     meta(name="viewport", content="width=device-width, initial-scale=1")
     link(rel='icon', type='image/png', href='images/logo-tiny.png')
-    link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.css')
-    link(rel='stylesheet', href='/components/font-awesome/css/font-awesome.css')
-    link(rel='stylesheet', href='/css/themes/default.css')
+    link(rel='stylesheet', href='/components/mdi/css/materialdesignicons.min.css', media='all')
+    link(rel='stylesheet', href='/components/roboto-fontface/css/roboto-fontface.css')
+    link(rel='stylesheet', href='/components/animate.css/animate.css')
+    link(rel='stylesheet', href='/css/modernizr.css')
+    link(rel='stylesheet', href='/css/styles.css')
     +injectCSSFromModules('welcome', injections)
     script(src='/components/jquery/dist/jquery.min.js')
     script(src='/components/underscore/underscore.js')
@@ -19,23 +21,20 @@ html
     script(src='/components/restangular/dist/restangular.min.js')
     script(src="/components/recaptcha_ajax/index.js")
     script(src='/components/angular-recaptcha/release/angular-recaptcha.js')
+    script(src='/components/moment/min/moment.min.js')
+    script(src='/components/angular-moment/angular-moment.min.js')
+    script(src='/components/remarkable-bootstrap-notify/bootstrap-notify.min.js')
+    script(src='js/material.js')
+    script(src='/components/material-admin/js/modules/form.js')
     +injectJSFromModules('welcome', injections)
     +injectAngularFromModules('welcome', injections)
     script(src='js/welcome/app.js')
+    script(src='js/modules/notification.js')
     script(src='js/modules/invitation.js')
     script(src='js/modules/company.js')
     script(src='js/modules/login.js')
     script(src='js/modules/form-helper.js')
     script(src='js/modules/modernizr.js')
 
-  body.esn-welcome-app(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
-    #wrap
-      include ./partials/header
-      div(ng-view ng-cloak)
-
-    #unsupported.text-center
-      .sorry
-        a(href='http://open-paas.org/')
-          img(src="/images/logo.png")
-        p Sorry, your browser is not supported :-(
-        p Please upgrade to a <a href="https://www.getfirefox.com/">modern</a> <a href="https://www.google.com/chrome/browser/">browser</a>.
+  body.login(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
+    .aligner(ng-view ng-cloak)

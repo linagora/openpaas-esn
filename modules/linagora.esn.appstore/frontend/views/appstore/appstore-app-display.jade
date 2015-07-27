@@ -1,13 +1,13 @@
-.card.people
-  .card-top.blue
+div
+  div
     img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png")
-  .card-info
-    .ellipsis
+  div
+    div
       a(href='#/appstore/apps/{{::application._id}}').title.text-center
         span {{::application.title}}
         small(data-ng-if="application.version") {{::application.version}}
-    .desc {{::application.description | characters:128 :false }}
-  .card-bottom
+    div {{::application.description | characters:128 :false }}
+  div
     .row
       appstore-label-domain-deploy(application='application')
     .row
