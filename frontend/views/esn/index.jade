@@ -74,6 +74,7 @@ html
     +injectJSFromModules('esn', injections)
     script(src='js/esn/app.js')
     script(src='js/modules/core.js')
+    script(src='js/modules/header.js')
     script(src='js/modules/sidebar.js')
     script(src='js/modules/socketio.js')
     script(src='js/modules/domain.js')
@@ -105,6 +106,7 @@ html
     script(src='js/modules/paginate.js')
     script(src='js/modules/object-type.js')
     script(src='js/modules/file.js')
+    script(src='js/modules/form-helper.js')
     script(src='js/modules/background.js')
     script(src='js/modules/parser.js')
     script(src='js/modules/markdown-parser.js')
@@ -133,5 +135,4 @@ html
     script(src='/components/material-admin/js/modules/form.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
-      button(type='button' class='btn btn-lg btn-primary feedback button-popup hidden-xs' data-template='/views/modules/feedback/feedback.html' data-placement='left' data-animation='am-slide-left' bs-aside='aside' data-container='body') #{__('Feedback')}
     #wrap(ng-include='session.template')

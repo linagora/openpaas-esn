@@ -1,12 +1,33 @@
 div
-  header(class="topbar" role="navigation")
-    .container-fluid
-      a(href="#/")
-        img(src="/images/logo.png")
-
-  api-notification
-  div
-    nav(class="navbar navbar-default" role="navigation" data-offset-top="44" bs-affix)
-      esn-main-navbar
-  
+  header#header
+    div.header-inner.flex-vertical-centered
+      ul.list-inline.all-centered
+        li#menu-trigger(side-bar-toggler)
+          .line-wrap
+            .line.top
+            .line.center
+            .line.bottom
+        li.logo.hidden-xs
+          a(href='#') OpenPaaS
+      ul.list-inline.all-centered
+        li
+          toggle-switch(data-ts-color="white")
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-magnify
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-email
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-bell
+        li.hover-scale-animation.dropdown-open-animation
+          a(data-toggle='dropdown', href='')
+            i.mdi.mdi-dots-vertical
+          ul.dropdown-menu.dm-icon.pull-right
+            li
+              a(href='')
+                i.md.mdi.mdi-fullscreen
+                | #{__('Toggle Fullscreen')}
   sidebar
+  api-notification

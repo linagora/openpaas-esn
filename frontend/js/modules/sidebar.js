@@ -1,108 +1,147 @@
 'use strict';
 
 angular.module('esn.sidebar', [])
-.directive('sidebar', ['$rootScope', '$document', '$timeout', function($rootScope, $document, $timeout) {
-  function link(scope, element, attr) {
 
-    var opened = false;
+  .constant('SIDEBAR_EVENTS', {
+    display: 'sidebar:display',
+    open: 'sidebar:open',
+    opened: 'sidebar:opened',
+    close: 'sidebar:close',
+    closed: 'sidebar:closed'
+  })
 
-    function clickOutsideHandler(e) {
-      var elt, sidebar = element.get(0);
+  .directive('sidebar', function($rootScope, $document, $timeout, SIDEBAR_EVENTS, sideBarService) {
+    function link(scope, element, attr) {
 
-      if (!e.target) {
-        return;
-      }
+      function clickOutsideHandler(e) {
+        var elt, sidebar = element.get(0);
 
-      for (elt = e.target; elt; elt = elt.parentNode) {
-        if (elt === sidebar) {
-          if (!e.isDefaultPrevented()) {
-            close();
-          }
+        if (!e.target) {
           return;
         }
-      }
 
-      scope.onClickOutside();
-    }
-
-    function open() {
-      element.addClass('toggled');
-      $timeout(function() {
-        $document.on('click', clickOutsideHandler);
-      },0);
-      opened = true;
-    }
-
-    function close() {
-      $document.off('click', clickOutsideHandler);
-      element.removeClass('toggled');
-      $rootScope.$broadcast('sidebar:closed');
-      opened = false;
-    }
-
-    scope.onClickOutside = close;
-
-    $rootScope.$on('sidebar:display', function(evt, data) {
-      if (data.display === true && opened === false) {
-        open();
-      } else if (data.display === false && opened === true) {
-        close();
-      }
-    });
-
-    return {
-      open: open,
-      close: close
-    };
-  }
-
-  return {
-    restrict: 'E',
-    link: link,
-    templateUrl: '/views/esn/partials/sidebar.html'
-  };
-}])
-.directive('sideBarToggler', ['$rootScope', function($rootScope) {
-  function link(scope, element) {
-    element.on('click', function() {
-      var askForDisplay = !element.hasClass('open');
-      element.toggleClass('open');
-      var data = {display: askForDisplay};
-      $rootScope.$broadcast('sidebar:display', data);
-    });
-
-    scope.$on('sidebar:closed', function() {
-      if (element.hasClass('open')) {
-        element.removeClass('open');
-      }
-    });
-  }
-  return {
-    restrict: 'A',
-    scope: {},
-    link: link
-  };
-}])
-.directive('closeSidebarOnClick', ['$rootScope', function($rootScope) {
-  function link(scope, element, attr) {
-    element.click(function() {
-      $rootScope.$broadcast('sidebar:display', {display: false});
-    });
-  }
-
-  return {
-    restrict: 'A',
-    link: link
-  };
-}])
-.directive('toggleSubmenu', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, element, attrs) {
-            element.click(function() {
-                element.parent().toggleClass('toggled');
-                element.parent().find('ul').stop(true, false).slideToggle(200);
-            });
+        for (elt = e.target; elt; elt = elt.parentNode) {
+          if (elt === sidebar) {
+            return;
+          }
         }
+
+        scope.onClickOutside();
+      }
+
+      function open() {
+        if (sideBarService.isLeftSideBarOpen()) {
+          return;
+        }
+        $rootScope.$broadcast(SIDEBAR_EVENTS.open);
+        element.addClass('toggled');
+        $timeout(function() {
+          $document.on('click', clickOutsideHandler);
+        }, 0);
+        $rootScope.$broadcast(SIDEBAR_EVENTS.opened);
+      }
+
+      function close() {
+        if (!sideBarService.isLeftSideBarOpen()) {
+          return;
+        }
+        $rootScope.$broadcast(SIDEBAR_EVENTS.close);
+        $document.off('click', clickOutsideHandler);
+        element.removeClass('toggled');
+        $rootScope.$broadcast(SIDEBAR_EVENTS.closed);
+      }
+
+      scope.onClickOutside = sideBarService.closeLeftSideBar;
+
+      var unregister = $rootScope.$on(SIDEBAR_EVENTS.display, function(evt, data) {
+        return data.display ? open() : close();
+      });
+
+      scope.$on('$destroy', unregister);
+    }
+
+    return {
+      restrict: 'E',
+      link: link,
+      replace: true,
+      templateUrl: '/views/esn/partials/sidebar.html'
     };
-});
+  })
+  .directive('sideBarToggler', function(sideBarService) {
+    function link(scope, element) {
+      element.on('click', function() {
+        sideBarService.toggleLeftSideBar();
+      });
+    }
+    return {
+      restrict: 'A',
+      scope: {},
+      link: link
+    };
+  })
+  .directive('closeSidebarOnClick', function(sideBarService) {
+    function link(scope, element, attr) {
+      element.click(function() {
+        sideBarService.closeLeftSideBar();
+      });
+    }
+
+    return {
+      restrict: 'A',
+      link: link
+    };
+  })
+  .directive('toggleSubmenu', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        element.click(function() {
+          element.parent().toggleClass('toggled');
+          element.parent().find('ul').stop(true, false).slideToggle(200);
+        });
+      }
+    };
+  })
+
+  .factory('sideBarService', function($rootScope, SIDEBAR_EVENTS) {
+    var isLeftSideBarOpenBool = false;
+
+    function isLeftSideBarOpen() {
+      return isLeftSideBarOpenBool;
+    }
+
+    function openLeftSideBar() {
+      if (isLeftSideBarOpen()) {
+        return;
+      }
+      var unregisterFunction = $rootScope.$on(SIDEBAR_EVENTS.opened, function() {
+        isLeftSideBarOpenBool = true;
+        unregisterFunction();
+      });
+
+      $rootScope.$broadcast(SIDEBAR_EVENTS.display, {display: true});
+    }
+
+    function closeLeftSideBar() {
+      if (!isLeftSideBarOpen()) {
+        return;
+      }
+      var unregisterFunction = $rootScope.$on(SIDEBAR_EVENTS.closed, function() {
+        isLeftSideBarOpenBool = false;
+        unregisterFunction();
+      });
+
+      $rootScope.$broadcast(SIDEBAR_EVENTS.display, {display: false});
+    }
+
+    function toggleLeftSideBar() {
+      return isLeftSideBarOpen() ? closeLeftSideBar() : openLeftSideBar();
+    }
+
+    return {
+      isLeftSideBarOpen: isLeftSideBarOpen,
+      openLeftSideBar: openLeftSideBar,
+      closeLeftSideBar: closeLeftSideBar,
+      toggleLeftSideBar: toggleLeftSideBar
+    };
+  });

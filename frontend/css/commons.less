@@ -109,18 +109,28 @@
 .ellipsis {
 }
 
-.all-centered {
+.flex-horizontal-centered {
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: center;
   justify-content: center;
+}
+
+.flex-vertical-centered {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
   align-items: center;
 }
 
+.all-centered {
+  .flex-horizontal-centered;
+  .flex-vertical-centered;
+}
 
 .aligner {
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  .all-centered;
 }
 
 .aligner-item-top {
@@ -192,6 +202,22 @@
   to {
     transform: rotate(360deg);
     -ie-transform: rotate(360deg);
+  }
+}
+
+.drop-menu-open-animation(@origin) {
+  &.open {
+    .dropdown-menu {
+      .scale3d(1, 1, 1);
+      .opacity(1);
+    }
+  }
+  .dropdown-menu {
+    display: block;
+    .opacity(0);
+    .scale3d(0, 0, 1);
+    .transform-origin(@origin);
+    .transition(all 250ms ease-out);
   }
 }
 

@@ -6,7 +6,10 @@ var expect = chai.expect;
 
 describe('The esn.form.helper Angular module', function() {
 
-  beforeEach(angular.mock.module('esn.form.helper'));
+  beforeEach(function() {
+    module('jadeTemplates');
+    module('esn.form.helper');
+  });
 
   describe('passwordMatch directive', function() {
     var html = '<form name="form"><input type="password" name="password1" password-match="settings.password2" ng-model="settings.password1">' +
@@ -77,6 +80,29 @@ describe('The esn.form.helper Angular module', function() {
       expect(scope.form.test._blur).to.be.tr;
     });
 
+  });
+
+  describe('toggleSwitch directive', function() {
+
+    beforeEach(inject(function($compile, $rootScope) {
+      this.$compile = $compile;
+      this.$rootScope = $rootScope;
+      this.$scope = this.$rootScope.$new();
+
+      var html = '<toggle-switch></toggle-switch>';
+      this.element = this.$compile(html)(this.$scope);
+      this.$scope.$digest();
+      this.isolateScope = this.element.isolateScope();
+    }));
+
+    it('should set ngModel to false if the attribute "ng-model" is undefined', function() {
+      expect(this.isolateScope.ngModel).to.equal(false);
+    });
+
+    it('should change ngModel to true when toggle is called', function() {
+      this.isolateScope.toggle();
+      expect(this.isolateScope.ngModel).to.equal(true);
+    });
   });
 
 });
