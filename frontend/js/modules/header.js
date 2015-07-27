@@ -2,7 +2,7 @@
 
 angular.module('esn.header', [])
 
-  .directive('esnHeader', function($rootScope, SIDEBAR_EVENTS, sideBarService) {
+  .directive('esnHeader', function($rootScope, Fullscreen, SIDEBAR_EVENTS, sideBarService) {
     return {
       restrict: 'E',
       replace: true,
@@ -28,6 +28,10 @@ angular.module('esn.header', [])
         });
 
         scope.$on('$destroy', unregister);
+
+        scope.toggleFullScreen = function() {
+          Fullscreen.toggleAll();
+        };
       }
     };
   });

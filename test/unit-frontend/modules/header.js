@@ -8,6 +8,7 @@ describe('The esn.header Angular module', function() {
 
   beforeEach(function() {
     module('jadeTemplates');
+    module('esnApp');
     module('esn.sidebar');
     module('esn.header');
   });
