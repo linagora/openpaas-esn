@@ -13,6 +13,7 @@ angular.module('esnApp', [
   'chart.js',
   'esn.core',
   'esn.member',
+  'esn.header',
   'esn.sidebar',
   'esn.domain',
   'esn.avatar',

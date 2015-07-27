@@ -203,6 +203,22 @@
   }
 }
 
+.drop-menu-open-animation(@origin) {
+  &.open {
+    .dropdown-menu {
+      .scale3d(1, 1, 1);
+      .opacity(1);
+    }
+  }
+  .dropdown-menu {
+    display: block;
+    .opacity(0);
+    .scale3d(0, 0, 1);
+    .transform-origin(@origin);
+    .transition(all 250ms ease-out);
+  }
+}
+
 
 /* material-admin extras */
 
