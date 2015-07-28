@@ -24,6 +24,7 @@ function _getEmail(attendee) {
         date: '06/12/2015',
         time: '3:30 PM'
       },
+      allday: true,
       location: 'aLocation',
       description: 'aDescription',
       organizer: {
@@ -75,6 +76,7 @@ function jcal2content(icalendar, baseUrl) {
       time: endDate.format('LT')
     };
   }
+  var allDay = vevent.getFirstProperty('dtstart').type === 'date';
 
   var organizer = vevent.getFirstProperty('organizer');
   var cn = organizer.getParameter('cn');
@@ -98,6 +100,7 @@ function jcal2content(icalendar, baseUrl) {
       time: startDate.format('LT')
     },
     end: end,
+    allDay: allDay,
     attendees: attendees,
     organizer: organizer
   };

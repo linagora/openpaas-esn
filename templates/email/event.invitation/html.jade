@@ -22,11 +22,11 @@ html.mail
 
         table
           tr.table-header
-            td.logo(colspan="3")
+            td.logo(colspan="2")
               div
                 a(href="http://localhost:8080/")
                   img(src="cid:logo", alt="open-paas logo")
-            td.organizer(colspan="2")
+            td.organizer(colspan="3")
               h5
                 p
                   | #{content.event.organizer.cn} (
@@ -35,40 +35,42 @@ html.mail
                       img(src="cid:email", alt="Organizer mail")
                     | )
                 p.big #{content.inviteMessage}
-            td.avatar
+            td.avatar.indent-right
               img(src="#{content.event.organizer.avatar}", alt="organizer avatar", width="45px", height="42px")
           tr
-            th(colspan="6").title #{content.event.summary}
+            th(colspan="6").title.indent #{content.event.summary}
           tr
-            td
+            td.indent
               if (content.event.end)
-                img(src="cid:access_time", alt="From")
+                img(src="cid:clock", alt="From")
               else
-                img(src="cid:access_time", alt="At")
+                img(src="cid:clock", alt="At")
             td
               p #{content.event.start.date}
-              p #{content.event.start.time}
+              if (!content.event.allDay)
+                p #{content.event.start.time}
             if (content.event.end)
               td
-                img(src="cid:keyboard_arrow_right", alt="To")
+                img.check-transform(src="cid:check", alt="To")
               td
                 p #{content.event.end.date}
-                p #{content.event.end.time}
+                if (!content.event.allDay)
+                  p #{content.event.end.time}
             else
               td(colspan="2")
             td.recurrence
-            td
+            td.indent-right
               a(href='#{content.baseUrl}/#/calendar') See in calendar
           if (content.event.location)
             tr
-              td
-                img(src="cid:place", alt="Location")
+              td.indent
+                img(src="cid:map-marker", alt="Location")
               td(colspan="4") #{content.event.location}
-              td
+              td.indent-right
                 a(href='http://localhost:8080/') Map
           tr
-            td
-              img(src="cid:people", alt="Attendees")
+            td.indent
+              img(src="cid:account-multiple", alt="Attendees")
             td(colspan="5")
               each details, mail in content.event.attendees
                 span
@@ -76,12 +78,12 @@ html.mail
           if (content.event.description)
             tr
               td
-                img(src="cid:format_align_justify", alt="Description")
+                img(src="cid:format-align-justify", alt="Description")
               td(colspan="5") #{content.event.description}
           if (content.event.files)
             tr
               td
-                img(src="cid:folder_open", alt="Files")
+                img(src="cid:folder-download", alt="Files")
               td(colspan="5")
                 span file.odt
           if (content.event.method != 'CANCEL')
