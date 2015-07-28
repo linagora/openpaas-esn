@@ -52,7 +52,8 @@ describe('The Calendar Angular module controllers', function() {
         return liveNotification(namespace);
       }
       return {
-        on: function() {}
+        on: function() {},
+        removeListener: function() {}
       };
     };
 
@@ -74,6 +75,7 @@ describe('The Calendar Angular module controllers', function() {
       weakInfo: sinon.spy(),
       weakError: sinon.spy()
     };
+    this.gracePeriodService = {};
 
     var self = this;
     angular.mock.module('esn.calendar');
@@ -88,7 +90,7 @@ describe('The Calendar Angular module controllers', function() {
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('notificationFactory', self.notificationFactory);
-      $provide.value('gracePeriodService', {});
+      $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -195,6 +197,7 @@ describe('The Calendar Angular module controllers', function() {
     });
 
   });
+
   describe('The eventFormController controller', function() {
 
     beforeEach(function() {
@@ -463,6 +466,26 @@ describe('The Calendar Angular module controllers', function() {
     beforeEach(function() {
       this.scope.uiConfig = this.USER_UI_CONFIG;
       this.scope.calendarId = 'calendarId';
+    });
+
+    it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
+      this.gracePeriodService.flushAllTasks = sinon.spy();
+      this.controller('calendarController', {$scope: this.scope});
+      this.scope.$destroy();
+      expect(this.gracePeriodService.flushAllTasks).to.have.been.called;
+    });
+
+    it('should register gracePeriodService.flushAllTasks on(\'beforeunload\')', function() {
+      this.gracePeriodService.flushAllTasks = 'aHandler';
+      var event = null;
+      var handler = null;
+      this.$window.addEventListener = function(evt, hdlr) {
+        event = evt;
+        handler = hdlr;
+      };
+      this.controller('calendarController', {$scope: this.scope});
+      expect(event).to.equal('beforeunload');
+      expect(handler).to.equal('aHandler');
     });
 
     it('should be created and its scope initialized', function() {

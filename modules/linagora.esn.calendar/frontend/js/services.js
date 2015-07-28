@@ -284,7 +284,9 @@ angular.module('esn.calendar')
           taskId = response.data.id;
           calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar));
         })
-        .then(gracePeriodService.grace.bind(null, 'You are about to created a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it'))
+        .then(function() {
+          return gracePeriodService.grace(taskId, 'You are about to created a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+        })
         .then(function(data) {
           var task = data;
           if (task.cancelled) {
@@ -299,6 +301,7 @@ angular.module('esn.calendar')
             // return=representation on the PUT request,
             // so we have to retrieve the event again for the etag.
             return getEvent(eventPath).then(function(shell) {
+              gracePeriodService.remove(taskId);
               calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
               calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
               return shell;

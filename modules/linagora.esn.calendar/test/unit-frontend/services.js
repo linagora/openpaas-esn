@@ -2,6 +2,7 @@
 
 /* global chai: false */
 /* global moment: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -468,6 +469,10 @@ describe('The Calendar Angular module services', function() {
 
     });
 
+    afterEach(function() {
+      this.socketEmit = function() {};
+    });
+
     describe('The getEvent fn', function() {
 
       it('should return an event', function(done) {
@@ -639,9 +644,18 @@ describe('The Calendar Angular module services', function() {
             cancelled: false
           });
         };
+        this.gracePeriodService.remove = function(taskId) {
+          expect(taskId).to.equal('123456789');
+        };
+
+        var socketEmitSpy = sinon.spy(function(event, data) {
+          expect(event).to.equal('event:created');
+          expect(data).to.deep.equal(vcalendar);
+        });
+        this.socketEmit = socketEmitSpy;
 
         var headers = { 'ETag': 'etag' };
-        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, vcalendar.toJSON());
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
         this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
         emitMessage = null;
 
@@ -652,6 +666,52 @@ describe('The Calendar Angular module services', function() {
             expect(shell.etag).to.equal('etag');
             expect(shell.path).to.equal('path/to/calendar/00000000-0000-4000-a000-000000000000.ics');
             expect(shell.vcalendar.toJSON()).to.deep.equal(vcalendar.toJSON());
+            expect(socketEmitSpy).to.have.been.called;
+            done();
+          }
+        );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should succeed calling gracePeriodService.cancel', function(done) {
+        var vcalendar = new ICAL.Component('vcalendar');
+        var vevent = new ICAL.Component('vevent');
+        vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+        vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
+        vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
+        vcalendar.addSubcomponent(vevent);
+
+        var successSpy = sinon.spy();
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: true,
+            success: successSpy
+          });
+        };
+        this.gracePeriodService.cancel = function(taskId) {
+          var deffered = $q.defer();
+          deffered.resolve({});
+          return deffered.promise;
+        };
+
+        var socketEmitSpy = sinon.spy(function(event, data) {
+          expect(event).to.equal('event:created');
+          expect(data).to.deep.equal(vcalendar);
+        });
+        this.socketEmit = socketEmitSpy;
+
+        var headers = { 'ETag': 'etag' };
+        this.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
+        this.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
+        emitMessage = null;
+
+        this.calendarService.create('path/to/calendar', vcalendar).then(
+          function(response) {
+            expect(emitMessage).to.equal('removedCalendarItem');
+            expect(socketEmitSpy).to.have.not.been.called;
+            expect(successSpy).to.have.been.called;
             done();
           }
         );
@@ -674,6 +734,7 @@ describe('The Calendar Angular module services', function() {
             cancelled: false
           });
         };
+        this.gracePeriodService.remove = function() {};
 
         var headers = { 'ETag': 'etag' };
         this.$httpBackend.expectPUT('http://localhost:9876/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, vcalendar.toJSON());

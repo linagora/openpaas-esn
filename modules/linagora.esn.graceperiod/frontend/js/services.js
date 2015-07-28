@@ -29,7 +29,7 @@ angular.module('linagora.esn.graceperiod')
       return gracePeriodAPI.one('tasks').one(id).put();
     }
 
-    function flushs() {
+    function flushAllTasks() {
       taskIds.forEach(flush);
     }
 
@@ -42,7 +42,7 @@ angular.module('linagora.esn.graceperiod')
       grace: grace,
       cancel: cancel,
       flush: flush,
-      flushs: flushs,
+      flushAllTasks: flushAllTasks,
       remove: remove
     };
   })

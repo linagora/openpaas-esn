@@ -256,7 +256,7 @@ angular.module('esn.calendar')
     $scope.calendarId = user._id;
     $scope.uiConfig = USER_UI_CONFIG;
   })
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification) {
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification, gracePeriodService) {
 
     var windowJQuery = angular.element($window);
 
@@ -364,5 +364,8 @@ angular.module('esn.calendar')
       unregisterFunctions.forEach(function(unregisterFunction) {
         unregisterFunction();
       });
+      gracePeriodService.flushAllTasks();
     });
+
+    $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);
   });
