@@ -57,4 +57,10 @@ angular.module('esn.calendar')
 
   .constant('DAV_PATH', '/dav/api')
 
-  .constant('CALENDAR_GRACE_DELAY', 10000);
+  .constant('CALENDAR_GRACE_DELAY', 10000)
+
+  /**
+   * When checking if an event has been modified in the event form, these JSON
+   * keys on the calendar shell will be checked.
+   */
+  .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location']);

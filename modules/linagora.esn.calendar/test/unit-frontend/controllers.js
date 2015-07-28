@@ -333,6 +333,31 @@ describe('The Calendar Angular module controllers', function() {
           this.eventFormController.modifyEvent();
         });
 
+        it('should not send modify request if properties not visible in the UI changed', function(done) {
+          this.scope.createModal = {
+            hide: function() {
+              expect(event.diff).to.equal(123123);
+              expect(editedEvent.diff).to.equal(234234);
+              done();
+            }
+          };
+          this.eventFormController = this.controller('eventFormController', {
+            $rootScope: this.rootScope,
+            $scope: this.scope
+          });
+
+          var event = this.scope.event = {
+            startDate: new Date(),
+            endDate: new Date(),
+            allDay: false,
+            title: 'title',
+            diff: 123123
+          };
+          var editedEvent = this.scope.editedEvent = angular.copy(event);
+          this.scope.editedEvent.diff = 234234;
+          this.eventFormController.modifyEvent();
+        });
+
         it('should add newAttendees', function() {
           this.scope.event = {
             title: 'oldtitle',
