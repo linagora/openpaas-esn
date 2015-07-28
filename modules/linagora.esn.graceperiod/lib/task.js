@@ -39,4 +39,8 @@ Task.prototype.cancel = function() {
   this.defer.resolve();
 };
 
+Task.prototype.flush = function() {
+  this.defer.reject();
+};
+
 module.exports = Task;

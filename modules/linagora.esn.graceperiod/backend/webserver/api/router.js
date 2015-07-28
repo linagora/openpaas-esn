@@ -11,6 +11,7 @@ module.exports = function(lib, dependencies) {
   var middleware = require('./middleware')(lib, dependencies);
 
   router.delete('/tasks/:id', authorizationMW.requiresAPILogin, middleware.load, middleware.isUserTask, controller.cancel);
+  router.put('/tasks/:id', authorizationMW.requiresAPILogin, middleware.load, middleware.isUserTask, controller.flush);
 
   return router;
 };

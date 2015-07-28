@@ -22,6 +22,23 @@ describe.skip('The GracePeriod Angular module', function() {
       $timeout = _$timeout_;
     }));
 
+    describe('The flush fn', function() {
+
+      it('shoulf call PUT /tasks/:id', function(done) {
+        var id = '123';
+
+        $httpBackend.expectPUT('/graceperiod/api/tasks/' + id).respond({});
+
+        gracePeriodService.flush(id).then(function() {
+          done();
+        });
+
+        $rootScope.$apply();
+        $httpBackend.flush();
+      });
+
+    });
+
     describe('The cancel fn', function() {
 
       it('should call DELETE /tasks/:id', function(done) {
