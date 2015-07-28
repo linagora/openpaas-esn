@@ -77,7 +77,6 @@ describe('The contacts client Module', function() {
         return callback(null, {statusCode: 100});
       });
       module.get({}).then(this.helpers.callbacks.notCalled(done), function(err) {
-        console.log(err);
         expect(err.message).to.match(/Error while getting the contact/);
         done();
       });
@@ -89,7 +88,6 @@ describe('The contacts client Module', function() {
         return callback(null, {statusCode: 300});
       });
       module.get({}).then(this.helpers.callbacks.notCalled(done), function(err) {
-        console.log(err);
         expect(err.message).to.match(/Error while getting the contact/);
         done();
       });
