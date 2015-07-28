@@ -82,7 +82,7 @@ module.exports = function(dependencies) {
       var contact = data;
       contact.id = data.contactId;
 
-      indexContact(contact, function(err, value) {
+      indexContact(contact, function(err) {
         if (err) {
           logger.error('Error while adding contact in index', err);
         }
