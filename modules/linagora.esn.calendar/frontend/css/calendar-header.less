@@ -1,10 +1,12 @@
 .fc-toolbar {
-  background-color: @primaryColor;
+  background-color: @darkPrimaryColor;
   .btn {
     padding: 6px 12px;
+    color: @textPrimaryColor;
   }
   .fc-today-button, .fc-button-group {
     margin-top: 2px;
+    box-shadow: none;
   }
   .fc-agendaWeek-button {
     display:none;
@@ -12,10 +14,17 @@
   .fc-agendaDay-button {
     display:none;
   }
+  .fc-today-button.ui-button.ui-state-default.ui-corner-left.ui-corner-right.btn.waves-effect {
+    background-color: @lightPrimaryColor;
+    &.ui-state-disabled {
+      background-color: @darkPrimaryColor;
+      box-shadow: none;
+    }
+  }
 }
 
 .fc th {
-  background: @darkPrimaryColor;
+  background: @primaryColor;
 }
 
 .fc-toolbar .ui-button>span.ui-icon-circle-triangle-w:before {
