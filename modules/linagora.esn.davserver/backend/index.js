@@ -14,11 +14,13 @@ var AwesomeDavModule = new AwesomeModule('linagora.esn.davserver', {
   states: {
     lib: function(dependencies, callback) {
       var davserver = require('./webserver/api/davserver')(dependencies);
+      var davMiddleware = require('./webserver/api/middleware')(dependencies);
 
       var lib = {
         api: {
           davserver: davserver
-        }
+        },
+        davMiddleware: davMiddleware
       };
 
       return callback(null, lib);

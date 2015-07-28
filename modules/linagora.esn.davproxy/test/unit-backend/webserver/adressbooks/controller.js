@@ -391,7 +391,7 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 200 when contact.searchContacts returns empty list', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
-      var bookId= '456';
+      var bookId = '456';
 
       dependencies.contact = {
         lib: {

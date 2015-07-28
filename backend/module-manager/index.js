@@ -83,6 +83,7 @@ function mockMiddlewares() {
     'setup-settings',
     'startup-buffer',
     'templates',
+    'token',
     'usernotifications',
     'verify-recaptcha'
   ];
