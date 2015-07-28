@@ -88,7 +88,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, GRACE_DELAY) {
+  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -273,7 +273,7 @@ angular.module('esn.calendar')
       var body = vcalendar.toJSON();
 
       var taskId = null;
-      return request('put', eventPath, headers, body, { graceperiod: GRACE_DELAY })
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
         .then(function(response) {
           if (response.status !== 202) {
             return $q.reject(response);

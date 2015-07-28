@@ -57,4 +57,4 @@ angular.module('esn.calendar')
 
   .constant('DAV_PATH', '/dav/api')
 
-  .constant('GRACE_DELAY', 10000);
+  .constant('CALENDAR_GRACE_DELAY', 10000);

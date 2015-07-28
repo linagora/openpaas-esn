@@ -27,7 +27,7 @@ describe('The Calendar Angular module controllers', function() {
         event = e;
       },
       create: function() {
-        return $q.when();
+        return $q.when({});
       },
       icalToShell: function(event) {
         return event;
@@ -88,6 +88,7 @@ describe('The Calendar Angular module controllers', function() {
       $provide.value('session', sessionMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('notificationFactory', self.notificationFactory);
+      $provide.value('gracePeriodService', {});
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{

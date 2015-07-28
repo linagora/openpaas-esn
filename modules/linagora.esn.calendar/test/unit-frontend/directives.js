@@ -37,6 +37,7 @@ describe('The Calendar Angular module directives', function() {
     angular.mock.module(function($provide) {
       $provide.value('domainAPI', asDomainAPI);
       $provide.value('session', asSession);
+      $provide.value('gracePeriodService', {});
     });
   });
 

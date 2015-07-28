@@ -111,7 +111,7 @@ angular.module('esn.calendar')
       $scope.restActive = true;
       _hideModal();
       calendarService.create(path, vcalendar)
-        .catch(function(err) {
+        .catch (function(err) {
           _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err));
         })
         .finally (function() {
