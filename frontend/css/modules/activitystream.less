@@ -4,7 +4,7 @@
   padding-top: 5px
 }
 
-.t-view .share {
+.timeline-view .share {
   display: flex;
   justify-content: flex-end;
 
@@ -19,12 +19,12 @@
   }
 }
 
-.t-view .oembeds .twitter-oembed {
+.timeline-view .oembeds .twitter-oembed {
   display: flex;
   justify-content: center;
 }
 
-.t-view .oembeds .youtube-oembed {
+.timeline-view .oembeds .youtube-oembed {
   display: flex;
   justify-content: center;
 }
@@ -33,49 +33,49 @@
   position: relative;
   margin-top: 30px;
 }
-.t-view {
+.timeline-view {
   border: 1px solid lighten(@m-gray, 30%);
   position: relative;
   margin-bottom: 10px;
   background-color: @m-white;
 }
 
-.t-view .tv-header {
+.timeline-view .tv-header {
   padding: 16px 18px;
   border-bottom: 1px solid lighten(@m-gray, 30%);
   background: lighten(@m-gray, 35%);
 }
 
-.t-view .tv-header .actions {
+.timeline-view .tv-header .actions {
   position: absolute;
   top: 5px;
   right: 10px;
 }
 
-.t-view .tv-body {
+.timeline-view .tv-body {
   padding: 23px 25px;
 }
 
-.t-view .tv-body .tvb-lightbox {
+.timeline-view .tv-body .tvb-lightbox {
   margin: 0 -8px 15px;
 }
 
-.t-view .tv-body .tvb-lightbox [data-src] {
+.timeline-view .tv-body .tvb-lightbox [data-src] {
   padding: 0 5px;
   margin-bottom: 5px;
 }
 
-.t-view .tvh-user {
+.timeline-view .tvh-user {
   display: block;
 }
 
-.t-view .tvh-user img {
+.timeline-view .tvh-user img {
   width: 46px;
   height: 46px;
   border-radius: 50%;
 }
 
-.t-view-liner:before {
+.timeline-view-liner:before {
   position: absolute;
   width: 40px;
   height: 40px;
@@ -91,7 +91,7 @@
   z-index: 1;
 }
 
-.t-view-liner:after {
+.timeline-view-liner:after {
   content: "";
   position: absolute;
   top: 0;
@@ -100,67 +100,67 @@
   height: calc(100% + 37px);
 }
 
-.t-view-liner[data-tv-type="text"]:before {
+.timeline-view-liner[data-tv-type="text"]:before {
   content: "\f437";
   background: @m-lightblue;
   box-shadow: 0 0 0 1px @m-lightblue;
 }
 
-.t-view-liner[data-tv-type="text"]:after {
+.timeline-view-liner[data-tv-type="text"]:after {
   background: @m-lightblue;
 }
 
-.t-view-liner[data-tv-type="poll"]:before {
+.timeline-view-liner[data-tv-type="poll"]:before {
   content: "\f1ed";
   background: @m-lightgreen;
   box-shadow: 0 0 0 1px @m-lightgreen;
 }
 
-.t-view-liner[data-tv-type="poll"]:after {
+.timeline-view-liner[data-tv-type="poll"]:after {
   background: @m-lightgreen;
 }
 
-.t-view-liner[data-tv-type="event"]:before {
+.timeline-view-liner[data-tv-type="event"]:before {
   content: "\f1c3";
   background: @m-yellow;
   box-shadow: 0 0 0 1px @m-yellow;
 }
 
-.t-view-liner[data-tv-type="event"]:after {
+.timeline-view-liner[data-tv-type="event"]:after {
   background: @m-yellow;
 }
 
-.t-view .tvb-stats {
+.timeline-view .tvb-stats {
   list-style: none;
   padding: 0;
   margin: 10px 0 20px;
 }
 
-.t-view .tvb-stats > li {
+.timeline-view .tvb-stats > li {
   display: inline-block;
   padding: 5px 10px 6px;
   border: 1px solid @m-gray;
   margin-right: 2px;
 }
 
-.t-view .tvb-stats > li i {
+.timeline-view .tvb-stats > li i {
   font-size: 15px;
   line-height: 100%;
   vertical-align: top;
   margin-top: 2px;
 }
 
-.t-view .tvb-stats > li.tvbs-comments {
+.timeline-view .tvb-stats > li.tvbs-comments {
   border-color: @m-green;
   color: @m-green;
 }
 
-.t-view .tvb-stats > li.tvbs-likes {
+.timeline-view .tvb-stats > li.tvbs-likes {
   border-color: @m-cyan;
   color: @m-cyan;
 }
 
-.t-view .tvb-stats > li.tvbs-views {
+.timeline-view .tvb-stats > li.tvbs-views {
   border-color: @m-amber;
   color: @m-amber;
 }
