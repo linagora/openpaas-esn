@@ -507,7 +507,15 @@ describe('The esn.activitystreams-tracker Angular module', function() {
     beforeEach(function() {
       var self = this;
 
-      this.livenotificationCallback = function() {};
+      this.livenotificationCallback = this.livenotificationCallback = function() {
+        return {
+          on: function() {
+            return {
+              removeListener: function() {}
+            };
+          }
+        };
+      };
       this.livenotification = function(namespace, id) {
         if (self.livenotificationCallback) {
           return self.livenotificationCallback(namespace, id);
@@ -525,6 +533,35 @@ describe('The esn.activitystreams-tracker Angular module', function() {
     beforeEach(angular.mock.inject(function(ASTrackerNotificationService) {
       this.ASTrackerNotificationService = ASTrackerNotificationService;
     }));
+
+    describe('The streamNotificationHasSubscribers function', function() {
+
+      it('should return false if there\'s no subscribers', function() {
+        expect(this.ASTrackerNotificationService.streamNotificationHasSubscribers('streamid')).to.equal(false);
+      });
+
+      it('should return true if there\'s at one subscriber', function() {
+        var streamId = 'streamid';
+
+        this.ASTrackerNotificationService.subscribeToStreamNotification(streamId);
+
+        expect(this.ASTrackerNotificationService.streamNotificationHasSubscribers(streamId)).to.equal(true);
+      });
+
+    });
+
+    describe('unsubscribeFromStreamNotification', function() {
+
+      it('should remove the listener of a given id from notifications', function() {
+        var streamId = 'streamid';
+
+        this.ASTrackerNotificationService.subscribeToStreamNotification(streamId);
+        expect(this.ASTrackerNotificationService.streamNotificationHasSubscribers(streamId)).to.equal(true);
+
+        this.ASTrackerNotificationService.unsubscribeFromStreamNotification(streamId);
+        expect(this.ASTrackerNotificationService.streamNotificationHasSubscribers(streamId)).to.equal(false);
+      });
+    });
 
     describe('removeItem function', function() {
       beforeEach(function() {
