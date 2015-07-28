@@ -1,45 +1,49 @@
-.header-inner {
-  padding: 0;
-  height: 100%;
-  justify-content: space-between;
+#header {
+  background-color: @primaryColor;
 
-  #menu-trigger::before {
-    left: 11px;
-  }
-
-  .toggle-switch label {
-    margin-bottom: 2px;
-    transform: scale(0.8);
-  }
-
-  .logo a {
-    font-weight: 400;
-  }
-
-  ul {
-    margin: 0;
-  }
-
-  li.hover-scale-animation {
-    .hover-pop(rgba(0,0,0,0.12), 2px, 250ms, 0);
-    width: 50px;
-    height: 40px;
+  .header-inner {
     padding: 0;
+    height: 100%;
+    justify-content: space-between;
 
-    > a {
-      .all-centered;
-      position: absolute;
-      width: 100%;
-      height: 100%;
+    #menu-trigger::before {
+      left: 11px;
+    }
 
-      > i.mdi {
-        font-size: 1.9em;
-        color: @textPrimaryColor;
+    .toggle-switch label {
+      margin-bottom: 2px;
+      transform: scale(0.8);
+    }
+
+    .logo a {
+      font-weight: 400;
+    }
+
+    ul {
+      margin: 0;
+    }
+
+    li.hover-scale-animation {
+      .hover-pop(rgba(0,0,0,0.12), 2px, 250ms, 0);
+      width: 50px;
+      height: 40px;
+      padding: 0;
+
+      > a {
+        .all-centered;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        > i.mdi {
+          font-size: 1.9em;
+          color: @textPrimaryColor;
+        }
       }
     }
-  }
 
-  .dropdown-open-animation {
-    .drop-menu-open-animation(top right);
+    .dropdown-open-animation {
+      .drop-menu-open-animation(top right);
+    }
   }
 }
