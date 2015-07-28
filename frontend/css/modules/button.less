@@ -1,12 +1,13 @@
 .btn-fab-fixed-bottom {
-  &:extend(.btn-float all, .btn-danger all);
+  &:extend(.btn-float all, .btn-accent all);
   position: fixed;
   bottom: 30px;
   z-index: 100;
   right: 30px;
-
+  padding: 0;
+  line-height: inherit;
   i {
-    font-size: inherit;
-    font-weight: bold;
+    font-size: 3em;
+    font-weight: normal;
   }
 }
