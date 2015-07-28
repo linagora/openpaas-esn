@@ -78,6 +78,9 @@ angular.module('esn.calendar')
       fullcalendar: {
         emitCreatedEvent: function(shell) {
           $rootScope.$emit('addedCalendarItem', shell);
+        },
+        emitRemovedEvent: function(id) {
+          $rootScope.$emit('removedCalendarItem', id);
         }
       },
       websocket: {
@@ -279,12 +282,16 @@ angular.module('esn.calendar')
             return $q.reject(response);
           }
           taskId = response.data.id;
+          calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar));
         })
         .then(gracePeriodService.grace.bind(null, 'You are about to created a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it'))
         .then(function(data) {
           var task = data;
           if (task.cancelled) {
-            gracePeriodService.cancel(taskId).then(task.success, function(err) {
+            gracePeriodService.cancel(taskId).then(function() {
+              calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
+              task.success();
+            }, function(err) {
               task.error(err.statusText);
             });
           } else {
