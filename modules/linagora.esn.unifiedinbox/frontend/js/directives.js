@@ -14,4 +14,18 @@ angular.module('linagora.esn.unifiedinbox')
         });
       }
     };
+  })
+
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING) {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        mailbox: '='
+      },
+      templateUrl: '/unifiedinbox/views/sidebar/mailbox-display.html',
+      link: function(scope, element, attrs) {
+        scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role || 'default'];
+      }
+    };
   });

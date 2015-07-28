@@ -1,0 +1,5 @@
+a(ng-href='{{::mailbox.href}}' title='{{::mailbox.name}}')
+  .badge.pull-right(ng-hide='mailbox.unreadMessages === 0') {{mailbox.unreadMessages}}
+  .ellipsis
+    i(ng-class='mailboxIcons')
+    | {{::mailbox.name}}
