@@ -1,0 +1,12 @@
+li.sub-menu
+  a(href="" toggle-submenu="")
+    i.mdi.mdi-email
+    | {{::email}}
+  ul.nav.nav-pills.nav-stacked
+    li(ng-repeat="mailbox in mailboxes")
+      a(ng-href='{{::mailbox.href}}' title='{{::mailbox.name}}')
+        .badge.pull-right(ng-hide='mailbox.unreadMessages === 0') {{mailbox.unreadMessages}}
+        .ellipsis
+          i.mdi.mdi-email
+          | {{::mailbox.name}}
+
