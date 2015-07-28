@@ -42,16 +42,40 @@ module.exports = function(dependencies) {
     var offset = query.offset || 0;
     var limit = query.limit;
 
+    var filters = [];
+    if (query.userId) {
+      filters.push({
+        term: {
+          'userId': query.userId
+        }
+      });
+    }
+
+    if (query.bookId) {
+      filters.push({
+        term: {
+          'bookId': query.bookId
+        }
+      });
+    }
+
     var elasticsearchQuery = {
       sort: [
         {'fn.sort': 'asc'}
       ],
       query: {
-        multi_match: {
-          query: terms,
-          type: 'cross_fields',
-          fields: ['fn', 'name', 'firstName', 'lastName', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
-          operator: 'and'
+        filtered: {
+          filter: {
+            and: filters
+          },
+          query: {
+            multi_match: {
+              query: terms,
+              type: 'cross_fields',
+              fields: ['fn', 'name', 'firstName', 'lastName', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
+              operator: 'and'
+            }
+          }
         }
       }
     };

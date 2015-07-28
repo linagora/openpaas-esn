@@ -49,7 +49,7 @@ module.exports = function(dependencies) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while updating contact on DAV server'}});
       }
 
-      pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body});
+      pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body, user: req.user});
 
       return res.json(response.statusCode, body);
     });
@@ -95,8 +95,9 @@ module.exports = function(dependencies) {
     }
 
     var options = {
-      user: req.user._id,
-      search: req.query.search
+      userId: req.user._id,
+      search: req.query.search,
+      bookId: req.params.bookId
     };
 
     contactModule.lib.search.searchContacts(options, function(err, result) {

@@ -12,6 +12,10 @@ module.exports = function(contact) {
     result.contactId = contact.contactId;
   }
 
+  if (contact.user && contact.user._id) {
+    result.userId = contact.user._id + '';
+  }
+
   if (!contact.vcard || !contact.vcard[1] || !contact.vcard[1].length) {
     return result;
   }

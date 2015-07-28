@@ -187,7 +187,11 @@ describe('The addressbooks dav proxy', function() {
         var pubsubLocal;
         var contact;
 
-        var search = function(term, done) {
+        var search = function(term, expectedSize, done) {
+          if (typeof expectedSize === 'function') {
+            done = expectedSize;
+            expectedSize = 1;
+          }
           pubsubLocal.topic('contacts:contact:add').publish(contact);
           var self = this;
           this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
@@ -204,7 +208,7 @@ describe('The addressbooks dav proxy', function() {
               req.query({search: term}).expect(200).end(function(err, res) {
                 expect(err).to.not.exist;
                 expect(res.body).to.exist;
-                expect(res.headers['x-esn-items-count']).to.equal('1');
+                expect(res.headers['x-esn-items-count']).to.equal('' + expectedSize);
                 done();
               });
             });
@@ -214,6 +218,7 @@ describe('The addressbooks dav proxy', function() {
         beforeEach(function(done) {
           pubsubLocal = this.helpers.requireBackend('core/pubsub').local;
           contact = {
+            user: user,
             contactId: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9',
             bookId: user._id.toString(),
             vcard: ['vcard', [
@@ -273,6 +278,16 @@ describe('The addressbooks dav proxy', function() {
 
         it('should return contact with matching adr', function(done) {
           search.bind(this)('123 Main', done);
+        });
+
+        it('should not return result when contact is not a user one', function(done) {
+          delete contact.user;
+          search.bind(this)('123 Main', 0, done);
+        });
+
+        it('should not return result when contact is not in a user addressbook', function(done) {
+          delete contact.bookId;
+          search.bind(this)('123 Main', 0, done);
         });
       });
     });

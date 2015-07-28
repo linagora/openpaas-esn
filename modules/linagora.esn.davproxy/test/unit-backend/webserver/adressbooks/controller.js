@@ -159,6 +159,7 @@ describe('The addressbooks module', function() {
 
     it('should publish a "contacts:contact:update" event if request is an update', function(done) {
       var statusCode = 200;
+      req.user = {_id: 1};
       req.body = {foo: 'bar'};
       req.headers = {
         'if-match': 123
@@ -173,7 +174,8 @@ describe('The addressbooks module', function() {
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
               bookId: req.params.bookId,
-              vcard: req.body
+              vcard: req.body,
+              user: req.user
             });
           }
         };
@@ -193,6 +195,7 @@ describe('The addressbooks module', function() {
 
     it('should publish a "contacts:contact:add" event if request is a creation', function(done) {
       var statusCode = 200;
+      req.user = {_id: 1};
       req.body = {foo: 'bar'};
       req.headers = {
       };
@@ -206,7 +209,8 @@ describe('The addressbooks module', function() {
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
               bookId: req.params.bookId,
-              vcard: req.body
+              vcard: req.body,
+              user: req.user
             });
           }
         };
@@ -315,12 +319,13 @@ describe('The addressbooks module', function() {
     it('should call contact.searchContacts', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
+      var bookId = '456';
 
       dependencies.contact = {
         lib: {
           search: {
             searchContacts: function(options) {
-              expect(options).to.deep.equal({search: search, user: user._id});
+              expect(options).to.deep.equal({search: search, userId: user._id, bookId: bookId});
               done();
             }
           }
@@ -328,12 +333,13 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user});
+      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}});
     });
 
     it('should send back HTTP 500 when contact.searchContacts fails', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
+      var bookId = '456';
 
       dependencies.contact = {
         lib: {
@@ -346,7 +352,7 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user}, {
+      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
         json: function(code) {
           expect(code).to.equal(500);
           done();
@@ -357,6 +363,7 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 200 when contact.searchContacts returns empty object', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
+      var bookId = '456';
 
       dependencies.contact = {
         lib: {
@@ -369,7 +376,7 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user}, {
+      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
         header: function(name, value) {
           expect(value).to.equal(0);
         },
@@ -384,6 +391,7 @@ describe('The addressbooks module', function() {
     it('should send back HTTP 200 when contact.searchContacts returns empty list', function(done) {
       var search = 'Bruce';
       var user = {_id: 123};
+      var bookId= '456';
 
       dependencies.contact = {
         lib: {
@@ -396,7 +404,7 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user}, {
+      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}}, {
         header: function(name, value) {
           expect(value).to.equal(0);
 
