@@ -362,7 +362,7 @@ angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.mod
           type: 'danger',
           show: true,
           position: 'bottom',
-          container: element.find('.row.error'),
+          container: element.find('.avatar-picker-error'),
           animation: 'am-fade'
         });
       }

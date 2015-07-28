@@ -1,14 +1,14 @@
 .modal-header
-  h4.modal-title #{__('Creating the')} '{{community.title}}' #{__('community')}...
+  h4.modal-title #{__('Your community is being created')}
 .modal-body
   .row.alert.alert-info(role="alert")
-    p(class='error')
+    p.error
     p
       span(ng-show="create.step === 'post'") #{__('Creating the community')}...
       span(ng-show="create.step === 'upload'") #{__('Uploading avatar')}...
       span(ng-show="create.step === 'redirect'") #{__('Redirecting to community page')}...
       span(ng-show="create.step === 'uploadfailed'") #{__('Upload failed')}!
 
-    .progress
-      .progress-bar.progress-bar-striped.active(role="progressbar", aria-valuenow="{{create.percent}}", aria-valuemin="0", aria-valuemax="100", style="width: {{create.percent}}%")
+    .progress.progress-striped.active
+      .progress-bar(role="progressbar", aria-valuenow="{{create.percent}}", aria-valuemin="0", aria-valuemax="100", style="width: {{create.percent}}%")
         span.sr-only {{create.percent}} % #{__('Complete')}
