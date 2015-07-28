@@ -1,4 +1,4 @@
-a.attendee-avatar(href="", ng-attr-title='{{attendee.fullmail}}')
+a.attendee-avatar(href="", ng-attr-title='{{attendee.name}}')
   img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?objectType=user&email={{attendee.email|urlencode}}')
   .checkbox(ng-if='!readOnly')
     label
