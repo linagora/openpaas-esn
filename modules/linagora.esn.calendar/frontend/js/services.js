@@ -69,6 +69,9 @@ angular.module('esn.calendar')
         },
         emitRemovedEvent: function(id) {
           $rootScope.$emit('removedCalendarItem', id);
+        },
+        emitModifiedEvent: function(shell) {
+          $rootScope.$emit('modifiedCalendarItem', shell);
         }
       },
       websocket: {
@@ -293,7 +296,7 @@ angular.module('esn.calendar')
             // so we have to retrieve the event again for the etag.
             return getEvent(eventPath).then(function(shell) {
               gracePeriodService.remove(taskId);
-              calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+              calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
               calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
               return shell;
             });
