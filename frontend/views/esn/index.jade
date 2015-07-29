@@ -137,3 +137,8 @@ html
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
     #wrap(ng-include='session.template')
+    //- Overture is looking for the body tag when it loads, 
+    //- so putting it in the head trigger an error when the page is loading.
+    //- JMAP requires overture to be loaded.
+    script(src='/components/overture/build/Overture.min.js') 
+    script(src='/components/jmap-js/build/JMAP.js')
