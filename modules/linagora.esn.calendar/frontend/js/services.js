@@ -6,7 +6,7 @@ angular.module('esn.calendar')
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarId);
-        var path = 'calendars/' + calendarId + '/events';
+        var path = '/calendars/' + calendarId + '/events';
         return calendarService.list(path, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
@@ -29,14 +29,6 @@ angular.module('esn.calendar')
       var url = DAV_PATH;
 
       headers = headers || {};
-
-      if (path[0] === '/') {
-        var a = document.createElement('a');
-        a.href = url;
-        url = a.protocol + '//' + a.host;
-      } else {
-        url = url.replace(/\/$/, '') + '/';
-      }
 
       var config = {
         url: url + path,
@@ -281,7 +273,7 @@ angular.module('esn.calendar')
           calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar));
         })
         .then(function() {
-          return gracePeriodService.grace(taskId, 'You are about to created a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+          return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
         })
         .then(function(data) {
           var task = data;
