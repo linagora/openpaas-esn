@@ -17,7 +17,7 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
       var app = require('./backend/webserver/application')(this, dependencies);
 
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('unifiedinbox', ['app.js', 'controllers.js', 'directives.js', 'services.js'], 'linagora.esn.unifiedinbox', ['esn']);
+      webserverWrapper.injectAngularModules('unifiedinbox', ['app.js', 'constants.js', 'controllers.js', 'directives.js', 'services.js'], 'linagora.esn.unifiedinbox', ['esn']);
       webserverWrapper.injectCSS('unifiedinbox', ['styles.css'], 'esn');
       webserverWrapper.addApp('unifiedinbox', app);
 
