@@ -1,3 +1,6 @@
+//- NOTE: When adding form controls that should change the event in this form,
+//-       be sure to add them to the EVENT_MODIFY_COMPARE_KEYS constant, to
+//-       make sure they are checked during modification.
 form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
   .modal-dialog
     .modal-content

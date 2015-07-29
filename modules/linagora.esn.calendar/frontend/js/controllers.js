@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, moment, session, notificationFactory, ICAL_PROPERTIES, EVENT_FORM) {
+  .controller('eventFormController', function($rootScope, $scope, $alert, calendarUtils, calendarService, eventService, gracePeriodService, moment, session, notificationFactory, ICAL_PROPERTIES, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
 
     $scope.editedEvent = {};
     $scope.restActive = false;
@@ -183,7 +183,7 @@ angular.module('esn.calendar')
         $scope.editedEvent.attendees = $scope.newAttendees;
       }
 
-      if (JSON.stringify($scope.editedEvent) === JSON.stringify($scope.event)) {
+      if (JSON.stringify($scope.editedEvent, EVENT_MODIFY_COMPARE_KEYS) === JSON.stringify($scope.event, EVENT_MODIFY_COMPARE_KEYS)) {
         if ($scope.createModal) {
           $scope.createModal.hide();
         }
