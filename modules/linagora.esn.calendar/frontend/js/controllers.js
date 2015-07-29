@@ -118,7 +118,7 @@ angular.module('esn.calendar')
         }
         _displayNotification(notificationFactory.weakInfo, 'Event created', $scope.editedEvent.title + ' has been created');
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event creation failed', err.statusText);
+        _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err));
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -138,7 +138,7 @@ angular.module('esn.calendar')
         }
         _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event deletion failed', err.statusText + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -166,7 +166,7 @@ angular.module('esn.calendar')
         icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
         _displayNotification(notificationFactory.weakInfo, 'Event participation modified', icalPartStatToReadableStatus[status]);
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -195,7 +195,7 @@ angular.module('esn.calendar')
         return;
       }
       $scope.restActive = true;
-      calendarService.modify($scope.editedEvent.path, $scope.editedEvent).then(function(response) {
+      calendarService.modify($scope.event.path, $scope.editedEvent, $scope.event.etag).then(function(response) {
         if ($scope.activitystream) {
           $rootScope.$emit('message:posted', {
             activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -205,7 +205,7 @@ angular.module('esn.calendar')
 
         _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
       }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event modification failed', err.statusText + ', ' + 'Please refresh your calendar');
+        _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
       }).finally (function() {
         $scope.restActive = false;
       });
@@ -325,10 +325,12 @@ angular.module('esn.calendar')
 
     $scope.eventSources = [calendarEventSource($scope.calendarId, $scope.displayCalendarError)];
 
-    function _modifiedCalendarItem(data) {
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', data);
-      var events = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', data.id);
-      eventService.copyNonStandardProperties(data, events[0]);
+    function _modifiedCalendarItem(newEvent) {
+      var calendar = uiCalendarConfig.calendars[$scope.calendarId];
+
+      var event = calendar.fullCalendar('clientEvents', newEvent.id)[0];
+      angular.extend(event, newEvent);
+      calendar.fullCalendar('updateEvent', event);
     }
 
     var unregisterFunctions = [
@@ -348,15 +350,7 @@ angular.module('esn.calendar')
     }
 
     function liveNotificationHandlerOnUpdate(msg) {
-      var newEvent = calendarService.icalToShell(msg);
-      var oldEvent = uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('clientEvents', newEvent.id)[0];
-
-      newEvent._allDay = oldEvent._allDay;
-      newEvent._end = oldEvent._end;
-      newEvent._id = oldEvent._id;
-      newEvent._start = oldEvent._start;
-      uiCalendarConfig.calendars[$scope.calendarId].fullCalendar('updateEvent', newEvent);
-      eventService.copyNonStandardProperties(newEvent, oldEvent);
+      _modifiedCalendarItem(calendarService.icalToShell(msg));
     }
 
     function liveNotificationHandlerOnDelete(msg) {
