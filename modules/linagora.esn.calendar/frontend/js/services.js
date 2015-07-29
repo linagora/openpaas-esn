@@ -1,12 +1,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .factory('CalendarRestangular', function(Restangular) {
-    return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl('/davserver/api');
-      RestangularConfigurer.setFullResponse(true);
-    });
-  })
+
   .factory('calendarEventSource', function($log, calendarService) {
     return function(calendarId, errorCallback) {
       return function(start, end, timezone, callback) {
@@ -29,7 +24,70 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('calendarService', function($rootScope, $q, $http, CalendarRestangular, moment, jstz, tokenAPI, uuid4, calendarUtils, ICAL, ICAL_PROPERTIES, socket) {
+  .factory('request', function($http, $q, DAV_PATH) {
+    function _configureRequest(method, path, headers, body, params) {
+      var url = DAV_PATH;
+
+      headers = headers || {};
+
+      if (path[0] === '/') {
+        var a = document.createElement('a');
+        a.href = url;
+        url = a.protocol + '//' + a.host;
+      } else {
+        url = url.replace(/\/$/, '') + '/';
+      }
+
+      var config = {
+        url: url + path,
+        method: method,
+        headers: headers,
+        params: params
+      };
+
+      if (body) {
+        config.data = body;
+      }
+
+      return $q.when(config);
+    }
+
+    function request(method, path, headers, body, params) {
+      return _configureRequest(method, path, headers, body, params).then($http);
+    }
+
+    return request;
+  })
+
+  .factory('calendarEventEmitter', function($rootScope, $q, socket) {
+    var websocket = socket('/calendars');
+
+    return {
+      activitystream: {
+        emitPostedMessage: function(messageId, activityStreamUuid) {
+          $rootScope.$emit('message:posted', {
+            activitystreamUuid: activityStreamUuid,
+            id: messageId
+          });
+        }
+      },
+      fullcalendar: {
+        emitCreatedEvent: function(shell) {
+          $rootScope.$emit('addedCalendarItem', shell);
+        },
+        emitRemovedEvent: function(id) {
+          $rootScope.$emit('removedCalendarItem', id);
+        }
+      },
+      websocket: {
+        emitCreatedEvent: function(vcalendar) {
+          websocket.emit('event:created', vcalendar);
+        }
+      }
+    };
+  })
+
+  .factory('calendarService', function($rootScope, $q, request, moment, jstz, uuid4, socket, calendarEventEmitter, calendarUtils, gracePeriodService, ICAL, ICAL_PROPERTIES, CALENDAR_GRACE_DELAY) {
     /**
      * A shell that wraps an ical.js VEVENT component to be compatible with
      * fullcalendar's objects.
@@ -93,59 +151,6 @@ angular.module('esn.calendar')
       this.vcalendar = vcalendar;
       this.path = path;
       this.etag = etag;
-    }
-
-    function getCaldavServerURL() {
-      if (serverUrlCache) {
-        return serverUrlCache.promise;
-      }
-
-      serverUrlCache = $q.defer();
-      CalendarRestangular.one('info').get().then(
-        function(response) {
-          serverUrlCache.resolve(response.data.url);
-        },
-        function(err) {
-          serverUrlCache.reject(err);
-        }
-      );
-
-      return serverUrlCache.promise;
-    }
-
-    function configureRequest(method, path, headers, body) {
-      return $q.all([tokenAPI.getNewToken(), getCaldavServerURL()]).then(function(results) {
-        var token = results[0].data.token, url = results[1];
-
-        headers = headers || {};
-        headers.ESNToken = token;
-
-        if (path[0] === '/') {
-          var a = document.createElement('a');
-          a.href = url;
-          url = a.protocol + '//' + a.host;
-        } else {
-          url = url.replace(/\/$/, '') + '/';
-        }
-
-        var config = {
-          url: url + path,
-          method: method,
-          headers: headers
-        };
-
-        if (body) {
-          config.data = body;
-        }
-
-        return config;
-      });
-    }
-
-    function request(method, path, headers, body) {
-      return configureRequest(method, path, headers, body).then(function(config) {
-        return $http(config);
-      });
     }
 
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
@@ -266,19 +271,39 @@ angular.module('esn.calendar')
       var headers = { 'Content-Type': 'application/calendar+json' };
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body).then(function(response) {
-        if (response.status !== 201) {
-          return $q.reject(response);
-        }
-        // Unfortunately, sabredav doesn't support Prefer:
-        // return=representation on the PUT request,
-        // so we have to retrieve the event again for the etag.
-        return getEvent(eventPath).then(function(shell) {
-          $rootScope.$emit('addedCalendarItem', shell);
-          socket('/calendars').emit('event:created', shell.vcalendar);
-          return shell;
+      var taskId = null;
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
+        .then(function(response) {
+          if (response.status !== 202) {
+            return $q.reject(response);
+          }
+          taskId = response.data.id;
+          calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar));
+        })
+        .then(function() {
+          return gracePeriodService.grace(taskId, 'You are about to created a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+        })
+        .then(function(data) {
+          var task = data;
+          if (task.cancelled) {
+            gracePeriodService.cancel(taskId).then(function() {
+              calendarEventEmitter.fullcalendar.emitRemovedEvent(uid);
+              task.success();
+            }, function(err) {
+              task.error(err.statusText);
+            });
+          } else {
+            // Unfortunately, sabredav doesn't support Prefer:
+            // return=representation on the PUT request,
+            // so we have to retrieve the event again for the etag.
+            return getEvent(eventPath).then(function(shell) {
+              gracePeriodService.remove(taskId);
+              calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+              calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
+              return shell;
+            });
+          }
         });
-      });
     }
 
     function remove(eventPath, event, etag) {
@@ -351,7 +376,6 @@ angular.module('esn.calendar')
       });
     }
 
-    var serverUrlCache = null;
     return {
       list: list,
       create: create,

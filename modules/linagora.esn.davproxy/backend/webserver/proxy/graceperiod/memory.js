@@ -25,6 +25,10 @@ module.exports = function(dependencies) {
         }
       };
 
+      if (options.json) {
+        requestOptions.json = options.json;
+      }
+
       if (req.body && req.method !== 'DELETE') {
         requestOptions.body = req.body;
       }
@@ -60,7 +64,7 @@ module.exports = function(dependencies) {
         logger.error('Error while sending request to remote service', err);
       }
       if (result) {
-        logger.info('Remote service response', result);
+        logger.info('Remote service response status code', result.statusCode);
       }
     }
 

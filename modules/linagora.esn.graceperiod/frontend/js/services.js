@@ -10,13 +10,40 @@ angular.module('linagora.esn.graceperiod')
   })
 
   .factory('gracePeriodService', function(gracePeriodAPI, notifyOfGracedRequest) {
+    var taskIds = [];
+
+    function remove(id) {
+      var index = taskIds.indexOf(id);
+      if (index > -1) {
+        taskIds.slice(index, 1);
+      }
+    }
+
     function cancel(id) {
+      remove(id);
       return gracePeriodAPI.one('tasks').one(id).remove();
     }
 
+    function flush(id) {
+      remove(id);
+      return gracePeriodAPI.one('tasks').one(id).put();
+    }
+
+    function flushAllTasks() {
+      taskIds.forEach(flush);
+    }
+
+    function grace(id, text, linkText, delay) {
+      taskIds.push(id);
+      return notifyOfGracedRequest(text, linkText, delay);
+    }
+
     return {
-      grace: notifyOfGracedRequest,
-      cancel: cancel
+      grace: grace,
+      cancel: cancel,
+      flush: flush,
+      flushAllTasks: flushAllTasks,
+      remove: remove
     };
   })
 
@@ -38,14 +65,14 @@ angular.module('linagora.esn.graceperiod')
           },
           delay: delay || GRACE_DELAY,
           onClosed: function() {
-            $rootScope.$apply(function() {
+            $rootScope.$applyAsync(function() {
               resolve({ cancelled: false });
             });
           }
         });
 
         notification.$ele.find('a.cancel-task').click(function() {
-          $rootScope.$apply(function() {
+          $rootScope.$applyAsync(function() {
             resolve({
               cancelled: true,
               success: function() {

@@ -15,8 +15,20 @@ module.exports = function(lib, dependencies) {
     return res.send(204);
   }
 
+  function flush(req, res) {
+    logger.debug('Flushing task');
+    var task = req.task;
+    if (!task) {
+      return res.json(404, {error: {code: 404, message: 'Not found', details: 'Task not found'}});
+    }
+
+    task.flush();
+    return res.send(204);
+  }
+
   return {
-    cancel: cancel
+    cancel: cancel,
+    flush: flush
   };
 
 };
