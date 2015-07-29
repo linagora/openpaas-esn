@@ -101,6 +101,7 @@ describe('The module manager', function() {
         'linagora.esn.core.webserver.middleware.setup-settings',
         'linagora.esn.core.webserver.middleware.startup-buffer',
         'linagora.esn.core.webserver.middleware.templates',
+        'linagora.esn.core.webserver.middleware.token',
         'linagora.esn.core.webserver.middleware.usernotifications',
         'linagora.esn.core.webserver.middleware.verify-recaptcha'
       ];

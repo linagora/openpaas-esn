@@ -6,9 +6,9 @@ module.exports = function(dependencies) {
 
   var router = express.Router();
   var proxy = require('../proxy')(dependencies)('json');
-  var middleware = require('../proxy/middleware')(dependencies);
+  var davMiddleware = dependencies('davserver').davMiddleware;
 
-  router.all('/*', middleware.getDavEndpoint, proxy.handle());
+  router.all('/*', davMiddleware.getDavEndpoint, proxy.handle());
 
   return router;
 };

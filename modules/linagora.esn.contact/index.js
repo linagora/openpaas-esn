@@ -13,7 +13,8 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davproxy', 'davproxy')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW')
   ],
   states: {
     lib: function(dependencies, callback) {

@@ -10,6 +10,8 @@ module.exports = function(dependencies) {
   }
 
   return {
-    start: start
+    start: start,
+    search: search,
+    client: require('./dav-client')
   };
 };

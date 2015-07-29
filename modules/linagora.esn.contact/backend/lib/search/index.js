@@ -1,5 +1,7 @@
 'use strict';
 
+var denormalize = require('./denormalize');
+
 var CONTACT_ADDED = 'contacts:contact:add';
 var CONTACT_UPDATED = 'contacts:contact:update';
 var CONTACT_DELETED = 'contacts:contact:delete';
@@ -20,7 +22,7 @@ module.exports = function(dependencies) {
       return callback(new Error('Contact is required'));
     }
 
-    elasticsearch.addDocumentToIndex(contact, {index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
+    elasticsearch.addDocumentToIndex(denormalize(contact), {index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
   }
 
   function removeContactFromIndex(contact, callback) {
@@ -31,6 +33,69 @@ module.exports = function(dependencies) {
     }
 
     elasticsearch.removeDocumentFromIndex({index: INDEX_NAME, type: TYPE_NAME, id: contact.id + ''}, callback);
+  }
+
+  function searchContacts(query, callback) {
+    logger.debug('Searching contacts with options', query);
+
+    var terms = query.search;
+    var offset = query.offset || 0;
+    var limit = query.limit;
+
+    var filters = [];
+    if (query.userId) {
+      filters.push({
+        term: {
+          'userId': query.userId
+        }
+      });
+    }
+
+    if (query.bookId) {
+      filters.push({
+        term: {
+          'bookId': query.bookId
+        }
+      });
+    }
+
+    var elasticsearchQuery = {
+      sort: [
+        {'fn.sort': 'asc'}
+      ],
+      query: {
+        filtered: {
+          filter: {
+            and: filters
+          },
+          query: {
+            multi_match: {
+              query: terms,
+              type: 'cross_fields',
+              fields: ['fn', 'name', 'firstName', 'lastName', 'emails.value', 'urls.value', 'org', 'socialprofiles.value', 'nickname', 'addresses.full'],
+              operator: 'and'
+            }
+          }
+        }
+      }
+    };
+
+    elasticsearch.searchDocuments({
+      index: INDEX_NAME,
+      type: TYPE_NAME,
+      from: offset,
+      size: limit,
+      body: elasticsearchQuery
+    },function(err, result) {
+      if (err) {
+        return callback(err);
+      }
+
+      return callback(null, {
+        total_count: result.hits.total,
+        list: result.hits.hits
+      });
+    });
   }
 
   function listen() {
@@ -70,6 +135,7 @@ module.exports = function(dependencies) {
 
   return {
     listen: listen,
+    searchContacts: searchContacts,
     indexContact: indexContact,
     removeContactFromIndex: removeContactFromIndex
   };

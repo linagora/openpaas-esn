@@ -11,7 +11,10 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.graceperiod', 'graceperiod')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.graceperiod', 'graceperiod'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact', 'contact')
   ],
 
   states: {
@@ -19,15 +22,13 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
       var addressbooks = require('./backend/webserver/addressbooks')(dependencies);
       var calendars = require('./backend/webserver/calendars')(dependencies);
       var json = require('./backend/webserver/json')(dependencies);
-      var davMiddleware = require('./backend/webserver/proxy/middleware')(dependencies);
 
       var lib = {
         api: {
           addressbooks: addressbooks,
           calendars: calendars,
           json: json
-        },
-        davMiddleware: davMiddleware
+        }
       };
 
       return callback(null, lib);

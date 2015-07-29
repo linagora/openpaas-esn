@@ -1,5 +1,6 @@
 'use strict';
 
+var q = require('q');
 var client = require('../proxy/http-client');
 var PATH = 'addressbooks';
 
@@ -7,10 +8,15 @@ module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var pubsub = dependencies('pubsub').local;
+  var contactModule = dependencies('contact');
   var proxy = require('../proxy')(dependencies)(PATH);
 
   function getURL(req) {
-    return req.davserver + '/' + PATH + req.url;
+    return [req.davserver, '/', PATH, req.url].join('');
+  }
+
+  function getContactUrl(req, bookId, contactId) {
+    return [req.davserver, '/', PATH, '/', bookId, '/contacts/', contactId, '.vcf'].join('');
   }
 
   function getContact(req, res) {
@@ -43,7 +49,7 @@ module.exports = function(dependencies) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while updating contact on DAV server'}});
       }
 
-      pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body});
+      pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body, user: req.user});
 
       return res.json(response.statusCode, body);
     });
@@ -71,8 +77,83 @@ module.exports = function(dependencies) {
     proxy.handle()(req, res);
   }
 
+  function searchContacts(req, res) {
+
+    function fetchContact(contact) {
+      var options = {
+        headers: {
+          ESNToken: req.token && req.token.token ? req.token.token : ''
+        },
+        url: getContactUrl(req, req.params.bookId, contact._id)
+      };
+      return contactModule.lib.client.get(options).then(function(data) {
+        return data;
+      }, function(err) {
+        logger.warn('Error while getting contact', err);
+        return false;
+      });
+    }
+
+    var options = {
+      userId: req.user._id,
+      search: req.query.search,
+      bookId: req.params.bookId
+    };
+
+    contactModule.lib.search.searchContacts(options, function(err, result) {
+      if (err) {
+        logger.error('Error while searching contacts', err);
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while searching contacts'}});
+      }
+
+      var json = {
+        '_links': {
+          'self': {
+            'href': req.originalUrl
+          }
+        },
+        _embedded: {
+          'dav:item': []
+        }
+      };
+
+      if (!result || !result.list || result.list.length === 0) {
+        res.header('X-ESN-Items-Count', 0);
+        return res.json(200, json);
+      }
+
+      q.all(result.list.map(fetchContact)).then(function(vcards) {
+        vcards.filter(function(e) {
+          return e;
+        }).forEach(function(vcard) {
+          json._embedded['dav:item'].push({
+            '_links': {
+              'self': getContactUrl(req, req.params.bookId, vcard._id)
+            },
+            data: vcard
+          });
+        });
+        res.header('X-ESN-Items-Count', result.total_count);
+        return res.json(200, json);
+      }, function(err) {
+        logger.error('Error while getting contact details', err);
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact details'}});
+      });
+    });
+  }
+
+  function getContacts(req, res) {
+    if (req.query.search) {
+      return searchContacts(req, res);
+    }
+
+    defaultHandler(req, res);
+  }
+
   return {
     getContact: getContact,
+    getContacts: getContacts,
+    searchContacts: searchContacts,
     updateContact: updateContact,
     deleteContact: deleteContact,
     defaultHandler: defaultHandler

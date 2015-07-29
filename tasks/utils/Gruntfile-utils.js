@@ -75,6 +75,147 @@ var ELASTICSEARCH_SETTINGS = {
   }
 };
 
+var ELASTICSEARCH_CONTACTS_SETTINGS = {
+  'settings': {
+    'analysis': {
+      'filter': {
+        'nGram_filter': {
+          'type': 'nGram',
+          'min_gram': 1,
+          'max_gram': 20,
+          'token_chars': [
+            'letter',
+            'digit',
+            'punctuation',
+            'symbol'
+          ]
+        }
+      },
+      'analyzer': {
+        'nGram_analyzer': {
+          'type': 'custom',
+          'tokenizer': 'whitespace',
+          'filter': [
+            'lowercase',
+            'asciifolding',
+            'nGram_filter'
+          ]
+        },
+        'whitespace_analyzer': {
+          'type': 'custom',
+          'tokenizer': 'whitespace',
+          'filter': [
+            'lowercase',
+            'asciifolding'
+          ]
+        }
+      }
+    }
+  },
+  'mappings': {
+    'contacts': {
+      'properties' : {
+        'fn' : {
+          'type': 'string',
+          'index_analyzer': 'nGram_analyzer',
+          'search_analyzer': 'whitespace_analyzer',
+          'fields': {
+            'sort': {
+              'type': 'string',
+              'index': 'not_analyzed'
+            }
+          }
+        },
+        'name': {
+          'type': 'string',
+          'index_analyzer': 'nGram_analyzer',
+          'search_analyzer': 'whitespace_analyzer'
+        },
+        'firstName' : {
+          'type': 'string',
+          'index_analyzer': 'nGram_analyzer',
+          'search_analyzer': 'whitespace_analyzer'
+        },
+        'lastName' : {
+          'type': 'string',
+          'index_analyzer': 'nGram_analyzer',
+          'search_analyzer': 'whitespace_analyzer'
+        },
+        'emails' : {
+          'properties': {
+            'type': {'type': 'string', 'index': 'no'},
+            'value': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            }
+          }
+        },
+        'org' : {
+          'type': 'string',
+          'index_analyzer': 'nGram_analyzer',
+          'search_analyzer': 'whitespace_analyzer'
+        },
+        'urls' : {
+          'properties': {
+            'type': {'type': 'string', 'index': 'no'},
+            'value': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            }
+          }
+        },
+        'socialprofiles' : {
+          'properties': {
+            'type': {'type': 'string', 'index': 'no'},
+            'value': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            }
+          }
+        },
+        'nickname' : {
+          'type': 'string',
+          'index_analyzer': 'nGram_analyzer',
+          'search_analyzer': 'whitespace_analyzer'
+        },
+        'addresses' : {
+          'properties': {
+            'full': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            },
+            'type': {'type': 'string', 'index': 'no'},
+            'street': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            },
+            'city': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            },
+            'zip': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            },
+            'country': {
+              'type': 'string',
+              'index_analyzer': 'nGram_analyzer',
+              'search_analyzer': 'whitespace_analyzer'
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
 var RIVER_SETTINGS = function(servers, collection) {
   return {
     'type': 'mongodb',
@@ -379,6 +520,33 @@ GruntfileUtils.prototype.setupElasticsearchUsersIndex = function() {
         .put(elasticsearchURL + '/' + 'users.idx')
         .set('Content-Type', 'application/json')
         .send(ELASTICSEARCH_SETTINGS)
+        .end(function(res) {
+          if (res.status === 200) {
+            grunt.log.write('Elasticsearch settings are successfully added');
+            done(true);
+          } else {
+            done(new Error('Error HTTP status : ' + res.status + ', expected status code 200 Ok !'));
+          }
+        });
+    }
+
+    _doRequest();
+  };
+};
+
+GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
+  var grunt = this.grunt;
+  var servers = this.servers;
+
+  return function() {
+    var done = this.async();
+    var elasticsearchURL = 'http://localhost:' + servers.elasticsearch.port;
+
+    function _doRequest() {
+      request
+        .put(elasticsearchURL + '/' + 'contacts.idx')
+        .set('Content-Type', 'application/json')
+        .send(ELASTICSEARCH_CONTACTS_SETTINGS)
         .end(function(res) {
           if (res.status === 200) {
             grunt.log.write('Elasticsearch settings are successfully added');
