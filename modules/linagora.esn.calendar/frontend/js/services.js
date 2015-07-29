@@ -74,6 +74,9 @@ angular.module('esn.calendar')
       websocket: {
         emitCreatedEvent: function(vcalendar) {
           websocket.emit('event:created', vcalendar);
+        },
+        emitRemovedEvent: function(vcalendar) {
+          websocket.emit('event:deleted', vcalendar);
         }
       }
     };
@@ -298,18 +301,38 @@ angular.module('esn.calendar')
         });
     }
 
-    function remove(eventPath, event, etag) {
+    function remove(path, event, etag) {
       var headers = {};
       if (etag) {
         headers['If-Match'] = etag;
       }
-      return request('delete', eventPath, headers).then(function(response) {
-        if (response.status !== 204) {
+
+      var taskId = null;
+      var vcalendar = shellToICAL(event);
+      var shell = new CalendarShell(vcalendar, path, etag);
+      return request('delete', path, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(function(response) {
+        if (response.status !== 202) {
           return $q.reject(response);
         }
-        $rootScope.$emit('removedCalendarItem', event.id);
-        socket('/calendars').emit('event:deleted', shellToICAL(event));
-        return response;
+        taskId = response.data.id;
+        calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
+      })
+      .then(function() {
+        return gracePeriodService.grace(taskId, 'You are about to delete the event (' + 'event.title' + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+      })
+      .then(function(data) {
+        var task = data;
+        if (task.cancelled) {
+          gracePeriodService.cancel(taskId).then(function() {
+            calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
+            task.success();
+          }, function(err) {
+            task.error(err.statusText);
+          });
+        } else {
+          gracePeriodService.remove(taskId);
+          calendarEventEmitter.websocket.emitRemovedEvent(vcalendar);
+        }
       });
     }
 

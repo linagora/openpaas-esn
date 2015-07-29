@@ -832,7 +832,7 @@ describe('The Calendar Angular module services', function() {
       });
     });
 
-    describe.skip('The remove fn', function() {
+    describe('The remove fn', function() {
       function unexpected(done) {
         done(new Error('Unexpected'));
       }
@@ -852,10 +852,10 @@ describe('The Calendar Angular module services', function() {
         };
       });
 
-      it('should fail if status is not 204', function(done) {
-        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics').respond(201);
+      it('should fail if status is not 202', function(done) {
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(201);
 
-        this.calendarService.remove('path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
+        this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
           unexpected.bind(null, done), function(response) {
             expect(response.status).to.equal(201);
             done();
@@ -866,18 +866,29 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should succeed on 204', function(done) {
-        emitMessage = null;
-        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics').respond(204);
-        this.socketEmit = function(event, data) {
-          expect(event).to.equal('event:deleted');
-          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
+      it('should succeed on 202', function(done) {
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: false
+          });
+        };
+        this.gracePeriodService.remove = function(taskId) {
+          expect(taskId).to.equal('123456789');
         };
 
-        this.calendarService.remove('path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
-          function(response) {
-            expect(response.status).to.equal(204);
+        var socketEmitSpy = sinon.spy(function(event, data) {
+          expect(event).to.equal('event:deleted');
+          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
+        });
+        this.socketEmit = socketEmitSpy;
+
+        emitMessage = null;
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'})
+
+        this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
+          function() {
             expect(emitMessage).to.equal('removedCalendarItem');
+            expect(socketEmitSpy).to.have.been.called;
             done();
           }, unexpected.bind(null, done)
         );
@@ -886,15 +897,36 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.flush();
       });
 
-      it('should send etag as If-Match header', function(done) {
-        var requestHeaders = {
-          'If-Match': 'etag',
-          'Accept': 'application/json, text/plain, */*'
+      it('should succeed calling gracePeriodService.cancel', function(done) {
+        var successSpy = sinon.spy();
+        this.gracePeriodService.grace = function() {
+          return $q.when({
+            cancelled: true,
+            success: successSpy
+          });
         };
-        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics', requestHeaders).respond(204);
+        this.gracePeriodService.cancel = function(taskId) {
+          var deffered = $q.defer();
+          deffered.resolve({});
+          return deffered.promise;
+        };
 
-        this.calendarService.remove('path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
-          function() { done(); }, unexpected.bind(null, done)
+        var socketEmitSpy = sinon.spy(function(event, data) {
+          expect(event).to.equal('event:deleted');
+          expect(data).to.deep.equal(this.calendarService.shellToICAL(this.event));
+        });
+        this.socketEmit = socketEmitSpy;
+
+        emitMessage = null;
+        this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'})
+
+        this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
+          function() {
+            expect(emitMessage).to.equal('addedCalendarItem');
+            expect(socketEmitSpy).to.have.not.been.called;
+            expect(successSpy).to.have.been.called;
+            done();
+          }, unexpected.bind(null, done)
         );
 
         this.$rootScope.$apply();
