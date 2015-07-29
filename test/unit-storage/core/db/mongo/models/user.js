@@ -1,18 +1,17 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mongodb = require('mongodb');
 
 describe('The User model', function() {
-  var User, Domain, emails, email, email2, email_ci, email2_ci;
+  var User, Domain, email, email2, email_ci, email2_ci, helpers, password = 'secret';
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    this.helpers.requireBackend('core/db/mongo/models/user');
-    this.helpers.requireBackend('core/db/mongo/models/domain');
+    helpers = this.helpers;
+    helpers.requireBackend('core/db/mongo/models/user');
+    helpers.requireBackend('core/db/mongo/models/domain');
     User = this.mongoose.model('User');
     Domain = this.mongoose.model('Domain');
-    emails = [];
     email = 'foo@linagora.com';
     email_ci = 'FOO@LiNaGoRa.com ';
     email2 = 'bar@linagora.com';
@@ -20,431 +19,290 @@ describe('The User model', function() {
     this.mongoose.connect(this.testEnv.mongoUrl, done);
   });
 
-  it('should save the user email in lowercase', function(done) {
-    emails.push(email_ci);
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
-    var mongoUrl = this.testEnv.mongoUrl;
-
-    function test(savedUser) {
-      mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-        if (err) { return done(err); }
-        db.collection('users').findOne({_id: savedUser._id}, function(err, user) {
-          if (err) { return done(err); }
-          expect(user).to.be.not.null;
-          expect(user.emails).to.be.an.array;
-          expect(user.emails).to.have.length(1);
-          expect(user.emails[0]).to.equal(email);
-          db.close(done);
-        });
-      });
-    }
-
-    u.save(function(err, savedUser) {
-      if (err) { return done(err); }
-      test(savedUser);
+  function newDummyUser(emails) {
+    return new User({
+      firstname: 'foo',
+      lastname: 'bar',
+      password: password,
+      accounts: [{
+        type: 'email',
+        hosted: true,
+        emails: emails
+      }]
     });
+  }
+
+  function newDummyDomain() {
+    return new Domain({
+      name: 'MyDomain',
+      company_name: 'MyAwesomeCompany'
+    });
+  }
+
+  it('should save the user email trimmed and in lowercase', function(done) {
+    newDummyUser([email_ci]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.emails).to.deep.equal([email]);
+
+        done();
+      }));
+    }));
   });
 
-
   it('should load the user from email', function(done) {
-    emails.push(email);
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
-    u.save(function(err, data) {
-      if (err) { return done(err); }
-      User.loadFromEmail(email, function(err, user) {
-        expect(err).to.not.exist;
-        expect(user).to.exist;
-        return done();
-      });
-    });
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function() {
+        User.loadFromEmail(email, helpers.callbacks.noErrorAndData(done));
+      }));
   });
 
   it('should load the user from email, case insensitive', function(done) {
-    emails.push(email);
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
-    u.save(function(err, data) {
-      if (err) { return done(err); }
-      User.loadFromEmail(email_ci, function(err, user) {
-        expect(err).to.not.exist;
-        expect(user).to.exist;
-        return done();
-      });
-    });
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function() {
+        User.loadFromEmail(email_ci, helpers.callbacks.noErrorAndData(done));
+      }));
   });
 
   it('should load user from any valid email', function(done) {
-    emails.push(email);
-    emails.push(email2);
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
-      User.loadFromEmail(email, function(err, user) {
-        expect(err).to.not.exist;
-        expect(user).to.exist;
-        done();
-      });
+    newDummyUser([email, email2]).save(helpers.callbacks.noErrorAnd(function() {
+        User.loadFromEmail(email, helpers.callbacks.noErrorAndData(done));
+      }));
+  });
+
+  it('should load user from any valid email, even with multiple accounts', function(done) {
+    var user = newDummyUser([email, email2]);
+
+    user.accounts.push({
+      type: 'email',
+      emails: ['foo@bar.com']
     });
+    user.save(helpers.callbacks.noErrorAnd(function() {
+      User.loadFromEmail('foo@bar.com', helpers.callbacks.noErrorAndData(done));
+    }));
   });
 
   it('should not found any user with not registered email', function(done) {
-    emails.push(email);
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
-      User.loadFromEmail('bar@linagora.com', function(err, user) {
-        expect(user).to.not.exist;
-        done();
-      });
-    });
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function() {
+      User.loadFromEmail('bar@linagora.com', helpers.callbacks.noErrorAndNoData(done));
+    }));
   });
 
   it('should save the user with crypted password', function(done) {
-    emails.push(email);
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
-      expect(data.password).to.be.not.null;
-      expect(data.password).to.be.not.equal(password);
-      done();
-    });
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.password).to.not.equal(null);
+        expect(user.password).to.not.equal(password);
+
+        done();
+      }));
+    }));
   });
 
   it('should return true when calling comparePassword with valid password', function(done) {
-    emails.push(email);
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.comparePassword(password, helpers.callbacks.noErrorAnd(function(isMatch) {
+          expect(isMatch).to.equal(true);
 
-      data.comparePassword(password, function(err, isMatch) {
-        if (err) {
-          done(err);
-        }
-        expect(isMatch).to.be.true;
-        done();
-      });
-    });
+          done();
+        }));
+      }));
+    }));
   });
 
   it('should return error when calling comparePassword with null password', function(done) {
-    emails.push(email);
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
-
-      data.comparePassword(null, function(err, isMatch) {
-        expect(err).to.exist;
-        done();
-      });
-    });
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.comparePassword(null, helpers.callbacks.error(done));
+      }));
+    }));
   });
 
   it('should return false when calling comparePassword with wrong password', function(done) {
-    emails.push(email);
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.comparePassword('badpassword', helpers.callbacks.noErrorAnd(function(isMatch) {
+          expect(isMatch).to.equal(false);
 
-      data.comparePassword('badpassword', function(err, isMatch) {
-        if (err) {
-          done(err);
-        }
-        expect(isMatch).to.be.false;
-        done();
-      });
-    });
+          done();
+        }));
+      }));
+    }));
   });
 
   it('should return false when calling comparePassword with empty password (length === 0)', function(done) {
-    emails.push(email);
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: emails, password: password});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
-
-      data.comparePassword('', function(err, isMatch) {
-        expect(err).to.exist;
-        done();
-      });
-    });
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.comparePassword('', helpers.callbacks.error(done));
+      }));
+    }));
   });
 
   it('should add a login failure when calling loginFailure fn', function(done) {
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.loginFailure(helpers.callbacks.noErrorAnd(function(data) {
+          expect(data.login.failures.length).to.equal(1);
 
-      u.loginFailure(function(err, data) {
-        expect(err).to.not.exist;
-        expect(data).to.exist;
-        expect(data.login.failures).to.exist;
-        expect(data.login.failures.length).to.equal(1);
-        done();
-      });
-    });
+          done();
+        }));
+      }));
+    }));
   });
 
   it('should reset the login failure counter when calling resetLoginFailure fn', function(done) {
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com'], login: { failures: [new Date()]}});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.resetLoginFailure(helpers.callbacks.noErrorAnd(function(data) {
+          expect(data.login.failures.length).to.equal(0);
 
-      u.resetLoginFailure(function(err, data) {
-        expect(err).to.not.exist;
-        expect(data).to.exist;
-        expect(data.login.failures).to.exist;
-        expect(data.login.failures.length).to.equal(0);
-        done();
-      });
-    });
+          done();
+        }));
+      }));
+    }));
   });
 
   it('should set the login success date when calling loginSuccess fn', function(done) {
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
-    u.save(function(err, data) {
-      if (err) {
-        done(err);
-      }
+    newDummyUser([email]).save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        user.loginSuccess(helpers.callbacks.noErrorAnd(function(data) {
+          expect(data.login.success).to.be.an.instanceOf(Date);
 
-      u.loginSuccess(function(err, data) {
-        expect(err).to.not.exist;
-        expect(data).to.exist;
-        expect(data.login.success).to.exist;
-        done();
-      });
-    });
+          done();
+        }));
+      }));
+    }));
   });
 
   it('should add the domain when domain is not null', function(done) {
-    var mongoUrl = this.testEnv.mongoUrl;
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
-    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+      newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
+        user.joinDomain(domain, helpers.callbacks.noErrorAnd(function() {
+          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
+            expect(loaded.domains[0].domain_id).to.deep.equal(domain._id);
 
-    u.save(function(err, user) {
-      if (err) {
-        return done(err);
-      }
-
-      d.save(function(err, domain) {
-        if (err) {
-          return done(err);
-        }
-
-        user.joinDomain(domain, function(err, update) {
-          if (err) {
-            return done(err);
-          }
-
-          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-            if (err) { return done(err); }
-            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
-              if (err) {
-                return done(err);
-              }
-
-              expect(loaded).to.be.not.null;
-              expect(loaded.domains).to.be.not.null;
-              expect(loaded.domains.length).to.equal(1);
-              expect(loaded.domains[0].domain_id.equals(domain._id)).to.be.true;
-              db.close(done);
-            });
-          });
-        });
-      });
-    });
+            done();
+          }));
+        }));
+      }));
+    }));
   });
 
   it('should not add null domain', function(done) {
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
-    u.save(function(err, user) {
-      if (err) {
-        return done(err);
-      }
-
-      user.joinDomain(null, function(err, update) {
-        expect(err).to.exist;
-        done();
-      });
-    });
+    newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+      user.joinDomain(null, helpers.callbacks.error(done));
+    }));
   });
 
   it('should add domain from its ID', function(done) {
-    var mongoUrl = this.testEnv.mongoUrl;
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
-    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+      newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
+        user.joinDomain(domain._id, helpers.callbacks.noErrorAnd(function() {
+          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
+            expect(loaded.domains[0].domain_id).to.deep.equal(domain._id);
 
-    u.save(function(err, user) {
-      if (err) {
-        return done(err);
-      }
-
-      d.save(function(err, domain) {
-        if (err) {
-          return done(err);
-        }
-
-        user.joinDomain(domain._id, function(err, update) {
-          if (err) {
-            return done(err);
-          }
-
-          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-            if (err) { return done(err); }
-            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
-              if (err) {
-                return done(err);
-              }
-
-              expect(loaded).to.be.not.null;
-              expect(loaded.domains).to.be.not.null;
-              expect(loaded.domains.length).to.equal(1);
-              expect(loaded.domains[0].domain_id.equals(domain._id)).to.be.true;
-              db.close(done);
-            });
-          });
-        });
-      });
-    });
+            done();
+          }));
+        }));
+      }));
+    }));
   });
 
   it('should not add the domain to the user if the domain is already in the domain list', function(done) {
-    var mongoUrl = this.testEnv.mongoUrl;
-    var password = 'secret';
-    var u = new User({ firstname: 'foo', lastname: 'bar', password: password, emails: ['foo@bar.com']});
-    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    var u = newDummyUser(['foo@bar.com']);
 
-    d.save(function(err, domain) {
-      u.domains.push({domain_id: domain._id});
-      u.save(function(err, user) {
-        if (err) {
-          return done(err);
-        }
+    newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
+      u.domains.push({ domain_id: domain._id });
 
-        user.joinDomain(domain._id, function(err, update) {
-          expect(err).to.exist;
-
-          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-            if (err) { return done(err); }
-            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
-              if (err) {
-                return done(err);
-              }
-              expect(loaded).to.be.not.null;
-              expect(loaded.domains).to.be.not.null;
-              expect(loaded.domains.length).to.equal(1);
-              expect(loaded.domains[0].domain_id.equals(domain._id)).to.be.true;
-              db.close(done);
-            });
-          });
-        });
-      });
-    });
+      u.save(helpers.callbacks.noErrorAnd(function(user) {
+        user.joinDomain(domain._id, helpers.callbacks.error(done));
+      }));
+    }));
   });
 
   it('should return error when calling isMemberOfDomain with null domain', function(done) {
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.com']});
-    u.save(function(err, user) {
-      if (err) {
-        done(err);
-      }
-      try {
-        user.isMemberOfDomain(null);
-        done(new Error('An error should have been thrown'));
-      }
-      catch (err) {
-        expect(err).to.exist;
-        done();
-      }
-    });
+    newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+      expect(function() { user.isMemberOfDomain(null); }).to.throw(Error);
+
+      done();
+    }));
   });
 
   it('should return false when calling isMemberOfDomain with wrong domain id', function(done) {
-    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
-    d.save(function(err, domain) {
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.com']});
-      u.save(function(err, user) {
-        if (err) {
-          done(err);
-        }
+    newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
+      newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.isMemberOfDomain('wrongDomainId')).to.equal(false);
 
-        var isMember = user.isMemberOfDomain('wrongDomainId');
-        expect(isMember).to.be.false;
         done();
-      });
-    });
+      }));
+    }));
   });
 
   it('should return true when calling isMemberOfDomain with correct domain id', function(done) {
-    var mongoUrl = this.testEnv.mongoUrl;
-    var d = new Domain({name: 'MyDomain', company_name: 'MyAwesomeCompany'});
+    newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+      newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
+        user.joinDomain(domain._id, helpers.callbacks.noErrorAnd(function() {
+          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
+            expect(loaded.isMemberOfDomain(domain._id)).to.equal(true);
 
-    d.save(function(err, domain) {
-      var u = new User({ firstname: 'foo', lastname: 'bar', emails: ['foo@bar.com']});
-      u.save(function(err, user) {
-        if (err) {
-          done(err);
-        }
-
-        user.joinDomain(domain._id, function(err, update) {
-          if (err) {
-            return done(err);
-          }
-
-          mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-            if (err) {
-              return done(err);
-            }
-            db.collection('users').findOne({_id: user._id}, function(err, loaded) {
-              if (err) {
-                return done(err);
-              }
-
-              var loadedUser = new User(loaded);
-              var isMember = loadedUser.isMemberOfDomain(domain);
-              expect(isMember).to.be.true;
-
-              isMember = loadedUser.isMemberOfDomain(domain._id);
-              expect(isMember).to.be.true;
-              db.close(done);
-            });
-          });
-        });
-
-      });
-    });
+            done();
+          }));
+        }));
+      }));
+    }));
   });
 
+  it('should return true when calling isMemberOfDomain with correct domain', function(done) {
+    newDummyUser(['foo@bar.com']).save(helpers.callbacks.noErrorAnd(function(user) {
+      newDummyDomain().save(helpers.callbacks.noErrorAnd(function(domain) {
+        user.joinDomain(domain._id, helpers.callbacks.noErrorAnd(function() {
+          User.findOne({ _id: user._id }, helpers.callbacks.noErrorAnd(function(loaded) {
+            expect(loaded.isMemberOfDomain(domain)).to.equal(true);
+
+            done();
+          }));
+        }));
+      }));
+    }));
+  });
+
+  it('should register the emails property on User model, computing the list of all emails', function(done) {
+    var u = newDummyUser([email, email2]);
+
+    u.accounts.push({
+      type: 'email',
+      emails: ['foo@bar.com']
+    });
+    u.save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.emails).to.deep.equal([email, email2, 'foo@bar.com']);
+
+        done();
+      }));
+    }));
+  });
+
+  it('should validate that preferredEmailIndex is >= 0', function(done) {
+    var u = newDummyUser([email, email2]);
+
+    u.accounts.push({
+      type: 'email',
+      emails: ['foo@bar.com'],
+      preferredEmailIndex: -1
+    });
+    u.save(helpers.callbacks.error(done));
+  });
+
+  it('should validate that preferredEmailIndex is < emails.length', function(done) {
+    var u = newDummyUser([email, email2]);
+
+    u.accounts.push({
+      type: 'email',
+      emails: ['foo@bar.com'],
+      preferredEmailIndex: 2
+    });
+    u.save(helpers.callbacks.error(done));
+  });
 
   afterEach(function(done) {
-    emails = [];
-
     var callback = function(item, fn) {
       item.remove(fn);
     };

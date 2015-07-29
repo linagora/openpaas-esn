@@ -301,11 +301,29 @@ module.exports = function(mixin, testEnv) {
   };
 
   mixin.callbacks = {
-    noError: function(done) {
-      return function(err) {
+    noErrorAnd: function(next) {
+      return function(err, data) {
         expect(err).to.not.exist;
-        done();
+
+        next(data);
       };
+    },
+    noError: function(done) {
+      return mixin.callbacks.noErrorAnd(function() { done(); });
+    },
+    noErrorAndNoData: function(done) {
+      return mixin.callbacks.noErrorAnd(function(data) {
+        expect(data).to.not.exist;
+
+        done();
+      });
+    },
+    noErrorAndData: function(done) {
+      return mixin.callbacks.noErrorAnd(function(data) {
+        expect(data).to.exist;
+
+        done();
+      });
     },
     error: function(done) {
       return function(err) {

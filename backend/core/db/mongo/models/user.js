@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var trim = require('trim');
 var ObjectId = mongoose.Schema.Types.ObjectId;
+var Mixed = mongoose.Schema.Types.Mixed;
 
 function validateEmail(email) {
   return emailAddresses.parseOneAddress(email) !== null;
@@ -23,6 +24,23 @@ function validateEmails(emails) {
   return valid;
 }
 
+var UserAccountSchema = new mongoose.Schema({
+  _id: false,
+  type: { type: String, enum: ['email'] },
+  hosted: { type: Boolean, default: false },
+  emails: { type: [String], unique: true, validate: validateEmails },
+  preferredEmailIndex: { type: Number, default: 0 },
+  data: { type: Mixed }
+});
+
+UserAccountSchema.pre('validate', function(next) {
+  if (this.preferredEmailIndex < 0 || this.preferredEmailIndex >= this.emails.length) {
+    return next(new Error('The preferredEmailIndex field must be a valid index of the emails array.'));
+  }
+
+  next();
+});
+
 var MemberOfDomainSchema = new mongoose.Schema({
   domain_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Domain', required: true},
   joined_at: {type: Date, default: Date.now},
@@ -30,7 +48,6 @@ var MemberOfDomainSchema = new mongoose.Schema({
 }, { _id: false });
 
 var UserSchema = new mongoose.Schema({
-  emails: {type: [String], required: true, unique: true, validate: validateEmails},
   firstname: {type: String, trim: true},
   lastname: {type: String, trim: true},
   password: {type: String},
@@ -49,17 +66,32 @@ var UserSchema = new mongoose.Schema({
     },
     success: {type: Date}
   },
-  schemaVersion: {type: Number, default: 1},
+  schemaVersion: {type: Number, default: 2},
   avatars: [ObjectId],
-  currentAvatar: ObjectId
+  currentAvatar: ObjectId,
+  accounts: [UserAccountSchema]
+});
+
+UserSchema.virtual('emails').get(function() {
+  var emails = [];
+
+  this.accounts.forEach(function(account) {
+    account.emails.forEach(function(email) {
+      emails.push(email);
+    });
+  });
+
+  return emails;
 });
 
 UserSchema.pre('save', function(next) {
   var user = this;
   var SALT_FACTOR = 5;
 
-  user.emails = user.emails.map(function(email) {
-    return trim(email).toLowerCase();
+  user.accounts.forEach(function(account) {
+    account.emails = account.emails.map(function(email) {
+      return trim(email).toLowerCase();
+    });
   });
 
   if (!user.isModified('password')) {
@@ -154,8 +186,13 @@ UserSchema.statics = {
    * @param {Function} cb - as fn(err, user) where user is not null if found
    */
   loadFromEmail: function(email, cb) {
-    var qemail = trim(email).toLowerCase();
-    this.findOne({emails: qemail}, cb);
+    this.findOne({
+      accounts: {
+        $elemMatch: {
+          emails: trim(email).toLowerCase()
+        }
+      }
+    }, cb);
   },
 
   /**
