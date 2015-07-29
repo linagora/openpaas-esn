@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.skip('The GracePeriod Angular module', function() {
+describe('The GracePeriod Angular module', function() {
 
   describe('The gracePeriodService service', function() {
 

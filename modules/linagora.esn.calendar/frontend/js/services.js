@@ -24,36 +24,32 @@ angular.module('esn.calendar')
     };
   })
 
-  .factory('request', function($http, tokenAPI, DAV_PATH) {
+  .factory('request', function($http, $q, DAV_PATH) {
     function _configureRequest(method, path, headers, body, params) {
-      return tokenAPI.getNewToken().then(function(result) {
-        var token = result.data.token;
-        var url = DAV_PATH;
+      var url = DAV_PATH;
 
-        headers = headers || {};
-        headers.ESNToken = token;
+      headers = headers || {};
 
-        if (path[0] === '/') {
-          var a = document.createElement('a');
-          a.href = url;
-          url = a.protocol + '//' + a.host;
-        } else {
-          url = url.replace(/\/$/, '') + '/';
-        }
+      if (path[0] === '/') {
+        var a = document.createElement('a');
+        a.href = url;
+        url = a.protocol + '//' + a.host;
+      } else {
+        url = url.replace(/\/$/, '') + '/';
+      }
 
-        var config = {
-          url: url + path,
-          method: method,
-          headers: headers,
-          params: params
-        };
+      var config = {
+        url: url + path,
+        method: method,
+        headers: headers,
+        params: params
+      };
 
-        if (body) {
-          config.data = body;
-        }
+      if (body) {
+        config.data = body;
+      }
 
-        return config;
-      });
+      return $q.when(config);
     }
 
     function request(method, path, headers, body, params) {

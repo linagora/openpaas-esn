@@ -873,7 +873,6 @@ describe('The Calendar Angular module services', function() {
           'Content-Type': 'application/calendar+json',
           'Prefer': 'return=representation',
           'If-Match': 'etag',
-          'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
         this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', this.vcalendar.toJSON(), requestHeaders).respond(200, this.vcalendar.toJSON(), { 'ETag': 'changed-etag' });
@@ -963,7 +962,6 @@ describe('The Calendar Angular module services', function() {
       it('should send etag as If-Match header', function(done) {
         var requestHeaders = {
           'If-Match': 'etag',
-          'ESNToken': '123',
           'Accept': 'application/json, text/plain, */*'
         };
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics', requestHeaders).respond(204);
@@ -1067,7 +1065,6 @@ describe('The Calendar Angular module services', function() {
 
         var requestHeaders = {
           'If-Match': 'etag',
-          'ESNToken': '123',
           'Prefer': 'return=representation',
           'Content-Type': 'application/calendar+json',
           'Accept': 'application/json, text/plain, */*'
@@ -1079,7 +1076,6 @@ describe('The Calendar Angular module services', function() {
 
         var successRequestHeaders = {
           'If-Match': 'conflict',
-          'ESNToken': '123',
           'Prefer': 'return=representation',
           'Content-Type': 'application/calendar+json',
           'Accept': 'application/json, text/plain, */*'
