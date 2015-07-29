@@ -1,11 +1,11 @@
 .card
-  .card-header.bgm-red.community-header
+  .card-header.ch-alt
     h2 {{::community.title}}
       small
         span {{::community.type}}, &nbsp;
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
-    ul.actions.actions-alt
+    ul.actions
       li.dropdown
         a(href="" data-toggle="dropdown" aria-expanded="false")
           i.mdi.mdi-dots-vertical
@@ -22,7 +22,7 @@
             a(href="", ng-click='cancelMembership()') #{__('Cancel membership request')}
 
   .card-body
-    .community-description
+    .community-description.flex-horizontal-centered
       a(href='#/communities/{{::community._id}}')
         img.thumbnail.lv-img-xl(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
       .media-body
