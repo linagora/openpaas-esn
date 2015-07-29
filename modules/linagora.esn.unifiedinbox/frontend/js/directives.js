@@ -8,10 +8,18 @@ angular.module('linagora.esn.unifiedinbox')
       replace: true,
       templateUrl: '/unifiedinbox/views/sidebar/sidebar-menu.html',
       link: function(scope, element, attrs) {
+
+        function listMailboxes() {
+          if (!scope.mailboxes) {
+            JmapAPI.getMailboxes().then(function(mailboxes) {
+              scope.mailboxes = mailboxes;
+            });
+          }
+        }
+
         scope.email = session.user.emails[0];
-        JmapAPI.getMailboxes().then(function(mailboxes) {
-          scope.mailboxes = mailboxes;
-        });
+        scope.toggleOpen = listMailboxes;
+
       }
     };
   })

@@ -1,8 +1,11 @@
 li.sub-menu
-  a(href="" toggle-submenu="")
+  a(href="" toggle-submenu="" toggle-submenu-notify="toggleOpen()")
     i.mdi.mdi-email
     | {{::email}}
-  ul.nav.nav-pills.nav-stacked
+    
+  ul.nav.nav-pills.nav-stacked(ng-hide="mailboxes")
+    li.text-center(openpaas-logo-spinner, spinner-start-active='1',spinner-size='0.5')
+      
+  ul.nav.nav-pills.nav-stacked(ng-show="mailboxes")
     li(ng-repeat="mailbox in mailboxes")
       mailbox-display(mailbox="mailbox")
-
