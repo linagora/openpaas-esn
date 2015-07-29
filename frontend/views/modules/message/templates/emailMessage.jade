@@ -1,4 +1,4 @@
-div(ng-class="{'t-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
+div(ng-class="{'timeline-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
   a.pull-left(href='#')
     img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar')
   div.esn-email
