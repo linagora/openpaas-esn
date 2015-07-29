@@ -93,8 +93,9 @@ angular.module('esn.calendar')
      * @param {ICAL.Component} vcalendar     The ical.js VCALENDAR component.
      * @param {String} path                  The path on the caldav server.
      * @param {String} etag                  The ETag of the event.
+     * @param {String} gracePeriodTaskId     The gracePeriodTaskId of the event.
      */
-    function CalendarShell(vcalendar, path, etag) {
+    function CalendarShell(vcalendar, path, etag, gracePeriodTaskId) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       this.id = vevent.getFirstPropertyValue('uid');
       this.title = vevent.getFirstPropertyValue('summary');
@@ -149,6 +150,7 @@ angular.module('esn.calendar')
       this.vcalendar = vcalendar;
       this.path = path;
       this.etag = etag;
+      this.gracePeriodTaskId = gracePeriodTaskId;
     }
 
     var timezoneLocal = this.timezoneLocal || jstz.determine().name();
@@ -231,6 +233,9 @@ angular.module('esn.calendar')
     function getEvent(path) {
       var headers = { Accept: 'application/calendar+json' };
       return request('get', path, headers).then(function(response) {
+        if (response.status !== 200) {
+          return $q.reject(response);
+        }
         var vcalendar = new ICAL.Component(response.data);
         return new CalendarShell(vcalendar, path, response.headers('ETag'));
       });
@@ -276,7 +281,7 @@ angular.module('esn.calendar')
             return $q.reject(response);
           }
           taskId = response.data.id;
-          calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar));
+          calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, null, null, taskId));
         })
         .then(function() {
           return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
@@ -299,6 +304,14 @@ angular.module('esn.calendar')
               calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
               calendarEventEmitter.websocket.emitCreatedEvent(shell.vcalendar);
               return shell;
+            }, function(response) {
+              if (response.status === 404) {
+                // Silently fail here because it is due to
+                // the task being cancelled by another method.
+                return;
+              } else {
+                return response;
+              }
             });
           }
         });
@@ -308,6 +321,13 @@ angular.module('esn.calendar')
       var headers = {};
       if (etag) {
         headers['If-Match'] = etag;
+      } else {
+        // This is a noop and the event is not created yet in sabre/dav,
+        // we then should only remove the event from fullcalendar
+        // and cancel the taskid corresponding on the event.
+        return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
+          calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
+        }, $q.reject);
       }
 
       var taskId = null;
@@ -321,7 +341,7 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
       })
       .then(function() {
-        return gracePeriodService.grace(taskId, 'You are about to delete the event (' + 'event.title' + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+        return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
       })
       .then(function(data) {
         var task = data;
