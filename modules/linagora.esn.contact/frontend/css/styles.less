@@ -45,8 +45,8 @@
       margin: 0;
       transition: 1s background;
       position: fixed;
-      top: 64px !important;
-      width: 100% !important;
+      top: 64px !important; /* needed to overwrite styles automatically set using the style attribute */
+      width: 100% !important; /* needed to overwrite styles automatically set using the style attribute */
       z-index: 7;
       background-color: @primaryColor;
     }
@@ -125,8 +125,8 @@
     font-size: 23px;
   }
   tags-input .tags {
-    border: none !important;
-    box-shadow: none !important;
+    border: none !important; /* needed to overwrite styles automatically set using the style attribute */
+    box-shadow: none !important; /* needed to overwrite styles automatically set using the style attribute */
   }
 }
 
