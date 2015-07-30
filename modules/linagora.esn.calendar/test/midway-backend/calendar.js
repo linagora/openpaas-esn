@@ -78,7 +78,7 @@ describe('The calendars API', function() {
       });
     });
 
-    it('should return 400 if type is not equal to "created"', function(done) {
+    it('should return 500 if type is not equal to "created"', function(done) {
       var self = this;
       this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
         if (err) {
@@ -90,7 +90,7 @@ describe('The calendars API', function() {
           type: 'updated',
           event: 'ICS'
         });
-        req.expect(400, done);
+        req.expect(500, done);
       });
     });
 
