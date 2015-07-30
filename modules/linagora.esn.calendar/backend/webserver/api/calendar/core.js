@@ -262,7 +262,6 @@ function inviteAttendees(organizer, attendeeEmails, notify, method, ics, callbac
       });
 
       return q.all(sendMailToAllAttendees);
-
     }).nodeify(callback);
   });
 }

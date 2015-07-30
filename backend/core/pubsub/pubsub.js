@@ -2,7 +2,8 @@
 
 var logger = require('../../core').logger;
 
-function Pubsub(client) {
+function Pubsub(name, client) {
+  this.name = name;
   this.client = client;
   this._channels = {};
   this._cache = [];
@@ -38,18 +39,21 @@ Pubsub.prototype._createInterface = function(topic) {
       if (!self.client) {
         return self._addCache(topic, 'subscribe', handler);
       }
+      logger.debug(self.name + '/SUBSCRIBE to', topic);
       self.client.on(topic, handler);
     },
     unsubscribe: function(handler) {
       if (!self.client) {
         return self._addCache(topic, 'unsubscribe', handler);
       }
+      logger.debug(self.name + '/UNSUBSCRIBE to', topic);
       self.client.removeListener(topic, handler);
     },
     publish: function(data) {
       if (!self.client) {
         return self._addCache(topic, 'publish', data);
       }
+      logger.debug(self.name + '/PUBLISH into', topic, 'DATA', data);
       self.client.emit(topic, data);
     },
     forward: function(pubsub, data) {

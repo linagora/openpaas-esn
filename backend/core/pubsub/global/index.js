@@ -1,7 +1,7 @@
 'use strict';
 
 var Pubsub = require('../pubsub');
-var redisPubsub = new Pubsub();
+var redisPubsub = new Pubsub('global');
 var localPubsub = require('../').local;
 var AwesomeNodeRedisPubsub = require('awesome-node-redis-pubsub');
 var logger = require('../../logger');
