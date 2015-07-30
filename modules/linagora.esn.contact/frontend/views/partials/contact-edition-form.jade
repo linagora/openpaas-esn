@@ -6,13 +6,17 @@
           div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
             contact-photo(contact='contact', editable='true')
         .col-xs-12.col-sm-8.col-sm-pull-4
-          input.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
-          input.form-control.floating-label(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
-          input.form-control.floating-label(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
+          .fg-line
+            input.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
+          .fg-line
+            input.form-control.floating-label(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
+          .fg-line 
+            input.form-control.floating-label(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
       div(ng-show='contact.org')
         label.control-label.sr-only #{__("Job Title")}
         .col-sm-12
-          input.form-control.floating-label(type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
+          .fg-line 
+            input.form-control.floating-label(type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
       multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
       multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
       multi-input-group-address( multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]')
@@ -36,7 +40,8 @@
       .row
         label.control-label.sr-only #{__("Nickname")}
         .col-sm-12
-          input.form-control(type='text', placeholder='#{__("Nickname")}', ng-model='contact.nickname')
+          .fg-line
+            input.form-control(type='text', placeholder='#{__("Nickname")}', ng-model='contact.nickname')
       .row(ng-show='contact.org')
         label.control-label.sr-only #{__("Company Website")}
         .col-sm-12
@@ -46,5 +51,5 @@
   .row
     .col-xs-12
       .form-group
-        textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
-        inline-notify(name='comments')
+        .fg-line
+          textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')
