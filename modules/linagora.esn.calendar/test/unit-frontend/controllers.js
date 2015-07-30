@@ -394,8 +394,9 @@ describe('The Calendar Angular module controllers', function() {
             etag: '123123'
           };
 
-          this.calendarServiceMock.modify = sinon.spy(function(path, event, etag) {
+          this.calendarServiceMock.modify = sinon.spy(function(path, event, oldEvent, etag) {
             expect(event.title).to.equal('title');
+            expect(oldEvent.title).to.equal('oldtitle');
             expect(path).to.equal('/path/to/event');
             expect(etag).to.equal('123123');
             return $q.when();
