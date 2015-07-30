@@ -34,7 +34,7 @@ describe('The global Pubsub object', function() {
 
     var handler = function() { /*nothing*/ };
 
-    var pubsub = new RedisPubsub(client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler);
   });
@@ -49,7 +49,7 @@ describe('The global Pubsub object', function() {
     };
     var data = {test: true};
 
-    var pubsub = new RedisPubsub(client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.publish(data);
   });
@@ -63,7 +63,7 @@ describe('The global Pubsub object', function() {
       done();
     };
 
-    var pubsub = new RedisPubsub(client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler);
     topic.publish(data);
@@ -94,7 +94,7 @@ describe('The global Pubsub object', function() {
       counter++;
     };
 
-    var pubsub = new RedisPubsub(client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler1);
     topic.subscribe(handler2);

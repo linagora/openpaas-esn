@@ -16,5 +16,5 @@ emitter.removeListener = function(event, handler) {
   }
 };
 
-var pubsub = new Pubsub(emitter);
+var pubsub = new Pubsub('local', emitter);
 module.exports = pubsub;
