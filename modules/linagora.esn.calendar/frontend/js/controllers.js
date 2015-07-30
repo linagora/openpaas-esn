@@ -164,7 +164,7 @@ angular.module('esn.calendar')
 
     function modifyOrganizerEvent() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-        _displayError('You must define an event title');
+        _displayError(new Error('You must define an event title'));
         return;
       }
 
