@@ -42,7 +42,8 @@ describe('The Calendar Angular module directives', function() {
   });
 
   describe('The eventForm directive', function() {
-    beforeEach(angular.mock.inject(function($compile, $rootScope, moment, calendarUtils) {
+    beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, moment, calendarUtils) {
+      this.$timeout = $timeout;
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
@@ -57,6 +58,72 @@ describe('The Calendar Angular module directives', function() {
       };
     }));
 
+    it('should has a focusSubmitButton', function() {
+      var element = this.initDirective(this.$scope);
+      var submitButton = element.find('button[type="submit"]')[0];
+
+      element.appendTo(document.body);
+      this.$scope.focusSubmitButton();
+      this.$timeout.flush();
+      expect(document.activeElement).to.deep.equal(submitButton);
+      element.remove();
+    });
+
+    it('should focus submit button on start date blur', function(done) {
+      var element = this.initDirective(this.$scope);
+      var startDateElement = element.find('input[bs-datepicker]').first();
+
+      this.$scope.focusSubmitButton = done;
+      startDateElement.appendTo(document.body);
+      startDateElement.blur();
+      this.$timeout.flush();
+      startDateElement.remove();
+    });
+
+    it('should focus submit button on end date blur', function(done) {
+      var element = this.initDirective(this.$scope);
+      var endDateElement = element.find('input[bs-datepicker]').last();
+
+      this.$scope.focusSubmitButton = done;
+      endDateElement.appendTo(document.body);
+      endDateElement.blur();
+      this.$timeout.flush();
+      endDateElement.remove();
+    });
+
+    it('should focus submit button on start time blur', function(done) {
+      var element = this.initDirective(this.$scope);
+      var startDateElement = element.find('input[bs-timepicker]').first();
+
+      this.$scope.focusSubmitButton = done;
+      startDateElement.appendTo(document.body);
+      startDateElement.blur();
+      this.$timeout.flush();
+      startDateElement.remove();
+    });
+
+    it('should focus submit button on end time blur', function(done) {
+      var element = this.initDirective(this.$scope);
+      var endDateElement = element.find('input[bs-timepicker]').last();
+
+      this.$scope.focusSubmitButton = done;
+      endDateElement.appendTo(document.body);
+      endDateElement.blur();
+      this.$timeout.flush();
+      endDateElement.remove();
+    });
+
+    it('should focus submit button on allday change', function(done) {
+      var element = this.initDirective(this.$scope);
+      var alldayElement = element.find('input[type="checkbox"]');
+
+      this.$scope.focusSubmitButton = done;
+      alldayElement.appendTo(document.body);
+      var ngModelController = alldayElement.controller('ngModel');
+      ngModelController.$setViewValue(true);
+      this.$timeout.flush();
+      alldayElement.remove();
+    });
 
     it('should initiate $scope.editedEvent from $scope.event if it exists with id', function() {
       this.$scope.event = {

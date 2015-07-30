@@ -71,8 +71,12 @@ module.exports = function(config) {
       'frontend/views/modules/domain/**/*.jade',
 
       // fixtures
+      {pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true},
       'modules/**/unit-frontend/fixtures/**'
     ],
+    proxies: {
+      '/images/': 'frontend/images/'
+    },
 
     frameworks: ['mocha'],
     colors: true,
