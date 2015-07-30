@@ -54,19 +54,24 @@ describe('The Unified Inbox Angular module services', function() {
       this.$rootScope = $rootScope;
     }));
 
+    var buildJmapMailbox = function(mailbox) {
+      return {
+        get: function(attr) {
+          return mailbox[attr];
+        }
+      };
+    };
+
     describe('getMailboxes method', function() {
 
       it('should return a promise with mailboxes', function(done) {
-        var expectedMailboxes = [{
-          get: function(attr) {
-            switch (attr) {
-              case 'name': return 'Inbox';
-              case 'role': return 'inbox';
-              case 'href': return '/#/unifiedinbox';
-              case 'unreadMessages': return 5;
-            }
-          }
-        }];
+        var jmapMailboxes = [
+          buildJmapMailbox({
+            name: 'Inbox',
+            role: 'inbox',
+            unreadMessages: 8
+          })
+        ];
 
         var mailboxesCallback;
         this.ObservableArrayFactory.create = function(query, callback) {
@@ -75,7 +80,7 @@ describe('The Unified Inbox Angular module services', function() {
         };
         this.JMAP.store.getQuery = function() {};
         this.JMAP.store.on = function() {
-          mailboxesCallback(expectedMailboxes);
+          mailboxesCallback(jmapMailboxes);
         };
 
         this.JmapMailboxes.get().then(function(result) {
@@ -83,7 +88,62 @@ describe('The Unified Inbox Angular module services', function() {
             name: 'Inbox',
             role: 'inbox',
             href: '/#/unifiedinbox',
-            unreadMessages: 5
+            unreadMessages: 8,
+            orderingWeight: 5
+          }]);
+          done();
+        });
+        this.$rootScope.$apply();
+      });
+
+      it('should return mailboxes with the expected ordering weight attribute', function(done) {
+        var jmapMailboxes = [
+          buildJmapMailbox({
+            name: 'Inbox',
+            role: 'inbox',
+            unreadMessages: 8
+          }),
+          buildJmapMailbox({
+            name: 'Sent',
+            role: 'sent',
+            unreadMessages: 1
+          }),
+          buildJmapMailbox({
+            name: 'nothing',
+            role: null,
+            unreadMessages: 10
+          })
+        ];
+
+        var mailboxesCallback;
+        this.ObservableArrayFactory.create = function(query, callback) {
+          mailboxesCallback = callback;
+          return {};
+        };
+        this.JMAP.store.getQuery = function() {};
+        this.JMAP.store.on = function() {
+          mailboxesCallback(jmapMailboxes);
+        };
+
+        this.JmapMailboxes.get().then(function(result) {
+          expect(result).to.deep.equal([{
+            name: 'Inbox',
+            role: 'inbox',
+            href: '/#/unifiedinbox',
+            unreadMessages: 8,
+            orderingWeight: 5
+          },{
+            name: 'Sent',
+            role: 'sent',
+            href: '/#/unifiedinbox',
+            unreadMessages: 1,
+            orderingWeight: 25
+          },{
+            name: 'nothing',
+            role: null,
+            href: '/#/unifiedinbox',
+            unreadMessages: 10,
+            orderingWeight: 45
           }]);
           done();
         });

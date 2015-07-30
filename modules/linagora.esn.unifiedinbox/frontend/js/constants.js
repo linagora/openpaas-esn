@@ -12,4 +12,15 @@ angular.module('linagora.esn.unifiedinbox')
     trash: 'mdi mdi-delete',
     spam: 'mdi mdi-email',
     templates: 'mdi mdi-email'
+  })
+  .constant('MAILBOX_ROLE_ORDERING_WEIGHT', {
+    inbox: 5,
+    outbox: 10,
+    drafts: 15,
+    templates: 20,
+    sent: 25,
+    archive: 30,
+    trash: 35,
+    spam: 40,
+    default: 45
   });

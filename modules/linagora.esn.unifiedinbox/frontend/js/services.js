@@ -23,9 +23,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('JmapMailboxes', function($q, ObservableArrayFactory) {
+  .factory('JmapMailboxes', function($q, ObservableArrayFactory, MAILBOX_ROLE_ORDERING_WEIGHT) {
 
-    function searchMailboxes() {
+      function searchMailboxes() {
       var deferred = $q.defer();
 
       var observableMailboxes = ObservableArrayFactory.create(
@@ -38,7 +38,8 @@ angular.module('linagora.esn.unifiedinbox')
                   name: box.get('name'),
                   role: box.get('role'),
                   href: '/#/unifiedinbox',
-                  unreadMessages: box.get('unreadMessages')
+                  unreadMessages: box.get('unreadMessages'),
+                  orderingWeight: MAILBOX_ROLE_ORDERING_WEIGHT[box.get('role') || 'default']
                 };
               });
               deferred.resolve(allMailboxes);
