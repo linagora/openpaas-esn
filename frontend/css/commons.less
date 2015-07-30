@@ -113,25 +113,32 @@
 .ellipsis {
 }
 
-.flex-horizontal-centered {
-  display: -webkit-flex;
+.flex {
   display: flex;
+  display: -webkit-flex;
+}
+
+.flex-horizontal-centered {
+  .flex();
   -webkit-justify-content: center;
   justify-content: center;
 }
 
 .flex-vertical-centered {
-  display: -webkit-flex;
-  display: flex;
+  .flex();
   -webkit-align-items: center;
   align-items: center;
 }
 
 .flex-space-around {
-  display: -webkit-flex;
-  display: flex;
+  .flex();
   -webkit-justify-content: space-around;
   justify-content: space-around;
+
+.flex-start {
+  .flex();
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
 }
 
 .all-centered {
