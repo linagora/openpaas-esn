@@ -7,8 +7,14 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module services', function() {
 
   beforeEach(function() {
-    this.JMAP = {};
+    this.JMAP = {
+      store: {},
+      Mailbox: {}
+    };
     window.JMAP = this.JMAP;
+    this.O = {};
+    window.O = this.O;
+
     angular.mock.module('esn.session');
     angular.mock.module('esn.core');
     angular.mock.module('linagora.esn.unifiedinbox');
@@ -40,19 +46,66 @@ describe('The Unified Inbox Angular module services', function() {
     });
   });
 
+  describe('JmapMailboxes service', function() {
+
+    beforeEach(angular.mock.inject(function(JmapMailboxes, ObservableArrayFactory, $rootScope) {
+      this.JmapMailboxes = JmapMailboxes;
+      this.ObservableArrayFactory = ObservableArrayFactory;
+      this.$rootScope = $rootScope;
+    }));
+
+    describe('getMailboxes method', function() {
+
+      it('should return a promise with mailboxes', function(done) {
+        var expectedMailboxes = [{
+          get: function(attr) {
+            switch (attr) {
+              case 'name': return 'Inbox';
+              case 'role': return 'inbox';
+              case 'href': return '/#/unifiedinbox';
+              case 'unreadMessages': return 5;
+            }
+          }
+        }];
+
+        var mailboxesCallback;
+        this.ObservableArrayFactory.create = function(query, callback) {
+          mailboxesCallback = callback;
+          return {};
+        };
+        this.JMAP.store.getQuery = function() {};
+        this.JMAP.store.on = function() {
+          mailboxesCallback(expectedMailboxes);
+        };
+
+        this.JmapMailboxes.get().then(function(result) {
+          expect(result).to.deep.equal([{
+            name: 'Inbox',
+            role: 'inbox',
+            href: '/#/unifiedinbox',
+            unreadMessages: 5
+          }]);
+          done();
+        });
+        this.$rootScope.$apply();
+      });
+
+    });
+  });
+
   describe('JmapAPI service', function() {
 
-    beforeEach(angular.mock.inject(function(JmapAPI, JmapAuth, session, $rootScope) {
+    beforeEach(angular.mock.inject(function(JmapMailboxes, JmapAPI, JmapAuth) {
+      this.JmapMailboxes = JmapMailboxes;
       this.JmapAPI = JmapAPI;
       this.JmapAuth = JmapAuth;
-      this.session = session;
-      this.$rootScope = $rootScope;
     }));
 
     describe('getMailboxes method', function() {
 
       it('should login first', function() {
         var called = false;
+        this.JmapMailboxes.get = function() {};
         this.JmapAuth.login = function() {
           called = true;
         };
@@ -62,35 +115,17 @@ describe('The Unified Inbox Angular module services', function() {
         expect(called).to.be.true;
       });
 
-      it('should return a promise with mailboxes', function(done) {
+
+      it('should delegate to JmapMailboxes', function() {
         this.JmapAuth.login = function() {};
-        this.JmapAPI.getMailboxes().then(function(result) {
-          expect(result).to.deep.equal([{
-            name: 'Inbox',
-            role: 'inbox',
-            href: '/#/unifiedinbox',
-            unreadMessages: 5
-          }, {
-            name: 'Draft',
-            role: 'drafts',
-            href: '/#/unifiedinbox',
-            unreadMessages: 42
-          }, {
-            name: 'Sent',
-            role: 'sent',
-            href: '/#/unifiedinbox',
-            unreadMessages: 0
-          }, {
-            name: 'Trash',
-            role: 'trash',
-            href: '/#/unifiedinbox',
-            unreadMessages: 1
-          }]);
-          done();
-        });
-        this.$rootScope.$apply();
+        this.JmapMailboxes.get = function() {
+          return 'yolo';
+        };
+
+        expect(this.JmapAPI.getMailboxes()).to.equal('yolo');
       });
 
     });
+
   });
 });

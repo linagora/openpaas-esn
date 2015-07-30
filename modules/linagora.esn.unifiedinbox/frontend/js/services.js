@@ -1,6 +1,6 @@
 'use strict';
 
-/*global JMAP */
+/*global O, JMAP */
 
 angular.module('linagora.esn.unifiedinbox')
 
@@ -23,31 +23,42 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('JmapAPI', function($q, JmapAuth) {
+  .factory('JmapMailboxes', function($q, ObservableArrayFactory) {
+
+    function searchMailboxes() {
+      var deferred = $q.defer();
+
+      var observableMailboxes = ObservableArrayFactory.create(
+          JMAP.store.getQuery('allMailboxes', O.LiveQuery, {
+              Type: JMAP.Mailbox
+          }),
+          function contentChangedCallback(mailboxes) {
+              var allMailboxes = mailboxes.map(function(box) {
+                return {
+                  name: box.get('name'),
+                  role: box.get('role'),
+                  href: '/#/unifiedinbox',
+                  unreadMessages: box.get('unreadMessages')
+                };
+              });
+              deferred.resolve(allMailboxes);
+          }
+      );
+      JMAP.store.on(JMAP.Mailbox, observableMailboxes, 'contentDidChange');
+
+      return deferred.promise;
+    }
+
+    return {
+      get: searchMailboxes
+    };
+  })
+
+  .factory('JmapAPI', function($q, JmapAuth, JmapMailboxes) {
 
     function getMailboxes() {
       JmapAuth.login();
-      return $q.when([{
-        name: 'Inbox',
-        role: 'inbox',
-        href: '/#/unifiedinbox',
-        unreadMessages: 5
-      }, {
-        name: 'Draft',
-        role: 'drafts',
-        href: '/#/unifiedinbox',
-        unreadMessages: 42
-      }, {
-        name: 'Sent',
-        role: 'sent',
-        href: '/#/unifiedinbox',
-        unreadMessages: 0
-      }, {
-        name: 'Trash',
-        role: 'trash',
-        href: '/#/unifiedinbox',
-        unreadMessages: 1
-      }]);
+      return JmapMailboxes.get();
     }
 
     return {
