@@ -14,7 +14,7 @@ angular.module('esn.calendar')
 
     function _displayError(err) {
       $alert({
-        content: err,
+        content: err.message || err.statusText,
         type: 'danger',
         show: true,
         position: 'bottom',
