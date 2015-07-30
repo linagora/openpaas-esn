@@ -85,22 +85,21 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
       .modal-footer
         .col-xs-12
           hr
-        .col-xs-12
           .form-group
-            .fg-line
-              .col-xs-3
-                button.btn.btn-default.save(type='submit', ng-disabled="restActive")
+            .flex-space-around
+              .save-button
+                button.btn.btn-default.save(type='submit', ng-disabled="restActive")          
                   span.hidden-xs #{__('Save')}
                   i.mdi.mdi-check.visible-xs
-              .col-xs-3
+              .options-button
                 button.btn.btn-default(type='button', ng-disabled="true")
                   span.hidden-xs #{__('More options')}
                   i.mdi.mdi-dots-horizontal.visible-xs
-              .col-xs-3
-                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-if="isOrganizer && !isNew(editedEvent)", ng-disabled="restActive")
+              .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
+                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
                   span.hidden-xs #{__('Delete')}
                   i.mdi.mdi-delete.visible-xs
-              .col-xs-3
+              .close-button
                 button.btn.btn-default(type='button', ng-click="closeModal()")
                   span.hidden-xs #{__('Cancel')}
                   i.mdi.mdi-close.visible-xs
