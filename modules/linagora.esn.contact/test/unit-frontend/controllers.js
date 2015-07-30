@@ -458,6 +458,36 @@ describe('The Contacts Angular module', function() {
       });
 
     });
+
+    describe('The deleteContact function', function() {
+
+      it('should go back to the list of contacts when called', function(done) {
+        $location.path = function(path) {
+          expect(path).to.equal('/contact');
+          done();
+        };
+        this.initController();
+        scope.deleteContact();
+      });
+
+      it('should call contactsService.remove with the right bookId and cardId', function(done) {
+        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+        contactsService.deleteContact = function(id, contact) {
+          expect(id).to.deep.equal(bookId);
+          expect(contact).to.deep.equal(scope.contact);
+          done();
+      };
+
+        contactsService.getCard = function(path) {
+          return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+        };
+
+        this.initController();
+        scope.deleteContact();
+        $timeout.flush();
+      });
+    });
+
   });
 
   describe('the contactAvatarModalController', function() {
@@ -512,6 +542,91 @@ describe('The Contacts Angular module', function() {
         expect(modalHidden).to.be.true;
         expect(scope.contact.photo).to.equal(imageAsBase64);
       });
+    });
+
+  });
+
+  describe('The editContactController controller', function() {
+
+    beforeEach(function() {
+      this.initController = $controller.bind(null, 'editContactController', { $scope: scope});
+    });
+
+    describe('The save function', function() {
+
+        it('should call contactsService.modify with the right bookId and cardId', function(done) {
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          contactsService.modify = function(id, contact) {
+            expect(id).to.deep.equal(bookId);
+            expect(contact).to.deep.equal(scope.contact);
+            done();
+          };
+
+          contactsService.getCard = function(path) {
+            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+          };
+
+          this.initController();
+          scope.save();
+        });
+
+        it('should go back to contact visualization page if success', function(done) {
+          scope.contact = {_id: 1, firstName: 'Foo', lastName: 'Bar'};
+
+          $location.path = function(path) {
+            expect(path).to.equal('/contact/show/' + scope.bookId + '/' + scope.cardId);
+            done();
+          };
+
+          contactsService.modify = function() {
+            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+          };
+          this.initController();
+          scope.save();
+          scope.$digest();
+        });
+
+        it('should not change page if the contact is invalid', function(done) {
+          $location.path = function() {
+            done('This test should not change the location');
+          };
+          contactsService.modify = function() {
+            return $q.reject();
+          };
+          this.initController();
+          scope.save();
+          done();
+        });
+
+    });
+
+    describe('The deleteContact function', function() {
+
+        it('should go back to the list of contacts when called', function(done) {
+          $location.path = function(path) {
+            expect(path).to.equal('/contact');
+            done();
+          };
+          this.initController();
+          scope.deleteContact();
+        });
+
+        it('should call contactsService.remove with the right bookId and cardId', function(done) {
+          scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
+          contactsService.deleteContact = function(id, contact) {
+            expect(id).to.deep.equal(bookId);
+            expect(contact).to.deep.equal(scope.contact);
+            done();
+          };
+
+          contactsService.getCard = function(path) {
+            return $q.when({_id: 1, firstName: 'Foo', lastName: 'Bar'});
+          };
+
+          this.initController();
+          scope.deleteContact();
+          $timeout.flush();
+        });
     });
 
   });

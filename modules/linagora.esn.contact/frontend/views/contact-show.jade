@@ -1,12 +1,80 @@
-.card(ng-submit='accept()')
-  .card-header.contact-header
-    .row
-      .col-xs-8
-        h1 {{contact.displayName}}
-      .col-xs-4
-        .contact-buttons
-          button.btn.btn-default(type='button', ng-click='close()')
-            | #{__('Back')}
-  .card-body.card-padding
+form.esn-panel.main-panel.hidden-xs(ng-submit='accept()')
+  .row.panel-header
+    .col-sm-7.col-xs-12.panel-title
+      span.contact-heading
+        | {{contact.displayName}}
+    .col-sm-5.col-xs-12.action-bar
+      button.btn.btn-default.btn-raised.btn-cancel(type='button', ng-click='close()') #{__('Back')}
+  .row.create-content
     .contact-error-container
-    contact-display(contact='contact', update='true', modify='modify')
+      contact-display(contact='contact', update='true', modify='modify')
+
+.contact-header.visible-xs(ng-swipe-right='back()')
+    .contact-controls-wrapper
+      .contact-controls.row(data-offset-top="0" bs-affix)
+        a.hover-scale-animation.col-xs-3(href='', ng-click='close()')
+          i.mdi.mdi-reply
+        a.hover-scale-animation.col-xs-3(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+          i.mdi.mdi-pencil
+        a.hover-scale-animation.col-xs-3(href='')
+          i.mdi.mdi-magnify
+        div.hover-scale-animation.dropdown.pull-right.col-xs-3
+          a.moreactions.dropdown-toggle(href='' data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+            i.mdi.mdi-dots-horizontal
+          ul.dropdown-menu.dropdown-menu-right(role="menu")
+            li
+              a(href='', ng-click="deleteContact()") Delete
+    img(ng-src='{{contact.photo || defaultAvatar}}')
+.contact-content.visible-xs
+  .contact-error-container
+    div.contact-fn
+      | {{contact.displayName}}
+    .contact-infos
+      div(ng-repeat='tel in contact.tel track by $index')
+        a(ng-href='tel:{{tel.value}}')
+          button.waves-effect.btn.btn-default.contact-card(type='button')
+              i.mdi.mdi-phone
+              p {{tel.value}}
+              p.contact-card-type {{tel.type}}
+      div(ng-repeat='email in contact.emails track by $index')
+        a(ng-href='mailto:{{email.value}}')
+          button.btn.btn-default.waves-effect.contact-card(type='button')
+              i.mdi.mdi-email
+              p {{email.value}}
+              p.contact-card-type {{email.type}}
+      button.waves-effect.btn.btn-default.contact-card(type='button' ng-repeat='social in contact.social track by $index')
+          i.mdi.mdi-whatsapp(ng-if='social.type==="Skype"')
+          i.mdi.mdi-twitter(ng-if='social.type==="Twitter"')
+          i.mdi.mdi-account-circle(ng-if='social.type!=="Skype" && social.type!=="Twitter"')
+          p {{social.value}}
+          p.contact-card-type {{social.type}}
+      a(target="_blank" ng-href='{{contact.orgUri}}')
+        button.waves-effect.btn.btn-default.contact-card(ng-if='contact.orgUri')
+          i.mdi.mdi-earth
+          p {{contact.orgUri}}
+          p.contact-card-type Website
+      .contact-card(ng-repeat='address in contact.addresses track by $index')
+          i.mdi.mdi-map-marker
+          p {{address.street}}
+          p {{address.zip}} {{address.city}}
+          p {{address.country}}
+          p.contact-card-type {{address.type}}
+      .contact-card(ng-if='contact.org[0] || contact.orgRole')
+          i.mdi.mdi-briefcase
+          p(ng-if='contact.org[0]') {{contact.org[0]}}
+          p(ng-if='contact.orgRole') {{contact.orgRole}}
+      .contact-card(type='button' ng-if='contact.tags.length!=0')
+          i.mdi.mdi-tag-multiple
+          ul.tag-list
+            li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
+      .contact-card(ng-if='contact.firstName || contact.lastName || contact.nickname')
+          i.mdi.mdi-account
+          p(ng-if='contact.firstName') First name: {{contact.firstName}}
+          p(ng-if='contact.lastName') Last name: {{contact.lastName}}
+          p(ng-if='contact.nickname') Nickname: {{contact.nickname}}
+      .contact-card(ng-if='formattedBirthday')
+          i.mdi.mdi-cake-variant
+          p {{formattedBirthday}}
+      .contact-card(ng-if='contact.notes')
+          i.mdi.mdi-clipboard-text
+          p {{contact.notes}}

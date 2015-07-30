@@ -1,0 +1,53 @@
+.contact-header.visible-xs
+  .contact-controls-wrapper
+    .contact-controls.row(data-offset-top="0" bs-affix)
+      a.hover-scale-animation.col-xs-3(href='', ng-click='save()')
+        i.mdi.mdi-check.m-l-5
+      .col-xs-6
+      .col-xs-3.contact-dropdown.dropdown.pull-right         
+        a.hover-scale-animation.moreactions.dropdown-toggle(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
+          i.mdi.mdi-dots-horizontal.m-r-5
+        ul.dropdown-menu.dropdown-menu-right(role="menu")
+          li
+            a(ng-click="deleteContact()") Delete       
+.form-horizontal.contact-content.visible-xs
+      .row
+        .col-xs-12.all-centered
+          div.m-t-25.m-b-10(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
+            contact-photo(contact='contact', editable='true')
+        .col-xs-12
+          .form-group
+            .fg-line
+              input.form-control(type='text', placeholder='#{__("First Name")}', ng-model='contact.firstName')
+          .form-group
+            .fg-line
+              input.form-control(type='text', placeholder='#{__("Last Name")}', ng-model='contact.lastName')
+          .form-group
+            .fg-line
+              input.form-control(type='text', placeholder='#{__("Organization")}', ng-model='contact.org')
+          .form-group(ng-show='contact.org')
+            .fg-line
+              input.form-control(ng-if='!update', type='text', placeholder='#{__("Job Title")}', ng-model='contact.orgRole')
+          multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
+          multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
+          multi-input-group-address(multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]')
+          .form-group.tags-group
+              tags-input(ng-model='contact.tags', placeholder='Tags', add-on-space='true', add-on-enter='true', min-length='1')
+          multi-input-group(multi-input-model='contact.social', multi-input-types='["Skype", "Twitter", "Other"]', multi-input-texttype='text', multi-input-placeholder='#{__("Social Account")}')
+          .form-group
+            .col-xs-9
+              .input-group
+                span.input-group-addon
+                  i.mdi.mdi-cake-variant
+                .fg-line
+                  input.form-control(type='text', relaxed-date, ng-model='contact.birthday', name='date')
+          .form-group
+            .fg-line
+              input.form-control(type='text', placeholder='#{__("Nickname")}', ng-model='contact.nickname')
+          .form-group(ng-show='contact.org')
+            .fg-line
+              input.form-control(type='text', placeholder='#{__("Company Website")}', ng-model='contact.orgUri')
+          .form-group
+              .input-group.full-width
+                .fg-line 
+                  textarea.form-control(rows='6', placeholder='#{__("Comments")}', ng-model='contact.notes')

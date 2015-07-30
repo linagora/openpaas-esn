@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
+  .constant('DEFAULT_AVATAR', '/images/user.png')
   .factory('displayError', function($alert) {
     return function(err) {
       $alert({
@@ -85,12 +86,19 @@ angular.module('linagora.esn.contact')
 
     sharedDataService.contact = {};
   })
-  .controller('showContactController', function($scope, $rootScope, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
 
     $scope.close = closeForm;
+
+    $scope.deleteContact = function() {
+      closeForm();
+      $timeout(function() {
+        contactsService.deleteContact($scope.bookId, $scope.contact);
+      }, 200);
+    };
 
     function _modify() {
       return sendContactToBackend($scope, function() {
@@ -112,9 +120,45 @@ angular.module('linagora.esn.contact')
 
     contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
       $scope.contact = card;
+      $scope.formattedBirthday = ContactsHelper.getFormattedBirthday($scope.contact.birthday);
+      $scope.defaultAvatar = DEFAULT_AVATAR;
     }, function() {
       displayError('Cannot get contact details');
     });
+
+  })
+  .controller('editContactController', function($scope, $q, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, DEFAULT_AVATAR, GRACE_DELAY) {
+    $scope.bookId = $route.current.params.bookId;
+    $scope.cardId = $route.current.params.cardId;
+    contactsService.getCard($scope.bookId, $scope.cardId).then(function(card) {
+      $scope.contact = card;
+      $scope.defaultAvatar = DEFAULT_AVATAR;
+    }, function() {
+      displayError('Cannot get contact details');
+    });
+
+    $scope.save = function() {
+      return sendContactToBackend($scope, function() {
+        return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
+          $scope.contact = contact;
+          return contact;
+        }, function(err) {
+        });
+      }).then(function() {
+        $location.path('/contact/show/' + $scope.bookId + '/' + $scope.cardId);
+      }, function(err) {
+        displayError(err);
+        return $q.reject(err);
+      });
+    };
+
+    $scope.deleteContact = function() {
+      closeForm();
+      $timeout(function() {
+        contactsService.deleteContact($scope.bookId, $scope.contact);
+      }, 200);
+    };
+
   })
   .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper) {
     var requiredKey = 'displayName';

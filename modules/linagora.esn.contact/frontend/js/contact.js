@@ -22,9 +22,17 @@ angular.module('linagora.esn.contact', [
       user: routeResolver.session('user')
     }
   });
-  $routeProvider.when('/contact/:bookId/:cardId', {
+  $routeProvider.when('/contact/show/:bookId/:cardId', {
     templateUrl: '/contact/views/contact-show',
     controller: 'showContactController',
+    resolve: {
+      domain: routeResolver.session('domain'),
+      user: routeResolver.session('user')
+    }
+  });
+  $routeProvider.when('/contact/edit/:bookId/:cardId', {
+    templateUrl: '/contact/views/contact-edit',
+    controller: 'editContactController',
     resolve: {
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')

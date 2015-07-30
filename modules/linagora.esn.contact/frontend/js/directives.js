@@ -1,7 +1,6 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .constant('DEFAULT_AVATAR', '/images/user.png')
   .constant('ENTER_KEY', 13)
   .constant('ESCAPE_KEY', 27)
   .directive('contactNavbarLink', function() {
@@ -351,7 +350,7 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', function($rootScope, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
+  .directive('contactListItem', function($rootScope, $location, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -370,6 +369,10 @@ angular.module('linagora.esn.contact')
 
         $scope.email = getFirstValue('emails');
         $scope.tel = getFirstValue('tel');
+
+        $scope.displayContact = function($event) {
+          $location.path('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
+        };
 
         $scope.deleteContact = function() {
           contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {

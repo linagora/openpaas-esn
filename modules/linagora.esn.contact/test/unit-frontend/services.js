@@ -23,6 +23,7 @@ describe('The Contacts Angular module', function() {
           return this._uuid;
         }
       };
+      this.notificationFactory = {};
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
       contactWithChangedETag = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last', etag: 'changed-etag' };
@@ -35,12 +36,13 @@ describe('The Contacts Angular module', function() {
       angular.mock.module('esn.core');
       angular.mock.module('linagora.esn.contact');
       angular.mock.module(function($provide) {
+        $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('tokenAPI', self.tokenAPI);
         $provide.value('uuid4', self.uuid4);
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, $httpBackend, $rootScope, _ICAL_, DAV_PATH) {
+    beforeEach(angular.mock.inject(function(contactsService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;

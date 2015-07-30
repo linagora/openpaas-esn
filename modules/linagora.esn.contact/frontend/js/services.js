@@ -6,6 +6,14 @@ angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DAV_PATH', '/dav/api')
   .factory('ContactsHelper', function(DATE_FORMAT, $dateFormatter) {
+
+    function getFormattedBirthday(birthday) {
+      if (birthday instanceof Date) {
+        return moment(birthday).format('L'); // jshint ignore:line
+      }
+        return birthday;
+    }
+
     function getFormattedName(contact) {
 
       function notNullNorEmpty(value) {
@@ -109,10 +117,25 @@ angular.module('linagora.esn.contact')
     }
 
     return {
-      getFormattedName: getFormattedName
+      getFormattedName: getFormattedName,
+      getFormattedBirthday: getFormattedBirthday
     };
   })
-  .factory('contactsService', function(ContactsHelper, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {
+
+    function deleteContact(bookId, contact) {
+      remove(bookId, contact, GRACE_DELAY).then(function(taskId) {
+        return gracePeriodService.grace('You have just deleted a contact (' + contact.displayName + ').', 'Cancel').then(null, function() {
+          return gracePeriodService.cancel(taskId).then(function() {
+            $rootScope.$broadcast('contact:cancel:delete', contact);
+          });
+        });
+      } , function(err) {
+        notificationFactory.weakError('Contact Delete', 'Can not delete contact');
+        return $q.reject(err);
+      });
+    }
+
     function ContactsShell(vcard, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
@@ -438,6 +461,7 @@ angular.module('linagora.esn.contact')
       modify: modify,
       getCard: getCard,
       search: search,
+      deleteContact: deleteContact,
       shellToVCARD: shellToVCARD
     };
   });
