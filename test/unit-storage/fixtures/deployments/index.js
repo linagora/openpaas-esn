@@ -12,25 +12,41 @@ module.exports.linagora_test_domain = function() {
         password: 'secret',
         firstname: 'a ',
         lastname: 'user1',
-        emails: ['user1@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user1@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'b',
         lastname: 'user2',
-        emails: ['user2@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user2@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'c',
         lastname: 'user3',
-        emails: ['user3@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user3@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'd',
         lastname: 'user4',
-        emails: ['user4@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user4@linagora.com']
+        }]
       }
     ]
   };
@@ -49,25 +65,41 @@ module.exports.linagora_test_domain2 = function() {
         password: 'secret',
         firstname: 'a2 ',
         lastname: 'user12',
-        emails: ['user12@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user12@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'b2',
         lastname: 'user22',
-        emails: ['user22@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user22@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'c2',
         lastname: 'user32',
-        emails: ['user32@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user32@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'd2',
         lastname: 'user42',
-        emails: ['user42@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user42@linagora.com']
+        }]
       }
     ]
   };
@@ -86,13 +118,21 @@ module.exports.linagora_test_cases = function() {
         password: 'secret',
         firstname: 'Delphine',
         lastname: 'Dorémi',
-        emails: ['tyrell@linagora.fr']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['tyrell@linagora.fr']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Philippe',
         lastname: 'Mifasol',
-        emails: ['roybatty@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['roybatty@linagora.com']
+        }]
       }
     ]
   };
@@ -110,7 +150,11 @@ module.exports.linagora_test_cases_extra = function() {
       {
         password: 'secret',
         firstname: 'éèêëaàâäïîç',
-        emails: ['tyrell@interne.fr']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['tyrell@interne.fr']
+        }]
       }
     ]
   };

@@ -1,20 +1,22 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mongodb = require('mongodb');
 
 describe('The Contact model', function() {
-  var Contact, User, AddressBook, ABName, emails, userEmails, email, email2, email_ci, email2_ci, name;
+  var Contact, User, AddressBook, ABName, emails, userEmails, email, email2, email_ci, email2_ci, name, fixtures, helpers;
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    this.helpers.requireBackend('core/db/mongo/models/contact');
-    this.helpers.requireBackend('core/db/mongo/models/user');
-    this.helpers.requireBackend('core/db/mongo/models/addressbook');
+
+    helpers = this.helpers;
+    helpers.requireBackend('core/db/mongo/models/contact');
+    helpers.requireBackend('core/db/mongo/models/user');
+    helpers.requireBackend('core/db/mongo/models/addressbook');
 
     Contact = this.mongoose.model('Contact');
     User = this.mongoose.model('User');
     AddressBook = this.mongoose.model('AddressBook');
+    fixtures = this.helpers.requireFixture('models/users.js')(User);
 
     ABName = 'Professional';
     emails = [];
@@ -29,105 +31,22 @@ describe('The Contact model', function() {
   });
 
   it('should save an user contact into an addressbook', function(done) {
-    emails.push(email_ci);
-    userEmails.push(email2_ci);
+    fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function(user) {
+      new AddressBook({ name: ABName, creator: user._id }).save(helpers.callbacks.noErrorAnd(function(book) {
+        new Contact({ emails: [email_ci], owner: user._id, addressbooks: [book._id], given_name: name }).save(helpers.callbacks.noErrorAnd(function(c) {
+          Contact.findOne({ _id: c._id }, helpers.callbacks.noErrorAnd(function(contact) {
+            expect(contact).to.shallowDeepEqual({
+              emails: [email],
+              owner: user._id,
+              addressbooks: [book._id],
+              given_name: name
+            });
 
-    var u = new User({ firstname: 'foo', lastname: 'bar', emails: userEmails});
-    var ab;
-    var models = {
-      user: null,
-      contact: null,
-      addressbook: null
-    };
-
-    var mongoUrl = this.testEnv.mongoUrl;
-
-    function testSavedAB(savedAB, callback) {
-      mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-        if (err) { return callback(err); }
-        db.collection('addressbooks').findOne({_id: savedAB._id}, function(err, ab) {
-          if (err) { return callback(err); }
-          expect(ab).to.be.not.null;
-          expect(ab.name).to.equal(ABName);
-          callback();
-        });
-      });
-    }
-
-    function testSavedUser(savedUser, callback) {
-      mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-        if (err) { return callback(err); }
-        db.collection('users').findOne({_id: savedUser._id}, function(err, user) {
-          if (err) { return callback(err); }
-          expect(user).to.be.not.null;
-          expect(user.emails).to.be.an.array;
-          expect(user.emails).to.have.length(1);
-          expect(user.emails[0]).to.equal(email2);
-          callback();
-        });
-      });
-    }
-
-    function testSavedContact(savedContact, savedUser, savedEB, callback) {
-      mongodb.MongoClient.connect(mongoUrl, function(err, db) {
-        if (err) { return callback(err); }
-        db.collection('contacts').findOne({_id: savedContact._id}, function(err, contact) {
-          if (err) { return callback(err); }
-          expect(contact).to.be.not.null;
-          expect(contact.emails).to.be.an.array;
-          expect(contact.emails).to.have.length(1);
-          expect(contact.emails[0]).to.equal(email);
-
-          expect(contact.owner + '').to.equal(savedUser._id + '');
-
-          expect(contact.given_name).to.equal(name);
-
-          expect(contact.addressbooks).to.be.an.array;
-          expect(contact.addressbooks).to.have.length(1);
-          expect(contact.addressbooks[0] + '').to.equal(savedEB._id + '');
-          db.close(callback);
-        });
-      });
-    }
-
-    function saveAddressbook(ab, callback) {
-      ab.save(function(err, savedAB) {
-        if (err) { return callback(err); }
-        models.addressbook = savedAB;
-        testSavedAB(savedAB, function(err) {
-          if (err) {
-            return callback(err);
-          }
-          callback();
-        });
-      });
-    }
-
-    function saveContact(contact, callback) {
-      contact.save(function(err, savedContact) {
-        if (err) { return callback(err); }
-        models.contact = savedContact;
-        testSavedContact(models.contact, models.user, models.addressbook, callback);
-      });
-    }
-
-    u.save(function(err, savedUser) {
-      if (err) { return done(err); }
-      models.user = savedUser;
-      testSavedUser(savedUser, function(err) {
-        if (err) {
-          return done(err);
-        }
-        ab = new AddressBook({name: ABName, creator: savedUser._id});
-        saveAddressbook(ab, function(err) {
-          if (err) {
-            return done(err);
-          }
-          var c = new Contact({emails: emails, owner: ab.creator, addressbooks: [models.addressbook._id], given_name: name});
-          saveContact(c, done);
-        });
-      });
-    });
+            done();
+          }));
+        }));
+      }));
+    }));
   });
 
   it('should allow recording contacts having the same email addresses', function(done) {
