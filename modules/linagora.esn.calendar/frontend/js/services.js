@@ -359,7 +359,13 @@ angular.module('esn.calendar')
       });
     }
 
-    function modify(eventPath, event, etag) {
+    function modify(eventPath, event, etag, majorModification) {
+      if (majorModification) {
+        event.attendees.forEach(function(attendee) {
+          attendee.partstat = 'NEEDS-ACTION';
+        });
+      }
+
       var headers = {
         'Content-Type': 'application/calendar+json',
         'Prefer': 'return=representation'
@@ -482,10 +488,15 @@ angular.module('esn.calendar')
       return !organizerMail || (organizerMail in session.user.emailMap);
     }
 
+    function isMajorModification(newEvent, oldEvent) {
+      return !newEvent.start.isSame(oldEvent.start) || !newEvent.end.isSame(oldEvent.end);
+    }
+
     return {
       render: render,
       copyEventObject: copyEventObject,
-      isOrganizer: isOrganizer
+      isOrganizer: isOrganizer,
+      isMajorModification: isMajorModification
     };
 
   })
