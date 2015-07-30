@@ -152,6 +152,19 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-display.html'
     };
   })
+  .directive('contactEditionForm', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        'contact': '=',
+        'formattedBirthday': '=',
+        'defaultAvatar': '=',
+        'update': '=',
+        'modify': '='
+      },
+      templateUrl: '/contact/views/partials/contact-edition-form.html'
+    };
+  })
   .directive('inlineEditableInput', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY) {
     function link(scope, element, attrs, controller) {
       var input = element.find('input');

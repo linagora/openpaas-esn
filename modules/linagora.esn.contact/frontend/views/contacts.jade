@@ -21,7 +21,7 @@
   .vertiz-space
 
   .row
-    .col-xs-11
+    .col-xs-11.col-md-12
       div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         .card(ng-if='contacts && contacts.length')
           .listview.lv-bordered.lv-lg
