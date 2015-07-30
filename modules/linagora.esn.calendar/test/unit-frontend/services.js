@@ -114,7 +114,7 @@ describe('The Calendar Angular module services', function() {
         $provide.factory('calendarService', function() {
           return {
             list: function(path, startMoment, endMoment, timezone) {
-              expect(path).to.equals('calendars/' + calendarId + '/events');
+              expect(path).to.equals('/calendars/' + calendarId + '/events');
               expect(startMoment).to.deep.equal(start);
               expect(endMoment).to.deep.equal(end);
               expect(timezone).to.equals(localTimezone);
@@ -698,7 +698,7 @@ describe('The Calendar Angular module services', function() {
 
         this.calendarService.create('/path/to/calendar', vcalendar).then(
           function(shell) {
-            expect(emitMessage).to.equal('addedCalendarItem');
+            expect(emitMessage).to.equal('modifiedCalendarItem');
             expect(shell.title).to.equal('test event');
             expect(shell.etag).to.equal('etag');
             expect(shell.path).to.equal('/path/to/calendar/00000000-0000-4000-a000-000000000000.ics');
