@@ -1,7 +1,6 @@
 @import '../../../../frontend/css/commons';
-@import "../../../../frontend/components/bootstrap/less/variables";
-@import "../../../../frontend/components/material-admin/less/inc/variables";
-@import "../../../../frontend/css/variables";
+
+@contact-header-color: @darkPrimaryColor;
 
 .contact-field-label {
   padding-top: 7px;
@@ -17,7 +16,7 @@
 }
 
 .contact-header {
-  background-color: @m-bluegray;
+  background-color: @contact-header-color;
   h1 {
     font-size: 22px;
     color: @m-white;
@@ -133,62 +132,31 @@
   }
 }
 
+.contacts-list {
+  padding: 0 15px;
+  .contact-letter {
+    h2 {
+      font-weight: 500;
+      font-size: x-large;
+      color: darken(@m-gray, 30%);
+    }
+  }
+}
+
 .contact-list-item {
-  img {
-    width: auto;
-    height: 48px;
+  .touch-zone {
     cursor: pointer;
+    min-height: 50px;
   }
-}
-
-.alphascroll {
-  ul {
-    :hover {
-      display:block;
-      transform: scale(1.2);
-    }
-    list-style: none;
-    padding-left: 10px;
-    padding-right: 10px;
-    li {
-      padding-top: 0px;
-      padding-bottom: 0px;
-      a {
-        color: @m-black;
-        cursor: pointer;
-        text-decoration: none;
-        opacity: 0.6;
-      }
-      a.active {
-        color: @m-black;
-        font-weight: bold;
-        font-size: 1.2em;
-        opacity: 1;
-      }
-    }
-  }
-  &.affix-bottom {
-    position: fixed !important; /* needed to overwrite styles automatically set using the style attribute */
-    top: 40px !important; /* needed to overwrite styles automatically set using the style attribute */
-    width: 24px !important; /* needed to overwrite styles automatically set using the style attribute */
-  }
-}
-
-.fab-contacts {
-  position: fixed;
-  bottom: 40px;
-  z-index: 1;
-  right: 30px;
-  i {
-    font-size: 2em;
-    line-height: inherit;
-    vertical-align: bottom;
+  .contact-display-name {
+    font-weight: 500;
+    font-size: larger;
   }
 }
 
 .contact-letter::after {
   content:'';
-  background-color: lighten(@m-black, 50%);
+  background-color: lighten(@m-gray, 20%);
   height: 1px;
   width: 100%;
   position: absolute;
@@ -197,26 +165,38 @@
 }
 
 .contacts-search {
-  padding: 20px 20px 15px 20px;
-}
-.contacts-search .form-control {
-  background-image: url("../img/search-2.png");
-  background-repeat: no-repeat;
-  background-position: left center;
-  padding-left: 30px;
-  -webkit-transition: all;
-  -o-transition: all;
-  transition: all;
-  -webkit-transition-duration: 300ms;
-  transition-duration: 300ms;
-}
-@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-  .contacts-search .form-control {
-    background-image: url("../img/search-2@2x.png");
-    background-size: 24px 24px;
+  position: absolute;
+  right: 0;
+  z-index: 2;
+  top: 0;
+
+  padding: 0 0 0 20px;
+  input[type="text"] {
+    background-color: @m-white;
+    border-radius: 2px;
+    font-size: 18px;
+    padding: 0 10px 0 40px;
+    height: 35px;
+    width: 100%;
+    border: 0;
   }
 }
+
+.contacts-search:before {
+  font-family: 'MaterialDesignIcons';
+  content: "\f3ab";
+  position: absolute;
+  padding: 2px 10px 0 10px;
+  font-size: x-large;
+  color: @m-gray;
+}
+
 .contacts-search .form-control:focus {
   background-position: right center;
   padding: 0 30px 0 0;
+}
+
+.contacts-search.visible-sm.visible-xs {
+  position: relative;
+  padding: 0 15px;
 }

@@ -1,6 +1,6 @@
 .contact-list-item.media.hidden-xs
   .pull-left
-    a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
+    a(ng-href='#/contact/show/{{::bookId}}/{{::contact.id}}')
       contact-photo.media-object(contact='contact')
   .media-body
     .lv-title
@@ -16,7 +16,7 @@
           | {{::tel}}
     .lv-actions.actions
       li
-        a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}')
+        a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
           i.mdi.mdi-pencil
       li.dropdown
         a(href='', data-toggle='dropdown', aria-expanded='true')
@@ -30,24 +30,23 @@
             a(ng-href='#/contact/{{::bookId}}/{{::contact.id}}') Modify
           li
             a(ng-click="deleteContact()") Delete
-              
-div.contact-list-item.visible-xs
-  .col-xs-2.nopadding.touch-zone(ng-click='displayContact()')
-    contact-photo.visible-xs.media-object(contact='contact')
-  .col-xs-8.touch-zone(ng-click='displayContact()')
-      h4.media-heading {{::contact.displayName}}
-  .col-xs-2.contact-actions
-    .row.vertical-centered.pull-right
-      .col-xs-4.action-item
-        .dropdown.pull-right
-          a.moreactions.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.mdi.mdi-dots-vertical
-          ul.dropdown-menu.dropdown-menu-right(role="menu")
-            li
-              a(ng-href="") Send Message
-            li
-              a(ng-href="") Call
-            li
-              a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') Modify
-            li
-              a(ng-click="deleteContact()") Delete
+
+.contact-list-item.media.visible-xs
+  .pull-left.nopadding.touch-zone(ng-click='displayContact()')
+      contact-photo.media-object(contact='contact')
+  .media-body.row
+    .lv-title.col-xs-11.touch-zone(ng-click='displayContact()')
+          h4.media-heading {{::contact.displayName}}
+    .actions.col-xs-1
+      li.dropdown
+        a(href='', data-toggle='dropdown', aria-expanded='true')
+          i.mdi.mdi-dots-vertical
+        ul.dropdown-menu.dropdown-menu-right
+          li
+            a(ng-href="") Send Message
+          li
+            a(ng-href="") Call
+          li
+            a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') Modify
+          li
+            a(ng-click="deleteContact()") Delete

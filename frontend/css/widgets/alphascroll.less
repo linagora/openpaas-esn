@@ -1,0 +1,26 @@
+.alphascroll {
+  position: fixed;
+  right: 10px;
+
+  ul {
+    list-style: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    li {
+      padding-top: 0px;
+      padding-bottom: 0px;
+      a {
+        color: @text-color;
+        cursor: pointer;
+        text-decoration: none;
+        opacity: 0.6;
+      }
+      a.active {
+        color: @text-color;
+        font-weight: bold;
+        font-size: 1.2em;
+        opacity: 1;
+      }
+    }
+  }
+}

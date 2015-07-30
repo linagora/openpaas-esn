@@ -1,20 +1,31 @@
-.esn-panel
-  h3.contacts-title #{__('Contacts')}
-  fab.fab-contacts(type='create', on-click='openContactCreation()')
-  .contact-error-container.w-100
+.contacts-list
+
+  .block-header
+    h2 #{__('Contacts')}
+    .contacts-search.hidden-sm.hidden-xs
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 300 }")
+
+  .row
+    .contacts-search.visible-sm.visible-xs.col-xs-11
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 300 }")
+
+  button.btn.btn-fab-fixed-bottom(type="button", ng-click="openContactCreation()")
+    i.mdi.mdi-plus
+
+  alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")
+
+  .vertiz-space
+  .row
+    .col-xs-12
+      .contact-error-container
+  .vertiz-space
+
   .row
     .col-xs-11
-      .listview.lv-bordered.lv-lg
-        .lv-header
-          .contacts-search
-            .fg-line
-              input(type="text", class="form-control", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 500 }", placeholder='#{__("Search")}')
-        .lv-body(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-          .card(ng-if='contacts && contacts.length').m-0
-            .card-header.contact-letter.p-l-5
-              h2.hidden-xs {{letter}}
-              h4.visible-xs {{letter}}
-            .card-body
+      div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+        .card(ng-if='contacts && contacts.length')
+          .listview.lv-bordered.lv-lg
+            .lv-header-alt
+              h2.lvh-label {{letter}}
+            .lv-body
               contact-list-item.lv-item.p-5(contact='contact', book-id="bookId", ng-repeat="contact in contacts")
-    .col-xs-1.hidden-xs-height
-      alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")
