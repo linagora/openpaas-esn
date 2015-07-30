@@ -147,9 +147,7 @@ angular.module('linagora.esn.contact')
       scope: {
         'contact': '=',
         'formattedBirthday': '=',
-        'defaultAvatar': '=',
-        'update': '=',
-        'modify': '='
+        'defaultAvatar': '='
       },
       templateUrl: '/contact/views/partials/contact-display.html'
     };
@@ -158,9 +156,7 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       scope: {
-        'contact': '=',
-        'update': '=',
-        'modify': '='
+        'contact': '='
       },
       templateUrl: '/contact/views/partials/contact-edition-form.html'
     };
