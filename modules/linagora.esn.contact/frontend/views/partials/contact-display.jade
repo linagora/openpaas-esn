@@ -1,0 +1,149 @@
+#profile-main.card
+  .pm-overview.c-overflow
+    .pmo-pic
+      .p-relative
+        a
+          img(src="{{contact.photo || defaultAvatar}}")
+        .dropdown.pmop-message
+          button.btn.bgm-white.btn-float.z-depth-1.waves-effect(aria-expanded="false" data-toggle="dropdown")
+            i.mdi.mdi-message-text      
+          .dropdown-menu.stop-propagate
+            textarea(placeholder="Write something...")
+            button.btn.bgm-green.btn-icon.waves-effect
+              i.mdi.mdi-send
+        a.pmop-edit(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
+          i.mdi.mdi-camera
+          span.hidden-xs
+            | #{__('Update Profile Picture')}
+      .pmo-stat
+        h2.m-0.c-white
+          |{{contact.firstName}} {{contact.lastName}}
+        |{{contact.job_title}}
+      .pmo-block(ng-if='contact.tags.length!==0')
+        i.mdi.mdi-tag-multiple
+        |Tags
+        ul.tag-list
+          li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
+  .pm-body.clearfix
+    data(ui-view='')
+      .pmb-block(ng-if='contact.org || contact.orgRole || contact.orgUri')
+        .pmbb-header
+          h2 
+            i.mdi.mdi-briefcase.m-r-5
+            | #{__('Job')}
+          ul.actions
+            li.dropdown
+              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+                i.mdi.mdi-pencil
+        .pmbb-body.p-l-30
+          .pmbb-view
+            dl.dl-horizontal(ng-if='contact.org')
+              dt 
+                i.mdi.mdi-factory.m-r-5 
+                | #{__('Organisation')}
+              dd 
+                | {{contact.org[0]}}
+            dl.dl-horizontal(ng-if='contact.orgRole')
+              dt 
+                i.mdi.mdi-email.m-r-5 
+                | #{__('Job Title')}
+              dd 
+                | {{contact.orgRole}}
+            dl.dl-horizontal(ng-if='contact.orgUri')
+              dt 
+                i.mdi.mdi-web.m-r-5 
+                | #{__('Company Website')}
+              dd 
+                a(ng-href="contact.orgUri") {{contact.orgUri}}
+      .pmb-block(ng-if='contact.emails.length!==0 || contact.tel.length!==0 || contact.addresses.length!==0 || contact.social.length!==0')
+        .pmbb-header
+          h2 
+            i.mdi.mdi-phone.m-r-5
+            | #{__('Contact')}
+          ul.actions
+            li.dropdown
+              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+                i.mdi.mdi-pencil
+        .pmbb-body.p-l-30
+          .pmbb-view
+            dl.dl-horizontal(ng-repeat='email in contact.emails track by $index')
+              dt 
+                .hide-if-not-first(ng-if='$first') 
+                  i.mdi.mdi-email.m-r-5
+                  | #{__('Emails')}
+              dd 
+                a(ng-href='mailto:{{email.value}}') {{email.type}}: {{email.value}}
+            dl.dl-horizontal(ng-repeat='tel in contact.tel track by $index')
+              dt 
+                .hide-if-not-first(ng-if='$first') 
+                  i.mdi.mdi-tablet-android.m-r-5(ng-if='$first') 
+                  | #{__('Phone numbers')}
+              dd 
+                a(ng-href='tel:{{tel.value}}') {{tel.type}}: {{tel.value}}
+            dl.dl-horizontal(ng-repeat='address in contact.addresses track by $index')
+              dt 
+                .hide-if-not-first(ng-if='$first') 
+                  i.mdi.mdi-map-marker.m-r-5(ng-if='$first') 
+                  | #{__('Adresses')}
+              dd 
+                {{address.type}}:
+                br
+                {{address.street}}
+                br 
+                {{address.zip}} {{address.town}}
+                br 
+                {{address.country}}
+            dl.dl-horizontal(ng-repeat='social in contact.social track by $index')
+              dt 
+                .hide-if-not-first(ng-if='$first') 
+                  i.mdi.mdi-earth.m-r-5(ng-if='$first')
+                  | #{__('Social Networks')}
+              dd 
+                | {{social.type}}: {{social.value}}
+      .pmb-block(ng-if='contact.firstName || contact.lastName || contact.nickname || formattedBirthday')
+        .pmbb-header
+          h2 
+            i.mdi.mdi-account-box.m-r-5
+            | #{__('Profile Informations')}
+          ul.actions
+            li.dropdown
+              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+                i.mdi.mdi-pencil
+        .pmbb-body.p-l-30
+          .pmbb-view
+            dl.dl-horizontal(ng-if='contact.firstName')
+              dt 
+                i.mdi.mdi-account-outline.m-r-5 
+                | #{__('First Name')}
+              dd 
+                | {{contact.firstName}}
+            dl.dl-horizontal(ng-if='contact.lastName')
+              dt 
+                i.mdi.mdi-account.m-r-5 
+                | #{__('Last name')}
+              dd 
+                | {{contact.lastName}}
+            dl.dl-horizontal(ng-if='contact.nickname')
+              dt 
+                i.mdi.mdi-comment-account-outline.m-r-5 
+                | #{__('Nickname')}
+              dd 
+                | {{contact.nickname}}
+            dl.dl-horizontal(ng-if='formattedBirthday')
+              dt 
+                i.mdi.mdi-cake-variant.m-r-5 
+                | #{__('Birthday')}
+              dd 
+                | {{formattedBirthday}}
+      .pmb-block(ng-if='contact.notes')
+        .pmbb-header
+          h2 
+            i.mdi.mdi-comment-account.m-r-5
+            | #{__('Comments')}
+          ul.actions
+            li.dropdown
+              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+                i.mdi.mdi-pencil
+        .pmbb-body.p-l-30
+          .pmbb-view
+            | {{contact.notes}}

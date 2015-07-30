@@ -146,6 +146,8 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       scope: {
         'contact': '=',
+        'formattedBirthday': '=',
+        'defaultAvatar': '=',
         'update': '=',
         'modify': '='
       },
@@ -157,8 +159,6 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       scope: {
         'contact': '=',
-        'formattedBirthday': '=',
-        'defaultAvatar': '=',
         'update': '=',
         'modify': '='
       },
