@@ -106,13 +106,13 @@ angular.module('esn.calendar')
         displayName: displayName,
         emails: session.user.emails
       };
-      var path = 'calendars/' + $scope.calendarId + '/events';
+      var path = '/calendars/' + $scope.calendarId + '/events';
       var vcalendar = calendarService.shellToICAL(event);
       $scope.restActive = true;
       _hideModal();
       calendarService.create(path, vcalendar)
         .catch (function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err));
+          _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
         })
         .finally (function() {
           $scope.restActive = false;
@@ -124,19 +124,14 @@ angular.module('esn.calendar')
         $scope.calendarId = calendarService.calendarId;
       }
       $scope.restActive = true;
-      calendarService.remove($scope.event.path, $scope.event, $scope.event.etag).then(function(response) {
-        if ($scope.activitystream) {
-          $rootScope.$emit('message:posted', {
-            activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-            id: response.headers('ESN-Message-Id')
-          });
-        }
-        _displayNotification(notificationFactory.weakInfo, 'Event deleted', $scope.event.title + ' has been deleted');
-      }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
-      }).finally (function() {
-        $scope.restActive = false;
-      });
+      _hideModal();
+      calendarService.remove($scope.event.path, $scope.event, $scope.event.etag)
+        .catch (function(err) {
+          _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+        })
+        .finally (function() {
+          $scope.restActive = false;
+        });
     };
 
     this.modifyEvent = function() {
