@@ -185,7 +185,7 @@ angular.module('esn.calendar')
         return;
       }
       $scope.restActive = true;
-      calendarService.modify($scope.event.path, $scope.editedEvent, $scope.event.etag).then(function(response) {
+      calendarService.modify($scope.event.path, $scope.editedEvent, $scope.event.etag, eventService.isMajorModification($scope.editedEvent, $scope.event)).then(function(response) {
         if ($scope.activitystream) {
           $rootScope.$emit('message:posted', {
             activitystreamUuid: $scope.activitystream.activity_stream.uuid,
@@ -265,8 +265,8 @@ angular.module('esn.calendar')
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
     };
 
-    $scope.eventDropAndResize = function(event) {
-      calendarService.modify(event.path, event, event.etag).then(function() {
+    $scope.eventDropAndResize = function(event, delta) {
+      calendarService.modify(event.path, event, event.etag, delta.milliseconds !== 0).then(function() {
         notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
       });
     };

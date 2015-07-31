@@ -108,7 +108,7 @@ describe('The Calendar Angular module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, _$filter_) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, USER_UI_CONFIG, moment, _$filter_, eventService) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -118,6 +118,7 @@ describe('The Calendar Angular module controllers', function() {
     this.$filter = _$filter_;
     this.USER_UI_CONFIG = USER_UI_CONFIG;
     this.moment = moment;
+    this.eventService = eventService;
   }));
 
   describe('The partstat filter', function() {
@@ -292,6 +293,10 @@ describe('The Calendar Angular module controllers', function() {
     });
 
     describe('modifyEvent function', function() {
+      beforeEach(function() {
+        this.eventService.isMajorModification = function() {};
+      });
+
       describe('as an organizer', function() {
         beforeEach(function() {
           this.scope.isOrganizer = true;

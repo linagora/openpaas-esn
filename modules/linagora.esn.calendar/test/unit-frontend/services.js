@@ -347,6 +347,44 @@ describe('The Calendar Angular module services', function() {
         expect(this.eventService.isOrganizer(event)).to.be.true;
       });
     });
+
+    describe('isMajorModification function', function() {
+      it('should return true when the events do not have the same start date', function() {
+        var newEvent = {
+          start: moment('2015-01-01 09:00:00'),
+          end: moment('2015-01-01 10:00:00')
+        };
+        var oldEvent = {
+          start: moment('2015-01-01 08:00:00'),
+          end: moment('2015-01-01 10:00:00')
+        };
+        expect(this.eventService.isMajorModification(newEvent, oldEvent)).to.be.true;
+      });
+
+      it('should return true when the events do not have the same end date', function() {
+        var newEvent = {
+          start: moment('2015-01-01 09:00:00'),
+          end: moment('2015-01-01 10:00:00')
+        };
+        var oldEvent = {
+          start: moment('2015-01-01 09:00:00'),
+          end: moment('2015-01-01 11:00:00')
+        };
+        expect(this.eventService.isMajorModification(newEvent, oldEvent)).to.be.true;
+      });
+
+      it('should return false when the events have the same start and end dates', function() {
+        var newEvent = {
+          start: moment('2015-01-01 09:00:00'),
+          end: moment('2015-01-01 10:00:00')
+        };
+        var oldEvent = {
+          start: moment('2015-01-01 09:00:00'),
+          end: moment('2015-01-01 10:00:00')
+        };
+        expect(this.eventService.isMajorModification(newEvent, oldEvent)).to.be.false;
+      });
+    });
   });
 
   describe('The calendarService service', function() {
@@ -764,6 +802,16 @@ describe('The Calendar Angular module services', function() {
       }
 
       beforeEach(function() {
+        this.event = {
+          id: '00000000-0000-4000-a000-000000000000',
+          title: 'test event',
+          start: moment(),
+          end: moment(),
+          attendees: [
+            {emails: ['user1@lng.com'], partstat: 'ACCEPTED'},
+            {emails: ['user2@lng.com'], partstat: 'NEEDS-ACTION'}
+          ]
+        };
         var vcalendar = new ICAL.Component('vcalendar');
         var vevent = new ICAL.Component('vevent');
         vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
@@ -771,14 +819,15 @@ describe('The Calendar Angular module services', function() {
         vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(new Date())).setParameter('tzid', 'Europe/Paris');
         vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(new Date())).setParameter('tzid', 'Europe/Paris');
         vevent.addPropertyWithValue('transp', 'OPAQUE');
+        this.event.attendees.forEach(function(attendee) {
+          var mailto = 'mailto:' + attendee.emails[0];
+          var property = vevent.addPropertyWithValue('attendee', mailto);
+          property.setParameter('partstat', attendee.partstat);
+          property.setParameter('rsvp', 'TRUE');
+          property.setParameter('role', 'REQ-PARTICIPANT');
+        });
         vcalendar.addSubcomponent(vevent);
         this.vcalendar = vcalendar;
-        this.event = {
-          id: '00000000-0000-4000-a000-000000000000',
-          title: 'test event',
-          start: moment(),
-          end: moment()
-        };
       });
 
       it('should fail if status is 201', function(done) {
@@ -864,6 +913,27 @@ describe('The Calendar Angular module services', function() {
           function(shell) { done(); }, unexpected.bind(null, done)
         );
 
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should reset the attendees participation if majorModification parameter is true', function(done) {
+        var headers = { 'ETag': 'changed-etag' };
+        this.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', function(data) {
+          var vcalendar = new ICAL.Component(JSON.parse(data));
+          var vevent = vcalendar.getFirstSubcomponent('vevent');
+          vevent.getAllProperties('attendee').forEach(function(att) {
+            expect(att.getParameter('partstat')).to.equal('NEEDS-ACTION');
+          });
+          return true;
+        }).respond(204, '');
+        this.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, this.vcalendar.toJSON(), headers);
+
+        this.calendarService.modify('/path/to/uid.ics', this.event, null, true).then(
+          function() {
+            done();
+          }, unexpected.bind(null, done)
+        );
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
