@@ -22,7 +22,7 @@
             a(href="", ng-click='cancelMembership()') #{__('Cancel membership request')}
 
   .card-body
-    .community-description.flex-horizontal-centered
+    .community-description.flex-start
       a(href='#/communities/{{::community._id}}')
         img.thumbnail.lv-img-xl(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar')
       .media-body
