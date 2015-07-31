@@ -6,61 +6,33 @@ var async = require('async');
 
 describe('The collaborations API', function() {
 
-  var user;
-  var email = 'user@open-paas.org';
-  var password = 'secret';
-  var Community, User, Domain, webserver;
+  var email = 'user@open-paas.org', password = 'secret';
+  var user, Community, User, Domain, webserver, helpers, fixtures;
 
-  var saveCommunity = function(community, done) {
-    var c = new Community(community);
-    return c.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      community._id = saved._id;
-      return done();
-    });
-  };
+  function saveEntity(Model, entity, done) {
+    new Model(entity).save(helpers.callbacks.noErrorAnd(function(saved) {
+      entity._id = saved._id;
+      done();
+    }));
+  }
 
-  var saveDomain = function(domain, done) {
-    var d = new Domain(domain);
-    return d.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      domain._id = saved._id;
-      return done();
-    });
-  };
-
-  var saveUser = function(user, done) {
-    var u = new User(user);
-    return u.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      user._id = saved._id;
-      return done();
-    });
-  };
+  function saveCommunity(community, done) { saveEntity(Community, community, done); }
+  function saveDomain(domain, done) { saveEntity(Domain, domain, done); }
+  function saveUser(user, done) { saveEntity(User, user, done); }
 
   beforeEach(function(done) {
     var self = this;
+
+    helpers = this.helpers;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
       webserver = self.helpers.requireBackend('webserver').webserver;
       Community = self.helpers.requireBackend('core/db/mongo/models/community');
       User = self.helpers.requireBackend('core/db/mongo/models/user');
       Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
+      fixtures = helpers.requireFixture('models/users.js')(User);
 
-      user = new User({password: password, emails: [email]});
-      user.save(function(err, saved) {
-        if (err) {
-          return done(err);
-        }
-        user._id = saved._id;
-        return done();
-      });
+      saveUser(user = fixtures.newDummyUser([email], password), done);
     });
   });
 
@@ -90,10 +62,7 @@ describe('The collaborations API', function() {
     });
 
     it('should 401 when not logged in', function(done) {
-      request(webserver.application).get('/api/collaborations/membersearch?objectType=user&id=123456789').expect(401).end(function(err) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/membersearch?objectType=user&id=123456789', done);
     });
 
     it('should 400 when req.query.objectType is not set', function(done) {
@@ -192,10 +161,7 @@ describe('The collaborations API', function() {
   describe('PUT /api/collaborations/:objectType/:id/members/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).put('/api/collaborations/community/123/members/456').expect(401).end(function(err) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'put', '/api/collaborations/community/123/members/456', done);
     });
 
     it('should return 404 if community does not exist', function(done) {
@@ -399,10 +365,7 @@ describe('The collaborations API', function() {
   describe('GET /api/collaborations/:objectType/:id/members', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/collaborations/community/123/members').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/community/123/members', done);
     });
 
     it('should return 500 if objectType is invalid', function(done) {
@@ -742,10 +705,7 @@ describe('The collaborations API', function() {
   describe('PUT /api/collaborations/:objectType/:id/membership/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).put('/api/collaborations/community/123/membership/456').expect(401).end(function(err) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'put', '/api/collaborations/community/123/membership/456', done);
     });
 
     it('should return 400 if user is already member of the community', function(done) {
@@ -918,11 +878,7 @@ describe('The collaborations API', function() {
   describe('DELETE /api/collaborations/community/:id/members/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      var community = {_id: 123};
-      request(webserver.application). delete('/api/collaborations/community/' + community._id + '/members/123').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'delete', '/api/collaborations/community/123/members/123', done);
     });
 
     it('should return 404 if community does not exist', function(done) {
@@ -994,10 +950,7 @@ describe('The collaborations API', function() {
   describe('GET /api/collaboartions/:objectType/:id/membership', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/collaborations/community/123/membership').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/community/123/membership', done);
     });
 
     it('should return 404 if community does not exist', function(done) {
@@ -1118,21 +1071,20 @@ describe('The collaborations API', function() {
           });
         }
 
-
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, m) {
           if (err) { return done(err); }
           models = m;
           var community = models.communities[1];
-          var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
-          var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
-          var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
-          var userD = {emails: ['foo.d@bar.com'], password: 'secret'};
-          var userE = {emails: ['foo.e@bar.com'], password: 'secret'};
-          var userF = {emails: ['foo.f@bar.com'], password: 'secret'};
-          var userG = {emails: ['foo.g@bar.com'], password: 'secret'};
-          var userH = {emails: ['foo.h@bar.com'], password: 'secret'};
-          var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
-          var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
+          var userA = {accounts: [{ type: 'email', hosted: true, emails: ['foo.a@bar.com'] }], password: 'secret'};
+          var userB = {accounts: [{ type: 'email', hosted: true, emails: ['foo.b@bar.com'] }], password: 'secret'};
+          var userC = {accounts: [{ type: 'email', hosted: true, emails: ['foo.c@bar.com'] }], password: 'secret'};
+          var userD = {accounts: [{ type: 'email', hosted: true, emails: ['foo.d@bar.com'] }], password: 'secret'};
+          var userE = {accounts: [{ type: 'email', hosted: true, emails: ['foo.e@bar.com'] }], password: 'secret'};
+          var userF = {accounts: [{ type: 'email', hosted: true, emails: ['foo.f@bar.com'] }], password: 'secret'};
+          var userG = {accounts: [{ type: 'email', hosted: true, emails: ['foo.g@bar.com'] }], password: 'secret'};
+          var userH = {accounts: [{ type: 'email', hosted: true, emails: ['foo.h@bar.com'] }], password: 'secret'};
+          var userI = {accounts: [{ type: 'email', hosted: true, emails: ['foo.i@bar.com'] }], password: 'secret'};
+          var userJ = {accounts: [{ type: 'email', hosted: true, emails: ['foo.j@bar.com'] }], password: 'secret'};
 
           async.parallel([
             function(callback) { saveUser(userA, callback); },
@@ -1184,21 +1136,20 @@ describe('The collaborations API', function() {
         });
       }
 
-
       this.helpers.api.applyDomainDeployment('linagora_IT', function(err, m) {
         if (err) { return done(err); }
         models = m;
         var community = models.communities[1];
-        var userA = {emails: ['foo.a@bar.com'], password: 'secret'};
-        var userB = {emails: ['foo.b@bar.com'], password: 'secret'};
-        var userC = {emails: ['foo.c@bar.com'], password: 'secret'};
-        var userD = {emails: ['foo.d@bar.com'], password: 'secret'};
-        var userE = {emails: ['foo.e@bar.com'], password: 'secret'};
-        var userF = {emails: ['foo.f@bar.com'], password: 'secret'};
-        var userG = {emails: ['foo.g@bar.com'], password: 'secret'};
-        var userH = {emails: ['foo.h@bar.com'], password: 'secret'};
-        var userI = {emails: ['foo.i@bar.com'], password: 'secret'};
-        var userJ = {emails: ['foo.j@bar.com'], password: 'secret'};
+        var userA = {accounts: [{ type: 'email', hosted: true, emails: ['foo.a@bar.com'] }], password: 'secret'};
+        var userB = {accounts: [{ type: 'email', hosted: true, emails: ['foo.b@bar.com'] }], password: 'secret'};
+        var userC = {accounts: [{ type: 'email', hosted: true, emails: ['foo.c@bar.com'] }], password: 'secret'};
+        var userD = {accounts: [{ type: 'email', hosted: true, emails: ['foo.d@bar.com'] }], password: 'secret'};
+        var userE = {accounts: [{ type: 'email', hosted: true, emails: ['foo.e@bar.com'] }], password: 'secret'};
+        var userF = {accounts: [{ type: 'email', hosted: true, emails: ['foo.f@bar.com'] }], password: 'secret'};
+        var userG = {accounts: [{ type: 'email', hosted: true, emails: ['foo.g@bar.com'] }], password: 'secret'};
+        var userH = {accounts: [{ type: 'email', hosted: true, emails: ['foo.h@bar.com'] }], password: 'secret'};
+        var userI = {accounts: [{ type: 'email', hosted: true, emails: ['foo.i@bar.com'] }], password: 'secret'};
+        var userJ = {accounts: [{ type: 'email', hosted: true, emails: ['foo.j@bar.com'] }], password: 'secret'};
 
         async.parallel([
           function(callback) { saveUser(userA, callback); },
@@ -1271,10 +1222,7 @@ describe('The collaborations API', function() {
     });
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application). delete('/api/collaborations/community/123/membership/456').expect(401).end(function(err) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'delete', '/api/collaborations/community/123/membership/456', done);
     });
 
     describe('when current user is not community manager', function() {
@@ -1678,10 +1626,7 @@ describe('The collaborations API', function() {
   describe('GET /api/collaborations/community/:id/members', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/collaborations/community/123/members').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/community/123/members', done);
     });
 
     describe('access rights', function() {
@@ -1946,11 +1891,7 @@ describe('The collaborations API', function() {
   describe('DELETE /api/collaborations/community/:id/members/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      var community = {_id: 123};
-      request(webserver.application). delete('/api/collaborations/community/' + community._id + '/members/123').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'delete', '/api/collaborations/community/123/members/123', done);
     });
 
     it('should return 404 if community does not exist', function(done) {
@@ -2022,10 +1963,7 @@ describe('The collaborations API', function() {
   describe('GET /api/collaborations/community/:id/members/:user_id', function() {
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application).get('/api/collaborations/community/123/members/456').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'get', '/api/collaborations/community/123/members/456', done);
     });
 
     it('should return 404 if community does not exist', function(done) {
@@ -2291,10 +2229,7 @@ describe('The collaborations API', function() {
     });
 
     it('should return 401 if user is not authenticated', function(done) {
-      request(webserver.application). delete('/api/collaborations/community/123/membership/456').expect(401).end(function(err) {
-        expect(err).to.be.null;
-        done();
-      });
+      this.helpers.api.requireLogin(webserver.application, 'delete', '/api/collaborations/community/123/membership/456', done);
     });
 
     describe('when current user is not community manager', function() {

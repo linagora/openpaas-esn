@@ -6,61 +6,32 @@ var async = require('async');
 
 describe('The communities API', function() {
 
-  var user;
-  var email = 'user@open-paas.org';
-  var password = 'secret';
-  var Community, User, Domain, webserver;
+  var email = 'user@open-paas.org', password = 'secret';
+  var user, Community, User, Domain, webserver, fixtures, helpers;
 
-  var saveCommunity = function(community, done) {
-    var c = new Community(community);
-    return c.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      community._id = saved._id;
-      return done();
-    });
-  };
+  function saveEntity(Model, entity, done) {
+    new Model(entity).save(helpers.callbacks.noErrorAnd(function(saved) {
+      entity._id = saved._id;
+      done();
+    }));
+  }
 
-  var saveDomain = function(domain, done) {
-    var d = new Domain(domain);
-    return d.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      domain._id = saved._id;
-      return done();
-    });
-  };
-
-  var saveUser = function(user, done) {
-    var u = new User(user);
-    return u.save(function(err, saved) {
-      if (err) {
-        return done(err);
-      }
-      user._id = saved._id;
-      return done();
-    });
-  };
+  function saveCommunity(community, done) { saveEntity(Community, community, done); }
+  function saveDomain(domain, done) { saveEntity(Domain, domain, done); }
+  function saveUser(user, done) { saveEntity(User, user, done); }
 
   beforeEach(function(done) {
-    var self = this;
+    helpers = this.helpers;
+
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      Community = self.helpers.requireBackend('core/db/mongo/models/community');
-      User = self.helpers.requireBackend('core/db/mongo/models/user');
-      Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
-      webserver = self.helpers.requireBackend('webserver').webserver;
+      Community = helpers.requireBackend('core/db/mongo/models/community');
+      User = helpers.requireBackend('core/db/mongo/models/user');
+      Domain = helpers.requireBackend('core/db/mongo/models/domain');
+      fixtures = helpers.requireFixture('models/users.js')(User);
+      webserver = helpers.requireBackend('webserver').webserver;
 
-      user = new User({password: password, emails: [email]});
-      user.save(function(err, saved) {
-        if (err) {
-          return done(err);
-        }
-        user._id = saved._id;
-        return done();
-      });
+      saveUser(user = fixtures.newDummyUser([email], password), done);
     });
   });
 
@@ -71,14 +42,10 @@ describe('The communities API', function() {
 
   describe('GET /api/communities', function() {
     it('should send back 401 when not logged in', function(done) {
-      request(webserver.application).get('/api/communities').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'get', '/api/communities', done);
     });
 
     it('should send back 400 if domain is not defined', function(done) {
-      var self = this;
       async.series([
         function(callback) {
           saveCommunity({title: 'Node.js'}, callback);
@@ -87,7 +54,7 @@ describe('The communities API', function() {
           saveCommunity({title: 'Mean'}, callback);
         },
         function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -106,7 +73,6 @@ describe('The communities API', function() {
     });
 
     it('should return an array of communities in the given domain', function(done) {
-      var self = this;
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
@@ -137,7 +103,7 @@ describe('The communities API', function() {
           saveCommunity({title: 'Angular', domain_ids: [domain2._id]}, callback);
         },
         function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -164,7 +130,6 @@ describe('The communities API', function() {
     });
 
     it('should return list and filter communities according to their title (case insensitive)', function(done) {
-      var self = this;
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
@@ -191,7 +156,7 @@ describe('The communities API', function() {
             saveCommunity({title: 'test2', domain_ids: [domain._id]}, callback);
           },
           function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
               if (err) {
                 return done(err);
               }
@@ -218,7 +183,6 @@ describe('The communities API', function() {
     });
 
     it('should return list and filter communities according to their creator', function(done) {
-      var self = this;
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
@@ -248,7 +212,7 @@ describe('The communities API', function() {
             saveCommunity({title: 'C3', domain_ids: [domain._id]}, callback);
           },
           function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
               if (err) {
                 return done(err);
               }
@@ -276,7 +240,7 @@ describe('The communities API', function() {
 
       beforeEach(function(done) {
         var self = this;
-        this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           if (err) { done(err); }
           self.domain = models.domain;
           self.user = models.users[0];
@@ -290,7 +254,7 @@ describe('The communities API', function() {
             workflow: 'workflow'
           };
 
-          self.helpers.api.createCommunity('Node', self.user, self.domain, {membershipRequests: [self.membershipRequest]},
+          helpers.api.createCommunity('Node', self.user, self.domain, {membershipRequests: [self.membershipRequest]},
                                            function(err, saved) {
             if (err) { return done(err); }
             self.community = saved;
@@ -303,7 +267,7 @@ describe('The communities API', function() {
       it('should return the membershipRequest date', function(done) {
 
         var self = this;
-        this.helpers.api.loginAsUser(webserver.application, this.user2.emails[0], 'secret', function(err, loggedInAsUser) {
+        helpers.api.loginAsUser(webserver.application, this.user2.emails[0], 'secret', function(err, loggedInAsUser) {
 
           if (err) { return done(err); }
 
@@ -333,14 +297,10 @@ describe('The communities API', function() {
 
   describe('POST /api/communities', function() {
     it('should send back 401 when not logged in', function(done) {
-      request(webserver.application).post('/api/communities').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'post', '/api/communities', done);
     });
 
     it('should not create the community when user is not domain member', function(done) {
-      var self = this;
       var domain = {
         name: 'MyDomain',
         company_name: 'MyAwesomeCompany'
@@ -356,7 +316,7 @@ describe('The communities API', function() {
         },
         function() {
           community.domain_ids = [domain._id];
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -377,7 +337,6 @@ describe('The communities API', function() {
     });
 
     it('should create the community', function(done) {
-      var self = this;
       var community = {
         title: 'Node.js',
         description: 'This is the community description'
@@ -395,7 +354,7 @@ describe('The communities API', function() {
         function() {
           community.domain_ids = [domain._id];
 
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -432,7 +391,6 @@ describe('The communities API', function() {
     });
 
     it('should not store the community if one with the same name already exists', function(done) {
-      var self = this;
       var community = {
         title: 'Node.js',
         description: 'This is the community description'
@@ -451,7 +409,7 @@ describe('The communities API', function() {
           saveCommunity(community, callback);
         },
         function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -483,17 +441,13 @@ describe('The communities API', function() {
   describe('GET /api/communities/:id', function() {
 
     it('should send back 401 when not logged in', function(done) {
-      var community = {_id: 123};
-      request(webserver.application).get('/api/communities/' + community._id).expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'get', '/api/communities/123', done);
     });
 
     it('should get 404 if community does not exist', function(done) {
       var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -507,7 +461,6 @@ describe('The communities API', function() {
     });
 
     it('should get the community information even if the user is not a community member', function(done) {
-      var self = this;
       var community = {
         title: 'Node.js',
         description: 'This is the community description'
@@ -532,7 +485,7 @@ describe('The communities API', function() {
           saveCommunity(community, callback);
         },
         function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -552,7 +505,6 @@ describe('The communities API', function() {
     });
 
     it('should retrieve a community from its ID', function(done) {
-      var self = this;
       var community = {
         title: 'Node.js',
         description: 'This is the community description'
@@ -577,7 +529,7 @@ describe('The communities API', function() {
           saveCommunity(community, callback);
         },
         function() {
-          self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -600,12 +552,11 @@ describe('The communities API', function() {
     });
 
     it('should return the number of members and not the members list', function(done) {
-      var self = this;
-      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+      helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
           return done(err);
         }
-        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
@@ -624,12 +575,11 @@ describe('The communities API', function() {
     });
 
     it('should return "member" in member_status if current user is member of the community', function(done) {
-      var self = this;
-      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+      helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
           return done(err);
         }
-        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
+        helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
@@ -648,31 +598,19 @@ describe('The communities API', function() {
 
   describe('GET /api/communities/:id/avatar', function() {
     it('should send back 401 when not logged in', function(done) {
-      var community = {_id: 123};
-      request(webserver.application).get('/api/communities/' + community._id + '/avatar').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'get', '/api/communities/123/avatar', done);
     });
   });
 
   describe('POST /api/communities/:id/avatar', function() {
     it('should send back 401 when not logged in', function(done) {
-      var community = {_id: 123};
-      request(webserver.application).post('/api/communities/' + community._id + '/avatar').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'post', '/api/communities/123/avatar', done);
     });
   });
 
   describe('DELETE /api/communities/:id', function() {
     it('should send back 401 when not logged in', function(done) {
-      var community = {_id: 123};
-      request(webserver.application).del('/api/communities/' + community._id).expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'delete', '/api/communities/123', done);
     });
   });
 

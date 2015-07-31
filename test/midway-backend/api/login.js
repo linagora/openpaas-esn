@@ -5,15 +5,7 @@ var request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The login API', function() {
-  var app;
-  var user = {
-    username: 'Foo Bar Baz',
-    password: 'secret',
-    emails: ['foo@bar.com'],
-    login: {
-      failures: [new Date(), new Date(), new Date()]
-    }
-  };
+  var app, user, email = 'foo@bar.com', password = 'secret';
 
   beforeEach(function(done) {
     var self = this;
@@ -21,13 +13,9 @@ describe('The login API', function() {
       app = self.helpers.requireBackend('webserver/application');
       self.mongoose = require('mongoose');
       var User = self.helpers.requireBackend('core/db/mongo/models/user');
-      var u = new User(user);
-      u.save(function(err, saved) {
-        if (err) {
-          return done(err);
-        }
-        done();
-      });
+      var fixtures = self.helpers.requireFixture('models/users.js')(User);
+
+      (user = fixtures.newDummyUser([email], password)).save(self.helpers.callbacks.noError(done));
     });
   });
 
@@ -56,7 +44,7 @@ describe('The login API', function() {
     user.rememberme = false;
     request(app)
       .post('/api/login')
-      .send({username: user.emails[0], password: user.password, rememberme: false})
+      .send({username: email, password: password, rememberme: false})
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop();
@@ -76,7 +64,7 @@ describe('The login API', function() {
     user.rememberme = true;
     request(app)
       .post('/api/login')
-      .send({username: user.emails[0], password: user.password, rememberme: true})
+      .send({username: email, password: password, rememberme: true})
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop();
@@ -96,7 +84,7 @@ describe('The login API', function() {
     user.rememberme = true;
     request(app)
       .post('/api/login')
-      .send({username: user.emails[0], password: user.password, rememberme: true})
+      .send({username: email, password: password, rememberme: true})
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop().split(';')[0];
@@ -105,10 +93,7 @@ describe('The login API', function() {
         req.expect(200)
           .end(function(err, res) {
             expect(err).to.not.exist;
-            expect(res.body).to.exist;
-            expect(res.body.emails).to.exist;
-            expect(res.body.emails[0]).to.exist;
-            expect(res.body.emails[0]).to.equal(user.emails[0]);
+            expect(res.body.accounts[0].emails[0]).to.equal(email);
             done();
           });
       });
@@ -117,7 +102,7 @@ describe('The login API', function() {
   describe('the loginAsUser api helper', function() {
     it('should return a request creation function that is logged with the credentials', function(done) {
       user.rememberme = true;
-      this.helpers.api.loginAsUser(app, user.emails[0], user.password, function(err, logAsUser0) {
+      this.helpers.api.loginAsUser(app, email, password, function(err, logAsUser0) {
         expect(err).to.be.null;
         expect(logAsUser0).to.be.a.function;
         var r = logAsUser0(request(app).get('/api/user'));
@@ -125,10 +110,7 @@ describe('The login API', function() {
           .end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
-            expect(res.body.emails).to.be.an.array;
-            expect(res.body.emails).to.have.length(1);
-            expect(res.body.emails[0]).to.exist;
-            expect(res.body.emails[0]).to.equal(user.emails[0]);
+            expect(res.body.accounts[0].emails[0]).to.equal(email);
             done();
           });
       });
@@ -139,7 +121,7 @@ describe('The login API', function() {
     user.rememberme = true;
     request(app)
       .post('/api/login')
-      .send({username: user.emails[0], password: user.password, rememberme: false})
+      .send({username: email, password: password, rememberme: false})
       .expect(200)
       .end(function(err, res) {
         var cookies = res.headers['set-cookie'].pop().split(';')[0];
@@ -148,10 +130,7 @@ describe('The login API', function() {
         req.expect(200)
           .end(function(err, res) {
             expect(err).to.not.exist;
-            expect(res.body).to.exist;
-            expect(res.body.emails).to.exist;
-            expect(res.body.emails[0]).to.exist;
-            expect(res.body.emails[0]).to.equal(user.emails[0]);
+            expect(res.body.accounts[0].emails[0]).to.equal(email);
             done();
           });
       });
@@ -168,12 +147,12 @@ describe('The login API', function() {
   it('should not be able to login when user tried to log in too many times', function(done) {
 
     var User = this.mongoose.model('User');
-    User.loadFromEmail(user.emails[0], function(err, currentUser) {
+    User.loadFromEmail(email, function(err, currentUser) {
       if (err) {
         return done(err);
       }
 
-      currentUser.login.failures = [new Date(), new Date()];
+      currentUser.login = { failures: [new Date(), new Date()] };
       currentUser.save(function(err, saved) {
         if (err) {
           return done(err);
@@ -187,7 +166,7 @@ describe('The login API', function() {
 
           request(app)
             .post('/api/login')
-            .send({username: user.emails[0], password: user.password, rememberme: false})
+            .send({username: email, password: password, rememberme: false})
             .expect(403)
             .end(done);
         });
@@ -203,7 +182,7 @@ describe('The login API', function() {
       }
       request(app)
         .post('/api/login')
-        .send({username: user.emails[0], password: user.password, rememberme: false})
+        .send({username: email, password: password, rememberme: false})
         .expect(200)
         .end(done);
     });

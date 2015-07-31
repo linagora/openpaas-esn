@@ -53,13 +53,21 @@ describe('The user notification API', function() {
       testuser = new User({
         username: 'Foo',
         password: password,
-        emails: [email]
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [email]
+        }]
       });
 
       testuser1 = new User({
         username: 'TestUser1',
         password: password,
-        emails: [email1]
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [email1]
+        }]
       });
 
       domain = new Domain({
