@@ -1,57 +1,45 @@
 'use strict';
 
-var fs = require('fs');
+var q = require('q');
+var fs = require('fs-extra');
 var path = require('path');
 var mongoose = require('mongoose');
+var core = require('../../backend/core/');
+var esnconfig = core['esn-config'];
+var dataPath = path.resolve(__dirname + '/data');
+var dbPath = path.resolve(__dirname + '/../config/data/db.json');
 
-var loadFile = function(name, done) {
-  console.log('[INFO] Loading file ', name);
-  var data;
-  try {
-    data = JSON.parse(fs.readFileSync(name));
-  } catch(err) {
-    if (done) {
-      return done(err);
-    }
-  }
-  var item = name.slice(name.lastIndexOf('/') + 1, name.lastIndexOf('.'));
-  try {
-    require('../../backend/core/');
-    var e = require('../../backend/core/esn-config')(item);
-    mongoose.connection.on('connected', function() {
-      e.store(data, function(err) {
-        if (done) {
-          return done(err);
-        }
-      });
-    });
-  } catch(err) {
-    return done(err);
-  }
-};
+function _injectConf(key, conf) {
+  return q.nfcall(esnconfig(key).store, conf);
+}
 
-var loadDirectory = function(name, done) {
-  fs.readdirSync(name).forEach(function (filename) {
-    var f = name + '/' + filename;
-    var stat = fs.statSync(f);
-    if (stat.isFile()) {
-      loadFile(f, function(err) {
-        if (err) {
-          console.log('[ERROR] ' + f + ' has not been loaded (' + err.message + ')');
-        } else {
-          console.log('[INFO] ' + f + ' has been loaded');
-        }
-        done();
-      });
+function _injectAllConf(files) {
+  var promises = [];
+  files.forEach(function(filename) {
+    var file = dataPath + '/' + filename;
+    if (fs.statSync(file).isFile()) {
+      var key = filename.slice(filename.lastIndexOf('/') + 1, filename.lastIndexOf('.'));
+      var conf = fs.readJsonSync(file);
+      console.log('[INFO] Inject conf', key);
+      console.log(JSON.stringify(conf, null, 2));;
+      promises.push(_injectConf(key, conf));
     }
   });
-};
+  return promises;
+}
 
-module.exports = function(done) {
+module.exports = function() {
   console.log('[INFO] ESN Configuration');
-  loadDirectory(__dirname + '/data', function(err) {
-    done(err);
+  var deferred = q.defer();
+  var readdir = q.denodeify(fs.readdir);
+  var dbConf = fs.readJsonSync(dbPath);
+  mongoose.connect(dbConf.connectionString);
+  mongoose.connection.on('connected', function() {
+    readdir(dataPath)
+      .then(function(files) {
+        return q.allSettled(_injectAllConf(files));
+      })
+      .then(deferred.resolve);
   });
+  return deferred.promise;
 };
-
-

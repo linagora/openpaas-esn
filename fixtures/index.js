@@ -9,25 +9,22 @@
 // it is up to the index to copy/store/inject configuration at the rigth place.
 //
 
+var copyFileConfig = require('./config');
+var setEsnConfig = require('./esn-config');
+var populateDb = require('./populate');
+
 module.exports = function(done) {
-  require('./config')(function(err) {
-    if (err) {
-      // aborting, we may not be able to load other fixtures if the database has not been configured
-      console.log('[ERROR] Can not load config fixtures, aborting...');
-      console.log('[ERROR] ', err);
-      if (done) {
-        return done(err);
-      }
-    } else {
-      require('./esn-config')(function(err) {
-        if (err) {
-          console.log('[ERROR] Can not inject ESN config');
-          console.log('[ERROR] ', err);
-        }
-        if (done) {
-          return done(err);
-        }
-      });
-    }
-  });
+  copyFileConfig()
+    .then(setEsnConfig)
+    .then(populateDb)
+    .then(function() {
+      console.log('Created 1 domain, 1 community, 20 users and 1 admin.');
+      console.log('Success ! You have a working ESN !');
+      done(true);
+    })
+    .catch (function(err) {
+      console.log('[ERROR] Cannot inject fixtures, aborting...');
+      console.log('[ERROR] ', err.message);
+      done(false);
+    });
 };
