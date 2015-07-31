@@ -28,7 +28,7 @@ describe('The UI module', function() {
       this.$scope.type = 'create';
       var element = this.initDirective(this.$scope);
       var i = element.find('i');
-      expect(i.hasClass('mdi-content-add')).to.be.true;
+      expect(i.hasClass('mdi-plus')).to.be.true;
     });
 
     it('should set class to the default one when action is unknown', function() {
