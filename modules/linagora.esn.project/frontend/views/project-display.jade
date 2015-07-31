@@ -1,38 +1,36 @@
-div.nopadding
-
-  .col-lg-2.col-sm-3.col-xs-4
-
-    a(href='#/project/{{project._id}}')
-      img.thumbnail.nopadding(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{project._id}}/avatar')
-
-  .col-lg-10.col-sm-9.col-xs-8
-    h4.media-heading
+.card
+  .card-header.ch-alt
+    h2
       a(href='#/project/{{project._id}}')
         strong {{project.title}}
-      small &nbsp; {{project.type}}
-    ul.list-inline
-      li.pull-left
+      small {{project.type}} &nbsp;
         i.mdi.mdi-account-multiple
         span(ng-if='project.members_count !== 1') {{project.members_count || 0}} #{__('members')}
         span(ng-if='project.members_count === 1') 1 #{__('member')}
-      .clearfix
-
-    .row
-      .col-xs-12.col-sm-6.nopadding-left
-        label #{__('From')}
-        .form-group
-          .input-group
-            .input-group-addon
-              i.mdi.mdi-calendar
-            input.form-control(type="text", value="{{project.startDate | amDateFormat:'MMM DD YYYY'}}" disabled)
-      .col-xs-12.col-sm-6.nopadding-left
-        label #{__('To')}
-        .form-group
-          .input-group
-            .input-group-addon
-              i.mdi.mdi-calendar
-            input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
-
-    .clearfix
-
-    p.hidden-xs(ng-show='project.description') {{project.description | characters:256 :false }}
+  .card-body
+    .flex-horizontal-centered
+      .p-20.hidden-xs
+        a(href='#/project/{{::project._id}}')
+          img(fallback-src='/project/images/project.png', src='/project/images/project.png', ng-src='/project/api/projects/{{::project._id}}/avatar')
+      .project-details
+        .flex-horizontal-centered
+          .p-startdate
+            .text-center
+            label #{__('From')}
+            .form-group
+              .input-group
+                .input-group-addon
+                  i.mdi.mdi-calendar
+                .fg-line
+                  input.form-control(type="text", value="{{project.startDate | amDateFormat:'MMM DD YYYY'}}" disabled)
+          .p-enddate
+            label #{__('To')}
+            .form-group
+              .input-group
+                .input-group-addon
+                  i.mdi.mdi-calendar
+                .fg-line
+                  input.form-control(type="text", value="{{project.endDate | amDateFormat:'MMM DD YYYY'}}" disabled)
+        .project-description(ng-show='project.description')
+          label #{__('Description')}
+          p(ng-hide='truncate === true', ng-show='project.description') {{project.description | characters:256 :false }}
