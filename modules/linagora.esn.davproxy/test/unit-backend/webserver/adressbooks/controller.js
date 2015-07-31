@@ -15,7 +15,10 @@ describe('The addressbooks module', function() {
       'esn-config': function() {
         return {
           get: function(callback) {
-            return callback(null, {backend: {url: endpoint}});
+            return callback(null, {
+              backend: { url: endpoint },
+              base_url: null
+            });
           }
         };
       },

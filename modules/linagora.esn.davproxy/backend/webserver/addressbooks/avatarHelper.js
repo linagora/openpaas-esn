@@ -2,15 +2,43 @@
 
 
 var ICAL = require('ical.js');
+var q = require('q');
 var DEFAULT_BASE_URL = 'http://localhost:8080';
 
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
-  var staticConfig = dependencies('config')('default');
-  var baseUrl = staticConfig.base_url ? staticConfig.base_url : DEFAULT_BASE_URL;
+  var esnconfig = dependencies('esn-config');
 
-  function getTextAvatarUrl(addressBookId, contactId) {
+
+  /**
+   * Get base_url configuration from esnconfig. DEFAULT_BASE_URL will be used
+   * when the configuration is not present.
+   *
+   * @return {Promise}
+   */
+  function getBaseUrl() {
+    var baseUrl;
+    var deferred = q.defer();
+
+    esnconfig('web').get(function(err, web) {
+      if (err) {
+        logger.error('Error while getting esn-config', err);
+        return deferred.reject(err);
+      }
+      if (web && web.base_url) {
+        baseUrl = web.base_url;
+      } else {
+        baseUrl = DEFAULT_BASE_URL;
+      }
+      deferred.resolve(baseUrl);
+    });
+
+    return deferred.promise;
+  }
+
+
+  function buildTextAvatarUrl(baseUrl, addressBookId, contactId) {
     return [
       baseUrl,
       'contact/api/contacts',
@@ -20,13 +48,21 @@ module.exports = function(dependencies) {
     ].join('/');
   }
 
+  function getTextAvatarUrl(addressBookId, contactId) {
+    return getBaseUrl().then(function(baseUrl) {
+      return buildTextAvatarUrl(baseUrl, addressBookId, contactId);
+    });
+  }
+
   /**
-   * Inject text avatar if there's no avatar in the vcard contact data.
+   * Inject text avatar if there's no avatar in the vcard contact data. Note
+   * that this will always resolve promise, if it gets getTextAvatarUrl rejected,
+   * the original vcardData will be resolved.
    *
    * @param  {String} addressBookId Address book ID
    * @param  {Object} vcardData     vcard data in json
-   * @return {Object}               vcard with avatar injected or the original
-   *                                  vcard if the contact has avatar already.
+   * @return {Promise}              resolve vcard with avatar injected or the
+   *                                  original vcard if the contact has avatar already.
    */
   function injectTextAvatar(addressBookId, vcardData) {
     try {
@@ -34,15 +70,22 @@ module.exports = function(dependencies) {
 
       if (!vcard.getFirstPropertyValue('photo')) {
         var contactId = vcard.getFirstPropertyValue('uid');
-        vcard.addPropertyWithValue('photo',
-          getTextAvatarUrl(addressBookId, contactId));
-        return vcard.toJSON();
+
+        return getTextAvatarUrl(addressBookId, contactId)
+          .then(function(avatarUrl) {
+            vcard.addPropertyWithValue('photo', avatarUrl);
+            return vcard.toJSON();
+          }, function(err) {
+            logger.warn('Failed to inject text avatar:', err);
+            return vcardData;
+          });
       }
     } catch (err) {
       logger.warn('Failed to inject text avatar:', err);
     }
 
-    return vcardData;
+    return q.resolve(vcardData);
+
   }
 
   /**
