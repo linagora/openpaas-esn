@@ -12,7 +12,7 @@ describe('The addressbooks module', function() {
 
   beforeEach(function() {
     dependencies = {
-        'esn-config': function() {
+      'esn-config': function() {
         return {
           get: function(callback) {
             return callback(null, {backend: {url: endpoint}});
@@ -32,6 +32,9 @@ describe('The addressbooks module', function() {
             };
           }
         }
+      },
+      config: function() {
+        return {};
       }
     };
     deps = function(name) {
@@ -43,11 +46,105 @@ describe('The addressbooks module', function() {
     return require('../../../../backend/webserver/addressbooks/controller')(deps);
   };
 
+
+  describe('The getContactsFromDAV function', function() {
+
+    var req;
+    beforeEach(function() {
+      req = {
+        params: {},
+        token: {
+          token: 123
+        },
+        davserver: 'http://dav:8080',
+        url: '/foo/bar'
+      };
+    });
+
+    it('should set right parameters', function(done) {
+      mockery.registerMock('../proxy/http-client', function(options) {
+        expect(options.headers.ESNToken).to.equal(req.token.token);
+        expect(options.json).to.be.true;
+        done();
+      });
+
+      getController().getContactsFromDAV(req);
+    });
+
+    it('should send back HTTP 500 if http client call fails', function(done) {
+      mockery.registerMock('../proxy/http-client', function(options, callback) {
+        return callback(new Error('You failed'));
+      });
+
+      getController().getContactsFromDAV(req, {
+        json: function(code, json) {
+          expect(code).to.equal(500);
+          expect(json.error.details).to.match(/Error while getting contact from DAV server/);
+          done();
+        }
+      });
+    });
+
+    it('should send back client response status code and body', function(done) {
+      var statusCode = 200;
+      var body = {foo: 'bar'};
+
+      mockery.registerMock('../proxy/http-client', function(options, callback) {
+        return callback(null, {statusCode: statusCode}, body);
+      });
+
+      getController().getContactsFromDAV(req, {
+        json: function(code, json) {
+          expect(code).to.equal(statusCode);
+          expect(json).to.deep.equal(body);
+          done();
+        }
+      });
+    });
+
+    it('should have body with text avatar injected', function(done) {
+      var statusCode = 200;
+      var vcard1 = ['vcard', [
+          ['version', {}, 'text', '4.0'],
+          ['uid', {}, 'text', 'abc']
+        ]
+      ];
+      var vcard2 = ['vcard', [
+          ['version', {}, 'text', '4.0'],
+          ['uid', {}, 'text', 'xyz']
+        ]
+      ];
+      var body = {
+        _embedded: {
+          'dav:item': [{ data: vcard1 }, { data: vcard2 }]
+        }
+      };
+      req.params.bookId = '123';
+      var avatarUrl1 = 'http://localhost:8080/contact/api/contacts/123/abc/avatar';
+      var avatarUrl2 = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
+
+      mockery.registerMock('../proxy/http-client', function(options, callback) {
+        return callback(null, { statusCode: statusCode }, body);
+      });
+
+      getController().getContactsFromDAV(req, {
+        json: function(code, json) {
+          expect(JSON.stringify(json)).to.contains(avatarUrl1);
+          expect(JSON.stringify(json)).to.contains(avatarUrl2);
+          done();
+        }
+      });
+    });
+
+  });
+
+
   describe('The getContact function', function() {
 
     var req;
     beforeEach(function() {
       req = {
+        params: {},
         token: {
           token: 123
         },
@@ -96,6 +193,29 @@ describe('The addressbooks module', function() {
         }
       });
     });
+
+    it('should have body with text avatar injected', function(done) {
+      var statusCode = 200;
+      var body = ['vcard', [
+          ['version', {}, 'text', '4.0'],
+          ['uid', {}, 'text', 'xyz']
+        ]
+      ];
+      req.params.bookId = '123';
+      var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
+
+      mockery.registerMock('../proxy/http-client', function(options, callback) {
+        return callback(null, { statusCode: statusCode }, body);
+      });
+
+      getController().getContact(req, {
+        json: function(code, json) {
+          expect(JSON.stringify(json)).to.contains(avatarUrl);
+          done();
+        }
+      });
+    });
+
   });
 
   describe('The updateContact function', function() {
@@ -227,6 +347,26 @@ describe('The addressbooks module', function() {
         }
       });
     });
+
+    it('should remove text avatar url from req.body before sending request to DAV', function(done) {
+      var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
+      req.body = ['vcard', [
+          ['version', {}, 'text', '4.0'],
+          ['uid', {}, 'text', 'xyz'],
+          ['photo', {}, 'uri', avatarUrl]
+        ]
+      ];
+
+      mockery.registerMock('../proxy/http-client', function(options, callback) {
+        expect(JSON.stringify(options.body)).to.not.contains(avatarUrl);
+        done();
+      });
+
+      getController().updateContact(req, {
+        json: function(code, json) {}
+      });
+    });
+
   });
 
   describe('The deleteContact function', function() {

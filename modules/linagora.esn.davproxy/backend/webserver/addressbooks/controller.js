@@ -10,6 +10,8 @@ module.exports = function(dependencies) {
   var pubsub = dependencies('pubsub').local;
   var contactModule = dependencies('contact');
   var proxy = require('../proxy')(dependencies)(PATH);
+  var avatarHelper = require('./avatarHelper')(dependencies);
+
 
   function getURL(req) {
     return [req.davserver, '/', PATH, req.url].join('');
@@ -17,6 +19,27 @@ module.exports = function(dependencies) {
 
   function getContactUrl(req, bookId, contactId) {
     return [req.davserver, '/', PATH, '/', bookId, '/contacts/', contactId, '.vcf'].join('');
+  }
+
+  function getContactsFromDAV(req, res) {
+    var headers = req.headers || {};
+    headers.ESNToken = req.token && req.token.token ? req.token.token : '';
+
+    client({headers: headers, url: getURL(req), json: true}, function(err, response, body) {
+      if (err) {
+        logger.error('Error while getting contact from DAV', err);
+        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact from DAV server'}});
+      }
+
+      // inject text avatar if there's no avatar
+      if (body && body._embedded && body._embedded['dav:item']) {
+        body._embedded['dav:item'].forEach(function(davItem) {
+          davItem.data = avatarHelper.injectTextAvatar(req.params.bookId, davItem.data);
+        });
+      }
+      return res.json(response.statusCode, body);
+
+    });
   }
 
   function getContact(req, res) {
@@ -28,7 +51,7 @@ module.exports = function(dependencies) {
         logger.error('Error while getting contact from DAV', err);
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact from DAV server'}});
       }
-      return res.json(response.statusCode, body);
+      return res.json(response.statusCode, avatarHelper.injectTextAvatar(req.params.bookId, body));
     });
   }
 
@@ -42,6 +65,12 @@ module.exports = function(dependencies) {
     }
 
     delete headers['if-match'];
+
+    // Workaround to avoid frontend accidentally save text avatar to backend
+    req.body = avatarHelper.removeTextAvatar(req.body);
+    // Since req.body has been modified so contentLength will not be the same
+    // Delete it to avoid issule relating to contentLength while sending request
+    delete headers['content-length'];
 
     client({method: 'PUT', body: req.body, headers: headers, url: getURL(req), json: true}, function(err, response, body) {
       if (err) {
@@ -130,7 +159,7 @@ module.exports = function(dependencies) {
             '_links': {
               'self': getContactUrl(req, req.params.bookId, vcard._id)
             },
-            data: vcard
+            data: avatarHelper.injectTextAvatar(req.params.bookId, vcard)
           });
         });
         res.header('X-ESN-Items-Count', result.total_count);
@@ -147,10 +176,11 @@ module.exports = function(dependencies) {
       return searchContacts(req, res);
     }
 
-    defaultHandler(req, res);
+    getContactsFromDAV(req, res);
   }
 
   return {
+    getContactsFromDAV: getContactsFromDAV,
     getContact: getContact,
     getContacts: getContacts,
     searchContacts: searchContacts,
