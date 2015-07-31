@@ -33,11 +33,17 @@ module.exports = function(dependencies) {
 
       // inject text avatar if there's no avatar
       if (body && body._embedded && body._embedded['dav:item']) {
-        body._embedded['dav:item'].forEach(function(davItem) {
-          davItem.data = avatarHelper.injectTextAvatar(req.params.bookId, davItem.data);
+        q.all(body._embedded['dav:item'].map(function(davItem) {
+          return avatarHelper.injectTextAvatar(req.params.bookId, davItem.data)
+            .then(function(newData) {
+              davItem.data = newData;
+            });
+        })).then(function() {
+          return res.json(response.statusCode, body);
         });
+      } else {
+        return res.json(response.statusCode, body);
       }
-      return res.json(response.statusCode, body);
 
     });
   }
@@ -51,7 +57,10 @@ module.exports = function(dependencies) {
         logger.error('Error while getting contact from DAV', err);
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact from DAV server'}});
       }
-      return res.json(response.statusCode, avatarHelper.injectTextAvatar(req.params.bookId, body));
+      avatarHelper.injectTextAvatar(req.params.bookId, body).then(function(newBody) {
+        return res.json(response.statusCode, newBody);
+      });
+
     });
   }
 

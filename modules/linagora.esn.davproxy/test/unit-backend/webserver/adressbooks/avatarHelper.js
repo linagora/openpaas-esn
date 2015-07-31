@@ -15,8 +15,12 @@ describe('The avatarHelper module', function() {
         debug: function() {},
         warn: function() {}
       },
-      config: function() {
-        return {};
+      'esn-config': function() {
+        return {
+          get: function(callback) {
+            callback(null, null);
+          }
+        };
       }
     };
     deps = function(name) {
@@ -31,13 +35,12 @@ describe('The avatarHelper module', function() {
 
   describe('The injectTextAvatar function', function() {
 
-    it('should inject text avatar url to vcard', function() {
+    it('should inject text avatar url to vcard using DEFAULT_BASE_URL', function(done) {
       var vcardData = ['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', 'xyz']
         ]
       ];
-      var output = getModule().injectTextAvatar(123, vcardData);
       var avatarUrl = 'http://localhost:8080/contact/api/contacts/123/xyz/avatar';
       var expectedOutput = ['vcard', [
           ['version', {}, 'text', '4.0'],
@@ -45,13 +48,19 @@ describe('The avatarHelper module', function() {
           ['photo', {}, 'uri', avatarUrl]
         ]
       ];
-      expect(output).to.eql(expectedOutput);
+      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+        expect(output).to.eql(expectedOutput);
+        done();
+      });
     });
 
-    it('should have text avatar url based on base_url configuration', function() {
-      dependencies.config = function() {
+    it('should have text avatar url based on base_url of esnconfig', function(done) {
+      var baseUrl = 'http://dev.open-paas.org';
+      dependencies['esn-config'] = function() {
         return {
-          base_url: 'http://open-paas.org'
+          get: function(callback) {
+            callback(null, { base_url: baseUrl });
+          }
         };
       };
       var vcardData = ['vcard', [
@@ -59,38 +68,58 @@ describe('The avatarHelper module', function() {
           ['uid', {}, 'text', 'xyz']
         ]
       ];
-      var output = getModule().injectTextAvatar(123, vcardData);
-      var avatarUrl = 'http://open-paas.org/contact/api/contacts/123/xyz/avatar';
+      var avatarUrl = baseUrl + '/contact/api/contacts/123/xyz/avatar';
       var expectedOutput = ['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', 'xyz'],
           ['photo', {}, 'uri', avatarUrl]
         ]
       ];
-      expect(output).to.eql(expectedOutput);
+      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+        expect(output).to.eql(expectedOutput);
+        done();
+      });
     });
 
-    it('should return original vcard when it has photo data already', function() {
+    it('should resolve original vcard when it has photo data already', function(done) {
       var vcardData = ['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', 'xyz'],
           ['photo', {}, 'uri', 'some data here']
         ]
       ];
-      var output = getModule().injectTextAvatar(123, vcardData);
-      expect(output).to.eql(vcardData);
+      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+        expect(output).to.eql(vcardData);
+        done();
+      });
     });
 
-    it('should return original vcard when ical throws error', function() {
+    it('should resolve original vcard when ical throws error', function(done) {
       mockery.registerMock('ical.js', {
         Component: function() {
           throw new Error('some error');
         }
       });
       var vcardData = 'a invalid vcard data';
-      var output = getModule().injectTextAvatar(123, vcardData);
+      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+        expect(output).to.eql(vcardData);
+        done();
+      });
+    });
 
-      expect(output).to.eql(vcardData);
+    it('should resolve original vcard when getTextAvatarUrl rejects', function(done) {
+      dependencies['esn-config'] = function() {
+        return {
+          get: function(callback) {
+            callback('some error');
+          }
+        };
+      };
+      var vcardData = 'some vcard data';
+      getModule().injectTextAvatar(123, vcardData).then(function(output) {
+        expect(output).to.eql(vcardData);
+        done();
+      });
     });
 
   });
