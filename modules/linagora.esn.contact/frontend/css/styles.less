@@ -1,5 +1,33 @@
 @import '../../../../frontend/css/commons';
 
+@contact-header-color: @darkPrimaryColor;
+
+#profile-main {
+  a {
+    color: @text-color;
+  }
+
+  dl {
+    height: inherit;
+  }
+
+  .tag-item {
+    background-color: @m-blue;
+    color: @m-white;
+    padding: 3px 5px 0px 5px;
+    margin: 2px;
+    float: left;
+    list-style: none;
+  }
+  ul.tag-list {
+    padding: 0;
+  }
+}
+
+ul.dropdown {
+  z-index: 6;
+}
+
 .contact-field-label {
   padding-top: 7px;
 }
@@ -14,7 +42,7 @@
 }
 
 .contact-header {
-  background-color: @m-bluegray;
+  background-color: @contact-header-color;
   h1 {
     font-size: 22px;
     color: @m-white;
@@ -130,10 +158,86 @@
   }
 }
 
+.contacts-list {
+  padding: 0 15px;
+  .contact-letter {
+    h2 {
+      font-weight: 500;
+      font-size: x-large;
+      color: darken(@m-gray, 30%);
+    }
+  }
+}
+
 .contact-list-item {
-  img {
-    width: auto;
-    height: 48px;
+  .touch-zone {
     cursor: pointer;
+    min-height: 50px;
+  }
+  .contact-display-name {
+    font-weight: 500;
+    font-size: larger;
+  }
+}
+
+.contact-letter::after {
+  content:'';
+  background-color: lighten(@m-gray, 20%);
+  height: 1px;
+  width: 100%;
+  position: absolute;
+  bottom: 10px;
+  left: 0px;
+}
+
+.contacts-search {
+  position: absolute;
+  right: 0;
+  z-index: 2;
+  top: 0;
+
+  padding: 0 0 0 20px;
+  input[type="text"] {
+    background-color: @m-white;
+    border-radius: 2px;
+    font-size: 18px;
+    padding: 0 10px 0 40px;
+    height: 35px;
+    width: 100%;
+    border: 0;
+  }
+}
+
+.contacts-search:before {
+  font-family: 'MaterialDesignIcons';
+  content: "\f3ab";
+  position: absolute;
+  padding: 2px 10px 0 10px;
+  font-size: x-large;
+  color: @m-gray;
+}
+
+.contacts-search .form-control:focus {
+  background-position: right center;
+  padding: 0 30px 0 0;
+}
+
+.contacts-search.visible-sm.visible-xs {
+  position: relative;
+  padding: 0 15px;
+}
+
+contact-edition-form {
+  .form-control {
+    margin-top: 10px;
+  }
+
+
+  tags-input{
+    height: inherit !important; /* needed to overwrite styles automatically set using the style attribute */
+    .tags {
+    border: none !important; /* needed to overwrite styles automatically set using the style attribute */
+    box-shadow: none !important; /* needed to overwrite styles automatically set using the style attribute */
+    }
   }
 }

@@ -1,15 +1,22 @@
-form.esn-panel.main-panel.hidden-xs(ng-submit='accept()')
-  .row.panel-header
-    .col-sm-7.col-xs-12.panel-title
-      span.contact-heading
-        | {{contact.displayName}}
-    .col-sm-5.col-xs-12.action-bar
-      button.btn.btn-default.btn-raised.btn-cancel(type='button', ng-click='close()') #{__('Back')}
-  .row.create-content
+.card.hidden-xs(ng-submit='accept()')
+  .card-header.contact-header
+    .row
+      .col-xs-8
+        h1 {{contact.displayName}}
+      .col-xs-4
+        .contact-buttons
+          button.btn.btn-default(type='button', ng-click='close()')
+            i.mdi.mdi-reply
+            | #{__(' Back')}
+          a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
+            button.btn.btn-primary(ng-disabled='calling', type='button')
+              i.mdi.mdi-pencil
+              | #{__(' Edit')}
+  .card-body.card-padding
     .contact-error-container
-      contact-display(contact='contact', update='true', modify='modify')
+    contact-display(contact='contact', formatted-birthday='formattedBirthday', default-avatar="defaultAvatar")
 
-.contact-header.visible-xs(ng-swipe-right='back()')
+.contact-header.visible-xs(ng-swipe-right='close()')
     .contact-controls-wrapper
       .contact-controls.row(data-offset-top="0" bs-affix)
         a.hover-scale-animation.col-xs-3(href='', ng-click='close()')

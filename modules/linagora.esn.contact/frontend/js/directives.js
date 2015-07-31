@@ -146,10 +146,19 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       scope: {
         'contact': '=',
-        'update': '=',
-        'modify': '='
+        'formattedBirthday': '=',
+        'defaultAvatar': '='
       },
       templateUrl: '/contact/views/partials/contact-display.html'
+    };
+  })
+  .directive('contactEditionForm', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        'contact': '='
+      },
+      templateUrl: '/contact/views/partials/contact-edition-form.html'
     };
   })
   .directive('inlineEditableInput', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY) {

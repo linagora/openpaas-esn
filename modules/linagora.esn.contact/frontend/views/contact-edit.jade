@@ -1,3 +1,19 @@
+.card.hidden-xs(ng-submit='accept()')
+  .card-header.contact-header
+    .row
+      .col-xs-8
+        h1 #{__('Edit a contact')}
+      .col-xs-4
+        .contact-buttons
+          button.btn.btn-default(type='button', ng-click='close()')
+            | #{__('Cancel')}
+          button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='save()')
+            i.mdi.mdi-content-save
+            | #{__(' Update')}
+  .card-body.card-padding
+    .contact-error-container
+    contact-edition-form(contact='contact')
+
 .contact-header.visible-xs
   .contact-controls-wrapper
     .contact-controls.row(data-offset-top="0" bs-affix)

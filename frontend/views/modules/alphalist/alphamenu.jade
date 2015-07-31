@@ -1,4 +1,4 @@
-div.alphascroll(bs-affix data-offset-top="-40")
+.alphascroll
   ul.text-center
     li(ng-repeat="item in items")
-      a(ng-click="goToSection(item)" bs-scrollspy data-target="[data-{{prefix}}='{{item}}']" data-offset="44") {{item}}
+      a(ng-click="goToSection(item)" bs-scrollspy data-target="[data-{{prefix}}='{{item}}']" data-offset="112") {{item}}

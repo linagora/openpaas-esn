@@ -1,21 +1,31 @@
-.esn-panel.main-panel
-  .row.panel-header-no-button
-    .col-xs-12.panel-title
-      span.contact-heading #{__('Contacts')}
-      fab.fab-fixed-bottom(type='create', on-click='openContactCreation()')
+.contacts-list
 
-  .row.panel-content
-    .row.col-xs-12.search
-      contact-search-form
+  .block-header
+    h2 #{__('Contacts')}
+    .contacts-search.hidden-sm.hidden-xs
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 300 }")
 
-    .contact-error-container
-    .col-xs-11
-      .row(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-        .row(ng-if='contacts && contacts.length')
-          h2.hidden-xs {{letter}}
-          h4.visible-xs {{letter}}
-          .row(ng-repeat="contact in contacts")
-            hr.hidden-xs
-            contact-list-item(contact='contact', book-id="bookId")
-    .col-xs-1.nopadding.hidden-xs-height
-      alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")
+  .row
+    .contacts-search.visible-sm.visible-xs.col-xs-11
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 300 }")
+
+  button.btn.btn-fab-fixed-bottom(type="button", ng-click="openContactCreation()")
+    i.mdi.mdi-plus
+
+  alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")
+
+  .vertiz-space
+  .row
+    .col-xs-12
+      .contact-error-container
+  .vertiz-space
+
+  .row
+    .col-xs-11.col-md-12
+      div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+        .card(ng-if='contacts && contacts.length')
+          .listview.lv-bordered.lv-lg
+            .lv-header-alt
+              h2.lvh-label {{letter}}
+            .lv-body
+              contact-list-item.lv-item.p-5(contact='contact', book-id="bookId", ng-repeat="contact in contacts")

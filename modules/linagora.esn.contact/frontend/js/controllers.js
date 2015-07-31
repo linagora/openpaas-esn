@@ -137,6 +137,8 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
 
+    $scope.close = closeForm;
+
     $scope.save = function() {
       return sendContactToBackend($scope, function() {
         return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
