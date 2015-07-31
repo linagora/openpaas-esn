@@ -15,6 +15,8 @@ describe('The Unified Inbox Angular module services', function() {
     this.O = {};
     window.O = this.O;
 
+    angular.mock.module('esn.overture');
+    angular.mock.module('esn.jmap-js');
     angular.mock.module('esn.session');
     angular.mock.module('esn.core');
     angular.mock.module('linagora.esn.unifiedinbox');
@@ -48,9 +50,9 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('JmapMailboxes service', function() {
 
-    beforeEach(angular.mock.inject(function(JmapMailboxes, ObservableArrayFactory, $rootScope) {
+    beforeEach(angular.mock.inject(function(JmapMailboxes, overture, $rootScope) {
       this.JmapMailboxes = JmapMailboxes;
-      this.ObservableArrayFactory = ObservableArrayFactory;
+      this.overture = overture;
       this.$rootScope = $rootScope;
     }));
 
@@ -74,7 +76,7 @@ describe('The Unified Inbox Angular module services', function() {
         ];
 
         var mailboxesCallback;
-        this.ObservableArrayFactory.create = function(query, callback) {
+        this.overture.createObservableArray = function(query, callback) {
           mailboxesCallback = callback;
           return {};
         };
@@ -116,7 +118,7 @@ describe('The Unified Inbox Angular module services', function() {
         ];
 
         var mailboxesCallback;
-        this.ObservableArrayFactory.create = function(query, callback) {
+        this.overture.createObservableArray = function(query, callback) {
           mailboxesCallback = callback;
           return {};
         };
