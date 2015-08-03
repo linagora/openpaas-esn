@@ -161,4 +161,35 @@ Elasticsearch plugin dir may have not been created during the installation, or m
 
  This may fail with EACCESS and you may need to remove ~/.npm and repeat step 10
 
-11. install contacts (scripts)
+If you have any problem relating to `node-canvas` during the dependencies installation,
+make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
+
+Testing
+-------
+
+You can check that everything works by launching the test suite:
+
+    grunt
+
+If you want to launch tests from a single test, you can specify the file as command line argument.
+For example, you can launch the backend tests on the test/unit-backend/webserver/index.js file like this:
+
+    grunt test-unit-backend --test=test/unit-backend/webserver/index.js
+
+Note: This works for backend and midway tests.
+
+Some specialized Grunt tasks are available :
+
+    grunt linters # launch hinter and linter against the codebase
+    grunt test-frontend # only run the fontend unit tests
+    grunt test-unit-backend # only run the unit backend tests
+    grunt test-midway-bakend # only run the midway backend tests
+    grunt test # launch all the testsuite
+
+Fixtures
+--------
+
+Fixtures can be configured in the fixtures folder and injected in the system using grunt:
+
+    grunt fixtures
+
