@@ -86,6 +86,7 @@ Elasticsearch plugin dir may have not been created during the installation, or m
         
         sudo service elasticsearch start
  or
+ 
         /usr/share/elasticsearch/bin/elasticsearch -Des.pidfile=$PID_DIR/elasticsearch.pid -Des.default.path.home=$ES_HOME -Des.default.path.logs=$LOG_DIR -Des.default.path.data=$DATA_DIR -Des.default.config=$CONF_FILE -Des.default.path.conf=$CONF_DIR
 
  Wait until elasticsearch is up
