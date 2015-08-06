@@ -22,7 +22,7 @@ Please refer to openpaas-esn-master for [general installation instructions](http
  Download and install ElasticSearch 1.3.5 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-5) from elastic website
 
         wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.3.5.deb
-        dpkg -i elasticsearch-1.3.5.deb
+        sudo dpkg -i elasticsearch-1.3.5.deb
 
  Pin the version to avoid unwanted updates
 
