@@ -184,7 +184,7 @@ Some specialized Grunt tasks are available :
     grunt linters # launch hinter and linter against the codebase
     grunt test-frontend # only run the fontend unit tests
     grunt test-unit-backend # only run the unit backend tests
-    grunt test-midway-bakend # only run the midway backend tests
+    grunt test-midway-backend # only run the midway backend tests
     grunt test # launch all the testsuite
 
 Fixtures
