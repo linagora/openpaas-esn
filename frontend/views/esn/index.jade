@@ -132,8 +132,15 @@ html
     script(src='js/modules/array-helper.js')
     script(src='js/modules/alphalist.js')
     script(src='js/modules/ui.js')
+    script(src='js/modules/overture.js')
+    script(src='js/modules/jmap.js')
     script(src='js/material.js')
     script(src='/components/material-admin/js/modules/form.js')
 
   body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
     #wrap(ng-include='session.template')
+    //- Overture is looking for the body tag when it loads, 
+    //- so putting it in the head trigger an error when the page is loading.
+    //- JMAP requires overture to be loaded.
+    script(src='/components/overture/build/Overture.min.js') 
+    script(src='/components/jmap-js/build/JMAP.js')
