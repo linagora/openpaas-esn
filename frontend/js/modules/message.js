@@ -719,11 +719,11 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
     return {
       restrict: 'A',
       link: function($scope) {
-        $scope.$on('$typeahead.select', function(value, index){
-          $scope.selected=null;
+        $scope.$on('$typeahead.select', function(value, index) {
+          $scope.selected = null;
         });
       }
-    }
+    };
   })
   .directive('shareMessageButton', function($modal) {
     return {
