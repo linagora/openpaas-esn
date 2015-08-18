@@ -13,7 +13,7 @@
           message-preview-displayer(message="message")
 
         .row
-          input(type="text" template="/views/modules/message/share/share-dropdown.html" html="1" delay="500" limit="100" class="form-control" ng-model="selected" bs-options="target as target for target in getTargets($viewValue)" placeholder="Share with..." bs-typeahead)
+          input(type="text" share-typeahead-input template="/views/modules/message/share/share-dropdown.html" html="1" delay="500" limit="100" class="form-control" ng-model="selected" bs-options="target as target for target in getTargets($viewValue)" placeholder="Share with..." bs-typeahead)
 
         .row
           share-list(shares='shares')
