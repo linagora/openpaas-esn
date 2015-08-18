@@ -1,6 +1,6 @@
 div
   a.pull-left(href='#')
-    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+    img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
   div
     h4.media-heading
       a(href="#") {{::message.author.firstname}} {{::message.author.lastname}} #{__('has shared an email')}
