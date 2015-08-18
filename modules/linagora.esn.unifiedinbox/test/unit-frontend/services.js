@@ -69,6 +69,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should return a promise with mailboxes', function(done) {
         var jmapMailboxes = [
           buildJmapMailbox({
+            id: 1,
             name: 'Inbox',
             role: 'inbox',
             unreadMessages: 8
@@ -89,7 +90,7 @@ describe('The Unified Inbox Angular module services', function() {
           expect(result).to.deep.equal([{
             name: 'Inbox',
             role: 'inbox',
-            href: '/#/unifiedinbox',
+            href: '/#/unifiedinbox/1',
             unreadMessages: 8,
             orderingWeight: 5
           }]);
@@ -101,16 +102,19 @@ describe('The Unified Inbox Angular module services', function() {
       it('should return mailboxes with the expected ordering weight attribute', function(done) {
         var jmapMailboxes = [
           buildJmapMailbox({
+            id: 1,
             name: 'Inbox',
             role: 'inbox',
             unreadMessages: 8
           }),
           buildJmapMailbox({
+            id: 2,
             name: 'Sent',
             role: 'sent',
             unreadMessages: 1
           }),
           buildJmapMailbox({
+            id: 3,
             name: 'nothing',
             role: null,
             unreadMessages: 10
@@ -131,19 +135,19 @@ describe('The Unified Inbox Angular module services', function() {
           expect(result).to.deep.equal([{
             name: 'Inbox',
             role: 'inbox',
-            href: '/#/unifiedinbox',
+            href: '/#/unifiedinbox/1',
             unreadMessages: 8,
             orderingWeight: 5
           },{
             name: 'Sent',
             role: 'sent',
-            href: '/#/unifiedinbox',
+            href: '/#/unifiedinbox/2',
             unreadMessages: 1,
             orderingWeight: 25
           },{
             name: 'nothing',
             role: null,
-            href: '/#/unifiedinbox',
+            href: '/#/unifiedinbox/3',
             unreadMessages: 10,
             orderingWeight: 45
           }]);
@@ -155,9 +159,63 @@ describe('The Unified Inbox Angular module services', function() {
     });
   });
 
+  describe('JmapEmails service', function() {
+
+    beforeEach(angular.mock.inject(function(JmapEmails, $rootScope) {
+      this.JmapEmails = JmapEmails;
+      this.$rootScope = $rootScope;
+    }));
+
+    describe('listEmails method', function() {
+
+      it('should return a promise with emails', function(done) {
+        var mailbox = 'foo';
+        this.JmapEmails.get(mailbox).then(function(result) {
+          expect(result).to.deep.equal([
+            {name: 'Today', emails: [{
+              from: {name: 'display name', email: 'from@email'},
+              subject: 'today' + mailbox,
+              preview: 'preview',
+              hasAttachment: true,
+              isUnread: true,
+              date: '2015-08-20T03:24:00'}
+            ]},
+            {name: 'This Week', emails: [{
+              from: {name: 'display name', email: 'from@email'},
+              subject: 'last week' + mailbox,
+              preview: 'preview',
+              hasAttachment: false,
+              isUnread: true,
+              date: '2015-08-17T03:24:00'}
+            ]},
+            {name: 'This Month', emails: [{
+              from: {name: 'display name', email: 'from@email'},
+              subject: 'this month' + mailbox,
+              preview: 'preview',
+              hasAttachment: true,
+              isUnread: false,
+              date: '2015-07-27T03:24:00'}
+            ]},
+            {name: 'Older than a month', emails: [{
+              from: {name: 'display name', email: 'from@email'},
+              subject: 'old email' + mailbox,
+              preview: 'preview',
+              hasAttachment: false,
+              isUnread: false,
+              date: '2014-01-10T03:24:00'}
+            ]},
+          ]);
+          done();
+        });
+        this.$rootScope.$apply();
+      });
+    });
+  });
+
   describe('JmapAPI service', function() {
 
-    beforeEach(angular.mock.inject(function(JmapMailboxes, JmapAPI, JmapAuth) {
+    beforeEach(angular.mock.inject(function(JmapEmails, JmapMailboxes, JmapAPI, JmapAuth) {
+      this.JmapEmails = JmapEmails;
       this.JmapMailboxes = JmapMailboxes;
       this.JmapAPI = JmapAPI;
       this.JmapAuth = JmapAuth;
@@ -185,6 +243,32 @@ describe('The Unified Inbox Angular module services', function() {
         };
 
         expect(this.JmapAPI.getMailboxes()).to.equal('yolo');
+      });
+
+    });
+
+    describe('getEmails method', function() {
+
+      it('should login first', function() {
+        var called = false;
+        this.JmapEmails.get = function() {};
+        this.JmapAuth.login = function() {
+          called = true;
+        };
+
+        this.JmapAPI.getEmails();
+
+        expect(called).to.be.true;
+      });
+
+
+      it('should delegate to JmapEmails', function() {
+        this.JmapAuth.login = function() {};
+        this.JmapEmails.get = function() {
+          return 'yolo';
+        };
+
+        expect(this.JmapAPI.getEmails()).to.equal('yolo');
       });
 
     });
