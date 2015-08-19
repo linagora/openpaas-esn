@@ -772,6 +772,26 @@ describe('The Contacts Angular module', function() {
       expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
     });
 
+    it('should fire viewRenderFinished event to scroll to old position', function(done) {
+      scope.$on('viewRenderFinished', function() {
+        done();
+      });
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        }
+      });
+
+      $rootScope.$broadcast('ngRepeatFinished');
+    });
+
     describe('The loadContacts function', function() {
 
       it('should call the contactsService.list fn', function(done) {

@@ -208,6 +208,7 @@ angular.module('linagora.esn.contact')
     });
     $scope.$on('ngRepeatFinished', function() {
       $scope.showMenu = true;
+      $scope.$emit('viewRenderFinished');
     });
 
     $scope.search = function() {
