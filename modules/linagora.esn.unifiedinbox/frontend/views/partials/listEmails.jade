@@ -29,7 +29,7 @@
           .pull-left
             .lv-title {{email.subject}}
           .pull-right
-            .lv-title {{email.date | date}}
+            .lv-title {{email.date | date: group.dateFormat}}
           small.lv-small {{email.preview}}
           ul.lv-attrs
             li(ng-if="email.hasAttachment") 

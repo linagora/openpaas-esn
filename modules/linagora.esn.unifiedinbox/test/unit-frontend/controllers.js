@@ -52,13 +52,12 @@ describe('The Unified Inbox Angular module controllers', function() {
 
       it('should assign the getEmails result to the scope', function() {
         JmapAPI.getEmails = function(mailbox) {
-          return $q.when('result');
+          return 'result';
         };
 
         $controller('listEmailsController', {
           $scope: scope
         });
-        $rootScope.$apply();
 
         expect(scope.groupedEmails).to.equal('result');
       });

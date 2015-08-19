@@ -14,6 +14,64 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
+  .factory('EmailGroupingTool', function(moment) {
+
+    function EmailGroupingTool(options) {
+      this.todayEmails = [];
+      this.weeklyEmails = [];
+      this.monthlyEmails = [];
+      this.otherEmails = [];
+      this.allEmails = [
+        {name: 'Today', dateFormat: 'shortTime', emails: this.todayEmails},
+        {name: 'This Week', dateFormat: 'short', emails: this.weeklyEmails},
+        {name: 'This Month', dateFormat: 'short', emails: this.monthlyEmails},
+        {name: 'Older than a month', dateFormat: 'fullDate', emails: this.otherEmails}
+      ];
+      return this;
+    }
+
+    EmailGroupingTool.prototype.addEmail = function addEmail(jmapEmail) {
+      var email = {
+        from: jmapEmail.get('from'),
+        subject: jmapEmail.get('subject'),
+        preview: jmapEmail.get('preview'),
+        hasAttachment: jmapEmail.get('hasAttachment'),
+        isUnread: jmapEmail.get('isUnread'),
+        date: jmapEmail.get('date')
+      };
+      var currentMoment = moment(Date.now());
+      var emailMoment = moment(email.date);
+
+      if (this._isToday(currentMoment, emailMoment)) {
+        this.todayEmails.push(email);
+      } else if (this._isThisWeek(currentMoment, emailMoment)) {
+        this.weeklyEmails.push(email);
+      } else if (this._isThisMonth(currentMoment, emailMoment)) {
+        this.monthlyEmails.push(email);
+      } else {
+        this.otherEmails.push(email);
+      }
+    };
+
+    EmailGroupingTool.prototype._isToday = function _isSameDay(currentMoment, targetMoment) {
+      return currentMoment.clone().startOf('day').isBefore(targetMoment);
+    };
+
+    EmailGroupingTool.prototype._isThisWeek = function _isSameDay(currentMoment, targetMoment) {
+      return currentMoment.clone().subtract(7, 'days').startOf('day').isBefore(targetMoment);
+    };
+
+    EmailGroupingTool.prototype._isThisMonth = function _isSameDay(currentMoment, targetMoment) {
+      return currentMoment.clone().startOf('month').isBefore(targetMoment);
+    };
+
+    EmailGroupingTool.prototype.getGroupedEmails = function getGroupedEmails() {
+      return this.allEmails;
+    };
+
+    return EmailGroupingTool;
+  })
+
   .factory('JmapMailboxes', function($q, jmap, MAILBOX_ROLE_ORDERING_WEIGHT) {
 
     function listMailboxes() {
@@ -41,43 +99,30 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('JmapEmails', function($q, jmap) {
+  .factory('JmapEmails', function($timeout, jmap, EmailGroupingTool) {
 
     function listEmails(mailbox) {
-      return $q.when([
-        {name: 'Today', emails: [{
-          from: {name: 'display name', email: 'from@email'},
-          subject: 'today' + mailbox,
-          preview: 'preview',
-          hasAttachment: true,
-          isUnread: true,
-          date: '2015-08-20T03:24:00'}
-        ]},
-        {name: 'This Week', emails: [{
-          from: {name: 'display name', email: 'from@email'},
-          subject: 'last week' + mailbox,
-          preview: 'preview',
-          hasAttachment: false,
-          isUnread: true,
-          date: '2015-08-17T03:24:00'}
-        ]},
-        {name: 'This Month', emails: [{
-          from: {name: 'display name', email: 'from@email'},
-          subject: 'this month' + mailbox,
-          preview: 'preview',
-          hasAttachment: true,
-          isUnread: false,
-          date: '2015-07-27T03:24:00'}
-        ]},
-        {name: 'Older than a month', emails: [{
-          from: {name: 'display name', email: 'from@email'},
-          subject: 'old email' + mailbox,
-          preview: 'preview',
-          hasAttachment: false,
-          isUnread: false,
-          date: '2014-01-10T03:24:00'}
-        ]},
-      ]);
+      var emailGroupingTool = new EmailGroupingTool();
+      var options = {
+        filter: {inMailboxes: [mailbox]},
+        sort: ['date desc'],
+        collapseThreads: true,
+        position: 0,
+        limit: 100
+      };
+
+      jmap.listEmails(options, function(query) {
+        $timeout(function() {
+          query.forEach(function(email, index) {
+            // only display emails with data yet available
+            if (email && email.get('subject')) {
+              emailGroupingTool.addEmail(email);
+            }
+          });
+        });
+      });
+
+      return emailGroupingTool.getGroupedEmails();
     }
 
     return {
@@ -85,7 +130,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('JmapAPI', function($q, JmapAuth, JmapMailboxes, JmapEmails) {
+  .factory('JmapAPI', function(JmapAuth, JmapMailboxes, JmapEmails) {
 
     function getMailboxes() {
       JmapAuth.login();

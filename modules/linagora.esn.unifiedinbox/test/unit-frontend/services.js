@@ -8,11 +8,28 @@ describe('The Unified Inbox Angular module services', function() {
 
   beforeEach(function() {
     this.JMAP = {
-      store: {},
-      Mailbox: {}
+      store: {
+        getQuery: function() {
+          return {
+            addObserverForRange: function() {},
+            reset: function() {},
+            refresh: function() {}
+          };
+        }
+      },
+      Mailbox: {},
+      MessageList: {
+        getId: function(options) {
+          return options;
+        }
+      }
     };
     window.JMAP = this.JMAP;
-    this.O = {};
+    this.O = {
+      RunLoop: {
+        flushAllQueues: function() {}
+      }
+    };
     window.O = this.O;
 
     angular.mock.module('esn.overture');
@@ -72,7 +89,6 @@ describe('The Unified Inbox Angular module services', function() {
         mailboxesCallback = callback;
         return observableArray;
       };
-      this.JMAP.store.getQuery = function() {};
     }));
 
     describe('getMailboxes method', function() {
@@ -176,54 +192,240 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('JmapEmails service', function() {
 
-    beforeEach(angular.mock.inject(function(JmapEmails, $rootScope) {
+    var timeout;
+    var nowDate = new Date('2015-08-20T04:00:00Z');
+    var buildEmail = function(email) {
+      return {
+        get: function(attr) {
+          return email[attr];
+        }
+      };
+    };
+
+    beforeEach(angular.mock.inject(function(JmapEmails, $rootScope, $timeout, jmap, overture) {
       this.JmapEmails = JmapEmails;
       this.$rootScope = $rootScope;
+      this.jmap = jmap;
+      timeout = $timeout;
+      overture.O = this.O;
+
+      Date.now = function() {
+        return nowDate;
+      };
     }));
 
     describe('listEmails method', function() {
 
-      it('should return a promise with emails', function(done) {
-        var mailbox = 'foo';
-        this.JmapEmails.get(mailbox).then(function(result) {
-          expect(result).to.deep.equal([
-            {name: 'Today', emails: [{
-              from: {name: 'display name', email: 'from@email'},
-              subject: 'today' + mailbox,
-              preview: 'preview',
-              hasAttachment: true,
-              isUnread: true,
-              date: '2015-08-20T03:24:00'}
-            ]},
-            {name: 'This Week', emails: [{
-              from: {name: 'display name', email: 'from@email'},
-              subject: 'last week' + mailbox,
-              preview: 'preview',
-              hasAttachment: false,
-              isUnread: true,
-              date: '2015-08-17T03:24:00'}
-            ]},
-            {name: 'This Month', emails: [{
-              from: {name: 'display name', email: 'from@email'},
-              subject: 'this month' + mailbox,
-              preview: 'preview',
-              hasAttachment: true,
-              isUnread: false,
-              date: '2015-07-27T03:24:00'}
-            ]},
-            {name: 'Older than a month', emails: [{
-              from: {name: 'display name', email: 'from@email'},
-              subject: 'old email' + mailbox,
-              preview: 'preview',
-              hasAttachment: false,
-              isUnread: false,
-              date: '2014-01-10T03:24:00'}
-            ]},
-          ]);
-          done();
+      it('should request with these options', function() {
+        var receivedOptions;
+        this.jmap.listEmails = function(options, callback) {
+          receivedOptions = options;
+        };
+
+        this.JmapEmails.get('any mailbox id');
+
+        expect(receivedOptions).to.deep.equal({
+          filter: {inMailboxes: ['any mailbox id']},
+          sort: ['date desc'],
+          collapseThreads: true,
+          position: 0,
+          limit: 100
         });
-        this.$rootScope.$apply();
       });
+
+      it('should return an array of empty group', function() {
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: []},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the today group if it has the now date', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: nowDate
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail]},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the today group if it has the midnight date', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-08-20T00:10:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail]},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the today group even if it has a futur date', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-08-21T00:10:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail]},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the week group if it is 1 days old', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-08-19T20:00:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: []},
+          {name: 'This Week', dateFormat: 'short', emails: [receivedEmail]},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the week group if it is 7 days old', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-08-13T04:00:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: []},
+          {name: 'This Week', dateFormat: 'short', emails: [receivedEmail]},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the month group if it is just older than one week', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-08-12T22:00:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: []},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the month group if its date is the first of the month', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-08-01T04:00:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: []},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should put a received email in the older group if its date is the last day of the previous month', function() {
+        var receivedEmail = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        };
+
+        this.jmap.listEmails = function(options, callback) {
+          callback([buildEmail(receivedEmail)]);
+          timeout.flush();
+        };
+
+        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: []},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: [receivedEmail]}
+        ]);
+      });
+
     });
   });
 

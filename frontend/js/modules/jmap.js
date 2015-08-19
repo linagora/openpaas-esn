@@ -24,8 +24,24 @@ angular.module('esn.jmap-js', ['esn.overture'])
       JMAP.store.on(JMAP.Mailbox, observableMailboxes, 'contentDidChange');
     }
 
+    function listEmails(options, contentChangedCallback) {
+      var request = {
+        query: JMAP.store.getQuery(
+          JMAP.MessageList.getId(options),
+          JMAP.MessageList,
+          options
+        ),
+        callback: contentChangedCallback
+      };
+      request.query.addObserverForRange({}, request, 'callback');
+      request.query.reset();
+      request.query.refresh();
+      overture.O.RunLoop.flushAllQueues();
+    }
+
     return {
       login: login,
-      listMailboxes: listMailboxes
+      listMailboxes: listMailboxes,
+      listEmails: listEmails
     };
   });
