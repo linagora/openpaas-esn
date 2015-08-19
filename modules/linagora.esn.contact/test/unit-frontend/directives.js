@@ -251,9 +251,30 @@ describe('The contact Angular module directives', function() {
         this.contactsService.remove = function() {
           return $q.when('myTaskId');
         };
-        this.gracePeriodService.grace = function(text, linkText, delay) {
+        this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
           expect(delay).to.not.exist;
 
+          done();
+        };
+
+        var element = this.$compile(this.html)(this.scope);
+        this.scope.$digest();
+
+        element.isolateScope().deleteContact();
+        this.scope.$digest();
+      });
+
+      it('should display correct title and link during the grace period', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+        this.contactsService.remove = function() {
+          return $q.when('myTaskId');
+        };
+        this.scope.contact.displayName = 'Foo Bar';
+        this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
+          expect(taskId).to.equals('myTaskId');
+          expect(text).to.equals('You have just deleted a contact (Foo Bar).');
+          expect(linkText).to.equals('Cancel');
+          expect(delay).to.not.exist;
           done();
         };
 
