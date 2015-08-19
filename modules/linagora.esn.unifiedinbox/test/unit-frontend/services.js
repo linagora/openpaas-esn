@@ -50,12 +50,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('JmapMailboxes service', function() {
 
-    beforeEach(angular.mock.inject(function(JmapMailboxes, overture, $rootScope) {
-      this.JmapMailboxes = JmapMailboxes;
-      this.overture = overture;
-      this.$rootScope = $rootScope;
-    }));
-
+    var mailboxesCallback, observableArray;
     var buildJmapMailbox = function(mailbox) {
       return {
         get: function(attr) {
@@ -63,6 +58,22 @@ describe('The Unified Inbox Angular module services', function() {
         }
       };
     };
+
+    beforeEach(angular.mock.inject(function(JmapMailboxes, overture, $rootScope) {
+      this.JmapMailboxes = JmapMailboxes;
+      this.overture = overture;
+      this.$rootScope = $rootScope;
+
+      observableArray = {
+        contentDidChange: function() {}
+      };
+
+      this.overture.createObservableArray = function(query, callback) {
+        mailboxesCallback = callback;
+        return observableArray;
+      };
+      this.JMAP.store.getQuery = function() {};
+    }));
 
     describe('getMailboxes method', function() {
 
@@ -76,12 +87,6 @@ describe('The Unified Inbox Angular module services', function() {
           })
         ];
 
-        var mailboxesCallback;
-        this.overture.createObservableArray = function(query, callback) {
-          mailboxesCallback = callback;
-          return {};
-        };
-        this.JMAP.store.getQuery = function() {};
         this.JMAP.store.on = function() {
           mailboxesCallback(jmapMailboxes);
         };
@@ -97,6 +102,22 @@ describe('The Unified Inbox Angular module services', function() {
           done();
         });
         this.$rootScope.$apply();
+      });
+
+      it('should not resolve promise when mailboxes data is not yet available', function() {
+        var jmapMailboxes = [];
+        this.JMAP.store.on = function() {
+          mailboxesCallback(jmapMailboxes);
+        };
+
+        var expectedResult;
+        this.JmapMailboxes.get().then(function(result) {
+          expectedResult = result;
+        });
+
+        this.$rootScope.$apply();
+
+        expect(expectedResult).to.be.undefined;
       });
 
       it('should return mailboxes with the expected ordering weight attribute', function(done) {
@@ -121,12 +142,6 @@ describe('The Unified Inbox Angular module services', function() {
           })
         ];
 
-        var mailboxesCallback;
-        this.overture.createObservableArray = function(query, callback) {
-          mailboxesCallback = callback;
-          return {};
-        };
-        this.JMAP.store.getQuery = function() {};
         this.JMAP.store.on = function() {
           mailboxesCallback(jmapMailboxes);
         };

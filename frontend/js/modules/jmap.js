@@ -20,7 +20,7 @@ angular.module('esn.jmap-js', ['esn.overture'])
           Type: JMAP.Mailbox
         }),
         contentChangedCallback
-      );
+      ).contentDidChange();
       JMAP.store.on(JMAP.Mailbox, observableMailboxes, 'contentDidChange');
     }
 

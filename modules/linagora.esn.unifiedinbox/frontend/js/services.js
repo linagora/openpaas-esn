@@ -19,7 +19,11 @@ angular.module('linagora.esn.unifiedinbox')
     function listMailboxes() {
       var deferred = $q.defer();
       jmap.listMailboxes(function(mailboxes) {
-        var allMailboxes = mailboxes.map(function(box) {
+        if (mailboxes.length === 0) {
+          // mailboxes are not yet available
+          return;
+        }
+        deferred.resolve(mailboxes.map(function(box) {
           return {
             name: box.get('name'),
             role: box.get('role'),
@@ -27,8 +31,7 @@ angular.module('linagora.esn.unifiedinbox')
             unreadMessages: box.get('unreadMessages'),
             orderingWeight: MAILBOX_ROLE_ORDERING_WEIGHT[box.get('role') || 'default']
           };
-        });
-        deferred.resolve(allMailboxes);
+        }));
       });
       return deferred.promise;
     }
