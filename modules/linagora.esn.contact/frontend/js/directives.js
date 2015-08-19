@@ -440,4 +440,29 @@ angular.module('linagora.esn.contact')
         });
       }
     };
+  })
+  .directive('keepScrollPosition', function($cacheFactory, $location, $document) {
+    var CACHE_KEY = 'scrollPosition';
+
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        var scrollPositionCache = $cacheFactory.get(CACHE_KEY);
+        if (!scrollPositionCache) {
+          scrollPositionCache = $cacheFactory(CACHE_KEY);
+        }
+        var currentPath = $location.path();
+
+        // store current scroll position before switch
+        scope.$on('$locationChangeStart', function(event, next, current) {
+          scrollPositionCache.put(currentPath, $document.scrollTop());
+        });
+
+        // scroll to stored position
+        scope.$on('viewRenderFinished', function() {
+          var position = scrollPositionCache.get(currentPath) || 0;
+          $document.scrollTop(position);
+        });
+      }
+    };
   });
