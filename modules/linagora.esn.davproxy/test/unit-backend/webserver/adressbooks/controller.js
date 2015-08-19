@@ -49,6 +49,9 @@ describe('The addressbooks module', function() {
     return require('../../../../backend/webserver/addressbooks/controller')(deps);
   };
 
+  function avatarHelper() {
+    return require('../../../../backend/webserver/addressbooks/avatarHelper')(deps);
+  }
 
   describe('The getContactsFromDAV function', function() {
 
@@ -310,8 +313,10 @@ describe('The addressbooks module', function() {
 
       getController().updateContact(req, {
         json: function() {
-          expect(called).to.be.true;
-          done();
+          avatarHelper().injectTextAvatar(123, req.body).then(function(output) {
+            expect(called).to.be.true;
+            done();
+          });
         }
       });
     });
@@ -345,8 +350,10 @@ describe('The addressbooks module', function() {
 
       getController().updateContact(req, {
         json: function() {
-          expect(called).to.be.true;
-          done();
+          avatarHelper().injectTextAvatar(123, req.body).then(function(output) {
+            expect(called).to.be.true;
+            done();
+          });
         }
       });
     });
