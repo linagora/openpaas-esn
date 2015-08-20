@@ -389,7 +389,7 @@ angular.module('linagora.esn.contact')
 
             return $q.reject(err);
           }).then(function(taskId) {
-            return gracePeriodService.grace('You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel')
+            return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel')
                 .then(function(data) {
                   if (data.cancelled) {
                     return gracePeriodService.cancel(taskId).then(function() {
@@ -399,6 +399,8 @@ angular.module('linagora.esn.contact')
                       data.error('Cannot cancel contact delete, the contact is deleted');
                       return $q.reject(err);
                     });
+                  } else {
+                    gracePeriodService.remove(taskId);
                   }
             });
           });

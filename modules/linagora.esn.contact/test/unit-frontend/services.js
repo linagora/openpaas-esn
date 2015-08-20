@@ -39,14 +39,16 @@ describe('The Contacts Angular module', function() {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('tokenAPI', self.tokenAPI);
         $provide.value('uuid4', self.uuid4);
+        $provide.value('gracePeriodService', self.gracePeriodService);
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH) {
+    beforeEach(angular.mock.inject(function(contactsService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
       this.DAV_PATH = DAV_PATH;
+      this.GRACE_DELAY = GRACE_DELAY;
 
       this.getExpectedPath = function(path) {
         return this.DAV_PATH + path;
@@ -416,6 +418,28 @@ describe('The Contacts Angular module', function() {
     });
 
     describe('The remove fn', function() {
+
+      it('should display correct title and link during the grace period', function(done) {
+        this.notificationFactory.weakInfo = function() {};
+
+        this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
+          expect(taskId).to.equals('myTaskId');
+          expect(text).to.equals('You have just deleted a contact (Foo Bar).');
+          expect(linkText).to.equals('Cancel');
+          expect(delay).to.not.exist;
+          done();
+        };
+
+        this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=' + this.GRACE_DELAY))
+            .respond(function(method, url, data, headers) {
+              return [204, '', {'X-ESN-TASK-ID' : 'myTaskId'}];
+            });
+        contact.displayName = 'Foo Bar';
+        this.contactsService.deleteContact('1', contact);
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
 
       it('should pass the graceperiod as a query parameter if defined', function(done) {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf?graceperiod=1234')).respond(204);

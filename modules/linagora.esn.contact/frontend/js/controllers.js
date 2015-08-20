@@ -69,7 +69,7 @@ angular.module('linagora.esn.contact')
 
         return $q.reject(err);
       }).then(function() {
-        return gracePeriodService.grace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
+        return gracePeriodService.grace($scope.contact.id, 'You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
             .then(function(data) {
               if (data.cancelled) {
                   contactsService.remove($scope.bookId, $scope.contact).then(function() {
@@ -162,7 +162,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -209,6 +209,12 @@ angular.module('linagora.esn.contact')
     $scope.$on('ngRepeatFinished', function() {
       $scope.showMenu = true;
     });
+
+    $scope.$on('$destroy', function() {
+      gracePeriodService.flushAllTasks();
+    });
+
+    $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);
 
     $scope.search = function() {
 

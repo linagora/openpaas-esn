@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -20,8 +21,8 @@ describe('The Contacts Angular module', function() {
       }
     };
     notificationFactory = {
-      weakError: function() {},
-      weakInfo: function() {}
+      weakError: sinon.spy(),
+      weakInfo: sinon.spy()
     };
     $location = {
       path: function() {}
@@ -238,9 +239,28 @@ describe('The Contacts Angular module', function() {
       it('should grace the request using the default delay on success', function(done) {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
-        gracePeriodService.grace = function(text, linkText, delay) {
+        gracePeriodService.grace = function(taskId, text, linkText, delay) {
           expect(delay).to.not.exist;
 
+          done();
+        };
+
+        contactsService.create = function() {
+          return $q.when();
+        };
+
+        scope.accept();
+        scope.$digest();
+      });
+
+      it('should display correct title and link during the grace period', function(done) {
+        scope.contact = {firstName: 'Foo', lastName: 'Bar', id: 'myTaskId'};
+
+        gracePeriodService.grace = function(taskId, text, linkText, delay) {
+          expect(taskId).to.equals('myTaskId');
+          expect(text).to.equals('You have just created a new contact (Foo Bar).');
+          expect(linkText).to.equals('Cancel and back to edition');
+          expect(delay).to.not.exist;
           done();
         };
 
@@ -632,6 +652,48 @@ describe('The Contacts Angular module', function() {
   });
 
   describe('The contactsListController controller', function() {
+
+    it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
+      gracePeriodService.flushAllTasks = sinon.spy();
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        }
+      });
+      scope.$destroy();
+      $rootScope.$digest();
+      expect(gracePeriodService.flushAllTasks).to.have.been.called;
+    });
+
+    it('should register gracePeriodService.flushAllTasks on(\'beforeunload\')', function() {
+      gracePeriodService.flushAllTasks = 'aHandler';
+      var event = null;
+      var handler = null;
+      this.$window.addEventListener = function(evt, hdlr) {
+        event = evt;
+        handler = hdlr;
+      };
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        }
+      });
+      $rootScope.$digest();
+      expect(event).to.equal('beforeunload');
+      expect(handler).to.equal('aHandler');
+    });
 
     it('should add the contact to the list on delete cancellation', function(done) {
       var contact = {
