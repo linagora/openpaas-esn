@@ -202,8 +202,9 @@ describe('The Unified Inbox Angular module services', function() {
       };
     };
 
-    beforeEach(angular.mock.inject(function(JmapEmails, $rootScope, $timeout, jmap, overture) {
+    beforeEach(angular.mock.inject(function(JmapEmails, Email, $rootScope, $timeout, jmap, overture) {
       this.JmapEmails = JmapEmails;
+      this.Email = Email;
       this.$rootScope = $rootScope;
       this.jmap = jmap;
       timeout = $timeout;
@@ -699,6 +700,102 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
     });
+
+
+    describe('getEmail method', function() {
+
+      it('should transform from jmap email', function() {
+        var jmapEmail = buildEmail({
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          htmlBody: 'htmlBody',
+          textBody: 'textBody',
+          hasAttachment: false,
+          attachments: 'attachments',
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        });
+
+        this.jmap.getEmail = function(emailId, callback) {
+          return jmapEmail;
+        };
+
+        var expectedEmail = new this.Email(jmapEmail);
+        expect(this.JmapEmails.getEmail('emailId')).to.deep.equal(expectedEmail);
+      });
+
+      it('should update returned email when one value changes through the callback', function() {
+        var jmapEmail = buildEmail({
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          htmlBody: 'htmlBody',
+          textBody: 'textBody',
+          hasAttachment: false,
+          attachments: 'attachments',
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        });
+        var updatedProperties = {
+          from: 'from value updated'
+        };
+
+        var updateCallback;
+        this.jmap.getEmail = function(emailId, callback) {
+          updateCallback = callback;
+          return jmapEmail;
+        };
+
+        var email = this.JmapEmails.getEmail('emailId');
+        updateCallback(buildEmail(updatedProperties), updatedProperties);
+        timeout.flush();
+
+        var expectedEmail = new this.Email(jmapEmail);
+        expectedEmail.from = updatedProperties.from;
+        expect(email).to.deep.equal(expectedEmail);
+      });
+
+      it('should update returned email when all values change through the callback', function() {
+        var jmapEmail = buildEmail({
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          htmlBody: 'htmlBody',
+          textBody: 'textBody',
+          hasAttachment: false,
+          attachments: 'attachments',
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        });
+        var updatedProperties = {
+          from: 'from value updated',
+          subject: 'subject value updated',
+          preview: 'preview value updated',
+          htmlBody: 'htmlBody updated',
+          textBody: 'textBody updated',
+          hasAttachment: true,
+          attachments: 'attachments updated',
+          isUnread: true,
+          date: '2025-07-31T04:00:00Z'
+        };
+
+        var updateCallback;
+        this.jmap.getEmail = function(emailId, callback) {
+          updateCallback = callback;
+          return buildEmail(jmapEmail);
+        };
+
+        var email = this.JmapEmails.getEmail('emailId');
+        updateCallback(buildEmail(updatedProperties), updatedProperties);
+        timeout.flush();
+
+        var expectedEmail = buildEmail(updatedProperties);
+        expect(email).to.deep.equal(new this.Email(expectedEmail));
+      });
+
+    });
+
   });
 
   describe('JmapAPI service', function() {
@@ -758,6 +855,32 @@ describe('The Unified Inbox Angular module services', function() {
         };
 
         expect(this.JmapAPI.getEmails()).to.equal('yolo');
+      });
+
+    });
+
+    describe('getEmail method', function() {
+
+      it('should login first', function() {
+        var called = false;
+        this.JmapEmails.getEmail = function() {};
+        this.JmapAuth.login = function() {
+          called = true;
+        };
+
+        this.JmapAPI.getEmail();
+
+        expect(called).to.be.true;
+      });
+
+
+      it('should delegate to JmapEmails', function() {
+        this.JmapAuth.login = function() {};
+        this.JmapEmails.getEmail = function() {
+          return 'yolo';
+        };
+
+        expect(this.JmapAPI.getEmail()).to.equal('yolo');
       });
 
     });

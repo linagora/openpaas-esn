@@ -9,4 +9,8 @@ angular.module('linagora.esn.unifiedinbox', ['esn.jmap-js', 'angularMoment'])
       templateUrl: '/unifiedinbox/views/partials/listEmails',
       controller: 'listEmailsController'
     });
+    $routeProvider.when('/unifiedinbox/:mailbox/:emailId', {
+      templateUrl: '/unifiedinbox/views/partials/viewEmail',
+      controller: 'viewEmailController'
+    });
   });

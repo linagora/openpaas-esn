@@ -14,9 +14,39 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
+  .factory('Email', function() {
+
+    function Email(jmapEmail) {
+      this.update(jmapEmail);
+      return this;
+    }
+
+    Email.prototype.update = function update(jmapEmail) {
+      this._updateIfDefined('from', jmapEmail.get('from'));
+      this._updateIfDefined('subject', jmapEmail.get('subject'));
+      this._updateIfDefined('preview', jmapEmail.get('preview'));
+      this._updateIfDefined('htmlBody', jmapEmail.get('htmlBody'));
+      this._updateIfDefined('textBody', jmapEmail.get('textBody'));
+      this._updateIfDefined('hasAttachment', jmapEmail.get('hasAttachment'));
+      this._updateIfDefined('attachments', jmapEmail.get('attachments'));
+      this._updateIfDefined('isUnread', jmapEmail.get('isUnread'));
+      this._updateIfDefined('date', jmapEmail.get('date'));
+    };
+
+    Email.prototype._updateIfDefined = function update(field, value) {
+      if (angular.isDefined(value)) {
+        this[field] = value;
+      }
+    };
+
+    return Email;
+  })
+
   .factory('EmailGroupingTool', function(moment) {
 
-    function EmailGroupingTool(options) {
+    function EmailGroupingTool(mailbox) {
+      this.mailbox = mailbox;
+
       this.todayEmails = [];
       this.weeklyEmails = [];
       this.monthlyEmails = [];
@@ -27,6 +57,7 @@ angular.module('linagora.esn.unifiedinbox')
         {name: 'This Month', dateFormat: 'short', emails: this.monthlyEmails},
         {name: 'Older than a month', dateFormat: 'fullDate', emails: this.otherEmails}
       ];
+
       return this;
     }
 
@@ -107,10 +138,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('JmapEmails', function($timeout, jmap, EmailGroupingTool) {
+  .factory('JmapEmails', function($timeout, jmap, Email, EmailGroupingTool) {
 
     function listEmails(mailbox) {
-      var emailGroupingTool = new EmailGroupingTool();
+      var emailGroupingTool = new EmailGroupingTool(mailbox);
       var options = {
         filter: {inMailboxes: [mailbox]},
         sort: ['date desc'],
@@ -136,8 +167,18 @@ angular.module('linagora.esn.unifiedinbox')
       return emailGroupingTool.getGroupedEmails();
     }
 
+    function getEmail(emailId) {
+      var email = new Email(jmap.getEmail(emailId, function(obj) {
+        $timeout(function() {
+          email.update(obj);
+        });
+      }));
+      return email;
+    }
+
     return {
-      get: listEmails
+      get: listEmails,
+      getEmail: getEmail
     };
   })
 
@@ -153,9 +194,15 @@ angular.module('linagora.esn.unifiedinbox')
       return JmapEmails.get(mailbox);
     }
 
+    function getEmail(emailId) {
+      JmapAuth.login();
+      return JmapEmails.getEmail(emailId);
+    }
+
     return {
       getMailboxes: getMailboxes,
-      getEmails: getEmails
+      getEmails: getEmails,
+      getEmail: getEmail
     };
 
   });

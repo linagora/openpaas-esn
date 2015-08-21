@@ -39,9 +39,23 @@ angular.module('esn.jmap-js', ['esn.overture'])
       overture.O.RunLoop.flushAllQueues();
     }
 
+    function getEmail(emailId, updateCallback) {
+      var request = {
+        record: JMAP.store.getRecord(JMAP.Message, emailId),
+        callback: updateCallback
+      };
+
+      request.record.addObserverForKey('*', request, 'callback');
+      request.record.fetchDetails();
+      overture.O.RunLoop.flushAllQueues();
+
+      return request.record;
+    }
+
     return {
       login: login,
       listMailboxes: listMailboxes,
-      listEmails: listEmails
+      listEmails: listEmails,
+      getEmail: getEmail
     };
   });

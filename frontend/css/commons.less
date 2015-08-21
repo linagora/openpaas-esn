@@ -224,6 +224,60 @@
   }
 }
 
+.zoomIn {
+  animation: zoomIn .25s ease-out forwards;
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale3d(0,0,0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale3d(1,1,1);
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes zoomIn {
+  0% {
+    transform: scale3d(0,0,0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale3d(1,1,1);
+    opacity: 1;
+  }
+}
+
+@-moz-keyframes zoomIn {
+  0% {
+    transform: scale3d(0,0,0);
+    -moz-transform: scale3d(0,0,0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale3d(1,1,1);
+    -moz-transform: scale3d(1,1,1);
+    opacity: 1;
+  }
+}
+
+@-ie-keyframes zoomIn {
+  0% {
+    transform: scale3d(0,0,0);
+    -ie-transform: scale3d(0,0,0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale3d(1,1,1);
+    -ie-transform: scale3d(1,1,1);
+    opacity: 1;
+  }
+}
+
 .drop-menu-open-animation(@origin) {
   &.open {
     .dropdown-menu {
