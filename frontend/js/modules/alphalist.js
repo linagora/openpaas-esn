@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
+angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core'])
 
   .constant('ALPHA_ITEMS', '#ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
-  .factory('AlphaCategoryService', function(arrayHelper, ALPHA_ITEMS) {
+  .factory('AlphaCategoryService', function(arrayHelper, ALPHA_ITEMS, charAPI) {
 
     function Categorize(options) {
       this.options = options || {};
@@ -30,7 +30,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper'])
     Categorize.prototype._addItemsToCategories = function _addItemsToCategories(items) {
 
       for (var i = 0; i < items.length; i++) {
-        var letter = items[i][this.sortBy].toUpperCase().charAt(0);
+        var letter = charAPI.getAsciiUpperCase(items[i][this.sortBy].charAt(0));
 
         if (this.categories[letter]) {
           this.categories[letter].push(items[i]);

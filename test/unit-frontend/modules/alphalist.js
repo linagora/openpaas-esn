@@ -92,6 +92,32 @@ describe('The Alpha List module', function() {
         expect(categories[others]).to.deep.equals([items[0], items[4], items[5]]);
       });
 
+      it('should add items with accents to the right categories', function() {
+
+        var keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var others = '#';
+        var items = [
+          {firstName: 'xavier', lastName: 'DEF'},
+          {firstName: 'étienne', lastName: 'DEF'},
+          {firstName: 'dBC', lastName: 'DEF'},
+          {firstName: 'ffdsfd', lastName: 'DEF'},
+          {firstName: 'Đoooo Đaaaaaa', lastName: 'DEF'},
+          {firstName: 'đồ qsd', lastName: 'DEF'},
+          {firstName: '_??~#', lastName: 'DEF'}
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+
+        var categories = category.get();
+        expect(categories.A).to.deep.equals([]);
+        expect(categories.X).to.deep.equals([items[0]]);
+        expect(categories.E).to.deep.equals([items[1]]);
+        expect(categories.D).to.deep.equals([items[2], items[4], items[5]]);
+        expect(categories.F).to.deep.equals([items[3]]);
+        expect(categories[others]).to.deep.equals([items[6]]);
+      });
+
       it('should not keep unknown items', function() {
 
         var keys = 'ABC';
