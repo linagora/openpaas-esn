@@ -413,4 +413,111 @@ describe('The contact Angular module directives', function() {
     });
   });
 
+
+  describe('The keepScrollPosition directive', function() {
+    var $location;
+    var $scope;
+
+    function doInject() {
+      inject(function(_$location_, $compile, $rootScope) {
+        $location = _$location_;
+        $scope = $rootScope.$new();
+        $compile('<div keep-scroll-position></div>')($scope);
+      });
+    }
+
+    it('should use $cacheFactory to store scroll position', function(done) {
+      var CACHE_KEY = 'scrollPosition';
+
+      module('linagora.esn.contact', function($provide) {
+        $provide.decorator('$cacheFactory', function($delegate) {
+          $delegate.get = function(key) {
+            expect(key).to.equal(CACHE_KEY);
+            done();
+          };
+          return $delegate;
+        });
+      });
+
+      doInject();
+      $scope.$digest();
+    });
+
+    it('should save scroll position on $locationChangeStart event', function(done) {
+      var path = '/a/path/here';
+      var position = 100;
+
+      module('linagora.esn.contact', function($provide) {
+        $provide.decorator('$location', function($delegate) {
+          $delegate.path = function() {
+            return path;
+          };
+          return $delegate;
+        });
+
+        $provide.decorator('$document', function($delegate) {
+          $delegate.scrollTop = function() {
+            return position;
+          };
+          return $delegate;
+        });
+
+        $provide.decorator('$cacheFactory', function($delegate) {
+          $delegate.get = function() {
+            return {
+              put: function(key, value) {
+                expect(key).to.equal(path, position);
+                done();
+              }
+            };
+          };
+          return $delegate;
+        });
+      });
+
+      doInject();
+      $scope.$digest();
+      $scope.$emit('$locationChangeStart');
+    });
+
+    it('should scroll to saved position on viewRenderFinished event', function(done) {
+      var path = '/a/path/here';
+      var position = 100;
+
+      module('linagora.esn.contact', function($provide) {
+        $provide.decorator('$location', function($delegate) {
+          $delegate.path = function() {
+            return path;
+          };
+          return $delegate;
+        });
+
+        $provide.decorator('$document', function($delegate) {
+          $delegate.scrollTop = function(top) {
+            expect(top).to.equal(position);
+            done();
+          };
+          return $delegate;
+        });
+
+        $provide.decorator('$cacheFactory', function($delegate) {
+          $delegate.get = function() {
+            return {
+              get: function(key) {
+                expect(key).to.equal(path);
+                return position;
+              }
+            };
+          };
+          return $delegate;
+        });
+      });
+
+      doInject();
+      $scope.$digest();
+      $scope.$emit('viewRenderFinished');
+    });
+
+  });
+
 });
