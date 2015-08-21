@@ -87,8 +87,7 @@ wsserver.start = start;
 
 var awesomeWsServer = new AwesomeModule(ESN_MODULE_PREFIX + 'wsserver', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf'),
-    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'webserver', 'webserver')
+    new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf')
   ],
   states: {
     lib: function(dependencies, callback) {

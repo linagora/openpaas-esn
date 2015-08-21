@@ -28,11 +28,13 @@ describe('The addressbooks dav proxy', function() {
           return done(err);
         }
 
+        var wsserver = self.helpers.modules.getLib('linagora.esn.core.wsserver');
+        wsserver.start('4500');
+
         self.helpers.modules.start(moduleName, function(err) {
           if (err) {
             return done(err);
           }
-
           self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
             if (err) {
               return done(err);
