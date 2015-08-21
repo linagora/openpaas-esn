@@ -14,7 +14,8 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
   ],
   states: {
     lib: function(dependencies, callback) {
@@ -43,6 +44,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     },
 
     start: function(dependencies, callback) {
+      require('./backend/ws/contact').init(dependencies);
       this.lib.start(callback);
     }
   }
