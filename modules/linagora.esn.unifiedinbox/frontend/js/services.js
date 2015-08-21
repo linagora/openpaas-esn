@@ -69,6 +69,12 @@ angular.module('linagora.esn.unifiedinbox')
       return this.allEmails;
     };
 
+    EmailGroupingTool.prototype.reset = function reset() {
+      return this.allEmails.forEach(function(emailGroup) {
+        emailGroup.emails.length = 0;
+      });
+    };
+
     return EmailGroupingTool;
   })
 
@@ -113,7 +119,10 @@ angular.module('linagora.esn.unifiedinbox')
 
       jmap.listEmails(options, function(query) {
         $timeout(function() {
-          query.forEach(function(email, index) {
+          if (query.position === 0) {
+            emailGroupingTool.reset();
+          }
+          query.forEach(function(email) {
             // only display emails with data yet available
             if (email && email.get('subject')) {
               emailGroupingTool.addEmail(email);

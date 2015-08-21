@@ -242,6 +242,98 @@ describe('The Unified Inbox Angular module services', function() {
         ]);
       });
 
+      it('should clean known emails when the received email list starts at position 0', function() {
+        var receivedEmail1 = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: nowDate
+        };
+        var receivedEmail2 = {
+          from: 'from value 2',
+          subject: 'subject value 2',
+          preview: 'preview value 2',
+          hasAttachment: true,
+          isUnread: true,
+          date: nowDate
+        };
+
+        var listEmailsCallback;
+        this.jmap.listEmails = function(options, callback) {
+          listEmailsCallback = callback;
+        };
+
+        var emailsAndPosition = function(emails) {
+          return {
+            forEach: function(callback) {
+              emails.forEach(callback);
+            },
+            position: 0
+          };
+        };
+
+        var groupedEmails = this.JmapEmails.get('any mailbox id');
+        listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail1)]));
+        timeout.flush();
+        listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail2)]));
+        timeout.flush();
+
+        expect(groupedEmails).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail2]},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
+      it('should not clean known emails when the received email list does not start at position 0', function() {
+        var receivedEmail1 = {
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          hasAttachment: false,
+          isUnread: false,
+          date: nowDate
+        };
+        var receivedEmail2 = {
+          from: 'from value 2',
+          subject: 'subject value 2',
+          preview: 'preview value 2',
+          hasAttachment: true,
+          isUnread: true,
+          date: nowDate
+        };
+
+        var listEmailsCallback;
+        this.jmap.listEmails = function(options, callback) {
+          listEmailsCallback = callback;
+        };
+
+        var emailsAndPosition = function(emails) {
+          return {
+            forEach: function(callback) {
+              emails.forEach(callback);
+            },
+            position: 1
+          };
+        };
+
+        var groupedEmails = this.JmapEmails.get('any mailbox id');
+        listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail1)]));
+        timeout.flush();
+        listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail2)]));
+        timeout.flush();
+
+        expect(groupedEmails).to.deep.equal([
+          {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail1, receivedEmail2]},
+          {name: 'This Week', dateFormat: 'short', emails: []},
+          {name: 'This Month', dateFormat: 'short', emails: []},
+          {name: 'Older than a month', dateFormat: 'fullDate', emails: []}
+        ]);
+      });
+
       it('should put a received email in the today group if it has the now date', function() {
         var receivedEmail = {
           from: 'from value',
