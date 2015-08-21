@@ -715,16 +715,6 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
       templateUrl: '/views/modules/message/attachments/messageEditionAttachments.html'
     };
   })
-  .directive('shareTypeaheadInput', function() {
-    return {
-      restrict: 'A',
-      link: function($scope) {
-        $scope.$on('$typeahead.select', function(value, index) {
-          $scope.selected = null;
-        });
-      }
-    };
-  })
   .directive('shareMessageButton', function($modal) {
     return {
       restrict: 'E',
@@ -804,6 +794,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
 
     $scope.$on('$typeahead.select', function(value, index) {
       $scope.addTarget(index);
+      $scope.selected = null;
     });
 
     function isAlreadyInShares(target) {
