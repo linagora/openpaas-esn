@@ -2,7 +2,7 @@
 
   .listview.lv-bordered.lv-lg(ng-repeat="group in groupedEmails" ng-if="group.emails.length > 0")
     .lv-header-alt
-      h2.lvh-label {{group.name}}
+      h2.lvh-label {{::group.name}}
       ul.lv-actions.actions
         li
           a(href="")
@@ -25,18 +25,18 @@
             i.input-helper
         .pull-left
           img.lv-img-sm(src="images/user.png")
-        .media-body(ng-class="{bold: email.isUnread}")
+        .media-body(ng-class="::{bold: email.isUnread}")
           .pull-left
-            .lv-title {{email.subject}}
+            .lv-title {{::email.subject}}
           .pull-right
-            .lv-title {{email.date | date: group.dateFormat}}
-          small.lv-small {{email.preview}}
+            .lv-title {{::email.date | date: group.dateFormat}}
+          small.lv-small {{::email.preview}}
           ul.lv-attrs
             li(ng-if="email.hasAttachment") 
               a(href="")
                 i.mdi.mdi-v-centered.mdi-attachment
-            li {{email.from.name}}
-              small  ({{email.from.email}})
+            li {{::email.from.name}}
+              small  ({{::email.from.email}})
           .lv-actions.actions.dropdown
             a(href="" data-toggle="dropdown" aria-expanded="false")
               i.mdi.mdi-v-centered.mdi-dots-vertical
