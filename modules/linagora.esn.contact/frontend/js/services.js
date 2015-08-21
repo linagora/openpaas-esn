@@ -121,7 +121,89 @@ angular.module('linagora.esn.contact')
       getFormattedBirthday: getFormattedBirthday
     };
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope) {
+  .factory('contactsCacheService', function($rootScope, $log, $cacheFactory) {
+    var CACHE_KEY = 'contactsList';
+    var CONTACTS_CACHE_KEY = 'contacts';
+    var contactsCache = $cacheFactory.get(CACHE_KEY);
+    if (!contactsCache) {
+      contactsCache = $cacheFactory(CACHE_KEY);
+    }
+
+    $rootScope.$on('$routeChangeStart', function(evt, next, current) {
+      // clear cache to avoid memory leak when user swith to outside contact module
+      if (next.originalPath !== '/contact' &&
+          next.originalPath.substring(0, 9) !== '/contact/') {
+        clear();
+      }
+    });
+
+    $rootScope.$on('contact:created', function(e, data) {
+      addContact(data);
+    });
+
+    $rootScope.$on('contact:updated', function(e, data) {
+      updateContact(data);
+    });
+
+    $rootScope.$on('contact:deleted', function(e, data) {
+      deleteContact(data);
+    });
+
+    $rootScope.$on('contact:cancel:delete', function(e, data) {
+      addContact(data);
+    });
+
+    function clear() {
+      $log.debug('Clear contacts cache');
+      contactsCache.removeAll();
+    }
+
+    function put(contacts) {
+      $log.debug('Cached', contacts.length, 'contacts');
+      contactsCache.put(CONTACTS_CACHE_KEY, contacts);
+    }
+
+    function get() {
+      return contactsCache.get(CONTACTS_CACHE_KEY);
+    }
+
+    function addContact(contact) {
+      var contacts = get();
+      if (contacts) {
+        contacts.push(contact);
+      }
+    }
+
+    function updateContact(contact) {
+      var contacts = get();
+      if (contacts) {
+        angular.forEach(contacts, function(item, index, array) {
+          if (item.id === contact.id) {
+            array[index] = contact;
+          }
+        });
+      }
+    }
+
+    function deleteContact(contact) {
+      var contacts = get();
+      if (contacts) {
+        // remove all items have the same ID with contact
+        contacts = contacts.filter(function(item) {
+          return item.id !== contact.id;
+        });
+        // put contacts to cache again because the reference has been changed
+        put(contacts);
+      }
+    }
+
+    return {
+      put: put,
+      get: get
+    };
+
+  })
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY).then(function(taskId) {
@@ -394,7 +476,18 @@ angular.module('linagora.esn.contact')
     }
 
     function list(bookId) {
-      return request('get', bookUrl(bookId)).then(responseAsContactsShell);
+      var contacts = contactsCacheService.get();
+      if (contacts) {
+        $log.debug('Get contacts from cache');
+        return $q.when(contacts);
+      }
+
+      return request('get', bookUrl(bookId)).then(function(response) {
+        contacts = responseAsContactsShell(response);
+        contactsCacheService.put(contacts);
+        return contacts;
+      });
+
     }
 
     function create(bookId, contact) {
@@ -409,7 +502,15 @@ angular.module('linagora.esn.contact')
         if (response.status !== 201) {
           return $q.reject(response);
         }
-        return response;
+        return getCard(bookId, cardId)
+          .then(function(contact) {
+            $rootScope.$emit('contact:created', contact);
+            return response;
+          })
+          .finally (function() {
+            return response;
+          });
+
       });
     }
 
@@ -425,9 +526,14 @@ angular.module('linagora.esn.contact')
 
       return request('put', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, headers), shellToVCARD(contact).toJSON()).then(function(response) {
         if (response.status === 200) {
-          return new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
+          var updatedContact = new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
+          $rootScope.$emit('contact:updated', updatedContact);
+          return updatedContact;
         } else if (response.status === 204) {
-          return getCard(bookId, contact.id);
+          return getCard(bookId, contact.id).then(function(updatedContact) {
+            $rootScope.$emit('contact:updated', updatedContact);
+            return updatedContact;
+          });
         } else {
           return $q.reject(response);
         }
