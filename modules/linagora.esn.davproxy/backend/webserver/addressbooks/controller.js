@@ -87,7 +87,9 @@ module.exports = function(dependencies) {
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while updating contact on DAV server'}});
       }
 
-      pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: req.body, user: req.user});
+      avatarHelper.injectTextAvatar(req.params.bookId, req.body).then(function(newBody) {
+        pubsub.topic(create ? 'contacts:contact:add' : 'contacts:contact:update').publish({contactId: req.params.contactId, bookId: req.params.bookId, vcard: newBody, user: req.user});
+      });
 
       return res.json(response.statusCode, body);
     });
