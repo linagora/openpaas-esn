@@ -462,6 +462,7 @@ angular.module('linagora.esn.contact')
       getCard: getCard,
       search: search,
       deleteContact: deleteContact,
-      shellToVCARD: shellToVCARD
+      shellToVCARD: shellToVCARD,
+      ContactsShell: ContactsShell
     };
   });

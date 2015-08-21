@@ -86,7 +86,7 @@ angular.module('linagora.esn.contact')
 
     sharedDataService.contact = {};
   })
-  .controller('showContactController', function($scope, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, sharedDataService, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
@@ -126,6 +126,7 @@ angular.module('linagora.esn.contact')
       displayError('Cannot get contact details');
     });
 
+    sharedDataService.contact = {};
   })
   .controller('editContactController', function($scope, $q, displayError, closeForm, $rootScope, $timeout, $location, notificationFactory, sendContactToBackend, $route, gracePeriodService, contactsService, DEFAULT_AVATAR, GRACE_DELAY) {
     $scope.bookId = $route.current.params.bookId;
@@ -162,7 +163,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, livenotification, ICAL) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -231,6 +232,25 @@ angular.module('linagora.esn.contact')
         displayError('Can not search contacts');
       });
     };
+
+    function liveNotificationHandlerOnCreate(data) {
+      var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
+      addItemsToCategories([contact]);
+    }
+
+    function liveNotificationHandlerOnDelete(data) {
+      $scope.categories.removeItemWithId(data.contactId);
+    }
+
+    var sio = livenotification('/contacts', $scope.bookId);
+
+    sio.on('contact:created', liveNotificationHandlerOnCreate);
+    sio.on('contact:deleted', liveNotificationHandlerOnDelete);
+
+    $scope.$on('$destroy', function() {
+      sio.removeListener('contact:created', liveNotificationHandlerOnCreate);
+      sio.removeListener('contact:deleted', liveNotificationHandlerOnDelete);
+    });
 
     $scope.loadContacts();
   })

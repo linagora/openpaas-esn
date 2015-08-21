@@ -42,6 +42,18 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core'])
       }
     };
 
+    Categorize.prototype._removeItemWithId = function _removeItemWithId(id) {
+      var self = this;
+
+      Object.keys(this.categories).forEach(function(name) {
+        self.categories[name].forEach(function(elt, index, arr) {
+          if (elt.id === id) {
+            arr.splice(index, 1);
+          }
+        });
+      });
+    };
+
     Categorize.prototype._removeItemFromCategories = function _removeItemsFromCategories(item) {
       if (!item) {
         return;
@@ -75,6 +87,10 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core'])
 
     Categorize.prototype.removeItem = function removeItem(item) {
       this._removeItemFromCategories(item);
+    };
+
+    Categorize.prototype.removeItemWithId = function removeItemWithId(id) {
+      this._removeItemWithId(id);
     };
 
     return Categorize;
