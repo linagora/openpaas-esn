@@ -1,5 +1,5 @@
-a.attendee-avatar(href="", ng-attr-title='{{attendee.name}}')
-  img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?objectType=user&email={{attendee.email|urlencode}}')
+a.attendee-avatar(href="", ng-attr-title='{{::attendee.name}}')
+  img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?objectType={{attendeeType}}&email={{attendee.email|urlencode}}')
   .checkbox(ng-if='!readOnly')
     label
       input(type="checkbox", ng-if="!attendee.clicked")

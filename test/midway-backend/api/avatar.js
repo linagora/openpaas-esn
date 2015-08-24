@@ -3,7 +3,7 @@
 var expect = require('chai').expect,
   request = require('supertest');
 
-describe.only('The avatar routes', function() {
+describe('The avatar routes', function() {
 
   beforeEach(function() {
     this.app = this.helpers.requireBackend('webserver/application');
