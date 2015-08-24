@@ -18,7 +18,7 @@ function getUserAvatarFromEmail(req, res) {
 
 function getCollaborationAvatar(req, res) {
   if (!req.query.id) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Collaboration id is mandatory'}});
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Collaboration id is mandatory'}});
   }
 
   req.params.id = req.query.id;
@@ -26,7 +26,7 @@ function getCollaborationAvatar(req, res) {
 
   collaborationMiddleware.load(req, res, function(err) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server Error', details: 'Error while getting avatar'}});
+      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Error while getting avatar'}});
     }
     return collaborationController.getAvatar(req, res);
   });
@@ -34,7 +34,7 @@ function getCollaborationAvatar(req, res) {
 
 function getAvatar(req, res) {
   if (!req.query.id) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Avatar id is mandatory'}});
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Avatar id is mandatory'}});
   }
 
   imageModule.getAvatar(req.query.id, req.query.format, function(err, fileStoreMeta, readable) {
@@ -56,9 +56,19 @@ function getAvatar(req, res) {
   });
 }
 
+function getGeneratedAvatar(req, res) {
+  if (!req.query.email || typeof req.query.email !== 'string' ||  req.query.email.length === 0) {
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Email is mandatory and must be a non-empty string'}});
+  }
+  var options = {
+    text: req.query.email.charAt(0)
+  };
+  return res.send(imageModule.avatarGenerationModule.generateFromText(options));
+}
+
 module.exports.get = function(req, res) {
   if (!req.query.objectType) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'objectType parameter is mandatory'}});
+    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'objectType parameter is mandatory'}});
   }
 
   if (req.query.objectType === 'user') {
@@ -73,5 +83,9 @@ module.exports.get = function(req, res) {
     return getAvatar(req, res);
   }
 
-  return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Unknown objectType parameter'}});
+  if (req.query.objectType === 'email') {
+    return getGeneratedAvatar(req, res);
+  }
+
+  return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Unknown objectType parameter'}});
 };
