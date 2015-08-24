@@ -10,7 +10,7 @@ describe('The contacts api controller', function() {
 
   beforeEach(function() {
     imageModuleMock = {
-      avatarModule: {
+      avatarGenerationModule: {
         generateFromText: function() {
           return new Buffer('some data');
         },
@@ -61,7 +61,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
         expect(options.text).to.equal('#');
         done();
       };
@@ -79,7 +79,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
         expect(options.text).to.equal('#');
         done();
       };
@@ -97,7 +97,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.getColorsFromUuid = function(uuid) {
+      imageModuleMock.avatarGenerationModule.getColorsFromUuid = function(uuid) {
         expect(uuid).to.equal('31b8e2b0-e776-4c66-8089-c7802f6c1dbc');
         done();
         return { bgColor: 'red', fgColor: 'white' };
@@ -116,7 +116,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
         expect(options.text).to.equal('A');
         expect(options.bgColor).to.equal('red');
         expect(options.fgColor).to.equal('white');
@@ -137,7 +137,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
         return new Buffer('some data');
       };
 

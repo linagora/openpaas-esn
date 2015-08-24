@@ -7,7 +7,7 @@ describe('The image avatar module', function() {
   var avatarModule;
 
   beforeEach(function() {
-    avatarModule = this.helpers.requireBackend('core/image/avatar');
+    avatarModule = this.helpers.requireBackend('core/image/generate-avatar');
   });
 
   describe('The _calculateFitFontSize private fn', function() {
