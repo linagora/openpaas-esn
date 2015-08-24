@@ -46,4 +46,39 @@ describe('The Search Form Angular module', function() {
       this.checkGeneratedElement(element, 'spinnerKey', {radius: 30, width: 8, length: 16});
     });
   });
+
+  describe('The searchResultSizeFormatter service', function() {
+
+    var service;
+
+    beforeEach(function() {
+      inject(function($injector) {
+        service = $injector.get('searchResultSizeFormatter');
+      });
+    });
+
+    it('should return 0 when input is undefined', function() {
+      expect(service()).to.equal(0);
+    });
+
+    it('should return 0 when input is 0', function() {
+      expect(service(0)).to.equal(0);
+    });
+
+    it('should return the input when lower than limit', function() {
+      expect(service(555)).to.equal(555);
+    });
+
+    it('should return limit when input is around limit', function() {
+      expect(service(1001)).to.equal(1000);
+    });
+
+    it('should round to lower decade', function() {
+      expect(service(2542)).to.equal(2540);
+    });
+
+    it('should round to higher decade', function() {
+      expect(service(2546)).to.equal(2550);
+    });
+  });
 });

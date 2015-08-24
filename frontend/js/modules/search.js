@@ -14,4 +14,19 @@ angular.module('esn.search', [])
       },
       templateUrl: '/views/modules/search/searchForm.html'
     };
+  })
+  .factory('searchResultSizeFormatter', function() {
+    return function(count) {
+
+      if (!count) {
+        return 0;
+      }
+
+      if (count < 1000) {
+        return count;
+      }
+
+      var len = Math.ceil(Math.log(count + 1) / Math.LN10);
+      return Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3);
+    };
   });
