@@ -173,6 +173,14 @@ module.exports = function(grunt) {
           'no-preload': true
         }
       }
+    },
+    protractor: {
+      options: {
+        configFile: 'test/config/e2e.conf.js',
+        keepAlive: false,
+        noColor: false
+      },
+      all: {}
     }
   });
 
@@ -190,8 +198,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-inspector');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
+  grunt.loadNpmTasks('grunt-protractor-runner');
 
   grunt.loadTasks('tasks');
+  grunt.registerTask('cucumber', 'Launch cucumber e2e tests', ['protractor:all']);
 
   grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo_replSet', 'container:elasticsearch']);
   grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo_replSet:pull', 'container:elasticsearch:pull']);
