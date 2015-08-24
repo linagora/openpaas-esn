@@ -1,5 +1,1 @@
-{
-  "hostname" : "localhost",
-  "port" : 27017,
-  "dbname" : "openpaas-test"
-}
+{"connectionOptions":{"db":{"w":1,"fsync":true,"native_parser":true},"server":{"socketOptions":{"keepAlive":10000,"connectTimeoutMS":10000},"auto_reconnect":true,"poolSize":10}},"connectionString":"mongodb://172.17.0.3:27017/demo"}

@@ -1,0 +1,9 @@
+{
+    "_id" : "davserver",
+    "backend" : {
+        "url" : "http://localhost"
+    },
+    "frontend" : {
+        "url" : "http://localhost"
+    }
+}

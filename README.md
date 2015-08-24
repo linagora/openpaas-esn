@@ -110,7 +110,7 @@ Fixtures can be configured in the fixtures folder and injected in the system usi
 
     grunt fixtures
 
-Note that this will override all the current configuration resources with the fixtures ones.
+Note that you must configure contents of files inside **fixtures/config/data** and **fixtures/esn-config/data/** to match your environment, particularly **fixtures/config/data/db.json** in which the host of the mongodb database is defined. Also note that this will override all the current configuration resources with the fixtures ones.
 
 Starting the server
 ------------------
