@@ -58,27 +58,33 @@ describe('The Search Form Angular module', function() {
     });
 
     it('should return 0 when input is undefined', function() {
-      expect(service()).to.equal(0);
+      expect(service().hits).to.equal(0);
+      expect(service().isFormatted).to.be.false;
     });
 
     it('should return 0 when input is 0', function() {
-      expect(service(0)).to.equal(0);
+      expect(service(0).hits).to.equal(0);
+      expect(service(0).isFormatted).to.be.false;
     });
 
     it('should return the input when lower than limit', function() {
-      expect(service(555)).to.equal(555);
+      expect(service(555).hits).to.equal(555);
+      expect(service(555).isFormatted).to.be.false;
     });
 
     it('should return limit when input is around limit', function() {
-      expect(service(1001)).to.equal(1000);
+      expect(service(1001).hits).to.equal(1000);
+      expect(service(1001).isFormatted).to.be.true;
     });
 
-    it('should round to lower decade', function() {
-      expect(service(2542)).to.equal(2540);
+    it('should round to lower ten', function() {
+      expect(service(2542).hits).to.equal(2540);
+      expect(service(2542).isFormatted).to.be.true;
     });
 
-    it('should round to higher decade', function() {
-      expect(service(2546)).to.equal(2550);
+    it('should round to higher ten', function() {
+      expect(service(2546).hits).to.equal(2550);
+      expect(service(2546).isFormatted).to.be.true;
     });
   });
 });

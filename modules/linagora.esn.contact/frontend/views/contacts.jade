@@ -16,12 +16,13 @@
 
   .vertiz-space
   .row
-    .col-xs-12.text-center.contacts-search-results
-      span(ng-if='searchResult.count === 0') #{__('No contacts found')}
-      span(ng-if='searchResult.count === 1') #{__('1 contact found')}
-      span(ng-if='searchResult.count > 1 && searchResult.count <= 1000') {{searchResult.formattedResultsCount}} #{__('contacts found')}
-      span(ng-if='searchResult.count > 1000') #{__('About')} {{search.formattedResultsCount}} #{__('contacts found')}
-      span(ng-if='!searchResult.count') &nbsp;
+    .col-xs-12.text-center.contacts-search-results.fadeIn200ms(ng-switch="searchResult.count || '_undefined_'")
+      span(ng-switch-when='0') #{__('No contacts found')}
+      span(ng-switch-when='1') #{__('1 contact found')}
+      span(ng-switch-when='_undefined_') &nbsp;
+      span(ng-switch-default)
+        span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')} 
+        | {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
   .row
     .col-xs-12
       .contact-error-container
@@ -30,7 +31,7 @@
   .row
     .col-xs-11.col-md-12
       div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-        .card.contacts-card(ng-if='contacts && contacts.length')
+        .card.contacts-card.fadeIn200ms(ng-if='contacts && contacts.length')
           .listview.lv-bordered.lv-lg
             .lv-header-alt
               h2.lvh-label {{letter}}

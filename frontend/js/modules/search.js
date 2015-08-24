@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('esn.search', [])
+  .constant('SEARCH_RESULT_FORMATTING_LIMIT', 1000)
   .constant('defaultSpinnerConfiguration', {
     spinnerKey: 'spinnerDefault',
     spinnerConf: {lines: 17, length: 15, width: 7, radius: 33, corners: 1, rotate: 0, direction: 1, color: '#555', speed: 1, trail: 60, shadow: false, hwaccel: false, className: 'spinner', zIndex: 2e9, top: 'auto', left: 'auto'}
@@ -15,18 +16,27 @@ angular.module('esn.search', [])
       templateUrl: '/views/modules/search/searchForm.html'
     };
   })
-  .factory('searchResultSizeFormatter', function() {
+  .factory('searchResultSizeFormatter', function(SEARCH_RESULT_FORMATTING_LIMIT) {
     return function(count) {
 
       if (!count) {
-        return 0;
+        return {
+          hits: 0,
+          isFormatted: false
+        };
       }
 
-      if (count < 1000) {
-        return count;
+      if (count < SEARCH_RESULT_FORMATTING_LIMIT) {
+        return {
+          hits: count,
+          isFormatted: false
+        };
       }
 
       var len = Math.ceil(Math.log(count + 1) / Math.LN10);
-      return Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3);
+      return {
+        hits: Math.round(count * Math.pow(10, -(len - 3))) * Math.pow(10, len - 3),
+        isFormatted: true
+      };
     };
   });

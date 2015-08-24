@@ -30,7 +30,6 @@ module.exports = function(dependencies) {
         logger.error('Error while getting contact from DAV', err);
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact from DAV server'}});
       }
-
       // inject text avatar if there's no avatar
       if (body && body._embedded && body._embedded['dav:item']) {
         q.all(body._embedded['dav:item'].map(function(davItem) {
@@ -145,7 +144,6 @@ module.exports = function(dependencies) {
         logger.error('Error while searching contacts', err);
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while searching contacts'}});
       }
-
       var json = {
         '_links': {
           'self': {
@@ -163,18 +161,24 @@ module.exports = function(dependencies) {
       }
 
       q.all(result.list.map(fetchContact)).then(function(vcards) {
+        var count = result.list.length;
         vcards.filter(function(e) {
           return e;
         }).forEach(function(vcard) {
-          json._embedded['dav:item'].push({
-            '_links': {
-              'self': getContactUrl(req, req.params.bookId, vcard._id)
-            },
-            data: avatarHelper.injectTextAvatar(req.params.bookId, vcard)
+          avatarHelper.injectTextAvatar(req.params.bookId, vcard).then(function(newVcard) {
+            json._embedded['dav:item'].push({
+              '_links': {
+                'self': getContactUrl(req, req.params.bookId, result.list._id)
+              },
+              data: newVcard
+            });
+            count--;
+            if (count === 0) {
+              res.header('X-ESN-Items-Count', result.total_count);
+              return res.json(200, json);
+            }
           });
         });
-        res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, json);
       }, function(err) {
         logger.error('Error while getting contact details', err);
         return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while getting contact details'}});
