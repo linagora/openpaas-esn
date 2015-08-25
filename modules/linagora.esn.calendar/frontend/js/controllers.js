@@ -185,20 +185,15 @@ angular.module('esn.calendar')
         return;
       }
       $scope.restActive = true;
-      calendarService.modify($scope.event.path, $scope.editedEvent, $scope.event.etag, eventService.isMajorModification($scope.editedEvent, $scope.event)).then(function(response) {
-        if ($scope.activitystream) {
-          $rootScope.$emit('message:posted', {
-            activitystreamUuid: $scope.activitystream.activity_stream.uuid,
-            id: response.headers('ESN-Message-Id')
-          });
-        }
-
-        _displayNotification(notificationFactory.weakInfo, 'Event modified', $scope.editedEvent.title + ' has been modified');
-      }, function(err) {
-        _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
-      }).finally (function() {
-        $scope.restActive = false;
-      });
+      _hideModal();
+      var path = $scope.event.path || '/calendars/' + $scope.calendarId + '/events';
+      calendarService.modify(path, $scope.editedEvent, $scope.event, $scope.event.etag, eventService.isMajorModification($scope.editedEvent, $scope.event))
+        .catch (function(err) {
+          _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', ' + 'Please refresh your calendar');
+        })
+        .finally (function() {
+          $scope.restActive = false;
+        });
     }
 
     this.changeParticipation = function(status) {
@@ -265,8 +260,9 @@ angular.module('esn.calendar')
       $scope.modal = $modal({scope: $scope, template: '/calendar/views/partials/event-quick-form-modal', backdrop: 'static'});
     };
 
-    $scope.eventDropAndResize = function(event, delta) {
-      calendarService.modify(event.path, event, event.etag, delta.milliseconds !== 0).then(function() {
+    $scope.eventDropAndResize = function(event, delta, revertFunc) {
+      var path = event.path || '/calendars/' + $scope.calendarId + '/events';
+      calendarService.modify(path, event, null, event.etag, delta.milliseconds !== 0, revertFunc).then(function() {
         notificationFactory.weakInfo('Event modified', event.title + ' has been modified');
       });
     };
@@ -319,6 +315,9 @@ angular.module('esn.calendar')
       var calendar = uiCalendarConfig.calendars[$scope.calendarId];
 
       var event = calendar.fullCalendar('clientEvents', newEvent.id)[0];
+      if (!event) {
+        return;
+      }
       angular.extend(event, newEvent);
       calendar.fullCalendar('updateEvent', event);
     }

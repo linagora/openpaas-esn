@@ -80,6 +80,9 @@ angular.module('esn.calendar')
         },
         emitRemovedEvent: function(vcalendar) {
           websocket.emit('event:deleted', vcalendar);
+        },
+        emitUpdatedEvent: function(vcalendar) {
+          websocket.emit('event:updated', vcalendar);
         }
       }
     };
@@ -359,7 +362,7 @@ angular.module('esn.calendar')
       });
     }
 
-    function modify(eventPath, event, etag, majorModification) {
+    function modify(path, event, oldEvent, etag, majorModification, onCancel) {
       if (majorModification) {
         event.attendees.forEach(function(attendee) {
           attendee.partstat = 'NEEDS-ACTION';
@@ -374,20 +377,59 @@ angular.module('esn.calendar')
 
       if (etag) {
         headers['If-Match'] = etag;
+      } else {
+        // This is a create event because the event is not created yet in sabre/dav,
+        // we then should only cancel the first creation task.
+        path = path.replace(/\/$/, '') + '/' + event.id + '.ics';
+        gracePeriodService.cancel(event.gracePeriodTaskId);
       }
 
-      return request('put', eventPath, headers, body).then(function(response) {
-        if (response.status === 200) {
-          var vcalendar = new ICAL.Component(response.data);
-          return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
-        } else if (response.status === 204) {
-          return getEvent(eventPath).then(function(shell) {
-            $rootScope.$emit('modifiedCalendarItem', shell);
-            socket('/calendars').emit('event:updated', shell.vcalendar);
-            return shell;
+      var taskId = null;
+      var vcalendar = shellToICAL(event);
+      var shell = new CalendarShell(vcalendar, path, etag);
+      if (oldEvent) {
+        var oldVcalendar = shellToICAL(oldEvent);
+        var oldShell = new CalendarShell(oldVcalendar, path, etag);
+      }
+      return request('put', path, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(function(response) {
+        if (response.status !== 202) {
+          return $q.reject(response);
+        }
+        taskId = response.data.id;
+        calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+      })
+      .then(function() {
+        return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+      })
+      .then(function(data) {
+        var task = data;
+        if (task.cancelled) {
+          gracePeriodService.cancel(taskId).then(function() {
+            if (oldShell) {
+              calendarEventEmitter.fullcalendar.emitModifiedEvent(oldShell);
+            } else {
+              onCancel = onCancel || function() {};
+              onCancel();
+            }
+            task.success();
+          }, function(err) {
+            task.error(err.statusText);
           });
         } else {
-          return $q.reject(response);
+          return getEvent(path).then(function(shell) {
+            gracePeriodService.remove(taskId);
+            calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+            calendarEventEmitter.websocket.emitUpdatedEvent(shell.vcalendar);
+            return shell;
+          }, function(response) {
+            if (response.status === 404) {
+              // Silently fail here because it is due to
+              // the task being cancelled by another method.
+              return;
+            } else {
+              return response;
+            }
+          });
         }
       });
     }
@@ -409,7 +451,34 @@ angular.module('esn.calendar')
         return $q.when(null);
       }
 
-      return modify(eventPath, event, etag)['catch'](function(response) {
+      function _modifyPartStat(path, event, etag) {
+        var headers = {
+          'Content-Type': 'application/calendar+json',
+          'Prefer': 'return=representation'
+        };
+        var body = shellToICAL(event).toJSON();
+
+        if (etag) {
+          headers['If-Match'] = etag;
+        }
+
+        return request('put', eventPath, headers, body).then(function(response) {
+          if (response.status === 200) {
+            var vcalendar = new ICAL.Component(response.data);
+            return new CalendarShell(vcalendar, eventPath, response.headers('ETag'));
+          } else if (response.status === 204) {
+            return getEvent(eventPath).then(function(shell) {
+              $rootScope.$emit('modifiedCalendarItem', shell);
+              socket('/calendars').emit('event:updated', shell.vcalendar);
+              return shell;
+            });
+          } else {
+            return $q.reject(response);
+          }
+        });
+      }
+
+      return _modifyPartStat(eventPath, event, etag)['catch'](function(response) {
         if (response.status === 412) {
           return getEvent(eventPath).then(function(shell) {
             // A conflict occurred. We've requested the event data in the
