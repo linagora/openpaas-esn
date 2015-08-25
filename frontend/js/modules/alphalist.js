@@ -59,12 +59,17 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
         return;
       }
       var letter = item[this.sortBy].toUpperCase().charAt(0);
+      var index;
 
       if (this.categories[letter]) {
-        this.categories[letter].splice(this.categories[letter].indexOf(item), 1);
-      } else {
-        if (this.keepAll) {
-          this.categories[this.keepAllKey].splice(this.categories[this.keepAllKey].indexOf(item), 1);
+        index = this.categories[letter].indexOf(item);
+        if (index !== -1) {
+          this.categories[letter].splice(index, 1);
+        }
+      } else if (this.keepAll) {
+        index = this.categories[this.keepAllKey].indexOf(item);
+        if (index !== -1) {
+          this.categories[this.keepAllKey].splice(index, 1);
         }
       }
     };
