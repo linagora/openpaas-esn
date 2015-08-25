@@ -162,22 +162,29 @@ module.exports = function(dependencies) {
 
       q.all(result.list.map(fetchContact)).then(function(vcards) {
         var count = result.list.length;
-        vcards.filter(function(e) {
-          return e;
-        }).forEach(function(vcard) {
-          avatarHelper.injectTextAvatar(req.params.bookId, vcard).then(function(newVcard) {
-            json._embedded['dav:item'].push({
-              '_links': {
-                'self': getContactUrl(req, req.params.bookId, result.list._id)
-              },
-              data: newVcard
-            });
+        vcards.forEach(function(vcard) {
+          if (vcard === false) {
             count--;
             if (count === 0) {
               res.header('X-ESN-Items-Count', result.total_count);
               return res.json(200, json);
             }
-          });
+          }
+          else {
+            avatarHelper.injectTextAvatar(req.params.bookId, vcard).then(function(newVcard) {
+              json._embedded['dav:item'].push({
+                '_links': {
+                  'self': getContactUrl(req, req.params.bookId, result.list._id)
+                },
+                data: newVcard
+              });
+              count--;
+              if (count === 0) {
+                res.header('X-ESN-Items-Count', result.total_count);
+                return res.json(200, json);
+              }
+            });
+          }
         });
       }, function(err) {
         logger.error('Error while getting contact details', err);
