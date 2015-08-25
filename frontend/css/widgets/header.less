@@ -45,5 +45,14 @@
     .dropdown-open-animation {
       .drop-menu-open-animation(top right);
     }
+
+    .toggle-fullscreen {
+      display: none;
+      &.browser-firefox,
+      &.browser-chrome,
+      &.browser-opera  {
+        display: block;
+      }
+    }
   }
 }
