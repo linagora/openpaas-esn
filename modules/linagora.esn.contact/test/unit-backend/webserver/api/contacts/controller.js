@@ -87,6 +87,42 @@ describe('The contacts api controller', function() {
       controller._getContactAvatar(contact);
     });
 
+    it('should generate if first letter of formatted name is an accented alphabet', function(done) {
+      var contact = ['vcard', [
+          ['version', {}, 'text', '4.0'],
+          ['uid', {}, 'text', '31b8e2b0-e776-4c66-8089-c7802f6c1dbc'],
+          ['fn', {}, 'text', 'étienne'],
+          ['photo', {}, 'uri', '']
+        ],
+        []
+      ];
+
+      imageModuleMock.avatarModule.generateFromText = function(options) {
+        expect(options.text).to.equal('E');
+        done();
+      };
+
+      controller._getContactAvatar(contact);
+    });
+
+    it('should generate if first letter of formatted name is an accented alphabet', function(done) {
+      var contact = ['vcard', [
+          ['version', {}, 'text', '4.0'],
+          ['uid', {}, 'text', '31b8e2b0-e776-4c66-8089-c7802f6c1dbc'],
+          ['fn', {}, 'text', 'Đông Nhi'],
+          ['photo', {}, 'uri', '']
+        ],
+        []
+      ];
+
+      imageModuleMock.avatarModule.generateFromText = function(options) {
+        expect(options.text).to.equal('D');
+        done();
+      };
+
+      controller._getContactAvatar(contact);
+    });
+
     it('should depend on id to get colors when fn is present', function(done) {
       var contact = ['vcard', [
           ['version', {}, 'text', '4.0'],

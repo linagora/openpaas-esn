@@ -54,6 +54,7 @@ module.exports = function(config) {
       'frontend/components/ng-device-detector/ng-device-detector.js',
       'frontend/components/remarkable-bootstrap-notify/bootstrap-notify.min.js',
       'frontend/components/angular-fullscreen/src/angular-fullscreen.js',
+      'frontend/components/char-api/lib/charAPI.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/views/modules/**/*.jade',
