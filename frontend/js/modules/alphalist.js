@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core'])
+angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'esn.charAPI'])
 
   .constant('ALPHA_ITEMS', '#ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 

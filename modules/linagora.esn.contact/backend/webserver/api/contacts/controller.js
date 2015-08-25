@@ -2,6 +2,7 @@
 
 
 var ical = require('ical.js');
+var charAPI = require('charAPI');
 var PATH = 'addressbooks';
 
 module.exports = function(dependencies) {
@@ -45,13 +46,13 @@ module.exports = function(dependencies) {
         logger.warn('Unsupported photo URI', photo);
       }
     }
-
     var firstChar;
+
     if (!formattedName) {
       firstChar = '#';
     } else {
-      firstChar = formattedName.charAt(0);
-      if (!firstChar.match(/[a-z]/i)) {
+      firstChar = charAPI.getAsciiUpperCase(formattedName.charAt(0));
+      if (!firstChar) {
         firstChar = '#';
       }
     }
