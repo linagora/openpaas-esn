@@ -39,8 +39,8 @@ angular.module('linagora.esn.unifiedinbox')
         isUnread: jmapEmail.get('isUnread'),
         date: jmapEmail.get('date')
       };
-      var currentMoment = moment(Date.now());
-      var emailMoment = moment(email.date);
+      var currentMoment = moment(Date.now()).utc();
+      var emailMoment = moment(email.date).utc();
 
       if (this._isToday(currentMoment, emailMoment)) {
         this.todayEmails.push(email);
