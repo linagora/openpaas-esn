@@ -199,8 +199,8 @@ angular.module('linagora.esn.contact')
     }
 
     function setSearchResults(data) {
-      $scope.searchResult.data = data;
-      $scope.searchResult.count = data.length || 0;
+      $scope.searchResult.data = data.hits_list;
+      $scope.searchResult.count = data.total_hits || 0;
       $scope.searchResult.formattedResultsCount = searchResultSizeFormatter($scope.searchResult.count);
     }
 
@@ -248,8 +248,9 @@ angular.module('linagora.esn.contact')
 
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
         cleanCategories();
+        console.log(data);
         setSearchResults(data);
-        addItemsToCategories(data);
+        addItemsToCategories(data.hits_list);
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');

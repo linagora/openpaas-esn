@@ -79,7 +79,10 @@ module.exports = function(dependencies) {
         }
       }
     };
-
+    if (!limit) {
+      limit = 10;
+    }
+    console.log('RESULT LIMIT: ', limit);
     elasticsearch.searchDocuments({
       index: INDEX_NAME,
       type: TYPE_NAME,
@@ -90,7 +93,7 @@ module.exports = function(dependencies) {
       if (err) {
         return callback(err);
       }
-
+      logger.debug('ELASTIC SEARCH RAW RESULT: ', result);
       return callback(null, {
         total_count: result.hits.total,
         list: result.hits.hits

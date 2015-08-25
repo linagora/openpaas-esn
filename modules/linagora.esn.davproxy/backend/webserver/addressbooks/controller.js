@@ -150,6 +150,7 @@ module.exports = function(dependencies) {
             'href': req.originalUrl
           }
         },
+        _total_hits: result.total_count,
         _embedded: {
           'dav:item': []
         }
@@ -161,6 +162,8 @@ module.exports = function(dependencies) {
       }
 
       q.all(result.list.map(fetchContact)).then(function(vcards) {
+        console.log(result.list.length, 'WILL BE ADDED ON' ,result.total_count, 'CONTACTS FOUND');
+        console.log(vcards);
         var count = result.list.length;
         vcards.forEach(function(vcard) {
           if (vcard === false) {
