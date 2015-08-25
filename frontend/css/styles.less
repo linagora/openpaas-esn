@@ -98,6 +98,22 @@ html, body {
   height: 100%;
 }
 
+@media (min-width: @screen-lg-min) {
+  #menu-trigger {
+    display: none;
+  }
+
+  #sidebar {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  }
+
+  .container-fluid.ng-scope {
+    padding-left: 268px;
+  }
+}
+
 // Used in selectors
 .form-container {
 }
