@@ -416,11 +416,13 @@ describe('The contact Angular module directives', function() {
 
   describe('The keepScrollPosition directive', function() {
     var $location;
+    var $timeout;
     var $scope;
 
     function doInject() {
-      inject(function(_$location_, $compile, $rootScope) {
+      inject(function(_$location_, _$timeout_, $compile, $rootScope) {
         $location = _$location_;
+        $timeout = _$timeout_;
         $scope = $rootScope.$new();
         $compile('<div keep-scroll-position></div>')($scope);
       });
@@ -516,6 +518,7 @@ describe('The contact Angular module directives', function() {
       doInject();
       $scope.$digest();
       $scope.$emit('viewRenderFinished');
+      $timeout.flush();
     });
 
   });

@@ -443,7 +443,7 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('keepScrollPosition', function($cacheFactory, $location, $document) {
+  .directive('keepScrollPosition', function($log, $cacheFactory, $location, $document, $timeout) {
     var CACHE_KEY = 'scrollPosition';
 
     return {
@@ -463,7 +463,11 @@ angular.module('linagora.esn.contact')
         // scroll to stored position
         scope.$on('viewRenderFinished', function() {
           var position = scrollPositionCache.get(currentPath) || 0;
-          $document.scrollTop(position);
+          $log.debug('Scrolling to:', position);
+          $timeout(function() {
+            $document.scrollTop(position);
+          });
+
         });
       }
     };

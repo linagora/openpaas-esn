@@ -1,10 +1,171 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
+
+  describe('The contactsCacheService service', function() {
+    var contactsCacheService;
+    var $rootScope;
+
+    beforeEach(function() {
+      module('ngRoute');
+      module('linagora.esn.contact');
+    });
+
+    function injectService() {
+      inject(function($injector, _$rootScope_) {
+        $rootScope = _$rootScope_;
+        contactsCacheService = $injector.get('contactsCacheService');
+      });
+    }
+
+    it('should create cache at initialization', function(done) {
+      var CACHE_KEY = 'contactsList';
+      module(function($provide) {
+        $provide.decorator('$cacheFactory', function($delegate) {
+          $delegate.get = function(key) {
+            expect(key).to.equal(CACHE_KEY);
+            done();
+          };
+          return $delegate;
+        });
+      });
+      injectService();
+    });
+
+    it('should put contacts to cache using CONTACTS_CACHE_KEY', function(done) {
+      var CONTACTS_CACHE_KEY = 'contacts';
+      module(function($provide) {
+        $provide.decorator('$cacheFactory', function($delegate) {
+          $delegate.get = function() {
+            return {
+              put: function(key, data) {
+                expect(key).to.equal(CONTACTS_CACHE_KEY);
+                expect(data).to.equal('some data');
+                done();
+              }
+            };
+          };
+          return $delegate;
+        });
+      });
+      injectService();
+      contactsCacheService.put('some data');
+    });
+
+    it('should get contacts from cache using CONTACTS_CACHE_KEY', function(done) {
+      var CONTACTS_CACHE_KEY = 'contacts';
+      module(function($provide) {
+        $provide.decorator('$cacheFactory', function($delegate) {
+          $delegate.get = function() {
+            return {
+              get: function(key) {
+                expect(key).to.equal(CONTACTS_CACHE_KEY);
+                done();
+              }
+            };
+          };
+          return $delegate;
+        });
+      });
+      injectService();
+      contactsCacheService.get();
+    });
+
+    it('should clear cache when user goes to outside contact module', function() {
+      injectService();
+
+      contactsCacheService.put([123]);
+      var nextRoute = {
+        originalPath: '/some/other/path'
+      };
+      $rootScope.$emit('$routeChangeStart', nextRoute);
+      expect(contactsCacheService.get()).to.not.be.defined;
+
+      contactsCacheService.put([123]);
+      nextRoute.originalPath = '/contactAbc';
+      $rootScope.$emit('$routeChangeStart', nextRoute);
+      expect(contactsCacheService.get()).to.not.be.defined;
+    });
+
+    it('should not clear cache when user is still contact module', function() {
+      injectService();
+      contactsCacheService.put([123]);
+      var nextRoute = {
+        originalPath: '/contact/path'
+      };
+      $rootScope.$emit('$routeChangeStart', nextRoute);
+      expect(contactsCacheService.get()).to.eql([123]);
+
+      nextRoute.originalPath = '/contact';
+      $rootScope.$emit('$routeChangeStart', nextRoute);
+      expect(contactsCacheService.get()).to.eql([123]);
+    });
+
+    it('should add contact to cache on contact:created event', function() {
+      injectService();
+      contactsCacheService.put([123]);
+      $rootScope.$emit('contact:created', 456);
+      expect(contactsCacheService.get()).to.eql([123, 456]);
+    });
+
+    it('should update contact on contact:updated event', function() {
+      injectService();
+
+      var oldContact = {
+        id: 123,
+        name: 'old name'
+      };
+      var newContact = {
+        id: 123,
+        name: 'new name'
+      };
+      contactsCacheService.put([oldContact]);
+      $rootScope.$emit('contact:updated', newContact);
+      expect(contactsCacheService.get()).to.eql([newContact]);
+    });
+
+    it('should delete contact on contact:delete event', function() {
+      injectService();
+
+      var contact1 = {
+        id: 123,
+        name: '123'
+      };
+      var contact2 = {
+        id: 456,
+        name: '456'
+      };
+      contactsCacheService.put([contact1, contact2]);
+      $rootScope.$emit('contact:deleted', contact2);
+      expect(contactsCacheService.get()).to.eql([contact1]);
+    });
+
+    it('should add contact again on contact:cancel:delete event', function() {
+      injectService();
+
+      var contact1 = {
+        id: 123,
+        name: '123'
+      };
+      var contact2 = {
+        id: 456,
+        name: '456'
+      };
+      var contact3 = {
+        id: 789,
+        name: '789'
+      };
+      contactsCacheService.put([contact1, contact2]);
+      $rootScope.$emit('contact:cancel:delete', contact3);
+      expect(contactsCacheService.get()).to.eql([contact1, contact2, contact3]);
+    });
+
+  });
 
   describe('The contactsService service', function() {
     var ICAL, contact, contactWithChangedETag, contactAsJCard;
@@ -43,10 +204,11 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY) {
+    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
+      this.contactsCacheService = contactsCacheService;
       this.DAV_PATH = DAV_PATH;
       this.GRACE_DELAY = GRACE_DELAY;
 
@@ -102,6 +264,18 @@ describe('The Contacts Angular module', function() {
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
+
+      it('should return contacts from cache when possible', function(done) {
+        sinon.stub(this.contactsCacheService, 'get', function() {
+          return [123, 456];
+        });
+        this.contactsService.list().then(function(cards) {
+          expect(cards).to.eql([123, 456]);
+          done();
+        });
+        this.$rootScope.$apply();
+      });
+
     });
 
     describe('The getCard fn', function() {
@@ -224,7 +398,14 @@ describe('The Contacts Angular module', function() {
       });
 
       it('should succeed when everything is correct', function(done) {
-        this.$httpBackend.expectPUT(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(201);
+        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
+        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(201);
+        this.$httpBackend.expectGET(this.getExpectedPath(requestPath)).respond(201,
+          ['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid']
+          ], []]
+        );
 
         this.contactsService.create(1, contact).then(
           function(response) {
@@ -232,6 +413,31 @@ describe('The Contacts Angular module', function() {
             done();
           }
         );
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should emit contact:created event with created contact when success', function(done) {
+        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
+        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(201);
+
+        this.$httpBackend.expectGET(this.getExpectedPath(requestPath)).respond(201,
+          ['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid']
+          ], []]
+        );
+
+        this.$rootScope.$on('contact:created', function(e, contact) {
+          expect(contact.id).to.equal('myuid');
+          done();
+        });
+
+        var spy = sinon.spy(this.$rootScope, '$emit');
+        this.contactsService.create(1, contact).then(function() {
+          expect(spy.withArgs('contact:created').calledOnce).to.be.true;
+        });
 
         this.$rootScope.$apply();
         this.$httpBackend.flush();
@@ -306,6 +512,50 @@ describe('The Contacts Angular module', function() {
         this.$rootScope.$apply();
         this.$httpBackend.flush();
       });
+
+      it('should emit contact:updated event with updated contact on 200', function(done) {
+        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
+        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(200,
+          ['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid']
+          ], []], { 'ETag': 'changed-etag' });
+
+        var spy = sinon.spy(this.$rootScope, '$emit');
+        this.$rootScope.$on('contact:updated', function(e, contact) {
+          expect(contact.id).to.equal('myuid');
+          expect(spy.calledOnce).to.be.true;
+          done();
+        });
+
+        this.contactsService.modify(1, contact);
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
+      it('should emit contact:updated event with updated contact on 204', function(done) {
+        var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
+        this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(204, '');
+        this.$httpBackend.expectGET(this.getExpectedPath(requestPath)).respond(200,
+          ['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid']
+          ], []], { 'ETag': 'changed-etag' });
+
+        var spy = sinon.spy(this.$rootScope, '$emit');
+        this.$rootScope.$on('contact:updated', function(e, contact) {
+          expect(contact.id).to.equal('myuid');
+          expect(spy.calledOnce).to.be.true;
+          done();
+        });
+
+        this.contactsService.modify(1, contact);
+
+        this.$rootScope.$apply();
+        this.$httpBackend.flush();
+      });
+
     });
 
     describe('The shellToVCARD fn', function() {
