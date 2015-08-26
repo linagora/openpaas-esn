@@ -9,19 +9,9 @@ describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
       notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService,
-      sortedContacts, liveNotification;
+      sortedContacts;
 
   beforeEach(function() {
-
-    var liveNotificationMock = function(namespace) {
-      if (liveNotification) {
-        return liveNotification(namespace);
-      }
-      return {
-        on: function() {},
-        removeListener: function() {}
-      };
-    };
 
     contactsService = {
       shellToVCARD: function() {
@@ -68,7 +58,6 @@ describe('The Contacts Angular module', function() {
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('$location', $location);
       $provide.value('selectionService', selectionService);
-      $provide.value('livenotification', liveNotificationMock);
       $provide.value('$route', $route);
       $provide.value('$alert', function(options) { $alert.alert(options); });
       $provide.value('gracePeriodService', gracePeriodService);
