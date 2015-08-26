@@ -5,6 +5,17 @@
 angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DAV_PATH', '/dav/api')
+  .run(function($rootScope, liveRefreshContactService) {
+    $rootScope.$on('$routeChangeSuccess', function(evt, current, previous) {
+      if (current && current.originalPath &&
+         (current.originalPath === '/contact' || current.originalPath.substring(0, 9) === '/contact/')) {
+        var bookId = current.locals.user._id;
+        liveRefreshContactService.startListen(bookId);
+      } else {
+        liveRefreshContactService.stopListen();
+      }
+    });
+  })
   .factory('ContactsHelper', function(DATE_FORMAT, $dateFormatter) {
 
     function getFormattedBirthday(birthday) {
@@ -121,6 +132,53 @@ angular.module('linagora.esn.contact')
       getFormattedBirthday: getFormattedBirthday
     };
   })
+  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL) {
+    var sio = null;
+    var listening = false;
+
+    var CONTACT_LIVE_CREATED = 'contact:live:created';
+    var CONTACT_LIVE_DELETED = 'contact:live:deleted';
+
+    function liveNotificationHandlerOnCreate(data) {
+      var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
+      $rootScope.$broadcast(CONTACT_LIVE_CREATED, contact);
+    }
+
+    function liveNotificationHandlerOnDelete(data) {
+      $rootScope.$broadcast(CONTACT_LIVE_DELETED, { id: data.contactId });
+    }
+
+    function startListen(bookId) {
+      if (listening) { return; }
+
+      if (sio === null) {
+        sio = livenotification('/contacts', bookId);
+      }
+      sio.on('contact:created', liveNotificationHandlerOnCreate);
+      sio.on('contact:deleted', liveNotificationHandlerOnDelete);
+
+      listening = true;
+      $log.debug('Start listening contact live update');
+    }
+
+    function stopListen() {
+      if (!listening) { return; }
+
+      if (sio) {
+        sio.removeListener('contact:created', liveNotificationHandlerOnCreate);
+        sio.removeListener('contact:deleted', liveNotificationHandlerOnDelete);
+      }
+
+      listening = false;
+      $log.debug('Stop listening contact live update');
+    }
+
+    return {
+      startListen: startListen,
+      stopListen: stopListen
+    };
+
+  })
   .factory('contactsCacheService', function($rootScope, $log, $cacheFactory) {
     var CACHE_KEY = 'contactsList';
     var CONTACTS_CACHE_KEY = 'contacts';
@@ -130,14 +188,17 @@ angular.module('linagora.esn.contact')
     }
 
     $rootScope.$on('$routeChangeStart', function(evt, next, current) {
-      // clear cache to avoid memory leak when user swith to outside contact module
-      if (next.originalPath !== '/contact' &&
+      // clear cache to avoid memory leak when user swith to outside
+      // contact module
+      if (next && next.originalPath && next.originalPath !== '/contact' &&
           next.originalPath.substring(0, 9) !== '/contact/') {
         clear();
       }
     });
 
     $rootScope.$on('contact:created', function(e, data) {
+      // workaround to avoid adding duplicated contacts
+      deleteContact(data);
       addContact(data);
     });
 
@@ -151,6 +212,16 @@ angular.module('linagora.esn.contact')
 
     $rootScope.$on('contact:cancel:delete', function(e, data) {
       addContact(data);
+    });
+
+    $rootScope.$on('contact:live:created', function(e, data) {
+      // workaround to avoid adding duplicated contacts
+      deleteContact(data);
+      addContact(data);
+    });
+
+    $rootScope.$on('contact:live:deleted', function(e, data) {
+      deleteContact(data);
     });
 
     function clear() {
