@@ -163,7 +163,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, livenotification, ICAL) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, livenotification, ICAL, searchResultSizeFormatter) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -171,6 +171,7 @@ angular.module('linagora.esn.contact')
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
     $scope.showMenu = false;
+    $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
 
     function fillRequiredContactInformation(contact) {
@@ -185,18 +186,35 @@ angular.module('linagora.esn.contact')
     }
 
     function addItemsToCategories(data) {
-      data = data.map(fillRequiredContactInformation);
-      $scope.categories.addItems(data);
-      $scope.sorted_contacts = $scope.categories.get();
+      return $scope.$applyAsync(function() {
+        data = data.map(fillRequiredContactInformation);
+        $scope.categories.addItems(data);
+        $scope.sorted_contacts = $scope.categories.get();
+      });
+    }
+
+    function cleanCategories() {
+      $scope.categories.init();
+      delete $scope.sorted_contacts;
+    }
+
+    function setSearchResults(data) {
+      $scope.searchResult.data = data;
+      $scope.searchResult.count = data.length || 0;
+      $scope.searchResult.formattedResultsCount = searchResultSizeFormatter($scope.searchResult.count);
+    }
+
+    function cleanSearchResults() {
+      $scope.searchResult = {};
     }
 
     $scope.loadContacts = function() {
-      contactsService.list($scope.bookId).then(addItemsToCategories, function(err) {
+      return contactsService.list($scope.bookId).then(addItemsToCategories, function(err) {
         $log.error('Can not get contacts', err);
         displayError('Can not get contacts');
       });
-
     };
+
     $scope.openContactCreation = function() {
       openContactForm($scope.bookId);
     };
@@ -204,9 +222,11 @@ angular.module('linagora.esn.contact')
     $scope.$on('contact:deleted', function(event, contact) {
       $scope.categories.removeItem(contact);
     });
+
     $scope.$on('contact:cancel:delete', function(e, data) {
       addItemsToCategories([data]);
     });
+
     $scope.$on('ngRepeatFinished', function() {
       $scope.showMenu = true;
       $scope.$emit('viewRenderFinished');
@@ -219,13 +239,16 @@ angular.module('linagora.esn.contact')
     $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);
 
     $scope.search = function() {
+      cleanSearchResults();
 
       if (!$scope.searchInput) {
+        cleanCategories();
         return $scope.loadContacts();
       }
 
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
-        $scope.categories.init();
+        cleanCategories();
+        setSearchResults(data);
         addItemsToCategories(data);
       }, function(err) {
         $log.error('Can not search contacts', err);

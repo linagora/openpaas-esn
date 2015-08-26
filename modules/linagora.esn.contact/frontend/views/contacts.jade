@@ -3,11 +3,11 @@
   .block-header
     h2 #{__('Contacts')}
     .contacts-search.hidden-sm.hidden-xs
-      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 300 }")
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 600 }")
 
   .row
     .contacts-search.visible-sm.visible-xs.col-xs-11
-      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 300 }")
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 600 }")
 
   button.btn.btn-fab-fixed-bottom(type="button", ng-click="openContactCreation()")
     i.mdi.mdi-plus
@@ -16,6 +16,14 @@
 
   .vertiz-space
   .row
+    .col-xs-12.text-center.contacts-search-results.fadeIn200ms(ng-switch="searchResult.count || '_undefined_'")
+      span(ng-switch-when='0') #{__('No contacts found')}
+      span(ng-switch-when='1') #{__('1 contact found')}
+      span(ng-switch-when='_undefined_') &nbsp;
+      span(ng-switch-default)
+        span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')} 
+        | {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
+  .row
     .col-xs-12
       .contact-error-container
   .vertiz-space
@@ -23,9 +31,9 @@
   .row
     .col-xs-11.col-md-12
       div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-        .card(ng-if='contacts && contacts.length')
+        .card.contacts-card.fadeIn200ms(ng-if='contacts && contacts.length')
           .listview.lv-bordered.lv-lg
             .lv-header-alt
               h2.lvh-label {{letter}}
             .lv-body
-              contact-list-item.lv-item.p-5(contact='contact', book-id="bookId", ng-repeat="contact in contacts")
+              contact-list-item.lv-item.p-5(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by $index")

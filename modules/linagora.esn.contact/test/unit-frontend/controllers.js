@@ -752,7 +752,9 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$digest();
 
-      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      $timeout(function() {
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      });
     });
 
     it('should sort contacts by FN', function() {
@@ -775,7 +777,9 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$digest();
 
-      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      $timeout(function() {
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      });
     });
 
     it('should correctly sort contacts when multiple contacts have the same FN', function() {
@@ -797,7 +801,9 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$digest();
 
-      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      $timeout(function() {
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      });
     });
 
     it('should correctly sort contacts when multiple contacts have the same beginning of FN', function() {
@@ -819,7 +825,9 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$digest();
 
-      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      $timeout(function() {
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      });
     });
 
     it('should correctly sort contacts when some contacts does not have FN', function() {
@@ -843,7 +851,9 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$digest();
 
-      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      $timeout(function() {
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+      });
     });
 
     it('should fire viewRenderFinished event to scroll to old position', function(done) {
@@ -938,6 +948,52 @@ describe('The Contacts Angular module', function() {
     });
 
     describe('The search function', function() {
+      it('should clean previous search results', function() {
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            }
+          },
+          user: {
+            _id: '123'
+          }
+        });
+
+        scope.searchResult = 1;
+        scope.loadContacts = function() {};
+        scope.search();
+        scope.$digest();
+        expect(scope.searchResult).to.deep.equal({});
+      });
+
+      it('should clean sorted_contacts', function() {
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          AlphaCategoryService: function() {
+            return {
+              init: function() {
+              }
+            };
+          }
+        });
+
+        scope.sorted_contacts = 1;
+        scope.loadContacts = function() {};
+        scope.search();
+        scope.$digest();
+        expect(scope.sorted_contacts).to.not.exist;
+      });
+
       it('should get all the user contacts when searchInput is undefined', function(done) {
         $controller('contactsListController', {
           $scope: scope,
@@ -990,6 +1046,8 @@ describe('The Contacts Angular module', function() {
         var contactWithB = { displayName: 'B C'};
         var contactWithC = { displayName: 'C D'};
 
+        var result = [contactWithA, contactWithC];
+
         $controller('contactsListController', {
           $scope: scope,
           contactsService: {
@@ -997,7 +1055,7 @@ describe('The Contacts Angular module', function() {
               return $q.when([contactWithA, contactWithB, contactWithC]);
             },
             search: function() {
-              return $q.when([contactWithA, contactWithC]);
+              return $q.when(result);
             }
           },
           user: {
@@ -1012,7 +1070,12 @@ describe('The Contacts Angular module', function() {
 
         sortedContacts.A = [contactWithA];
         sortedContacts.C = [contactWithC];
-        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+        $timeout(function() {
+          expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
+          expect(scope.searchResult.data).to.deep.equal(result);
+          expect(scope.searchResult.count).to.equal(2);
+          expect(scope.searchResult.formattedResultsCount).to.exist;
+        });
       });
 
       it('should displayError on search failure', function(done) {

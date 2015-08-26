@@ -3,5 +3,9 @@
   "Create a new contact": "Create a new contact",
   "Email": "Email",
   "Choose an avatar for the contact": "Choose an avatar for the contact",
-  "Click to edit": "Click to edit"
+  "Click to edit": "Click to edit",
+  "No contacts found": "No contacts found",
+  "1 contact found": "1 contact found",
+  "contacts found": "contacts found",
+  "About": "About"
 }
