@@ -6,6 +6,8 @@ This is a social network for enterprises & organizations.
 Installation
 ------------
 
+See also [Ubuntu-specific installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/doc/install-ubuntu.md).
+
 1. clone the repository
 
         git clone https://ci.open-paas.org/stash/scm/or/rse.git
