@@ -7,9 +7,10 @@ var expect = chai.expect;
 describe('The contact Angular module directives', function() {
 
   beforeEach(function() {
-    module('jadeTemplates');
     angular.mock.module('ngRoute');
     angular.mock.module('esn.core');
+    angular.mock.module('esn.websocket');
+    angular.mock.module('esn.api-notification');
     angular.mock.module('linagora.esn.contact');
     angular.mock.module('esn.alphalist');
     module('jadeTemplates');
@@ -427,23 +428,6 @@ describe('The contact Angular module directives', function() {
         $compile('<div keep-scroll-position></div>')($scope);
       });
     }
-
-    it('should use $cacheFactory to store scroll position', function(done) {
-      var CACHE_KEY = 'scrollPosition';
-
-      module('linagora.esn.contact', function($provide) {
-        $provide.decorator('$cacheFactory', function($delegate) {
-          $delegate.get = function(key) {
-            expect(key).to.equal(CACHE_KEY);
-            done();
-          };
-          return $delegate;
-        });
-      });
-
-      doInject();
-      $scope.$digest();
-    });
 
     it('should save scroll position on $locationChangeStart event', function(done) {
       var path = '/a/path/here';
