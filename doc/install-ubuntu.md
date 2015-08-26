@@ -3,12 +3,12 @@ OpenPaas
 
 This is a social network for enterprises & organizations.
 
-Installation under Ubuntu
+Installation on Ubuntu
 -------------------------
 
-This manual will guide you through the system-wide installation process of elasticsearch, mongodb and nodeJS under Linux/ubuntu
+This manual will guide you through the system-wide installation process of elasticsearch, mongodb and nodeJS on Linux/ubuntu
 
-Please refer to openpaas-esn-master for [general installation instructions](https://github.com/linagora/openpaas-esn/blob/master/README.md) or if you plan to perform a local instalation of those servers
+See also [General installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/README.md)
 
 1. Open a terminal and install git
 
