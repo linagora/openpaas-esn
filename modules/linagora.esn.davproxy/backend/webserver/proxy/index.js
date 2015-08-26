@@ -19,6 +19,10 @@ module.exports = function(dependencies) {
           return proxy.grace(req, res, options);
         }
 
+        if (req.token && req.token.token) {
+          req.headers.ESNToken = req.token.token;
+        }
+
         return proxy.http(req, res, options);
       };
     }
