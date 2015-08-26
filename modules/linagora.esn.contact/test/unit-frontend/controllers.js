@@ -9,7 +9,7 @@ describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
       notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService,
-      sortedContacts;
+      sortedContacts, liveRefreshContactService;
 
   beforeEach(function() {
 
@@ -20,6 +20,10 @@ describe('The Contacts Angular module', function() {
       getCard: function() {
         return $q.when(scope.contact);
       }
+    };
+    liveRefreshContactService = {
+      startListen: function() {},
+      stopListen: function() {}
     };
     notificationFactory = {
       weakError: sinon.spy(),
@@ -55,6 +59,7 @@ describe('The Contacts Angular module', function() {
 
     module('linagora.esn.contact', function($provide) {
       $provide.value('contactsService', contactsService);
+      $provide.value('liveRefreshContactService', liveRefreshContactService);
       $provide.value('notificationFactory', notificationFactory);
       $provide.value('$location', $location);
       $provide.value('selectionService', selectionService);
@@ -724,6 +729,69 @@ describe('The Contacts Angular module', function() {
       });
 
       $rootScope.$broadcast('contact:cancel:delete', contact);
+      $rootScope.$digest();
+    });
+
+    it('should add the contact to the list on contact:live:created event', function(done) {
+      var contact = {
+        lastName: 'Last'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        },
+        AlphaCategoryService: function() {
+          return {
+            addItems: function(data) {
+              expect(data).to.deep.equal([contact]);
+
+              done();
+            },
+            get: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast('contact:live:created', contact);
+      $rootScope.$digest();
+    });
+
+    it('should remove the contact from the list on contact:live:deleted event', function(done) {
+      var contact = {
+        id: 'myid',
+        lastName: 'Last'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        },
+        AlphaCategoryService: function() {
+          return {
+            removeItemWithId: function(contactId) {
+              expect(contactId).to.equal('myid');
+
+              done();
+            },
+            get: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast('contact:live:deleted', contact);
       $rootScope.$digest();
     });
 
