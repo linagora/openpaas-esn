@@ -173,6 +173,8 @@ angular.module('linagora.esn.contact')
     $scope.showMenu = false;
     $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
+    $scope.loadingNextSearchResults = false;
+    $scope.lastPage = false;
 
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {
@@ -240,21 +242,52 @@ angular.module('linagora.esn.contact')
 
     $scope.search = function() {
       cleanSearchResults();
-
       if (!$scope.searchInput) {
         cleanCategories();
         return $scope.loadContacts();
       }
-
+      $scope.lastPage = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
         cleanCategories();
         console.log(data);
         setSearchResults(data);
         addItemsToCategories(data.hits_list);
+        $scope.current_page = data.current_page;
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
       });
+    };
+
+    function getNextResults() {
+      contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
+        console.log(data);
+        $scope.current_page = data.current_page;
+        addItemsToCategories(data.hits_list);
+        console.log('LOADING FINISHED');
+        $scope.loadingNextSearchResults = false;
+        if (data.hits_list.length === 0) {
+          console.log('NO MORE RESULTS');
+          $scope.lastPage = true;
+        }
+      }, function(err) {
+        $log.error('Can not search contacts', err);
+        displayError('Can not search contacts');
+      });
+    }
+
+    $scope.scrollHandler = function() {
+      console.log('----------------------------------------');
+      console.log('NEAR TO LIST BOTTOM');
+      console.log('FLAG STATES', $scope.loadingNextSearchResults, $scope.lastPage)
+      if ($scope.loadingNextSearchResults || !$scope.searchInput) {
+        console.log('ALREADY LOADING SEARCH RESULTS', $scope.loadingNextSearchResults);
+        return;
+      }
+      $scope.loadingNextSearchResults = true;
+      console.log('LOADING...');
+      $scope.current_page++;
+      getNextResults();
     };
 
     function liveNotificationHandlerOnCreate(data) {

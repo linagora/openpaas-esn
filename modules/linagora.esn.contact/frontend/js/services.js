@@ -556,10 +556,14 @@ angular.module('linagora.esn.contact')
       });
     }
 
-    function search(bookId, userId, data) {
-      return request('get', bookUrl(bookId), null, null, {search: data, userId: userId}).then(function(response) {
+    function search(bookId, userId, data, page) {
+      if(!page) {
+        var page = 1;
+      }
+      return request('get', bookUrl(bookId), null, null, {search: data, userId: userId, page: page}).then(function(response) {
         console.log(response);
         return {
+          current_page: response.data._current_page,
           total_hits: response.data._total_hits,
           hits_list: responseAsContactsShell(response)
         }

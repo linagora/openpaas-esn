@@ -39,7 +39,8 @@ module.exports = function(dependencies) {
     logger.debug('Searching contacts with options', query);
 
     var terms = query.search;
-    var offset = query.offset || 0;
+    var page = query.page;
+    var offset = query.offset;
     var limit = query.limit;
 
     var filters = [];
@@ -79,10 +80,17 @@ module.exports = function(dependencies) {
         }
       }
     };
+    if (!page) {
+      page = 1;
+    }
     if (!limit) {
-      limit = 10;
+      limit = 20;
+    }
+    if(!offset) {
+      offset = (page-1)*limit;
     }
     console.log('RESULT LIMIT: ', limit);
+    console.log('RESULT OFFSET: ', offset);
     elasticsearch.searchDocuments({
       index: INDEX_NAME,
       type: TYPE_NAME,
@@ -93,8 +101,9 @@ module.exports = function(dependencies) {
       if (err) {
         return callback(err);
       }
-      logger.debug('ELASTIC SEARCH RAW RESULT: ', result);
+      //logger.debug('ELASTIC SEARCH RAW RESULT: ', result);
       return callback(null, {
+        current_page: page,
         total_count: result.hits.total,
         list: result.hits.hits
       });

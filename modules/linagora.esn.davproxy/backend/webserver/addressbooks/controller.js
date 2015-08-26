@@ -118,6 +118,7 @@ module.exports = function(dependencies) {
 
   function searchContacts(req, res) {
 
+    console.log('REQ', req.query);
     function fetchContact(contact) {
       var options = {
         headers: {
@@ -136,9 +137,10 @@ module.exports = function(dependencies) {
     var options = {
       userId: req.user._id,
       search: req.query.search,
-      bookId: req.params.bookId
+      bookId: req.params.bookId,
+      page: req.query.page
     };
-
+    console.log('SENDING OPTIONS', options)
     contactModule.lib.search.searchContacts(options, function(err, result) {
       if (err) {
         logger.error('Error while searching contacts', err);
@@ -151,6 +153,7 @@ module.exports = function(dependencies) {
           }
         },
         _total_hits: result.total_count,
+        _current_page: result.current_page,
         _embedded: {
           'dav:item': []
         }
