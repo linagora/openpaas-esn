@@ -8,7 +8,7 @@ var PATH = 'addressbooks';
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
-  var avatarModule = dependencies('image').avatarModule;
+  var avatarGenerationModule = dependencies('image').avatarGenerationModule;
   var davClient = require('../../../lib/dav-client');
 
   function buildContactUrl(options) {
@@ -57,7 +57,7 @@ module.exports = function(dependencies) {
       }
     }
 
-    var colors = avatarModule.getColorsFromUuid(contactId);
+    var colors = avatarGenerationModule.getColorsFromUuid(contactId);
     var options = {
       text: firstChar,
       bgColor: colors.bgColor,
@@ -65,7 +65,7 @@ module.exports = function(dependencies) {
     };
     if (size) { options.size = size; }
 
-    return avatarModule.generateFromText(options);
+    return avatarGenerationModule.generateFromText(options);
   }
 
   /**

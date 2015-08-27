@@ -260,5 +260,86 @@ describe('The avatars controller', function() {
         avatars.get(req, res);
       });
     });
+
+    describe('The email objecType', function() {
+      beforeEach(function() {
+        mockery.registerMock('../middleware/collaboration', {});
+        mockery.registerMock('./collaborations', {});
+        mockery.registerMock('./users', {});
+        mockery.registerMock('../../core/user', {});
+        this.error400 = function(done) {
+          return {
+            json: function(code) {
+              expect(code).to.equal(400);
+              done();
+            }
+          };
+        };
+      });
+
+      it('should fail if no email is given as query parameter', function(done) {
+        var req = {
+          query: {
+            objectType: 'email'
+          }
+        };
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, this.error400(done));
+      });
+
+      it('should fail if the email given as query parameter is not a string', function(done) {
+        var req = {
+          query: {
+            objectType: 'email',
+            email: {pipo: 'test'}
+          }
+        };
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, this.error400(done));
+      });
+
+      it('should fail if the email given as query parameter is an empty string', function(done) {
+        var req = {
+          query: {
+            objectType: 'email',
+            email: ''
+          }
+        };
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, this.error400(done));
+      });
+
+      it('should call the avatar generation module and return the generated avatar', function(done) {
+        var req = {
+          query: {
+            objectType: 'email',
+            email: 'toto@toto.fr'
+          }
+        };
+
+        var generationResult = 'aResult';
+        mockery.registerMock('../../core/image', {
+          avatarGenerationModule: {
+            generateFromText: function(options) {
+              expect(options).to.deep.equal({text: 't'});
+              return generationResult;
+            }
+          }
+        });
+
+        var res = {
+          send: function(content) {
+            expect(content).to.deep.equal(generationResult);
+            done();
+          }
+        };
+
+        var avatars = this.helpers.requireBackend('webserver/controllers/avatars');
+        avatars.get(req, res);
+      });
+    });
   });
 });

@@ -301,4 +301,35 @@ describe('The Calendar Angular module directives', function() {
       expect(parser(this.moment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.moment('2015/07/03').format('YYYY/MM/DD'));
     });
   });
+
+  describe('The attendee-list-item directive', function() {
+
+    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
+      this.$compile = $c;
+      this.$scope = $r.$new();
+
+      this.initDirective = function(scope) {
+        var html = '<attendee-list-item attendee="attendee" readonly="readOnly"/>';
+        var element = this.$compile(html)(scope);
+        scope.$digest();
+        return element;
+      };
+    }]));
+
+    it('should instantiate the attendeeType scope property', function() {
+      this.$scope.attendee = {
+        email: 'toto@toto.fr',
+        name: 'toto'
+      };
+      var directiveScope = this.initDirective(this.$scope).isolateScope();
+      expect(directiveScope.attendeeType).to.equal('user');
+
+      this.$scope.attendee = {
+        email: 'toto@toto.fr',
+        name: 'toto@toto.fr'
+      };
+      directiveScope = this.initDirective(this.$scope).isolateScope();
+      expect(directiveScope.attendeeType).to.equal('email');
+    });
+  });
 });
