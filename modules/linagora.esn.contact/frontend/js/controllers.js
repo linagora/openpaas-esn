@@ -249,7 +249,6 @@ angular.module('linagora.esn.contact')
       $scope.lastPage = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
         cleanCategories();
-        console.log(data);
         setSearchResults(data);
         addItemsToCategories(data.hits_list);
         $scope.current_page = data.current_page;
@@ -261,13 +260,10 @@ angular.module('linagora.esn.contact')
 
     function getNextResults() {
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
-        console.log(data);
         $scope.current_page = data.current_page;
         addItemsToCategories(data.hits_list);
-        console.log('LOADING FINISHED');
         $scope.loadingNextSearchResults = false;
         if (data.hits_list.length === 0) {
-          console.log('NO MORE RESULTS');
           $scope.lastPage = true;
         }
       }, function(err) {
@@ -277,15 +273,10 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.scrollHandler = function() {
-      console.log('----------------------------------------');
-      console.log('NEAR TO LIST BOTTOM');
-      console.log('FLAG STATES', $scope.loadingNextSearchResults, $scope.lastPage)
       if ($scope.loadingNextSearchResults || !$scope.searchInput) {
-        console.log('ALREADY LOADING SEARCH RESULTS', $scope.loadingNextSearchResults);
         return;
       }
       $scope.loadingNextSearchResults = true;
-      console.log('LOADING...');
       $scope.current_page++;
       getNextResults();
     };

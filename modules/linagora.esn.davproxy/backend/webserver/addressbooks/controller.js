@@ -118,7 +118,6 @@ module.exports = function(dependencies) {
 
   function searchContacts(req, res) {
 
-    console.log('REQ', req.query);
     function fetchContact(contact) {
       var options = {
         headers: {
@@ -140,7 +139,6 @@ module.exports = function(dependencies) {
       bookId: req.params.bookId,
       page: req.query.page
     };
-    console.log('SENDING OPTIONS', options)
     contactModule.lib.search.searchContacts(options, function(err, result) {
       if (err) {
         logger.error('Error while searching contacts', err);
@@ -165,8 +163,6 @@ module.exports = function(dependencies) {
       }
 
       q.all(result.list.map(fetchContact)).then(function(vcards) {
-        console.log(result.list.length, 'WILL BE ADDED ON' ,result.total_count, 'CONTACTS FOUND');
-        console.log(vcards);
         var count = result.list.length;
         vcards.forEach(function(vcard) {
           if (vcard === false) {

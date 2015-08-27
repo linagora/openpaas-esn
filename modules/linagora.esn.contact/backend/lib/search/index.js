@@ -89,8 +89,6 @@ module.exports = function(dependencies) {
     if(!offset) {
       offset = (page-1)*limit;
     }
-    console.log('RESULT LIMIT: ', limit);
-    console.log('RESULT OFFSET: ', offset);
     elasticsearch.searchDocuments({
       index: INDEX_NAME,
       type: TYPE_NAME,
@@ -101,7 +99,6 @@ module.exports = function(dependencies) {
       if (err) {
         return callback(err);
       }
-      //logger.debug('ELASTIC SEARCH RAW RESULT: ', result);
       return callback(null, {
         current_page: page,
         total_count: result.hits.total,
