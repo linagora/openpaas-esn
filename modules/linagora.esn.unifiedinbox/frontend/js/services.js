@@ -32,6 +32,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     EmailGroupingTool.prototype.addEmail = function addEmail(jmapEmail) {
       var email = {
+        id: jmapEmail.get('id'),
+        href: '/#/unifiedinbox/' + this.mailbox + '/' + jmapEmail.get('id'),
         from: jmapEmail.get('from'),
         subject: jmapEmail.get('subject'),
         preview: jmapEmail.get('preview'),
