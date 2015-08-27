@@ -9,7 +9,7 @@
     .contacts-search.visible-sm.visible-xs.col-xs-11
       input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 600 }")
 
-  button.btn.btn-fab-fixed-bottom(type="button", ng-click="openContactCreation()")
+  button.btn.btn-float.bgm-accent.m-btn(type="button", ng-click="openContactCreation()")
     i.mdi.mdi-plus
 
   alpha-menu(ng-if="showMenu" keys="keys", prefix="prefix")
