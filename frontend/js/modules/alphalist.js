@@ -58,7 +58,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
       if (!item) {
         return;
       }
-      var letter = item[this.sortBy].toUpperCase().charAt(0);
+      var letter = charAPI.getAsciiUpperCase(item[this.sortBy].charAt(0));
       var index;
 
       if (this.categories[letter]) {
