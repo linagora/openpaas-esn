@@ -8,7 +8,6 @@ module.exports = function(dependencies) {
 
   // This needs to be initialized before the body parser
   require('./config/i18n')(dependencies, application);
-  require('./config/less')(dependencies, application);
   require('./config/views')(dependencies, application);
 
   return application;
