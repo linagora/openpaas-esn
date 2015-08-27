@@ -13,10 +13,6 @@
     box-shadow: none;
   }
 
-  .fc-agendaWeek-button, .fc-agendaDay-button {
-    display:none;
-  }
-
   .ui-state-disabled {
     cursor: pointer;
   }
@@ -24,6 +20,23 @@
   .ui-button:hover>span:after {
     left: -1px;
     top: -1px;
+  }
+
+    .fc-agendaWeek-button, .fc-agendaDay-button {
+    width: 55px;
+  }
+  .fc-month-button {
+    width: 65px;
+  }
+
+
+  .fc-today-button.ui-button.ui-state-default.ui-corner-left.ui-corner-right.btn.waves-effect {
+    width: 55px;
+    background-color: @lightPrimaryColor;
+    &.ui-state-disabled {
+      background-color: @darkPrimaryColor;
+      box-shadow: none;
+    }
   }
 }
 
