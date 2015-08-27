@@ -208,6 +208,39 @@ describe('The Calendar Angular module controllers', function() {
       });
     });
 
+    describe('getMinTime function', function() {
+      it('should return null if start is undefined', function() {
+        expect(this.eventFormController.getMinTime()).to.be.null;
+      });
+
+      it('should return null if start is not same day than end', function() {
+        this.scope.editedEvent = {
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-09 12:30')
+        };
+        expect(this.eventFormController.getMinTime()).to.be.null;
+      });
+
+      it('should return start if end is same', function() {
+        this.scope.editedEvent = {
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30')
+        };
+        expect(this.eventFormController.getMinTime()).to.deep.equal(this.scope.editedEvent.start);
+      });
+    });
+
+    describe('onEndDateChange function', function() {
+      it('should change end if it is before start', function() {
+        this.scope.editedEvent = {
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 10:30')
+        };
+        this.eventFormController.onEndDateChange();
+        expect(this.scope.editedEvent.end.isSame('2013-02-08 13:30')).to.be.true;
+      });
+    });
+
     describe('initFormData function', function() {
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.eventFormController.initFormData();

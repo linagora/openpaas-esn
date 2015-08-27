@@ -225,7 +225,10 @@ angular.module('esn.calendar')
     };
 
     this.getMinTime = function() {
-      return $scope.editedEvent.start || null;
+      if ($scope.editedEvent.start && $scope.editedEvent.start.isSame($scope.editedEvent.end, 'day')) {
+        return $scope.editedEvent.start;
+      }
+      return null;
     };
 
     this.onStartDateChange = function() {
@@ -233,6 +236,9 @@ angular.module('esn.calendar')
     };
 
     this.onEndDateChange = function() {
+      if ($scope.editedEvent.end.isBefore($scope.editedEvent.start)) {
+        $scope.editedEvent.end = moment($scope.editedEvent.start).add(1, 'hours');
+      }
       $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
     };
   })
