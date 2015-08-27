@@ -137,6 +137,7 @@ module.exports = function(dependencies) {
       userId: req.user._id,
       search: req.query.search,
       bookId: req.params.bookId,
+      limit: req.query.limit,
       page: req.query.page
     };
     contactModule.lib.search.searchContacts(options, function(err, result) {

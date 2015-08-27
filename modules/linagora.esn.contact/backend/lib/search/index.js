@@ -37,11 +37,10 @@ module.exports = function(dependencies) {
 
   function searchContacts(query, callback) {
     logger.debug('Searching contacts with options', query);
-
     var terms = query.search;
-    var page = query.page;
+    var page = query.page || 1;
     var offset = query.offset;
-    var limit = query.limit;
+    var limit = query.limit || 20;
 
     var filters = [];
     if (query.userId) {
@@ -80,14 +79,8 @@ module.exports = function(dependencies) {
         }
       }
     };
-    if (!page) {
-      page = 1;
-    }
-    if (!limit) {
-      limit = 20;
-    }
-    if(!offset) {
-      offset = (page-1)*limit;
+    if (!offset) {
+      offset = (page - 1) * limit;
     }
     elasticsearch.searchDocuments({
       index: INDEX_NAME,
