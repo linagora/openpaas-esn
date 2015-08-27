@@ -3,6 +3,7 @@
 var moduleManager = require('../../backend/module-manager');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var path = require('path');
 
 var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
   dependencies: [
@@ -39,7 +40,8 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     deploy: function(dependencies, callback) {
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('appstore', ['appstore.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.appstore', ['esn']);
-      webserverWrapper.injectCSS('appstore', ['styles.css'], 'esn');
+      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      webserverWrapper.injectLess('appstore', [lessFile], 'esn');
       webserverWrapper.addApp('appstore', this.app);
       return callback();
     },
