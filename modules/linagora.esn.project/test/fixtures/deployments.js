@@ -12,37 +12,55 @@ module.exports.linagora_PROJECTS = function() {
       password: 'secret',
       firstname: 'Domain ',
       lastname: 'Administrator',
-      emails: ['itadmin@lng.net']
+      accounts: [{
+        type: 'email',
+        emails: ['itadmin@lng.net']
+      }]
     },
     {
       password: 'secret',
       firstname: 'John',
       lastname: 'Doe',
-      emails: ['jdoe@lng.net']
+      accounts: [{
+        type: 'email',
+        emails: ['jdoe@lng.net']
+      }]
     },
     {
       password: 'secret',
       firstname: 'Jane',
       lastname: 'Dee',
-      emails: ['jdee@lng.net']
+      accounts: [{
+        type: 'email',
+        emails: ['jdee@lng.net']
+      }]
     },
     {
       password: 'secret',
       firstname: 'Kurt',
       lastname: 'Cobain',
-      emails: ['kcobain@lng.net']
+      accounts: [{
+        type: 'email',
+        emails: ['kcobain@lng.net']
+      }]
     },
     {
       password: 'secret',
       firstname: 'Jimmy',
       lastname: 'Hendrix',
-      emails: ['jhendrix@lng.net']
+      accounts: [{
+        type: 'email',
+        emails: ['jhendrix@lng.net']
+      }]
     },
     {
       password: 'secret',
       firstname: 'Indi',
       lastname: 'Rect',
-      emails: ['indirect@lng.net']
+      accounts: [{
+        type: 'email',
+        emails: ['indirect@lng.net']
+      }]
     }
     ],
     communities: [
