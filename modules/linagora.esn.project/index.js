@@ -2,6 +2,7 @@
 
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var path = require('path');
 
 var projectModule = new AwesomeModule('linagora.esn.project', {
   dependencies: [
@@ -25,7 +26,8 @@ var projectModule = new AwesomeModule('linagora.esn.project', {
       var webserverWrapper = dependencies('webserver-wrapper');
       var app = require('./backend/webserver/application')(this, dependencies);
       webserverWrapper.injectAngularModules('project', ['app.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.project', ['esn']);
-      webserverWrapper.injectCSS('project', ['style.css'], ['esn']);
+      var lessFile = path.resolve(__dirname, './frontend/css/style.less');
+      webserverWrapper.injectLess('project', [lessFile], 'esn');
       webserverWrapper.addApp('project', app);
       return callback();
     }
