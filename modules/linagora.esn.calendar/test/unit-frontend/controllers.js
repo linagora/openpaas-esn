@@ -712,16 +712,57 @@ describe('The Calendar Angular module controllers', function() {
               _allDay: '_allDay',
               _end: '_end',
               _id: '_id',
-              _start: '_start'
+              _start: '_start',
+              start: 'start',
+              end: 'end'
             }];
           } else {
             expect(event).to.equal('updateEvent');
-            expect(newEvent).to.deep.equal({
+            expect(data).to.deep.equal({
               id: 'anId',
               _allDay: '_allDay',
               _end: '_end',
               _id: '_id',
-              _start: '_start'
+              _start: '_start',
+              start: 'start',
+              end: 'end'
+            });
+            done();
+          }
+        };
+
+        wsEventModifyListener(newEvent);
+      });
+
+      it('should transform start and end date if allday is true when modified event', function(done) {
+        var newEvent = {id: 'anId', allDay: true};
+        var called = 0;
+
+        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+          called++;
+          if (called === 1) {
+            expect(event).to.equal('clientEvents');
+            expect(data).to.equal('anId');
+            return [{
+              _allDay: '_allDay',
+              _end: '_end',
+              _id: '_id',
+              _start: '_start',
+              start: this.moment('2013-03-07T07:00:00-08:00'),
+              end: this.moment('2013-03-07T07:00:00-08:00')
+            }];
+          } else {
+            expect(event).to.equal('updateEvent');
+            console.log(data);
+            expect(data).to.deep.equal({
+              _allDay: '_allDay',
+              _end: '_end',
+              _id: '_id',
+              _start: '_start',
+              start: '2013-03-07',
+              end: '2013-03-07',
+              id: 'anId',
+              allDay: true
             });
             done();
           }
