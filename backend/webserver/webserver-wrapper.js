@@ -2,6 +2,7 @@
 
 var AwesomeModule = require('awesome-module');
 var util = require('util');
+var css = require('../core').css;
 
 function WebServerWrapper(server) {
   var webserver = server;
@@ -17,6 +18,10 @@ function WebServerWrapper(server) {
 
   this.injectCSS = function injectCSS(namespace, css, innerApps) {
     webserver.addCSSInjection(namespace, asArray(css), asArray(innerApps));
+  };
+
+  this.injectLess = function injectLess(namespace, less, innerApps) {
+    css.addLessInjection(namespace, asArray(less), asArray(innerApps));
   };
 
   this.injectAngularModules = function injectAngularModules(namespace, js, moduleNames, innerApps) {
@@ -49,6 +54,9 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
       },
       injectCSS: function(css, innerApps) {
         return lib.injectCSS(moduleName, css, innerApps);
+      },
+      injectLess: function(less, innerApps) {
+        return lib.injectLess(moduleName, less, innerApps);
       },
       injectAngularModules: function(js, moduleNames, innerApps) {
         return lib.injectAngularModules(moduleName, js, moduleNames, innerApps);

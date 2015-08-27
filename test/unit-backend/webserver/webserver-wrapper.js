@@ -18,14 +18,15 @@ describe('the webserver-wrapper', function() {
     getApi(module, function(err, api) {
       expect(err).to.be.null;
       expect(api.injectJS).to.exist;
-      expect(api.injectJS).to.be.a.function;
+      expect(api.injectJS).to.be.a('function');
       expect(api.injectCSS).to.exist;
-      expect(api.injectCSS).to.be.a.function;
+      expect(api.injectCSS).to.be.a('function');
       expect(api.injectAngularModules).to.exist;
-      expect(api.injectAngularModules).to.be.a.function;
+      expect(api.injectAngularModules).to.be.a('function');
       expect(api.addApp).to.exist;
-      expect(api.addApp).to.be.a.function;
-      expect(api.on).to.be.a.function;
+      expect(api.addApp).to.be.a('function');
+      expect(api.on).to.be.a('function');
+      expect(api.injectLess).to.be.a('function');
     });
   });
 
@@ -85,6 +86,21 @@ describe('the webserver-wrapper', function() {
     getApi(module, function(err, api) {
       api.injectAngularModules('myModule', 'mymodule.js', 'myAngularModule', 'esn');
     });
+  });
+
+  it('should call css.addLessInjection with arrays', function(done) {
+    var cssModule = this.helpers.requireBackend('core').css;
+    cssModule.addLessInjection = function(mod, files, apps) {
+      expect(mod).to.be.a('string');
+      expect(files).to.deep.equal(['/tmp/test.less']);
+      expect(apps).to.deep.equal(['esn']);
+      done();
+    };
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
+    getApi(module, function(err, api) {
+      api.injectLess('myModule', '/tmp/test.less', 'esn');
+    });
+
   });
 
   it('should call webserver.application.use', function(done) {
