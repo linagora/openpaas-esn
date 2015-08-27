@@ -97,7 +97,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
         expect(options.text).to.equal('E');
         done();
       };
@@ -115,7 +115,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
         expect(options.text).to.equal('D');
         done();
       };
