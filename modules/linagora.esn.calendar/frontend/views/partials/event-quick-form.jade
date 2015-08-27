@@ -5,10 +5,11 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
   .modal-dialog
     .modal-content
       .modal-header
-        h4.modal-title
+        .modal-title
           .col-xs-12
             .form-group
-              input.input-lg.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+              .fg-line
+                input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
       .modal-body
         .col-xs-3.col-sm-2
           .form-group
@@ -17,9 +18,9 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         .col-xs-9.col-sm-3
           .form-group
             .fg-line
-              input.input-lg.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-datepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
+              input.input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-datepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
             .fg-line(ng-if='!editedEvent.allDay')
-              input.input-lg.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-timepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
+              input.input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-timepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
         .col-xs-3.col-sm-2
           .form-group
             .fg-line
@@ -27,9 +28,9 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         .col-xs-9.col-sm-3
           .form-group
             .fg-line
-              input.input-lg.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-datepicker, date-to-moment, friendlify-end-date)
+              input.input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-datepicker, date-to-moment, friendlify-end-date)
             .fg-line(ng-if='!editedEvent.allDay')
-              input.input-lg(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-timepicker, date-to-moment)
+              input.input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-timepicker, date-to-moment)
         .col-xs-12.col-sm-2
           .form-group
             .fg-line
@@ -43,7 +44,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
               span.input-group-addon
                 i.mdi.mdi-map-marker
               .fg-line
-                input.input-lg.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
+                input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
         .col-xs-12
           .form-group.status(ng-show="hasAttendees")
             span.col-xs-12.col-sm-6 #{__('Will you attend?')}
