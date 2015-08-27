@@ -6,6 +6,18 @@ var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var logger = require('../../core').logger;
 var ObjectId = require('mongoose').Types.ObjectId;
 
+function sanitize(user) {
+  var sanitizedUser = {};
+
+  ['_id', 'firstname', 'lastname', 'emails', 'domains', 'avatars', 'accounts'].forEach(function(key) {
+    if (user[key]) {
+      sanitizedUser[key] = user[key];
+    }
+  });
+
+  return sanitizedUser;
+}
+
 /**
  * Log the user in. The user should already be loaded in the request from a middleware.
  */
@@ -58,7 +70,7 @@ function profile(req, res) {
         details: 'User ' + uuid + ' has not been found'
       });
     }
-    return res.json(200, user);
+    return res.json(200, sanitize(user));
   });
 }
 module.exports.profile = profile;
@@ -129,7 +141,7 @@ function user(req, res) {
   if (!req.user) {
     return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
   }
-  return res.json(200, req.user);
+  return res.json(200, sanitize(req.user));
 }
 module.exports.user = user;
 
