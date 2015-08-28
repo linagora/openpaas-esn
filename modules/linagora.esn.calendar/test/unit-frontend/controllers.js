@@ -208,6 +208,39 @@ describe('The Calendar Angular module controllers', function() {
       });
     });
 
+    describe('getMinTime function', function() {
+      it('should return null if start is undefined', function() {
+        expect(this.eventFormController.getMinTime()).to.be.null;
+      });
+
+      it('should return null if start is not same day than end', function() {
+        this.scope.editedEvent = {
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-09 12:30')
+        };
+        expect(this.eventFormController.getMinTime()).to.be.null;
+      });
+
+      it('should return start if end is same', function() {
+        this.scope.editedEvent = {
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30')
+        };
+        expect(this.eventFormController.getMinTime()).to.deep.equal(this.scope.editedEvent.start);
+      });
+    });
+
+    describe('onEndDateChange function', function() {
+      it('should change end if it is before start', function() {
+        this.scope.editedEvent = {
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 10:30')
+        };
+        this.eventFormController.onEndDateChange();
+        expect(this.scope.editedEvent.end.isSame('2013-02-08 13:30')).to.be.true;
+      });
+    });
+
     describe('initFormData function', function() {
       it('should initialize the scope with a default event if $scope.event does not exist', function() {
         this.eventFormController.initFormData();
@@ -712,16 +745,57 @@ describe('The Calendar Angular module controllers', function() {
               _allDay: '_allDay',
               _end: '_end',
               _id: '_id',
-              _start: '_start'
+              _start: '_start',
+              start: 'start',
+              end: 'end'
             }];
           } else {
             expect(event).to.equal('updateEvent');
-            expect(newEvent).to.deep.equal({
+            expect(data).to.deep.equal({
               id: 'anId',
               _allDay: '_allDay',
               _end: '_end',
               _id: '_id',
-              _start: '_start'
+              _start: '_start',
+              start: 'start',
+              end: 'end'
+            });
+            done();
+          }
+        };
+
+        wsEventModifyListener(newEvent);
+      });
+
+      it('should transform start and end date if allday is true when modified event', function(done) {
+        var newEvent = {id: 'anId', allDay: true};
+        var called = 0;
+
+        this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(event, data) {
+          called++;
+          if (called === 1) {
+            expect(event).to.equal('clientEvents');
+            expect(data).to.equal('anId');
+            return [{
+              _allDay: '_allDay',
+              _end: '_end',
+              _id: '_id',
+              _start: '_start',
+              start: this.moment('2013-03-07T07:00:00-08:00'),
+              end: this.moment('2013-03-07T07:00:00-08:00')
+            }];
+          } else {
+            expect(event).to.equal('updateEvent');
+            console.log(data);
+            expect(data).to.deep.equal({
+              _allDay: '_allDay',
+              _end: '_end',
+              _id: '_id',
+              _start: '_start',
+              start: '2013-03-07',
+              end: '2013-03-07',
+              id: 'anId',
+              allDay: true
             });
             done();
           }

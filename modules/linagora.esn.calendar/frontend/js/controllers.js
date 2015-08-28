@@ -225,7 +225,10 @@ angular.module('esn.calendar')
     };
 
     this.getMinTime = function() {
-      return $scope.editedEvent.start || null;
+      if ($scope.editedEvent.start && $scope.editedEvent.start.isSame($scope.editedEvent.end, 'day')) {
+        return $scope.editedEvent.start;
+      }
+      return null;
     };
 
     this.onStartDateChange = function() {
@@ -233,6 +236,9 @@ angular.module('esn.calendar')
     };
 
     this.onEndDateChange = function() {
+      if ($scope.editedEvent.end.isBefore($scope.editedEvent.start)) {
+        $scope.editedEvent.end = moment($scope.editedEvent.start).add(1, 'hours');
+      }
       $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
     };
   })
@@ -319,6 +325,15 @@ angular.module('esn.calendar')
         return;
       }
       angular.extend(event, newEvent);
+      // See weird Fullcalendar behavior fullcalendar.js:1858 and fullcalendar.js:1600
+      // Fullcalendar does not care about event._allDay or event.allDay and forces a new
+      // value for event.allDay depending on if event.start || event.end has a *time* part.
+      // The problem being that when fullcalendar transform a Moment into a FCMoment, it loses
+      // the allDay property.
+      if (newEvent.allDay) {
+        event.start = event.start.format('YYYY-MM-DD');
+        event.end = event.end ? event.end.format('YYYY-MM-DD') : undefined;
+      }
       calendar.fullCalendar('updateEvent', event);
     }
 
