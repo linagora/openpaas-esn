@@ -31,6 +31,7 @@
               .lv-title {{::email.subject}}
             .pull-right
               .lv-title {{::email.date | date: group.dateFormat}}
+            .clearfix
             small.lv-small {{::email.preview}}
             ul.lv-attrs
               li(ng-if="email.hasAttachment") 
