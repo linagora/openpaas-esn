@@ -9,6 +9,8 @@ var CONTACT_DELETED = 'contacts:contact:delete';
 var INDEX_NAME = 'contacts.idx';
 var TYPE_NAME = 'contacts';
 
+var DEFAULT_LIMIT = 20;
+
 module.exports = function(dependencies) {
 
   var pubsub = dependencies('pubsub').local;
@@ -40,7 +42,7 @@ module.exports = function(dependencies) {
     var terms = query.search;
     var page = query.page || 1;
     var offset = query.offset;
-    var limit = query.limit || 20;
+    var limit = query.limit || DEFAULT_LIMIT;
 
     var filters = [];
     if (query.userId) {

@@ -175,6 +175,7 @@ angular.module('linagora.esn.contact')
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
     $scope.loadingNextSearchResults = false;
     $scope.lastPage = false;
+    $scope.totalHits = 0;
 
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {
@@ -208,6 +209,7 @@ angular.module('linagora.esn.contact')
 
     function cleanSearchResults() {
       $scope.searchResult = {};
+      $scope.totalHits = 0;
     }
 
     $scope.loadContacts = function() {
@@ -252,6 +254,10 @@ angular.module('linagora.esn.contact')
         setSearchResults(data);
         addItemsToCategories(data.hits_list);
         $scope.current_page = data.current_page;
+        $scope.totalHits = $scope.totalHits + data.hits_list.length;
+        if ($scope.totalHits === data.total_hits) {
+          $scope.lastPage = true;
+        }
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
@@ -262,8 +268,9 @@ angular.module('linagora.esn.contact')
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
         $scope.current_page = data.current_page;
         addItemsToCategories(data.hits_list);
+        $scope.totalHits = $scope.totalHits + data.hits_list.length;
         $scope.loadingNextSearchResults = false;
-        if (data.hits_list.length === 0) {
+        if ($scope.totalHits === data.total_hits) {
           $scope.lastPage = true;
         }
       }, function(err) {
