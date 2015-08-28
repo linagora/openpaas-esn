@@ -13,7 +13,8 @@ describe('The Unified Inbox Angular module controllers', function() {
       $route = {
         current: {
           params: {
-            mailbox: 'chosenMailbox'
+            mailbox: 'chosenMailbox',
+            emailId: '4'
           }
         }
       };
@@ -64,4 +65,30 @@ describe('The Unified Inbox Angular module controllers', function() {
 
     });
 
+    describe('viewEmailController', function() {
+
+      it('should take the mailbox and emailId variables from the route params', function() {
+        JmapAPI.getEmail = function() {};
+
+        $controller('viewEmailController', {
+          $scope: scope
+        });
+
+        expect(scope.mailbox).to.equal('chosenMailbox');
+        expect(scope.emailId).to.equal('4');
+      });
+
+      it('should assign the getEmail result to the scope', function() {
+        JmapAPI.getEmail = function(emailId) {
+          return 'result';
+        };
+
+        $controller('viewEmailController', {
+          $scope: scope
+        });
+
+        expect(scope.email).to.equal('result');
+      });
+
+    });
 });

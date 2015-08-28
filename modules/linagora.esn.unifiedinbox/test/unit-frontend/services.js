@@ -202,8 +202,9 @@ describe('The Unified Inbox Angular module services', function() {
       };
     };
 
-    beforeEach(angular.mock.inject(function(JmapEmails, $rootScope, $timeout, jmap, overture) {
+    beforeEach(angular.mock.inject(function(JmapEmails, Email, $rootScope, $timeout, jmap, overture) {
       this.JmapEmails = JmapEmails;
+      this.Email = Email;
       this.$rootScope = $rootScope;
       this.jmap = jmap;
       timeout = $timeout;
@@ -244,6 +245,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should clean known emails when the received email list starts at position 0', function() {
         var receivedEmail1 = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -252,6 +255,8 @@ describe('The Unified Inbox Angular module services', function() {
           date: nowDate
         };
         var receivedEmail2 = {
+          id: 2,
+          href: '/#/unifiedinbox/mailbox/2',
           from: 'from value 2',
           subject: 'subject value 2',
           preview: 'preview value 2',
@@ -274,7 +279,7 @@ describe('The Unified Inbox Angular module services', function() {
           };
         };
 
-        var groupedEmails = this.JmapEmails.get('any mailbox id');
+        var groupedEmails = this.JmapEmails.get('mailbox');
         listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail1)]));
         timeout.flush();
         listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail2)]));
@@ -290,6 +295,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should not clean known emails when the received email list does not start at position 0', function() {
         var receivedEmail1 = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -298,6 +305,8 @@ describe('The Unified Inbox Angular module services', function() {
           date: nowDate
         };
         var receivedEmail2 = {
+          id: 2,
+          href: '/#/unifiedinbox/mailbox/2',
           from: 'from value 2',
           subject: 'subject value 2',
           preview: 'preview value 2',
@@ -320,7 +329,7 @@ describe('The Unified Inbox Angular module services', function() {
           };
         };
 
-        var groupedEmails = this.JmapEmails.get('any mailbox id');
+        var groupedEmails = this.JmapEmails.get('mailbox');
         listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail1)]));
         timeout.flush();
         listEmailsCallback(emailsAndPosition([buildEmail(receivedEmail2)]));
@@ -336,6 +345,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the today group if it has the now date', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -349,7 +360,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail]},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: []},
@@ -359,6 +370,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the today group if it has the midnight date', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -372,7 +385,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail]},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: []},
@@ -382,6 +395,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the today group even if it has a futur date', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -395,7 +410,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: [receivedEmail]},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: []},
@@ -405,6 +420,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the week group if it is 1 days old', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -418,7 +435,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: [receivedEmail]},
           {name: 'This Month', dateFormat: 'short', emails: []},
@@ -428,6 +445,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the week group if it is 7 days old', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -441,7 +460,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: [receivedEmail]},
           {name: 'This Month', dateFormat: 'short', emails: []},
@@ -451,6 +470,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the month group if it is just older than one week', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -464,7 +485,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -475,6 +496,8 @@ describe('The Unified Inbox Angular module services', function() {
       it('should put a received email in the month group if it is just older than one week with both +7 TZ', function() {
         nowDate = new Date('2015-08-20T11:00:00+07:00');
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -488,7 +511,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -499,6 +522,8 @@ describe('The Unified Inbox Angular module services', function() {
       it('should put a received email in the month group if it is just older than one week when email +7 TZ', function() {
         nowDate = new Date('2015-08-20T04:00:00+00:00');
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -512,7 +537,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -523,6 +548,8 @@ describe('The Unified Inbox Angular module services', function() {
       it('should put a received email in the month group if it is just older than one week when now +7 TZ', function() {
         nowDate = new Date('2015-08-20T11:00:00+07:00');
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -536,7 +563,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -547,6 +574,8 @@ describe('The Unified Inbox Angular module services', function() {
       it('should put a received email in the month group if it is just older than one week with both -7 TZ', function() {
         nowDate = new Date('2015-08-19T21:00:00-07:00');
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -560,7 +589,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -571,6 +600,8 @@ describe('The Unified Inbox Angular module services', function() {
       it('should put a received email in the month group if it is just older than one week when email -7 TZ', function() {
         nowDate = new Date('2015-08-20T04:00:00+00:00');
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -584,7 +615,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -595,6 +626,8 @@ describe('The Unified Inbox Angular module services', function() {
       it('should put a received email in the month group if it is just older than one week when now -7 TZ', function() {
         nowDate = new Date('2015-08-19T21:00:00-07:00');
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -608,7 +641,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -618,6 +651,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the month group if its date is the first of the month', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -631,7 +666,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: [receivedEmail]},
@@ -641,6 +676,8 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should put a received email in the older group if its date is the last day of the previous month', function() {
         var receivedEmail = {
+          id: 1,
+          href: '/#/unifiedinbox/mailbox/1',
           from: 'from value',
           subject: 'subject value',
           preview: 'preview value',
@@ -654,7 +691,7 @@ describe('The Unified Inbox Angular module services', function() {
           timeout.flush();
         };
 
-        expect(this.JmapEmails.get('any mailbox id')).to.deep.equal([
+        expect(this.JmapEmails.get('mailbox')).to.deep.equal([
           {name: 'Today', dateFormat: 'shortTime', emails: []},
           {name: 'This Week', dateFormat: 'short', emails: []},
           {name: 'This Month', dateFormat: 'short', emails: []},
@@ -663,6 +700,102 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
     });
+
+
+    describe('getEmail method', function() {
+
+      it('should transform from jmap email', function() {
+        var jmapEmail = buildEmail({
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          htmlBody: 'htmlBody',
+          textBody: 'textBody',
+          hasAttachment: false,
+          attachments: 'attachments',
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        });
+
+        this.jmap.getEmail = function(emailId, callback) {
+          return jmapEmail;
+        };
+
+        var expectedEmail = new this.Email(jmapEmail);
+        expect(this.JmapEmails.getEmail('emailId')).to.deep.equal(expectedEmail);
+      });
+
+      it('should update returned email when one value changes through the callback', function() {
+        var jmapEmail = buildEmail({
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          htmlBody: 'htmlBody',
+          textBody: 'textBody',
+          hasAttachment: false,
+          attachments: 'attachments',
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        });
+        var updatedProperties = {
+          from: 'from value updated'
+        };
+
+        var updateCallback;
+        this.jmap.getEmail = function(emailId, callback) {
+          updateCallback = callback;
+          return jmapEmail;
+        };
+
+        var email = this.JmapEmails.getEmail('emailId');
+        updateCallback(buildEmail(updatedProperties), updatedProperties);
+        timeout.flush();
+
+        var expectedEmail = new this.Email(jmapEmail);
+        expectedEmail.from = updatedProperties.from;
+        expect(email).to.deep.equal(expectedEmail);
+      });
+
+      it('should update returned email when all values change through the callback', function() {
+        var jmapEmail = buildEmail({
+          from: 'from value',
+          subject: 'subject value',
+          preview: 'preview value',
+          htmlBody: 'htmlBody',
+          textBody: 'textBody',
+          hasAttachment: false,
+          attachments: 'attachments',
+          isUnread: false,
+          date: '2015-07-31T04:00:00Z'
+        });
+        var updatedProperties = {
+          from: 'from value updated',
+          subject: 'subject value updated',
+          preview: 'preview value updated',
+          htmlBody: 'htmlBody updated',
+          textBody: 'textBody updated',
+          hasAttachment: true,
+          attachments: 'attachments updated',
+          isUnread: true,
+          date: '2025-07-31T04:00:00Z'
+        };
+
+        var updateCallback;
+        this.jmap.getEmail = function(emailId, callback) {
+          updateCallback = callback;
+          return buildEmail(jmapEmail);
+        };
+
+        var email = this.JmapEmails.getEmail('emailId');
+        updateCallback(buildEmail(updatedProperties), updatedProperties);
+        timeout.flush();
+
+        var expectedEmail = buildEmail(updatedProperties);
+        expect(email).to.deep.equal(new this.Email(expectedEmail));
+      });
+
+    });
+
   });
 
   describe('JmapAPI service', function() {
@@ -722,6 +855,32 @@ describe('The Unified Inbox Angular module services', function() {
         };
 
         expect(this.JmapAPI.getEmails()).to.equal('yolo');
+      });
+
+    });
+
+    describe('getEmail method', function() {
+
+      it('should login first', function() {
+        var called = false;
+        this.JmapEmails.getEmail = function() {};
+        this.JmapAuth.login = function() {
+          called = true;
+        };
+
+        this.JmapAPI.getEmail();
+
+        expect(called).to.be.true;
+      });
+
+
+      it('should delegate to JmapEmails', function() {
+        this.JmapAuth.login = function() {};
+        this.JmapEmails.getEmail = function() {
+          return 'yolo';
+        };
+
+        expect(this.JmapAPI.getEmail()).to.equal('yolo');
       });
 
     });
