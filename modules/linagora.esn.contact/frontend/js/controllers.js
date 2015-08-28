@@ -173,6 +173,9 @@ angular.module('linagora.esn.contact')
     $scope.showMenu = false;
     $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
+    $scope.loadingNextSearchResults = false;
+    $scope.lastPage = false;
+    $scope.totalHits = 0;
 
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {
@@ -199,13 +202,14 @@ angular.module('linagora.esn.contact')
     }
 
     function setSearchResults(data) {
-      $scope.searchResult.data = data;
-      $scope.searchResult.count = data.length || 0;
+      $scope.searchResult.data = data.hits_list;
+      $scope.searchResult.count = data.total_hits || 0;
       $scope.searchResult.formattedResultsCount = searchResultSizeFormatter($scope.searchResult.count);
     }
 
     function cleanSearchResults() {
       $scope.searchResult = {};
+      $scope.totalHits = 0;
     }
 
     $scope.loadContacts = function() {
@@ -240,20 +244,48 @@ angular.module('linagora.esn.contact')
 
     $scope.search = function() {
       cleanSearchResults();
-
       if (!$scope.searchInput) {
         cleanCategories();
         return $scope.loadContacts();
       }
-
+      $scope.lastPage = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
         cleanCategories();
         setSearchResults(data);
-        addItemsToCategories(data);
+        addItemsToCategories(data.hits_list);
+        $scope.current_page = data.current_page;
+        $scope.totalHits = $scope.totalHits + data.hits_list.length;
+        if ($scope.totalHits === data.total_hits) {
+          $scope.lastPage = true;
+        }
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
       });
+    };
+
+    function getNextResults() {
+      contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
+        $scope.current_page = data.current_page;
+        addItemsToCategories(data.hits_list);
+        $scope.totalHits = $scope.totalHits + data.hits_list.length;
+        $scope.loadingNextSearchResults = false;
+        if ($scope.totalHits === data.total_hits) {
+          $scope.lastPage = true;
+        }
+      }, function(err) {
+        $log.error('Can not search contacts', err);
+        displayError('Can not search contacts');
+      });
+    }
+
+    $scope.scrollHandler = function() {
+      if ($scope.loadingNextSearchResults || !$scope.searchInput) {
+        return;
+      }
+      $scope.loadingNextSearchResults = true;
+      $scope.current_page++;
+      getNextResults();
     };
 
     function liveNotificationHandlerOnCreate(data) {

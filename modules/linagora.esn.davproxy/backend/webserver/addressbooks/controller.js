@@ -136,9 +136,10 @@ module.exports = function(dependencies) {
     var options = {
       userId: req.user._id,
       search: req.query.search,
-      bookId: req.params.bookId
+      bookId: req.params.bookId,
+      limit: req.query.limit,
+      page: req.query.page
     };
-
     contactModule.lib.search.searchContacts(options, function(err, result) {
       if (err) {
         logger.error('Error while searching contacts', err);
@@ -150,6 +151,8 @@ module.exports = function(dependencies) {
             'href': req.originalUrl
           }
         },
+        _total_hits: result.total_count,
+        _current_page: result.current_page,
         _embedded: {
           'dav:item': []
         }

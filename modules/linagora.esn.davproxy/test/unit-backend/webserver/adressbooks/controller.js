@@ -470,12 +470,14 @@ describe('The addressbooks module', function() {
       var search = 'Bruce';
       var user = {_id: 123};
       var bookId = '456';
+      var page = 1;
+      var limit = 20;
 
       dependencies.contact = {
         lib: {
           search: {
             searchContacts: function(options) {
-              expect(options).to.deep.equal({search: search, userId: user._id, bookId: bookId});
+              expect(options).to.deep.equal({search: search, userId: user._id, bookId: bookId, page: page, limit: limit});
               done();
             }
           }
@@ -483,7 +485,7 @@ describe('The addressbooks module', function() {
       };
 
       var controller = getController();
-      controller.searchContacts({query: {search: search}, user: user, params: {bookId: bookId}});
+      controller.searchContacts({query: {search: search, page: page, limit: limit}, user: user, params: {bookId: bookId}});
     });
 
     it('should send back HTTP 500 when contact.searchContacts fails', function(done) {
@@ -566,7 +568,6 @@ describe('The addressbooks module', function() {
         }
       });
     });
-
     it('should build the response by calling the dav server for each contact found', function(done) {
       var search = 'Bruce';
       var user = {_id: '123'};
@@ -638,6 +639,90 @@ describe('The addressbooks module', function() {
         json: function(code, data) {
           expect(code).to.equal(200);
           expect(data._embedded['dav:item'].length).to.equal(2);
+          done();
+        }
+      });
+    });
+    it('should send the total numbers of hits in the response', function(done) {
+      var search = 'Bruce';
+      var user = {_id: '123'};
+      var bookId = '456';
+      var call = 0;
+      var result = [{_id: '1'}, {_id: '2'}, {_id: '3'}, {_id: '4'}, {_id: '5'}];
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              return callback(null, {list: result, total_count: result.length});
+            }
+          },
+          client: {
+            get: function() {
+              call++;
+              if (call === 3) {
+                return q.reject(new Error());
+              }
+
+              return q(result[call]);
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({params: {bookId: bookId}, query: {search: search}, user: user}, {
+        header: function(name, value) {
+          expect(value).to.equal(result.length);
+        },
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._embedded['dav:item'].length).to.equal(4);
+          expect(data._total_hits).to.equal(5);
+          done();
+        }
+      });
+    });
+
+    it('should send the correct response page', function(done) {
+      var search = 'Bruce';
+      var user = {_id: '123'};
+      var bookId = '456';
+      var call = 0;
+      var result = [{_id: '1'}, {_id: '2'}, {_id: '3'}, {_id: '4'}, {_id: '5'}];
+      var limit = 2;
+      var page = 3;
+
+      dependencies.contact = {
+        lib: {
+          search: {
+            searchContacts: function(options, callback) {
+              var total = result.length;
+              result = result.splice(options.limit * (options.page - 1), options.limit);
+              return callback(null, {list: result, total_count: total});
+            }
+          },
+          client: {
+            get: function() {
+              call++;
+              if (call === 3) {
+                return q.reject(new Error());
+              }
+
+              return q(result[call]);
+            }
+          }
+        }
+      };
+
+      var controller = getController();
+      controller.searchContacts({params: {bookId: bookId}, query: {search: search, page: page, limit: limit}, user: user}, {
+        header: function(name, value) {
+        },
+        json: function(code, data) {
+          expect(code).to.equal(200);
+          expect(data._embedded['dav:item'].length).to.equal(1);
+          expect(data._total_hits).to.equal(5);
           done();
         }
       });

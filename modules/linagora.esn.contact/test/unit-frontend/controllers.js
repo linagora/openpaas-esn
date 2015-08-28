@@ -1046,7 +1046,10 @@ describe('The Contacts Angular module', function() {
         var contactWithB = { displayName: 'B C'};
         var contactWithC = { displayName: 'C D'};
 
-        var result = [contactWithA, contactWithC];
+        var result = {
+          total_hits: 2,
+          hits_list: [contactWithA, contactWithC]
+        };
 
         $controller('contactsListController', {
           $scope: scope,
@@ -1065,6 +1068,7 @@ describe('The Contacts Angular module', function() {
         });
 
         scope.searchInput = search;
+        scope.totalHits = 0;
         scope.search();
         scope.$digest();
 

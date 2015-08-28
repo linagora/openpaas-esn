@@ -9,6 +9,8 @@ var CONTACT_DELETED = 'contacts:contact:delete';
 var INDEX_NAME = 'contacts.idx';
 var TYPE_NAME = 'contacts';
 
+var DEFAULT_LIMIT = 20;
+
 module.exports = function(dependencies) {
 
   var pubsub = dependencies('pubsub').local;
@@ -37,10 +39,10 @@ module.exports = function(dependencies) {
 
   function searchContacts(query, callback) {
     logger.debug('Searching contacts with options', query);
-
     var terms = query.search;
-    var offset = query.offset || 0;
-    var limit = query.limit;
+    var page = query.page || 1;
+    var offset = query.offset;
+    var limit = query.limit || DEFAULT_LIMIT;
 
     var filters = [];
     if (query.userId) {
@@ -79,7 +81,9 @@ module.exports = function(dependencies) {
         }
       }
     };
-
+    if (!offset) {
+      offset = (page - 1) * limit;
+    }
     elasticsearch.searchDocuments({
       index: INDEX_NAME,
       type: TYPE_NAME,
@@ -90,8 +94,8 @@ module.exports = function(dependencies) {
       if (err) {
         return callback(err);
       }
-
       return callback(null, {
+        current_page: page,
         total_count: result.hits.total,
         list: result.hits.hits
       });

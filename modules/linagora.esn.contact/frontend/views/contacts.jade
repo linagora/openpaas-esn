@@ -16,20 +16,19 @@
 
   .vertiz-space
   .row
-    .col-xs-12.text-center.contacts-search-results.fadeIn200ms(ng-switch="searchResult.count || '_undefined_'")
+    .col-xs-12.text-center.contacts-search-results.fadeIn200ms(ng-switch="searchResult.count" ng-if="!!searchInput")
       span(ng-switch-when='0') #{__('No contacts found')}
       span(ng-switch-when='1') #{__('1 contact found')}
-      span(ng-switch-when='_undefined_') &nbsp;
       span(ng-switch-default)
         span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')} 
-        | {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
+        span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
   .row
     .col-xs-12
       .contact-error-container
   .vertiz-space
 
   .row
-    .col-xs-11.col-md-12
+    .col-xs-11.col-md-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || lastPage || !searchInput')
       div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         .card.contacts-card.fadeIn200ms(ng-if='contacts && contacts.length')
           .listview.lv-bordered.lv-lg
