@@ -8,6 +8,7 @@ exports.config = {
     'phantomjs.ghostdriver.cli.args': '--debug=true --webdriver --webdriver-logfile=webdriver.log --webdriver-loglevel=DEBUG'
   },
   suites: {
+    cucumber: '../features/cucumber.feature',
     login: '../features/login/login.feature'
   },
   cucumberOpts: {
