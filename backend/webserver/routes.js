@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var authorize = require('./middleware/authorization');
 var cookielifetime = require('./middleware/cookie-lifetime');
 var link = require('./middleware/link');
@@ -7,6 +8,7 @@ var requestMW = require('./middleware/request');
 var config = require('../core').config('default');
 var cors = require('cors');
 var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
+var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
 
 exports = module.exports = function(application) {
   application.all('/api/*', cors());
@@ -221,5 +223,15 @@ exports = module.exports = function(application) {
   var feedback = require('./controllers/feedback');
   var feedbackMiddleware = require('./middleware/feedback');
   application.post('/api/feedback', authorize.requiresAPILogin, feedbackMiddleware.checkFeedbackForm, feedback.createFeedback);
+
+  // bypass Adblock issue OR-1626
+  application.get('/js/modules/overtur3.js', function(req, res) {
+    res.sendfile(path.resolve(FRONTEND_PATH + '/js/modules/overture.js'));
+  });
+
+  // bypass Adblock issue OR-1626
+  application.get('/components/overtur3/build/Overtur3.min.js', function(req, res) {
+    res.sendfile(path.resolve(FRONTEND_PATH + '/components/overture/build/Overture.min.js'));
+  });
 
 };
