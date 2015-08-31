@@ -2,6 +2,7 @@
 
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var path = require('path');
 
 var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
 
@@ -24,7 +25,8 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('graceperiod', ['graceperiod.js', 'services.js'], 'linagora.esn.graceperiod', ['esn']);
-      webserverWrapper.injectCSS('graceperiod', ['styles.css'], 'esn');
+      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      webserverWrapper.injectLess('graceperiod', [lessFile], 'esn');
       webserverWrapper.addApp('graceperiod', app);
 
       return callback();

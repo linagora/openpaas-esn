@@ -2,6 +2,7 @@
 
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var path = require('path');
 
 var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
   dependencies: [
@@ -18,7 +19,8 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
       webserverWrapper.injectAngularModules('unifiedinbox', ['app.js', 'constants.js', 'controllers.js', 'directives.js', 'services.js'], 'linagora.esn.unifiedinbox', ['esn']);
-      webserverWrapper.injectCSS('unifiedinbox', ['styles.css'], 'esn');
+      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      webserverWrapper.injectLess('unifiedinbox', [lessFile], 'esn');
       webserverWrapper.addApp('unifiedinbox', app);
 
       return callback();

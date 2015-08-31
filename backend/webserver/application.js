@@ -3,41 +3,16 @@
 var express = require('express');
 var cdm = require('connect-dynamic-middleware');
 var i18n = require('../i18n');
-var lessMiddleware = require('less-middleware');
 var path = require('path');
 var passport = require('passport');
 var flash = require('connect-flash');
 var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
-var CSS_PATH = FRONTEND_PATH + '/css';
 var config = require('../core').config('default');
-
-var lessMiddlewareConfig = {
-  production: {
-    options: {
-      once: true
-    }
-  },
-  dev: {
-    options: {
-      force: true,
-      debug: true,
-      compiler: {
-        sourceMap: true
-      }
-    }
-  }
-
-};
 
 var application = express();
 exports = module.exports = application;
 application.set('views', FRONTEND_PATH + '/views');
 application.set('view engine', 'jade');
-
-application.use(lessMiddleware(
-  FRONTEND_PATH,
-  process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production.options : lessMiddlewareConfig.dev.options));
-application.use('/css', express.static(CSS_PATH));
 
 if (process.env.NODE_ENV !== 'test') {
   var morgan = require('morgan');

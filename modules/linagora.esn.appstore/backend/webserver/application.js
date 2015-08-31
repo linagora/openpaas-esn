@@ -2,29 +2,9 @@
 
 var path = require('path');
 var express = require('express');
-var lessMiddleware = require('less-middleware');
 var i18n = require('i18n');
 var FRONTEND_PATH = path.join(__dirname, '../../frontend');
-var CSS_PATH = FRONTEND_PATH + '/css';
 var VIEW_PATH = FRONTEND_PATH + '/views';
-
-var lessMiddlewareConfig = {
-  production: {
-    options: {
-      once: true
-    }
-  },
-  dev: {
-    options: {
-      force: true,
-      debug: true,
-      compiler: {
-        sourceMap: true
-      }
-    }
-  }
-
-};
 
 module.exports = function(appManager, dependencies) {
 
@@ -32,10 +12,6 @@ module.exports = function(appManager, dependencies) {
   app.use(i18n.init);
   app.use(express.static(FRONTEND_PATH));
   app.set('views', VIEW_PATH);
-  app.use(lessMiddleware(
-    FRONTEND_PATH,
-    process.env.NODE_ENV === 'production' ? lessMiddlewareConfig.production.options : lessMiddlewareConfig.dev.options));
-  app.use(express.static(CSS_PATH));
 
   function views(req, res) {
     var templateName = req.params[0].replace(/\.html$/, '');

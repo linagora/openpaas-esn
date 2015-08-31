@@ -234,4 +234,6 @@ exports = module.exports = function(application) {
     res.sendfile(path.resolve(FRONTEND_PATH + '/components/overture/build/Overture.min.js'));
   });
 
+  var cssController = require('./controllers/css');
+  application.get('/generated/css/:app/:foo.css', cssController.getCss);
 };
