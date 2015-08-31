@@ -155,7 +155,7 @@ Defines the Redis configuration using the standard Redis options defined in the 
 Defines the CalDAV server configuration:
 
     {
-      "_id": "caldav",
+      "_id": "davserver",
       "backend": {
         "url": "http://localhost:80"
       },
