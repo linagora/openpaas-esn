@@ -1,6 +1,7 @@
 'use strict';
 
 var express = require('express');
+var restreamer = require('connect-restreamer');
 
 module.exports = function(dependencies) {
 
@@ -17,7 +18,12 @@ module.exports = function(dependencies) {
    * are reading the same stream (req).
    */
   router.post('/:calendarid/events.json', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.getEventsList);
-  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, proxy.handle({json: true}));
+  /*
+   * OR-1426: Same problem than the previous endpoint. We use restreamer here.
+   * Restreamer breaks the stream and send the body as a whole so we don't use it
+   * to get the list of every events.
+   */
+  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, restreamer(), proxy.handle({json: true}));
 
   return router;
 };
