@@ -306,13 +306,18 @@ describe('The Contacts Angular module', function() {
   });
 
   describe('The contactsService service', function() {
-    var ICAL, contact, contactWithChangedETag, contactAsJCard;
+    var ICAL, contact, contactWithChangedETag, contactAsJCard, photoCache;
 
     beforeEach(function() {
       var self = this;
       this.tokenAPI = {
         getNewToken: function() {
           return $q.when({ data: { token: self._token } });
+        }
+      };
+      this.defaultAvatarService = {
+        getPhotoUrl: function() {
+          return photoCache;
         }
       };
       this.uuid4 = {
@@ -333,13 +338,14 @@ describe('The Contacts Angular module', function() {
 
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
+        $provide.value('defaultAvatarService', self.defaultAvatarService);
         $provide.value('tokenAPI', self.tokenAPI);
         $provide.value('uuid4', self.uuid4);
         $provide.value('gracePeriodService', self.gracePeriodService);
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY) {
+    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, defaultAvatarService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
@@ -481,6 +487,23 @@ describe('The Contacts Angular module', function() {
 
         this.contactsService.getCard(1, 2).then(function(contact) {
           expect(contact.photo).to.not.exist;
+        }.bind(this)).finally (done);
+
+        this.$httpBackend.flush();
+      });
+
+      it('should return a contact with photo in photoCache if it exist', function(done) {
+        this.$httpBackend.expectGET(this.getExpectedPath('/addressbooks/1/contacts/2.vcf')).respond(
+          ['vcard', [
+            ['version', {}, 'text', '4.0'],
+            ['uid', {}, 'text', 'myuid']
+          ], []]
+        );
+
+        photoCache = 'localhost/avatar?cb=123456';
+
+        this.contactsService.getCard(1, 2).then(function(contact) {
+          expect(contact.photo).to.equal('localhost/avatar?cb=123456');
         }.bind(this)).finally (done);
 
         this.$httpBackend.flush();
