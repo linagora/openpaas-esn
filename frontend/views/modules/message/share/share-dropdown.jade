@@ -1,5 +1,5 @@
-ul(tabindex="-1" class="typeahead dropdown-menu" ng-show="$isVisible()" role="select")
+ul.listview(tabindex="-1" class="typeahead dropdown-menu" ng-show="$isVisible()" role="select")
   li(role="presentation" ng-repeat="match in $matches" ng-class="{active: $index == $activeIndex}")
     a(role="menuitem" tabindex="-1" ng-click="$select($index, $event)")
-      img(fallback-src='/images/activitystream.png' ng-src="/api/avatars?objectType=image&id={{match.label.target.image}}")
+      img.m-r-10.lv-img-sm(fallback-src='/images/activitystream.png' ng-src="/api/avatars?objectType=image&id={{match.label.target.image}}")
       span {{match.label.target.displayName}}

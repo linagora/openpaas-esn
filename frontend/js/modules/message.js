@@ -726,6 +726,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
           $scope.shareModal = null;
           modal.destroy();
         });
+
         $scope.showShareModal = function() {
           $scope.shareModal = $modal({scope: $scope, template: '/views/modules/message/share/share-message-modal.html'});
         };
@@ -793,6 +794,7 @@ angular.module('esn.message', ['esn.maps', 'esn.file', 'esn.background', 'esn.no
 
     $scope.$on('$typeahead.select', function(value, index) {
       $scope.addTarget(index);
+      $scope.selected = null;
     });
 
     function isAlreadyInShares(target) {
