@@ -752,7 +752,7 @@ describe('The Contacts Angular module', function() {
       $rootScope.$digest();
     });
 
-    it('should add the contact to the list on contact:live:created event', function(done) {
+    it('should add the contact to the list on contact:created event', function(done) {
       var contact = {
         lastName: 'Last'
       };
@@ -779,39 +779,7 @@ describe('The Contacts Angular module', function() {
         }
       });
 
-      $rootScope.$broadcast('contact:live:created', contact);
-      $rootScope.$digest();
-    });
-
-    it('should remove the contact from the list on contact:live:deleted event', function(done) {
-      var contact = {
-        id: 'myid',
-        lastName: 'Last'
-      };
-
-      $controller('contactsListController', {
-        $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
-        user: {
-          _id: '123'
-        },
-        AlphaCategoryService: function() {
-          return {
-            removeItemWithId: function(contactId) {
-              expect(contactId).to.equal('myid');
-
-              done();
-            },
-            get: function() {}
-          };
-        }
-      });
-
-      $rootScope.$broadcast('contact:live:deleted', contact);
+      $rootScope.$broadcast('contact:created', contact);
       $rootScope.$digest();
     });
 

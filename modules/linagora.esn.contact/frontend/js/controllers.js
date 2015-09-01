@@ -229,12 +229,8 @@ angular.module('linagora.esn.contact')
       openContactForm($scope.bookId);
     };
 
-    $scope.$on('contact:live:created', function(e, data) {
+    $scope.$on('contact:created', function(e, data) {
       addItemsToCategories([data]);
-    });
-
-    $scope.$on('contact:live:deleted', function(e, contact) {
-      $scope.categories.removeItemWithId(contact.id);
     });
 
     $scope.$on('contact:deleted', function(e, contact) {

@@ -199,40 +199,6 @@ describe('The Contacts Angular module', function() {
       expect(contactsCacheService.get()).to.eql([123]);
     });
 
-    it('should add contact to cache on contact:live:created event', function() {
-      injectService();
-      var contact1 = { id: 1, firstName: '1' };
-      var contact2 = { id: 2, firstName: '2' };
-      contactsCacheService.put([contact1]);
-      $rootScope.$emit('contact:live:created', contact2);
-      expect(contactsCacheService.get()).to.eql([contact1, contact2]);
-    });
-
-    it('should add duplicated contacts to cache on contact:live:created event', function() {
-      injectService();
-      var contact1 = { id: 1, firstName: '1' };
-      var contact2 = { id: 2, firstName: '2' };
-      contactsCacheService.put([contact1, contact2]);
-      $rootScope.$emit('contact:live:created', contact2);
-      expect(contactsCacheService.get()).to.eql([contact1, contact2]);
-    });
-
-    it('should delete contact on contact:live:deleted event', function() {
-      injectService();
-
-      var contact1 = {
-        id: 123,
-        name: '123'
-      };
-      var contact2 = {
-        id: 456,
-        name: '456'
-      };
-      contactsCacheService.put([contact1, contact2]);
-      $rootScope.$emit('contact:live:deleted', contact2);
-      expect(contactsCacheService.get()).to.eql([contact1]);
-    });
-
     it('should add contact to cache on contact:created event', function() {
       injectService();
       var contact1 = { id: 1, firstName: '1' };

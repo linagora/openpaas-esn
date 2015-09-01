@@ -136,16 +136,13 @@ angular.module('linagora.esn.contact')
     var sio = null;
     var listening = false;
 
-    var CONTACT_LIVE_CREATED = 'contact:live:created';
-    var CONTACT_LIVE_DELETED = 'contact:live:deleted';
-
     function liveNotificationHandlerOnCreate(data) {
       var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
-      $rootScope.$broadcast(CONTACT_LIVE_CREATED, contact);
+      $rootScope.$broadcast('contact:created', contact);
     }
 
     function liveNotificationHandlerOnDelete(data) {
-      $rootScope.$broadcast(CONTACT_LIVE_DELETED, { id: data.contactId });
+      $rootScope.$broadcast('contact:deleted', { id: data.contactId });
     }
 
     function startListen(bookId) {
@@ -212,16 +209,6 @@ angular.module('linagora.esn.contact')
 
     $rootScope.$on('contact:cancel:delete', function(e, data) {
       addContact(data);
-    });
-
-    $rootScope.$on('contact:live:created', function(e, data) {
-      // workaround to avoid adding duplicated contacts
-      deleteContact(data);
-      addContact(data);
-    });
-
-    $rootScope.$on('contact:live:deleted', function(e, data) {
-      deleteContact(data);
     });
 
     function clear() {
