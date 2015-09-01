@@ -30,7 +30,6 @@ body.login {
 
     width: 600px;
     padding: 30px 30px;
-    margin-top: -60px;
 
     background: @m-white;
     box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
@@ -82,8 +81,6 @@ body.login {
   h1, h2, h3, h4 {
     font-family: @defaultFont;
     font-weight: normal;
-  }
-  h4 {
     color: @secondaryTextColor;
   }
 
@@ -97,6 +94,13 @@ body.login {
 
     .btn-default {
       color: @secondaryTextColor;
+    }
+  }
+
+  .confirm {
+    h4 {
+      .alert-success;
+      margin-top: 0;
     }
   }
 
