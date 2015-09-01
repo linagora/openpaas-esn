@@ -76,7 +76,7 @@
     "angular-fullscreen": "~1.0.1",
     "char-api":"https://ci.open-paas.org/stash/scm/olibs/char-api.git",
     "jmap-js": "linagora/jmap-js#~0.0.1",
-    "jquery.nicescroll": "3.6.0"
+    "angular-nicescroll": "0.0.5"
   },
   "resolutions": {
     "jquery": "2.1.1",
