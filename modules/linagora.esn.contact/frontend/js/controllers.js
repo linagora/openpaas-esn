@@ -174,6 +174,7 @@ angular.module('linagora.esn.contact')
     $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
     $scope.lastPage = false;
+    $scope.searchFailure = false;
     $scope.totalHits = 0;
 
     function fillRequiredContactInformation(contact) {
@@ -252,6 +253,7 @@ angular.module('linagora.esn.contact')
     $scope.search = function() {
       cleanSearchResults();
       $scope.currentPage = 1;
+      $scope.searchFailure = false;
       if (!$scope.searchInput) {
         cleanCategories();
         return $scope.loadContacts();
@@ -270,12 +272,14 @@ angular.module('linagora.esn.contact')
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
+        $scope.searchFailure = true;
       }).finally (function() {
         $scope.loadingNextSearchResults = false;
       });
     };
 
     function getNextResults() {
+      $scope.searchFailure = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
         $scope.current_page = data.current_page;
         addItemsToCategories(data.hits_list);
@@ -286,6 +290,7 @@ angular.module('linagora.esn.contact')
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
+        $scope.searchFailure = true;
       }).finally (function() {
         $scope.loadingNextSearchResults = false;
       });

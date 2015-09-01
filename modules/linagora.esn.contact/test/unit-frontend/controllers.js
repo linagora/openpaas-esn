@@ -1136,6 +1136,7 @@ describe('The Contacts Angular module', function() {
         expect(scope.currentPage).to.deep.equal(result.current_page);
         expect(scope.searchResult.count).to.equal(2);
         expect(scope.searchResult.formattedResultsCount).to.exist;
+        expect(scope.searchFailure).to.be.false;
         $timeout(function() {
           expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
         });
@@ -1202,6 +1203,7 @@ describe('The Contacts Angular module', function() {
         scope.search();
         expect(scope.loadingNextSearchResults).to.be.true;
         scope.$digest();
+        expect(scope.searchFailure).to.be.false;
         expect(scope.loadingNextSearchResults).to.be.false;
       });
       it('should allow fetching next result page when there is undisplayed results', function() {
@@ -1238,7 +1240,7 @@ describe('The Contacts Angular module', function() {
         scope.totalHits = 0;
         scope.search();
         scope.$digest();
-
+        expect(scope.searchFailure).to.be.false;
         expect(scope.lastPage).to.be.false;
       });
       it('should prevent fetching next result page when there is no more results', function() {
@@ -1276,6 +1278,30 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
         expect(scope.lastPage).to.be.true;
+      });
+      it('should prevent fetching next result page when the previous search fails', function() {
+        var search = 'Bruce Willis';
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([]);
+            },
+            search: function() {
+              return $q.reject(new Error('WTF'));
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.search();
+        scope.$digest();
+        expect(scope.searchFailure).to.be.true;
       });
     });
   });
