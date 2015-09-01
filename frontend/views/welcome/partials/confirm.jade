@@ -1,4 +1,7 @@
-div
-  div.form-container
-    h2 #{__('Sign Up is almost complete')}.
-    p #{__('Please check your email inbox to confirm your registration')}.
+.login-content
+  .lc-block.zoomIn
+    include ./welcome
+    hr
+    .confirm.alert.alert-success
+      h4 #{__('Sign Up is almost complete')}.
+      p #{__('Please check your email inbox to confirm your registration')}
