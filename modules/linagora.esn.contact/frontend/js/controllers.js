@@ -163,7 +163,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, livenotification, ICAL, searchResultSizeFormatter) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -223,8 +223,16 @@ angular.module('linagora.esn.contact')
       openContactForm($scope.bookId);
     };
 
-    $scope.$on('contact:deleted', function(event, contact) {
-      $scope.categories.removeItem(contact);
+    $scope.$on('contact:live:created', function(e, data) {
+      addItemsToCategories([data]);
+    });
+
+    $scope.$on('contact:live:deleted', function(e, contact) {
+      $scope.categories.removeItemWithId(contact.id);
+    });
+
+    $scope.$on('contact:deleted', function(e, contact) {
+      $scope.categories.removeItemWithId(contact.id);
     });
 
     $scope.$on('contact:cancel:delete', function(e, data) {
@@ -288,26 +296,8 @@ angular.module('linagora.esn.contact')
       getNextResults();
     };
 
-    function liveNotificationHandlerOnCreate(data) {
-      var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
-      addItemsToCategories([contact]);
-    }
-
-    function liveNotificationHandlerOnDelete(data) {
-      $scope.categories.removeItemWithId(data.contactId);
-    }
-
-    var sio = livenotification('/contacts', $scope.bookId);
-
-    sio.on('contact:created', liveNotificationHandlerOnCreate);
-    sio.on('contact:deleted', liveNotificationHandlerOnDelete);
-
-    $scope.$on('$destroy', function() {
-      sio.removeListener('contact:created', liveNotificationHandlerOnCreate);
-      sio.removeListener('contact:deleted', liveNotificationHandlerOnDelete);
-    });
-
     $scope.loadContacts();
+
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {

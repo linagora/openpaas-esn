@@ -7,14 +7,107 @@ var expect = chai.expect;
 
 describe('The Contacts Angular module', function() {
 
+  beforeEach(function() {
+    module('ngRoute');
+    module('esn.core');
+    module('esn.websocket');
+    module('esn.api-notification');
+    module('linagora.esn.contact');
+  });
+
+
+  describe('The liveRefreshContactService service', function() {
+    var liveNotificationMock, onFn, removeListenerFn;
+    var $rootScope, liveRefreshContactService;
+    var namespace = '/contacts';
+
+    beforeEach(function() {
+      onFn = sinon.spy();
+      removeListenerFn = sinon.spy();
+      liveNotificationMock = sinon.stub().returns({
+        on: onFn,
+        removeListener: removeListenerFn
+      });
+
+      module(function($provide) {
+        $provide.value('livenotification', liveNotificationMock);
+      });
+
+      inject(function(_$rootScope_, _liveRefreshContactService_) {
+        $rootScope = _$rootScope_;
+        liveRefreshContactService = _liveRefreshContactService_;
+      });
+
+    });
+
+    describe('The startListen fn', function() {
+
+      it('should be called when user switches to contact module', function() {
+        $rootScope.$broadcast('$routeChangeSuccess', {
+          originalPath: '/contact',
+          locals: { user: { _id: 1 } }
+        });
+        expect(onFn.callCount).to.equal(2);
+      });
+
+      it('should subscribe /contacts namespace with bookId', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+        expect(liveNotificationMock.calledOnce).to.be.true;
+        expect(liveNotificationMock.calledWithExactly(namespace, bookId)).to.be.true;
+      });
+
+      it('should make sio to listen on contact:created event', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+        expect(onFn.firstCall.calledWith('contact:created')).to.be.true;
+      });
+
+      it('should make sio to listen on contact:deleted event', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+        expect(onFn.secondCall.calledWith('contact:deleted')).to.be.true;
+      });
+
+    });
+
+    describe('The stopListen fn', function() {
+
+      it('should be call when user switches to outside contact module', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+
+        $rootScope.$broadcast('$routeChangeSuccess', {
+          originalPath: '/other/module/path'
+        });
+
+        expect(removeListenerFn.callCount).to.equal(2);
+      });
+
+      it('should make sio to remove contact:created event listener', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+
+        liveRefreshContactService.stopListen();
+        expect(removeListenerFn.firstCall.calledWith('contact:created')).to.be.true;
+      });
+
+      it('should make sio to remove contact:deleted event listener', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+
+        liveRefreshContactService.stopListen();
+        expect(removeListenerFn.secondCall.calledWith('contact:deleted')).to.be.true;
+      });
+
+    });
+
+  });
+
+
   describe('The contactsCacheService service', function() {
     var contactsCacheService;
     var $rootScope;
-
-    beforeEach(function() {
-      module('ngRoute');
-      module('linagora.esn.contact');
-    });
 
     function injectService() {
       inject(function($injector, _$rootScope_) {
@@ -106,11 +199,56 @@ describe('The Contacts Angular module', function() {
       expect(contactsCacheService.get()).to.eql([123]);
     });
 
+    it('should add contact to cache on contact:live:created event', function() {
+      injectService();
+      var contact1 = { id: 1, firstName: '1' };
+      var contact2 = { id: 2, firstName: '2' };
+      contactsCacheService.put([contact1]);
+      $rootScope.$emit('contact:live:created', contact2);
+      expect(contactsCacheService.get()).to.eql([contact1, contact2]);
+    });
+
+    it('should add duplicated contacts to cache on contact:live:created event', function() {
+      injectService();
+      var contact1 = { id: 1, firstName: '1' };
+      var contact2 = { id: 2, firstName: '2' };
+      contactsCacheService.put([contact1, contact2]);
+      $rootScope.$emit('contact:live:created', contact2);
+      expect(contactsCacheService.get()).to.eql([contact1, contact2]);
+    });
+
+    it('should delete contact on contact:live:deleted event', function() {
+      injectService();
+
+      var contact1 = {
+        id: 123,
+        name: '123'
+      };
+      var contact2 = {
+        id: 456,
+        name: '456'
+      };
+      contactsCacheService.put([contact1, contact2]);
+      $rootScope.$emit('contact:live:deleted', contact2);
+      expect(contactsCacheService.get()).to.eql([contact1]);
+    });
+
     it('should add contact to cache on contact:created event', function() {
       injectService();
-      contactsCacheService.put([123]);
-      $rootScope.$emit('contact:created', 456);
-      expect(contactsCacheService.get()).to.eql([123, 456]);
+      var contact1 = { id: 1, firstName: '1' };
+      var contact2 = { id: 2, firstName: '2' };
+      contactsCacheService.put([contact1]);
+      $rootScope.$emit('contact:created', contact2);
+      expect(contactsCacheService.get()).to.eql([contact1, contact2]);
+    });
+
+    it('should not add duplicated contacts to cache on contact:created event', function() {
+      injectService();
+      var contact1 = { id: 1, firstName: '1' };
+      var contact2 = { id: 2, firstName: '2' };
+      contactsCacheService.put([contact1]);
+      $rootScope.$emit('contact:created', contact2);
+      expect(contactsCacheService.get()).to.eql([contact1, contact2]);
     });
 
     it('should update contact on contact:updated event', function() {
@@ -129,7 +267,7 @@ describe('The Contacts Angular module', function() {
       expect(contactsCacheService.get()).to.eql([newContact]);
     });
 
-    it('should delete contact on contact:delete event', function() {
+    it('should delete contact on contact:deleted event', function() {
       injectService();
 
       var contact1 = {
@@ -193,9 +331,6 @@ describe('The Contacts Angular module', function() {
         ['n', {}, 'text', ['Last', '', '', '', '']]
       ], []];
 
-      angular.mock.module('ngRoute');
-      angular.mock.module('esn.core');
-      angular.mock.module('linagora.esn.contact');
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('tokenAPI', self.tokenAPI);
@@ -822,9 +957,6 @@ describe('The Contacts Angular module', function() {
       this.workTel = { type: 'Work', value: '+33333333' };
       this.otherTel = { type: 'Other', value: '+44444444' };
 
-      angular.mock.module('ngRoute');
-      angular.mock.module('esn.core');
-      angular.mock.module('linagora.esn.contact');
     });
 
     beforeEach(angular.mock.inject(function(ContactsHelper, $rootScope) {

@@ -59,12 +59,59 @@ describe('The Alpha List module', function() {
         expect(categories.A).to.deep.equals([items[4]]);
         expect(categories.B).to.deep.equals([]);
         expect(categories.C).to.deep.equals([items[2]]);
-
         expect(categories[others]).to.deep.equals([itemWithoutFirstname, items[0], items[5], items[6]]);
 
         category.removeItem(itemWithoutFirstname);
         categories = category.get();
         expect(categories[others]).to.deep.equals([items[0], items[5], items[6]]);
+      });
+
+      it('should work when remove item with accents', function() {
+        var keys = 'ABCE';
+        var others = '#';
+        var items = [
+          { firstName: 'A', lastName: 'A' },
+          { firstName: 'á', lastName: 'A' },
+          { firstName: 'C', lastName: 'C' },
+          { firstName: 'é', lastName: 'E' }
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+
+        var categories = category.get();
+        expect(categories.A).to.eql([items[0], items[1]]);
+
+        category.removeItem(items[1]);
+        expect(categories.A).to.eql([items[0]]);
+
+        expect(categories.E).to.eql([items[3]]);
+        category.removeItem(items[3]);
+        expect(categories.E).to.eql([]);
+      });
+
+      it('should do nothing when no item found', function() {
+        var keys = 'ABC';
+        var others = '#';
+        var items = [
+          { firstName: 'A', lastName: 'A' },
+          { firstName: 'B', lastName: 'B' },
+          { firstName: 'C', lastName: 'C' },
+          { firstName: 'D', lastName: 'D' }
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+        var originalCategories = angular.copy(category.get());
+
+        category.removeItem({ firstName: 'A', lastName: 'not A' });
+        expect(category.get()).to.eql(originalCategories);
+
+        category.removeItem({ firstName: 'D', lastName: 'not D' });
+        expect(category.get()).to.eql(originalCategories);
+
+        category.removeItem({ firstName: 'E', lastName: 'E' });
+        expect(category.get()).to.eql(originalCategories);
       });
     });
 
