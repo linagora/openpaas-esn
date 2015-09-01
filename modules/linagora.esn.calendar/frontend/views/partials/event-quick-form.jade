@@ -4,13 +4,27 @@
 form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }", ng-submit='submit()')
   .modal-dialog
     .modal-content
-      .modal-header
-        .modal-title
-          .col-xs-12
-            .form-group
-              .fg-line
-                input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+      .modal-header.row
+        .col-xs-12.visible-xs
+          .form-group
+            .flex-space-around
+              .save-button
+                button.btn.btn-default.save(type='submit', ng-disabled="restActive")
+                  i.mdi.mdi-check
+              .options-button
+                button.btn.btn-default(type='button', ng-disabled="true")
+                  i.mdi.mdi-dots-horizontal
+              .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
+                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
+                  i.mdi.mdi-delete
+              .close-button
+                button.btn.btn-default(type='button', ng-click="closeModal()")
+                  i.mdi.mdi-close
       .modal-body
+        .col-xs-12
+          .form-group
+            .fg-line
+              input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
         .col-xs-3.col-sm-2
           .form-group
             .fg-line
@@ -24,7 +38,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
         .col-xs-3.col-sm-2
           .form-group
             .fg-line
-              i.mdi.mdi-check
+              i.mdi.mdi-arrow-right
         .col-xs-9.col-sm-3
           .form-group
             .fg-line
@@ -45,7 +59,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 i.mdi.mdi-map-marker
               .fg-line
                 input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
-        .col-xs-12
+        .col-xs-12.hidden-xs
           .form-group.status(ng-show="hasAttendees")
             span.col-xs-12.col-sm-6 #{__('Will you attend?')}
             button.btn.btn-default.col-xs-4.col-sm-2.accepted(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
@@ -83,24 +97,29 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
             .trash
               a(href="")
                 i.mdi.mdi-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
-            hr
+            hr.hidden-xs
       .modal-footer
-        .col-xs-12
+        .col-xs-12.hidden-xs
           .form-group
             .flex-space-around
               .save-button
-                button.btn.btn-default.save(type='submit', ng-disabled="restActive")          
-                  span.hidden-xs #{__('Save')}
-                  i.mdi.mdi-check.visible-xs
+                button.btn.btn-default.save(type='submit', ng-disabled="restActive")
+                  i.mdi.mdi-check
               .options-button
                 button.btn.btn-default(type='button', ng-disabled="true")
-                  span.hidden-xs #{__('More options')}
-                  i.mdi.mdi-dots-horizontal.visible-xs
+                  i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
-                  span.hidden-xs #{__('Delete')}
-                  i.mdi.mdi-delete.visible-xs
+                  i.mdi.mdi-delete
               .close-button
                 button.btn.btn-default(type='button', ng-click="closeModal()")
-                  span.hidden-xs #{__('Cancel')}
-                  i.mdi.mdi-close.visible-xs
+                  i.mdi.mdi-close
+        .col-xs-12.visible-xs
+          .form-group.status.row(ng-show="hasAttendees")
+            span.col-xs-5 #{__('Will you attend?')}
+            .col-xs-2
+              button.btn.btn-default(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": invitedAttendee.partstat == "ACCEPTED" }') #{__('Yes')}
+            .col-xs-3
+              button.btn.btn-default(type='button', ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": invitedAttendee.partstat == "TENTATIVE" }') #{__('Maybe')}
+            .col-xs-2
+              button.btn.btn-default(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}

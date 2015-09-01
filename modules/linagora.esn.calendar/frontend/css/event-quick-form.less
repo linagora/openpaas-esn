@@ -8,11 +8,7 @@
   }
 
   .modal-body {
-    .mdi.mdi-check {
-      .transform(rotate(-90deg) translate(-12px, 0));
-    }
-
-    .mdi.mdi-calendar {
+    .mdi.mdi-calendar, .mdi.mdi-arrow-right {
       .translate(0, 12px);
     }
 
@@ -22,7 +18,7 @@
   }
 
   .modal-footer {
-    padding: 0;
+    padding: 0 0 15px 0;
 
     button, .accepted, .undecided, .declined {
       font-size: 15px;
@@ -70,15 +66,15 @@
     padding: 0;
   }
 
-  .accepted, .btn.accepted  {
+  .accepted  {
     color: @m-green;
   }
 
-  .undecided, .btn.undecided {
+  .undecided {
     color: @m-blue;
   }
 
-  .declined, .btn.declined {
+  .declined {
     color: @m-red;
   }
 
@@ -134,9 +130,12 @@
   }
 }
 
-/* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
   .event-quick-form {
+    .modal-header {
+      padding-top: 0;
+    }
+
     .modal-footer {
       .form-group {
         .fg-line {
@@ -166,6 +165,43 @@
 
 @media (max-width: @screen-xs-max) {
   .event-quick-form {
+    .btn-default {
+      .PrimaryColor();
+    }
+
+    .modal-dialog {
+      margin: 0;
+    }
+
+    .modal-header {
+      .PrimaryColor();
+      padding: 0;
+
+      .form-group {
+        margin-bottom: 0;
+      }
+    }
+
+    .modal-body {
+      padding-top: 10px;
+    }
+
+    .modal-footer {
+      padding-bottom: 0;
+
+      .status {
+        .PrimaryColor();
+
+        margin-top: 15px;
+        margin-bottom: 0;
+
+        padding: 5px;
+
+        .btn.active {
+          .AccentColor();
+        }
+      }
+    }
 
     &.readonly {
       .form-control, .form-control:focus {
