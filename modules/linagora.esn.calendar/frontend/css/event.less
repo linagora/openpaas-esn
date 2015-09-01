@@ -1,14 +1,37 @@
+@event-border-color: rgba(255,255,255,0.5);
+
 .event-common {
   background: @primaryColor;
 }
 
 .event-accepted {
-  border: solid 1px rgba(255,255,255,0.5);
+  border: solid 1px @event-border-color;
 }
 
 .event-needs-action {
   background-color: fade(@primaryColor, 50%);
-  border: dashed 1px rgba(255,255,255,0.5);
+  border: dashed 1px @event-border-color;
+}
+
+.event-tentative {
+  i {
+    font-size: 1.4em;
+    margin-right: 3px;
+  }
+}
+
+.event-tentative.fc-short {
+  i {
+    .pull-left;
+  }
+}
+
+.event-declined {
+  border: solid 1px @event-border-color;
+  background-color: fade(@primaryColor, 50%);
+  .fc-title {
+    text-decoration: line-through;
+  }
 }
 
 .fc-event {

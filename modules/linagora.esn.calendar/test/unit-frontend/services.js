@@ -215,6 +215,9 @@ describe('The Calendar Angular module services', function() {
       return this.innerElements[aClass];
     };
 
+    Element.prototype.append = function() {
+    };
+
     beforeEach(function() {
       var asSession = {
         user: {
@@ -273,27 +276,45 @@ describe('The Calendar Angular module services', function() {
         expect(element.attributes.title).to.equal('aDescription');
       });
 
+      it('should add event-needs-action class if current user is found in the DECLINED attendees', function() {
+        event.attendees.push({
+          email: 'aAttendee@open-paas.org',
+          partstat: 'DECLINED'
+        });
+        this.eventService.render(event, element);
+        expect(element.class).to.deep.equal(['event-common', 'event-declined']);
+      });
+
+      it('should add event-needs-action class if current user is found in the ACCEPTED attendees', function() {
+        event.attendees.push({
+          email: 'aAttendee@open-paas.org',
+          partstat: 'ACCEPTED'
+        });
+        this.eventService.render(event, element);
+        expect(element.class).to.deep.equal(['event-common', 'event-accepted']);
+      });
+
       it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
         event.attendees.push({
           email: 'aAttendee@open-paas.org',
           partstat: 'NEEDS-ACTION'
         });
         this.eventService.render(event, element);
-        expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
+        expect(element.class).to.deep.equal(['event-common', 'event-needs-action']);
       });
 
-      it('should add event-needs-action class if current user is found in the TENTATIVE attendees', function() {
+      it('should add event-tentative class if current user is found in the TENTATIVE attendees', function() {
         event.attendees.push({
           email: 'aAttendee@open-paas.org',
           partstat: 'TENTATIVE'
         });
         this.eventService.render(event, element);
-        expect(element.class).to.deep.equal(['event-needs-action', 'event-common']);
+        expect(element.class).to.deep.equal(['event-common', 'event-tentative']);
       });
 
       it('should add event-common class otherwise', function() {
         this.eventService.render(event, element);
-        expect(element.class).to.deep.equal(['event-accepted', 'event-common']);
+        expect(element.class).to.deep.equal(['event-common']);
       });
 
     });

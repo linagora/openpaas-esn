@@ -510,10 +510,10 @@ angular.module('esn.calendar')
       element.find('.fc-content').addClass('ellipsis');
 
       if (event.location) {
-        var contentElement = element.find('.fc-title');
-        contentElement.addClass('ellipsis');
-        var contentHtml = contentElement.html() + ' (' + event.location + ')';
-        contentElement.html(contentHtml);
+        var title = element.find('.fc-title');
+        title.addClass('ellipsis');
+        var contentHtml = title.html() + ' (' + event.location + ')';
+        title.html(contentHtml);
       }
 
       if (event.description) {
@@ -529,13 +529,23 @@ angular.module('esn.calendar')
         });
       }
 
-      if (invitedAttendee && (invitedAttendee.partstat === 'NEEDS-ACTION' || invitedAttendee.partstat === 'TENTATIVE')) {
-        element.addClass('event-needs-action');
-      } else {
-        element.addClass('event-accepted');
+      element.addClass('event-common');
+
+      if (!invitedAttendee) {
+        return;
       }
 
-      element.addClass('event-common');
+      if (invitedAttendee.partstat === 'NEEDS-ACTION') {
+        element.addClass('event-needs-action');
+      } else if (invitedAttendee.partstat === 'TENTATIVE') {
+        element.addClass('event-tentative');
+        var content = element.find('.fc-time span');
+        $('<i class="mdi mdi-help-circle"/>').insertBefore(content)
+      } else if (invitedAttendee.partstat === 'ACCEPTED') {
+        element.addClass('event-accepted');
+      } else if (invitedAttendee.partstat === 'DECLINED') {
+        element.addClass('event-declined');
+      }
     }
 
     function copyEventObject(src, dest) {
