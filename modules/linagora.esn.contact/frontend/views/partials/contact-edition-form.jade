@@ -1,6 +1,6 @@
 .form
   .row
-    .col-lg-7
+    .col-xs-12.col-lg-7
       .row
         .col-xs-12.col-sm-4.col-sm-push-8.all-centered
           div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
@@ -20,7 +20,7 @@
       multi-input-group(multi-input-model='contact.emails', multi-input-types='["Home", "Work", "Other"]', multi-input-texttype='email', multi-input-placeholder='#{__("Email")}')
       multi-input-group(multi-input-model='contact.tel', multi-input-types='["Home", "Mobile", "Work", "Other"]', multi-input-texttype='tel', multi-input-placeholder='#{__("Phone")}')
       multi-input-group-address( multi-input-model='contact.addresses', multi-input-types='["Home", "Work", "Other"]')
-    .col-lg-5
+    .col-xs-12.col-lg-5
       .row
         label.control-label.sr-only #{__("Tags")}
         .col-sm-12
