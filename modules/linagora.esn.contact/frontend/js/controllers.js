@@ -243,11 +243,11 @@ angular.module('linagora.esn.contact')
 
     $scope.search = function() {
       cleanSearchResults();
+      $scope.currentPage = 1;
       if (!$scope.searchInput) {
         cleanCategories();
         return $scope.loadContacts();
       }
-      $scope.currentPage = 1;
       $scope.loadingNextSearchResults = true;
       $scope.lastPage = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
