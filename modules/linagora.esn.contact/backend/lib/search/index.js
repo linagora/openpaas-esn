@@ -40,7 +40,7 @@ module.exports = function(dependencies) {
   function searchContacts(query, callback) {
     logger.debug('Searching contacts with options', query);
     var terms = query.search;
-    var page = (query.page == NaN) ? (query.page || 1) : 1;
+    var page = query.page ? (query.page == NaN ? query.page : 1) : 1;
     var offset = query.offset;
     var limit = query.limit || DEFAULT_LIMIT;
 
