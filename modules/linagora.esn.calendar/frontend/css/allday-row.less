@@ -1,16 +1,15 @@
 .fc-agendaWeek-view, .fc-agendaDay-view {
   .ui-widget-header {
-    border-bottom: 1px solid @table-border-color !important; /* needed to overwrite material-admin */
-    .fc-row.ui-widget-header {
-      border-right: 1px solid @table-border-color !important; /* needed to overwrite material-admin */
-      margin-right: 14px !important; /* needed to overwrite material-admin */
-    }
+    border-bottom: 1px solid @table-border-color;
   }
 
   .fc-day-grid {
     .fc-row.fc-week.ui-widget-content {
-      border-right: 1px solid @table-border-color !important; /* needed to overwrite material-admin */
-      margin-right: 14px !important; /* needed to overwrite material-admin */
+      border-right: 1px solid @table-border-color;
     }
   }
+}
+
+.fc .fc-row {
+  border-style: none;
 }
