@@ -38,7 +38,6 @@ module.exports = function(dependencies) {
   }
 
   function searchContacts(query, callback) {
-    logger.debug('Searching contacts with options', query);
     var terms = query.search;
     var page = query.page || 1;
     var offset = query.offset;
@@ -84,6 +83,16 @@ module.exports = function(dependencies) {
     if (!offset) {
       offset = (page - 1) * limit;
     }
+
+    logger.debug('Searching contacts with options', {
+      userId: query.userId,
+      bookId: query.bookId,
+      search: terms,
+      page: page,
+      offset: offset,
+      limit: limit
+    });
+
     elasticsearch.searchDocuments({
       index: INDEX_NAME,
       type: TYPE_NAME,

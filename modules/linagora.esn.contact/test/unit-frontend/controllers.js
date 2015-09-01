@@ -1023,8 +1023,8 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
         expect(scope.searchResult).to.deep.equal({});
+        expect(scope.currentPage).to.equal(1);
       });
-
       it('should clean sorted_contacts', function() {
         $controller('contactsListController', {
           $scope: scope,
@@ -1105,6 +1105,7 @@ describe('The Contacts Angular module', function() {
 
         var result = {
           total_hits: 2,
+          current_page: 1,
           hits_list: [contactWithA, contactWithC]
         };
 
@@ -1131,11 +1132,12 @@ describe('The Contacts Angular module', function() {
 
         sortedContacts.A = [contactWithA];
         sortedContacts.C = [contactWithC];
+        expect(scope.searchResult.data).to.deep.equal(result.hits_list);
+        expect(scope.currentPage).to.deep.equal(result.current_page);
+        expect(scope.searchResult.count).to.equal(2);
+        expect(scope.searchResult.formattedResultsCount).to.exist;
         $timeout(function() {
           expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
-          expect(scope.searchResult.data).to.deep.equal(result);
-          expect(scope.searchResult.count).to.equal(2);
-          expect(scope.searchResult.formattedResultsCount).to.exist;
         });
       });
 
@@ -1166,7 +1168,115 @@ describe('The Contacts Angular module', function() {
         scope.search();
         scope.$digest();
       });
+      it('should prevent fetching next results page while loading current result page', function() {
+        var search = 'Bruce Willis';
 
+        var contactWithA = { displayName: 'A B'};
+        var contactWithB = { displayName: 'B C'};
+        var contactWithC = { displayName: 'C D'};
+        var contactWithD = { displayName: 'D E'};
+        var contactWithE = { displayName: 'E F'};
+
+        var result = {
+          total_hits: 4,
+          hits_list: [contactWithA, contactWithB]
+        };
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
+            },
+            search: function() {
+              return $q.when(result);
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.search();
+        expect(scope.loadingNextSearchResults).to.be.true;
+        scope.$digest();
+        expect(scope.loadingNextSearchResults).to.be.false;
+      });
+      it('should allow fetching next result page when there is undisplayed results', function() {
+        var search = 'Bruce Willis';
+
+        var contactWithA = { displayName: 'A B'};
+        var contactWithB = { displayName: 'B C'};
+        var contactWithC = { displayName: 'C D'};
+        var contactWithD = { displayName: 'D E'};
+        var contactWithE = { displayName: 'E F'};
+
+        var result = {
+          total_hits: 4,
+          hits_list: [contactWithA, contactWithB]
+        };
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
+            },
+            search: function() {
+              return $q.when(result);
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.totalHits = 0;
+        scope.search();
+        scope.$digest();
+
+        expect(scope.lastPage).to.be.false;
+      });
+      it('should prevent fetching next result page when there is no more results', function() {
+        var search = 'Bruce Willis';
+
+        var contactWithA = { displayName: 'A B'};
+        var contactWithB = { displayName: 'B C'};
+        var contactWithC = { displayName: 'C D'};
+        var contactWithD = { displayName: 'D E'};
+        var contactWithE = { displayName: 'E F'};
+
+        var result = {
+          total_hits: 2,
+          hits_list: [contactWithA, contactWithB]
+        };
+
+        $controller('contactsListController', {
+          $scope: scope,
+          contactsService: {
+            list: function() {
+              return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
+            },
+            search: function() {
+              return $q.when(result);
+            }
+          },
+          user: {
+            _id: '123'
+          },
+          bookId: '456'
+        });
+
+        scope.searchInput = search;
+        scope.totalHits = 0;
+        scope.search();
+        scope.$digest();
+        expect(scope.lastPage).to.be.true;
+      });
     });
   });
 

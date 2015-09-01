@@ -173,7 +173,6 @@ angular.module('linagora.esn.contact')
     $scope.showMenu = false;
     $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
-    $scope.loadingNextSearchResults = false;
     $scope.lastPage = false;
     $scope.totalHits = 0;
 
@@ -252,10 +251,12 @@ angular.module('linagora.esn.contact')
 
     $scope.search = function() {
       cleanSearchResults();
+      $scope.currentPage = 1;
       if (!$scope.searchInput) {
         cleanCategories();
         return $scope.loadContacts();
       }
+      $scope.loadingNextSearchResults = true;
       $scope.lastPage = false;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput).then(function(data) {
         cleanCategories();
@@ -269,6 +270,8 @@ angular.module('linagora.esn.contact')
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
+      }).finally (function() {
+        $scope.loadingNextSearchResults = false;
       });
     };
 
@@ -277,13 +280,14 @@ angular.module('linagora.esn.contact')
         $scope.current_page = data.current_page;
         addItemsToCategories(data.hits_list);
         $scope.totalHits = $scope.totalHits + data.hits_list.length;
-        $scope.loadingNextSearchResults = false;
         if ($scope.totalHits === data.total_hits) {
           $scope.lastPage = true;
         }
       }, function(err) {
         $log.error('Can not search contacts', err);
         displayError('Can not search contacts');
+      }).finally (function() {
+        $scope.loadingNextSearchResults = false;
       });
     }
 
