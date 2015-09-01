@@ -252,13 +252,15 @@ angular.module('esn.calendar')
     $scope.calendarId = user._id;
     $scope.uiConfig = USER_UI_CONFIG;
   })
-  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification, gracePeriodService) {
+  .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
 
     var windowJQuery = angular.element($window);
 
     $scope.resizeCalendarHeight = function() {
       var calendar = uiCalendarConfig.calendars[$scope.calendarId];
-      calendar.fullCalendar('option', 'height', windowJQuery.height() - calendar.offset().top - 10);
+      var height = windowJQuery.height() - calendar.offset().top - 10;
+      height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
+      calendar.fullCalendar('option', 'height', height);
     };
 
     $scope.eventClick = function(event) {

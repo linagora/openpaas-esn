@@ -105,6 +105,7 @@ describe('The Calendar Angular module controllers', function() {
           }];
         };
       });
+      $provide.constant('MAX_CALENDAR_RESIZE_HEIGHT', 10);
     });
   });
 
@@ -637,6 +638,29 @@ describe('The Calendar Angular module controllers', function() {
       }
 
       this.uiCalendarConfig.calendars.calendarId.fullCalendar = function() {
+        called++;
+      };
+
+      angular.element(this.$window).resize();
+      expect(called).to.equal(1);
+      uiCalendarDiv.remove();
+    });
+
+    it('should resize the calendar height to a max value', function() {
+      this.controller('calendarController', {$scope: this.scope});
+      var called = 0;
+
+      var uiCalendarDiv = this.$compile(angular.element('<div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>'))(this.scope);
+      uiCalendarDiv.appendTo(document.body);
+      this.$timeout.flush();
+      try {
+        this.$timeout.flush();
+      } catch (exception) {
+        // Depending on the context, the 'no defered tasks' exception can occur
+      }
+
+      this.uiCalendarConfig.calendars.calendarId.fullCalendar = function(arg1, arg2, height) {
+        expect(height).to.equal(10);
         called++;
       };
 
