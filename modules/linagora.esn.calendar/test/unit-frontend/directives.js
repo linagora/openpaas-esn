@@ -233,6 +233,25 @@ describe('The Calendar Angular module directives', function() {
         expect(res).to.be.false;
       });
 
+      it('should bail on already existing attendees in editedEvent', function() {
+        var att, res;
+        this.$scope.event = {
+          _id: '123456',
+          allDay: true,
+          attendees: [{email: 'hello@example.com'}],
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30')
+        };
+        this.initDirective(this.$scope);
+        att = { displayName: 'hello@example.com' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+
+        att = { email: 'hello@example.com', displayName: 'world' };
+        res = this.$scope.onAddingAttendee(att);
+        expect(res).to.be.false;
+      });
+
       it('should bail on invalid emails', function() {
         var att, res;
         this.initDirective(this.$scope);

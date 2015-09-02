@@ -128,7 +128,9 @@ angular.module('esn.calendar')
 
         // Need to check again if it's a duplicate, since ng-tags-input does
         // this a bit early for our taste.
-        var noduplicate = $scope.newAttendees.every(function(existingAtt) {
+        // We also need to check duplicate with the current invited attendees
+        var existingAttendees = $scope.newAttendees.concat($scope.editedEvent.attendees || []);
+        var noduplicate = existingAttendees.every(function(existingAtt) {
           return existingAtt.email !== firstEmail;
         });
         // As a nice side-effect, allows us to check for a valid email
