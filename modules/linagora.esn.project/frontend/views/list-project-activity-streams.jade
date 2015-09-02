@@ -4,6 +4,11 @@ li.sub-menu(ng-controller="projectsAStrackerController")
     | #{__('My Projects')}
   div(ng-show='error') {{error}}
   ul.nav.nav-pills.nav-stacked(ng-hide='error')
+    li
+      a.browse-link(close-sidebar-on-click ng-href='/#/project')
+        .ellipsis
+          | #{__('Browse all')}
+          i.mdi.mdi-library
     li(ng-repeat="activityStream in activityStreams | filter:{objectType: 'project'}")
       a(close-sidebar-on-click ng-href='{{::activityStream.href}}' ng-click='getUnreadUpdate(activityStream.uuid)' title='{{::activityStream.display_name}}')
         .badge.pull-right(ng-hide='activityStream.unread_count === 0') {{activityStream.unread_count}}
