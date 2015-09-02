@@ -58,9 +58,9 @@ describe('The Calendar Angular module directives', function() {
       };
     }));
 
-    it('should has a focusSubmitButton', function() {
+    it('should have a focusSubmitButton method', function() {
       var element = this.initDirective(this.$scope);
-      var submitButton = element.find('button[type="submit"]')[0];
+      var submitButton = element.find('button[type="submit"]')[1];
 
       element.appendTo(document.body);
       this.$scope.focusSubmitButton();
