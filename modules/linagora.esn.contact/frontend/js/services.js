@@ -274,7 +274,20 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log) {
+  .factory('defaultAvatarService', function() {
+    var photoCache = {};
+    function getPhotoUrl(cardId) {
+      return photoCache[cardId];
+    }
+    function insertPhotoUrl(cardId, url) {
+      photoCache[cardId] = url;
+    }
+    return {
+      getPhotoUrl: getPhotoUrl,
+      insertPhotoUrl: insertPhotoUrl
+    };
+  })
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY).then(function(taskId) {
@@ -366,7 +379,7 @@ angular.module('linagora.esn.contact')
 
       this.vcard = vcard;
       this.etag = etag;
-      this.photo = vcard.getFirstPropertyValue('photo');
+      this.photo = defaultAvatarService.getPhotoUrl(this.id) || vcard.getFirstPropertyValue('photo');
     }
 
     function configureRequest(method, path, headers, body, params) {
