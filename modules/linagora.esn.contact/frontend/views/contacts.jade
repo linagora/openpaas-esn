@@ -28,7 +28,7 @@
   .vertiz-space
 
   .row
-    .col-xs-11.col-md-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || lastPage || !searchInput')
+    .col-xs-11.col-md-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || searchFailure || lastPage || !searchInput')
       div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
         .card.contacts-card.fadeIn200ms(ng-if='contacts && contacts.length')
           .listview.lv-bordered.lv-lg
