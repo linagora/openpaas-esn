@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Unified Inbox Angular module controllers', function() {
 
-    var $route, $rootScope, scope, $controller, JmapAPI;
+    var $route, $rootScope, $location, scope, $controller, JmapAPI;
 
     beforeEach(function() {
       JmapAPI = {};
@@ -18,6 +18,7 @@ describe('The Unified Inbox Angular module controllers', function() {
           }
         }
       };
+      $location = {};
 
       angular.mock.module('ngRoute');
       angular.mock.module('esn.core');
@@ -25,6 +26,7 @@ describe('The Unified Inbox Angular module controllers', function() {
       module('linagora.esn.unifiedinbox', function($provide) {
         $provide.value('JmapAPI', JmapAPI);
         $provide.value('$route', $route);
+        $provide.value('$location', $location);
       });
     });
 
@@ -88,6 +90,44 @@ describe('The Unified Inbox Angular module controllers', function() {
         });
 
         expect(scope.email).to.equal('result');
+      });
+
+      describe('the moveToTrash fn', function() {
+
+        it('should delegate to JmapAPI with expected args', function(done) {
+          JmapAPI.getEmail = function() {
+            return 'result';
+          };
+          JmapAPI.moveToByRole = function(emailId, role) {
+            expect(scope.emailId).to.equal('4');
+            expect(role).to.equal('trash');
+            done();
+          };
+
+          $controller('viewEmailController', {
+            $scope: scope
+          });
+
+          scope.moveToTrash();
+        });
+
+        it('should update location to the parent mailbox', function(done) {
+          JmapAPI.getEmail = function() {
+            return 'result';
+          };
+          JmapAPI.moveToByRole = function() {};
+          $location.path = function(path) {
+            expect(path).to.equal('/unifiedinbox/chosenMailbox');
+            done();
+          };
+
+          $controller('viewEmailController', {
+            $scope: scope
+          });
+
+          scope.moveToTrash();
+        });
+
       });
 
     });

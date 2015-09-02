@@ -52,10 +52,17 @@ angular.module('esn.jmap-js', ['esn.overture'])
       return request.record;
     }
 
+    function moveToByRole(emailId, role) {
+      var messages = [JMAP.store.getRecord(JMAP.Message, emailId)];
+      JMAP.mail.move(messages, JMAP.mail.systemMailboxIds.get(role), null);
+      overture.O.RunLoop.flushAllQueues();
+    }
+
     return {
       login: login,
       listMailboxes: listMailboxes,
       listEmails: listEmails,
-      getEmail: getEmail
+      getEmail: getEmail,
+      moveToByRole: moveToByRole
     };
   });

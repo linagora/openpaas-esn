@@ -2,6 +2,16 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
+  .constant('MAILBOX_ROLES', {
+    inbox: 'inbox',
+    archive: 'archive',
+    drafts: 'drafts',
+    outbox: 'outbox',
+    sent: 'sent',
+    trash: 'trash',
+    spam: 'spam',
+    templates: 'templates'
+  })
   .constant('MAILBOX_ROLE_ICONS_MAPPING', {
     default: 'mdi mdi-email',
     inbox: 'mdi mdi-email',

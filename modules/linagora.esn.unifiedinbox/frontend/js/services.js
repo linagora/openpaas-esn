@@ -178,7 +178,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     return {
       get: listEmails,
-      getEmail: getEmail
+      getEmail: getEmail,
+      moveToByRole: jmap.moveToByRole
     };
   })
 
@@ -202,7 +203,8 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       getMailboxes: getMailboxes,
       getEmails: getEmails,
-      getEmail: getEmail
+      getEmail: getEmail,
+      moveToByRole: JmapEmails.moveToByRole
     };
 
   });
