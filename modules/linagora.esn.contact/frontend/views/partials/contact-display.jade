@@ -11,10 +11,6 @@
             textarea(placeholder="Write something...")
             button.btn.bgm-green.btn-icon.waves-effect
               i.mdi.mdi-send
-        a.pmop-edit(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
-          i.mdi.mdi-camera
-          span.hidden-xs
-            | #{__('Update Profile Picture')}
       .pmo-stat
         h2.m-0.c-white
           |{{contact.firstName}} {{contact.lastName}}
