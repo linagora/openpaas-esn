@@ -37,7 +37,14 @@ describe('The Contacts Angular module', function() {
       weakInfo: sinon.spy()
     };
     $location = {
-      path: function() {}
+      path: function() {},
+      search: function() {
+        return {
+          q: {
+            replace: function() {}
+          }
+        };
+      }
     };
     $route = {
       current: {
@@ -725,9 +732,17 @@ describe('The Contacts Angular module', function() {
       var contact = {
         lastName: 'Last'
       };
-
+      var query = null;
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
       $controller('contactsListController', {
         $scope: scope,
+        $location: locationMock,
         contactsService: {
           list: function() {
             return $q.reject('WTF');
@@ -756,9 +771,17 @@ describe('The Contacts Angular module', function() {
       var contact = {
         lastName: 'Last'
       };
-
+      var query = null;
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
       $controller('contactsListController', {
         $scope: scope,
+        $location: locationMock,
         contactsService: {
           list: function() {
             return $q.reject('WTF');
@@ -781,6 +804,113 @@ describe('The Contacts Angular module', function() {
 
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
       $rootScope.$digest();
+    });
+
+    it('should load contact list when no query is specified in the URL' , function(done) {
+      var query = null;
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      contactsService.search = function() {
+        return done(new Error('This test should not call contactsService.search'));
+      };
+      contactsService.list = function() {
+        done();
+      };
+      $controller('contactsListController', {
+        $location: locationMock,
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+    });
+
+    it('should load search result list when a query is specified in the URL' , function(done) {
+      var query = 'Chuck Norris';
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      contactsService.list = function() {
+        return done(new Error('This test should not call contactsService.list'));
+      };
+      contactsService.search = function() {
+        expect(scope.searchInput).to.equal(query);
+        done();
+      };
+      $controller('contactsListController', {
+        $location: locationMock,
+        $scope: scope,
+        user: {
+          _id: '123'
+        }
+      });
+    });
+
+    it('should refresh list on route update when the queries in the URL and in the search input are different' , function(done) {
+      var query = 'QueryA';
+      var mySpy = sinon.spy();
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      contactsService.search = function() {
+        expect(scope.searchInput).to.equal(query);
+        mySpy();
+        return $q.when([]);
+      };
+      $controller('contactsListController', {
+        $scope: scope,
+        $location: locationMock,
+        user: {
+          _id: '123'
+        }
+      });
+      scope.searchInput = 'QueryB';
+      $rootScope.$broadcast('$routeUpdate');
+      expect(scope.searchInput).to.equal(query);
+      expect(mySpy).to.have.been.calledTwice;
+      done();
+    });
+
+    it('should not refresh list on route update when the queries in the URL and in the search input are the same' , function(done) {
+      var query = 'QueryA';
+      var mySpy = sinon.spy();
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      contactsService.search = function() {
+        expect(scope.searchInput).to.equal(query);
+        mySpy();
+        return $q.when([]);
+      };
+      $controller('contactsListController', {
+        $scope: scope,
+        $location: locationMock,
+        user: {
+          _id: '123'
+        }
+      });
+      scope.searchInput = 'QueryA';
+      $rootScope.$broadcast('$routeUpdate');
+      expect(scope.searchInput).to.equal(query);
+      expect(mySpy).to.have.been.calledOnce;
+      done();
     });
 
     it('should add no item to the categories when contactsService.list returns an empty list', function() {
