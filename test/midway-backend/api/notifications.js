@@ -31,19 +31,31 @@ describe('The notification API', function() {
       testuser = new User({
         username: 'Foo',
         password: password,
-        emails: [email]
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [email]
+        }]
       });
 
       testuser1 = new User({
         username: 'TestUser1',
         password: password,
-        emails: [email1]
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [email1]
+        }]
       });
 
       testuser2 = new User({
         username: 'TestUser1',
         password: password,
-        emails: [email2]
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [email2]
+        }]
       });
 
       domain = new Domain({

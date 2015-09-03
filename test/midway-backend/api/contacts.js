@@ -8,9 +8,8 @@ describe('The contacts controller', function() {
   var Contact, User, AddressBook, Invitation;
   var webserver;
 
-  var email = 'foo@bar.com';
-  var password = 'secret';
-  var contact, ab;
+  var email = 'foo@bar.com', password = 'secret';
+  var contact, ab, fixtures, helpers;
 
   before(function() {
     this.helpers.requireBackend('core/db/mongo/models/contact');
@@ -20,8 +19,10 @@ describe('The contacts controller', function() {
   });
 
   beforeEach(function(done) {
-    this.mongoose = require('mongoose');
     var self = this;
+
+    helpers = this.helpers;
+    this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
       webserver = self.helpers.requireBackend('webserver').webserver;
 
@@ -29,29 +30,18 @@ describe('The contacts controller', function() {
       Contact = self.mongoose.model('Contact');
       AddressBook = self.mongoose.model('AddressBook');
       Invitation = self.mongoose.model('Invitation');
+      fixtures = helpers.requireFixture('models/users.js')(User);
 
-      var user = new User({
-        username: 'Foo',
-        password: password,
-        emails: [email]
-      });
-
-      user.save(function(err, u) {
-        if (err) { done(err); }
+      fixtures.newDummyUser([email], password).save(helpers.callbacks.noErrorAnd(function(u) {
         self.testUser = u;
         self.userId = u._id + '';
         ab = new AddressBook({name: 'Professional', creator: u._id });
 
-        ab.save(function(err, a) {
-          if (err) { done(err); }
-
+        ab.save(helpers.callbacks.noErrorAnd(function(a) {
           contact = new Contact({emails: [email], given_name: 'Coco', addressbooks: [a._id], owner: u._id});
-          contact.save(function(err, c) {
-            if (err) { done(err); }
-            done();
-          });
-        });
-      });
+          contact.save(helpers.callbacks.noError(done));
+        }));
+      }));
     });
   });
 
@@ -129,13 +119,7 @@ describe('The contacts controller', function() {
         });
       };
 
-      var user = new User({
-        username: 'OffsetMan',
-        password: password,
-        emails: ['offsetman@limit.com']
-      });
-
-      user.save(function(err, u) {
+      fixtures.newDummyUser(['offsetman@limit.com'], password).save(function(err, u) {
         if (err) {
           done(err);
         }
@@ -178,7 +162,7 @@ describe('The contacts controller', function() {
               }
               request(webserver.application)
                 .post('/api/login')
-                .send({username: user.emails[0], password: password, rememberme: false})
+                .send({username: 'offsetman@limit.com', password: password, rememberme: false})
                 .expect(200)
                 .end(function(err, res) {
                   var cookies = res.headers['set-cookie'].pop().split(';')[0];
@@ -206,13 +190,7 @@ describe('The contacts controller', function() {
         });
       };
 
-      var user = new User({
-        username: 'OffsetMan',
-        password: password,
-        emails: ['offsetman@limit.com']
-      });
-
-      user.save(function(err, u) {
+      fixtures.newDummyUser(['offsetman@limit.com'], password).save(function(err, u) {
         if (err) {
           done(err);
         }
@@ -253,7 +231,7 @@ describe('The contacts controller', function() {
               }
               request(webserver.application)
                 .post('/api/login')
-                .send({username: user.emails[0], password: password, rememberme: false})
+                .send({username: 'offsetman@limit.com', password: password, rememberme: false})
                 .expect(200)
                 .end(function(err, res) {
                   var cookies = res.headers['set-cookie'].pop().split(';')[0];
@@ -280,13 +258,7 @@ describe('The contacts controller', function() {
         });
       };
 
-      var user = new User({
-        username: 'username',
-        password: password,
-        emails: ['username@domain.com']
-      });
-
-      user.save(function(err, u) {
+      fixtures.newDummyUser(['username@domain.com'], password).save(function(err, u) {
         if (err) {
           done(err);
         }
@@ -327,7 +299,7 @@ describe('The contacts controller', function() {
               }
               request(webserver.application)
                 .post('/api/login')
-                .send({username: user.emails[0], password: password, rememberme: false})
+                .send({username: 'username@domain.com', password: password, rememberme: false})
                 .expect(200)
                 .end(function(err, res) {
                   var cookies = res.headers['set-cookie'].pop().split(';')[0];
@@ -389,13 +361,7 @@ describe('The contacts controller', function() {
         });
       };
 
-      var user = new User({
-        username: 'OffsetMan',
-        password: password,
-        emails: ['offsetman@limit.com']
-      });
-
-      user.save(function(err, u) {
+      fixtures.newDummyUser(['username@domain.com'], password).save(function(err, u) {
         if (err) {
           done(err);
         }
@@ -435,7 +401,7 @@ describe('The contacts controller', function() {
                 }
                 request(webserver.application)
                   .post('/api/login')
-                  .send({username: user.emails[0], password: password, rememberme: false})
+                  .send({username: 'username@domain.com', password: password, rememberme: false})
                   .expect(200)
                   .end(function(err, res) {
                     var cookies = res.headers['set-cookie'].pop().split(';')[0];

@@ -24,13 +24,21 @@ describe('The profile API', function() {
         firstname: 'John',
         username: 'Foo',
         password: password,
-        emails: ['foo@bar.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['foo@bar.com']
+        }]
       });
 
       baruser = new User({
         username: 'Bar',
         password: password,
-        emails: ['bar@bar.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['bar@bar.com']
+        }]
       });
 
       function saveUser(user, cb) {

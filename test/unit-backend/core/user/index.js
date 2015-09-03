@@ -96,21 +96,41 @@ describe('The user core module', function() {
       userModule = this.helpers.requireBackend('core').user;
     });
 
-    it('should lowercased the email array and flatten it into an $or array', function(done) {
+    it('should lowercase the email array and flatten it into an $or array', function(done) {
       userModule.findByEmail(['Test@linagora.com', 'tESt2@linagora.com'], function(err, query) {
         expect(query).to.deep.equal({
           '$or': [
-            { emails: 'test@linagora.com' },
-            { emails: 'test2@linagora.com' }
+            {
+              accounts: {
+                $elemMatch: {
+                  emails: 'test@linagora.com'
+                }
+              }
+            },
+            {
+              accounts: {
+                $elemMatch: {
+                  emails: 'test2@linagora.com'
+                }
+              }
+            }
           ]
         });
+
         done();
       });
     });
 
-    it('should lowercased a single email', function(done) {
+    it('should lowercase a single email', function(done) {
       userModule.findByEmail('Test@linagora.com', function(err, query) {
-        expect(query).to.deep.equal({ emails: 'test@linagora.com' });
+        expect(query).to.deep.equal({
+          accounts: {
+            $elemMatch: {
+              emails: 'test@linagora.com'
+            }
+          }
+        });
+
         done();
       });
     });

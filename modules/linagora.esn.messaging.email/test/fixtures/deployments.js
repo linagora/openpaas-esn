@@ -12,19 +12,28 @@ module.exports.linagora_EMAILReply = function() {
         password: 'secret',
         firstname: 'Domain ',
         lastname: 'Administrator',
-        emails: ['itadmin@lng.net']
+        accounts: [{
+          type: 'email',
+          emails: ['itadmin@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'John',
         lastname: 'Doe',
-        emails: ['jdoe@lng.net']
+        accounts: [{
+          type: 'email',
+          emails: ['jdoe@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Foo',
         lastname: 'Bar',
-        emails: ['foobar@lng.net']
+        accounts: [{
+          type: 'email',
+          emails: ['foobar@lng.net']
+        }]
       }
     ],
     communities: [

@@ -14,14 +14,20 @@ var ADMIN_OBJECT = {
   firstname: 'admin',
   lastname: 'admin',
   password: 'secret',
-  emails: ['admin@open-paas.org']
+  accounts: [{
+    type: 'email',
+    emails: ['admin@open-paas.org']
+  }]
 };
 
 var USER_OBJECT = {
   firstname: 'John',
   lastname: 'Doe',
   password: 'secret',
-  emails: ['user@open-paas.org']
+  accounts: [{
+    type: 'email',
+    emails: ['user@open-paas.org']
+  }]
 };
 
 var DOMAIN_OBJECT = {
@@ -94,9 +100,11 @@ function _createUser(index, community, domain) {
     firstname: USER_OBJECT.firstname + index,
     lastname: USER_OBJECT.lastname + index,
     password: USER_OBJECT.password,
-    emails: []
+    accounts: [{
+      type: USER_OBJECT.accounts[0].type,
+      emails: [USER_OBJECT.accounts[0].emails[0].replace(/(\w+)@/, '$1' + index + '@')]
+    }]
   };
-  userToSave.emails[0] = USER_OBJECT.emails[0].replace(/(\w+)@/, '$1' + index + '@');
 
   var user = new User(userToSave);
   return q.ninvoke(user, 'save')

@@ -202,7 +202,7 @@ function getUsersSearch(domains, query, cb) {
             multi_match: {
               query: terms,
               type: 'cross_fields',
-              fields: ['firstname', 'lastname', 'emails'],
+              fields: ['firstname', 'lastname', 'accounts.emails'],
               operator: 'and'
             }
           }

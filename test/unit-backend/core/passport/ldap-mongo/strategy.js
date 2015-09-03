@@ -81,9 +81,8 @@ describe('The ldap-mongo passport strategy', function() {
           return callback(null, null);
         },
         provisionUser: function(user) {
-          expect(user).to.exist;
-          expect(user.emails).to.exist;
-          expect(user.emails.length).to.equal(2);
+          expect(user.accounts[0].emails.length).to.equal(2);
+
           done();
         }
       };

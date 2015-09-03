@@ -5,34 +5,24 @@ var expect = require('chai').expect,
 
 describe('The authenticationtoken API', function() {
 
-  var user;
-  var email = 'user@open-paas.org';
-  var password = 'secret';
-  var User, webserver;
+  var userId, webserver, fixtures, helpers;
 
   beforeEach(function(done) {
     var self = this;
+
+    helpers = this.helpers;
     this.mongoose = require('mongoose');
-
-    this.testEnv.initRedisConfiguration(this.mongoose, function(err) {
-      if (err) {
-        return done(err);
-      }
-
+    this.testEnv.initRedisConfiguration(this.mongoose, this.helpers.callbacks.noErrorAnd(function() {
       self.testEnv.initCore(function() {
-        User = self.helpers.requireBackend('core/db/mongo/models/user');
-        webserver = self.helpers.requireBackend('webserver').webserver;
+        webserver = helpers.requireBackend('webserver').webserver;
+        fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
-        user = new User({password: password, emails: [email]});
-        user.save(function(err, saved) {
-          if (err) {
-            return done(err);
-          }
-          user._id = saved._id;
-          return done();
-        });
+        fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function(saved) {
+          userId = saved._id + '';
+          done();
+        }));
       });
-    });
+    }));
   });
 
   afterEach(function(done) {
@@ -42,124 +32,93 @@ describe('The authenticationtoken API', function() {
 
   describe('GET /api/authenticationtoken', function() {
     it('should send back 401 if user is not logged in', function(done) {
-      request(webserver.application).get('/api/authenticationtoken').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'get', '/api/authenticationtoken', done);
     });
 
     it('should send back a new authentication token when logged in', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).get('/api/authenticationtoken'));
-        req.expect(200);
-        req.end(function(err, res) {
-          expect(err).to.not.exist;
-          expect(res.body).to.exist;
-          expect(res.body.token).to.exist;
-          expect(res.body.user).to.exist;
-          expect(res.body.user).to.equal('' + user._id);
-          done();
-        });
-      });
+      helpers.api.loginAsUser(webserver.application, fixtures.emails[0], fixtures.password, helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(webserver.application)
+          .get('/api/authenticationtoken'))
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(function(res) {
+            expect(res.body.token).to.exist;
+            expect(res.body.user).to.equal(userId);
+
+            done();
+          }));
+      }));
     });
   });
 
   describe('GET /api/authenticationtoken/:token', function() {
     it('should send back 401 if user is not logged in', function(done) {
-      request(webserver.application).get('/api/authenticationtoken/123').expect(401).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      helpers.api.requireLogin(webserver.application, 'get', '/api/authenticationtoken/123', done);
     });
 
     it('should send back 404 if token does not exist', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).get('/api/authenticationtoken/123'));
-        req.expect(404);
-        req.end(function(err, res) {
-          expect(err).to.not.exist;
-          done();
-        });
-      });
+      helpers.api.loginAsUser(webserver.application, fixtures.emails[0], fixtures.password, helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(webserver.application)
+          .get('/api/authenticationtoken/123'))
+          .expect(404)
+          .end(helpers.callbacks.noError(done));
+      }));
     });
 
     it('should send back 200 with the token information', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).get('/api/authenticationtoken'));
-        req.expect(200);
-        req.end(function(err, res) {
-          if (err) {
-            return done(err);
-          }
+      helpers.api.loginAsUser(webserver.application, fixtures.emails[0], fixtures.password, helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(webserver.application)
+          .get('/api/authenticationtoken'))
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(function(res) {
+            if (!res.body || !res.body.token) {
+              return done(new Error('Can not get new token'));
+            }
 
-          if (!res.body || !res.body.token) {
-            return done(new Error('Can not get new token'));
-          }
+            var token = res.body.token;
 
-          var token = res.body.token;
+            loggedInAsUser(request(webserver.application).get('/api/authenticationtoken/' + token))
+              .expect(200)
+              .end(helpers.callbacks.noErrorAnd(function(res) {
+                expect(res.body.token).to.equal(token);
+                expect(res.body.user).to.equal(userId);
 
-          var reqToken = loggedInAsUser(request(webserver.application).get('/api/authenticationtoken/' + token));
-          reqToken.expect(200);
-          reqToken.end(function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.body).to.exist;
-            expect(res.body.token).to.exist;
-            expect(res.body.token).to.equal(token);
-            expect(res.body.user).to.exist;
-            expect(res.body.user).to.equal('' + user._id);
-            done();
-          });
-        });
-      });
+                done();
+              }));
+          }));
+      }));
     });
   });
 
   describe('GET /api/authenticationtoken/:token/user', function() {
 
     it('should send back 400 if token does not exist', function(done) {
-      request(webserver.application).get('/api/authenticationtoken/123/user').expect(400).end(function(err, res) {
-        expect(err).to.be.null;
-        done();
-      });
+      request(webserver.application).get('/api/authenticationtoken/123/user').expect(400).end(helpers.callbacks.noError(done));
     });
 
     it('should send back 200 with the user information', function(done) {
-      this.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(webserver.application).get('/api/authenticationtoken'));
-        req.expect(200);
-        req.end(function(err, res) {
-          if (err) {
-            return done(err);
-          }
+      helpers.api.loginAsUser(webserver.application, fixtures.emails[0], fixtures.password, helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+        loggedInAsUser(request(webserver.application)
+          .get('/api/authenticationtoken'))
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(function(res) {
+            if (!res.body || !res.body.token) {
+              return done(new Error('Can not get new token'));
+            }
 
-          if (!res.body || !res.body.token) {
-            return done(new Error('Can not get new token'));
-          }
+            var token = res.body.token;
 
-          var token = res.body.token;
+            loggedInAsUser(request(webserver.application).get('/api/authenticationtoken/' + token + '/user'))
+              .expect(200)
+              .end(helpers.callbacks.noErrorAnd(function(res) {
+                expect(res.body._id).to.equal(userId);
+                expect(res.body.accounts[0].emails).to.deep.equal(fixtures.emails);
 
-          request(webserver.application).get('/api/authenticationtoken/' + token + '/user').expect(200).end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res.body._id).to.equal('' + user._id);
-            expect(res.body.emails).to.exist;
-            expect(res.body.emails.length).to.equal(1);
-            expect(res.body.emails[0]).to.equal(email);
-            done();
-          });
-        });
-      });
+                done();
+              }));
+          }));
+      }));
     });
+
   });
+
 });

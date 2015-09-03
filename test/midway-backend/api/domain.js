@@ -79,7 +79,10 @@ describe('The domain API', function() {
       var user = {
         firstname: 'foo',
         lastname: 'bar',
-        emails: ['foo@linagora.com']
+        accounts: [{
+          type: 'email',
+          emails: ['foo@linagora.com']
+        }]
       };
 
       var json = {

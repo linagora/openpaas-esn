@@ -1,53 +1,22 @@
 'use strict';
 
-var emailAdresses = require('email-addresses');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var logger = require('../../core').logger;
 var ObjectId = require('mongoose').Types.ObjectId;
 
-function getEmailsFromPassportProfile(profile) {
-  var emails = profile.emails
-    .filter(function(email) {
-      return (email && email.value && emailAdresses.parseOneAddress(email.value));
-    })
-    .map(function(email) { return email.value + ''; });
-  return emails;
-}
+function sanitize(user) {
+  var sanitizedUser = {};
 
-/**
- * Provision the user from the request, redirect to / once done.
- * When this controller method is called, it means that the authentication is already OK.
- *
- * @param {request} req
- * @param {response} res
- */
-function provision(req, res) {
-  if (!req.user || !req.user.emails || !req.user.emails.length) {
-    res.send(500, 'User not set');
-  }
-
-  var emails = getEmailsFromPassportProfile(req.user);
-  if (!emails.length) {
-    res.send(500, 'No valid email address found');
-  }
-  userModule.findByEmail(emails, function(err, user) {
-    if (err) {
-      return res.send(500, 'Unable to lookup user ' + emails + ': ' + err);
-    } else if (user && user.emails) {
-      return res.redirect('/');
+  ['_id', 'firstname', 'lastname', 'emails', 'domains', 'avatars', 'accounts'].forEach(function(key) {
+    if (user[key]) {
+      sanitizedUser[key] = user[key];
     }
-
-    userModule.provisionUser({emails: emails}, function(err, user) {
-      if (err) {
-        return res.send(500, 'Unable to provision user ' + req.user + ': ' + err);
-      }
-      return res.redirect('/');
-    });
   });
+
+  return sanitizedUser;
 }
-module.exports.provision = provision;
 
 /**
  * Log the user in. The user should already be loaded in the request from a middleware.
@@ -101,7 +70,7 @@ function profile(req, res) {
         details: 'User ' + uuid + ' has not been found'
       });
     }
-    return res.json(200, user);
+    return res.json(200, sanitize(user));
   });
 }
 module.exports.profile = profile;
@@ -172,7 +141,7 @@ function user(req, res) {
   if (!req.user) {
     return res.json(404, {error: 404, message: 'Not found', details: 'User not found'});
   }
-  return res.json(200, req.user);
+  return res.json(200, sanitize(req.user));
 }
 module.exports.user = user;
 

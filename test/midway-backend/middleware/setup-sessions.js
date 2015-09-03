@@ -8,7 +8,11 @@ describe('The sessions middleware', function() {
   var user = {
     username: 'Foo Bar Baz',
     password: 'secret',
-    emails: ['foo@bar.com'],
+    accounts: [{
+      type: 'email',
+      hosted: true,
+      emails: ['foo@bar.com']
+    }],
     login: {
       failures: [new Date(), new Date(), new Date()]
     }
@@ -46,7 +50,7 @@ describe('The sessions middleware', function() {
         expect(results[0]._id).to.exist;
         var session = results[0].session;
         expect(session).to.exist;
-        expect(JSON.parse(session).passport.user).to.equal(user.emails[0]);
+        expect(JSON.parse(session).passport.user).to.equal(user.accounts[0].emails[0]);
         done();
       });
     }
@@ -57,7 +61,7 @@ describe('The sessions middleware', function() {
     setTimeout(function() {
       request(self.app)
         .post('/api/login')
-        .send({username: user.emails[0], password: user.password, rememberme: false})
+        .send({username: user.accounts[0].emails[0], password: user.password, rememberme: false})
         .expect(200)
         .end(checkSession);
     }, 50);

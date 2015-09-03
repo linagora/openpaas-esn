@@ -44,15 +44,29 @@ module.exports.provisionUser = function(data, callback) {
 
 module.exports.findByEmail = function(email, callback) {
   var query;
+
   if (util.isArray(email)) {
-    var emails = email.map(function(e) {
-      return trim(e).toLowerCase();
-    });
-    query = { $or: emails.map(function(e) { return {emails: e}; }) };
+    query = {
+      $or: email.map(function(e) {
+        return {
+          accounts: {
+            $elemMatch: {
+              emails: trim(e).toLowerCase()
+            }
+          }
+        };
+      })
+    };
   } else {
-    var qemail = trim(email).toLowerCase();
-    query = {emails: qemail};
+    query = {
+      accounts: {
+        $elemMatch: {
+          emails: trim(email).toLowerCase()
+        }
+      }
+    };
   }
+
   User.findOne(query, callback);
 };
 

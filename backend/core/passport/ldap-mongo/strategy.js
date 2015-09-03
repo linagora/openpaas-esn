@@ -145,7 +145,16 @@ var handleAuthentication = function(req, options) {
         }
 
         if (provision) {
-          var provision_user = {emails: [username], domains: [{domain_id: ldaps[0].domain_id}]};
+          var provision_user = {
+            accounts: [{
+              type: 'email',
+              hosted: true,
+              emails: [username]
+            }],
+            domains: [{
+              domain_id: ldaps[0].domain_id
+            }]
+          };
           var ldap = ldaps[0];
 
           if (ldap.configuration && ldap.configuration.mapping) {
@@ -159,8 +168,8 @@ var handleAuthentication = function(req, options) {
             }
             if (mapping && mapping.email) {
               var email = ldapuser[mapping.email];
-              if (provision_user.emails.indexOf(email) === -1) {
-                provision_user.emails.push(email);
+              if (provision_user.accounts[0].emails.indexOf(email) === -1) {
+                provision_user.accounts[0].emails.push(email);
               }
             }
           }

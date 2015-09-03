@@ -12,43 +12,71 @@ module.exports.linagora_IT = function() {
         password: 'secret',
         firstname: 'Domain ',
         lastname: 'Administrator',
-        emails: ['itadmin@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['itadmin@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'John',
         lastname: 'Doe',
-        emails: ['jdoe@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jdoe@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Jane',
         lastname: 'Dee',
-        emails: ['jdee@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jdee@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Kurt',
         lastname: 'Cobain',
-        emails: ['kcobain@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['kcobain@linagora.com']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Jimmy',
         lastname: 'Hendrix',
-        emails: ['jhendrix@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jhendrix@linagora.com']
+        }]
       },
       {
         password: 'secret',
         firstname: 'External',
         lastname: 'User1',
-        emails: ['user@externalcompany1.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user@externalcompany1.com']
+        }]
       },
       {
         password: 'secret',
         firstname: 'External',
         lastname: 'User2',
-        emails: ['user@externalcompany2.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user@externalcompany2.com']
+        }]
       }
     ],
     communities: [
@@ -94,25 +122,41 @@ module.exports.linagora_test_domain = function() {
         password: 'secret',
         firstname: 'a ',
         lastname: 'user1',
-        emails: ['user1@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user1@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'b',
         lastname: 'user2',
-        emails: ['user2@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user2@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'c',
         lastname: 'user3',
-        emails: ['user3@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user3@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'd',
         lastname: 'user4',
-        emails: ['user4@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user4@linagora.com']
+        }]
       }
     ]
   };
@@ -131,25 +175,41 @@ module.exports.linagora_test_domain2 = function() {
         password: 'secret',
         firstname: 'a2 ',
         lastname: 'user12',
-        emails: ['user12@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user12@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'b2',
         lastname: 'user22',
-        emails: ['user22@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user22@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'c2',
         lastname: 'user32',
-        emails: ['user32@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user32@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'd2',
         lastname: 'user42',
-        emails: ['user42@linagora.com']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['user42@linagora.com']
+        }]
       }
     ]
   };
@@ -168,31 +228,51 @@ module.exports.collaborationMembers = function() {
         password: 'secret',
         firstname: 'Domain ',
         lastname: 'Administrator',
-        emails: ['itadmin@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['itadmin@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'John',
         lastname: 'Doe',
-        emails: ['jdoe@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jdoe@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Yo',
         lastname: 'Lo',
-        emails: ['yolo@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['yolo@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Jimmy',
         lastname: 'Hendrix',
-        emails: ['jhendrix@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jhendrix@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Not',
         lastname: 'Member',
-        emails: ['notmember@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['notmember@lng.net']
+        }]
       }
     ],
     communities: [
@@ -248,25 +328,41 @@ module.exports.openAndPrivateCommunities = function() {
         password: 'secret',
         firstname: 'Domain ',
         lastname: 'Administrator',
-        emails: ['itadmin@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['itadmin@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'John',
         lastname: 'Doe',
-        emails: ['jdoe@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jdoe@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Yo',
         lastname: 'Lo',
-        emails: ['yolo@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['yolo@lng.net']
+        }]
       },
       {
         password: 'secret',
         firstname: 'Jimmy',
         lastname: 'Hendrix',
-        emails: ['jhendrix@lng.net']
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['jhendrix@lng.net']
+        }]
       }
     ],
     communities: [

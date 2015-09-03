@@ -65,10 +65,16 @@ var ELASTICSEARCH_SETTINGS = {
           index_analyzer: 'nGram_analyzer',
           search_analyzer: 'whitespace_analyzer'
         },
-        emails: {
-          type: 'string',
-          index_analyzer: 'nGram_analyzer',
-          search_analyzer: 'whitespace_analyzer'
+        accounts: {
+          type: 'nested',
+          include_in_parent: true,
+          properties: {
+            emails: {
+              type: 'string',
+              index_analyzer: 'nGram_analyzer',
+              search_analyzer: 'whitespace_analyzer'
+            }
+          }
         }
       }
     }

@@ -12,7 +12,7 @@ describe('The email API', function() {
   var user;
   var password = 'secret';
   var email = 'foo@bar.com';
-  var EMailMsg, Community, TimelineEntry;
+  var EMailMsg, Community, TimelineEntry, fixtures;
 
   var saveCommunity = function(community, done) {
     var c = new Community(community);
@@ -40,7 +40,9 @@ describe('The email API', function() {
       Community = self.helpers.requireBackend('core/db/mongo/models/community');
       TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
       webserver = self.helpers.requireBackend('webserver').webserver;
-      user = new User({password: password, emails: [email]});
+      fixtures = self.helpers.requireFixture('models/users.js')(User);
+
+      user = fixtures.newDummyUser([email], password);
       user.save(function(err, saved) {
         if (err) {
           return done(err);

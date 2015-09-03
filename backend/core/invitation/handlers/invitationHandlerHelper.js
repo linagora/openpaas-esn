@@ -67,8 +67,12 @@ module.exports.initHelper = function(invitation, data) {
         firstname: data.firstname,
         lastname: data.lastname,
         password: data.password,
-        emails: [invitation.data.email]
+        accounts: [{
+          type: 'email',
+          emails: [invitation.data.email]
+        }]
       };
+
       userModule.provisionUser(userJson, function(err, user) {
         if (err) {
           return callback(new Error('Cannot create user resources ' + err.message));
