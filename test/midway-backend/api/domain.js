@@ -16,30 +16,31 @@ describe('The domain API', function() {
   var Domain;
   var Invitation;
   var pubsubLocal;
+  var utils;
+  var helpers;
 
   beforeEach(function(done) {
-    var self = this;
+    helpers = this.helpers;
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      app = self.helpers.requireBackend('webserver/application');
-      Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
-      Invitation = self.helpers.requireBackend('core/db/mongo/models/invitation');
-      pubsubLocal = self.helpers.requireBackend('core/pubsub').local;
+      app = helpers.requireBackend('webserver/application');
+      Domain = helpers.requireBackend('core/db/mongo/models/domain');
+      Invitation = helpers.requireBackend('core/db/mongo/models/invitation');
+      pubsubLocal = helpers.requireBackend('core/pubsub').local;
+      utils = helpers.requireBackend('webserver/controllers/utils');
 
-      self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+      helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         expect(err).to.not.exist;
         user1Domain1Manager = models.users[0];
         user2Domain1Member = models.users[1];
         domain1 = models.domain;
-        domain1Users = models.users.map(function(user) {
-          return self.helpers.toComparableObject(user);
-        });
+        domain1Users = models.users.map(utils.sanitizeUser).map(helpers.toComparableObject);
 
-        self.helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
+        helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
           expect(err).to.not.exist;
           user1Domain2Manager = models2.users[0];
 
-          self.helpers.elasticsearch.saveTestConfiguration(self.helpers.callbacks.noError(done));
+          helpers.elasticsearch.saveTestConfiguration(helpers.callbacks.noError(done));
         });
       });
     });
@@ -57,7 +58,7 @@ describe('The domain API', function() {
         company_name: 'Corporate'
       };
 
-      request(app).post('/api/domains').send(json).expect(400).end(this.helpers.callbacks.noError(done));
+      request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
     });
 
     it('should send back 400 when administrator user is not correctly filled (emails is mandatory)', function(done) {
@@ -72,7 +73,7 @@ describe('The domain API', function() {
         administrator: user
       };
 
-      request(app).post('/api/domains').send(json).expect(400).end(this.helpers.callbacks.noError(done));
+      request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
     });
 
     it('should send back 201, create a domain with name, company_name and administrator in lower case', function(done) {
@@ -107,18 +108,18 @@ describe('The domain API', function() {
 
   describe('GET /api/domains/:uuid', function() {
     it('should send back 401 when not logged in', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id, done);
+      helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id, done);
     });
 
     it('should send back 403 when current user is not domain member', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, function(err, loggedInAsUser) {
         expect(err).to.not.exist;
         loggedInAsUser(request(app).get('/api/domains/' + domain1._id)).expect(403).end(done);
       });
     });
 
     it('should send back 200 with domain information when current user is domain manager', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, loggedInAsUser) {
         expect(err).to.not.exist;
         loggedInAsUser(request(app).get('/api/domains/' + domain1._id)).expect(200).end(function(err, res) {
           expect(err).to.not.exist;
@@ -130,7 +131,7 @@ describe('The domain API', function() {
     });
 
     it('should send back 200 with domain information when current user is domain member', function(done) {
-      this.helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
         expect(err).to.not.exist;
         loggedInAsUser(request(app).get('/api/domains/' + domain1._id)).expect(200).end(function(err, res) {
           expect(err).to.not.exist;
@@ -144,20 +145,19 @@ describe('The domain API', function() {
 
   describe('GET /api/domains/:uuid/members', function() {
     it('should send back 401 when not logged in', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/members', done);
+      helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/members', done);
     });
 
     it('should send back 404 when domain is not found', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + new ObjectId() + '/members'));
-        req.expect(404).end(self.helpers.callbacks.noError(done));
+        req.expect(404).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should send back 200 with all the members of the domain and contain the list size in the header', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'));
         req.expect(200).end(function(err, res) {
@@ -171,16 +171,28 @@ describe('The domain API', function() {
       });
     });
 
-    it('should send back 200 with all the members matching the search terms', function(done) {
-      var self = this;
+    it('should send back 200 with all the members of the domain and members should have an emails field', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
+        requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'))
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(function(res) {
+            res.body.forEach(function(user) {
+              expect(user.emails.length).to.equal(1);
+            });
 
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 200 with all the members matching the search terms', function(done) {
       var ids = domain1Users.map(function(user) {
         return user._id;
       });
-      self.helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+      helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
         expect(err).to.not.exist;
 
-        self.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
           expect(err).to.not.exist;
           var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'));
           req.query({search: 'lng'}).expect(200).end(function(err, res) {
@@ -196,8 +208,27 @@ describe('The domain API', function() {
       });
     });
 
+    it('should send back 200 with all the members matching the search terms and members should have an emails field', function(done) {
+      var ids = domain1Users.map(function(user) { return user._id; });
+
+      helpers.elasticsearch.checkUsersDocumentsIndexed(ids, helpers.callbacks.noErrorAnd(function() {
+        helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
+          requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'))
+            .query({search: 'lng'})
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(function(res) {
+              res.body.forEach(function(user) {
+                expect(user.emails.length).to.equal(1);
+              });
+
+              done();
+            }));
+        }));
+      }));
+    });
+
     it('should send back 200 with the first 2 members', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'));
         req.query({limit: 2}).expect(200).end(function(err, res) {
@@ -213,7 +244,7 @@ describe('The domain API', function() {
     });
 
     it('should send back 200 with the last 2 members', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'));
         req.query({offset: 2}).expect(200).end(function(err, res) {
@@ -229,7 +260,7 @@ describe('The domain API', function() {
     });
 
     it('should send back 200 with the third member', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'));
         req.query({limit: 1, offset: 2}).expect(200).end(function(err, res) {
@@ -247,11 +278,11 @@ describe('The domain API', function() {
 
   describe('POST /api/domains/:uuid/invitations', function() {
     beforeEach(function(done) {
-      this.helpers.mail.saveTestConfiguration(done);
+      helpers.mail.saveTestConfiguration(done);
     });
 
     it('should send back 401 when not logged in', function(done) {
-      this.helpers.api.requireLogin(app, 'post', '/api/domains/' + domain1._id + '/invitations', done);
+      helpers.api.requireLogin(app, 'post', '/api/domains/' + domain1._id + '/invitations', done);
     });
 
     it('should send back 202 when current user is a domain member', function(done) {
@@ -268,7 +299,7 @@ describe('The domain API', function() {
         done();
       });
 
-      this.helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/invitations'));
         req.send(['foo@bar.com']).expect(202).end(function(err, res) {
@@ -294,7 +325,7 @@ describe('The domain API', function() {
     });
 
     it('should send back 403 when current user is not a domain member', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/invitations'));
         req.send(['inviteme@open-paas.org']).expect(403).end(function(err, res) {
@@ -309,11 +340,11 @@ describe('The domain API', function() {
 
   describe('GET /api/domains/:uuid/manager', function() {
     it('should send back 401 when not logged in', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/manager', done);
+      helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/manager', done);
     });
 
     it('should send back 403 when current user is not a domain manager', function(done) {
-      this.helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/manager'));
         req.expect(403).end(function(err, res) {
@@ -326,7 +357,7 @@ describe('The domain API', function() {
     });
 
     it('should send back 200 with the domain information when current user is a domain manager', function(done) {
-      this.helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/manager'));
         req.expect(200).end(function(err, res) {

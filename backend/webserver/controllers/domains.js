@@ -7,6 +7,7 @@ var userDomain = require('../../core/user/domain');
 var logger = require('../../core').logger;
 var async = require('async');
 var pubsub = require('../../core/pubsub').local;
+var utils = require('./utils');
 
 function createDomain(req, res) {
   var data = req.body;
@@ -79,7 +80,7 @@ function getMembers(req, res) {
         }
 
         res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, result.list);
+        return res.json(200, result.list.map(utils.sanitizeUser));
       });
     }
     else {
@@ -89,7 +90,7 @@ function getMembers(req, res) {
         }
 
         res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, result.list);
+        return res.json(200, result.list.map(utils.sanitizeUser));
       });
     }
   });
