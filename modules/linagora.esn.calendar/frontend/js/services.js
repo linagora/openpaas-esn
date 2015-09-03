@@ -540,7 +540,7 @@ angular.module('esn.calendar')
       } else if (invitedAttendee.partstat === 'TENTATIVE') {
         element.addClass('event-tentative');
         var content = element.find('.fc-time span');
-        $('<i class="mdi mdi-help-circle"/>').insertBefore(content)
+        $('<i class="mdi mdi-help-circle"/>').insertBefore(content);
       } else if (invitedAttendee.partstat === 'ACCEPTED') {
         element.addClass('event-accepted');
       } else if (invitedAttendee.partstat === 'DECLINED') {
