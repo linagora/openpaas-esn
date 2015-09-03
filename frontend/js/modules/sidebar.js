@@ -67,6 +67,7 @@ angular.module('esn.sidebar', [])
       templateUrl: '/views/esn/partials/sidebar.html'
     };
   })
+
   .directive('sideBarToggler', function(sideBarService) {
     function link(scope, element) {
       element.on('click', function() {
@@ -79,6 +80,7 @@ angular.module('esn.sidebar', [])
       link: link
     };
   })
+
   .directive('closeSidebarOnClick', function(sideBarService) {
     function link(scope, element, attr) {
       element.click(function() {

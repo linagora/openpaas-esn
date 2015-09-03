@@ -23,6 +23,7 @@ html
     link(rel='stylesheet', href='/css/styles.css')
     +injectCSSFromModules('esn', injections)
     script(src='/components/jquery/dist/jquery.min.js')
+    script(src='/components/jquery.nicescroll/dist/jquery.nicescroll.min.js')
     script(src='/components/underscore/underscore.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')
     script(src='/components/angular-file-upload/dist/angular-file-upload-shim.min.js')
@@ -30,6 +31,7 @@ html
     script(src='/components/angular-route/angular-route.min.js')
     script(src='/components/angular-sanitize/angular-sanitize.min.js')
     script(src='/components/angular-animate/angular-animate.min.js')
+    script(src='/components/angular-nicescroll/angular-nicescroll.js')
     script(src='/components/restangular/dist/restangular.min.js')
     script(src='/components/ngInfiniteScroll/build/ng-infinite-scroll.min.js')
     script(src='/components/ng-tags-input/ng-tags-input.min.js')
@@ -138,7 +140,7 @@ html
     script(src='js/material.js')
     script(src='/components/material-admin/js/modules/form.js')
 
-  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController")
+  body.ng-cloak(ng-app='esnApp' ng-controller="sessionInitESNController" ng-nicescroll)
     #wrap(ng-include='session.template')
     //- Overture is looking for the body tag when it loads, 
     //- so putting it in the head trigger an error when the page is loading.
