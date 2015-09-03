@@ -19,7 +19,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
             .fg-line
               input.input-lg.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-datepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
             .fg-line(ng-if='!editedEvent.allDay')
-              input.input-lg.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-timepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
+              input.input-lg.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="0", placeholder="#{__('Time')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-timepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
         .col-xs-3.col-sm-2
           .form-group
             .fg-line
@@ -29,7 +29,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
             .fg-line
               input.input-lg.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-datepicker, date-to-moment, friendlify-end-date)
             .fg-line(ng-if='!editedEvent.allDay')
-              input.input-lg(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-timepicker, date-to-moment)
+              input.input-lg(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="0", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-timepicker, date-to-moment)
         .col-xs-12.col-sm-2
           .form-group
             .fg-line
