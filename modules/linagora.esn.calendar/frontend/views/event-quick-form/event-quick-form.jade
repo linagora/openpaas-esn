@@ -9,13 +9,13 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
           .form-group
             .flex-space-around
               .save-button
-                button.btn.btn-default.save(type='submit', ng-disabled="restActive")
+                button.btn.btn-default.save(type='submit', ng-disabled="!canPerformCall()")
                   i.mdi.mdi-check
               .options-button
                 button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
-                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
+                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="!canPerformCall()")
                   i.mdi.mdi-delete
               .close-button
                 button.btn.btn-default(type='button', ng-click="closeModal()")
@@ -50,13 +50,13 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
           .form-group
             .flex-space-around
               .save-button
-                button.btn.btn-default.save(type='submit', ng-disabled="restActive")
+                button.btn.btn-default.save(type='submit', ng-disabled="!canPerformCall()")
                   i.mdi.mdi-check
               .options-button
                 button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
-                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
+                button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="!canPerformCall()")
                   i.mdi.mdi-delete
               .close-button
                 button.btn.btn-default(type='button', ng-click="closeModal()")

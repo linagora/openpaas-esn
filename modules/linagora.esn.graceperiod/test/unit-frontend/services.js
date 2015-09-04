@@ -279,6 +279,7 @@ describe('The GracePeriod Angular module', function() {
       it('should call PUT when id exists', function(done) {
         var id = '123';
         gracePeriodService.addTaskId(id);
+
         gracePeriodService.flush(id).then(function() {
           done();
         }, done);
@@ -326,7 +327,7 @@ describe('The GracePeriod Angular module', function() {
       });
 
       it('should resolve the promise when the delay elapses', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 100).then(function(data) {
+        gracePeriodService.grace('Test', 'Cancel', 'text', 100).then(function(data) {
           if (!data.cancelled) {
             done();
           }
@@ -334,7 +335,7 @@ describe('The GracePeriod Angular module', function() {
       });
 
       it('should resolve the promise when the close button is clicked', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(data) {
+        gracePeriodService.grace('Test', 'Cancel', 'text', 10000).then(function(data) {
           if (!data.cancelled) {
             done();
           }
@@ -344,7 +345,7 @@ describe('The GracePeriod Angular module', function() {
       });
 
       it('should reject the promise when the cancel link is clicked', function(done) {
-        gracePeriodService.grace('Test', 'Cancel', 10000).then(function(data) {
+        gracePeriodService.grace('Test', 'Cancel', 'text', 10000).then(function(data) {
           if (data.cancelled) {
             done();
           }
@@ -359,6 +360,39 @@ describe('The GracePeriod Angular module', function() {
         expect(angular.element('a.cancel-task').length).to.equal(1);
       });
 
+    });
+
+    describe('The hasTaskFor fn', function() {
+
+      var taskId = 'taskId';
+      var context = {
+        id: 'anId',
+        p: 'anotherProperty'
+      };
+
+      this.timeout(10000);
+      beforeEach(function() {
+        $rootScope.$applyAsync = $rootScope.$apply;
+      });
+
+      beforeEach(function() {
+        gracePeriodService.addTaskId(taskId, context);
+      });
+
+      it('should return false if no context query is passed as parameter', function() {
+        expect(gracePeriodService.hasTaskFor()).to.be.false;
+      });
+
+      it('should return false if no task exists for this context query', function() {
+        expect(gracePeriodService.hasTaskFor({id: 'anotherId'})).to.be.false;
+        expect(gracePeriodService.hasTaskFor({id: 'anId', p: 'anotherProperty', p2: 'yolo'})).to.be.false;
+      });
+
+      it('should return true if a task exists for this context query', function() {
+        expect(gracePeriodService.hasTaskFor(context)).to.be.true;
+        expect(gracePeriodService.hasTaskFor({id: context.id})).to.be.true;
+        expect(gracePeriodService.hasTaskFor({p: context.p})).to.be.true;
+      });
     });
   });
 

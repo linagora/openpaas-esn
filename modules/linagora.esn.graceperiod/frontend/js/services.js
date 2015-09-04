@@ -123,12 +123,11 @@ angular.module('linagora.esn.graceperiod')
   })
 
   .factory('gracePeriodService', function($q, gracePeriodAPI, notifyOfGracedRequest) {
-    var taskIds = [];
+    var tasks = {};
 
     function remove(id) {
-      var index = taskIds.indexOf(id);
-      if (index > -1) {
-        taskIds.splice(index, 1);
+      if (tasks[id]) {
+        delete tasks[id];
         return $q.when();
       } else {
         return $q.reject();
@@ -152,13 +151,15 @@ angular.module('linagora.esn.graceperiod')
     }
 
     function flushAllTasks() {
-      return $q.all(taskIds.map(function(id) {
+      return $q.all(Object.keys(tasks).map(function(id) {
         return flush(id);
       }));
     }
 
-    function grace(id, text, linkText, delay) {
-      taskIds.push(id);
+    function grace(id, text, linkText, delay, context) {
+      if (context) {
+        tasks[id] = context;
+      }
       return notifyOfGracedRequest(text, linkText, delay);
     }
 
@@ -166,10 +167,22 @@ angular.module('linagora.esn.graceperiod')
       return notifyOfGracedRequest(text, linkText, delay);
     }
 
-    function addTaskId(id) {
-      if (id) {
-        taskIds.push(id);
+    function addTask(taskId, context) {
+      if (taskId) {
+        tasks[taskId] = context;
       }
+    }
+
+    function hasTaskFor(contextQuery) {
+      return angular.isDefined(contextQuery) && Object.keys(tasks).some(function(taskId) {
+          var taskContext = tasks[taskId];
+          if (taskContext) {
+            return Object.keys(contextQuery).every(function(contextKey) {
+              return taskContext[contextKey] === contextQuery[contextKey];
+            });
+          }
+          return false;
+        });
     }
 
     return {
@@ -179,7 +192,8 @@ angular.module('linagora.esn.graceperiod')
       flush: flush,
       flushAllTasks: flushAllTasks,
       remove: remove,
-      addTaskId: addTaskId
+      addTaskId: addTask,
+      hasTaskFor: hasTaskFor
     };
   })
 

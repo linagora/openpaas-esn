@@ -44,6 +44,7 @@ angular.module('esn.calendar')
       $scope.deleteEvent = controller.deleteEvent;
       $scope.submit = controller.isNew($scope.editedEvent) ? controller.addNewEvent : controller.modifyEvent;
       $scope.changeParticipation = controller.changeParticipation;
+      $scope.canPerformCall = controller.canPerformCall;
 
       $scope.goToFullForm = function() {
         $scope.closeModal();

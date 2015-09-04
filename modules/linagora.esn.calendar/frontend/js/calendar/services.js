@@ -293,7 +293,7 @@ angular.module('esn.calendar')
             calendarEventEmitter.fullcalendar.emitCreatedEvent(new CalendarShell(vcalendar, null, null, taskId));
           })
           .then(function() {
-            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+            return gracePeriodService.grace(taskId, 'You are about to create a new event (' + vevent.getFirstPropertyValue('summary') + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: uid});
           })
           .then(function(data) {
             var task = data;
@@ -359,7 +359,7 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitRemovedEvent(shell.id);
       })
       .then(function() {
-        return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+        return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
       })
       .then(function(data) {
         var task = data;
@@ -417,7 +417,7 @@ angular.module('esn.calendar')
         calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
       })
       .then(function() {
-        return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY);
+        return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
       })
       .then(function(data) {
         var task = data;
