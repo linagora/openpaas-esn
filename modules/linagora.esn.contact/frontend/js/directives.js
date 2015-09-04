@@ -161,7 +161,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-edition-form.html'
     };
   })
-  .directive('inlineEditableInput', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY) {
+  .directive('inlineEditableInput', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY, CONTACT_EVENTS) {
     function link(scope, element, attrs, controller) {
       var input = element.find('input');
       var inputGroup = element.find('.input-group');
@@ -203,7 +203,7 @@ angular.module('linagora.esn.contact')
             }
             else {
               scope.$watch(attrs.newItem, function() {
-                $rootScope.$broadcast('contact:flag:last:item', attrs.name);
+                $rootScope.$broadcast(CONTACT_EVENTS.FLAG_LAST_ITEM, attrs.name);
               });
             }
             scope.saveInput();
@@ -238,16 +238,16 @@ angular.module('linagora.esn.contact')
         controller.$render();
       };
 
-      $rootScope.$on('contact:updated', function() {
+      $rootScope.$on(CONTACT_EVENTS.UPDATED, function() {
         if (attrs.newItem !== 'true') {
           scope.updateSuccessFlag = true;
         }
         else {
-          $rootScope.$broadcast('contact:add:check');
+          $rootScope.$broadcast(CONTACT_EVENTS.ADD_CHECK);
         }
       });
 
-      $rootScope.$on('contact:flag:last:item', function(event, fieldName) {
+      $rootScope.$on(CONTACT_EVENTS.FLAG_LAST_ITEM, function(event, fieldName) {
         $timeout(function() {
           if (attrs.lastItem === 'true' && fieldName === attrs.name) {
             scope.lastModifiedFlag = true;
@@ -255,7 +255,7 @@ angular.module('linagora.esn.contact')
         }, 0);
       });
 
-      $rootScope.$on('contact:add:check', function() {
+      $rootScope.$on(CONTACT_EVENTS.ADD_CHECK, function() {
         if (attrs.lastItem === 'true') {
           scope.updateSuccessFlag = true;
         }
@@ -278,19 +278,19 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('editableField', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY) {
+  .directive('editableField', function($timeout, $rootScope, ESCAPE_KEY, ENTER_KEY, CONTACT_EVENTS) {
     function link(scope, element, attrs, controller) {
       var oldValue;
 
       element.bind('focus', function() {
         oldValue = controller.$viewValue;
-        $rootScope.$broadcast('contact:reset:flags', attrs.name);
+        $rootScope.$broadcast(CONTACT_EVENTS.RESET_FLAGS, attrs.name);
       });
 
       element.bind('blur', function() {
         $timeout(function() {
           if (oldValue !== controller.$viewValue) {
-            $rootScope.$broadcast('contact:set:flag', attrs.name);
+            $rootScope.$broadcast(CONTACT_EVENTS.SET_FLAG, attrs.name);
             scope.save();
           }
           if (scope.onBlur) {
@@ -333,20 +333,20 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('inlineNotify', function($rootScope) {
+  .directive('inlineNotify', function($rootScope, CONTACT_EVENTS) {
     function link(scope, element, attrs) {
-      $rootScope.$on('contact:reset:flags', function(event, fieldName) {
+      $rootScope.$on(CONTACT_EVENTS.RESET_FLAGS, function(event, fieldName) {
         if (fieldName === attrs.name) {
           scope.updateSuccessFlag = false;
           scope.lastModifiedFlag = false;
         }
       });
-      $rootScope.$on('contact:set:flag', function(event, fieldName) {
+      $rootScope.$on(CONTACT_EVENTS.SET_FLAG, function(event, fieldName) {
         if (fieldName === attrs.name) {
           scope.lastModifiedFlag = true;
         }
       });
-      $rootScope.$on('contact:updated', function() {
+      $rootScope.$on(CONTACT_EVENTS.UPDATED, function() {
         scope.updateSuccessFlag = true;
       });
     }
@@ -359,7 +359,7 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', function($rootScope, $location, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q) {
+  .directive('contactListItem', function($rootScope, $location, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q, CONTACT_EVENTS) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -394,7 +394,7 @@ angular.module('linagora.esn.contact')
                   if (data.cancelled) {
                     return gracePeriodService.cancel(taskId).then(function() {
                       data.success();
-                      $rootScope.$broadcast('contact:cancel:delete', $scope.contact);
+                      $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, $scope.contact);
                     }, function(err) {
                       data.error('Cannot cancel contact delete, the contact is deleted');
                       return $q.reject(err);

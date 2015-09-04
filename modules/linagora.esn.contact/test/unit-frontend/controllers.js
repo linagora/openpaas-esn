@@ -8,8 +8,7 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
-      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService,
-      sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {};
+      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService, sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {}, CONTACT_EVENTS;
 
   beforeEach(function() {
 
@@ -78,7 +77,7 @@ describe('The Contacts Angular module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _sharedDataService_, ALPHA_ITEMS) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _sharedDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $timeout = _$timeout_;
@@ -91,6 +90,7 @@ describe('The Contacts Angular module', function() {
 
     scope = $rootScope.$new();
     scope.contact = {};
+    CONTACT_EVENTS = _CONTACT_EVENTS_;
   }));
 
   describe('the newContactController', function() {
@@ -748,11 +748,11 @@ describe('The Contacts Angular module', function() {
         }
       });
 
-      $rootScope.$broadcast('contact:cancel:delete', contact);
+      $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
       $rootScope.$digest();
     });
 
-    it('should add the contact to the list on contact:live:created event', function(done) {
+    it('should add the contact to the list on CONTACT_EVENTS.CREATED event', function(done) {
       var contact = {
         lastName: 'Last'
       };
@@ -779,39 +779,7 @@ describe('The Contacts Angular module', function() {
         }
       });
 
-      $rootScope.$broadcast('contact:live:created', contact);
-      $rootScope.$digest();
-    });
-
-    it('should remove the contact from the list on contact:live:deleted event', function(done) {
-      var contact = {
-        id: 'myid',
-        lastName: 'Last'
-      };
-
-      $controller('contactsListController', {
-        $scope: scope,
-        contactsService: {
-          list: function() {
-            return $q.reject('WTF');
-          }
-        },
-        user: {
-          _id: '123'
-        },
-        AlphaCategoryService: function() {
-          return {
-            removeItemWithId: function(contactId) {
-              expect(contactId).to.equal('myid');
-
-              done();
-            },
-            get: function() {}
-          };
-        }
-      });
-
-      $rootScope.$broadcast('contact:live:deleted', contact);
+      $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
       $rootScope.$digest();
     });
 
