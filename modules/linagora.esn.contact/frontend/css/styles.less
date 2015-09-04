@@ -1,4 +1,6 @@
 @contact-header-color: @darkPrimaryColor;
+@contact-toolbar-item-height: 35px;
+@contact-toolbar-switch-width: 65px;
 
 #profile-main {
   a {
@@ -193,8 +195,6 @@ ul.dropdown {
 }
 
 .contacts-search {
-  position: absolute;
-  right: 0;
   z-index: 2;
   top: 0;
 
@@ -204,9 +204,15 @@ ul.dropdown {
     border-radius: 2px;
     font-size: 18px;
     padding: 0 10px 0 40px;
-    height: 35px;
+    height: @contact-toolbar-item-height;
     width: 100%;
     border: 0;
+  }
+}
+
+@media (max-width: @screen-md-min) {
+  .contacts-search {
+    flex-grow: 1;
   }
 }
 
@@ -222,11 +228,6 @@ ul.dropdown {
 .contacts-search .form-control:focus {
   background-position: right center;
   padding: 0 30px 0 0;
-}
-
-.contacts-search.visible-sm.visible-xs {
-  position: relative;
-  padding: 0 15px;
 }
 
 contact-edition-form {
@@ -252,4 +253,17 @@ contact-edition-form {
 .fadeIn200ms {
   animation: fadeIn 0.2s;
   -webkit-animation: fadeIn 0.2s;
+}
+
+.contacts-list-toolbar {
+  .flex();
+  justify-content: flex-end;
+}
+
+.contacts-toggle {
+  min-width: @contact-toolbar-switch-width * 2;
+  button {
+    height: @contact-toolbar-item-height;
+    width: @contact-toolbar-switch-width;
+  }
 }
