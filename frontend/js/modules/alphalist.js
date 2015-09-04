@@ -46,10 +46,8 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
       var self = this;
 
       Object.keys(this.categories).forEach(function(name) {
-        self.categories[name].forEach(function(elt, index, arr) {
-          if (elt.id === id) {
-            arr.splice(index, 1);
-          }
+        self.categories[name] = self.categories[name].filter(function(item) {
+          return item.id !== id;
         });
       });
     };

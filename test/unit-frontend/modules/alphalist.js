@@ -34,7 +34,53 @@ describe('The Alpha List module', function() {
       });
     });
 
-    describe('the removeItem function', function() {
+    describe('The removeItemWithId fn', function() {
+
+      it('should remove the item with the specified ID from the list', function() {
+        var keys = 'ABC';
+        var others = '#';
+        var items = [
+          { id: 1, firstName: 'A', lastName: 'A' },
+          { id: 2, firstName: 'B', lastName: 'B' },
+          { id: 3, firstName: 'C', lastName: 'C' },
+          { id: 4, firstName: 'D', lastName: 'D' }
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+
+        var categories = category.get();
+        expect(categories.A).to.eql([items[0]]);
+
+        category.removeItemWithId(1);
+        expect(categories.A).to.eql([]);
+      });
+
+      it('should remove all items with the specified ID from the list', function() {
+        var keys = 'A';
+        var others = '#';
+        var items = [
+          { id: 1, firstName: 'A', lastName: 'A1' },
+          { id: 2, firstName: 'A', lastName: 'Delete me' },
+          { id: 2, firstName: 'A', lastName: 'Delete me' },
+          { id: 3, firstName: 'A', lastName: 'A3' }
+        ];
+
+        var category = new this.CategoryService({keys: keys, sortBy: 'firstName', keepAll: true, keepAllKey: others});
+        category.addItems(items);
+
+        var categories = category.get();
+
+        category.removeItemWithId(2);
+        expect(categories).to.eql({
+          A: [items[0], items[3]],
+          '#': []
+        });
+      });
+
+    });
+
+    describe('The removeItem fn', function() {
       it('should remove the item from the list', function() {
         var item = {firstName: 'CBC', lastName: 'DEF'};
         var itemWithoutFirstname = {firstName: '', lastName: 'DDD'};
