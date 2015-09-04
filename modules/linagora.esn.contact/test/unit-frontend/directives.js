@@ -509,4 +509,39 @@ describe('The contact Angular module directives', function() {
 
   });
 
+  describe('The contactListToggle directive', function() {
+
+    var $compile, $rootScope, element, $scope, CONTACT_LIST_DISPLAY;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_LIST_DISPLAY_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
+      $scope = $rootScope.$new();
+      $scope.displayAs = CONTACT_LIST_DISPLAY.list;
+    }));
+
+    beforeEach(function() {
+      element = $compile('<contact-list-toggle></contact-list-toggle>')($scope);
+      $scope.$digest();
+    });
+
+    it('should have list button activated at start', function() {
+      expect(element.find('.btn-contacts-list-toggle')).to.be.disabled;
+      expect(element.find('.btn-contacts-cards-toggle')).to.be.enabled;
+    });
+
+    it('should switch buttons when clicking on cards one', function() {
+      element.find('.btn-contacts-cards-toggle').click();
+      expect(element.find('.btn-contacts-list-toggle')).to.be.enabled;
+      expect(element.find('.btn-contacts-cards-toggle')).to.be.disabled;
+    });
+
+    it('should switch buttons back to intial state when clicking on cards then list', function() {
+      element.find('.btn-contacts-cards-toggle').click();
+      element.find('.btn-contacts-list-toggle').click();
+      expect(element.find('.btn-contacts-list-toggle')).to.be.disabled;
+      expect(element.find('.btn-contacts-cards-toggle')).to.be.enabled;
+    });
+  });
 });
