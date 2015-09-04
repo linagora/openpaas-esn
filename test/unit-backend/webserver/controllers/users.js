@@ -86,13 +86,24 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
-          emails: ['foo@bar.com']
+          accounts: [{
+            type: 'email',
+            emails: ['foo@bar.com']
+          }]
         }
       };
       var res = {
         json: function(code, data) {
           expect(code).to.equal(200);
-          expect(data).to.deep.equal(req.user);
+          expect(data).to.shallowDeepEqual({
+            emails: ['foo@bar.com'],
+            accounts: [{
+              type: 'email',
+              emails: ['foo@bar.com'],
+              hosted: false,
+              preferredEmailIndex: 0
+            }]
+          });
           done();
         }
       };
