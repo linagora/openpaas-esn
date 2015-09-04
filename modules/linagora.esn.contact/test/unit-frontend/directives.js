@@ -139,7 +139,7 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListItem directive', function() {
 
-    var self;
+    var self, CONTACT_EVENTS;
 
     beforeEach(function() {
 
@@ -162,7 +162,7 @@ describe('The contact Angular module directives', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, _CONTACT_EVENTS_) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
@@ -171,6 +171,8 @@ describe('The contact Angular module directives', function() {
       };
       this.scope.bookId = '123';
       this.html = '<contact-list-item contact="contact" book-id="bookId"></contact-list-item>';
+
+      CONTACT_EVENTS = _CONTACT_EVENTS_;
     }));
 
     describe('Setting scope values', function() {
@@ -336,7 +338,7 @@ describe('The contact Angular module directives', function() {
         this.scope.$digest();
       });
 
-      it('should broadcast contact:cancel:delete on successful cancellation of a request', function(done) {
+      it('should broadcast CONTACT_EVENTS.CANCEL_DELETE on successful cancellation of a request', function(done) {
         this.notificationFactory.weakInfo = function() {};
         this.gracePeriodService.grace = function() {
           return $q.when({cancelled: true,
@@ -352,7 +354,7 @@ describe('The contact Angular module directives', function() {
           return $q.when('myTaskId');
         };
 
-        self.$rootScope.$on('contact:cancel:delete', function() {
+        self.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, function() {
           done();
         });
 

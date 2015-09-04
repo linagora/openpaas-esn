@@ -5,6 +5,21 @@
 angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DAV_PATH', '/dav/api')
+  .constant('CONTACT_EVENTS', {
+    CREATED: 'contact:created',
+    UPDATED: 'contact:updated',
+    DELETED: 'contact:deleted',
+    CANCEL_DELETE: 'contact:cancel:delete',
+
+    FLAG_LAST_ITEM: 'contact:flag:last:item',
+    ADD_CHECK: 'contact:add:check',
+    SET_FLAG: 'contact:set:flag',
+    RESET_FLAGS: 'contact:reset:flags'
+  })
+  .constant('CONTACT_SIO_EVENTS', {
+    CREATED: 'contact:created',
+    DELETED: 'contact:deleted'
+  })
   .run(function($rootScope, liveRefreshContactService) {
     $rootScope.$on('$routeChangeSuccess', function(evt, current, previous) {
       if (current && current.originalPath &&
@@ -132,17 +147,17 @@ angular.module('linagora.esn.contact')
       getFormattedBirthday: getFormattedBirthday
     };
   })
-  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL) {
+  .factory('liveRefreshContactService', function($rootScope, $log, livenotification, contactsService, ICAL, CONTACT_EVENTS, CONTACT_SIO_EVENTS) {
     var sio = null;
     var listening = false;
 
     function liveNotificationHandlerOnCreate(data) {
       var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
-      $rootScope.$broadcast('contact:created', contact);
+      $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     }
 
     function liveNotificationHandlerOnDelete(data) {
-      $rootScope.$broadcast('contact:deleted', { id: data.contactId });
+      $rootScope.$broadcast(CONTACT_EVENTS.DELETED, { id: data.contactId });
     }
 
     function startListen(bookId) {
@@ -151,8 +166,8 @@ angular.module('linagora.esn.contact')
       if (sio === null) {
         sio = livenotification('/contacts', bookId);
       }
-      sio.on('contact:created', liveNotificationHandlerOnCreate);
-      sio.on('contact:deleted', liveNotificationHandlerOnDelete);
+      sio.on(CONTACT_SIO_EVENTS.CREATED, liveNotificationHandlerOnCreate);
+      sio.on(CONTACT_SIO_EVENTS.DELETED, liveNotificationHandlerOnDelete);
 
       listening = true;
       $log.debug('Start listening contact live update');
@@ -162,8 +177,8 @@ angular.module('linagora.esn.contact')
       if (!listening) { return; }
 
       if (sio) {
-        sio.removeListener('contact:created', liveNotificationHandlerOnCreate);
-        sio.removeListener('contact:deleted', liveNotificationHandlerOnDelete);
+        sio.removeListener(CONTACT_SIO_EVENTS.CREATED, liveNotificationHandlerOnCreate);
+        sio.removeListener(CONTACT_SIO_EVENTS.DELETED, liveNotificationHandlerOnDelete);
       }
 
       listening = false;
@@ -176,7 +191,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .factory('contactsCacheService', function($rootScope, $log, $cacheFactory) {
+  .factory('contactsCacheService', function($rootScope, $log, $cacheFactory, CONTACT_EVENTS) {
     var CACHE_KEY = 'contactsList';
     var CONTACTS_CACHE_KEY = 'contacts';
     var contactsCache = $cacheFactory.get(CACHE_KEY);
@@ -193,21 +208,21 @@ angular.module('linagora.esn.contact')
       }
     });
 
-    $rootScope.$on('contact:created', function(e, data) {
+    $rootScope.$on(CONTACT_EVENTS.CREATED, function(e, data) {
       // workaround to avoid adding duplicated contacts
       deleteContact(data);
       addContact(data);
     });
 
-    $rootScope.$on('contact:updated', function(e, data) {
+    $rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
       updateContact(data);
     });
 
-    $rootScope.$on('contact:deleted', function(e, data) {
+    $rootScope.$on(CONTACT_EVENTS.DELETED, function(e, data) {
       deleteContact(data);
     });
 
-    $rootScope.$on('contact:cancel:delete', function(e, data) {
+    $rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(e, data) {
       addContact(data);
     });
 
@@ -274,13 +289,13 @@ angular.module('linagora.esn.contact')
       insertPhotoUrl: insertPhotoUrl
     };
   })
-  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log) {
+  .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS) {
 
     function deleteContact(bookId, contact) {
       remove(bookId, contact, GRACE_DELAY).then(function(taskId) {
         return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel').then(null, function() {
           return gracePeriodService.cancel(taskId).then(function() {
-            $rootScope.$broadcast('contact:cancel:delete', contact);
+            $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
           });
         });
       } , function(err) {
@@ -575,7 +590,7 @@ angular.module('linagora.esn.contact')
         }
         return getCard(bookId, cardId)
           .then(function(contact) {
-            $rootScope.$emit('contact:created', contact);
+            $rootScope.$emit(CONTACT_EVENTS.CREATED, contact);
             return response;
           })
           .finally (function() {
@@ -598,11 +613,11 @@ angular.module('linagora.esn.contact')
       return request('put', contactUrl(bookId, contact.id), addIfMatchHeader(contact.etag, headers), shellToVCARD(contact).toJSON()).then(function(response) {
         if (response.status === 200) {
           var updatedContact = new ContactsShell(new ICAL.Component(response.data), response.headers('ETag'));
-          $rootScope.$emit('contact:updated', updatedContact);
+          $rootScope.$emit(CONTACT_EVENTS.UPDATED, updatedContact);
           return updatedContact;
         } else if (response.status === 204) {
           return getCard(bookId, contact.id).then(function(updatedContact) {
-            $rootScope.$emit('contact:updated', updatedContact);
+            $rootScope.$emit(CONTACT_EVENTS.UPDATED, updatedContact);
             return updatedContact;
           });
         } else {
@@ -621,7 +636,7 @@ angular.module('linagora.esn.contact')
           return $q.reject(response);
         }
 
-        $rootScope.$broadcast('contact:deleted', contact);
+        $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
 
         return response.headers('X-ESN-TASK-ID');
       });

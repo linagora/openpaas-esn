@@ -86,7 +86,7 @@ angular.module('linagora.esn.contact')
 
     sharedDataService.contact = {};
   })
-  .controller('showContactController', function($scope, sharedDataService, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q) {
+  .controller('showContactController', function($scope, sharedDataService, $rootScope, ContactsHelper, DEFAULT_AVATAR, $timeout, $route, contactsService, notificationFactory, sendContactToBackend, displayError, closeForm, $q, CONTACT_EVENTS) {
     $scope.bookId = $route.current.params.bookId;
     $scope.cardId = $route.current.params.cardId;
     $scope.contact = {};
@@ -103,7 +103,7 @@ angular.module('linagora.esn.contact')
     function _modify() {
       return sendContactToBackend($scope, function() {
         return contactsService.modify($scope.bookId, $scope.contact).then(function(contact) {
-          $rootScope.$broadcast('contact:updated');
+          $rootScope.$broadcast(CONTACT_EVENTS.UPDATED);
           $scope.contact = contact;
           return contact;
         }, function(err) {
@@ -169,7 +169,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter) {
+  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -229,15 +229,15 @@ angular.module('linagora.esn.contact')
       openContactForm($scope.bookId);
     };
 
-    $scope.$on('contact:created', function(e, data) {
+    $scope.$on(CONTACT_EVENTS.CREATED, function(e, data) {
       addItemsToCategories([data]);
     });
 
-    $scope.$on('contact:deleted', function(e, contact) {
+    $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {
       $scope.categories.removeItemWithId(contact.id);
     });
 
-    $scope.$on('contact:cancel:delete', function(e, data) {
+    $scope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(e, data) {
       addItemsToCategories([data]);
     });
 

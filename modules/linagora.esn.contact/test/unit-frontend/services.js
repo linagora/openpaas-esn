@@ -18,7 +18,7 @@ describe('The Contacts Angular module', function() {
 
   describe('The liveRefreshContactService service', function() {
     var liveNotificationMock, onFn, removeListenerFn;
-    var $rootScope, liveRefreshContactService;
+    var $rootScope, liveRefreshContactService, CONTACT_SIO_EVENTS;
     var namespace = '/contacts';
 
     beforeEach(function() {
@@ -33,9 +33,10 @@ describe('The Contacts Angular module', function() {
         $provide.value('livenotification', liveNotificationMock);
       });
 
-      inject(function(_$rootScope_, _liveRefreshContactService_) {
+      inject(function(_$rootScope_, _liveRefreshContactService_, _CONTACT_SIO_EVENTS_) {
         $rootScope = _$rootScope_;
         liveRefreshContactService = _liveRefreshContactService_;
+        CONTACT_SIO_EVENTS = _CONTACT_SIO_EVENTS_;
       });
 
     });
@@ -57,16 +58,16 @@ describe('The Contacts Angular module', function() {
         expect(liveNotificationMock.calledWithExactly(namespace, bookId)).to.be.true;
       });
 
-      it('should make sio to listen on contact:created event', function() {
+      it('should make sio to listen on CONTACT_SIO_EVENTS.CREATED event', function() {
         var bookId = 'some book id';
         liveRefreshContactService.startListen(bookId);
-        expect(onFn.firstCall.calledWith('contact:created')).to.be.true;
+        expect(onFn.firstCall.calledWith(CONTACT_SIO_EVENTS.CREATED)).to.be.true;
       });
 
-      it('should make sio to listen on contact:deleted event', function() {
+      it('should make sio to listen on CONTACT_SIO_EVENTS.DELETED event', function() {
         var bookId = 'some book id';
         liveRefreshContactService.startListen(bookId);
-        expect(onFn.secondCall.calledWith('contact:deleted')).to.be.true;
+        expect(onFn.secondCall.calledWith(CONTACT_SIO_EVENTS.DELETED)).to.be.true;
       });
 
     });
@@ -84,20 +85,20 @@ describe('The Contacts Angular module', function() {
         expect(removeListenerFn.callCount).to.equal(2);
       });
 
-      it('should make sio to remove contact:created event listener', function() {
+      it('should make sio to remove CONTACT_SIO_EVENTS.CREATED event listener', function() {
         var bookId = 'some book id';
         liveRefreshContactService.startListen(bookId);
 
         liveRefreshContactService.stopListen();
-        expect(removeListenerFn.firstCall.calledWith('contact:created')).to.be.true;
+        expect(removeListenerFn.firstCall.calledWith(CONTACT_SIO_EVENTS.CREATED)).to.be.true;
       });
 
-      it('should make sio to remove contact:deleted event listener', function() {
+      it('should make sio to remove CONTACT_SIO_EVENTS.DELETED event listener', function() {
         var bookId = 'some book id';
         liveRefreshContactService.startListen(bookId);
 
         liveRefreshContactService.stopListen();
-        expect(removeListenerFn.secondCall.calledWith('contact:deleted')).to.be.true;
+        expect(removeListenerFn.secondCall.calledWith(CONTACT_SIO_EVENTS.DELETED)).to.be.true;
       });
 
     });
@@ -106,13 +107,14 @@ describe('The Contacts Angular module', function() {
 
 
   describe('The contactsCacheService service', function() {
-    var contactsCacheService;
+    var contactsCacheService, CONTACT_EVENTS;
     var $rootScope;
 
     function injectService() {
-      inject(function($injector, _$rootScope_) {
+      inject(function($injector, _$rootScope_, _CONTACT_EVENTS_) {
         $rootScope = _$rootScope_;
         contactsCacheService = $injector.get('contactsCacheService');
+        CONTACT_EVENTS = _CONTACT_EVENTS_;
       });
     }
 
@@ -199,25 +201,25 @@ describe('The Contacts Angular module', function() {
       expect(contactsCacheService.get()).to.eql([123]);
     });
 
-    it('should add contact to cache on contact:created event', function() {
+    it('should add contact to cache on CONTACT_EVENTS.CREATED event', function() {
       injectService();
       var contact1 = { id: 1, firstName: '1' };
       var contact2 = { id: 2, firstName: '2' };
       contactsCacheService.put([contact1]);
-      $rootScope.$emit('contact:created', contact2);
+      $rootScope.$emit(CONTACT_EVENTS.CREATED, contact2);
       expect(contactsCacheService.get()).to.eql([contact1, contact2]);
     });
 
-    it('should not add duplicated contacts to cache on contact:created event', function() {
+    it('should not add duplicated contacts to cache on CONTACT_EVENTS.CREATED event', function() {
       injectService();
       var contact1 = { id: 1, firstName: '1' };
       var contact2 = { id: 2, firstName: '2' };
       contactsCacheService.put([contact1]);
-      $rootScope.$emit('contact:created', contact2);
+      $rootScope.$emit(CONTACT_EVENTS.CREATED, contact2);
       expect(contactsCacheService.get()).to.eql([contact1, contact2]);
     });
 
-    it('should update contact on contact:updated event', function() {
+    it('should update contact on CONTACT_EVENTS.UPDATED event', function() {
       injectService();
 
       var oldContact = {
@@ -229,11 +231,11 @@ describe('The Contacts Angular module', function() {
         name: 'new name'
       };
       contactsCacheService.put([oldContact]);
-      $rootScope.$emit('contact:updated', newContact);
+      $rootScope.$emit(CONTACT_EVENTS.UPDATED, newContact);
       expect(contactsCacheService.get()).to.eql([newContact]);
     });
 
-    it('should delete contact on contact:deleted event', function() {
+    it('should delete contact on CONTACT_EVENTS.DELETED event', function() {
       injectService();
 
       var contact1 = {
@@ -245,11 +247,11 @@ describe('The Contacts Angular module', function() {
         name: '456'
       };
       contactsCacheService.put([contact1, contact2]);
-      $rootScope.$emit('contact:deleted', contact2);
+      $rootScope.$emit(CONTACT_EVENTS.DELETED, contact2);
       expect(contactsCacheService.get()).to.eql([contact1]);
     });
 
-    it('should add contact again on contact:cancel:delete event', function() {
+    it('should add contact again on CONTACT_EVENTS.CANCEL_DELETE event', function() {
       injectService();
 
       var contact1 = {
@@ -265,14 +267,14 @@ describe('The Contacts Angular module', function() {
         name: '789'
       };
       contactsCacheService.put([contact1, contact2]);
-      $rootScope.$emit('contact:cancel:delete', contact3);
+      $rootScope.$emit(CONTACT_EVENTS.CANCEL_DELETE, contact3);
       expect(contactsCacheService.get()).to.eql([contact1, contact2, contact3]);
     });
 
   });
 
   describe('The contactsService service', function() {
-    var ICAL, contact, contactWithChangedETag, contactAsJCard, photoCache;
+    var ICAL, CONTACT_EVENTS, contact, contactWithChangedETag, contactAsJCard, photoCache;
 
     beforeEach(function() {
       var self = this;
@@ -311,7 +313,7 @@ describe('The Contacts Angular module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, defaultAvatarService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY) {
+    beforeEach(angular.mock.inject(function(contactsService, contactsCacheService, defaultAvatarService, notificationFactory, $httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY, _CONTACT_EVENTS_) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.contactsService = contactsService;
@@ -324,6 +326,7 @@ describe('The Contacts Angular module', function() {
       };
 
       ICAL = _ICAL_;
+      CONTACT_EVENTS = _CONTACT_EVENTS_;
     }));
 
     describe('The list fn', function() {
@@ -542,7 +545,7 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should emit contact:created event with created contact when success', function(done) {
+      it('should emit CONTACT_EVENTS.CREATED event with created contact when success', function(done) {
         var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
         this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(201);
 
@@ -553,14 +556,14 @@ describe('The Contacts Angular module', function() {
           ], []]
         );
 
-        this.$rootScope.$on('contact:created', function(e, contact) {
+        this.$rootScope.$on(CONTACT_EVENTS.CREATED, function(e, contact) {
           expect(contact.id).to.equal('myuid');
           done();
         });
 
         var spy = sinon.spy(this.$rootScope, '$emit');
         this.contactsService.create(1, contact).then(function() {
-          expect(spy.withArgs('contact:created').calledOnce).to.be.true;
+          expect(spy.withArgs(CONTACT_EVENTS.CREATED).calledOnce).to.be.true;
         });
 
         this.$rootScope.$apply();
@@ -637,7 +640,7 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should emit contact:updated event with updated contact on 200', function(done) {
+      it('should emit CONTACT_EVENTS.UPDATED event with updated contact on 200', function(done) {
         var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
         this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(200,
           ['vcard', [
@@ -646,7 +649,7 @@ describe('The Contacts Angular module', function() {
           ], []], { 'ETag': 'changed-etag' });
 
         var spy = sinon.spy(this.$rootScope, '$emit');
-        this.$rootScope.$on('contact:updated', function(e, contact) {
+        this.$rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, contact) {
           expect(contact.id).to.equal('myuid');
           expect(spy.calledOnce).to.be.true;
           done();
@@ -658,7 +661,7 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should emit contact:updated event with updated contact on 204', function(done) {
+      it('should emit CONTACT_EVENTS.UPDATED event with updated contact on 204', function(done) {
         var requestPath = '/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf';
         this.$httpBackend.expectPUT(this.getExpectedPath(requestPath)).respond(204, '');
         this.$httpBackend.expectGET(this.getExpectedPath(requestPath)).respond(200,
@@ -668,7 +671,7 @@ describe('The Contacts Angular module', function() {
           ], []], { 'ETag': 'changed-etag' });
 
         var spy = sinon.spy(this.$rootScope, '$emit');
-        this.$rootScope.$on('contact:updated', function(e, contact) {
+        this.$rootScope.$on(CONTACT_EVENTS.UPDATED, function(e, contact) {
           expect(contact.id).to.equal('myuid');
           expect(spy.calledOnce).to.be.true;
           done();
@@ -824,10 +827,10 @@ describe('The Contacts Angular module', function() {
         this.$httpBackend.flush();
       });
 
-      it('should broadcast contact:deleted on success', function(done) {
+      it('should broadcast CONTACT_EVENTS.DELETED on success', function(done) {
         this.$httpBackend.expectDELETE(this.getExpectedPath('/addressbooks/1/contacts/00000000-0000-4000-a000-000000000000.vcf')).respond(204);
 
-        this.$rootScope.$on('contact:deleted', function(e, data) {
+        this.$rootScope.$on(CONTACT_EVENTS.DELETED, function(e, data) {
           expect(data).to.deep.equal(contact);
 
           done();
