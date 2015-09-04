@@ -93,11 +93,22 @@ angular.module('esn.calendar')
       link: link
     };
   })
-  .directive('eventEdition', function() {
+  .directive('eventMessageEdition', function() {
+
+    function link(scope, element, attrs, controller) {
+      $scope.submit = controller.addNewEvent;
+      $scope.getMinDate = controller.getMinDate;
+      $scope.onStartDateChange = controller.onStartDateChange;
+      $scope.onEndDateChange = controller.onEndDateChange;
+      $scope.getMinTime = controller.getMinTime;
+    }
+
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/message/event/event-edition.html'
+      templateUrl: '/calendar/views/message/event/event-message-edition.html',
+      controller: 'eventFormController',
+      link: link
     };
   })
   .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES, AUTOCOMPLETE_MAX_RESULTS) {

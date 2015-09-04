@@ -252,6 +252,7 @@ angular.module('esn.calendar')
     $scope.calendarId = user._id;
     $scope.uiConfig = USER_UI_CONFIG;
   })
+
   .controller('calendarController', function($scope, $rootScope, $window, $modal, $timeout, $log, $alert, uiCalendarConfig, calendarService, calendarUtils, eventService, notificationFactory, calendarEventSource,  livenotification, gracePeriodService, MAX_CALENDAR_RESIZE_HEIGHT) {
 
     var windowJQuery = angular.element($window);
