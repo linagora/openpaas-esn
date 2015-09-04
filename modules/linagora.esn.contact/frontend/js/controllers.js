@@ -176,7 +176,6 @@ angular.module('linagora.esn.contact')
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
-    $scope.showMenu = false;
     $scope.searchResult = {};
     $scope.categories = new AlphaCategoryService({keys: $scope.keys, sortBy: $scope.sortBy, keepAll: true, keepAllKey: '#'});
     $scope.lastPage = false;
@@ -242,7 +241,6 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on('ngRepeatFinished', function() {
-      $scope.showMenu = true;
       $scope.$emit('viewRenderFinished');
     });
 
