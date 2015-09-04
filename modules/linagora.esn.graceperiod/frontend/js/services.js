@@ -9,6 +9,119 @@ angular.module('linagora.esn.graceperiod')
     });
   })
 
+  .factory('gracePeriodLiveNotification', function($log, $q, livenotification, GRACE_EVENTS) {
+
+    var listening = false;
+    var sio;
+    var listeners = {};
+
+    function onError(data) {
+      $log.debug('graceperiod error handlers for task', data.id);
+      var handlers = listeners[data.id];
+
+      if (handlers) {
+        var onErrorHandlers = handlers.filter(function(handler) {
+          return handler.onError;
+        });
+
+        $q.all(onErrorHandlers.map(function(handler) {
+          return handler.onError(data);
+        })).then(function() {
+          $log.debug('All error handlers called for graceperiod task', data.id);
+        }, function(err) {
+          $log.error('Error while calling grace period error handler', err);
+        }).finally (function() {
+          unregisterListeners(data.id);
+        });
+      }
+    }
+
+    function onDone(data) {
+      $log.debug('graceperiod done handlers for task', data.id);
+      var handlers = listeners[data.id];
+
+      if (handlers) {
+        var onDoneHandlers = handlers.filter(function(handler) {
+          return handler.onDone;
+        });
+
+        $q.all(onDoneHandlers.map(function(handler) {
+          return handler.onDone(data);
+        })).then(function() {
+          $log.debug('All done handlers called for graceperiod task', data.id);
+        }, function(err) {
+          $log.error('Error while calling grace period done handler', err);
+        }).finally (function() {
+          unregisterListeners(data.id);
+        });
+      }
+    }
+
+    function start() {
+      if (listening) {
+        return sio;
+      }
+
+      if (!sio) {
+        sio = livenotification('/graceperiod');
+      }
+
+      sio.on(GRACE_EVENTS.error, onError);
+      sio.on(GRACE_EVENTS.done, onDone);
+
+      listening = true;
+      $log.debug('Start listening graceperiod live events');
+      return sio;
+    }
+
+    function stop() {
+      if (!listening) {
+        return;
+      }
+
+      if (sio) {
+        sio.removeListener(GRACE_EVENTS.error, onError);
+        sio.removeListener(GRACE_EVENTS.done, onDone);
+      }
+
+      listening = false;
+      $log.debug('Stop listening graceperiod live events');
+    }
+
+    function registerListeners(task, onError, onDone) {
+      if (!task) {
+        return;
+      }
+
+      if (!listeners[task]) {
+        listeners[task] = [];
+      }
+      listeners[task].push({onError: onError, onDone: onDone});
+    }
+
+    function unregisterListeners(task) {
+      if (!task) {
+        return;
+      }
+      delete listeners[task];
+    }
+
+    function getListeners() {
+      var result = {};
+      angular.copy(listeners, result);
+      return result;
+    }
+
+    return {
+      start: start,
+      stop: stop,
+      registerListeners: registerListeners,
+      unregisterListeners: unregisterListeners,
+      getListeners: getListeners
+    };
+
+  })
+
   .factory('gracePeriodService', function(gracePeriodAPI, notifyOfGracedRequest) {
     var taskIds = [];
 
