@@ -241,16 +241,37 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on('ngRepeatFinished', function() {
-      $scope.$emit('viewRenderFinished');
+      if (!$scope.searchInput) {$scope.$emit('viewRenderFinished');}
     });
 
     $scope.$on('$destroy', function() {
       gracePeriodService.flushAllTasks();
     });
 
+    $scope.$on('$routeUpdate', function() {
+        if (!$location.search().q) {
+          if (!$scope.searchInput) {return;}
+          $scope.searchInput = null;
+          return $scope.search();
+        }
+        if ($location.search().q.replace(/\+/g, ' ') !== $scope.searchInput) {
+          $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
+          return $scope.search();
+        }
+    });
+
     $window.addEventListener('beforeunload', gracePeriodService.flushAllTasks);
 
+    $scope.appendQueryToURL = function() {
+      if ($scope.searchInput) {
+        $location.search('q', $scope.searchInput.replace(/ /g, '+'));
+        return;
+      }
+      $location.search('q', null);
+    };
+
     $scope.search = function() {
+      $scope.$emit('resetScrollPosition');
       cleanSearchResults();
       $scope.currentPage = 1;
       $scope.searchFailure = false;
@@ -280,6 +301,7 @@ angular.module('linagora.esn.contact')
 
     function getNextResults() {
       $scope.searchFailure = false;
+      $scope.loadingNextSearchResults = true;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
         $scope.current_page = data.current_page;
         addItemsToCategories(data.hits_list);
@@ -305,8 +327,15 @@ angular.module('linagora.esn.contact')
       getNextResults();
     };
 
-    $scope.loadContacts();
 
+    if ($location.search().q) {
+      $scope.searchInput = $location.search().q.replace(/\+/g, ' ');
+      $scope.search();
+    }
+    else {
+      $scope.searchInput = null;
+      $scope.loadContacts();
+    }
   })
   .controller('contactAvatarModalController', function($scope, selectionService) {
     $scope.imageSelected = function() {

@@ -3,11 +3,11 @@
   .block-header
     h2 #{__('Contacts')}
     .contacts-search.hidden-sm.hidden-xs
-      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 600 }")
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-blur='appendQueryToURL()', ng-model-options="{ debounce: 600 }")
 
   .row
     .contacts-search.visible-sm.visible-xs.col-xs-11
-      input(type="text", ng-model="searchInput", ng-change='search()', ng-model-options="{ debounce: 600 }")
+      input(type="text", ng-model="searchInput", ng-change='search()', ng-blur='appendQueryToURL()', ng-model-options="{ debounce: 600 }")
 
   button.btn.btn-fab-fixed-bottom(type="button", ng-click="openContactCreation()")
     i.mdi.mdi-plus

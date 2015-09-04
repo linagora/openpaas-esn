@@ -12,7 +12,8 @@ angular.module('linagora.esn.contact', [
     resolve: {
       domain: routeResolver.session('domain'),
       user: routeResolver.session('user')
-    }
+    },
+    reloadOnSearch: false
   });
   $routeProvider.when('/contact/new/:bookId', {
     templateUrl: '/contact/views/contact-new',

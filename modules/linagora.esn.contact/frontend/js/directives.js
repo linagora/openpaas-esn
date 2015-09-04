@@ -460,6 +460,10 @@ angular.module('linagora.esn.contact')
           scrollPositionCache.put(currentPath, $document.scrollTop());
         });
 
+        scope.$on('resetScrollPosition', function() {
+          scrollPositionCache.put(currentPath, 0);
+        });
+
         // scroll to stored position
         scope.$on('viewRenderFinished', function() {
           var position = scrollPositionCache.get(currentPath) || 0;
