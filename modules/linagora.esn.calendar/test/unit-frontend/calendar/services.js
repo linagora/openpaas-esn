@@ -6,7 +6,8 @@
 
 var expect = chai.expect;
 
-describe('The Calendar Angular module services', function() {
+describe('The calendar module services', function() {
+
   describe('The calendarEventSource', function() {
     beforeEach(function() {
 
