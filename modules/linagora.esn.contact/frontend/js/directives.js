@@ -359,7 +359,8 @@ angular.module('linagora.esn.contact')
       link: link
     };
   })
-  .directive('contactListItem', function($rootScope, $location, contactsService, notificationFactory, GRACE_DELAY, gracePeriodService, $q, CONTACT_EVENTS) {
+
+  .directive('contactListItem', function() {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
@@ -367,47 +368,46 @@ angular.module('linagora.esn.contact')
         contact: '=',
         bookId: '='
       },
+      controller: 'contactItemController'
+    };
+  })
+
+  .directive('contactListCard', function(DEFAULT_AVATAR) {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-card.html',
+      scope: {
+        contact: '=',
+        bookId: '='
+      },
+      controller: 'contactItemController',
       link: function($scope) {
-
-        function getFirstValue(property) {
-          if (!$scope.contact[property] || !$scope.contact[property][0]) {
-            return;
-          }
-          return $scope.contact[property][0].value;
-        }
-
-        $scope.email = getFirstValue('emails');
-        $scope.tel = getFirstValue('tel');
-
-        $scope.displayContact = function($event) {
-          $location.path('/contact/show/' + $scope.bookId + '/' + $scope.contact.id);
-        };
-
-        $scope.deleteContact = function() {
-          contactsService.remove($scope.bookId, $scope.contact, GRACE_DELAY).then(null, function(err) {
-            notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
-
-            return $q.reject(err);
-          }).then(function(taskId) {
-            return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + $scope.contact.displayName + ').', 'Cancel')
-                .then(function(data) {
-                  if (data.cancelled) {
-                    return gracePeriodService.cancel(taskId).then(function() {
-                      data.success();
-                      $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, $scope.contact);
-                    }, function(err) {
-                      data.error('Cannot cancel contact delete, the contact is deleted');
-                      return $q.reject(err);
-                    });
-                  } else {
-                    gracePeriodService.remove(taskId);
-                  }
-            });
-          });
-        };
+        $scope.defaultAvatar = DEFAULT_AVATAR;
       }
     };
   })
+
+  .directive('contactListDisplayer', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-displayer.html'
+    };
+  })
+
+  .directive('contactListItems', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-items.html'
+    };
+  })
+
+  .directive('contactListCards', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/contact/views/partials/contact-list-cards.html'
+    };
+  })
+
   .directive('contactPhoto', function(DEFAULT_AVATAR) {
     return {
       restrict: 'E',

@@ -1,6 +1,9 @@
+@import '../../../../frontend/components/material-admin/less/inc/contacts';
+
 @contact-header-color: @darkPrimaryColor;
 @contact-toolbar-item-height: 35px;
 @contact-toolbar-switch-width: 65px;
+@contact-card-display-image-size: 128px;
 
 #profile-main {
   a {
@@ -265,5 +268,28 @@ contact-edition-form {
   button {
     height: @contact-toolbar-item-height;
     width: @contact-toolbar-switch-width;
+  }
+}
+
+.contact-list-card {
+  min-width: @contact-card-display-image-size + 30;
+
+  img {
+    min-width: @contact-card-display-image-size;
+    width: @contact-card-display-image-size;
+    height: @contact-card-display-image-size;
+    max-width: 100%;
+  }
+
+  .contact-info {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
