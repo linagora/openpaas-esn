@@ -330,6 +330,7 @@ angular.module('esn.calendar')
         // and cancel the taskid corresponding on the event.
         return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
+          return $q.when(false);
         }, $q.reject);
       }
 
@@ -349,15 +350,18 @@ angular.module('esn.calendar')
       .then(function(data) {
         var task = data;
         if (task.cancelled) {
-          gracePeriodService.cancel(taskId).then(function() {
+          return gracePeriodService.cancel(taskId).then(function() {
             calendarEventEmitter.fullcalendar.emitCreatedEvent(shell);
             task.success();
+            return $q.when(false);
           }, function(err) {
             task.error(err.statusText);
+            return $q.when(false);
           });
         } else {
           gracePeriodService.remove(taskId);
           calendarEventEmitter.websocket.emitRemovedEvent(vcalendar);
+          return $q.when(true);
         }
       });
     }
