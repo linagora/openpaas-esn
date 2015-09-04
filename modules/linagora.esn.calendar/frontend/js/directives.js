@@ -5,7 +5,7 @@ angular.module('esn.calendar')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/message/templates/eventMessage.html',
+      templateUrl: '/calendar/views/message/templates/event-message.html',
       link: function($scope, element, attrs) {
         $scope.changeParticipation = function(partstat) {
           var vcalendar = $scope.event.vcalendar;
