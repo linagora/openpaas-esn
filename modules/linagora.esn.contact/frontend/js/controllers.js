@@ -230,6 +230,7 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.$on(CONTACT_EVENTS.CREATED, function(e, data) {
+      if ($scope.searchInput) { return; }
       addItemsToCategories([data]);
     });
 
