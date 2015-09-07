@@ -19,10 +19,6 @@ describe('The Grace Period Module', function() {
           return callback(null, {token: token});
         }
       }
-    },
-    pubsub: {
-      local: {
-      }
     }
   };
 
@@ -169,86 +165,6 @@ describe('The Grace Period Module', function() {
         task.cancel();
         done();
       }, done);
-    });
-
-    it('should publish event in local topic graceperiod:done when task is done', function(done) {
-
-      var result = {foo: 'bar'};
-      var user = 'user1';
-
-      deps.pubsub.local = {
-        topic: function(topic) {
-          expect(topic).to.equal('graceperiod:done');
-          return {
-            publish: function(data) {
-              expect(data.id).to.equal(token);
-              expect(data.user).to.equal(user);
-              expect(data.result).to.deep.equal(result);
-              done();
-            }
-          };
-        }
-      };
-
-      var module = require('../../../lib/index')(dependencies);
-
-      var clock = sinon.useFakeTimers();
-      var job = function(cb) {
-        cb(null, result);
-      };
-
-      var onComplete = function() {
-      };
-
-      var onCancel = function() {
-        done(new Error());
-      };
-
-      module.create(job, 1000, {user: user}, onComplete, onCancel).then(function() {
-        clock.tick(2000);
-      }, function(err) {
-        done(err);
-      });
-    });
-
-    it('should publish event in local topic graceperiod:error when task failed', function(done) {
-
-      var user = 'user1';
-      var err = new Error('You failed');
-
-      deps.pubsub.local = {
-        topic: function(topic) {
-          expect(topic).to.equal('graceperiod:error');
-          return {
-            publish: function(data) {
-              expect(data.id).to.equal(token);
-              expect(data.user).to.equal(user);
-              expect(data.err).to.equal(err);
-              done();
-            }
-          };
-        }
-      };
-
-      var module = require('../../../lib/index')(dependencies);
-
-      var clock = sinon.useFakeTimers();
-      var job = function(cb) {
-        cb(err);
-      };
-
-      var onComplete = function() {
-      };
-
-      var onCancel = function() {
-        done(new Error());
-      };
-
-      module.create(job, 1000, {user: user}, onComplete, onCancel).then(function() {
-        clock.tick(2000);
-      }, function(err) {
-        done(err);
-      });
     });
   });
 });

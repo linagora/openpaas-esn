@@ -1,8 +1,6 @@
 'use strict';
 
 var Task = require('./task');
-var constants = require('./constants');
-
 var q = require('q');
 
 var DEFAULT_DELAY = 10 * 1000;
@@ -11,7 +9,6 @@ module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var token = dependencies('auth').token;
-  var pubsub = dependencies('pubsub');
   var registry = require('./registry')(dependencies);
 
   function cancel(id) {
@@ -34,16 +31,6 @@ module.exports = function(dependencies) {
 
       function onTaskComplete(err, result) {
         registry.remove(token).then(function() {
-          var data = {id: token, user: context.user};
-
-          if (err) {
-            data.err = err;
-            pubsub.local.topic(constants.GRACEPERIOD_ERROR).publish(data);
-          } else {
-            data.result = result;
-            pubsub.local.topic(constants.GRACEPERIOD_DONE).publish(data);
-          }
-
           onComplete(err, result);
         });
       }
@@ -64,7 +51,6 @@ module.exports = function(dependencies) {
   return {
     create: create,
     cancel: cancel,
-    registry: registry,
-    constants: constants
+    registry: registry
   };
 };
