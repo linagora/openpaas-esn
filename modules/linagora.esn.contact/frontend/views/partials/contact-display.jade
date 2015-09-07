@@ -27,10 +27,6 @@
           h2 
             i.mdi.mdi-briefcase.m-r-5
             | #{__('Job')}
-          ul.actions
-            li.dropdown
-              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-                i.mdi.mdi-pencil
         .pmbb-body.p-l-30
           .pmbb-view
             dl.dl-horizontal(ng-if='contact.org')
@@ -56,10 +52,6 @@
           h2 
             i.mdi.mdi-phone.m-r-5
             | #{__('Contact')}
-          ul.actions
-            li.dropdown
-              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-                i.mdi.mdi-pencil
         .pmbb-body.p-l-30
           .pmbb-view
             dl.dl-horizontal(ng-repeat='email in contact.emails track by $index')
@@ -101,10 +93,6 @@
           h2 
             i.mdi.mdi-account-box.m-r-5
             | #{__('Profile Informations')}
-          ul.actions
-            li.dropdown
-              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-                i.mdi.mdi-pencil
         .pmbb-body.p-l-30
           .pmbb-view
             dl.dl-horizontal(ng-if='contact.firstName')
@@ -136,10 +124,6 @@
           h2 
             i.mdi.mdi-comment-account.m-r-5
             | #{__('Comments')}
-          ul.actions
-            li.dropdown
-              a( href='#/contact/edit/{{::bookId}}/{{::contact.id}}')
-                i.mdi.mdi-pencil
         .pmbb-body.p-l-30
           .pmbb-view
             | {{contact.notes}}
