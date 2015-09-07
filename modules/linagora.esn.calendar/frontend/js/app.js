@@ -16,18 +16,17 @@ angular.module('esn.calendar', [
 ])
   .config(function($routeProvider, routeResolver) {
     $routeProvider.when('/calendar/communities/:community_id', {
-      templateUrl: '/calendar/views/community/community-calendar',
+      templateUrl: '/calendar/views/calendar/community-calendar',
       controller: 'communityCalendarController',
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities')
       }
     });
     $routeProvider.when('/calendar', {
-      templateUrl: '/calendar/views/user/user-calendar',
+      templateUrl: '/calendar/views/calendar/user-calendar',
       controller: 'userCalendarController',
       resolve: {
         user: routeResolver.session('user')
       }
     });
   });
-

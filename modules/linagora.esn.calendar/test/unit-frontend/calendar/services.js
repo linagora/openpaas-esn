@@ -6,7 +6,8 @@
 
 var expect = chai.expect;
 
-describe('The Calendar Angular module services', function() {
+describe('The calendar module services', function() {
+
   describe('The calendarEventSource', function() {
     beforeEach(function() {
 
@@ -1051,9 +1052,10 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
         this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event).then(
-          function() {
+          function(response) {
             expect(emitMessage).to.equal('removedCalendarItem');
             expect(socketEmitSpy).to.not.have.been.called;
+            expect(response).to.be.false;
             done();
           }, unexpected.bind(null, done)
         );
@@ -1082,9 +1084,10 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
         this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
-          function() {
+          function(response) {
             expect(emitMessage).to.equal('removedCalendarItem');
             expect(socketEmitSpy).to.have.been.called;
+            expect(response).to.be.true;
             done();
           }, unexpected.bind(null, done)
         );
@@ -1117,10 +1120,11 @@ describe('The Calendar Angular module services', function() {
         this.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=10000').respond(202, {id: '123456789'});
 
         this.calendarService.remove('/path/to/00000000-0000-4000-a000-000000000000.ics', this.event, 'etag').then(
-          function() {
+          function(response) {
             expect(emitMessage).to.equal('addedCalendarItem');
             expect(socketEmitSpy).to.have.not.been.called;
             expect(successSpy).to.have.been.called;
+            expect(response).to.be.false;
             done();
           }, unexpected.bind(null, done)
         );

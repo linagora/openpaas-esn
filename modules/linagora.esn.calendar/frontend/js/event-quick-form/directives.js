@@ -1,89 +1,15 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .directive('eventMessage', function(calendarService, session) {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/message/templates/eventMessage.html',
-      link: function($scope, element, attrs) {
-        $scope.changeParticipation = function(partstat) {
-          var vcalendar = $scope.event.vcalendar;
-          var path = $scope.event.path;
-          var etag = $scope.event.etag;
-          var emails = session.user.emails;
-
-          calendarService.changeParticipation(path, vcalendar, emails, partstat, etag).then(function(shell) {
-            $scope.partstat = partstat;
-            if (shell) {
-              $scope.event = shell;
-            }
-          });
-        };
-
-        function updateEvent() {
-          calendarService.getEvent($scope.message.eventId).then(function(event) {
-            // Set up dom nodes
-            $scope.event = event;
-            element.find('>div>div.loading').addClass('hidden');
-            element.find('>div>div.message').removeClass('hidden');
-
-            // Load participation status
-            var vcalendar = event.vcalendar;
-            var emails = session.user.emails;
-            var attendees = calendarService.getInvitedAttendees(vcalendar, emails);
-            var organizer = attendees.filter(function(att) {
-              return att.name === 'organizer' && att.getParameter('partstat');
-            });
-
-            var attendee = organizer[0] || attendees[0];
-            if (attendee) {
-              $scope.partstat = attendee.getParameter('partstat');
-            }
-          }, function(response) {
-            var error = 'Could not retrieve event: ' + response.statusText;
-            element.find('>div>.loading').addClass('hidden');
-            element.find('>div>.error').text(error).removeClass('hidden');
-          });
-        }
-        updateEvent();
-      }
-    };
-  })
-  .directive('eventCreateButton', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        community: '=',
-        user: '='
-      },
-      templateUrl: '/calendar/views/partials/event-create-button.html'
-    };
-  })
-  .directive('calendarButtonToolbar', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/community/community-calendar-button-toolbar.html'
-    };
-  })
-  .directive('messageEditionEventButton', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/message/event/message-edition-event-button.html'
-    };
-  })
   .directive('eventQuickFormWizard', function(WidgetWizard, $rootScope) {
     function link($scope, element) {
       $scope.wizard = new WidgetWizard([
-        '/calendar/views/partials/event-quick-form-wizard-step-0'
+        '/calendar/views/event-quick-form/event-quick-form-wizard-step-0'
       ]);
     }
     return {
       restrict: 'E',
-      templateUrl: '/calendar/views/partials/event-quick-form-wizard',
+      templateUrl: '/calendar/views/event-quick-form/event-quick-form-wizard',
       scope: {
         user: '=',
         domain: '=',
@@ -93,13 +19,19 @@ angular.module('esn.calendar')
       link: link
     };
   })
-  .directive('eventEdition', function() {
+
+  .directive('eventCreateButton', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/message/event/event-edition.html'
+      scope: {
+        community: '=',
+        user: '='
+      },
+      templateUrl: '/calendar/views/event-quick-form/event-create-button.html'
     };
   })
+
   .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES, AUTOCOMPLETE_MAX_RESULTS) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
@@ -197,10 +129,11 @@ angular.module('esn.calendar')
       restrict: 'E',
       replace: true,
       controller: 'eventFormController',
-      templateUrl: '/calendar/views/partials/event-quick-form.html',
+      templateUrl: '/calendar/views/event-quick-form/event-quick-form.html',
       link: link
     };
   })
+
   .directive('friendlifyEndDate', function(moment) {
     function link(scope, element, attrs, ngModel) {
       function _ToView(value) {
@@ -239,6 +172,7 @@ angular.module('esn.calendar')
       link: link
     };
   })
+
   .directive('dateToMoment', function(moment) {
     function link(scope, element, attrs, controller) {
       function _toModel(value) {
@@ -257,18 +191,12 @@ angular.module('esn.calendar')
       link: link
     };
   })
-  .directive('calendarNavbarLink', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/user/user-calendar-navbar-link.html'
-    };
-  })
+
   .directive('attendeeListItem', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/calendar/views/attendee/attendee-list-item.html',
+      templateUrl: '/calendar/views/event-quick-form/attendee-list-item.html',
       controller: 'eventFormController',
       scope: {
         attendee: '=',
@@ -277,26 +205,5 @@ angular.module('esn.calendar')
       link: function(scope) {
         scope.attendeeType = scope.attendee.name === scope.attendee.email ? 'email' : 'user';
       }
-    };
-  })
-  .directive('calendarDisplay', function($timeout) {
-    function link(scope, element) {
-      $timeout(function() {
-        var today = element.find('.fc-today-button');
-        today.addClass('btn waves-effect');
-        var buttonGroup = element.find('.fc-button-group');
-        buttonGroup.addClass('btn-group');
-        buttonGroup.children().addClass('btn waves-effect');
-      }, 0);
-    }
-    return {
-      restrict: 'E',
-      templateUrl: 'calendar/views/partials/calendar.html',
-      scope: {
-        calendarId: '=',
-        uiConfig: '='
-      },
-      controller: 'calendarController',
-      link: link
     };
   });
