@@ -7,47 +7,66 @@ var CONTACT_DELETED = 'contacts:contact:delete';
 var contactNamespace;
 
 function init(dependencies) {
-    var logger = dependencies('logger');
-    var pubsub = dependencies('pubsub').local;
-    var io = dependencies('wsserver').io;
+  var logger = dependencies('logger');
+  var pubsub = dependencies('pubsub').local;
+  var io = dependencies('wsserver').io;
 
-    function synchronizeContactLists(event, data) {
-        if (contactNamespace) {
-            contactNamespace.to(data.bookId).emit(event, {room: data.bookId, data: data});
-        }
+  function synchronizeContactLists(event, data) {
+    if (contactNamespace) {
+      contactNamespace.to(data.bookId).emit(event, {
+        room: data.bookId,
+        data: data
+      });
+    }
+  }
+
+  if (initialized) {
+    logger.warn('The contact notification service is already initialized');
+    return;
+  }
+
+  pubsub.topic(CONTACT_DELETED).subscribe(function(data) {
+    if (data && data.bookId && data.contactId) {
+      logger.info('Notifying contact delete');
+      synchronizeContactLists('contact:deleted', {
+        bookId: data.bookId,
+        contactId: data.contactId
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONTACT_DELETED, 'pubsub event');
     }
 
-    if (initialized) {
-        logger.warn('The contact notification service is already initialized');
-        return;
+  });
+
+  pubsub.topic(CONTACT_ADDED).subscribe(function(data) {
+    if (data && data.bookId && data.vcard) {
+      logger.info('Notifying contact creation');
+      synchronizeContactLists('contact:created', {
+        bookId: data.bookId,
+        vcard: data.vcard
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONTACT_ADDED, 'pubsub event');
     }
 
-    pubsub.topic(CONTACT_DELETED).subscribe(function(data) {
-        logger.info('Notifying contact delete');
-        synchronizeContactLists('contact:deleted', data);
+  });
+
+  contactNamespace = io.of(NAMESPACE);
+  contactNamespace.on('connection', function(socket) {
+    logger.info('New connection on ' + NAMESPACE);
+
+    socket.on('subscribe', function(bookId) {
+      logger.info('Joining contact room', bookId);
+      socket.join(bookId);
     });
 
-    pubsub.topic(CONTACT_ADDED).subscribe(function(data) {
-        logger.info('Notifying contact creation');
-        synchronizeContactLists('contact:created', data);
+    socket.on('unsubscribe', function(bookId) {
+      logger.info('Leaving contact room', bookId);
+      socket.leave(bookId);
     });
+  });
 
-    contactNamespace = io.of(NAMESPACE);
-    contactNamespace.on('connection', function(socket) {
-        logger.info('New connection on ' + NAMESPACE);
-
-        socket.on('subscribe', function(bookId) {
-            logger.info('Joining contact room', bookId);
-            socket.join(bookId);
-        });
-
-        socket.on('unsubscribe', function(bookId) {
-            logger.info('Leaving contact room', bookId);
-            socket.leave(bookId);
-        });
-    });
-
-    initialized = true;
+  initialized = true;
 }
 
 module.exports.init = init;
