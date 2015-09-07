@@ -284,6 +284,97 @@ describe('The User model', function() {
     u.save(helpers.callbacks.error(done));
   });
 
+  it('should set preferredEmail to null when user has no accounts', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.accounts = [];
+    user.save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.preferredEmail).to.equal(null);
+
+        done();
+      }));
+    }));
+  });
+
+  it('should set preferredEmail to the preferred email of the first hosted email account', function(done) {
+    var user = userFixtures.newDummyUser([email, email2], 'secret', 1);
+
+    user.save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.preferredEmail).to.equal(email2);
+
+        done();
+      }));
+    }));
+  });
+
+  it('should set preferredEmail to the preferred email of the first hosted email account when there is multiple hosted accounts', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.accounts.unshift({
+      type: 'email',
+      hosted: true,
+      emails: ['another@email.com']
+    });
+    user.accounts.push({
+      type: 'email',
+      hosted: true,
+      emails: ['another-one@email.com']
+    });
+    user.save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.preferredEmail).to.equal('another@email.com');
+
+        done();
+      }));
+    }));
+  });
+
+  it('should set preferredEmail to the preferred email of the first hosted email account when there is other accounts', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.accounts.unshift({
+      type: 'email',
+      hosted: false,
+      emails: ['external@email.com']
+    });
+    user.accounts.push({
+      type: 'email',
+      hosted: false,
+      emails: ['another-external@email.com']
+    });
+    user.save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.preferredEmail).to.equal(email);
+
+        done();
+      }));
+    }));
+  });
+
+  it('should set preferredEmail to the preferred email of the first email account when there is no hosted account', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.accounts = [{
+      type: 'email',
+      hosted: false,
+      emails: ['another-external@email.com', 'yet-another-one@mail.com'],
+      preferredEmailIndex: 1
+    }, {
+      type: 'email',
+      hosted: false,
+      emails: ['external@email.com']
+    }];
+    user.save(helpers.callbacks.noErrorAnd(function(savedUser) {
+      User.findOne({ _id: savedUser._id }, helpers.callbacks.noErrorAnd(function(user) {
+        expect(user.preferredEmail).to.equal('yet-another-one@mail.com');
+
+        done();
+      }));
+    }));
+  });
+
   afterEach(function(done) {
     var callback = function(item, fn) {
       item.remove(fn);
