@@ -10,9 +10,7 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
     lib: function(dependencies, callback) {
@@ -26,7 +24,7 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
       app.use('/api', api);
 
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('graceperiod', ['app.js', 'constants.js', 'services.js', 'directives.js'], 'linagora.esn.graceperiod', ['esn']);
+      webserverWrapper.injectAngularModules('graceperiod', ['graceperiod.js', 'services.js'], 'linagora.esn.graceperiod', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
       webserverWrapper.injectLess('graceperiod', [lessFile], 'esn');
       webserverWrapper.addApp('graceperiod', app);
@@ -35,7 +33,6 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
     },
 
     start: function(dependencies, callback) {
-      require('./backend/ws/graceperiod').init(this, dependencies);
       callback();
     }
   }
