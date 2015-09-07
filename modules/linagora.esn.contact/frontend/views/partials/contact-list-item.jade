@@ -37,16 +37,3 @@
   .media-body.row
     .lv-title.col-xs-11.touch-zone(ng-click='displayContact()')
           h4.media-heading {{::contact.displayName}}
-    .actions.lv-actions.col-xs-1
-      li.dropdown
-        a(href='', data-toggle='dropdown', aria-expanded='true')
-          i.mdi.mdi-dots-vertical
-        ul.dropdown-menu.dropdown-menu-right
-          li
-            a(ng-href="") Send Message
-          li
-            a(ng-href="") Call
-          li
-            a(ng-href='#/contact/edit/{{::bookId}}/{{::contact.id}}') Modify
-          li
-            a(ng-click="deleteContact()") Delete
