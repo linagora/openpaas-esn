@@ -59,11 +59,13 @@ angular.module('esn.calendar')
     };
   })
 
-
   .directive('eventMessageEdition', function() {
 
     function link(scope, element, attrs, controller) {
+      controller.initFormData();
+
       scope.submit = controller.addNewEvent;
+      scope.resetEvent = controller.resetEvent;
       scope.getMinDate = controller.getMinDate;
       scope.onStartDateChange = controller.onStartDateChange;
       scope.onEndDateChange = controller.onEndDateChange;
@@ -74,7 +76,7 @@ angular.module('esn.calendar')
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/views/event-message/event-message-edition.html',
-      controller: 'eventFormController',
+      controller: 'eventMessageController',
       link: link
     };
   });

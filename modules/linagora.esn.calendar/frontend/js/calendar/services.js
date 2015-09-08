@@ -263,11 +263,35 @@ angular.module('esn.calendar')
       });
     }
 
+    function createWithoutGrace(calendarPath, vcalendar) {
+      var vevent = vcalendar.getFirstSubcomponent('vevent');
+      if (!vevent) {
+        return $q.reject(new Error('Missing VEVENT in VCALENDAR'));
+      }
+
+      var uid = vevent.getFirstPropertyValue('uid');
+      if (!uid) {
+        return $q.reject(new Error('Missing UID in VEVENT'));
+      }
+
+      var eventPath = calendarPath.replace(/\/$/, '') + '/' + uid + '.ics';
+      var headers = { 'Content-Type': 'application/calendar+json' };
+      var body = vcalendar.toJSON();
+
+      return request('put', eventPath, headers, body).then(function(response) {
+        if (response.status !== 201) {
+          return $q.reject(response);
+        }
+        return response;
+      });
+    }
+
     function create(calendarPath, vcalendar) {
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       if (!vevent) {
         return $q.reject(new Error('Missing VEVENT in VCALENDAR'));
       }
+
       var uid = vevent.getFirstPropertyValue('uid');
       if (!uid) {
         return $q.reject(new Error('Missing UID in VEVENT'));
@@ -498,6 +522,7 @@ angular.module('esn.calendar')
     return {
       list: list,
       create: create,
+      createWithoutGrace: createWithoutGrace,
       remove: remove,
       modify: modify,
       changeParticipation: changeParticipation,
