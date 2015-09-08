@@ -169,7 +169,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY) {
+  .controller('contactsListController', function($log, $scope, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -301,6 +301,7 @@ angular.module('linagora.esn.contact')
     };
 
     function getNextResults() {
+      usSpinnerService.spin('contactSearchSpinner');
       $scope.searchFailure = false;
       $scope.loadingNextSearchResults = true;
       contactsService.search($scope.bookId, $scope.user._id, $scope.searchInput, $scope.current_page).then(function(data) {
@@ -316,6 +317,7 @@ angular.module('linagora.esn.contact')
         $scope.searchFailure = true;
       }).finally (function() {
         $scope.loadingNextSearchResults = false;
+        usSpinnerService.stop('contactSearchSpinner');
       });
     }
 

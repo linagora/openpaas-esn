@@ -8,10 +8,13 @@ var expect = chai.expect;
 describe('The Contacts Angular module', function() {
 
   var $rootScope, $controller, $timeout, scope, bookId = '123456789', contactsService,
-      notificationFactory, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService, sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {}, CONTACT_EVENTS;
+      notificationFactory, usSpinnerService, $location, $route, selectionService, $alert, gracePeriodService, sharedDataService, sortedContacts, liveRefreshContactService, defaultAvatarService, photoCache = {}, CONTACT_EVENTS;
 
   beforeEach(function() {
-
+    usSpinnerService = {
+      spin: function() {},
+      stop: function() {}
+    },
     contactsService = {
       shellToVCARD: function() {
         return scope.contact;
@@ -81,6 +84,7 @@ describe('The Contacts Angular module', function() {
       $provide.value('$route', $route);
       $provide.value('$alert', function(options) { $alert.alert(options); });
       $provide.value('gracePeriodService', gracePeriodService);
+      $provide.value('usSpinnerService', usSpinnerService);
     });
   });
 
