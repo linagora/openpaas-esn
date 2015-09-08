@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventMessageController', function($rootScope, $scope, $alert, calendarUtils, calendarService, calendarEventEmitter, eventService, gracePeriodService, moment, session, notificationFactory, ICAL_PROPERTIES, EVENT_FORM, EVENT_MODIFY_COMPARE_KEYS) {
+  .controller('eventMessageController', function($rootScope, $scope, calendarUtils, calendarService, calendarEventEmitter, moment, notificationFactory, EVENT_FORM) {
 
     $scope.editedEvent = {};
     $scope.restActive = false;

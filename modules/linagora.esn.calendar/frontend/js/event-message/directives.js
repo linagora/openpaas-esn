@@ -7,18 +7,38 @@ angular.module('esn.calendar')
       replace: true,
       templateUrl: '/calendar/views/event-message/templates/event-message.html',
       link: function($scope, element, attrs) {
+        function updateAttendeeStats() {
+          var partstatMap = $scope.attendeesPerPartstat = {
+            'NEEDS-ACTION': 0,
+            'ACCEPTED': 0,
+            'TENTATIVE': 0,
+            'DECLINED': 0,
+            'OTHER': 0
+          };
+
+          $scope.hasAttendees = !!$scope.event.attendees;
+
+          if ($scope.hasAttendees) {
+            $scope.event.attendees.forEach(function(attendee) {
+              partstatMap[attendee.partstat in partstatMap ? attendee.partstat : 'OTHER']++;
+            });
+          }
+        }
+
         $scope.changeParticipation = function(partstat) {
-          var vcalendar = $scope.event.vcalendar;
+          var event = $scope.event;
           var path = $scope.event.path;
           var etag = $scope.event.etag;
           var emails = session.user.emails;
 
-          calendarService.changeParticipation(path, vcalendar, emails, partstat, etag).then(function(shell) {
-            $scope.partstat = partstat;
-            if (shell) {
-              $scope.event = shell;
-            }
-          });
+          calendarService.changeParticipation(path, event, emails, partstat, etag, false)
+            .then(function(shell) {
+              $scope.partstat = partstat;
+              if (shell) {
+                $scope.event = shell;
+                updateAttendeeStats();
+              }
+            });
         };
 
         function updateEvent() {
@@ -40,6 +60,7 @@ angular.module('esn.calendar')
             if (attendee) {
               $scope.partstat = attendee.getParameter('partstat');
             }
+            updateAttendeeStats();
           }, function(response) {
             var error = 'Could not retrieve event: ' + response.statusText;
             element.find('>div>.loading').addClass('hidden');

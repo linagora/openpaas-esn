@@ -36,13 +36,13 @@
             button.btn.btn-link.declined(ng-click='changeParticipation("DECLINED")', ng-class='{ selected: partstat == "DECLINED" }') #{__('No')}
             button.btn.btn-link.undecided(ng-click='changeParticipation("TENTATIVE")', ng-class='{ selected: partstat == "TENTATIVE" }') #{__('Maybe')}
         .attendees
-          .statusrow(ng-if='event.attendees.ACCEPTED.length > 0') #{__('Going')}#{': '}
-            span(ng-repeat='att in event.attendees.ACCEPTED track by att.email')
-              a(ng-href='mailto:{{att.email}}' title='{{att.fullmail}}') {{att.name}}
+          .statusrow(ng-if='attendeesPerPartstat.ACCEPTED > 0') #{__('Going')}#{': '}
+            span(ng-repeat="attendee in event.attendees | partstat:'ACCEPTED' track by attendee.email")
+              a(ng-href='mailto:{{attendee.email}}' title='{{attendee.fullmail}}') {{attendee.name}}
               span(ng-if='!$last') #{', '}
-          .statusrow(ng-if='event.attendees.DECLINED.length > 0') #{__('Not Going')}#{': '}
-            span(ng-repeat='att in event.attendees.DECLINED track by att.email')
-              a(ng-href='mailto:{{att.email}}' title='{{att.fullmail}}') {{att.name}}
+          .statusrow(ng-if='attendeesPerPartstat.DECLINED > 0') #{__('Not Going')}#{': '}
+            span(ng-repeat="attendee in event.attendees | partstat:'DECLINED' track by attendee.email")
+              a(ng-href='mailto:{{attendee.email}}' title='{{attendee.fullmail}}') {{attendee.name}}
               span(ng-if='!$last') #{', '}
 
     .row
