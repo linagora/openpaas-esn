@@ -48,7 +48,7 @@ describe('The Contacts Angular module', function() {
           originalPath: '/contact',
           locals: { user: { _id: 1 } }
         });
-        expect(onFn.callCount).to.equal(2);
+        expect(onFn.callCount).to.equal(3);
       });
 
       it('should subscribe /contacts namespace with bookId', function() {
@@ -70,6 +70,12 @@ describe('The Contacts Angular module', function() {
         expect(onFn.secondCall.calledWith(CONTACT_SIO_EVENTS.DELETED)).to.be.true;
       });
 
+      it('should make sio to listen on CONTACT_SIO_EVENTS.UPDATED event', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+        expect(onFn.thirdCall.calledWith(CONTACT_SIO_EVENTS.UPDATED)).to.be.true;
+      });
+
     });
 
     describe('The stopListen fn', function() {
@@ -82,7 +88,7 @@ describe('The Contacts Angular module', function() {
           originalPath: '/other/module/path'
         });
 
-        expect(removeListenerFn.callCount).to.equal(2);
+        expect(removeListenerFn.callCount).to.equal(3);
       });
 
       it('should make sio to remove CONTACT_SIO_EVENTS.CREATED event listener', function() {
@@ -99,6 +105,14 @@ describe('The Contacts Angular module', function() {
 
         liveRefreshContactService.stopListen();
         expect(removeListenerFn.secondCall.calledWith(CONTACT_SIO_EVENTS.DELETED)).to.be.true;
+      });
+
+      it('should make sio to remove CONTACT_SIO_EVENTS.UPDATED event listener', function() {
+        var bookId = 'some book id';
+        liveRefreshContactService.startListen(bookId);
+
+        liveRefreshContactService.stopListen();
+        expect(removeListenerFn.thirdCall.calledWith(CONTACT_SIO_EVENTS.UPDATED)).to.be.true;
       });
 
     });

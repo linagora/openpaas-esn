@@ -4,6 +4,7 @@ var initialized = false;
 var NAMESPACE = '/contacts';
 var CONTACT_ADDED = 'contacts:contact:add';
 var CONTACT_DELETED = 'contacts:contact:delete';
+var CONTACT_UPDATED = 'contacts:contact:update';
 var contactNamespace;
 
 function init(dependencies) {
@@ -36,6 +37,18 @@ function init(dependencies) {
       logger.warn('Not well-formed data on', CONTACT_DELETED, 'pubsub event');
     }
 
+  });
+
+  pubsub.topic(CONTACT_UPDATED).subscribe(function(data) {
+    if (data && data.bookId && data.vcard) {
+      logger.info('Notifying contact update');
+      synchronizeContactLists('contact:updated', {
+        bookId: data.bookId,
+        vcard: data.vcard
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONTACT_UPDATED, 'pubsub event');
+    }
   });
 
   pubsub.topic(CONTACT_ADDED).subscribe(function(data) {
