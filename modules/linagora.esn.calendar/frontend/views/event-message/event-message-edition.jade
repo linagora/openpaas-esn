@@ -1,8 +1,8 @@
 div.form-container
-  form.event-collaboration-form(name='eventMessageForm', role='form', aria-hidden="true", ng-submit='submit()')
+  form.event-message-edition(name='eventMessageForm', role='form', aria-hidden="true", ng-submit='submit()')
     .form-group
       .fg-line
-        textarea.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
+        textarea.form-control(type="text", rows="1", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
     .row
       .col-xs-2.col-xs-offset-1.col-sm-1.col-sm-offset-0
         .form-group
