@@ -60,6 +60,7 @@ function jcal2content(icalendar, baseUrl) {
     };
   });
 
+  var allDay = vevent.getFirstProperty('dtstart').type === 'date';
   var end;
   if (method === 'CANCEL') {
     end = null;
@@ -71,12 +72,16 @@ function jcal2content(icalendar, baseUrl) {
     });
 
     var endDate = moment(moment(period.getEnd().toJSDate()));
+    // OR-1221: end is exclusive when the event is an allday event.
+    // For end user, we are chosing an inclusive end date
+    if (allDay) {
+      endDate.subtract(1, 'day');
+    }
     end = {
       date: endDate.format('L'),
       time: endDate.format('LT')
     };
   }
-  var allDay = vevent.getFirstProperty('dtstart').type === 'date';
 
   var organizer = vevent.getFirstProperty('organizer');
   var cn = organizer.getParameter('cn');

@@ -106,7 +106,7 @@ describe('jcalHelper', function() {
           time: '12:00 AM'
         },
         end: {
-          date: '09/12/2015',
+          date: '09/11/2015',
           time: '12:00 AM'
         },
         allDay: true,

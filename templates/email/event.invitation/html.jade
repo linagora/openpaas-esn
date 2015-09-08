@@ -51,11 +51,15 @@ html.mail
                 p #{content.event.start.time}
             if (content.event.end)
               td
-                img.check-transform(src="cid:check", alt="To")
+                if (content.event.allDay && content.event.end.date == content.event.start.date)
+                  p all day
+                else
+                  img.check-transform(src="cid:check", alt="To")
               td
-                p #{content.event.end.date}
-                if (!content.event.allDay)
-                  p #{content.event.end.time}
+                if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
+                  p #{content.event.end.date}
+                  if (!content.event.allDay)
+                    p #{content.event.end.time}
             else
               td(colspan="2")
             td.recurrence
