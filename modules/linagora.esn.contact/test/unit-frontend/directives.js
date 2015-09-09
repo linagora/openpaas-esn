@@ -137,6 +137,7 @@ describe('The contact Angular module directives', function() {
 
   });
 
+
   describe('The relaxedDate directive', function() {
 
     var $compile, $rootScope, element, $scope, DATE_FORMAT;
