@@ -1,0 +1,3 @@
+.contacts.clearfix.row.fadeIn200ms
+  div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+    contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by contact.id")

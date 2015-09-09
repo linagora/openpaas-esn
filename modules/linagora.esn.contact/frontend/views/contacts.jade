@@ -26,11 +26,5 @@
   .vertiz-space
 
   .row
-    .col-xs-11.col-md-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || searchFailure || lastPage || !searchInput')
-      div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-        .card.contacts-card.fadeIn200ms(ng-if='contacts && contacts.length')
-          .listview.lv-bordered.lv-lg
-            .lv-header-alt
-              h2.lvh-label {{letter}}
-            .lv-body
-              contact-list-item.lv-item.p-5(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by contact.id")
+    .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || searchFailure || lastPage || !searchInput')
+      contact-list-displayer
