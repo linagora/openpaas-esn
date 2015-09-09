@@ -1,23 +1,25 @@
-.card(ng-submit='accept()')
-  .card-header.contact-header
-    .row.hidden-xs
-      .col-xs-8
-        h1 #{__('Create a new contact')}
-      .col-xs-4
-        .contact-buttons
-          button.btn.btn-default(type='button', ng-click='close()')
-            | #{__('Cancel')}
-          button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
-            | #{__('Create')}
-    .row.visible-xs
-      .col-xs-12.all-centered
-        h1 #{__('Create a new contact')}
-    .row.visible-xs
-      .col-xs-12.all-centered    
-        button.col-xs-6.btn.btn-default(type='button', ng-click='close()')
-          | #{__('Cancel')}
-        button.col-xs-6.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
-          | #{__('Create')}
-  .card-body.card-padding
-    .contact-error-container
-    contact-edition-form(contact='contact')
+.row.all-centered    
+  .col-xs-12.col-md-10    
+    .card(ng-submit='accept()')
+      .card-header.contact-header
+        .row.hidden-xs
+          .col-xs-8
+            h1 #{__('Create a new contact')}
+          .col-xs-4
+            .contact-buttons
+              button.btn.btn-default(type='button', ng-click='close()')
+                | #{__('Cancel')}
+              button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
+                | #{__('Create')}
+        .row.visible-xs
+          .col-xs-12.all-centered
+            h1 #{__('Create a new contact')}
+        .row.visible-xs
+          .col-xs-12.all-centered    
+            button.col-xs-6.btn.btn-default(type='button', ng-click='close()')
+              | #{__('Cancel')}
+            button.col-xs-6.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
+              | #{__('Create')}
+      .card-body.card-padding
+        .contact-error-container
+        contact-edition-form(contact='contact')
