@@ -28,3 +28,5 @@
   .row
     .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextSearchResults || searchFailure || lastPage || !searchInput')
       contact-list-displayer
+      .text-center
+        div.throbber(openpaas-logo-spinner, spinner-key='contactSearchSpinner')
