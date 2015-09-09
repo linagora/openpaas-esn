@@ -122,28 +122,39 @@ angular.module('linagora.esn.graceperiod')
 
   })
 
-  .factory('gracePeriodService', function(gracePeriodAPI, notifyOfGracedRequest) {
+  .factory('gracePeriodService', function($q, gracePeriodAPI, notifyOfGracedRequest) {
     var taskIds = [];
 
     function remove(id) {
       var index = taskIds.indexOf(id);
       if (index > -1) {
-        taskIds.slice(index, 1);
+        taskIds.splice(index, 1);
+        return $q.when();
+      } else {
+        return $q.reject();
       }
     }
 
     function cancel(id) {
-      remove(id);
-      return gracePeriodAPI.one('tasks').one(id).remove();
+      return remove(id).then(function() {
+        return gracePeriodAPI.one('tasks').one(id).remove();
+      }, function() {
+        return $q.when();
+      });
     }
 
     function flush(id) {
-      remove(id);
-      return gracePeriodAPI.one('tasks').one(id).put();
+      return remove(id).then(function() {
+        return gracePeriodAPI.one('tasks').one(id).put();
+      }, function() {
+        return $q.when();
+      });
     }
 
     function flushAllTasks() {
-      taskIds.forEach(flush);
+      return $q.all(taskIds.map(function(id) {
+        return flush(id);
+      }));
     }
 
     function grace(id, text, linkText, delay) {
@@ -151,12 +162,24 @@ angular.module('linagora.esn.graceperiod')
       return notifyOfGracedRequest(text, linkText, delay);
     }
 
+    function clientGrace(text, linkText, delay) {
+      return notifyOfGracedRequest(text, linkText, delay);
+    }
+
+    function addTaskId(id) {
+      if (id) {
+        taskIds.push(id);
+      }
+    }
+
     return {
       grace: grace,
+      clientGrace: clientGrace,
       cancel: cancel,
       flush: flush,
       flushAllTasks: flushAllTasks,
-      remove: remove
+      remove: remove,
+      addTaskId: addTaskId
     };
   })
 
