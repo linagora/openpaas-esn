@@ -85,7 +85,6 @@
     "fullcalendar": "~2.1.1",
     "showdown": "053288f2feb6b1db36044b212bb24294fb305df1",
     "bootstrap-switch": "~3.3.2",
-    "chai": "~3.0.0",
     "overture": "FIX-ENDLESS-LOOP"
   },
   "devDependencies": {
