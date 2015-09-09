@@ -35,7 +35,7 @@
         .col-xs-9
           .form-group
             .fg-line
-              input.form-control(type='text', relaxed-date, ng-model='contact.birthday', name='date')
+              input.form-control(type='text', relaxed-date, ng-model='contact.birthday', data-autoclose="1", bs-datepicker, name='date')
               inline-notify(name='date')
       .row
         label.control-label.sr-only #{__("Nickname")}

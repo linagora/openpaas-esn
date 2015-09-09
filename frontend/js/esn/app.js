@@ -55,7 +55,8 @@ angular.module('esnApp', [
   'esn.collaboration',
   'esn.company',
   'esn.localstorage',
-  'materialAdmin'
+  'materialAdmin',
+  'angular-nicescroll'
 ].concat(angularInjections)).config(function($routeProvider, RestangularProvider, routeResolver) {
 
     $routeProvider.when('/domains/:id/members/invite', {
@@ -162,6 +163,7 @@ angular.module('esnApp', [
     RestangularProvider.setBaseUrl('/api');
     RestangularProvider.setFullResponse(true);
   })
+
 .run(function(session, ioConnectionManager) {
   session.ready.then(function() {
     ioConnectionManager.connect();

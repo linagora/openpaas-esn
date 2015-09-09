@@ -1,5 +1,5 @@
 aside#sidebar(collaborations-event-listener)
-  .sidebar-inner
+  .sidebar-inner(ng-nicescroll nice-option="{cursorcolor: 'rgba(0,0,0,0.4)', cursorborder: 'none', zindex: 'auto', cursorwidth:'4px', autohidemode: 'leave'}")
     .profile-menu
       a(href="" toggle-submenu)
         .profile-pic
@@ -7,7 +7,7 @@ aside#sidebar(collaborations-event-listener)
         .profile-info
           user-name-display
           i.mdi.mdi-chevron-down
-  
+
       ul#profileMenuContent.collapse.main-menu(ng-controller='currentDomainController' close-sidebar-on-click)
         li: a(href='/#/profile')
           i.mdi.mdi-account

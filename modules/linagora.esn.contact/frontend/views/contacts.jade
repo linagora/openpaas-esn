@@ -9,7 +9,7 @@
     .contacts-search
       input(type="text", ng-model="searchInput", ng-change='search()', ng-blur='appendQueryToURL()', ng-model-options="{ debounce: 600 }")
 
-  button.btn.btn-fab-fixed-bottom(type="button", ng-click="openContactCreation()")
+  button.btn.btn-float.bgm-accent.m-btn(type="button", ng-click="openContactCreation()")
     i.mdi.mdi-plus
 
   .vertiz-space
