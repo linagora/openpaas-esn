@@ -771,7 +771,7 @@ describe('The Contacts Angular module', function() {
       $rootScope.$digest();
     });
 
-    it('should add the contact to the list on CONTACT_EVENTS.CREATED event', function(done) {
+    it('should add the contact to the full contact list on CONTACT_EVENTS.CREATED event', function(done) {
       var contact = {
         lastName: 'Last'
       };
@@ -806,8 +806,45 @@ describe('The Contacts Angular module', function() {
         }
       });
 
+      scope.searchInput = null;
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
       $rootScope.$digest();
+    });
+
+    it('should not add the contact to the search result list on CONTACT_EVENTS.CREATED event', function(done) {
+      var contact = {
+        lastName: 'Last'
+      };
+
+      var mySpy = sinon.spy();
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        },
+        AlphaCategoryService: function() {
+          return {
+            init: function() {},
+            addItems: function(data) {
+                mySpy();
+                return done(new Error('This test should not call addItems'));
+            },
+            get: function() {}
+          };
+        }
+      });
+
+      scope.searchInput = 'someQuery';
+      $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
+      $rootScope.$digest();
+      expect(mySpy).to.have.been.callCount(0);
+      done();
     });
 
     it('should load contact list when no query is specified in the URL' , function(done) {
