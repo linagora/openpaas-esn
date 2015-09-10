@@ -169,7 +169,7 @@ angular.module('linagora.esn.contact')
     };
 
   })
-  .controller('contactsListController', function($log, $scope, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY) {
+  .controller('contactsListController', function($log, $scope, usSpinnerService, $location, contactsService, AlphaCategoryService, ALPHA_ITEMS, user, displayError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, $timeout) {
     var requiredKey = 'displayName';
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -232,6 +232,15 @@ angular.module('linagora.esn.contact')
     $scope.$on(CONTACT_EVENTS.CREATED, function(e, data) {
       if ($scope.searchInput) { return; }
       addItemsToCategories([data]);
+    });
+
+    $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
+      $scope.categories.removeItemWithId(data.id);
+      // workaround to make the view changes
+      $timeout(function() {
+        addItemsToCategories([data]);
+      });
+
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {

@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var CONTACT_ADDED = 'contacts:contact:add';
 var CONTACT_DELETED = 'contacts:contact:delete';
+var CONTACT_UPDATED = 'contacts:contact:update';
 
 describe('The contact WS events module', function() {
 
@@ -27,6 +28,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_added();
                 } else if (topic === CONTACT_DELETED) {
                   self.pubsub_callback_deleted = callback;
+                } else if (topic === CONTACT_UPDATED) {
+                  self.pubsub_callback_updated = callback;
                 } else {
                   done(new Error('Should not have'));
                 }
@@ -36,6 +39,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_added(data);
                 } else if (topic === CONTACT_DELETED) {
                   self.pubsub_callback_deleted(data);
+                } else if (topic === CONTACT_UPDATED) {
+                  self.pubsub_callback_updated(data);
                 }
               }
             };
@@ -87,88 +92,102 @@ describe('The contact WS events module', function() {
     });
 
     describe('contacts:contact:add subscriber', function() {
-      beforeEach(function() {
-        var roomId = '123';
-        var dataToSend = {
-          bookId: '123',
-          contactId: '456',
-          vcard: {
-            firstname: 'prenom'
-          }
-        };
-        var dataSent = {
-          room: roomId,
-          data: dataToSend
-        };
-        var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
-        this.contactNamespace = {
-          on: function() {},
-          to: function(roomId) {
-            return {
-              emit: function(event, data, roomId) {
-                expect(event).to.equal('contact:created');
-                expect(roomId).to.equal(data.bookId);
-                expect(data).to.deep.equals(dataSent);
-              }
-            };
-          }
-        };
-        mod.init(this.moduleHelpers.dependencies);
-      });
 
       it('should send create event with contact info in websockets when receiving contacts:contact:add event from the pubsub', function(done) {
-        var dataToSend = {
+        var pubsubData = {
           bookId: '123',
           contactId: '456',
           vcard: {
             firstname: 'prenom'
           }
-        };
-        this.pubsub.local.topic(CONTACT_ADDED).publish(dataToSend);
-        done();
-      });
-    });
-    describe('contacts:contact:delete subscriber', function() {
-      beforeEach(function() {
-        var roomId = '123';
-        var dataToSend = {
-          bookId: '123',
-          contactId: '456',
-          vcard: {
-            firstname: 'prenom'
-          }
-        };
-        var dataSent = {
-          room: roomId,
-          data: dataToSend
         };
         var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
         this.contactNamespace = {
           on: function() {},
           to: function(roomId) {
             return {
-              emit: function(event, data, roomId) {
-                expect(event).to.equal('contact:deleted');
-                expect(roomId).to.equal(data.bookId);
-                expect(data).to.deep.equals(dataSent);
+              emit: function(event, data) {
+                expect(event).to.equal('contact:created');
+                expect(roomId).to.equal(pubsubData.bookId);
+                expect(data).to.deep.equals({
+                  room: pubsubData.bookId,
+                  data: { bookId: pubsubData.bookId, vcard: pubsubData.vcard }
+                });
+                done();
               }
             };
           }
         };
         mod.init(this.moduleHelpers.dependencies);
+
+        this.pubsub.local.topic(CONTACT_ADDED).publish(pubsubData);
       });
+    });
+
+
+    describe('contacts:contact:delete subscriber', function() {
 
       it('should send delete event with contact info in websockets when receiving contacts:contact:delete event from the pubsub', function(done) {
-        var dataToSend = {
+        var pubsubData = {
+          bookId: '123',
+          contactId: '456'
+        };
+        var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
+        this.contactNamespace = {
+          on: function() {},
+          to: function(roomId) {
+            return {
+              emit: function(event, data) {
+                expect(event).to.equal('contact:deleted');
+                expect(roomId).to.equal(pubsubData.bookId);
+                expect(data).to.deep.equals({
+                  room: pubsubData.bookId,
+                  data: { bookId: pubsubData.bookId, contactId: pubsubData.contactId }
+                });
+                done();
+              }
+            };
+          }
+        };
+        mod.init(this.moduleHelpers.dependencies);
+
+        this.pubsub.local.topic(CONTACT_DELETED).publish(pubsubData);
+      });
+    });
+
+
+    describe('contacts:contact:update subscriber', function() {
+
+      it('should send update event with contact info in websockets when receiving contacts:contact:update event from the pubsub', function(done) {
+        var pubsubData = {
           bookId: '123',
           contactId: '456',
           vcard: {
             firstname: 'prenom'
           }
         };
-        this.pubsub.local.topic(CONTACT_DELETED).publish(dataToSend);
-        done();
+        var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
+        this.contactNamespace = {
+          on: function() {},
+          to: function(roomId) {
+            return {
+              emit: function(event, data) {
+                expect(event).to.equal('contact:updated');
+                expect(roomId).to.equal(pubsubData.bookId);
+                expect(data).to.deep.equals({
+                  room: pubsubData.bookId,
+                  data: { bookId: pubsubData.bookId, vcard: pubsubData.vcard }
+                });
+                done();
+              }
+            };
+          }
+        };
+        mod.init(this.moduleHelpers.dependencies);
+
+        this.pubsub.local.topic(CONTACT_UPDATED).publish(pubsubData);
       });
     });
+
   });
 });

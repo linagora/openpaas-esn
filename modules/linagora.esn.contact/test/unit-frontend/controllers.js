@@ -847,6 +847,42 @@ describe('The Contacts Angular module', function() {
       done();
     });
 
+    it('should update the contact on CONTACT_EVENTS.UPDATED event', function(done) {
+      var contact = {
+        lastName: 'Last'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        contactsService: {
+          list: function() {
+            return $q.reject('WTF');
+          }
+        },
+        user: {
+          _id: '123'
+        },
+        AlphaCategoryService: function() {
+          return {
+            addItems: function(data) {
+              expect(data).to.deep.equal([contact]);
+
+              done();
+            },
+            removeItemWithId: function(contactId) {
+              expect(contactId).to.equal(contact.id);
+            },
+            get: function() {},
+            init: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+      $rootScope.$digest();
+      $timeout.flush();
+    });
+
     it('should load contact list when no query is specified in the URL' , function(done) {
       var query = null;
       var locationMock = {

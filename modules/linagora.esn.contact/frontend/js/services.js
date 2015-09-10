@@ -18,7 +18,8 @@ angular.module('linagora.esn.contact')
   })
   .constant('CONTACT_SIO_EVENTS', {
     CREATED: 'contact:created',
-    DELETED: 'contact:deleted'
+    DELETED: 'contact:deleted',
+    UPDATED: 'contact:updated'
   })
   .run(function($rootScope, liveRefreshContactService) {
     $rootScope.$on('$routeChangeSuccess', function(evt, current, previous) {
@@ -160,6 +161,11 @@ angular.module('linagora.esn.contact')
       $rootScope.$broadcast(CONTACT_EVENTS.DELETED, { id: data.contactId });
     }
 
+    function liveNotificationHandlerOnUpdate(data) {
+      var contact = new contactsService.ContactsShell(new ICAL.Component(data.vcard));
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+    }
+
     function startListen(bookId) {
       if (listening) { return; }
 
@@ -168,6 +174,7 @@ angular.module('linagora.esn.contact')
       }
       sio.on(CONTACT_SIO_EVENTS.CREATED, liveNotificationHandlerOnCreate);
       sio.on(CONTACT_SIO_EVENTS.DELETED, liveNotificationHandlerOnDelete);
+      sio.on(CONTACT_SIO_EVENTS.UPDATED, liveNotificationHandlerOnUpdate);
 
       listening = true;
       $log.debug('Start listening contact live update');
@@ -179,6 +186,7 @@ angular.module('linagora.esn.contact')
       if (sio) {
         sio.removeListener(CONTACT_SIO_EVENTS.CREATED, liveNotificationHandlerOnCreate);
         sio.removeListener(CONTACT_SIO_EVENTS.DELETED, liveNotificationHandlerOnDelete);
+        sio.removeListener(CONTACT_SIO_EVENTS.UPDATED, liveNotificationHandlerOnUpdate);
       }
 
       listening = false;
