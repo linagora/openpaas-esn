@@ -50,7 +50,7 @@ angular.module('esn.login', ['esn.notification', 'restangular', 'vcRecaptcha'])
           $scope.error = err.data;
           $scope.credentials.password = '';
           loginErrorService.set($scope.credentials, err.data);
-          notificationFactory.weakError('Login error, please check credentials');
+          notificationFactory.weakError('Login error', 'Please check your credentials');
           $scope.recaptcha.needed = err.data.recaptcha || false;
           try {
             vcRecaptchaService.reload();

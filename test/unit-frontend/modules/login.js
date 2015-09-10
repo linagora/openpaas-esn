@@ -114,8 +114,9 @@ describe('The Login Angular module', function() {
       it('should display an error message when login fails', function(done) {
         this.scope.form = {$invalid: false};
 
-        this.notificationFactory.weakError = function(message) {
-          expect(message).to.match(/Login error, please check credentials/);
+        this.notificationFactory.weakError = function(message, text) {
+          expect(message).to.match(/Login error/);
+          expect(text).to.match(/Please check your credentials/);
           done();
         };
 
