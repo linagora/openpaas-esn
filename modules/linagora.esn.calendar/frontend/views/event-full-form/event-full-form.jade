@@ -12,16 +12,29 @@ div.card.event-full-form(keep-scroll-position)
   .card-body.card-padding
     form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }", ng-submit='submit()')
       .row
-        .col-xs-6
+        .col-xs-12.col-sm-6
           .row
-            .form-group
-              .fg-line
-                input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+            .col-xs-12
+              .form-group
+                .fg-line
+                  input.input.title.form-control(type="text", ng-model='editedEvent.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-calendar-multiple
+                  .fg-line.select
+                    select.form-control
+                      option(value="calendarA") calendarA
+                      option(value="calendarB") calendarB
+
           .row
             .col-xs-3.col-sm-2
               .form-group
                 .fg-line
-                  i.mdi.mdi-calendar
+                  i.mdi.mdi-clock
             .col-xs-9.col-sm-3
               .form-group
                 .fg-line
@@ -45,6 +58,7 @@ div.card.event-full-form(keep-scroll-position)
                     label
                       input(type="checkbox", ng-model='editedEvent.allDay', ng-disabled="!isOrganizer", ng-change="focusSubmitButton()")
                       i.input-helper #{__('All day')}
+
           .row
             .col-xs-12
               .form-group
@@ -54,7 +68,40 @@ div.card.event-full-form(keep-scroll-position)
                   .fg-line
                     input.input.form-control(type="text", ng-model='editedEvent.location', placeholder="#{__('Location')}")
 
-        .col-xs-6
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-repeat
+                  .fg-line.select
+                    select.form-control
+                      option(value="recurrenceA") recurrenceA
+                      option(value="recurrenceB") recurrenceB
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-alarm
+                  .fg-line.select
+                    select.form-control
+                      option(value="alarmA") alarmA
+                      option(value="alarmB") alarmB
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-lock
+                  .fg-line.select
+                    select.form-control
+                      option(value="privacyA") privacyA
+                      option(value="privacyB") privacyB
+
+        .col-xs-12.col-sm-6
           .row
             .col-xs-12
               .form-group(ng-show='isOrganizer || isNew(editedEvent)')
@@ -87,3 +134,12 @@ div.card.event-full-form(keep-scroll-position)
                 .trash
                   a(href="")
                     i.mdi.mdi-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
+
+          .row
+            .col-xs-12
+              .form-group
+                .input-group
+                  span.input-group-addon
+                    i.mdi.mdi-format-align-justify
+                  .fg-line
+                    textarea.form-control(placeholder="#{__('Notes...')}")

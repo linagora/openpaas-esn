@@ -7,6 +7,8 @@ angular.module('esn.calendar')
     $scope.editedEvent = {};
     $scope.restActive = false;
     $scope.EVENT_FORM = EVENT_FORM;
+    // TODO remove this after logic and split is done.
+    $scope.isOrganizer = true;
 
     this.isNew = function(event) {
       return angular.isUndefined(event._id);
