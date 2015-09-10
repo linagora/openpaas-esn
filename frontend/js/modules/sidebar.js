@@ -108,6 +108,16 @@ angular.module('esn.sidebar', [])
       }
     };
   })
+  .directive('refreshNicescroll', function() {
+    return {
+      restric: 'A',
+      link: function(scope, element, attr) {
+        element.on('mouseover', function() {
+          element.getNiceScroll().resize();
+        });
+      }
+    };
+  })
 
   .factory('sideBarService', function($rootScope, SIDEBAR_EVENTS) {
     var isLeftSideBarOpenBool = false;

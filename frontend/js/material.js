@@ -1,4 +1,4 @@
 'use strict';
 
 /* exported materialAdmin */
-angular.module('materialAdmin', []);
+var materialAdmin = angular.module('materialAdmin', []);
