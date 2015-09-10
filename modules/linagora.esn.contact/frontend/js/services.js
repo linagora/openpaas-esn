@@ -292,16 +292,26 @@ angular.module('linagora.esn.contact')
   .factory('contactsService', function(ContactsHelper, notificationFactory, gracePeriodService, defaultAvatarService, GRACE_DELAY, tokenAPI, uuid4, ICAL, DAV_PATH, $q, $http, $rootScope, contactsCacheService, $log, CONTACT_EVENTS) {
 
     function deleteContact(bookId, contact) {
-      remove(bookId, contact, GRACE_DELAY).then(function(taskId) {
-        return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel').then(null, function() {
-          return gracePeriodService.cancel(taskId).then(function() {
-            $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+      remove(bookId, contact, GRACE_DELAY)
+        .then(function(taskId) {
+          return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel')
+            .then(function(data) {
+              if (data.cancelled) {
+                return gracePeriodService.cancel(taskId).then(function() {
+                  data.success();
+                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+                }, function(err) {
+                  data.error('Cannot cancel contact delete, the contact is deleted');
+                  return $q.reject(err);
+                });
+              } else {
+                gracePeriodService.remove(taskId);
+              }
           });
+        }, function(err) {
+          notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
+          return $q.reject(err);
         });
-      } , function(err) {
-        notificationFactory.weakError('Contact Delete', 'Can not delete contact');
-        return $q.reject(err);
-      });
     }
 
     function ContactsShell(vcard, etag) {

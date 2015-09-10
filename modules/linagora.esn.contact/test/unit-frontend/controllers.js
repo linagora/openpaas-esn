@@ -1528,10 +1528,10 @@ describe('The Contacts Angular module', function() {
         this.initController();
       });
 
-      it('should call contactsService.remove() with the correct bookId and contact', function(done) {
+      it('should call contactsService.deleteContact() with the correct bookId and contact', function(done) {
         var self = this;
 
-        this.contactsService.remove = function(bookId, contact) {
+        this.contactsService.deleteContact = function(bookId, contact) {
           expect(bookId).to.equal(self.scope.bookId);
           expect(contact).to.deep.equal(self.scope.contact);
           done();
@@ -1542,141 +1542,6 @@ describe('The Contacts Angular module', function() {
         done(new Error());
       });
 
-      it('should display error when on remove failure', function(done) {
-        this.notificationFactory.weakError = function() {
-          done();
-        };
-
-        this.contactsService.remove = function() {
-          return $q.reject();
-        };
-
-        this.scope.$digest();
-        this.scope.deleteContact();
-        this.scope.$digest();
-        done(new Error());
-      });
-
-      it('should not grace the request on failure', function(done) {
-        this.notificationFactory.weakError = function() {};
-        this.scope.contact = {firstName: 'Foo', lastName: 'Bar'};
-
-        this.gracePeriodService.grace = done;
-
-        this.contactsService.remove = function() {
-          return $q.reject();
-        };
-
-        this.scope.$digest();
-        this.scope.deleteContact();
-        this.scope.$digest();
-
-        done();
-      });
-
-      it('should grace the request using the default delay on success', function(done) {
-        this.notificationFactory.weakInfo = function() {};
-        this.contactsService.remove = function() {
-          return $q.when('myTaskId');
-        };
-        this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
-          expect(delay).to.not.exist;
-          done();
-        };
-
-        this.scope.$digest();
-        this.scope.deleteContact();
-        this.scope.$digest();
-      });
-
-      it('should display correct title and link during the grace period', function(done) {
-        this.notificationFactory.weakInfo = function() {};
-        this.contactsService.remove = function() {
-          return $q.when('myTaskId');
-        };
-        this.scope.contact.displayName = 'Foo Bar';
-        this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
-          expect(taskId).to.equals('myTaskId');
-          expect(text).to.equals('You have just deleted a contact (Foo Bar).');
-          expect(linkText).to.equals('Cancel');
-          expect(delay).to.not.exist;
-          done();
-        };
-
-        this.scope.deleteContact();
-        this.scope.$digest();
-      });
-
-      it('should cancel the request if the user cancels during the grace period', function(done) {
-        this.notificationFactory.weakInfo = function() {};
-        this.gracePeriodService.grace = function() {
-          return $q.when({cancelled: true,
-            success: function(textToDisplay) {
-            },
-            error: function(textToDisplay) {
-            }});
-        };
-        this.contactsService.remove = function() {
-          return $q.when('myTaskId');
-        };
-        this.gracePeriodService.cancel = function(taskId) {
-          expect(taskId).to.equal('myTaskId');
-
-          done();
-        };
-
-        this.scope.deleteContact();
-        this.scope.$digest();
-
-      });
-
-      it('should notice the user that the contact deletion can\'t be cancelled', function(done) {
-        this.notificationFactory.weakInfo = function() {};
-        this.gracePeriodService.grace = function() {
-          return $q.when({cancelled: true,
-            success: function(textToDisplay) {
-            },
-            error: function(textToDisplay) {
-              done();
-            }});
-        };
-        this.contactsService.remove = function() {
-          return $q.when('myTaskId');
-        };
-        this.gracePeriodService.cancel = function(taskId) {
-          expect(taskId).to.equal('myTaskId');
-          return $q.reject();
-        };
-
-        this.scope.deleteContact();
-        this.scope.$digest();
-
-      });
-
-      it('should broadcast CONTACT_EVENTS.CANCEL_DELETE on successful cancellation of a request', function(done) {
-        this.notificationFactory.weakInfo = function() {};
-        this.gracePeriodService.grace = function() {
-          return $q.when({cancelled: true,
-            success: function(textToDisplay) {
-            },
-            error: function(textToDisplay) {
-            }});
-        };
-        this.gracePeriodService.cancel = function() {
-          return $q.when();
-        };
-        this.contactsService.remove = function() {
-          return $q.when('myTaskId');
-        };
-
-        this.$rootScope.$on(this.CONTACT_EVENTS.CANCEL_DELETE, function() {
-          done();
-        });
-
-        this.scope.deleteContact();
-        this.scope.$digest();
-
-      });
     });
 
   });
