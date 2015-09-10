@@ -1,8 +1,10 @@
-div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-  .letter-list(ng-if='contacts && contacts.length')
-    .block-header
-      h2 {{letter}}
-    .card.contacts-card.fadeIn200ms
-      .listview.lv-bordered.lv-lg
-        .lv-body
-          contact-list-item.lv-item.p-10(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by contact.id")
+.row.all-centered
+  .col-xs-12.col-md-8
+    div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+      .letter-list(ng-if='contacts && contacts.length')
+        .block-header
+          h2 {{letter}}
+        .card.contacts-card.fadeIn200ms
+          .listview.lv-bordered.lv-lg
+            .lv-body
+              contact-list-item.lv-item.p-10(contact='contact', book-id="bookId", ng-repeat="contact in contacts track by contact.id")
