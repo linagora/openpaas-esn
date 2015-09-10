@@ -12,7 +12,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 button.btn.btn-default.save(type='submit', ng-disabled="restActive")
                   i.mdi.mdi-check
               .options-button
-                button.btn.btn-default(type='button', ng-disabled="true")
+                button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")
@@ -106,7 +106,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 button.btn.btn-default.save(type='submit', ng-disabled="restActive")
                   i.mdi.mdi-check
               .options-button
-                button.btn.btn-default(type='button', ng-disabled="true")
+                button.btn.btn-default(type='button', ng-click="goToFullForm()")
                   i.mdi.mdi-dots-horizontal
               .delete-button(ng-if="isOrganizer && !isNew(editedEvent)")
                 button.btn.btn-default.delete(type='button', ng-click="deleteEvent()", ng-disabled="restActive")

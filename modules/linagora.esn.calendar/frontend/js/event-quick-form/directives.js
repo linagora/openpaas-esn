@@ -32,7 +32,7 @@ angular.module('esn.calendar')
     };
   })
 
-  .directive('eventQuickForm', function($timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES, AUTOCOMPLETE_MAX_RESULTS) {
+  .directive('eventQuickForm', function($location, $timeout, $q, domainAPI, calendarUtils, session, ICAL_PROPERTIES, AUTOCOMPLETE_MAX_RESULTS) {
     function link($scope, element, attrs, controller) {
       controller.initFormData();
 
@@ -113,6 +113,11 @@ angular.module('esn.calendar')
           }, []));
         });
       };
+
+      $scope.goToFullForm = function() {
+        $scope.closeModal();
+        $location.path('/calendar/event-full-form');
+      }
 
       $timeout(function() {
         element.find('.title')[0].focus();

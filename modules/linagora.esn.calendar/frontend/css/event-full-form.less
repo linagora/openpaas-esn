@@ -1,0 +1,118 @@
+.event-full-form {
+
+  .mdi {
+    font-size: 2.5em;
+  }
+
+  .card-body {
+    .mdi.mdi-calendar, .mdi.mdi-arrow-right {
+      .translate(0, 20px);
+    }
+
+    .input-group-addon {
+      vertical-align: middle;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .row.user-auto-complete {
+    .nopadding;
+    .row {
+      margin: 0;
+    }
+    img {
+      width: 50px;
+    }
+  }
+
+  .user-auto-complete {
+    display: flex;
+    align-items: center;
+  }
+
+  tags-input .autocomplete {
+    margin-top: 0;
+    padding: 0;
+  }
+
+  .attendees-list {
+    font-size: 15px;
+    .col-sm-1:first-child, .col-xs-2:first-child {
+      margin-left: 25px;
+    }
+
+    .attendee-avatar {
+      .checkbox {
+        position: absolute;
+        bottom: -22px;
+        right: -20px;
+      }
+      img {
+        border: 1px solid black;
+        border-radius: 2px;
+      }
+    }
+
+    .trash {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      height: 50%;
+      transform: translate(0%,-50%);
+      a {
+        color: @m-red;
+      }
+      a:hover, a:focus {
+        color: darken(@m-red, 10%);
+      }
+    }
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .event-full-form {
+    .card-header {
+      padding-top: 0;
+    }
+
+    .checkbox label {
+      .translate(0, 21px);
+    }
+
+    .attendees-list {
+      .attendee-avatar {
+        .checkbox {
+          bottom: -2px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  .event-full-form {
+    .btn-default {
+      .PrimaryColor();
+    }
+
+    .card-body {
+      padding-top: 10px;
+    }
+
+    &.readonly {
+      .form-control, .form-control:focus {
+        cursor: text;
+        background-image: none;
+      }
+
+      .checkbox label {
+        cursor: default;
+        background-image: none;
+      }
+    }
+  }
+}
