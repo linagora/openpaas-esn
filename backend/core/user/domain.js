@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var utils = require('./utils');
 
 var defaultLimit = 50;
 var defaultOffset = 0;
@@ -32,47 +33,6 @@ function getUserDomains(user, callback) {
   });
 }
 module.exports.getUserDomains = getUserDomains;
-
-/**
- * Return an array of users who are not in the collaboration AND
- *  who have no pending membership request/invitation.
- *
- * @param {User[]} users array of user
- * @param {Collaboration} collaboration the collaboration
- * @param {function} callback fn like callback(err, users) (users is an array of users)
- */
-function filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, callback) {
-  if (!users) {
-    return callback(new Error('Users is mandatory'));
-  }
-
-  if (!collaboration) {
-    return callback(new Error('Community is mandatory'));
-  }
-
-  var results = [];
-  var memberHash = {};
-
-  if (collaboration.members) {
-    collaboration.members.forEach(function(m) {
-      memberHash[m.member.id] = true;
-    });
-  }
-
-  if (collaboration.membershipRequests) {
-    collaboration.membershipRequests.forEach(function(membershipRequest) {
-      memberHash[membershipRequest.user] = true;
-    });
-  }
-
-  users.forEach(function(user) {
-    if (!memberHash[user._id]) {
-      results.push(user);
-    }
-  });
-
-  return callback(null, results);
-}
 
 /**
  * Get all users in a domain.
@@ -118,7 +78,7 @@ function getUsersList(domains, query, cb) {
         return cb(new Error('Cannot execute find request correctly on domains collection'));
       }
       if (collaboration) {
-        filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, function(err, results) {
+        utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, function(err, results) {
           if (err) {
             return cb(err);
           }
@@ -140,112 +100,6 @@ function getUsersList(domains, query, cb) {
     });
   });
 }
-
 module.exports.getUsersList = getUsersList;
 
-/**
- * Get users in a domain by using a filter.
- *
- * @param {Domain[], ObjectId[]} domains array of domain where search users
- * @param {object} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering terms,
- *  'not_in_community' to return only members who are not in this community and no pending request with it.
- *  Search can be a single string, an array of strings which will be joined, or a space separated string list.
- *  In the case of array or space separated string, a AND search will be performed with the input terms.
- * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
- */
-function getUsersSearch(domains, query, cb) {
-  if (!domains) {
-    return cb(new Error('Domains is mandatory'));
-  }
-  if (!(domains instanceof Array)) {
-    return cb(new Error('Domains must be an array'));
-  }
-  if (domains.length === 0) {
-    return cb(new Error('At least one domain is mandatory'));
-  }
-  if (!query.search) {
-    return cb(new Error('query.search is mandatory, use getUsersList to list users'));
-  }
-  var elasticsearchOrFilters = domains.map(function(domain) {
-    return {
-      term: {
-        'domains.domain_id': domain._id || domain
-      }
-    };
-  });
-  query = query || {limit: defaultLimit, offset: defaultOffset};
-
-  var collaboration = query.not_in_collaboration;
-  var limit = query.limit;
-  if (collaboration) {
-    query.limit = null;
-  }
-
-  var elasticsearch = require('../elasticsearch');
-  elasticsearch.client(function(err, elascticsearchClient) {
-    if (err) {
-      return cb(err);
-    }
-
-    var terms = (query.search instanceof Array) ? query.search.join(' ') : query.search;
-
-    var elasticsearchQuery = {
-      sort: [
-        {'firstname.sort': 'asc'}
-      ],
-      query: {
-        filtered: {
-          filter: {
-            or: elasticsearchOrFilters
-          },
-          query: {
-            multi_match: {
-              query: terms,
-              type: 'cross_fields',
-              fields: ['firstname', 'lastname', 'accounts.emails'],
-              operator: 'and'
-            }
-          }
-        }
-      }
-    };
-
-    elascticsearchClient.search({
-      index: elasticsearch.getIndexName(),
-      type: elasticsearch.getTypeName(),
-      from: query.offset,
-      size: query.limit,
-      body: elasticsearchQuery
-    }, function(err, response) {
-      if (err) {
-        return cb(err);
-      }
-
-      var list = response.hits.hits;
-      var users = list.map(function(hit) { return hit._source; });
-
-      if (collaboration) {
-        filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, function(err, results) {
-          if (err) {
-            return cb(err);
-          }
-          var filterCount = results.length;
-          if (filterCount > limit) {
-            results = results.slice(0, limit);
-          }
-          return cb(null, {
-            total_count: filterCount,
-            list: results
-          });
-        });
-      } else {
-        return cb(null, {
-          total_count: response.hits.total,
-          list: users
-        });
-      }
-    });
-  });
-}
-
-module.exports.getUsersSearch = getUsersSearch;
+module.exports.getUsersSearch = require('./search').searchByDomain;
