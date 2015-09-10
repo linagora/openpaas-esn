@@ -7,25 +7,14 @@ div
             .line.top
             .line.center
             .line.bottom
-        li.logo.hidden-xs
+        li.logo
           a(href='#') OpenPaaS
       ul.list-inline.all-centered
         li.hover-scale-animation
           a(href='')
             i.mdi.mdi-magnify
-        li.hover-scale-animation
-          a(href='')
-            i.mdi.mdi-email
-        li.hover-scale-animation
-          a(href='')
-            i.mdi.mdi-bell
-        li.hover-scale-animation.dropdown-open-animation.toggle-fullscreen(device-detector)
-          a(data-toggle='dropdown', href='')
-            i.mdi.mdi-dots-vertical
-          ul.dropdown-menu.dm-icon.pull-right
-            li
-              a(href='', ng-click='toggleFullScreen()')
-                i.md.mdi.mdi-fullscreen
-                | #{__('Toggle Fullscreen')}
+        li.hover-scale-animation.toggle-fullscreen(device-detector)
+          a(href='', ng-click='toggleFullScreen()')
+            i.md.mdi.mdi-fullscreen
   sidebar
   api-notification
