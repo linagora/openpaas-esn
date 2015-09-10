@@ -2,7 +2,7 @@
 
 angular.module('esn.calendar')
 
-  .controller('eventMessageController', function($rootScope, $scope, calendarUtils, calendarService, calendarEventEmitter, moment, notificationFactory, EVENT_FORM) {
+  .controller('eventMessageController', function($rootScope, $scope, calendarUtils, calendarService, calendarEventEmitter, notificationFactory, EVENT_FORM) {
 
     $scope.editedEvent = {};
     $scope.restActive = false;
@@ -15,8 +15,6 @@ angular.module('esn.calendar')
         allDay: false
       };
       $scope.activitystream = $scope.$parent.activitystream;
-      // on load, ensure that duration between start and end is stored inside editedEvent
-      this.onEndDateChange();
     };
 
     function _displayNotification(notificationFactoryFunction, title, content) {
@@ -71,30 +69,5 @@ angular.module('esn.calendar')
         diff: 1,
         allDay: false
       };
-    };
-
-    this.getMinDate = function() {
-      if ($scope.editedEvent.start) {
-        return moment($scope.editedEvent.start).subtract(1, 'days');
-      }
-      return null;
-    };
-
-    this.getMinTime = function() {
-      if ($scope.editedEvent.start && $scope.editedEvent.start.isSame($scope.editedEvent.end, 'day')) {
-        return $scope.editedEvent.start;
-      }
-      return null;
-    };
-
-    this.onStartDateChange = function() {
-      $scope.editedEvent.end = moment($scope.editedEvent.start).add($scope.editedEvent.diff / 1000 || 3600, 'seconds');
-    };
-
-    this.onEndDateChange = function() {
-      if ($scope.editedEvent.end.isBefore($scope.editedEvent.start)) {
-        $scope.editedEvent.end = moment($scope.editedEvent.start).add(1, 'hours');
-      }
-      $scope.editedEvent.diff = $scope.editedEvent.end.diff($scope.editedEvent.start);
     };
   });

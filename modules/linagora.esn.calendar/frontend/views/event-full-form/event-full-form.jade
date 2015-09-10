@@ -30,34 +30,7 @@ div.card.event-full-form(keep-scroll-position)
                       option(value="calendarA") calendarA
                       option(value="calendarB") calendarB
 
-          .row
-            .col-xs-3.col-sm-2
-              .form-group
-                .fg-line
-                  i.mdi.mdi-clock
-            .col-xs-9.col-sm-3
-              .form-group
-                .fg-line
-                  input.input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", data-min-date="today", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-datepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
-                .fg-line(ng-if='!editedEvent.allDay')
-                  input.input.form-control(type="text", size="10", ng-model="editedEvent.start", data-autoclose="1", placeholder="#{__('Time')}", ng-change="onStartDateChange()", ng-blur="focusSubmitButton()", bs-timepicker, aria-expanded="false", ng-disabled="!isOrganizer", date-to-moment)
-            .col-xs-3.col-sm-2
-              .form-group
-                .fg-line
-                  i.mdi.mdi-arrow-right
-            .col-xs-9.col-sm-3
-              .form-group
-                .fg-line
-                  input.input.form-control(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-date="{{getMinDate()}}", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('End date')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-datepicker, date-to-moment, friendlify-end-date)
-                .fg-line(ng-if='!editedEvent.allDay')
-                  input.input(type="text", size="10", class="form-control", ng-model="editedEvent.end", data-autoclose="1", data-min-time="{{getMinTime()}}", placeholder="#{__('Time')}", ng-change="onEndDateChange()", aria-expanded="false", ng-disabled="!isOrganizer", ng-blur="focusSubmitButton()", bs-timepicker, date-to-moment)
-            .col-xs-12.col-sm-2
-              .form-group
-                .fg-line
-                  .checkbox
-                    label
-                      input(type="checkbox", ng-model='editedEvent.allDay', ng-disabled="!isOrganizer", ng-change="focusSubmitButton()")
-                      i.input-helper #{__('All day')}
+          event-date-edition(event="editedEvent", disabled="!isOrganizer")
 
           .row
             .col-xs-12
