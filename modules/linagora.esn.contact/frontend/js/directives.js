@@ -461,11 +461,14 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
       link: function(scope) {
+        scope.resetScroll = function() {
+          $rootScope.$broadcast('resetScrollPosition');
+        }
         scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
       }
     };

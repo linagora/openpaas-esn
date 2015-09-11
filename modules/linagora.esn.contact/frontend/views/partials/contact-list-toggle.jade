@@ -1,3 +1,3 @@
 .btn-group(role="group")
-  button.btn.btn-primary.btn-contacts-list-toggle(type="button", ng-click="displayAs = CONTACT_LIST_DISPLAY.list" ng-disabled="displayAs === CONTACT_LIST_DISPLAY.list") #{__('List')}
-  button.btn.btn-primary.btn-contacts-cards-toggle(type="button" ng-click="displayAs = CONTACT_LIST_DISPLAY.cards" ng-disabled="displayAs === CONTACT_LIST_DISPLAY.cards") #{__('Cards')}
+  button.btn.btn-primary.btn-contacts-list-toggle(type="button", ng-click="displayAs = CONTACT_LIST_DISPLAY.list;resetScroll()" ng-disabled="displayAs === CONTACT_LIST_DISPLAY.list") #{__('List')}
+  button.btn.btn-primary.btn-contacts-cards-toggle(type="button" ng-click="displayAs = CONTACT_LIST_DISPLAY.cards;resetScroll()" ng-disabled="displayAs === CONTACT_LIST_DISPLAY.cards") #{__('Cards')}
