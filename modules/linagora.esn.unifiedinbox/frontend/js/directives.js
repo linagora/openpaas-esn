@@ -17,7 +17,7 @@ angular.module('linagora.esn.unifiedinbox')
           }
         }
 
-        scope.email = session.user.emails[0];
+        scope.email = session.user.preferredEmail;
         scope.toggleOpen = listMailboxes;
 
       }

@@ -8,7 +8,7 @@ module.exports = function(User) {
       ];
 
   return {
-    newDummyUser: function(emails, password) {
+    newDummyUser: function(emails, password, preferredEmailIndex) {
       return new User({
         firstname: 'foo',
         lastname: 'bar',
@@ -16,7 +16,8 @@ module.exports = function(User) {
         accounts: [{
           type: 'email',
           hosted: true,
-          emails: emails || defaultEmails
+          emails: emails || defaultEmails,
+          preferredEmailIndex: preferredEmailIndex || 0
         }]
       });
     },

@@ -72,6 +72,20 @@ var UserSchema = new mongoose.Schema({
   accounts: [UserAccountSchema]
 });
 
+UserSchema.virtual('preferredEmail').get(function() {
+  return this.accounts
+    .filter(function(account) {
+      return account.type === 'email';
+    })
+    .slice() // Because sort mutates the array
+    .sort(function(a, b) {
+      return b.hosted - a.hosted;
+    })
+    .reduce(function(foundPreferredEmail, account) {
+      return foundPreferredEmail || account.emails[account.preferredEmailIndex];
+    }, null);
+});
+
 UserSchema.virtual('emails').get(function() {
   var emails = [];
 

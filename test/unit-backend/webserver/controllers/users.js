@@ -96,6 +96,7 @@ describe('The User controller', function() {
         json: function(code, data) {
           expect(code).to.equal(200);
           expect(data).to.shallowDeepEqual({
+            preferredEmail: 'foo@bar.com',
             emails: ['foo@bar.com'],
             accounts: [{
               type: 'email',
