@@ -231,35 +231,19 @@ describe('The GracePeriod Angular module', function() {
 
   describe('The gracePeriodService service', function() {
 
-    var gracePeriodService, put, remove, gracePeriodAPI, $rootScope, $browser, $timeout, $q;
+    var gracePeriodService, $httpBackend, $rootScope, $browser, $timeout;
 
     beforeEach(function() {
       module('esn.websocket');
-
-      gracePeriodAPI = {
-        one: function() {
-          return {
-            one: function() {
-              return {
-                put: put,
-                remove: remove
-              };
-            }
-          };
-        }
-      };
-
-      module('linagora.esn.graceperiod', function($provide) {
-        $provide.value('gracePeriodAPI', gracePeriodAPI);
-      });
+      module('linagora.esn.graceperiod');
     });
 
-    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$rootScope_, _$browser_, _$timeout_, _$q_) {
+    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$rootScope_, _$browser_, _$timeout_, _$httpBackend_) {
       $rootScope = _$rootScope_;
       gracePeriodService = _gracePeriodService_;
       $browser = _$browser_;
       $timeout = _$timeout_;
-      $q = _$q_;
+      $httpBackend = _$httpBackend_;
     }));
 
     describe('The remove fn', function() {
@@ -278,7 +262,6 @@ describe('The GracePeriod Angular module', function() {
         var id = '123';
         gracePeriodService.addTaskId(id);
         gracePeriodService.remove(id).then(done, done);
-
         $rootScope.$apply();
       });
 
@@ -288,25 +271,20 @@ describe('The GracePeriod Angular module', function() {
 
       it('should not call PUT when id does exists', function(done) {
         var id = '123';
-        put = sinon.spy();
-        gracePeriodService.flush(id).then(function() {
-          expect(put.called).to.be.false;
-          done();
-        }, done);
-
+        gracePeriodService.flush(id).then(done, done);
         $rootScope.$apply();
+        $httpBackend.flush();
       });
 
       it('should call PUT when id exists', function(done) {
         var id = '123';
         gracePeriodService.addTaskId(id);
-
-        put = sinon.spy();
         gracePeriodService.flush(id).then(function() {
-          expect(put.called).to.be.true;
           done();
         }, done);
+        $httpBackend.expectPUT('/graceperiod/api/tasks/' + id).respond({});
         $rootScope.$apply();
+        $httpBackend.flush();
       });
 
     });
@@ -315,25 +293,20 @@ describe('The GracePeriod Angular module', function() {
 
       it('should not call DELETE when task does not exists', function(done) {
         var id = '123';
-        remove = sinon.spy();
-        gracePeriodService.cancel(id).then(function() {
-          expect(remove.called).to.be.false;
-          done();
-        }, done);
-
+        gracePeriodService.cancel(id).then(done, done);
         $rootScope.$apply();
+        $httpBackend.flush();
       });
 
       it('should call DELETE when task exists', function(done) {
         var id = '123';
         gracePeriodService.addTaskId(id);
-        remove = sinon.spy();
         gracePeriodService.cancel(id).then(function() {
-          expect(remove.called).to.be.true;
           done();
         }, done);
-
+        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond({});
         $rootScope.$apply();
+        $httpBackend.flush();
       });
 
     });
