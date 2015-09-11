@@ -387,10 +387,27 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListDisplayer', function() {
+  .directive('contactListDisplayer', function($location, CONTACT_LIST_DISPLAY, $cacheFactory) {
+    var CACHE_KEY = 'listDisplay';
     return {
       restrict: 'E',
-      templateUrl: '/contact/views/partials/contact-list-displayer.html'
+      templateUrl: '/contact/views/partials/contact-list-displayer.html',
+      link: function($scope) {
+        var listDisplayCache = $cacheFactory.get(CACHE_KEY);
+        if (!listDisplayCache) {
+          listDisplayCache = $cacheFactory(CACHE_KEY);
+        }
+        var currentPath = $location.path();
+        // store current scroll position before switch
+        $scope.$on('$locationChangeStart', function(event, next, current) {
+          listDisplayCache.put(currentPath, $scope.displayAs);
+          console.log('cache display:', $scope.displayAs);
+        });
+
+        // scroll to stored position
+        console.log('previous value:', listDisplayCache.get(currentPath));
+        $scope.displayAs = listDisplayCache.get(currentPath) || CONTACT_LIST_DISPLAY.list;
+      }
     };
   })
 
