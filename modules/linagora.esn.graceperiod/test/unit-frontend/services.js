@@ -231,51 +231,109 @@ describe('The GracePeriod Angular module', function() {
 
   describe('The gracePeriodService service', function() {
 
-    var gracePeriodService, $httpBackend, $rootScope, $browser, $timeout;
+    var gracePeriodService, put, remove, gracePeriodAPI, $rootScope, $browser, $timeout, $q;
 
     beforeEach(function() {
       module('esn.websocket');
-      module('linagora.esn.graceperiod');
+
+      gracePeriodAPI = {
+        one: function() {
+          return {
+            one: function() {
+              return {
+                put: put,
+                remove: remove
+              };
+            }
+          };
+        }
+      };
+
+      module('linagora.esn.graceperiod', function($provide) {
+        $provide.value('gracePeriodAPI', gracePeriodAPI);
+      });
     });
 
-    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$httpBackend_, _$rootScope_, _$browser_, _$timeout_) {
-      $httpBackend = _$httpBackend_;
+    beforeEach(angular.mock.inject(function(_gracePeriodService_, _$rootScope_, _$browser_, _$timeout_, _$q_) {
       $rootScope = _$rootScope_;
       gracePeriodService = _gracePeriodService_;
       $browser = _$browser_;
       $timeout = _$timeout_;
+      $q = _$q_;
     }));
 
-    describe('The flush fn', function() {
+    describe('The remove fn', function() {
 
-      it('shoulf call PUT /tasks/:id', function(done) {
-        var id = '123';
-
-        $httpBackend.expectPUT('/graceperiod/api/tasks/' + id).respond({});
-
-        gracePeriodService.flush(id).then(function() {
+      it('should reject when id is not in list', function(done) {
+        gracePeriodService.remove('123').then(function() {
+          done(new Error());
+        }, function() {
           done();
         });
 
         $rootScope.$apply();
-        $httpBackend.flush();
+      });
+
+      it('should resolve when id is in the list', function(done) {
+        var id = '123';
+        gracePeriodService.addTaskId(id);
+        gracePeriodService.remove(id).then(done, done);
+
+        $rootScope.$apply();
+      });
+
+    });
+
+    describe('The flush fn', function() {
+
+      it('should not call PUT when id does exists', function(done) {
+        var id = '123';
+        put = sinon.spy();
+        gracePeriodService.flush(id).then(function() {
+          expect(put.called).to.be.false;
+          done();
+        }, done);
+
+        $rootScope.$apply();
+      });
+
+      it('should call PUT when id exists', function(done) {
+        var id = '123';
+        gracePeriodService.addTaskId(id);
+
+        put = sinon.spy();
+        gracePeriodService.flush(id).then(function() {
+          expect(put.called).to.be.true;
+          done();
+        }, done);
+        $rootScope.$apply();
       });
 
     });
 
     describe('The cancel fn', function() {
 
-      it('should call DELETE /tasks/:id', function(done) {
+      it('should not call DELETE when task does not exists', function(done) {
         var id = '123';
-
-        $httpBackend.expectDELETE('/graceperiod/api/tasks/' + id).respond({});
-
+        remove = sinon.spy();
         gracePeriodService.cancel(id).then(function() {
+          expect(remove.called).to.be.false;
           done();
-        });
+        }, done);
 
         $rootScope.$apply();
-        $httpBackend.flush();
+      });
+
+      it('should call DELETE when task exists', function(done) {
+        var id = '123';
+        gracePeriodService.addTaskId(id);
+        remove = sinon.spy();
+        gracePeriodService.cancel(id).then(function() {
+          expect(remove.called).to.be.true;
+          done();
+        }, done);
+
+        $rootScope.$apply();
       });
 
     });

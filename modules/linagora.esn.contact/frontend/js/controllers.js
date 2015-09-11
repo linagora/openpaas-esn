@@ -69,7 +69,7 @@ angular.module('linagora.esn.contact')
 
         return $q.reject(err);
       }).then(function() {
-        return gracePeriodService.grace($scope.contact.id, 'You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
+        return gracePeriodService.clientGrace('You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition')
             .then(function(data) {
               if (data.cancelled) {
                   contactsService.remove($scope.bookId, $scope.contact).then(function() {
