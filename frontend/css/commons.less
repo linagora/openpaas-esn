@@ -136,10 +136,22 @@
   justify-content: space-around;
 }
 
+.flex-space-between {
+  .flex();
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
 .flex-start {
   .flex();
   -webkit-justify-content: flex-start;
   justify-content: flex-start;
+}
+
+.flex-wrap {
+  .flex();
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .all-centered {
@@ -311,6 +323,12 @@
 .w-128 {
   width: 128px;
   height: 128px;
+}
+
+@media (max-width: @screen-xs-max) {
+  .no-padding-xs {
+    padding:0;
+  }
 }
 
 //Override the path for select input img
