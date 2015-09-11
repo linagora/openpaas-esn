@@ -112,7 +112,7 @@ angular.module('esn.sidebar', [])
     return {
       restric: 'A',
       link: function(scope, element, attr) {
-        element.on('mouseover', function() {
+        element.on('mouseover click touchstart touchmove', function() {
           element.getNiceScroll().resize();
         });
       }
