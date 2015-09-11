@@ -656,6 +656,10 @@ angular.module('linagora.esn.contact')
       });
     }
 
+    function searchAllAddressBooks(userId, data, page) {
+      return search(userId, userId, data, page);
+    }
+
     return {
       remove: remove,
       list: list,
@@ -663,6 +667,7 @@ angular.module('linagora.esn.contact')
       modify: modify,
       getCard: getCard,
       search: search,
+      searchAllAddressBooks: searchAllAddressBooks,
       deleteContact: deleteContact,
       shellToVCARD: shellToVCARD,
       ContactsShell: ContactsShell
