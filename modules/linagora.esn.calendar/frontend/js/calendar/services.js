@@ -696,4 +696,69 @@ angular.module('esn.calendar')
       isSameDay: isSameDay,
       getDateOnCalendarSelect: getDateOnCalendarSelect
     };
+  })
+
+  .factory('attendeeService', function($q, $log, calendarUtils, ICAL_PROPERTIES, ATTENDEE_TYPES, domainAPI, session, contactsService) {
+    var providers = [];
+
+    function addProvider(provider) {
+      if (provider && provider.getAttendeeSearchPromise) {
+        providers.push(provider);
+      }
+    }
+
+    var userProvider = {
+      getAttendeeSearchPromise: function(query, limit) {
+        var memberQuery = { search: query, limit: limit };
+        var userDeferred = $q.defer();
+        domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
+          response.data.forEach(function(user) {
+            user.id = user._id;
+            user.email = user.preferredEmail;
+            user.displayName = (user.firstname && user.lastname) ?
+              calendarUtils.displayNameOf(user.firstname, user.lastname) : user.email;
+            user.partstat = ICAL_PROPERTIES.partstat.needsaction;
+            user.attendeeType = ATTENDEE_TYPES.USER;
+          });
+          userDeferred.resolve(response.data);
+        }, function(error) {
+          $log('Error while searching users: ' + error);
+          userDeferred.resolve([]);
+        });
+        return userDeferred.promise;
+      }
+    };
+    addProvider(userProvider);
+
+    var contactProvider = {
+      getAttendeeSearchPromise: function(query) {
+        var contactDeferred = $q.defer();
+        contactsService.searchAllAddressBooks(session.user._id, query).then(function(response) {
+          response.hits_list.forEach(function(contact) {
+            if (contact.emails && contact.emails.length !== 0) {
+              contact.email = contact.emails[0].value;
+            }
+            contact.partstat = ICAL_PROPERTIES.partstat.needsaction;
+            contact.attendeeType = ATTENDEE_TYPES.CONTACT;
+          });
+          contactDeferred.resolve(response.hits_list);
+        }, function(error) {
+          $log('Error while searching contacts: ' + error);
+          contactDeferred.resolve([]);
+        });
+        return contactDeferred.promise;
+      }
+    };
+    addProvider(contactProvider);
+
+    function getAttendeeCandidates(query, limit) {
+      return $q.all(providers.map(function(provider) {
+        return provider.getAttendeeSearchPromise(query, limit);
+      }));
+    }
+
+    return {
+      addProvider: addProvider,
+      getAttendeeCandidates: getAttendeeCandidates
+    };
   });
