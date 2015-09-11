@@ -151,33 +151,6 @@ describe('The event-quick-form module controllers', function() {
         this.eventFormController.initFormData();
         expect(this.scope.isOrganizer).to.equal(false);
       });
-
-      it('should set up attendee stats correctly', function() {
-        this.scope.event = {
-          _id: '123456',
-          start: this.moment('2013-02-08 12:30'),
-          end: this.moment('2013-02-08 13:30'),
-          organizer: {
-            email: 'other@test.com'
-          },
-          attendees: [
-            { email: 'other1@example.com', partstat: 'NEEDS-ACTION' },
-            { email: 'other2@example.com', partstat: 'ACCEPTED' },
-            { email: 'other3@example.com', partstat: 'DECLINED' },
-            { email: 'other4@example.com', partstat: 'TENTATIVE' },
-            { email: 'other5@example.com', partstat: 'YOLO' }
-          ]
-        };
-
-        this.eventFormController.initFormData();
-        expect(this.scope.attendeesPerPartstat).to.deep.equal({
-          'NEEDS-ACTION': 1,
-          'ACCEPTED': 1,
-          'TENTATIVE': 1,
-          'DECLINED': 1,
-          'OTHER': 1
-        });
-      });
     });
 
     describe('modifyEvent function', function() {

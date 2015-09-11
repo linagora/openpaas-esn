@@ -137,20 +137,4 @@ angular.module('esn.calendar')
       templateUrl: '/calendar/views/event-quick-form/event-quick-form.html',
       link: link
     };
-  })
-
-  .directive('attendeeListItem', function() {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/calendar/views/event-quick-form/attendee-list-item.html',
-      controller: 'eventFormController',
-      scope: {
-        attendee: '=',
-        readOnly: '='
-      },
-      link: function(scope) {
-        scope.attendeeType = scope.attendee.name === scope.attendee.email ? 'email' : 'user';
-      }
-    };
   });

@@ -24,29 +24,6 @@ angular.module('esn.calendar')
       });
     }
 
-    function updateAttendeeStats() {
-      var partstatMap = $scope.attendeesPerPartstat = {
-        'NEEDS-ACTION': 0,
-        'ACCEPTED': 0,
-        'TENTATIVE': 0,
-        'DECLINED': 0,
-        'OTHER': 0
-      };
-
-      $scope.invitedAttendee = null;
-      $scope.hasAttendees = !!$scope.editedEvent.attendees;
-
-      if ($scope.hasAttendees) {
-        $scope.editedEvent.attendees.forEach(function(att) {
-          partstatMap[att.partstat in partstatMap ? att.partstat : 'OTHER']++;
-
-          if (att.email in session.user.emailMap) {
-            $scope.invitedAttendee = att;
-          }
-        });
-      }
-    }
-
     this.initFormData = function() {
       $scope.event = $scope.event || {};
       if (this.isNew($scope.event)) {
@@ -59,10 +36,16 @@ angular.module('esn.calendar')
       eventService.copyEventObject($scope.event, $scope.editedEvent);
       $scope.newAttendees = [];
 
+      $scope.invitedAttendee = null;
+      $scope.hasAttendees = !!$scope.editedEvent.attendees;
 
-      updateAttendeeStats();
-
-      $scope.attendeeClickedCount = 0;
+      if ($scope.hasAttendees) {
+        $scope.editedEvent.attendees.forEach(function(attendee) {
+          if (attendee.email in session.user.emailMap) {
+            $scope.invitedAttendee = attendee;
+          }
+        });
+      }
       $scope.isOrganizer = eventService.isOrganizer($scope.event);
     };
 
@@ -76,15 +59,6 @@ angular.module('esn.calendar')
       notificationFactoryFunction(title, content);
       _hideModal();
     }
-
-    this.selectAttendee = function(attendee) {
-      attendee.clicked = !attendee.clicked;
-      $scope.attendeeClickedCount += attendee.clicked ? 1 : -1;
-    };
-
-    this.deleteSelectedAttendees = function() {
-      $scope.editedEvent.attendees = $scope.editedEvent.attendees.filter(function(attendee) { return !attendee.clicked;});
-    };
 
     this.addNewEvent = function() {
       if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
@@ -202,7 +176,7 @@ angular.module('esn.calendar')
       }
 
       $scope.invitedAttendee.partstat = status;
-      updateAttendeeStats();
+      $scope.$broadcast('event:attendees:updated');
     };
 
     this.resetEvent = function() {

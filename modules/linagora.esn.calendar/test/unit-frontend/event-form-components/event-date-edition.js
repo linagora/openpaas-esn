@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The event-date-edition component controllers', function() {
+describe('The event-date-edition component', function() {
 
   beforeEach(function() {
     module('jadeTemplates');

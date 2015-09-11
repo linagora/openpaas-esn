@@ -34,53 +34,12 @@
     margin-top: 0;
     padding: 0;
   }
-
-  .attendees-list {
-    font-size: 15px;
-    .col-sm-1:first-child, .col-xs-2:first-child {
-      margin-left: 25px;
-    }
-
-    .attendee-avatar {
-      .checkbox {
-        position: absolute;
-        bottom: -22px;
-        right: -20px;
-      }
-      img {
-        border: 1px solid black;
-        border-radius: 2px;
-      }
-    }
-
-    .trash {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      height: 50%;
-      transform: translate(0%,-50%);
-      a {
-        color: @m-red;
-      }
-      a:hover, a:focus {
-        color: darken(@m-red, 10%);
-      }
-    }
-  }
 }
 
 @media (min-width: @screen-sm-min) {
   .event-full-form {
     .card-header {
       padding-top: 0;
-    }
-
-    .attendees-list {
-      .attendee-avatar {
-        .checkbox {
-          bottom: -2px;
-        }
-      }
     }
   }
 }

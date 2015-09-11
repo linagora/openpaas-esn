@@ -85,28 +85,7 @@ div.card.event-full-form(keep-scroll-position)
                     tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
                       auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
 
-            .attendees-list.picture-list
-              .col-xs-12
-                div(ng-if='attendeesPerPartstat.ACCEPTED > 0')
-                  .fg-line.accepted #{__('Accepted')}
-                  .fg-line.pl-body(ng-if='attendeesPerPartstat.ACCEPTED > 0')
-                    .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'ACCEPTED' track by attendee.email")
-                      attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-                div(ng-if='attendeesPerPartstat.DECLINED > 0')
-                  .fg-line.declined #{__('Declined')}
-                  .fg-line.pl-body(ng-if='attendeesPerPartstat.DECLINED > 0')
-                    .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'DECLINED' track by attendee.email")
-                      attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-                div(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
-                  .fg-line.undecided #{__('Undecided')}
-                  .fg-line.pl-body(ng-if='attendeesPerPartstat["NEEDS-ACTION"] > 0 || attendeesPerPartstat["TENTATIVE"] > 0')
-                    .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
-                      attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-                    .col-xs-2.col-sm-1(ng-repeat="attendee in editedEvent.attendees | partstat:'TENTATIVE' track by attendee.email")
-                      attendee-list-item(attendee='attendee', read-only='::!isOrganizer', ng-click= "selectAttendee(attendee)")
-                .trash
-                  a(href="")
-                    i.mdi.mdi-delete(ng-show='isOrganizer && attendeeClickedCount > 0', ng-click='deleteSelectedAttendees()')
+            attendees-list(attendees='event.attendees', read-only='::!isOrganizer')
 
           .row
             .col-xs-12
