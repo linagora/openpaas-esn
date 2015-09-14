@@ -76,15 +76,7 @@
 
         .col-xs-12.col-sm-6
           .row
-            .col-xs-12
-              .form-group(ng-show='isOrganizer || isNew(editedEvent)')
-                .input-group
-                  span.input-group-addon
-                    i.mdi.mdi-account-multiple-plus
-                  .fg-line
-                    tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
-                      auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
-
+            attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
             attendees-list(ng-if='hasAttendees', attendees='event.attendees', read-only='::!isOrganizer')
 
           .row

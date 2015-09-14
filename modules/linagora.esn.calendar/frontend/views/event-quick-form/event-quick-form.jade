@@ -41,14 +41,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
             button.btn.btn-default.col-xs-4.col-sm-2.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": !invitedAttendee || invitedAttendee.partstat == "DECLINED" }') #{__('No')}
         .col-xs-12
           hr
-        .col-xs-12
-          .form-group(ng-show='isOrganizer || isNew(editedEvent)')
-            .input-group
-              span.input-group-addon
-                i.mdi.mdi-account-multiple-plus
-              .fg-line
-                tags-input(ng-model='newAttendees', display-property='displayName', key-property='email', placeholder='#{__("Attendees")}', on-tag-adding='onAddingAttendee($tag)', replace-spaces-with-dashes='false')
-                  auto-complete(source='getInvitableAttendees($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/user-auto-complete")
+        attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
         attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer')
         .col-xs-12.hidden-xs
           hr
