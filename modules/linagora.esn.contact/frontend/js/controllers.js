@@ -277,7 +277,7 @@ angular.module('linagora.esn.contact')
     };
 
     $scope.search = function() {
-      $scope.$emit('resetScrollPosition');
+      $scope.$emit(CONTACT_EVENTS.RESET_SCROLL);
       cleanSearchResults();
       $scope.currentPage = 1;
       $scope.searchFailure = false;

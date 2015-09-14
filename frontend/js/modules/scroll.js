@@ -19,7 +19,7 @@ angular.module('esn.scroll', [])
           scrollPositionCache.put(currentPath, $document.scrollTop());
         });
 
-        scope.$on('resetScrollPosition', function() {
+        scope.$on('scroll:reset', function() {
           scrollPositionCache.put(currentPath, 0);
         });
 

@@ -398,14 +398,10 @@ angular.module('linagora.esn.contact')
           listDisplayCache = $cacheFactory(CACHE_KEY);
         }
         var currentPath = $location.path();
-        // store current scroll position before switch
         $scope.$on('$locationChangeStart', function(event, next, current) {
           listDisplayCache.put(currentPath, $scope.displayAs);
-          console.log('cache display:', $scope.displayAs);
         });
 
-        // scroll to stored position
-        console.log('previous value:', listDisplayCache.get(currentPath));
         $scope.displayAs = listDisplayCache.get(currentPath) || CONTACT_LIST_DISPLAY.list;
       }
     };
@@ -461,13 +457,13 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, $rootScope) {
+  .directive('contactListToggle', function(CONTACT_LIST_DISPLAY, CONTACT_EVENTS, $rootScope) {
     return {
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-toggle.html',
       link: function(scope) {
         scope.resetScroll = function() {
-          $rootScope.$broadcast('resetScrollPosition');
+          $rootScope.$broadcast(CONTACT_EVENTS.RESET_SCROLL);
         }
         scope.CONTACT_LIST_DISPLAY = CONTACT_LIST_DISPLAY;
       }
